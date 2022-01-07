@@ -1,0 +1,30 @@
+/*
+ *  This file can be used to set variables and supply global styling.  View specific 
+ *  styling should be located the view's corresponding scss file.
+ */
+$enable-font-awesome: dynamic(true);
+
+$auth-color: white;
+$auth-background-color: #123d40;
+
+body.launching {
+    @include background-size(cover);
+    background-color: $auth-background-color;
+    background-position: center;
+
+    &::before {
+        @include animation(rotate-animation 1s linear infinite);
+        @include transform-origin(50% 50%);
+        @include background-size(cover);
+        background-image: url(get-resource-path('images/loading.png'));
+        background-position: center;
+        content: '';
+        position: absolute;
+        margin-top: -15px;
+        margin-left: -15px;
+        top: 50%;
+        left: 50%;
+        width: 41px;
+        height: 41px;
+    }
+}

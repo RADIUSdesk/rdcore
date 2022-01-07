@@ -1,0 +1,90 @@
+@include extjs-tab-ui(
+    $ui: 'grey-tab',
+    $ui-background-color: #767070,
+    $ui-background-color-active: #595454,
+    $ui-background-color-over: #595454,
+    $ui-border-color: transparent,
+    $ui-border-color-active: transparent,
+    $ui-color: #FFFFFF,
+    $ui-color-active: #FFFFFF,
+    $ui-margin: 0
+);
+
+@include extjs-tab-ui(
+    $ui: 'tab-grey'
+);
+
+@include extjs-tab-ui(
+    $ui: 'tab-teal',   
+    $ui-background-color: #4DB6AC,
+    $ui-background-color-over: #3C948B,
+    $ui-color-active: #3C948B,
+    $ui-color-focus-active: #3C948B,
+    $ui-glyph-color-active: #3C948B,
+    $ui-glyph-color-focus-active: #3C948B,
+    $ui-inner-border-color-focus: #4DB6AC,
+    $ui-outline-color-focus: #4DB6AC
+);
+
+
+@include extjs-tab-ui(
+    $ui: 'tab-blue',   
+    $ui-background-color: #81d4fa,
+    $ui-background-color-over: #37bbf7,
+    $ui-color-active: #37bbf7,
+    $ui-color-focus-active: #37bbf7,
+    $ui-glyph-color-active: #37bbf7,
+    $ui-glyph-color-focus-active: #37bbf7,
+    $ui-inner-border-color-focus: #81d4fa,
+    $ui-outline-color-focus: #81d4fa
+);
+
+@include extjs-tab-ui(
+    $ui: 'tab-orange',   
+    $ui-background-color: #ff6e40,
+    $ui-background-color-over: #f33a00,
+    $ui-color-active: #f33a00,
+    $ui-color-focus-active: #f33a00,
+    $ui-glyph-color-active: #f33a00,
+    $ui-glyph-color-focus-active: #f33a00,
+    $ui-inner-border-color-focus: #ff6e40,
+    $ui-outline-color-focus: #ff6e40
+);
+
+@include extjs-tab-ui(
+    $ui: 'tab-green',   
+    $ui-background-color: #69F0AE,
+    $ui-background-color-over: #23E988,
+    $ui-color-active: #23E988,
+    $ui-color-focus-active: #23E988,
+    $ui-glyph-color-active: #23E988,
+    $ui-glyph-color-focus-active: #23E988,
+    $ui-inner-border-color-focus: #69F0AE,
+    $ui-outline-color-focus: #69F0AE
+);
+
+
+@include extjs-tab-ui(
+    $ui: 'tab-metal',   
+    $ui-background-color: #5FA2DD,
+    $ui-background-color-over: #2A7DC6,
+    $ui-color-active: #2A7DC6,
+    $ui-color-focus-active: #2A7DC6,
+    $ui-glyph-color-active: #2A7DC6,
+    $ui-glyph-color-focus-active: #2A7DC6,
+    $ui-inner-border-color-focus: #5FA2DD,
+    $ui-outline-color-focus: #5FA2DD
+);
+
+@include extjs-tab-ui(
+    $ui: 'tab-brown',   
+    $ui-background-color: #8D6E63,
+    $ui-background-color-over: #604B43,
+    $ui-color-active: #604B43,
+    $ui-color-focus-active: #604B43,
+    $ui-glyph-color-active: #604B43,
+    $ui-glyph-color-focus-active: #604B43,
+    $ui-inner-border-color-focus: #8D6E63,
+    $ui-outline-color-focus: #8D6E63
+);
+

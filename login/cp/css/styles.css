@@ -1,0 +1,245 @@
+.webix_view input, .webix_list_item{ 
+    font-size: 20px; 
+    line-height:40px;
+}
+
+div.webix_item_tab, .webix_item_tab .webix_icon { 
+    font-size: 20px; 
+}
+
+
+/*NEW Improvements*/
+.imgCarousel .webix_template{
+	padding:1px;
+}
+
+
+.divCarousel {
+  height: 100%;
+  width: 100%;
+  text-align: center;
+}
+
+.itemTitle {
+	font-weight: 300;
+	font-family: 'Titillium Web', sans-serif;
+	font-size: 30px;
+	color: #3e3e3e;
+	padding: 5px;
+}
+
+.imgX img {
+    width: 100%;
+
+}
+
+.imgY img {
+    height: 100%;
+}
+
+.imgXY img {
+    height: 100%;
+    width: 100%;
+}
+
+.imgOrig img {
+    
+}
+
+.itemImage {
+    text-align: center;
+    height: 100%;
+    width: 100%;
+}
+
+.itemDescription {
+    font-weight: 200;
+	font-family: 'Titillium Web', sans-serif;
+	font-size: 16px;
+	color: #767676;
+	padding: 5px;
+}
+
+
+/*END New Improvements */
+
+.tabSmaller .webix_all_tabs {
+    height: 40px !important;
+}
+
+.fbError {
+    color: #ffffff;
+    background-color: #cc0000;
+}
+
+.fbInfo {
+    color: #222211;
+    font-style: italic;
+}
+
+.webix_view .divClear{
+    background-image: none;
+	background-color: transparent;
+}
+
+.btnConnect .webix_el_htmlbutton { 
+    background-color: #006622 !important;
+}
+
+.btnConnect .webix_el_htmlbutton:hover {
+    background-color: #00802b !important;
+} 
+
+/* Dashed button */
+.btnDashed {
+/*    border-top: 1px dashed #c3c3a2 !important;
+    padding-top: 5px;*/
+}
+
+/* Facebook Button */
+.btnFacebook .webix_el_htmlbutton { 
+    background-color: #3A5795!important;
+    border-color: #152037 !important;
+}
+
+.btnFacebook .webix_el_htmlbutton:hover {
+    background-color: #6c89c6 !important;
+    border-color: #24365c !important;   
+} 
+
+/* Twitter Button */
+.btnTwitter .webix_el_htmlbutton { 
+    background-color: #00aced!important;
+    border-color: #00384d !important;
+}
+
+.btnTwitter .webix_el_htmlbutton:hover {
+    background-color: #4dceff !important;
+    border-color: #0082b3 !important;   
+} 
+
+/* Google Button */
+.btnGoogle .webix_el_htmlbutton { 
+    background-color: #dd4b39!important;
+    border-color: #832216 !important;
+}
+
+.btnGoogle .webix_el_htmlbutton:hover {
+    background-color: #e57567 !important;
+    border-color: #dd4b39 !important;   
+} 
+
+/* Register Button */
+/*
+.btnRegister .webix_el_htmlbutton { 
+    background-color: #00aced!important;
+    border-color: #00384d !important;
+}
+
+.btnRegister .webix_el_htmlbutton:hover {
+    background-color: #4dceff !important;
+    border-color: #0082b3 !important;   
+}
+*/ 
+
+/* Lost Password Button */
+/*
+.btnPassword .webix_el_htmlbutton { 
+    background-color: #00aced!important;
+    border-color: #00384d !important;
+}
+
+.btnPassword .webix_el_htmlbutton:hover {
+    background-color: #4dceff !important;
+    border-color: #0082b3 !important;   
+}
+*/
+
+.checkboxTandC {
+    height: 30px !important;
+}
+
+.tmplCenter { 
+    text-align: center;
+}
+
+.powerBy {
+ text-align: center;
+ background-color: #b3e1ff;
+}
+
+.aboutHead {
+ text-align: center;
+ background-color: #b3e1ff;
+}
+
+.tcText {
+    font-size: 14px; 
+    height: 40px;
+}
+
+.webix_icon.mdi.mdi-en_GB:before{
+    content:""; /*removes FontAwesome icon */
+    background-image: url("flags/en_GB.png");
+    width:28px;
+    height:28px;
+    display:block;
+}
+
+.webix_icon.mdi.mdi-fr_FR:before{
+    content:""; /*removes FontAwesome icon */
+    background-image: url("flags/fr_FR.png");
+    width:28px;
+    height:28px;
+    display:block;
+}
+
+.webix_icon.mdi.mdi-af_ZA:before{
+    content:""; /*removes FontAwesome icon */
+    background-image: url("flags/af_ZA.png");
+    width:28px;
+    height:28px;
+    display:block;
+}
+
+.webix_icon.mdi.mdi-it_IT:before{
+    content:""; /*removes FontAwesome icon */
+    background-image: url("flags/it_I.png");
+    width:28px;
+    height:28px;
+    display:block;
+}
+
+.webix_icon.mdi.mdi-es_ES:before{
+    content:""; /*removes FontAwesome icon */
+    background-image: url("flags/es_ES.png");
+    width:28px;
+    height:28px;
+    display:block;
+}
+
+.webix_icon.mdi.mdi-de_GE:before{
+    content:""; /*removes FontAwesome icon */
+    background-image: url("flags/de_GE.png");
+    width:28px;
+    height:28px;
+    display:block;
+}
+
+.rdFlag{
+    margin-left:28px;
+}
+
+.black {
+   color: black
+}
+
+.branding, .branding * {    
+  background-color: transparent !important;
+  box-shadow: none !important;
+} 
+
+.branding {
+    padding-top: 20px;
+    text-align: center;
+} 

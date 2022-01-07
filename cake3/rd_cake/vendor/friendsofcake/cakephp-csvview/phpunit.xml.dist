@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    colors="true"
+    bootstrap="tests/bootstrap.php"
+>
+
+    <!-- Add any additional test suites you want to run here -->
+    <testsuites>
+        <testsuite name="csv-view">
+            <directory>tests/TestCase/</directory>
+        </testsuite>
+    </testsuites>
+
+    <!-- Setup a listener for fixtures -->
+    <listeners>
+        <listener
+        class="Cake\TestSuite\Fixture\FixtureInjector">
+            <arguments>
+                <object class="Cake\TestSuite\Fixture\FixtureManager"/>
+            </arguments>
+        </listener>
+    </listeners>
+
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src/</directory>
+            <directory suffix=".ctp">src/</directory>
+        </whitelist>
+    </filter>
+
+</phpunit>

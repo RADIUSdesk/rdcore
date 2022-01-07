@@ -1,0 +1,15 @@
+<?php
+putenv('db_class=Cake\Database\Driver\Mysql');
+putenv('db_database=');
+putenv('db_username=');
+putenv('db_password=');
+
+return [
+	'Datasources' => [
+		'test' => [
+			'username' => '',
+			'password' => '',
+			'database' => '',
+		],
+	],
+];

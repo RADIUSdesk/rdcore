@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://web.resource.org/cc/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" id="svg2" viewBox="0 0 522.71 408.96" version="1.0">
+  <defs id="defs4">
+    <linearGradient id="linearGradient3136">
+      <stop id="stop3138" stop-color="#c8c8a2" offset="0"/>
+      <stop id="stop3144" stop-color="#d8d3be" offset=".5"/>
+      <stop id="stop3140" stop-color="#c8ae8b" offset="1"/>
+    </linearGradient>
+    <radialGradient id="radialGradient3142" fx="291.43" fy="224.85" xlink:href="#linearGradient3136" spreadMethod="reflect" gradientUnits="userSpaceOnUse" cy="400.65" cx="245.71" gradientTransform="matrix(.82733 0 0 .61853 52.739 153.7)" r="240"/>
+    <linearGradient id="linearGradient3162" x1="230.26" gradientUnits="userSpaceOnUse" y1="342.92" gradientTransform="matrix(.82733 0 0 .82733 52.739 65.076)" x2="271.06" y2="235.18">
+      <stop id="stop3158" stop-color="#d9c09b" offset="0"/>
+      <stop id="stop3160" stop-color="#f8ecd1" stop-opacity=".55556" offset="1"/>
+    </linearGradient>
+    <filter id="filter3172">
+      <feGaussianBlur id="feGaussianBlur3174" stdDeviation="6.6666669"/>
+    </filter>
+    <linearGradient id="linearGradient3184" x1="230.26" gradientUnits="userSpaceOnUse" y1="342.92" gradientTransform="matrix(.69370 0 0 .51530 90.156 170.71)" x2="271.06" y2="235.18">
+      <stop id="stop3180" stop-color="#4a2600" offset="0"/>
+      <stop id="stop3182" stop-color="#673100" offset="1"/>
+    </linearGradient>
+    <radialGradient id="radialGradient3201" xlink:href="#linearGradient3136" gradientUnits="userSpaceOnUse" cy="309.01" cx="106.71" gradientTransform="matrix(.80244 .23073 -.39355 1.444 172.24 -149.54)" r="71.787"/>
+    <filter id="filter3249">
+      <feGaussianBlur id="feGaussianBlur3251" stdDeviation="2.8795557"/>
+    </filter>
+    <linearGradient id="linearGradient3255" x1="266.85" gradientUnits="userSpaceOnUse" y1="330.36" gradientTransform="matrix(-.69370 0 .34846 .57012 422.94 151.7)" x2="189.25" y2="237.22">
+      <stop id="stop3259" stop-color="#985f36" offset="0"/>
+      <stop id="stop3261" stop-color="#673100" offset="1"/>
+    </linearGradient>
+    <filter id="filter3428" y="-.74735" width="1.3505" x="-.17524" height="2.4947">
+      <feGaussianBlur id="feGaussianBlur3430" stdDeviation="45.866861"/>
+    </filter>
+    <linearGradient id="linearGradient3432" y2="788.82" gradientUnits="userSpaceOnUse" y1="850.19" x2="477.9" x1="157.41">
+      <stop id="stop3327" stop-color="#f3d6c4" offset="0"/>
+      <stop id="stop3329" stop-color="#c78e6f" offset="1"/>
+    </linearGradient>
+  </defs>
+  <g id="layer1" transform="translate(-44.086 -201.15)">
+    <path id="path3346" filter="url(#filter3428)" transform="matrix(.80736 0 0 .54750 -7.3523 109.33)" fill="url(#linearGradient3432)" d="m655.24 788.82a261.74 61.373 0 1 1 -523.47 0 261.74 61.373 0 1 1 523.47 0z"/>
+    <path id="path2186" fill-rule="evenodd" fill="url(#radialGradient3201)" d="m204.49 267.41c-10.8-41.42-44.51-30.32-75.81-27.39-47.87 1.74-60.923 132.85 10.68 186.63-26.21-147.7-8.45-221.87 29.88-148.17 15.04 13.66 28.69-5.37 35.25-11.07z"/>
+    <path id="path3203" d="m150.44 242.37c-68.755-80.49-143.7 52.99-41.49 172.13" transform="matrix(.83863 0 0 .86137 45.927 59.34)" filter="url(#filter3249)" stroke="#fff" stroke-width="3.8" fill="none"/>
+    <path id="path2162" fill="url(#radialGradient3142)" d="m513.68 348.56c0 105.69-88.95 201.4-198.56 201.4-109.6 0-198.56-95.71-198.56-201.4 0-75.91 86.46-95.5 198.56-95.5s198.56 15.45 198.56 95.5z"/>
+    <path id="path3146" filter="url(#filter3172)" transform="matrix(.82733 0 0 .82733 52.739 70.04)" fill="#f9f9f9" d="m531.57 287.39c0 37.85-94.72 75.11-211.43 75.11s-211.43-37.26-211.43-75.11 94.72-62.03 211.43-62.03 211.43 24.18 211.43 62.03z"/>
+    <path id="path2160" stroke="#fefcfc" stroke-width="1.4892" fill="url(#linearGradient3162)" d="m482.95 307.43c0 28.71-75.19 56.97-167.83 56.97s-167.83-28.26-167.83-56.97 75.19-47.04 167.83-47.04 167.83 18.33 167.83 47.04z"/>
+    <path id="path3176" fill="url(#linearGradient3184)" d="m464.94 327.06c-11.58 20.2-74.62 33.39-152.3 33.39s-133.28-14.74-146.51-31.85c-12.03-39.2 308.86-37.64 298.81-1.54z"/>
+    <path id="path3253" opacity=".91011" fill="url(#linearGradient3255)" d="m291.44 305.21c-40.23 3.81-84.54 38.79-12.29 48.28 79.59 10.45 199.46-10.77 176.54-27.96-27.17-22.2-136.91-26.81-164.25-20.32z"/>
+  </g>
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <cc:license rdf:resource="http://creativecommons.org/licenses/publicdomain/"/>
+        <dc:publisher>
+          <cc:Agent rdf:about="http://openclipart.org/">
+            <dc:title>Openclipart</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:title>cup of coffee</dc:title>
+        <dc:date>2007-03-29T12:42:38</dc:date>
+        <dc:description>one cup of coffe</dc:description>
+        <dc:source>http://openclipart.org/detail/3688/cup-of-coffee-by-tomas_arad</dc:source>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>tomas_arad</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>beverage</rdf:li>
+            <rdf:li>black</rdf:li>
+            <rdf:li>clip art</rdf:li>
+            <rdf:li>clipart</rdf:li>
+            <rdf:li>coffee</rdf:li>
+            <rdf:li>cup</rdf:li>
+            <rdf:li>food</rdf:li>
+            <rdf:li>image</rdf:li>
+            <rdf:li>liquid</rdf:li>
+            <rdf:li>media</rdf:li>
+            <rdf:li>mug</rdf:li>
+            <rdf:li>public domain</rdf:li>
+            <rdf:li>svg</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+      </cc:Work>
+      <cc:License rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>

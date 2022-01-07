@@ -1,0 +1,67 @@
+{
+    "name": "egeloen/http-adapter",
+    "description": "Issue HTTP request for PHP 5.3+.",
+    "keywords": [ "http", "http-adapter", "http-client", "psr-7" ],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Eric GELOEN",
+            "email": "geloen.eric@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.8",
+        "zendframework/zend-diactoros": "^1.1"
+    },
+    "require-dev": {
+        "cakephp/cakephp": "^3.0.3",
+        "ext-curl": "*",
+        "guzzle/guzzle": "^3.9.4@dev",
+        "guzzlehttp/guzzle": "^4.1.4|^5.0|^6.0",
+        "kriswallsmith/buzz": "^0.13",
+        "nategood/httpful": "^0.2.17",
+        "phpunit/phpunit": "^4.0",
+        "phpunit/phpunit-mock-objects": "dev-matcher-verify as 2.3.x-dev",
+        "psr/log": "^1.0",
+        "react/http-client": "^0.4",
+        "react/dns": "^0.4.1",
+        "satooshi/php-coveralls": "^0.6",
+        "symfony/event-dispatcher": "^2.0",
+        "zendframework/zendframework1": ">=1.12.9,<=1.12.14|^1.12.16",
+        "zendframework/zend-http": "^2.3.4"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/egeloen/phpunit-mock-objects.git"
+        }
+    ],
+    "suggest": {
+        "ext-curl": "Allows you to use the cURL adapter",
+        "ext-http": "Allows you to use the PECL adapter",
+        "guzzle/guzzle": "Allows you to use the Guzzle 3 adapter",
+        "guzzlehttp/guzzle": "Allows you to use the Guzzle 4 adapter",
+        "kriswallsmith/buzz": "Allows you to use the Buzz adapter",
+        "nategood/httpful": "Allows you to use the httpful adapter",
+        "zendframework/zendframework1": "Allows you to use the Zend 1 adapter",
+        "zendframework/zend-http": "Allows you to use the Zend 2 adapter",
+        "psr/log": "Allows you to use the logger event subscriber",
+        "symfony/event-dispatcher": "Allows you to use the event lifecycle",
+        "symfony/stopwatch": "Allows you to use the stopwatch http adapter and event subscriber"
+    },
+    "autoload": {
+        "psr-4": { "Ivory\\HttpAdapter\\": "src/" }
+    },
+    "autoload-dev": {
+        "psr-4": { "Ivory\\Tests\\HttpAdapter\\": "tests/" }
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.8-dev"
+        }
+    }
+}

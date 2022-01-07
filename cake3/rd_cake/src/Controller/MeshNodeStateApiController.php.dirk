@@ -1,0 +1,171 @@
+<?php
+
+namespace App\Controller;
+use App\Controller\AppController;
+
+use Cake\Core\Configure;
+use Cake\Core\Configure\Engine\PhpConfig;
+
+use Cake\Utility\Inflector;
+use Cake\I18n\FrozenTime;
+use Cake\I18n\Time;
+use Cake\Utility\Hash;
+
+use Cake\Datasource\ConnectionManager;
+// &token=29d2a9a7-1018-47a1-9db0-f8976c835348
+class MeshNodeStateApiController extends AppController{
+  
+    public $base         = "Access Providers/Controllers/MeshNodeStateApi/";   
+    protected $main_model   = 'Meshes';
+    
+    public function initialize(){  
+        parent::initialize();
+        $this->loadModel('Meshes');
+        $this->loadModel('TreeTags'); 
+        $this->loadModel('Users');    
+        $this->loadComponent('Aa');
+        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+            'model'                     => 'Meshes',
+            'no_available_to_siblings'  => false,
+            'sort_by'                   => 'Meshes.name'
+        ]); 
+             
+        $this->loadComponent('JsonErrors'); 
+        $this->loadComponent('TimeCalculations');    
+    }
+    
+   public function index(){
+    
+        //__ Authentication + Authorization __      
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+        
+        $conditions = ['TreeTags.parent_id IS NULL'];
+        $tt_lookup  = [];
+        $level      = 0;
+        if(isset($this->request->query['tree_tag_id'])){
+            $id = $this->request->query['tree_tag_id'];
+            if($id != 0){
+                $conditions = ['TreeTags.parent_id' => $id];          
+            }    
+        }              
+        $q_tt = $this->{'TreeTags'}->find()->where($conditions)->all();
+        $tt_lookup = [];
+		$ov_items = [];
+        foreach($q_tt as $tt){
+			$tree_level = 'Root';
+			$tree_tag_id = $tt->id;
+            $tt_level  = $this->TreeTags->getLevel($tree_tag_id);
+            if($tt_level == 0){
+                $tree_level = $this->tree_level_0;
+            }
+            if($tt_level == 1){
+                $tree_level = $this->tree_level_1;
+            }
+            if($tt_level == 2){
+                $tree_level = $this->tree_level_2;
+            }
+			
+			$ov_items[$tt->name] = [ 'id' => "$tt->id",'name' => "$tt->name",'parent_id' => "$tt->parent_id",'kml_file' => "$tt->kml_file",'center_lat' => "$tt->center_lat",'center_lng' => "$tt->center_lng",'clients' => 0, 'level' => "$tree_level"];
+            $descendants = $this->{'TreeTags'}->find('children', ['for' => $tt->id]);
+            $d_count = 0;
+            foreach ($descendants as $tt_0) {
+                $tt_lookup[$tt_0->id] = $tt->name;
+                $d_count++; 
+            }
+            if($d_count == 0){
+                $tt_lookup[$tt->id] = $tt->name;
+            }    
+        }
+        $query = $this->{$this->main_model}->find();
+        $this->CommonQuery->build_common_query($query,$user);
+        $q_r  = $query->all();
+        $s_mesh_list = '';
+        $count = 0;
+        foreach($q_r as $q){
+            if($count == 0){
+                $s_mesh_list = $q->id;
+            }else{
+                $s_mesh_list = $s_mesh_list.','.$q->id;
+            } 
+            $count++;     
+        }
+        $conn = ConnectionManager::get('default');
+        
+        $total_nodes    = 0;
+        $t_nodes_up     = 0;
+        $t_nodes_down   = 0;
+        $t_nodes_dual_radio     = 0;
+        $t_nodes_single_radio   = 0;
+
+        if( $s_mesh_list != "") {
+
+			// SQl Statement up down totals
+			$sql_statement_updown = [
+				"select m.id, ",
+				"	m.name, ",
+				"	m.tree_tag_id, ",
+				"	ifnull(sum(n_cnts.each_node),0) as c_tot_nodes, ",
+				"	ifnull(sum(n_cnts.nodes_down),0) as c_tot_nodes_down, ",
+				"	ifnull(sum(n_cnts.nodes_up),0) as c_tot_nodes_up, ",
+				"	ifnull(sum(n_cnts.dual_radio),0) as c_dual_radios, ",
+				"	ifnull(sum(n_cnts.single_radio),0) as c_single_radios  ",
+				"from meshes as m ",
+				" left outer join ( ",
+				"	select n.mesh_id,n.id, ",
+				"		1 as each_node, ",
+				"		case ",
+				"			when (n.last_contact is null OR UNIX_TIMESTAMP()-ifnull(n_set.heartbeat_dead_after,150) > UNIX_TIMESTAMP(n.last_contact) ) then 1 ",
+				"			else 0 ",
+				"		end as nodes_down, ",
+				"		case ",
+				"			when UNIX_TIMESTAMP()-ifnull(n_set.heartbeat_dead_after,150) <= UNIX_TIMESTAMP(n.last_contact) then 1 ",
+				"			else 0 ",
+				"		end as nodes_up, ",
+				"		case  ",
+				"			when (n.hardware like '%ta8h%') then 1  ",
+				"			else 0  ",
+				"		end as dual_radio,  ",
+				"		case  ",
+				"			when (n.hardware like '%1907h%') then 1  ",
+				"			else 0  ",
+				"		end as single_radio  ",
+				"		from nodes n ",
+				"		left outer join node_settings n_set on n_set.mesh_id = n.mesh_id   ",
+				"	group by n.mesh_id,n.id ",
+				"	) as n_cnts on n_cnts.mesh_id = m.id ",
+				" where m.id in ($s_mesh_list) ",
+				"group by m.id,m.name,m.tree_tag_id ",
+				"limit 0,5000 "
+			];
+			
+			$stmtud = $conn->execute(
+				 implode($sql_statement_updown)
+			);
+			
+			$ud_rows = $stmtud->fetchAll('assoc');
+			foreach ($ud_rows as $row) {
+				$t_nodes_up 				= $t_nodes_up + $row['c_tot_nodes_up'];
+				$t_nodes_down 				= $t_nodes_down + $row['c_tot_nodes_down'];
+				$t_nodes_dual_radio     	= $t_nodes_dual_radio + $row['c_dual_radios'];
+				$t_nodes_single_radio   	= $t_nodes_single_radio + $row['c_single_radios'];
+				$total_nodes 				= $total_nodes + $row['c_tot_nodes'];
+			}
+        }
+		  
+        $this->set(array(
+            'success'       => true,
+            'metaData'      => [
+                'nodesCount'    => $total_nodes,
+                'nodesUp'       => $t_nodes_up,
+                'nodesDown'     => $t_nodes_down,
+                'dualRadios'    => $t_nodes_dual_radio,
+                'singleRadios'  => $t_nodes_single_radio,
+                
+            ],
+            '_serialize'    => array('success','items','metaData')
+        ));
+    }
+}

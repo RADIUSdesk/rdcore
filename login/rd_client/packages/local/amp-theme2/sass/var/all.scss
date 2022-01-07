@@ -1,0 +1,51 @@
+/*
+ * This is is imported by virtue of "sass.var" in "app.json".
+ */
+ 
+
+// Application global variables
+$blocks-max-width: dynamic(1024px);
+$blocks-spacing: dynamic(8px);
+$form-max-width: dynamic(768px);
+$invalid-base-color: dynamic(#d63e08);
+$invalid-text-color: dynamic(white);
+$picture-border-radius: dynamic(50%);
+ 
+// Ext.panel.Header
+// http://docs.sencha.com/extjs/latest/modern/Ext.Panel.html#vars
+$panel-header-font-weight: 600;
+$panel-header-padding: 0;
+$panel-header-padding-big: 0;
+$panel-header-min-height: 53px;
+$panel-header-min-height-big: 53px;
+$panel-header-title-padding: 12px 16px;
+$panel-header-title-padding-big: 12px 16px;
+
+// Ext.Button
+// http://docs.sencha.com/extjs/latest/modern/Ext.Button.html#vars
+$button-padding: 12px 14px;
+$button-padding-big: 12px 14px;
+$button-icon-horizontal-spacing: 4px;
+
+// Ext.tab.Tab
+// http://docs.sencha.com/extjs/latest/modern/Ext.tab.Tab.html#vars
+$tab-padding: 15px;
+$tab-padding-big: 10px 14px;
+
+
+// Ext.dataview.List
+// http://docs.sencha.com/extjs/latest/modern/Ext.dataview.List.html#vars
+$listitem-padding: 8px;
+$listitem-padding-big: 10px;
+
+// Ext.dataview.ItemHeader
+// http://docs.sencha.com/extjs/latest/modern/Ext.dataview.ItemHeader.html#vars
+$itemheader-color: $base-color;
+$itemheader-background-color: $listitem-background-color;
+$itemheader-border-style: none;
+$itemheader-font-size: 14px;
+$itemheader-font-size-big: 14px;
+$itemheader-font-weight: 600;
+
+
+

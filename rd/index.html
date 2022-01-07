@@ -1,0 +1,92 @@
+<!DOCTYPE HTML> 
+<html manifest="">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=10, user-scalable=yes">
+
+    <title>Cloud Management System</title>
+    <!-- Styles -->
+    <link href="resources/css/lib/font-awesome.min.css" rel="stylesheet">
+    <!--<link href="resources/css/lib/themify-icons.css" rel="stylesheet">
+    <link href="resources/css/lib/flaticon.css" rel="stylesheet">-->
+    <link href="resources/css/loading.css" rel="stylesheet">
+    <link href="resources/css/leaflet.css" rel="stylesheet">
+    <!--<link href="resources/css/L.Icon.FontAwesome.css" rel="stylesheet">-->
+    
+    <!--<link rel="stylesheet" href="http://code.ionicframework.com/ionicons/1.5.2/css/ionicons.min.css">-->
+    <link href="resources/css/leaflet.awesome-markers.css" rel="stylesheet">
+          
+    <script type="text/javascript" charset="utf-8" src="resources/js/singletons.js"></script> 
+    <script type="text/javascript" charset="utf-8" src="resources/js/config.js"></script> 
+    <script type="text/javascript" charset="utf-8" src="resources/js/jit-yc.js"></script>
+    <script type="text/javascript" charset="utf-8" src="resources/js/leaflet.js"></script>
+    <script type="text/javascript" charset="utf-8" src="resources/js/leaflet.awesome-markers.js"></script>
+    
+    <!--<script type="text/javascript" charset="utf-8" src="resources/js/L.Icon.FontAwesome.js"></script>-->
+    
+	<!-- New Chart Code -->
+    <script src="resources/js/Chart.2.7.2.min.js"></script> 
+	<script src="resources/js/chartjs-plugin-datalabels.0.2.0.min.js"></script> 
+
+    <script src="resources/js/countUp.min.js"></script> 
+
+    <script type="text/javascript">
+        var Ext = Ext || {}; // Ext namespace won't be defined yet...
+
+        // This function is called by the Microloader after it has performed basic
+        // device detection. The results are provided in the "tags" object. You can
+        // use these tags here or even add custom tags. These can be used by platform
+        // filters in your manifest or by platformConfig expressions in your app.
+        //
+        Ext.beforeLoad = function (tags) {
+            var s = location.search,  // the query string (ex "?foo=1&bar")
+                profile;
+
+            // For testing look for "?classic" or "?modern" in the URL to override
+            // device detection default.
+            //
+            if (s.match(/\bclassic\b/)) {
+                profile = 'classic';
+            }
+            else if (s.match(/\bmodern\b/)) {
+                profile = 'modern';
+            }
+            else {
+                //profile = tags.desktop ? 'classic' : 'modern';
+                //FIXME 20 Oct2019 a quick hack to let it load also on phones 
+                profile = tags.desktop ? 'classic' : 'classic';
+                //profile = tags.phone ? 'modern' : 'classic';
+            }
+
+            Ext.manifest = profile; // this name must match a build profile name
+
+            // This function is called once the manifest is available but before
+            // any data is pulled from it.
+            //
+            //return function (manifest) {
+                // peek at / modify the manifest object
+            //};
+        };
+    </script>
+
+    <!-- The line below must be kept intact for Sencha Cmd to build your application -->
+    <script id="microloader" data-app="80083863-03ef-4613-b411-df3986e04a19" type="text/javascript" src="bootstrap.js"></script>
+
+</head>
+<body>
+
+<div id="loadSpin" class="spinner">
+	<div class="rect1"></div>
+	<div class="rect2"></div>
+	<div class="rect3"></div>
+	<div class="rect4"></div>
+	<div class="rect5"></div>
+</div>
+<div id="loading">
+  <div class="loading-indicator">
+    loading...
+  </div>
+</div>
+</body>
+</html>

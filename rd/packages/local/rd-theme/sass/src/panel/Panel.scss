@@ -1,0 +1,17 @@
+@include extjs-panel-ui(
+    $ui: 'panel-blue',
+    $ui-header-color: #2e5696,
+    $ui-header-glyph-color: #2e5696,
+    $ui-header-background-color: #e0eaf9,
+    $ui-border-color: #e0eaf9,
+    $ui-tool-glyph-color: #1b587d
+)
+
+@include extjs-panel-ui(
+    $ui: 'panel-green',
+    $ui-header-color: #0e3a24,
+    $ui-header-glyph-color: #0e3a24,
+    $ui-header-background-color: #e0f9ed,
+    $ui-border-color: #e0f9ed,
+    $ui-tool-glyph-color: #174621
+)

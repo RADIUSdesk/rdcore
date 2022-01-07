@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+        <script type="text/javascript" charset="utf-8" src="js/sConnect.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/jquery-min.js"></script>
+    </head>
+<body>
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            console.log("Document is ready!");
+            
+            var connect = sConnect({});
+            connect.init();
+                      
+        });
+    </script>
+    
+    
+<div id="cpDivMain">
+
+    <div>
+        <label><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="username" id='txtUsername' required>
+
+        <label><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" id='txtPassword' required>
+
+        <button type="button" id='btnConnect'>Connect</button>
+        <button type="button" id='btnDisconnect'>Disconnect</button>
+    </div>
+    
+    <div id="cpDivFeedback">
+        Feedback div
+    <div>
+
+<div>
+    
+    
+    
+</body>
+</html>
+

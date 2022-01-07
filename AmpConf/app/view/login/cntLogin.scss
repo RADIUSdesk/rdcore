@@ -1,0 +1,10 @@
+$auth-background-color: green;
+
+@include panel-ui(
+    $ui: 'auth',
+    $background-color: transparent,
+    $body-background-color: transparentize($auth-background-color, 0.75),
+    $body-padding: 24px,
+    $border-color: red
+);
+

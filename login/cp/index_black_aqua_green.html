@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    
+        <!-- Include meta tag to ensure proper rendering and touch zooming -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+        
+        <link rel="stylesheet" href="../codebase/black_aqua_green/webix.css" type="text/css" charset="utf-8">
+        <script type="text/javascript" charset="utf-8" src="../codebase/black_aqua_green/webix.js"></script>      
+        <script type="text/javascript" charset="utf-8" src="../codebase/jquery-3.3.1.min.js" ></script> 
+        <script type="text/javascript" charset="utf-8" src="../codebase/js.cookie.js" ></script>
+        
+        <!--additional files--> 
+        <script type="text/javascript" src="js/rdDynamic.js"></script> 
+        <script type="text/javascript" src="js/rdConnect.js"></script>
+        <link rel="stylesheet" type="text/css" href="css/materialdesignicons.min.css">
+        <link rel="stylesheet" type="text/css" href="css/styles.css">  
+    </head>
+    <body>
+        <script type="text/javascript" charset="utf-8">
+        
+            //___ Multiple Language Support ___
+            //See if there is a language Cookie set.
+            if(Cookies.get('i18n') !== undefined){
+                i18n = Cookies.get('i18n');
+            }else{
+                var i18n = 'en_GB';
+                function getByName(name) {
+                   name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+                   var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                       results = regex.exec(location.search);
+                   return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+                }
+                var i    = getByName('i18n');
+                if(i !== ''){
+                    i18n = i;
+                }
+            }
+                   
+            $.getScript( "../codebase/rd_i18n/"+i18n+".js").done(function( script, textStatus ) {
+                //Load the rest - The phrases are in                
+                $.getScript( "js/webix.js").done(function( script, textStatus ) {
+                    webix.ready(function(){
+                        webix.ui.fullScreen();
+                        webix.ui(
+                            {
+                                type: 'line', //We display a toolbat with the caroucell 
+                                rows: [
+                                    
+                                    {
+	                                 	id  : 'scrnPhoto',
+		                                cols: [{}]
+	                                },
+	                                {
+					                    view: "toolbar", id:"tbMain", elements:[
+					                        {
+						                        view: "icon", icon: "webix_icon mdi mdi-menu", id : 'btnMainMenu'
+					                        },
+					                        {},
+					                        { view:"button",  width: 180, value:i18n('sConnect'), align:"right", type: 'form', id: 'btnMainConnect' },
+					                        {}
+
+				                        ]
+				                    }
+                                ]
+                            }
+                        ); 
+                        var d = rdDynamic({});
+                        window.rdDynamic = d;
+                        d.init();         
+                    });           
+                });
+            });       
+        </script>
+    </body> 
+</html>

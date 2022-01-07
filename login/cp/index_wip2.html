@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <!-- Include meta tag to ensure proper rendering and touch zooming
+         -->
+      <meta name="viewport" content="width=device-width,
+         initial-scale=1">
+      <meta http-equiv="content-type" content="text/html;charset=utf-8"
+         />
+      <link rel="stylesheet" href="../codebase/webix.css"
+         type="text/css" charset="utf-8">
+      <script type="text/javascript" charset="utf-8"
+         src="../codebase/webix.js"></script>
+      <script type="text/javascript" charset="utf-8"
+         src="../codebase/jquery-3.3.1.min.js" ></script>
+      <script type="text/javascript" charset="utf-8"
+         src="../codebase/js.cookie.js" ></script>
+      <!--additional files-->
+      <script type="text/javascript" src="js/rdDynamic.js"></script>
+      <script type="text/javascript" src="js/rdConnect.js"></script>
+      <link rel="stylesheet" type="text/css" href="css/styles.css">
+      <link rel="stylesheet" type="text/css"
+         href="css/bootstrap.min.css">
+      <style>
+         body{
+         /* background-color: rgb(0, 63, 134); */
+         }
+         @media only screen and (min-width: 736px) {
+         #framecontent{
+         margin-left:36%;width:28%;
+         overflow-y: hidden;
+         }
+         #framecontent iframe{
+         height: 430px !important;}
+         #cap_logo{
+         width: 15% !important;
+         }
+         #cap_logo_by{
+         width: 25% !important;
+         }
+         .layer{
+         width: 40% !important;
+         margin-left: 30% !important;
+         }
+         #cap_logo_cafe{
+         width: 15% !important;
+         }
+         #cap_powered_by{
+         width: 15% !important;
+         }
+         }
+         @media only screen and (min-width: 1200px) {
+         #cap_logo{
+         width: 10% !important;
+         }
+         #cap_logo_by{
+         width: 10% !important;
+         }
+         .layer{
+         width: 30% !important;
+         margin-left: 35% !important;
+         }
+         #cap_logo_cafe{
+         width: 20% !important;
+         }
+         #cap_powered_by{
+         width: 30% !important;
+         }
+         }
+         @media only screen and (min-width: 1024px) {
+         #framecontent{
+         margin-left:33.5%;width:33%;
+         }
+         #cap_logo_cafe{
+         width: 20% !important;
+         }
+         #cap_powered_by{
+         width: 30% !important;}
+         }
+         @media only screen and (min-width: 1440px) {
+         #framecontent{
+         margin-left:38.5%;width:23%;
+         }
+         #cap_logo_cafe{
+         width: 20% !important;
+         }
+         #cap_powered_by{
+         width: 30% !important;
+         }
+         }
+         @media only screen and (min-width: 2560px) {
+         #framecontent{
+         margin-left:37.5%;width:25%;
+         }
+         #cap_logo_cafe{
+         width: 20% !important;
+         }
+         #cap_powered_by{
+         width: 30% !important;
+         }
+         }
+         @media only screen and (min-width: 3008px){
+         #framecontent {
+         margin-left: 36%;
+         width: 28%;
+         }
+         #cap_logo_cafe{
+         width: 20% !important;
+         }
+         #cap_powered_by{
+         width: 30% !important;
+         }
+         }
+         @media only screen and (max-height: 480px){
+         #bottom {
+         position: static !important;
+         }
+         }
+      </style>
+   </head>
+   <body class="background"
+      style="background-color:black;background-size: cover;height: 800px;
+      overflow-y: hidden;
+      background-repeat: no-repeat; background-position: top; ">
+      <div id="framecontent"></div>
+      <div id="viewcontent" style="display:none;">
+         <div style="text-align: center;">
+            <div style="width:100%;padding-bottom: 2%;padding-top:
+               2%;">
+               <!-- <div style="width:100%;margin-top:
+                  15px;padding-bottom: 10px;"> -->
+               <img
+                  src="../../ad_server_local/public/img/cap/logo.png" id="cap_logo"
+                  style="width:35%;">
+               <!-- <img
+                  src="../../ad_server_local/public/img/cap/logo.png" id="cap_logo"
+                  style="width:55%;"> -->
+            </div>
+            <div class="text-center layer" style="width: 80%;
+               margin-left: 10%;
+               background-color:
+               #00000082;
+               padding: 12px;
+               border: 1px solid floralwhite;
+               border-radius: 10px;">
+               <label style="color: white;font-weight: bold;
+                  text-shadow: 1px 1px 1px
+                  #2d2d2d;">Please enter your details</label>
+               <br>
+               <input type="text" placeholder="Your Email" id="email"
+                  class="form-control">
+               <label id="errorEmail" style="color:red;font-weight:
+                  bold;"></label>
+               <br>
+               <input type="text" placeholder="Mobile No" id="phone"
+                  class="form-control">
+               <label id="errorPhone" style="color:red;font-weight:
+                  bold;"></label>
+               <br>
+               <input type="checkbox" id="checkbox">
+               <label for="" id="terms" style="color: white;font-weight:
+                  bold;
+                  text-shadow: 1px 1px 1px
+                  #2d2d2d;">I agree Terms and Conditions</label>
+               <br><Button onclick="showLogin()" class="btn btn-primary
+                  connect">Connect free WiFi</Button>
+            </div>
+         </div>
+         <!-- <div style="width:100%;bottom: 10px; position:
+            absolute;text-align: center;">
+            <img
+            src="../../ad_server_local/public/img/cap/zaytech-logo.png"
+            id="cap_logo_by" style="width:55%">
+            </div> -->
+         <div id="bottom" style="text-align: center; position:
+            absolute;bottom:10px;">
+            <div style="width:100%;margin-top: 10px;">
+               <!-- <img
+                  src="../../ad_server_local/public/img/cap/cafeWifi.png" id="cap_logo_cafe"
+                  style="height:100px;"> -->
+               <img
+                  src="../../ad_server_local/public/img/cap/cafeWifi.png" id="cap_logo_cafe"
+                  style="width:35%">
+            </div>
+            <div style="width:100%;">
+               <img
+                  src="../../ad_server_local/public/img/cap/powerdBy.png"
+                  id="cap_powered_by" style="width:55%">
+            </div>
+         </div>
+      </div>
+      <script type="text/javascript" charset="utf-8">
+         var path= "../../ad_server_local/public";
+         var iheight = (window.outerHeight) - (54)+"px";
+         var today = new Date();
+         var dd = String(today.getDate()).padStart(2, '0');
+         var mm = String(today.getMonth() + 1).padStart(2, '0');
+         //January is 0!
+         var yyyy = today.getFullYear();
+         today = yyyy + '-' + mm + '-' + dd;
+         // var mac = "getParameterByName('mac')";
+         var matches = /mac=([^&#=]*)/.exec(window.location.search);
+         var param1 = matches[1];// var ur =
+         location.protocol+'//'+document.location.hostname+"/ad_server_local/public
+         /ad/"+param1+"/"+today;
+         // $("#framecontent").html("<iframe src="+ur+"
+         style='width:100%;height:"+iheight+"; border:none;'></iframe>");
+         function showLogin(){
+         $("#errorEmail").empty();
+         $("#errorPhone").empty();
+         var email = $('#email').val();
+         var flag = 0;
+         var flag1 = 0;
+         var flag2 = 0;
+         if(email.length == 0){
+         // alert('please add email details');
+         $("#errorEmail").empty().html('please add email
+         details');
+         flag = 0;
+         }else{
+         var re =
+         /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+         var x=re.test(email);
+         if(x){
+         flag = 1;
+         }else{
+         $("#errorEmail").empty().html('Email is not in correct
+         format');
+         flag = 0;
+         }
+         }
+         var phone = $('#phone').val();
+         if(phone.length == 0){
+         // alert("please add phone number");
+         $("#errorPhone").empty().html("please add phone
+         number");
+         flag1 = 0;
+         }else{
+         var phoneno = /^\+?([0-9]{4})[-. ]?([0-9]{3})[-.
+         ]?([0-9]{3})$/;
+         // var phoneno = /^\+?([0-9]{3})\)?[-. ]?([0-9]{2})[-.
+         ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+         if(phoneno.test(phone))
+         {flag1 = 1;
+         }
+         else
+         {
+         $("#errorPhone").empty().html("Not a valid Phone
+         Number");
+         flag1 = 0;
+         }
+         }
+         var checkBox = document.getElementById("checkbox");
+         if (checkBox.checked == true){
+         flag2 = 1;
+         } else {
+         flag2 = 0;
+         alert("please check Terms and Conditions");
+         }
+         if(flag == 1){
+         if(flag1 == 1){
+         if(flag2 == 1){
+         $.get(location.protocol+'//'+document.location.hostname+"/ad_server_local/
+         public/ad_data/"+param1+"/"+email+"/"+phone, function(data, status){
+         location.reload();
+         });
+         }
+         }
+         }
+         }
+         //___ Multiple Language Support ___
+         //See if there is a language Cookie set.
+         if(Cookies.get('i18n') !== undefined){
+         i18n = Cookies.get('i18n');
+         }else{
+         var i18n = 'en_GB';
+         function getByName(name) {
+         name = name.replace(/[\[]/, "\\[").replace(/[\]]/,
+         "\\]");
+         var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+         results = regex.exec(location.search);
+         return results === null ? "" :
+         decodeURIComponent(results[1].replace(/\+/g, " "));
+         }
+         var i
+         = getByName('i18n');if(i !== ''){
+         i18n = i;
+         }
+         }
+         $.get(location.protocol+'//'+document.location.hostname+"/ad_server_local/
+         public/ad/"+param1+"/"+today+"/json", function(data, status){
+         if(data == 0){
+         console.log("show video ad + login");
+         $.get(location.protocol+'//'+document.location.hostname+"/ad_server_local/
+         public/captive_portal/1", function(capdata, status){
+         $(".background").css("background-image",
+         "url("+path+capdata['bg']+")");
+         $(".background").css("padding-bottom", "68%");
+         if(capdata['is_zaytech_log'] == 1){
+         $("#cap_logo").attr("src",
+         path+capdata['logo']);
+         }else{
+         $("#cap_logo").attr("src", '');
+         }
+         if(capdata['is_client_logo_active'] == 1){
+         $("#cap_logo_cafe").attr("src",
+         path+capdata['client_logo']);
+         }else{
+         $("#cap_logo_cafe").attr("src", '');
+         }
+         if(capdata['is_powered_logo'] == 1){
+         $("#cap_powered_by").attr("src",
+         path+capdata['powered_logo']);
+         }else{
+         $("#cap_powered_by").attr("src", '');
+         }
+         $("#terms").html(capdata['terms']);
+         $(".connect").html(capdata['button']);
+         });
+         // $(".background").css("background-image",
+         "url('img/bg.jpg')");
+         // $(".background").css("padding-bottom", "50%");
+         $('#viewcontent').show();/*************************************************************************
+         ********************/
+         /*************************************************************************
+         ********************/
+         } else{
+         console.log("show ad + connect");
+         var ur =
+         location.protocol+'//'+document.location.hostname+"/ad_server_local/public
+         /ad/"+param1+"/"+today;
+         $("#framecontent").html("<iframe src="+ur+"
+         style='width:100%;height:"+iheight+"; border:none;'></iframe>");
+         /*************************************************************************
+         ********************/
+         $.getScript( "../codebase/rd_i18n/"+i18n+".js").done(function( script,
+         textStatus ) {
+         //Load the rest - The phrases are in
+         $.getScript( "js/webix.js").done(function( script,
+         textStatus ) {
+         webix.ready(function(){
+         webix.ui.fullScreen();
+         webix.ui(
+         {
+         type: 'line', //We display a toolbat with
+         the caroucell
+         rows: [
+         {
+         id : 'scrnPhoto',
+         cols: [{}],
+         hidden:true
+         },
+         { view:"button", width: 180,
+         value:i18n('sFreeaccessnew'), align:"center", type: 'form', id:
+         'btnClickToConnect'},
+         {
+         view: "toolbar", id:"tbMain",
+         elements:[
+         {
+         view: "icon", icon:
+         "bars", id : 'btnMainMenu',hidden:true
+         },
+         {},{ view:"button", width: 180,
+         value:i18n('sConnect'), align:"right", type: 'form', id: 'btnMainConnect'}
+         ],hidden:true
+         }
+         ]
+         }
+         );
+         var d = rdDynamic({});
+         window.rdDynamic = d;
+         d.init();
+         });
+         });
+         });
+         /*************************************************************************
+         ********************/
+         }
+         });
+      </script>
+   </body>
+</html>
+
+

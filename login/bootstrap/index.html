@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <title>Wi-Fi Hotspot | Login</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link href="css/bootstrap.min.css" rel="stylesheet">
+      <link href="css/font-awesome.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="assets/css/style.css">
+      <link href="css/custom.css" rel="stylesheet">
+      <!-- Favicon -->
+      <link rel="shortcut icon" href="assets/ico/favicon.ico">
+   </head>
+   <body>
+      <div id="wrap">
+         <div class="navbar navbar-inverse navbar-static-top" role="navigation">
+            <div class="container">
+               <div class="navbar-header">
+                  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                  <span class="sr-only">Toggle navigation</span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  <span class="icon-bar"></span>
+                  </button>
+                  <a class="navbar-brand" href="#">RADIUSdesk</a>
+               </div>
+               <div class="collapse navbar-collapse" id="top-navbar-1">
+                  <ul class="nav navbar-nav navbar-right">
+                     <li>
+                        <span class="li-text">
+                        <strong>WiFi Made Easy</strong>
+                        </span>
+                     </li>
+                  </ul>
+               </div>
+            </div>
+         </div>
+         <div id="bottom-menu">
+            <div class="container">
+               <div class="row">
+                  <div class="col-md-2">
+                     <a href="http://www.radiusdesk.com/"><img src="img/logo.png" alt="logo"></a>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="container">
+            <div class="col-md-6 col-sm-12">
+               <div class="row">
+                  <div class="alert alert-info collapse in" id='alertInfo'>
+                     <div style="font-weight: bold">Please log in to use the Wi-Fi Internet services.</div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="alert alert-warning collapse" id='alertWarn'>
+                     <div style="font-weight: bold"></div>
+                  </div>
+               </div>
+               <div class="row">
+                  <div class="panel panel-default collapse in" id='pnlLogin'>
+                     <div class="panel-body">
+                        <form class="form-horizontal" role="form" data-toggle="validator" id='frmLogin'>
+                           <div class="form-group">
+                              <label for="txtUsername" class="col-sm-2 control-label">Voucher</label>
+                              <div class="col-sm-10">
+                                 <input type="text" class="form-control input-lg" id="txtUsername" name="username"
+                                    placeholder="Login" autofocus required>
+                                 <div class="help-block with-errors"></div>
+                              </div>
+                           </div>
+                           <div class="form-group">
+                              <div class="col-sm-offset-2 col-sm-10">
+                                 <button type="submit" class="btn btn-primary btn-block btn-lg" data-loading-text="<i class='fa fa-circle-o-notch fa-spin fa-fw'></i> Connecting User..." id='btnConnect'><i class="fa fa-check-circle"></i>  OK</button>
+                              </div>
+                           </div>
+                        </form>
+                     </div>
+                  </div>
+                  <div class="panel panel-default collapse" id='pnlSession'>
+                     <div class="panel-heading"><i class="fa fa-info-circle"></i> Session Info</div>
+                     <div class="panel-body">
+                        <table class="table table-striped">
+                           <thead>
+                              <tr>
+                                 <th>Item</th>
+                                 <th>Value</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              <tr>
+                                 <td><i class="fa fa-user"></i>  Username</td>
+                                 <td id='acct_un' style="color:#2759A2;"></td>
+                              </tr>
+                              <tr>
+                                 <td><i class="fa fa-clock-o"></i>  Connected</td>
+                                 <td id='acct_up' style="color:#2759A2;"></td>
+                              </tr>
+                              <tr>
+                                 <td><i class="fa fa-arrow-down"></i>  Data In</td>
+                                 <td id='acct_di' style="color:#2759A2;"></td>
+                              </tr>
+                              <tr>
+                                 <td><i class="fa fa-arrow-up"></i>  Data Out</td>
+                                 <td id='acct_do' style="color:#2759A2;"></td>
+                              </tr>
+                              <tr>
+                                 <td><i class="fa fa-database"></i>  Data Total</td>
+                                 <td id='acct_dt' style="color:#2759A2;"></td>
+                              </tr>
+                           </tbody>
+                        </table>
+                        <div class="col-sm-12">
+                           Refreshing in <span id='status_refresh' class='info' style="color:#2759A2;"></span> seconds
+                        </div>
+                        <div class="col-sm-12">
+                           <button type="button" class="btn btn-warning btn-block btn-lg" data-loading-text="<i class='fa fa-circle-o-notch fa-spin fa-fw'></i> Disconnecting User..." id='btnDisconnect'><i class="fa fa-chain-broken"></i> Logout</button>
+                        </div>
+                     </div>
+                  </div>
+                  <br/>
+               </div>
+            </div>
+         </div>
+      </div>
+      <div id="footer">
+         <div class="container">
+            <p class="text-muted"><strong>RADIUSdesk</strong><a href="https://www.radiusdesk.com/"></a></p>
+         </div>
+      </div>
+      
+        <!-- Modal Not Registered HTML -->
+        <div id="myModal" class="modal fade" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Huston we have a problem</h5>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      
+      
+      <script src="js/jquery.min.js"></script>
+      <script src="js/bootstrap.min.js"></script>
+      <script src="js/validator.js"></script>
+      <script src="js/sConnect.js"></script>
+      <script src="js/sDynamic.js"></script>
+      <script src="assets/js/scripts.js"></script>
+      <script src="assets/js/jquery.backstretch.min.js"></script>
+      <script>
+         $(document).ready(function(){
+            var d = sDynamic({});
+            window.sDynamic = d;
+            d.init();        
+            var connect = sConnect({});
+            connect.init();            
+         });
+      </script>
+   </body>
+</html>
+
+

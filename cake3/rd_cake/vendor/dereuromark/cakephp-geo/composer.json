@@ -1,0 +1,51 @@
+{
+	"name": "dereuromark/cakephp-geo",
+	"type": "cakephp-plugin",
+	"description": "A CakePHP plugin around geocoding tools and helpers.",
+	"keywords": ["cakephp", "plugin", "geocoding", "helpers", "maps"],
+	"homepage": "https://github.com/dereuromark/cakephp-geo",
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Mark Scherer",
+			"homepage": "https://www.dereuromark.de",
+			"role": "Maintainer"
+		}
+	],
+	"require": {
+		"php": ">=5.6",
+		"cakephp/orm": "^3.8",
+		"willdurand/geocoder": "^3.3"
+	},
+	"require-dev": {
+		"cakephp/cakephp": "^3.8",
+		"dereuromark/cakephp-tools": "^1.9.7",
+		"fig-r/psr2r-sniffer": "dev-master"
+	},
+	"support": {
+		"source": "https://github.com/dereuromark/cakephp-geo"
+	},
+	"autoload": {
+		"psr-4": {
+			"Geo\\": "src/",
+			"Geo\\Test\\Fixture\\": "tests/Fixture/"
+		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Geo\\Test\\": "tests/",
+			"TestApp\\": "tests/TestApp/src/"
+		}
+	},
+	"scripts": {
+		"test": "php phpunit.phar",
+		"test-setup": "[ ! -f phpunit.phar ] && wget https://phar.phpunit.de/phpunit-6.5.13.phar && mv phpunit-6.5.13.phar phpunit.phar || true",
+		"test-coverage": "php phpunit.phar --log-junit webroot/coverage/unitreport.xml --coverage-html webroot/coverage --coverage-clover webroot/coverage/coverage.xml",
+		"phpstan": "phpstan analyse -c tests/phpstan.neon -l 5 src/",
+		"phpstan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan-shim:^0.11 && mv composer.backup composer.json",
+		"lowest": " validate-prefer-lowest",
+		"lowest-setup": "composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction && cp composer.json composer.backup && composer require --dev dereuromark/composer-prefer-lowest && mv composer.backup composer.json",
+		"cs-check": "phpcs -p --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/config/Migrations/ --extensions=php src/ tests/ config/",
+		"cs-fix": "phpcbf -p --standard=vendor/fig-r/psr2r-sniffer/PSR2R/ruleset.xml --ignore=/config/Migrations/ --extensions=php src/ tests/ config/"
+	}
+}

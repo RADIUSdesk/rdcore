@@ -1,0 +1,10 @@
+@include gauge-ui(
+    $ui: 'green',
+    $value-fill: #0e0
+);
+
+@include gauge-ui(
+    $ui: 'red',
+    $value-fill: #b21111
+);
+
