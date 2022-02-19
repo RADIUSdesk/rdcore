@@ -71,6 +71,19 @@ Ext.define('Rd.view.aps.vcApRadioDetail', {
             pnl.down('#radio_width_160').setVisible(true);
             title   = "5GHz-AX";
         }
+        
+        pnl.down('#rgrpWidth').setVisible(true); //Unhide it first
+        
+        if(mode.getValue()== 'g'){
+            pnl.down('#rgrpWidth').setVisible(false);
+            title   = "2.4GHz-G (Legacy)";
+        }
+        
+        if(mode.getValue()== 'a'){
+            pnl.down('#rgrpWidth').setVisible(false);
+            title   = "5GHz-A (Legacy)";
+        }
+        
         pnl.setTitle(title);	
     },
     OnChkIncludeBeaconIntervalChange : function(chk){

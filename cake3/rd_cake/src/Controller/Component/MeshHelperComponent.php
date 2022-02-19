@@ -1831,6 +1831,11 @@ class MeshHelperComponent extends Component {
                 'txpower'       => intval($this->RadioSettings[$x]['radio'.$x.'_txpower'])
             ];
             
+            //Unset htmode for legacy ($mode = a or g)
+            if(($mode == 'a')||($mode == 'g')){
+                unset($options_array['htmode']);
+            }
+                    
             //For now we have these binary options that we obity if not specified
             if(isset($this->RadioSettings[$x]['radio'.$x.'_include_distance'])){
                 if($this->RadioSettings[$x]['radio'.$x.'_include_distance']){

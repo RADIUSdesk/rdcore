@@ -30,10 +30,12 @@ Ext.define('Rd.view.hardwares.vcRadioDetail', {
         
         var radio_nr    = w.radio_nr;
         w.down('#radio_mode_ac').setVisible(false);
+        w.down('#radio_mode_a').hide();
+        w.down('#radio_mode_g').show();
         w.down('#radio_width_80').setVisible(false);
         w.down('#radio_width_160').setVisible(false);
-        if(val_mode['radio_'+radio_nr+'_mode'] == 'ac'){
-            //2g cant do AC set to n
+        if((val_mode['radio_'+radio_nr+'_mode'] == 'ac')||(val_mode['radio_'+radio_nr+'_mode'] == 'a')){
+            //2g cant do AC or a set to n
             var a   = 'radio_'+radio_nr+'_mode';
             var t   = {};
             t[a]    = 'n';
@@ -53,7 +55,17 @@ Ext.define('Rd.view.hardwares.vcRadioDetail', {
         var val         = w.down('#rgrpMode').getValue();
         var radio_nr    = w.radio_nr;
         
+        if(val['radio_'+radio_nr+'_mode'] == 'g'){
+            //5g cant do g set to n
+            var a   = 'radio_'+radio_nr+'_mode';
+            var t   = {};
+            t[a]    = 'n';
+            w.down('#rgrpMode').setValue(t);
+        }
+        
         w.down('#radio_mode_ac').setVisible(true);
+        w.down('#radio_mode_a').show();
+        w.down('#radio_mode_g').hide();
                
         if(val['radio_'+radio_nr+'_mode']== 'n'){
             w.down('#radio_width_80').setVisible(false);
@@ -75,7 +87,14 @@ Ext.define('Rd.view.hardwares.vcRadioDetail', {
         var me       = this;
         var pnl    	 = rgrp.up('panel');
         var radio_nr = pnl.radio_nr;   
-        var val      = newValue['radio_'+radio_nr+'_mode'];     
+        var val      = newValue['radio_'+radio_nr+'_mode'];
+        
+        if(val == 'a'){
+            me.doA();
+        } 
+        if(val == 'g'){
+            me.doG();
+        }       
         if(val == 'n'){
             me.doN();
         }       
@@ -88,9 +107,25 @@ Ext.define('Rd.view.hardwares.vcRadioDetail', {
         }         
     },
     
+    doG: function(){
+        var me = this;
+        var w  = me.getView();
+        w.down('#rgrpWidth').setVisible(false);
+        w.down('#rgrpWidth').setDisabled(true); 
+    },
+    
+    doA: function(){
+        var me = this;
+        var w  = me.getView();
+        w.down('#rgrpWidth').setVisible(false);
+        w.down('#rgrpWidth').setDisabled(true);  
+    },
+    
     doN: function(){
         var me = this;
         var w  = me.getView();
+        w.down('#rgrpWidth').setVisible(true);
+        w.down('#rgrpWidth').setDisabled(false);
         w.down('#radio_width_80').setVisible(false);
         w.down('#radio_width_160').setVisible(false);
         var val_width   = w.down('#rgrpWidth').getValue();
@@ -105,6 +140,8 @@ Ext.define('Rd.view.hardwares.vcRadioDetail', {
     doAc: function(){
         var me = this;
         var w  = me.getView();
+        w.down('#rgrpWidth').setVisible(true);
+        w.down('#rgrpWidth').setDisabled(false);
         w.down('#radio_width_80').setVisible(true);
         w.down('#radio_width_160').setVisible(false);
         var val_width   = w.down('#rgrpWidth').getValue();
@@ -119,6 +156,8 @@ Ext.define('Rd.view.hardwares.vcRadioDetail', {
     doAx: function(){
         var me          = this;
         var w           = me.getView();
+        w.down('#rgrpWidth').setVisible(true);
+        w.down('#rgrpWidth').setDisabled(false);
         var radio_nr    = w.radio_nr;     
         //Here we need to check if it is 2g or 5g and epending on that make the widths visible / hide them
         var val        = w.down('#radio_'+radio_nr+'_radio_band').getValue();

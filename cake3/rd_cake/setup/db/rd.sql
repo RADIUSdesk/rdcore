@@ -1960,7 +1960,7 @@ CREATE TABLE `hardware_radios` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   `band` enum('2g','5g') DEFAULT '2g',
-  `mode` enum('n','ac','ax') DEFAULT 'n',
+  `mode` enum('a','g','n','ac','ax') DEFAULT 'n',
   `width` enum('20','40','80','160') DEFAULT '20',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8;
@@ -5359,7 +5359,7 @@ CREATE TABLE `user_settings` (
 
 LOCK TABLES `user_settings` WRITE;
 /*!40000 ALTER TABLE `user_settings` DISABLE KEYS */;
-INSERT INTO `user_settings` VALUES (89,183,'notif_threshold','0','2019-09-20 04:21:02','2019-09-20 04:21:02'),(90,183,'notif_frequency','1','2019-09-20 04:21:02','2019-09-20 04:21:02'),(91,-1,'UserStatsLastRun','1641565802','2019-11-12 19:00:03','2022-01-07 14:30:02'),(101,44,'wl_active','1','2021-06-26 06:02:53','2021-06-26 06:02:53'),(102,44,'wl_header','RADIUSdesk','2021-06-26 06:02:53','2021-06-26 06:02:53'),(103,44,'wl_h_bg','ffffff','2021-06-26 06:02:53','2021-06-26 06:02:53'),(104,44,'wl_h_fg','005691','2021-06-26 06:02:53','2021-06-26 06:02:53'),(105,44,'wl_footer','RADIUSdesk','2021-06-26 06:02:53','2021-06-26 06:02:53'),(106,44,'wl_img_active','1','2021-06-26 06:02:53','2021-06-26 06:02:53'),(107,44,'wl_img_file','logo.png','2021-06-26 06:02:53','2021-06-26 06:02:53'),(108,44,'compact_view','1','2021-06-26 06:02:53','2021-06-26 06:02:53'),(109,44,'meshdesk_overview','1','2021-06-26 06:02:53','2021-06-26 06:02:53'),(110,-1,'password','admin','2021-06-26 06:47:40','2021-06-26 06:47:40'),(111,-1,'country','ZA','2021-06-26 06:47:40','2021-06-26 06:47:40'),(112,-1,'timezone','24','2021-06-26 06:47:40','2021-06-26 06:47:40'),(113,-1,'heartbeat_dead_after','900','2021-06-26 06:47:40','2021-10-25 22:12:37'),(114,-1,'cp_radius_1','192.168.8.220','2021-06-26 06:47:40','2021-10-25 22:12:37'),(115,-1,'cp_radius_2','','2021-06-26 06:47:40','2021-06-26 06:47:40'),(116,-1,'cp_radius_secret','testing123','2021-06-26 06:47:40','2021-06-26 06:47:40'),(117,-1,'cp_uam_url','http://192.168.8.220/cake3/rd_cake/dynamic-details/chilli-browser-detect/','2021-06-26 06:47:40','2021-10-25 22:12:37'),(118,-1,'cp_uam_secret','greatsecret','2021-06-26 06:47:40','2021-06-26 06:47:40'),(119,-1,'cp_swap_octet','cp_swap_octet','2021-06-26 06:47:40','2021-06-26 06:47:40'),(120,-1,'cp_mac_auth','cp_mac_auth','2021-06-26 06:47:40','2021-06-26 06:47:40'),(121,-1,'cp_coova_optional','','2021-06-26 06:47:40','2021-06-26 06:47:40'),(122,-1,'email_enabled','0','2021-06-26 06:47:40','2021-06-26 06:47:40'),(123,-1,'email_ssl','0','2021-06-26 06:47:40','2021-06-26 06:47:40'),(124,-1,'s_k','xJ3ktaC39H','2021-10-25 22:15:38','2021-10-25 22:15:38'),(125,-1,'s_iv','anSYCDY1C9','2021-10-25 22:15:38','2021-10-25 22:15:38'),(126,-1,'s_l','Ryttd0xFdFZTK210Z2JFOGw4c0M1WTdtOUJxeXRGdnBDZnduNHRUS0xzcz0=','2021-10-25 22:36:29','2021-10-25 22:36:29'),(138,45,'wl_active','1','2021-10-26 18:17:10','2021-10-26 18:17:10'),(139,45,'wl_header','RADIUSdesk','2021-10-26 18:17:10','2021-10-26 18:17:10'),(140,45,'wl_h_bg','ffffff','2021-10-26 18:17:10','2021-10-26 18:17:10'),(141,45,'wl_h_fg','005691','2021-10-26 18:17:10','2021-10-26 18:17:10'),(142,45,'wl_footer','RADIUSdesk','2021-10-26 18:17:10','2021-10-26 18:17:10'),(143,45,'wl_img_active','1','2021-10-26 18:17:10','2021-10-26 18:17:10'),(144,45,'wl_img_file','logo.png','2021-10-26 18:17:10','2021-10-26 18:17:10'),(145,45,'compact_view','1','2021-10-26 18:17:10','2021-10-26 18:17:10'),(146,45,'meshdesk_overview','1','2021-10-26 18:17:10','2021-10-26 18:17:10');
+INSERT INTO `user_settings` VALUES (89,183,'notif_threshold','0','2019-09-20 04:21:02','2019-09-20 04:21:02'),(90,183,'notif_frequency','1','2019-09-20 04:21:02','2019-09-20 04:21:02'),(91,-1,'UserStatsLastRun','1645275001','2019-11-12 19:00:03','2022-02-19 12:50:01'),(101,44,'wl_active','1','2021-06-26 06:02:53','2021-06-26 06:02:53'),(102,44,'wl_header','RADIUSdesk','2021-06-26 06:02:53','2021-06-26 06:02:53'),(103,44,'wl_h_bg','ffffff','2021-06-26 06:02:53','2021-06-26 06:02:53'),(104,44,'wl_h_fg','005691','2021-06-26 06:02:53','2021-06-26 06:02:53'),(105,44,'wl_footer','RADIUSdesk','2021-06-26 06:02:53','2021-06-26 06:02:53'),(106,44,'wl_img_active','1','2021-06-26 06:02:53','2021-06-26 06:02:53'),(107,44,'wl_img_file','logo.png','2021-06-26 06:02:53','2021-06-26 06:02:53'),(108,44,'compact_view','1','2021-06-26 06:02:53','2021-06-26 06:02:53'),(109,44,'meshdesk_overview','1','2021-06-26 06:02:53','2021-06-26 06:02:53'),(110,-1,'password','admin','2021-06-26 06:47:40','2021-06-26 06:47:40'),(111,-1,'country','ZA','2021-06-26 06:47:40','2021-06-26 06:47:40'),(112,-1,'timezone','24','2021-06-26 06:47:40','2021-06-26 06:47:40'),(113,-1,'heartbeat_dead_after','900','2021-06-26 06:47:40','2021-10-25 22:12:37'),(114,-1,'cp_radius_1','192.168.8.220','2021-06-26 06:47:40','2021-10-25 22:12:37'),(115,-1,'cp_radius_2','','2021-06-26 06:47:40','2021-06-26 06:47:40'),(116,-1,'cp_radius_secret','testing123','2021-06-26 06:47:40','2021-06-26 06:47:40'),(117,-1,'cp_uam_url','http://192.168.8.220/cake3/rd_cake/dynamic-details/chilli-browser-detect/','2021-06-26 06:47:40','2021-10-25 22:12:37'),(118,-1,'cp_uam_secret','greatsecret','2021-06-26 06:47:40','2021-06-26 06:47:40'),(119,-1,'cp_swap_octet','cp_swap_octet','2021-06-26 06:47:40','2021-06-26 06:47:40'),(120,-1,'cp_mac_auth','cp_mac_auth','2021-06-26 06:47:40','2021-06-26 06:47:40'),(121,-1,'cp_coova_optional','','2021-06-26 06:47:40','2021-06-26 06:47:40'),(122,-1,'email_enabled','0','2021-06-26 06:47:40','2021-06-26 06:47:40'),(123,-1,'email_ssl','0','2021-06-26 06:47:40','2021-06-26 06:47:40'),(124,-1,'s_k','xJ3ktaC39H','2021-10-25 22:15:38','2021-10-25 22:15:38'),(125,-1,'s_iv','anSYCDY1C9','2021-10-25 22:15:38','2021-10-25 22:15:38'),(126,-1,'s_l','Ryttd0xFdFZTK210Z2JFOGw4c0M1WTdtOUJxeXRGdnBDZnduNHRUS0xzcz0=','2021-10-25 22:36:29','2021-10-25 22:36:29'),(138,45,'wl_active','1','2021-10-26 18:17:10','2021-10-26 18:17:10'),(139,45,'wl_header','RADIUSdesk','2021-10-26 18:17:10','2021-10-26 18:17:10'),(140,45,'wl_h_bg','ffffff','2021-10-26 18:17:10','2021-10-26 18:17:10'),(141,45,'wl_h_fg','005691','2021-10-26 18:17:10','2021-10-26 18:17:10'),(142,45,'wl_footer','RADIUSdesk','2021-10-26 18:17:10','2021-10-26 18:17:10'),(143,45,'wl_img_active','1','2021-10-26 18:17:10','2021-10-26 18:17:10'),(144,45,'wl_img_file','logo.png','2021-10-26 18:17:10','2021-10-26 18:17:10'),(145,45,'compact_view','1','2021-10-26 18:17:10','2021-10-26 18:17:10'),(146,45,'meshdesk_overview','1','2021-10-26 18:17:10','2021-10-26 18:17:10');
 /*!40000 ALTER TABLE `user_settings` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -5779,6 +5779,27 @@ if exists (select * from information_schema.columns
     alter table dynamic_details drop column prelogin_check, drop column prelogin_url, drop column prelogin_expire;    
 end if;
 
+
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `add_legacy_wifi_support` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_legacy_wifi_support`()
+begin
+
+alter table hardware_radios modify `mode` enum('a','g','n','ac','ax') DEFAULT 'n';
 
 end ;;
 DELIMITER ;
@@ -9017,4 +9038,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-07 14:35:58
+-- Dump completed on 2022-02-19 12:52:01

@@ -70,9 +70,26 @@ Ext.define('Rd.view.hardwares.pnlRadioDetail', {
                         xtype       : 'radiogroup',
                         fieldLabel  : 'Mode',
                         itemId      : 'rgrpMode',
-                        columns     : 3,
+                        columns     : 5,
                         vertical    : false,
                         items       : [
+                            {
+                                boxLabel  : 'A',
+                                name      : radio_nr +'_mode',
+                                itemId    : 'radio_mode_a',
+                                inputValue: 'a',
+                                margin    : '0 0 0 0',
+                                hidden    : true,
+                                width     : w_rb
+                            },
+                            {
+                                boxLabel  : 'G',
+                                name      : radio_nr +'_mode',
+                                itemId    : 'radio_mode_g',
+                                inputValue: 'g',
+                                margin    : '0 0 0 0',
+                                width     : w_rb
+                            },
                             {
                                 boxLabel  : 'N',
                                 name      : radio_nr +'_mode',
