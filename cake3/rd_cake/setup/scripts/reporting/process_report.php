@@ -371,6 +371,17 @@ function _node_stations($d,$node_id){
                             $s_data                     = array_merge($s_data, $interface['stations'][$s_mac]);
                             $s_data['created']          = date("Y-m-d H:i:s", $s_data['first_timestamp']);
                             $s_data['modified']         = date("Y-m-d H:i:s", $s_data['unix_timestamp']);
+                            
+                            //Sometime this is not included with the report so we fill it in if it is missing
+                            if(isset($s_data['rx_bitrate'])){
+                                if($s_data['rx_bitrate'] == null){
+                                    $s_data['rx_bitrate'] = 0;
+                                }
+                            }else{
+                                $s_data['rx_bitrate'] = 0;
+                            }
+                            $s_data['rx_bitrate'] = str_replace(" MBit/s","",$s_data['rx_bitrate']);
+                            //--End rx_bitrate missing--
                                                       
                             $stmt = $conn->prepare("INSERT into node_ibss_connections (node_id,radio_number,frequency_band,if_mac,mac,tx_bytes,rx_bytes,tx_packets,rx_packets,tx_bitrate,rx_bitrate,authenticated,authorized,tdls_peer,preamble,tx_failed,tx_retries,mfp,signal_now,signal_avg,created,modified) VALUES(:node_id,:radio_number,:frequency_band,:if_mac,:mac,:tx_bytes,:rx_bytes,:tx_packets,:rx_packets,:tx_bitrate,:rx_bitrate,:authenticated,:authorized,:tdls_peer,:preamble,:tx_failed,:tx_retries,:mfp,:signal_now,:signal_avg,:created,:modified)");
                             $stmt->execute([
@@ -469,7 +480,7 @@ function _doMeshMacLookup($mesh_id){
             $gateway = 'yes';
         }       
         if($i->{'mesh0'} !== ''){   
-            $MeshMacLookup[$i->{'mesh0'}] = [
+            $MeshMacLookup[strtolower($i->{'mesh0'})] = [
                 'id'        => $i->{'id'},
                 'gateway'   => $gateway, 
                 'channel'   => $i->{'mesh0_channel'},
@@ -478,7 +489,7 @@ function _doMeshMacLookup($mesh_id){
             ];
         }
         if($i->{'mesh1'} !== ''){
-             $MeshMacLookup[$i->{'mesh1'}] = [
+            $MeshMacLookup[strtolower($i->{'mesh1'})] = [
                 'id'        => $i->{'id'},
                 'gateway'   => $gateway, 
                 'channel'   => $i->{'mesh1_channel'},
@@ -487,7 +498,7 @@ function _doMeshMacLookup($mesh_id){
             ];
         }
         if($i->{'mesh2'} !== ''){ //For future
-            $MeshMacLookup[$i->{'mesh2'}] = [
+            $MeshMacLookup[strtolower($i->{'mesh2'})] = [
                 'id'        => $i->{'id'},
                 'gateway'   => $gateway, 
                 'channel'   => $i->{'mesh2_channel'},
@@ -499,20 +510,21 @@ function _doMeshMacLookup($mesh_id){
 }
 
 function _do_vis($d){
-    global $conn,$MeshMacLookup;   
+    global $conn,$MeshMacLookup; 
+    
     if (array_key_exists('vis',$d)) {     
         foreach ($d['vis'] as $vis) {
             $metric         = $vis['metric'];
             $neighbor       = $vis['neighbor'];
             $router         = $vis['router'];
-            
+                     
             $neighbor_id    = false;
             $node_id        = false;
-            if (array_key_exists($neighbor, $MeshMacLookup)) {
+            if (array_key_exists(strtolower($neighbor), $MeshMacLookup)) {
                 $neighbor_id    = $MeshMacLookup["$neighbor"]['id'];
             }
             
-            if (array_key_exists($router, $MeshMacLookup)) {
+            if (array_key_exists(strtolower($router), $MeshMacLookup)) {
                 $node_id    = $MeshMacLookup["$router"]['id'];
                 $gateway    = $MeshMacLookup["$router"]['gateway'];
                 $hwmode     = '11g'; //default
