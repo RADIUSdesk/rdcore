@@ -405,7 +405,7 @@ class DynamicDetailsController extends AppController{
     
     public function chilliBrowserDetect(){  
 		$redir_to = $this->_doBrowserDetectFor('coova');
-		print_r($redir_to);
+		//print_r($redir_to);
 		$this->response->header('Location', $redir_to);
         return $this->response;	
     }
