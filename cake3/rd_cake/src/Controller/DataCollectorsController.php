@@ -32,7 +32,9 @@ class DataCollectorsController extends AppController{
         $data   = $this->request->data;      
         $q_r    = $this->_find_dynamic_detail_id();
         
-        $data['ctc_require_email'] = false; // By defaul don't ask for email;     
+        $data['ctc_require_email']  = false; // By defaul don't ask for email;
+        $data['ctc_require_phone']  = false; // By defaul don't ask for email;
+        $data['ctc_require_dn']     = false; // By defaul don't ask for email;        
                            
         if($q_r){
 
@@ -57,11 +59,19 @@ class DataCollectorsController extends AppController{
                         $now            = new FrozenTime();
                         if($expiry_time < $now->toUnixString()){
                             //It already expired ask for a new one
-                            $data['ctc_require_email'] = true; 
+                            $data['ctc_require_email'] = true;
+                            if($q_r->dynamic_detail->ctc_email_opt_in == true){
+                                $data['ctc_email_opt_in']  = true;
+                                $data['ctc_email_opt_in_txt']  = $q_r->dynamic_detail->ctc_email_opt_in_txt;
+                            } 
                         }   
                     }
                 }else{
                     $data['ctc_require_email'] = true; //We did not found it so have to supply email
+                    if($q_r->dynamic_detail->ctc_email_opt_in == true){
+                        $data['ctc_email_opt_in']  = true;
+                        $data['ctc_email_opt_in_txt']  = $q_r->dynamic_detail->ctc_email_opt_in_txt;
+                    }
                 }
             }
             
@@ -75,11 +85,19 @@ class DataCollectorsController extends AppController{
                         $now            = new FrozenTime();
                         if($expiry_time < $now->toUnixString()){
                             //It already expired ask for a new one
-                            $data['ctc_require_email'] = true; 
+                            $data['ctc_require_email'] = true;
+                            if($q_r->dynamic_detail->ctc_phone_opt_in == true){
+                                $data['ctc_phone_opt_in']  = true;
+                                $data['ctc_phone_opt_in_txt']  = $q_r->dynamic_detail->ctc_phone_opt_in_txt;
+                            }  
                         }   
                     }
                 }else{
-                    $data['ctc_require_phone'] = true; //We did not found it so have to supply email
+                    $data['ctc_require_phone'] = true; //We did not found it so have to supply phone
+                    if($q_r->dynamic_detail->ctc_phone_opt_in == true){
+                        $data['ctc_phone_opt_in']  = true;
+                        $data['ctc_phone_opt_in_txt']  = $q_r->dynamic_detail->ctc_phone_opt_in_txt;
+                    }
                 }
             }
             

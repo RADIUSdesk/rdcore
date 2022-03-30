@@ -34,7 +34,8 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailClickToConnect', {
             labelCls        : 'lblRd',
             allowBlank      : false,
             forceSelection  : true,
-            value           : 0
+            value           : 0,
+            disabled        : true
         });
         
         var cmbReSupplyP = Ext.create('Ext.form.ComboBox', {
@@ -48,7 +49,8 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailClickToConnect', {
             labelCls        : 'lblRd',
             allowBlank      : false,
             forceSelection  : true,
-            value           : 0
+            value           : 0,
+            disabled        : true
         });
         
         var cmbReSupplyDn = Ext.create('Ext.form.ComboBox', {
@@ -62,7 +64,8 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailClickToConnect', {
             labelCls        : 'lblRd',
             allowBlank      : false,
             forceSelection  : true,
-            value           : 0
+            value           : 0,
+            disabled        : true
         });
         
         me.items =  { 
@@ -137,35 +140,108 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailClickToConnect', {
                         disabled    : true
                     },
                     {
-                        xtype       : 'checkbox',      
-                        fieldLabel  : 'Require Email To Connect',
-                        itemId      : 'chkCtcRequireEmail',
-                        name        : 'ctc_require_email',
-                        inputValue  : 'ctc_require_email',
-                        checked     : false,
-                        disabled    : true
+                        xtype       : 'panel',
+                        layout      : 'anchor',
+                        defaults    : {
+                            anchor: '100%'
+                        },
+                        bodyStyle   : 'background: #e0f9ed',
+                        bodyPadding : 0,
+                        items       : [
+                            {
+                                xtype       : 'checkbox',      
+                                fieldLabel  : 'Require Email To Connect',
+                                itemId      : 'chkCtcRequireEmail',
+                                name        : 'ctc_require_email',
+                                inputValue  : 'ctc_require_email',
+                                checked     : false,
+                                disabled    : true
+                            },
+                            cmbReSupply,
+                            {
+                                xtype       : 'checkbox',      
+                                fieldLabel  : 'Show Email Opt-In',
+                                itemId      : 'chkCtcEmailOptIn',
+                                name        : 'ctc_email_opt_in',
+                                inputValue  : 'ctc_email_opt_in',
+                                checked     : false,
+                                disabled    : true
+                            },
+                            {
+                                xtype       : 'textfield',
+                                itemId      : 'txt_email_opt_in',
+                                fieldLabel  : 'Opt In Text',
+                                name        : 'ctc_email_opt_in_txt',
+                                allowBlank  : false,
+                                blankText   : i18n("sSupply_a_value"),
+                                disabled    : true,
+                                labelClsExtra: 'lblRdReq',
+                                value       : 'Send Promotional Email' 
+                            }
+                        ]
                     },
-                    cmbReSupply,
                     {
-                        xtype       : 'checkbox',      
-                        fieldLabel  : 'Require Phone To Connect',
-                        itemId      : 'chkCtcRequirePhone',
-                        name        : 'ctc_require_phone',
-                        inputValue  : 'ctc_require_phone',
-                        checked     : false,
-                        disabled    : true
-                    },
-                    cmbReSupplyP,
+                        xtype       : 'panel',
+                        layout      : 'anchor',
+                        defaults    : {
+                            anchor: '100%'
+                        },
+                        bodyStyle   : 'background: #e0eaf9',
+                        bodyPadding : 0,
+                        items       : [
+                            {
+                                xtype       : 'checkbox',      
+                                fieldLabel  : 'Require Phone To Connect',
+                                itemId      : 'chkCtcRequirePhone',
+                                name        : 'ctc_require_phone',
+                                inputValue  : 'ctc_require_phone',
+                                checked     : false,
+                                disabled    : true
+                            },
+                            cmbReSupplyP,
+                            {
+                                xtype       : 'checkbox',      
+                                fieldLabel  : 'Show SMS Opt-In',
+                                itemId      : 'chkCtcPhoneOptIn',
+                                name        : 'ctc_phone_opt_in',
+                                inputValue  : 'ctc_phone_opt_in',
+                                checked     : false,
+                                disabled    : true
+                            },
+                            {
+                                xtype       : 'textfield',
+                                itemId      : 'txt_phone_opt_in',
+                                fieldLabel  : 'Opt In Text',
+                                name        : 'ctc_phone_opt_in_txt',
+                                allowBlank  : false,
+                                blankText   : i18n("sSupply_a_value"),
+                                disabled    : true,
+                                labelClsExtra: 'lblRdReq',
+                                value       : 'Send Promotional SMS' 
+                            }                    
+                        ]
+                    },     
                     {
-                        xtype       : 'checkbox',      
-                        fieldLabel  : 'Require DN To Connect',
-                        itemId      : 'chkCtcRequireDn',
-                        name        : 'ctc_require_dn',
-                        inputValue  : 'ctc_require_dn',
-                        checked     : false,
-                        disabled    : true
-                    },
-                    cmbReSupplyDn
+                        xtype       : 'panel',
+                        layout      : 'anchor',
+                        defaults    : {
+                            anchor: '100%'
+                        },
+                        bodyStyle   : 'background: #e0f9ed',
+                        bodyPadding : 0,
+                        items       : [
+                            {
+                                xtype       : 'checkbox',      
+                                fieldLabel  : 'Require DN To Connect',
+                                itemId      : 'chkCtcRequireDn',
+                                name        : 'ctc_require_dn',
+                                inputValue  : 'ctc_require_dn',
+                                checked     : false,
+                                disabled    : true
+                            },
+                            cmbReSupplyDn
+                        ]
+                    }             
                 ],
                 buttons: [
                     {

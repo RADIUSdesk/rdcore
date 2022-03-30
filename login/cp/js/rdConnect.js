@@ -661,40 +661,56 @@ $$('sliderData').refresh();
               view      : "template",
               template  : "Please supply to get <b>Guest Access</b>"
             };
-            var e2 = { view:"text", label:'Email', name:"email" };
-            var e3 = { view:"text", label:'Phone', name:"phone" };
+            
+            var e2  = { view:"text", label:'Email', name:"email" };
+            if(data.ctc_email_opt_in == true){
+                var e2a = { view:'checkbox', label:data.ctc_email_opt_in_txt, name:'email_opt_in'};
+            }
+            
+            var e3  = { view:"text", label:'Phone', name:"phone" };
+            if(data.ctc_phone_opt_in == true){
+                var e3a = { view:'checkbox', label:data.ctc_phone_opt_in_txt, name:'phone_opt_in'};
+            }
+            
             var e4 = { view:"text", label:'DN',    name:"dn" };
             var b1 = { view:"button", value: "Submit", click:function(){
 			    if (this.getParentView().validate()){ //validate form
 			        var button      = this;
-			        var formData    = new FormData();
+			        var formData    = {};
 			        var mac_address = getParameterByName('mac');
-                    formData.append("mac", mac_address);
+                    formData.mac = mac_address;
 			        
                     var values      = this.getParentView().getValues();
                     console.log(values);
                     if(values.email){
-                        formData.append("email", values.email);  
+                        formData.email = values.email;  
                     }
                     if(values.phone){
-                        formData.append("phone", values.phone);  
+                        formData.phone = values.phone;  
                     }
                     if(values.dn){
-                        formData.append("dn", values.dn);  
+                        formData.dn = values.dn;  
                     }
                     
-
+                    if(values.email_opt_in){
+                        formData.email_opt_in = values.email_opt_in;  
+                    }
+                    
+                    if(values.phone_opt_in){
+                        formData.phone_opt_in = values.phone_opt_in;  
+                    }
+                    
                     //We also add the following
                     var called      = getParameterByName('called');
-                    formData.append("cp_mac", called);
+                    formData.cp_mac  = called;
         
                     var nasid       = getParameterByName('nasid');
-                    formData.append("nasid", nasid);
+                    formData.nasid = nasid;
         
                     //This might not always be included
                     var ssid        = getParameterByName('ssid');
                     if(ssid !== ''){
-                        formData.append("ssid", ssid);
+                        formData.ssid = ssid;
                     }   
                     
                     var add_mac  = location.protocol+'//'+document.location.hostname+"/cake3/rd_cake/data-collectors/add-mac.json";
@@ -733,6 +749,12 @@ $$('sliderData').refresh();
                 height = height+60;
                 rules.email = webix.rules.isEmail;
             }
+            
+            if(data.ctc_email_opt_in == true){
+                elements.push(e2a);
+                height = height+60;
+            }
+            
             if(data.ctc_require_phone == true){
                 elements.push(e3);
                 height      = height+60;
@@ -744,6 +766,12 @@ $$('sliderData').refresh();
                     return true;
                 };
             }
+            
+            if(data.ctc_phone_opt_in == true){
+                elements.push(e3a);
+                height = height+60;
+            }
+             
             if(data.ctc_require_dn == true){
                 elements.push(e4);
                 height = height+60;

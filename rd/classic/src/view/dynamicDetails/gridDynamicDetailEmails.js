@@ -55,6 +55,32 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailEmails' ,{
             stateId		: 'DD_Email_E'
         },
         { 
+            text        : 'SMS Opt-In',
+            dataIndex   : 'phone_opt_in', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_Email_Fa',
+            xtype:  'templatecolumn', 
+                tpl:    new Ext.XTemplate(
+                    "<tpl if='phone_opt_in == true'><div class=\"fieldGreen\">"+i18n('sYes')+"</div></tpl>",
+                    "<tpl if='phone_opt_in == false'><div class=\"fieldRed\">"+i18n('sNo')+"</div></tpl>"
+                )
+        },
+        { 
+            text        : 'Email Opt-In',
+            dataIndex   : 'email_opt_in', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_Email_Fb',
+            xtype:  'templatecolumn', 
+                tpl:    new Ext.XTemplate(
+                    "<tpl if='email_opt_in == true'><div class=\"fieldGreen\">"+i18n('sYes')+"</div></tpl>",
+                    "<tpl if='email_opt_in == false'><div class=\"fieldRed\">"+i18n('sNo')+"</div></tpl>"
+                )
+        },
+        { 
             text        : 'Mobile Device',
             dataIndex   : 'is_mobile', 
             tdCls       : 'gridTree',

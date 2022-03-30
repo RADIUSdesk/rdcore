@@ -405,7 +405,7 @@ class DynamicDetailsController extends AppController{
     
     public function chilliBrowserDetect(){  
 		$redir_to = $this->_doBrowserDetectFor('coova');
-		//print_r($redir_to);
+		print_r($redir_to);
 		$this->response->header('Location', $redir_to);
         return $this->response;	
     }
@@ -809,6 +809,8 @@ class DynamicDetailsController extends AppController{
 			'ctc_require_email',
 			'ctc_require_phone',
 			'ctc_require_dn',
+			'ctc_phone_opt_in',
+			'ctc_email_opt_in'
 		];
         foreach($check_items as $i){
             if(isset($this->request->data[$i])){

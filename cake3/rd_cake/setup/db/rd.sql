@@ -1,8 +1,8 @@
--- MySQL dump 10.19  Distrib 10.3.32-MariaDB, for debian-linux-gnu (x86_64)
+-- MySQL dump 10.19  Distrib 10.3.34-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: rd
 -- ------------------------------------------------------
--- Server version	10.3.32-MariaDB-0ubuntu0.20.04.1
+-- Server version	10.3.34-MariaDB-0ubuntu0.20.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1156,6 +1156,8 @@ CREATE TABLE `data_collectors` (
   `modified` datetime NOT NULL,
   `phone` varchar(36) NOT NULL DEFAULT '',
   `dn` varchar(36) NOT NULL DEFAULT '',
+  `phone_opt_in` tinyint(1) NOT NULL DEFAULT 0,
+  `email_opt_in` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1659,6 +1661,10 @@ CREATE TABLE `dynamic_details` (
   `ctc_resupply_phone_interval` int(4) NOT NULL DEFAULT 0,
   `ctc_require_dn` tinyint(1) NOT NULL DEFAULT 0,
   `ctc_resupply_dn_interval` int(4) NOT NULL DEFAULT 0,
+  `ctc_phone_opt_in` tinyint(1) NOT NULL DEFAULT 0,
+  `ctc_phone_opt_in_txt` varchar(200) NOT NULL DEFAULT 'Send Promotional SMS',
+  `ctc_email_opt_in` tinyint(1) NOT NULL DEFAULT 0,
+  `ctc_email_opt_in_txt` varchar(200) NOT NULL DEFAULT 'Send Promotional Email',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1669,7 +1675,7 @@ CREATE TABLE `dynamic_details` (
 
 LOCK TABLES `dynamic_details` WRITE;
 /*!40000 ALTER TABLE `dynamic_details` DISABLE KEYS */;
-INSERT INTO `dynamic_details` VALUES (1,'Demo1',1,'logo.jpg','','','','','','','','','','',NULL,NULL,45,0,'',0,'',0,30,1,'click_to_connect','ssid',0,0,'2021-10-25 22:48:48','2021-10-26 18:17:34',0,0,0,'demo1',1,120,'Default',0,0,0,NULL,'','','','','en_GB',1,3,1,'demo1',0,0,0,0,10,'',0,0,0,1,0,'',0,0,0,0);
+INSERT INTO `dynamic_details` VALUES (1,'Demo1',1,'logo.jpg','','','','','','','','','','',NULL,NULL,45,0,'',0,'',0,30,1,'click_to_connect','ssid',0,0,'2021-10-25 22:48:48','2021-10-26 18:17:34',0,0,0,'demo1',1,120,'Default',0,0,0,NULL,'','','','','en_GB',1,3,1,'demo1',0,0,0,0,10,'',0,0,0,1,0,'',0,0,0,0,0,'Send Promotional SMS',0,'Send Promotional Email');
 /*!40000 ALTER TABLE `dynamic_details` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -5830,6 +5836,57 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `add_opt_in_for_ctc` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_opt_in_for_ctc`()
+begin
+
+
+if not exists (select * from information_schema.columns
+    where column_name = 'ctc_phone_opt_in' and table_name = 'dynamic_details' and table_schema = 'rd') then
+    alter table dynamic_details add column `ctc_phone_opt_in` tinyint(1) NOT NULL DEFAULT '0';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'ctc_phone_opt_in_txt' and table_name = 'dynamic_details' and table_schema = 'rd') then
+    alter table dynamic_details add column `ctc_phone_opt_in_txt` varchar(200) NOT NULL DEFAULT 'Send Promotional SMS';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'ctc_email_opt_in' and table_name = 'dynamic_details' and table_schema = 'rd') then
+    alter table dynamic_details add column `ctc_email_opt_in` tinyint(1) NOT NULL DEFAULT '0';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'ctc_email_opt_in_txt' and table_name = 'dynamic_details' and table_schema = 'rd') then
+    alter table dynamic_details add column `ctc_email_opt_in_txt` varchar(200) NOT NULL DEFAULT 'Send Promotional Email';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'phone_opt_in' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `phone_opt_in` tinyint(1) NOT NULL DEFAULT '0';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'email_opt_in' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `email_opt_in` tinyint(1) NOT NULL DEFAULT '0';
+end if;
+
+
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `add_schedules` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -9038,4 +9095,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-02-19 12:52:01
+-- Dump completed on 2022-03-30 14:05:37
