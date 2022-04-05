@@ -21,7 +21,6 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailEmails' ,{
         { text: 'MAC Address',    dataIndex: 'mac',      tdCls: 'gridMain', flex: 1,stateId: 'StateGridDynamicDetailEmails1'},
         { text: 'E-Mail',         dataIndex: 'email',    tdCls: 'gridTree', flex: 1,stateId: 'StateGridDynamicDetailEmails2'},
         { text: 'Phone',          dataIndex: 'phone',    tdCls: 'gridTree', flex: 1,stateId: 'StateGridDynamicDetailEmails2a'},
-        { text: 'DN',             dataIndex: 'dn',       tdCls: 'gridTree', flex: 1,stateId: 'StateGridDynamicDetailEmails2b'},
         { 
             text        : 'Captive MAC',
             dataIndex   : 'cp_mac', 
@@ -53,6 +52,102 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailEmails' ,{
             hidden      : true, 
             flex        : 1,
             stateId		: 'DD_Email_E'
+        },
+        { 
+            text        : 'First Name',
+            dataIndex   : 'first_name', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_first_name'
+        },
+        { 
+            text        : 'Last Name',
+            dataIndex   : 'last_name', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_first_name'
+        },
+        { 
+            text        : 'Gender',
+            dataIndex   : 'gender', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_gender'
+        },
+        { 
+            text        : 'Birthday',
+            dataIndex   : 'birthday', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_birthday'
+        },
+        { 
+            text        : 'Company',
+            dataIndex   : 'company', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_company'
+        },
+        { 
+            text        : 'Address',
+            dataIndex   : 'address', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_address'
+        },
+        { 
+            text        : 'City',
+            dataIndex   : 'city', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_city'
+        },
+        { 
+            text        : 'Country',
+            dataIndex   : 'country', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_country'
+        },
+        { 
+            text        : 'Room',
+            dataIndex   : 'room', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_room'
+        },
+        { 
+            text        : 'Custom 1',
+            dataIndex   : 'custom1', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_custom1'
+        },
+        { 
+            text        : 'Custom 2',
+            dataIndex   : 'custom2', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_custom2'
+        },
+        { 
+            text        : 'Custom 3',
+            dataIndex   : 'custom3', 
+            tdCls       : 'gridTree',
+            hidden      : true, 
+            flex        : 1,
+            stateId		: 'DD_custom3'
         },
         { 
             text        : 'SMS Opt-In',

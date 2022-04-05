@@ -445,7 +445,7 @@ var rdDynamic = (function () {
             //Buttons
             var b = [];
             
-            if(cDynamicData.settings.connect_only == true){
+            if(cDynamicData.settings.click_to_connect.connect_only == true){
                  if(cDynamicData.settings.t_c_check == true){
                     b.push({ 
                         view    : "checkbox",
@@ -510,7 +510,7 @@ var rdDynamic = (function () {
                 }
                 
                 
-                if(cDynamicData.settings.connect_check == true){
+                if(cDynamicData.settings.click_to_connect.connect_check == true){
                     b.push({ 
                         view    : "button", 
                         value   : i18n('sFree_Access') , 

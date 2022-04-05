@@ -44,6 +44,8 @@ class DynamicDetailsController extends AppController{
         $this->loadModel('DynamicDetailSocialLogins');
         $this->loadModel('DynamicDetailPrelogins');
         
+        $this->loadModel('DynamicDetailCtcs');
+        
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtons');
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
@@ -131,7 +133,8 @@ class DynamicDetailsController extends AppController{
                             ->where(['DynamicPhotos.active' => true]);
                     },
                     'DynamicDetailSocialLogins',
-                    'DynamicDetailMobiles'
+                    'DynamicDetailMobiles',
+                    'DynamicDetailCtcs'
                 ])
                 ->where([$this->main_model.'.id' =>$dynamic_id])
                 ->first();                
@@ -191,12 +194,15 @@ class DynamicDetailsController extends AppController{
                             },
                             'DynamicPages',
                             'DynamicDetailSocialLogins',
-                            'DynamicDetailMobiles'
+                            'DynamicDetailMobiles',
+                            'DynamicDetailCtcs'
                         ]
                 ])
                 ->where([$conditions])
                 ->order(['DynamicPairs.priority' => 'DESC'])
                 ->first();                
+
+            //print_r($q_r);
 
             if($q_r){
                 
@@ -233,6 +239,11 @@ class DynamicDetailsController extends AppController{
 				if($q_r->dynamic_detail->social_enable == true){
 				    $social_enable = true;
 				}
+				if($q_r->dynamic_detail->dynamic_detail_ctc){
+				    $items['settings']['click_to_connect'] =  $q_r->dynamic_detail->dynamic_detail_ctc;
+			    }else{
+			        $items['settings']['click_to_connect'] =  [];
+			    }
             }
             
         }
@@ -795,6 +806,25 @@ class DynamicDetailsController extends AppController{
         }
     }
     
+    public function viewClickToConnect(){
+
+        if(!$this->_ap_right_check()){
+            return;
+        }
+        
+        $data = [];
+        $entity = $this->{'DynamicDetailCtcs'}->find()->where(['dynamic_detail_id' =>$this->request->query['dynamic_detail_id']])->first();
+        if($entity){
+            $data = $entity->toArray();
+        }
+                   
+        $this->set([
+            'data'     => $data,
+            'success'   => true,
+            '_serialize'=> ['success', 'data']
+        ]);
+    }
+      
     public function editClickToConnect(){
 
         if(!$this->_ap_right_check()){
@@ -806,11 +836,37 @@ class DynamicDetailsController extends AppController{
         $check_items = [
 			'connect_check',
 			'connect_only',
-			'ctc_require_email',
-			'ctc_require_phone',
-			'ctc_require_dn',
-			'ctc_phone_opt_in',
-			'ctc_email_opt_in'
+			'cust_info_check',
+			'ci_first_name',
+			'ci_first_name_required',
+			'ci_last_name',
+			'ci_last_name_required',
+			'ci_email',
+			'ci_email_required',
+			'ci_email_opt_in',
+		    'ci_gender',
+			'ci_gender_required',
+		    'ci_birthday',
+			'ci_birthday_required',
+		    'ci_company',
+			'ci_company_required',
+			'ci_address',
+			'ci_address_required',
+			'ci_city',
+			'ci_city_required',
+		    'ci_country',
+			'ci_country_required',
+			'ci_phone',
+			'ci_phone_required',
+			'ci_phone_opt_in',
+			'ci_room',
+			'ci_room_required',
+			'ci_custom1',
+			'ci_custom1_required',
+			'ci_custom2',
+			'ci_custom2_required',
+			'ci_custom3',
+			'ci_custom3_required',
 		];
         foreach($check_items as $i){
             if(isset($this->request->data[$i])){
@@ -820,10 +876,13 @@ class DynamicDetailsController extends AppController{
             }
         }
         
-        $entity = $this->{$this->main_model}->get($this->request->data['id']);
-        $this->{$this->main_model}->patchEntity($entity, $this->request->data());
+        $entity = $this->{'DynamicDetailCtcs'}->find()->where(['dynamic_detail_id' =>$this->request->data['dynamic_detail_id']])->first();
+        if(!$entity){
+             $entity = $this->{'DynamicDetailCtcs'}->newEntity($this->request->data()); 
+        }
+        $this->{'DynamicDetailCtcs'}->patchEntity($entity, $this->request->data());
 
-        if ($this->{$this->main_model}->save($entity)) {
+        if ($this->{'DynamicDetailCtcs'}->save($entity)) {
             $this->set(array(
                 'success' => true,
                 '_serialize' => array('success')

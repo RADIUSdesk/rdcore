@@ -254,7 +254,7 @@ Ext.define('Rd.controller.cDynamicDetails', {
                 activate:       me.tabSettingsActivate
             },
             'pnlDynamicDetail #tabClickToConect': {
-                activate:       me.tabDetailActivate
+               // activate:       me.tabDetailActivate
             },
 			'pnlDynamicDetail #tabSocialLogin': {
                 activate:       me.tabSocialLoginActivate

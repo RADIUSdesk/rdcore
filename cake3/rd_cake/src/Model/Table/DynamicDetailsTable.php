@@ -24,7 +24,8 @@ class DynamicDetailsTable extends Table
         $this->hasMany('DynamicDetailNotes',['dependent' => true]);
         $this->hasMany('DynamicDetailSocialLogins',['dependent' => true]);
         $this->hasMany('DynamicDetailPrelogins',['dependent' => true]); 
-        $this->hasOne('DynamicDetailMobiles',['dependent' => true]);            
+        $this->hasOne('DynamicDetailMobiles',['dependent' => true]); 
+        $this->hasOne('DynamicDetailCtcs',['dependent' => true]);           
     }
     
     public function validationDefault(Validator $validator){

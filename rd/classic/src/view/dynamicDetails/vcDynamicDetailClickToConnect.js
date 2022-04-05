@@ -1,25 +1,36 @@
 Ext.define('Rd.view.dynamicDetails.vcDynamicDetailClickToConnect', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcDynamicDetailClickToConnect',
+    config: {
+        urlViewCtoC   : '/cake3/rd_cake/dynamic-details/view-click-to-connect.json'
+    }, 
     control: {
         '#chkClickToConnect' : {
             change: 'chkClickToConnectChange'
-        },
-        '#chkCtcRequireEmail' : {
-            change:  'chkCtcRequireEmailChange'
-        },
-        '#chkCtcRequirePhone' : {
-            change:  'chkCtcRequirePhoneChange'
-        },
-        '#chkCtcRequireDn' : {
-            change:  'chkCtcRequireDnChange'
         },
         '#chkCtcEmailOptIn' : {
             change:  'chkCtcEmailOptInChange'    
         },
         '#chkCtcPhoneOptIn' : {
             change:  'chkCtcPhoneOptInChange'    
+        },
+        '#chkCustInfo' : {
+            change: 'chkCustInfoChange'    
         }
+    },
+    onViewActivate: function(){
+        var me = this;
+        var dd_id = me.getView().dynamic_detail_id;
+        me.getView().getForm().load({
+            url     : me.getUrlViewCtoC(),
+            method  : 'GET',
+            params  : {
+                dynamic_detail_id   : dd_id
+            },
+            failure : function(form, action) {
+                Ext.Msg.alert(action.response.statusText, action.response.responseText);
+            }
+        });    
     },
     chkClickToConnectChange: function(chk){
         var me      = this;
@@ -28,123 +39,49 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailClickToConnect', {
         var sx      = form.down('#txtConnectSuffix');
         var cd      = form.down('#nrConnectDelay');
         var co      = form.down('#chkConnectOnly');
-        var re      = form.down('#chkCtcRequireEmail');
-        var rs      = form.down('#cmbReSupply');
-        var opt_in  = form.down('#chkCtcEmailOptIn');
-        var txt     = form.down('#txt_email_opt_in');
-        
-        var rp      = form.down('#chkCtcRequirePhone');
-        var rsp     = form.down('#cmbReSupplyPhone');
-        var opt_inp = form.down('#chkCtcPhoneOptIn');
-        var txtp    = form.down('#txt_phone_opt_in');
-        
-        
-        var rdn     = form.down('#chkCtcRequireDn');
-        var rsdn    = form.down('#cmbReSupplyDn');      
+        var ci      = form.down('#chkCustInfo');
         var value   = chk.getValue();
         if(value){
             un.setDisabled(false);
             sx.setDisabled(false);
             cd.setDisabled(false);
             co.setDisabled(false);
-            re.setDisabled(false); 
-            rp.setDisabled(false); 
-            rdn.setDisabled(false);
-            
-            if(re.getValue()){
-                rs.setDisabled(false);
-                opt_in.setDisabled(false);
-                if(opt_in.getValue()){
-                    txt.setDisabled(false);
-                }else{
-                    txt.setDisabled(true);
-                }
-            }else{
-                rs.setDisabled(true);
-                opt_in.setDisabled(true);
-                txt.setDisabled(true);
-            }      
-            
-            
-            
-                             
+            ci.setDisabled(false);                                      
         }else{
             un.setDisabled(true);
             sx.setDisabled(true);
             cd.setDisabled(true);
             co.setDisabled(true);
-            re.setDisabled(true); 
-            rs.setDisabled(true);
-            opt_in.setDisabled(true);
-            txt.setDisabled(true);
-            
-            rp.setDisabled(true); 
-            rsp.setDisabled(true);
-            opt_inp.setDisabled(true);
-            txtp.setDisabled(true);
-            
-            rdn.setDisabled(true); 
-            rsdn.setDisabled(true);    
+            ci.setValue('cust_info_check');
+            ci.setValue(0);
+            ci.setDisabled(true);  
         }
     },
-    chkCtcRequireEmailChange: function(chk){
+    chkCustInfoChange: function(chk){
         var me      = this;
-        var form    = chk.up('form');
-        var value   = chk.getValue();
-        var rs      = form.down('#cmbReSupply');
-        var opt_in  = form.down('#chkCtcEmailOptIn');
-        var txt     = form.down('#txt_email_opt_in');
-        if(value){
-            rs.setDisabled(false);
-            opt_in.setDisabled(false);
-            if(opt_in.getValue()){
-                txt.setDisabled(false);
+        var pnl     = chk.up('panel');
+        var value   = chk.getValue();     
+        pnl.query('field').forEach(function(item){
+            var n   = item.getName();
+            //var cmp = pnl.query("[name='ci_email_required']");
+            //console.log(cmp);
+            //if(cmp[0]){
+            //    cmp[0].setDisabled(true);
+           //}
+            if(value){ 
+                item.setDisabled(false);     
             }else{
-                txt.setDisabled(true);
-            }
-        }else{
-            rs.setDisabled(true);
-            opt_in.setDisabled(true);
-            txt.setDisabled(true);
-        }       
-    },
-    chkCtcRequirePhoneChange: function(chk){
-        var me      = this;
-        var form    = chk.up('form');
-        var value   = chk.getValue();
-        var rs      = form.down('#cmbReSupplyPhone');
-        var opt_in  = form.down('#chkCtcPhoneOptIn');
-        var txt     = form.down('#txt_phone_opt_in');
-        if(value){
-            rs.setDisabled(false);
-            opt_in.setDisabled(false);
-            if(opt_in.getValue()){
-                txt.setDisabled(false);
-            }else{
-                txt.setDisabled(true);
-            }
-        }else{
-            rs.setDisabled(true);
-            opt_in.setDisabled(true);
-            txt.setDisabled(true);
-        }      
-    },
-    chkCtcRequireDnChange: function(chk){
-        var me      = this;
-        var form    = chk.up('form');
-        var value   = chk.getValue();
-        var rs      = form.down('#cmbReSupplyDn');
-        if(value){
-            rs.setDisabled(false);
-        }else{
-            rs.setDisabled(true);
-        }       
+                if(item.getName() !== 'cust_info_check'){
+                    item.setDisabled(true);   
+                }        
+           }                 
+        });
     },
     chkCtcEmailOptInChange: function(chk){
         var me      = this;
         var form    = chk.up('form');
         var value   = chk.getValue();
-        var txt     = form.down('#txt_email_opt_in');
+        var txt     = form.down('#ci_email_opt_in_txt');
         if(value){
             txt.setDisabled(false);
         }else{
@@ -155,11 +92,65 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailClickToConnect', {
         var me      = this;
         var form    = chk.up('form');
         var value   = chk.getValue();
-        var txt     = form.down('#txt_phone_opt_in');
+        var txt     = form.down('#ci_phone_opt_in_txt');
         if(value){
             txt.setDisabled(false);
         }else{
             txt.setDisabled(true);
         }
-    }
+    },
+    sldrToggleChange: function(sldr){
+		var me 		    = this;
+		var pnl    	    = sldr.up('panel');
+		var pnlC        = sldr.up('#pnlCustomerData');
+		var first       = pnl.down('checkbox')
+		var req         = pnl.down('#sldrRequire');
+        var value       = sldr.getValue(); 
+		if(!value){
+		    req.setDisabled(true);
+		    //Email options
+		    if(first.getName() == 'ci_email'){
+		        pnlC.down('#pnlEmail').setDisabled(true);   
+		    }
+		    //Phone
+		    if(first.getName() == 'ci_phone'){
+		        pnlC.down('#pnlPhone').setDisabled(true);   
+		    }
+		    //Custom1
+		    if(first.getName() == 'ci_custom1'){
+		        pnlC.down('#pnlCustom1').setDisabled(true);   
+		    }
+		    //Custom2
+		    if(first.getName() == 'ci_custom2'){
+		        pnlC.down('#pnlCustom2').setDisabled(true);   
+		    }
+		    //Custom3
+		    if(first.getName() == 'ci_custom3'){
+		        pnlC.down('#pnlCustom3').setDisabled(true);   
+		    }
+		    		          
+		}else{
+		    req.setDisabled(false);
+		    //Email options
+		    if(first.getName() == 'ci_email'){
+		        pnlC.down('#pnlEmail').setDisabled(false);   
+		    }
+		    //Phone
+		    if(first.getName() == 'ci_phone'){
+		        pnlC.down('#pnlPhone').setDisabled(false);   
+		    }
+		    //Custom1
+		    if(first.getName() == 'ci_custom1'){
+		        pnlC.down('#pnlCustom1').setDisabled(false);   
+		    }
+		    //Custom2
+		    if(first.getName() == 'ci_custom2'){
+		        pnlC.down('#pnlCustom2').setDisabled(false);   
+		    }
+		    //Custom3
+		    if(first.getName() == 'ci_custom3'){
+		        pnlC.down('#pnlCustom3').setDisabled(false);   
+		    }		    
+		}
+	}
 });

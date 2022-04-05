@@ -808,56 +808,52 @@ $$('sliderData').refresh();
                 
         var onBtnClickToConnectClickPre = function(b){
         
-            var formData    = new FormData();
-            //-- ADD ON --
-            var mac_address = getParameterByName('mac');
-            formData.append("mac", mac_address);
-            
-            var nasid       = getParameterByName('nasid');
-            formData.append("nasid", nasid);
-                 
-            var email_check = location.protocol+'//'+document.location.hostname+"/cake3/rd_cake/data-collectors/mac-check.json";
-            
-            webix.ajax().timeout(3000).post(
-                email_check,formData,{ 
-                error   : function(text, data, XmlHttpRequest){
-                    console.log("ERROR -> Getting Info for MAC");    
-                },
-                success : function(text, data, XmlHttpRequest){
-                    if(data.json().success == true){            
-                        if((data.json().data.ctc_require_email == true)||(data.json().data.ctc_require_phone == true)||(data.json().data.ctc_require_dn == true)){
-                            if(ctcFormDone == false){ //If not already done 
-                                buildClickToConnectForm(data.json().data);
-                            }                       
-                            showForm("winEmail", b);
-                        }else{
-                            onBtnClickToConnectClick();
-                        } 
-                    }else{
-                        console.log("OTHER ERROR");   
-                    }
-                }
-            });
-             
-            var mac_address  = getParameterByName('mac');
-            if(mac_address != ''){
-                //console.log("Try to determine if this MAC supplied an email address");
-                //console.log("MAC IS"+mac_address+"THIS");
+            console.log(cDynamicData.settings.click_to_connect.cust_info_check);
+            if(cDynamicData.settings.click_to_connect.cust_info_check == false){          
+                onBtnClickToConnectClick();       
             }else{
-                //console.log("Could nof find MAC Address");
+        
+                var formData    = new FormData();
+                //-- ADD ON --
+                var mac_address = getParameterByName('mac');
+                formData.append("mac", mac_address);
+                
+                var nasid       = getParameterByName('nasid');
+                formData.append("nasid", nasid);
+                     
+                var email_check = location.protocol+'//'+document.location.hostname+"/cake3/rd_cake/data-collectors/mac-check.json";
+                
+                webix.ajax().timeout(3000).post(
+                    email_check,formData,{ 
+                    error   : function(text, data, XmlHttpRequest){
+                        console.log("ERROR -> Getting Info for MAC");    
+                    },
+                    success : function(text, data, XmlHttpRequest){
+                        if(data.json().success == true){            
+                            if((data.json().data.ctc_require_email == true)||(data.json().data.ctc_require_phone == true)||(data.json().data.ctc_require_dn == true)){
+                                if(ctcFormDone == false){ //If not already done 
+                                    buildClickToConnectForm(data.json().data);
+                                }                       
+                                showForm("winEmail", b);
+                            }else{
+                                onBtnClickToConnectClick();
+                            } 
+                        }else{
+                            console.log("OTHER ERROR");   
+                        }
+                    }
+                });             
             }
-            return;
-            
             //-- END ADD ON --			
         }
         
         var onBtnClickToConnectClick = function(b){
         
-            var c_t_c_element	= cDynamicData.settings.connect_suffix;
+            var c_t_c_element	= cDynamicData.settings.click_to_connect.connect_suffix;
 			var element_val     = getParameterByName(c_t_c_element);
 
-			var c_t_c_username 	= cDynamicData.settings.connect_username+"@"+element_val;
-			var c_t_c_password	= cDynamicData.settings.connect_username;
+			var c_t_c_username 	= cDynamicData.settings.click_to_connect.connect_username+"@"+element_val;
+			var c_t_c_password	= cDynamicData.settings.click_to_connect.connect_username;
             userName 			= c_t_c_username;
             password 			= c_t_c_password;
             
