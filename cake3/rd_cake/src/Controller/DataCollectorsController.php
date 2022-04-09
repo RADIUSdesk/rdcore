@@ -32,118 +32,48 @@ class DataCollectorsController extends AppController{
         $data   = $this->request->data;      
         $q_r    = $this->_find_dynamic_detail_id();
         
-        $data['ctc_require_email']  = false; // By defaul don't ask for email;
-        $data['ctc_require_phone']  = false; // By defaul don't ask for email;
-        $data['ctc_require_dn']     = false; // By defaul don't ask for email;        
-                           
+        $data['ci_required']  = false; // By defaul don't ask for customer info;
+                 
         if($q_r){
 
-            //Once we found the Dynamic Login Page; We need to figure out if we need to ask for an email for this person
+            //Once we found the Dynamic Login Page; We need to figure out if we need pop up the require customer info dialog
             //For that we need to look for a combo **dynamic_detail_id** and **mac**
             //IF found look at the modify timestamp and if it 'expired' ask for it again
-            //If not found ask for it (ctc_require_email == true)
-            //Else we set ctc_require_email == false since we found the combo and it has not expired yet  
+            //If not found ask for it (ci_required == true)
+            //Else we set ci_required == false since we found the combo and it has not expired yet  
             $dd_id          = $q_r->dynamic_detail_id;
-            $dd_resuply_int = $q_r->dynamic_detail->ctc_resupply_email_interval;
-            $dd_resuply_intP = $q_r->dynamic_detail->ctc_resupply_phone_interval;
-            $data['dd_id']  = $dd_id;
+            $dd_resuply_int = $q_r->dynamic_detail->dynamic_detail_ctc->ci_resupply_interval;
+            $data['dd_id']  = $dd_id;          
+            if($q_r->dynamic_detail->dynamic_detail_ctc->cust_info_check == true){
             
-            if($q_r->dynamic_detail->ctc_require_email == true){
-                $q_dd = $this->{$this->main_model}->find()
-                    ->where([$this->main_model.'.dynamic_detail_id' => $dd_id,$this->main_model.'.mac' => $this->request->data['mac']])
-                    ->first();
-                if($q_dd){
-                    if($dd_resuply_int > 0){ //This has an expiry date lets compare
-                    
-                        $expiry_time    = $q_dd->modified->toUnixString()+($dd_resuply_int * 24 * 60 *60);
-                        $now            = new FrozenTime();
-                        if($expiry_time < $now->toUnixString()){
-                            //It already expired ask for a new one
-                            $data['ctc_require_email'] = true;
-                            if($q_r->dynamic_detail->ctc_email_opt_in == true){
-                                $data['ctc_email_opt_in']  = true;
-                                $data['ctc_email_opt_in_txt']  = $q_r->dynamic_detail->ctc_email_opt_in_txt;
-                            } 
-                        }   
-                    }
-                }else{
-                    $data['ctc_require_email'] = true; //We did not found it so have to supply email
-                    if($q_r->dynamic_detail->ctc_email_opt_in == true){
-                        $data['ctc_email_opt_in']  = true;
-                        $data['ctc_email_opt_in_txt']  = $q_r->dynamic_detail->ctc_email_opt_in_txt;
+                if($dd_resuply_int == -1){
+                    $data['ci_required'] = true; // Every time == -1 //No need to check if expired
+                }else{       
+                    $q_dd = $this->{$this->main_model}->find()
+                        ->where([$this->main_model.'.dynamic_detail_id' => $dd_id,$this->main_model.'.mac' => $this->request->data['mac']])
+                        ->first();
+                    if($q_dd){
+                        if($dd_resuply_int > 0){ //This has an expiry date lets compare           
+                            $expiry_time    = $q_dd->modified->toUnixString()+($dd_resuply_int * 24 * 60 *60);
+                            $now            = new FrozenTime();
+                            if($expiry_time < $now->toUnixString()){
+                                //It already expired ask for a new one
+                                $data['ci_required'] = true;
+                            }   
+                        }
+                    }else{
+                        $data['ci_required'] = true; //We did not found it so have to supply customer info
                     }
                 }
-            }
-            
-            if($q_r->dynamic_detail->ctc_require_phone == true){
-                $q_dd = $this->{$this->main_model}->find()
-                    ->where([$this->main_model.'.dynamic_detail_id' => $dd_id,$this->main_model.'.mac' => $this->request->data['mac']])
-                    ->first();
-                if($q_dd){
-                    if($dd_resuply_intP > 0){ //This has an expiry date lets compare                  
-                        $expiry_time    = $q_dd->modified->toUnixString()+($dd_resuply_intP * 24 * 60 *60);
-                        $now            = new FrozenTime();
-                        if($expiry_time < $now->toUnixString()){
-                            //It already expired ask for a new one
-                            $data['ctc_require_email'] = true;
-                            if($q_r->dynamic_detail->ctc_phone_opt_in == true){
-                                $data['ctc_phone_opt_in']  = true;
-                                $data['ctc_phone_opt_in_txt']  = $q_r->dynamic_detail->ctc_phone_opt_in_txt;
-                            }  
-                        }   
-                    }
-                }else{
-                    $data['ctc_require_phone'] = true; //We did not found it so have to supply phone
-                    if($q_r->dynamic_detail->ctc_phone_opt_in == true){
-                        $data['ctc_phone_opt_in']  = true;
-                        $data['ctc_phone_opt_in_txt']  = $q_r->dynamic_detail->ctc_phone_opt_in_txt;
-                    }
-                }
-            }
-            
-            if($q_r->dynamic_detail->ctc_require_dn == true){
-                $q_dd = $this->{$this->main_model}->find()
-                    ->where([$this->main_model.'.dynamic_detail_id' => $dd_id,$this->main_model.'.mac' => $this->request->data['mac']])
-                    ->first();
-                if($q_dd){
-                    if($dd_resuply_intP > 0){ //This has an expiry date lets compare                  
-                        $expiry_time    = $q_dd->modified->toUnixString()+($dd_resuply_intP * 24 * 60 *60);
-                        $now            = new FrozenTime();
-                        if($expiry_time < $now->toUnixString()){
-                            //It already expired ask for a new one
-                            $data['ctc_require_dn'] = true; 
-                        }   
-                    }
-                }else{
-                    $data['ctc_require_dn'] = true; //We did not found it so have to supply dn
-                }
-            }      
-                      
+            }                                
         } 
         
-        $this->set(array(
-            'data' => $data,
-            'success' => true,
-            '_serialize' => array('data','success')
-        ));
+        $this->set([
+            'data'          => $data,
+            'success'       => true,
+            '_serialize'    => ['data','success']
+        ]);
         
-     /*   
-        //Require emial by default
-        $data['require_email'] = true;   
-        //There should be a MAC address in the submitted data
-        if($this->request->data['mac'] !== null){
-            $mac = $this->request->data['mac'];
-            $q = $this->{$this->main_model}->find()->where([ $this->main_model.'.mac' => $mac])->first();
-            if($q){ //MAC is present no need to supply email
-                $data['require_email'] = false;
-            }  
-        }  
-        $this->set(array(
-            'data' => $data,
-            'success' => true,
-            '_serialize' => array('data','success')
-        ));
-        */
     }
     
     public function addMac(){
@@ -349,7 +279,7 @@ class DataCollectorsController extends AppController{
 		$q_r = $this->DynamicPairs
             ->find()
             ->contain([
-                'DynamicDetails'
+                'DynamicDetails' => ['DynamicDetailCtcs']
             ])
             ->where([$conditions])
             ->order(['DynamicPairs.priority' => 'DESC'])
