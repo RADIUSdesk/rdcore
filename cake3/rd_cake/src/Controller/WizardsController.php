@@ -23,6 +23,7 @@ class WizardsController extends AppController{
         $this->loadModel('PermanentUsers');
         $this->loadModel('Realms');       
         $this->loadModel('DynamicDetails');
+        $this->loadModel('DynamicDetailCtcs');
         $this->loadModel('DynamicPhotos');
         
          $this->loadModel('DynamicPairs');
@@ -304,9 +305,10 @@ class WizardsController extends AppController{
             ->first();
         if($q_r){
             $id = $q_r->id;
-            $d = array();
+            $d = [];
             $d['id'] = $id;
-            $check_items = array('voucher_login_check','user_login_check','eth_br_for_all', 'connect_check');
+            $check_items = ['voucher_login_check','user_login_check','eth_br_for_all'];
+          
             foreach($check_items as $i){
                 if(isset($this->request->data[$i])){
                     $d[$i] = 1;
@@ -315,7 +317,23 @@ class WizardsController extends AppController{
                 }
             }
             $this->DynamicDetails->patchEntity($q_r, $d);
-            $this->DynamicDetails->save($q_r);  
+            $this->DynamicDetails->save($q_r); 
+            
+            //Update the DynamcDetailCtcs entry
+            $d_ctcs['connect_check'] = 0;
+            if(isset($this->request->data['connect_check'])){
+                $d_ctcs['connect_check'] = 1;
+            }
+            $q_ctc = $this->DynamicDetailCtcs->find()
+                ->where([
+                    'DynamicDetailCtcs.dynamic_detail_id'   => $id
+                ])
+                ->first();
+            if($q_ctc){
+                $this->DynamicDetailCtcs->patchEntity($q_ctc, $d_ctcs);
+                $this->DynamicDetailCtcs->save($q_ctc);
+            }
+             
         }
         
         //Try to find the timezone and its value
@@ -953,7 +971,7 @@ class WizardsController extends AppController{
         $d_detail['reg_auto_suffix']        = $ap_name;
         
         //Click to Connect
-        $d_c_t_c                = array();
+        $d_c_t_c                = [];
         $d_c_t_c['username']    = 'click_to_connect@'.$ap_name;
         $d_c_t_c['password']    = 'click_to_connect';
         $d_c_t_c['language_id'] = '4'; //*SPECIAL
@@ -969,13 +987,18 @@ class WizardsController extends AppController{
         $this->PermanentUsers->save($e_c_t_c);
         $c_t_c_user_id          =  $e_c_t_c->id; 
      
-        $d_detail['connect_check']          = 1;       
-        $d_detail['connect_username']       = 'click_to_connect';
-        $d_detail['connect_suffix']         = 'ssid'; 
              
         $e_d_detail = $this->DynamicDetails->newEntity($d_detail); 
         $this->DynamicDetails->save($e_d_detail);
         $dynamic_detail_id = $e_d_detail->id;
+        
+        $d_detail_ctcs                      = [];
+        $d_detail_ctcs['dynamic_detail_id']= $dynamic_detail_id;
+        $d_detail_ctcs['connect_check']     = 1;       
+        $d_detail_ctcs['connect_username']  = 'click_to_connect';
+        $d_detail_ctcs['connect_suffix']    = 'ssid';
+        $e_d_detail_ctcs                    = $this->DynamicDetailCtcs->newEntity($d_detail_ctcs);
+        $this->DynamicDetailCtcs->save($e_d_detail_ctcs);       
         
         //Add a sample background
         $source     = WWW_ROOT."img/dynamic_photos/sample.jpg";
@@ -995,7 +1018,7 @@ class WizardsController extends AppController{
         $this->DynamicClients->save($e_d_client);
         $dynamic_client_id = $e_d_client->id;
         
-        $d_dc_r = array();
+        $d_dc_r = [];
         $d_dc_r['dynamic_client_id'] = $dynamic_client_id;
         $d_dc_r['realm_id'] = $realm_id;
         

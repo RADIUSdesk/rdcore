@@ -1706,7 +1706,9 @@ Ext.define('Rd.controller.cDynamicDetails', {
                         failure: function(batch,options,c,d){
                             Ext.ux.Toaster.msg(
                                 i18n('sProblems_deleting_item'),
-                                batch.proxy.getReader().rawData.message.message,
+                                '',
+                                //FIXME
+                               // batch.proxy.getReader().rawData.message.message,
                                 Ext.ux.Constants.clsWarn,
                                 Ext.ux.Constants.msgWarn
                             );

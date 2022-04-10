@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html class="h-100" lang="en">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="Dirk van der Walt">
+        <meta name="generator" content="Gedit">
+        <title>Wi-Fi Hotspot | Login</title>
+        
+        <link rel="stylesheet" href="css/bootstrap-icons.css">
+        
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <meta name="theme-color" content="#7952b3">
+        
+        <!-- Custom styles for this template -->
+        <link href="css/sticky-footer-navbar.css" rel="stylesheet">
+        <link href="css/style.css" rel="stylesheet">
+  </head>
+  
+  <body class="d-flex flex-column h-100">
+  
+<header>
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">RADIUSdesk</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav me-auto mb-2 mb-md-0">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="#" id='aConnect' data-translate="sConnect">Connect</a>
+          </li>
+          
+          <!-- Languages -->
+          <li class="nav-item dropdown d-none" id='liLanguages'>
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" data-translate="sLanguages">
+              Languages
+            </a>
+            <div class="dropdown-menu" id='divLangList'>
+              <!--These items will be dynamically added depending on the backend-->
+              <!--<a class="dropdown-item" href="#">English</a>-->
+            </div>
+          </li>
+          <!-- END Languages -->
+          
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+  
+    
+        <!-- Begin page content -->
+        <main class="flex-shrink-1">    
+            <div id="crslMain" class="carousel slide" data-bs-ride="carousel">
+                <!--Indicators-->
+                <div class="carousel-indicators">     
+                </div>
+                <!--Content-->
+                <div class="carousel-inner">
+                </div>
+                <!--Controlls-->
+                <button class="carousel-control-prev" type="button" data-bs-target="#crslMain" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#crslMain" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </main>
+        
+          
+        <div id='myModal' class="modal fade" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content"> 
+                <div class="modal-header">
+                    <h5 class="modal-title" id='hLogin'><i class="bi-plug"></i> <span data-translate="sConnect">Connect</span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form role="form" data-toggle="validator" id='frmLogin'>
+                <div id='mdlBodyMain' class="modal-body">
+                <div class="container-fluid">
+                   <div class="row">
+                      <div class="alert alert-info collapse show" id='alertInfo'>
+                         <div>Please log in to use the Wi-Fi Internet services.</div>
+                      </div>
+                   </div>
+                   <div class="row">
+                      <div class="alert alert-warning collapse" id='alertWarn'>
+                         <div style="font-weight: bold"></div>
+                      </div>
+                   </div>
+                   <!--Login Screen-->
+                   <div class="row collapse show" id='pnlLogin'><!--             
+                    <ul class="nav nav-pills">
+                      <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" data-bs-toggle="tab" data-bs-target="#nav-user" href="#"><i class="bi-person"></i> User</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" data-bs-target="#nav-voucher" href="#"><i class="bi-ticket"></i> Voucher</a>
+                      </li>
+                    </ul>
+             
+                    <div class="tab-content p-0" id="nav-tabContent">
+                      <div class="tab-pane fade show active" id="nav-user" role="tabpanel" aria-labelledby="nav-user-tab">         
+                        <div class="d-grid gap-3">
+                          <div class="mb-3">
+                          </div>
+                          <div class="mb-3">
+                            <input type="email" placeholder="Username" class="form-control" id="txtUsername">
+                          </div>
+                          <div class="mb-3">
+                            <input type="password" placeholder="Password" class="form-control" id="txtPassword">
+                          </div>
+                        </div>              
+                      </div>
+                      <div class="tab-pane fade" id="nav-voucher" role="tabpanel" aria-labelledby="nav-voucher-tab">
+                        <div class="d-grid gap-3">
+                          <div class="mb-3">
+                          </div>
+                          <div class="mb-3">
+                            <input type="email" placeholder="Voucher" class="form-control" id="txtVoucher">
+                          </div>
+                        </div>                 
+                      </div>
+                    </div>-->
+                    
+                   </div>
+                   <!-- END LOGIN SCREEN-->
+                   
+                   <div class="row collapse" id='pnlSession'>
+                        <table class="table table-striped">
+                           <thead>
+                              <tr>
+                                 <th data-translate="sItem">Item</th>
+                                 <th data-translate="sValue">Value</th>
+                              </tr>
+                           </thead>
+                           <tbody>
+                              <tr>
+                                 <td><i class="bi-person"></i> <span data-translate="sUsername">Username</span></td>
+                                 <td id='acct_un' style="color:#2759A2;"></td>
+                              </tr>
+                              <tr>
+                                 <td><i class="bi-clock"></i>  <span data-translate="sConnected">Connected</span></td>
+                                 <td id='acct_up' style="color:#2759A2;"></td>
+                              </tr>
+                              <tr>
+                                 <td><i class="bi-arrow-down"></i>  <span data-translate="sData_In">Data In</span></td>
+                                 <td id='acct_di' style="color:#2759A2;"></td>
+                              </tr>
+                              <tr>
+                                 <td><i class="bi-arrow-up"></i>  <span data-translate="sData_Out">Data Out</span></td>
+                                 <td id='acct_do' style="color:#2759A2;"></td>
+                              </tr>
+                              <tr>
+                                 <td><i class="bi-hdd"></i>  <span data-translate="sData_Total">Data Total</span></td>
+                                 <td id='acct_dt' style="color:#2759A2;"></td>
+                              </tr>
+                           </tbody>
+                        </table>
+                        <div class="col-sm-12">
+                          <span data-translate="sRefreshing_in">Refreshing in</span> <span id='status_refresh' class='info' style="color:#2759A2;"></span> <span data-translate="sseconds_fs">seconds.</span>
+                        </div>
+                   </div>
+                   <!-- T&C-->
+                   <div class="row d-none" id='divTerms'>
+                       <div class="form-check">
+                          <input class="form-check-input" type="checkbox" id="chkTerms">
+                          <label class="form-check-label" for="flexCheckDefault">
+                            <a id='aTerms' href="#" data-translate="sTerms_and_Conditions">Terms and Conditions</a>
+                          </label>
+                        </div>
+                        <div class="p-0">
+                        * <span data-translate="sBy_continuing_cm_you_agree_to_the_terms_and_conditions_fs"></span>
+                        </div>
+                    </div>
+                   <!--END T&C--> 
+                   <!-- Register -->
+                   <div class="row d-none p-0" id='divRegister'>
+                       <a class="p-0" id='aRegister' href="#" data-translate='sSign_Up'>Sign Up</a>
+                   </div>
+                   <!--END Register-->
+                   <!-- Lost Password -->
+                   <div class="row d-none" id='divLostPassword'>
+                       <a class="p-0" id='aLostPassword' href="#" data-translate='sLost_Password'>Lost Password</a>
+                   </div>
+                   <!--END Lost Password-->                                  
+                </div>
+                <div class="d-grid gap-2 pt-2">
+                    <button type="button" class="btn btn-warning btn-block btn-lg d-none" data-loading-text="sDisconnectingUser" id='btnDisconnect'><i class='bi-x'></i> <span data-translate="sDisconnect">Disconnect</span></button>
+                    <button type="submit" disabled class="btn btn-primary btn-block btn-lg" data-loading-text="sConnecting_User" id='btnConnect'><i class='bi-check'></i> <span data-translate="sOk">OK</span></button>
+                    <button type="submit" class="btn btn-primary btn-block btn-lg" data-loading-text="sConnecting_User" id='btnClickToConnect'><i class='bi-check'></i> <span data-translate="sFree_Access">Click To Connect</span></button>
+                  </div>              
+                </div>               
+            </form>
+          </div>
+        </div>
+        </div>
+             
+        <div class="modal fade" id="modalCustInfo" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Customer Info</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form role="form" data-toggle="validator" id='frmCustInfo' class="requires-validation" novalidate>
+                  <div class="modal-body">                 
+                    <div class="container-fluid p-0" id='pnlCustInfo' data-populate="false">
+                        <div class="mb-3">
+                          <div class="alert alert-warning collapse" id='alertWarnCustInfo'>
+                             
+                          </div>
+                        </div>
+                        <!--We will dynamically APPEND components from here onwards programatically--> 
+                    </div> 
+                    <div class="d-grid gap-2 pt-2">
+                        <button type="button" class="btn btn-primary btn-block btn-lg" data-loading-text="sLostPwd" id='btnCustInfo'><i class='bi-check'></i> <span data-translate="sSubmit">Submit</span></button>                   
+                    </div>    
+                  </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        
+             
+         <div class="modal fade" id="modalLostPwd" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" data-translate="sLost_Password">Sign Up</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form role="form" data-toggle="validator" id='frmLostPwd'>
+                  <div class="modal-body">                 
+                  <div class="container-fluid p-0" id='pnlLostPwd' data-populate="false">
+                    <div class="mb-3">
+                      <div class="alert alert-warning collapse" id='alertWarnLostPwd'>
+                         
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <div class="alert alert-info collapse show" id='alertInfo'>
+                        <h3 data-translate="sSupply_your_email_address"> </h3>
+                        <div data-translate="sIf_you_are_registered_with_us"></div>
+			            <div data-translate="swe_will_send_you_your_credentials_fs"></div>
+                      </div>
+                   </div>
+                    
+
+                  </div>
+                  
+                    <div class="d-grid gap-2 pt-2">
+                        <button type="button" class="btn btn-primary btn-block btn-lg" data-loading-text="sLostPwd" id='btnLostPwd' disabled><i class='bi-check'></i> <span data-translate="sSubmit">Submit</span></button>                   
+                    </div>    
+                  </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      
+         <div class="modal fade" id="modalRegister" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" data-translate="sSign_Up">Sign Up</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form role="form" data-toggle="validator" id='frmRegister'>
+                  <div class="modal-body">                 
+                  <div class="container-fluid p-0" id='pnlRegister' data-populate="false">
+                    <div class="mb-3">
+                      <div class="alert alert-warning collapse" id='alertWarnRegister'>
+                         
+                      </div>
+                   </div>
+                  <!--
+                      <div class="mb-3">
+                        <input type="text" placeholder="First Name" class="form-control" id="txtrFirstName">
+                      </div>
+                      <div class="mb-3">
+                        <input type="text" placeholder="Surname" class="form-control" id="txtrSurname">
+                      </div>
+                      <div class="mb-3">
+                        <input type="email" placeholder="Email (username)" class="form-control" id="txtrEmail">
+                      </div>
+                      <div class="mb-3">
+                        <input type="text" placeholder="Password" class="form-control is-valid" id="txtrPassword">
+                        <div class="valid-feedback">
+                            This is a success state form validation message!
+                        </div>
+                      </div>
+                      <div class="mb-3">
+                        <input type="text" placeholder="Cell" class="form-control is-invalid" id="txtrCell">
+                        <div class="valid-feedback">
+                            This is a success state form validation message!
+                        </div>
+                      </div>
+                      -->
+                  </div>
+                  
+                    <div class="d-grid gap-2 pt-2">
+                        <button type="button" class="btn btn-primary btn-block btn-lg" data-loading-text="sRegisterUser" id='btnRegister' disabled><i class='bi-check'></i> <span data-translate="sSubmit">Submit</span></button>                   
+                    </div>    
+                  </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        
+   
+        <script src="js/jquery.min.js"></script>
+        <script src="js/js.cookie.js"></script>
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <script src="js/sConnect.js"></script>
+        <script src="js/sDynamic.js"></script>
+        <script>
+        
+        console.log(Cookies.get('i18n'));
+        if(Cookies.get('i18n') !== undefined){
+            i18n = Cookies.get('i18n');
+        }else{
+            var i18n = 'en_GB';
+            function getByName(name) {
+               name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+               var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                   results = regex.exec(location.search);
+               return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+            }
+            var i    = getByName('i18n');
+            if(i !== ''){
+                i18n = i;
+            }
+        }
+        
+         $(document).ready(function(){
+               
+             $.getScript( "js/rd_i18n/"+i18n+".js").done(function( script, textStatus ) {
+                //Load the rest - The phrases are in                
+                $.getScript( "js/i18n.js").done(function( script, textStatus ) {
+                    var d = sDynamic({});
+                    window.sDynamic = d;
+                    d.init();                
+                });
+            });                                               
+         });
+      </script>     
+    </body>
+</html>

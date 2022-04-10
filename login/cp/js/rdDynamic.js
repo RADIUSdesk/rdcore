@@ -56,17 +56,24 @@ var rdDynamic = (function () {
             
             if($$('winRegister') !== undefined){
                  if($$('winRegister').isVisible()){
-                    $$('winRegister').define("height", window.innerHeight);
+                    $$('winRegister').define("height", window.innerHeight-h);
                     $$('winRegister').resize();
                 }
             }
             
             if($$('winPassword') !== undefined){
              if($$('winPassword').isVisible()){
-                    $$('winPassword').define("height", window.innerHeight);
+                    $$('winPassword').define("height", window.innerHeight-h);
                     $$('winPassword').resize();
                 }
-            }                
+            } 
+            
+            if($$('winClientInfo') !== undefined){
+             if($$('winClientInfo').isVisible()){
+                    $$('winClientInfo').define("height", window.innerHeight-h);
+                    $$('winClientInfo').resize();
+                }
+            }                 
         };
          
         var getDynamicDetail = function(){
@@ -126,6 +133,11 @@ var rdDynamic = (function () {
             
             //About Window
             guiAbout();
+            
+            //Client Info For Click To Connect
+            if(cDynamicData.settings.click_to_connect.cust_info_check){
+                guiCi();
+            }
             
             eventBindings();
             
@@ -1002,6 +1014,217 @@ var rdDynamic = (function () {
             document.title = name;
         
         }
+        
+        var guiCi = function(){
+                    
+            var elements = [];
+            var req_css  = {"background":"#ccc !important"};
+            var req      = true;
+            var rules    = {};
+            
+            elements.push({
+              view      : "template",
+              height     : 30,
+              template  : "Please supply to get <b>Guest Access</b>"
+            });
+            
+            if(cDynamicData.settings.click_to_connect.ci_first_name){
+                var first_name_css = {};
+                var first_name_req = false;
+                if(cDynamicData.settings.click_to_connect.ci_first_name_required){
+                    first_name_css = req_css;
+                    first_name_req = req;
+                } 
+                elements.push({ view:"text", label:'First Name', name:"first_name",css:first_name_css,required:first_name_req});
+            }
+            if(cDynamicData.settings.click_to_connect.ci_last_name){
+                var last_name_css = {};
+                var last_name_req = false;
+                if(cDynamicData.settings.click_to_connect.ci_last_name_required){
+                    last_name_css = req_css;
+                    last_name_req = req;
+                } 
+                elements.push({ view:"text", label:'Last Name', name:"last_name",css:first_name_css,required:last_name_req});
+            }
+            
+            if(cDynamicData.settings.click_to_connect.ci_email){
+                var email_css = {};
+                var email_req = false;
+                if(cDynamicData.settings.click_to_connect.ci_email_required){
+                    email_css = req_css;
+                    email_req = req;
+                    rules.email = webix.rules.isEmail;
+                } 
+                elements.push({ view:"text", label:'Email', name:"email",css:email_css,required:email_req});
+                if(cDynamicData.settings.click_to_connect.ci_email_opt_in == true){
+                    elements.push({ view:'checkbox', label: cDynamicData.settings.click_to_connect.ci_email_opt_in_txt, name:'email_opt_in'});
+                }
+            }
+            
+            if(cDynamicData.settings.click_to_connect.ci_gender){
+                elements.push({
+                    view:"radio", 
+                    label:"Gender",
+                    name: 'gender',
+                    value:'male', options:[
+                        {"id":'male',   "value":"Male"  },
+                        {"id":'female', "value":"Female"}
+                    ]
+                });
+            }
+            
+            if(cDynamicData.settings.click_to_connect.ci_birthday){
+                var birthday_css = {};
+                var birthday_req = false;
+                if(cDynamicData.settings.click_to_connect.ci_email_required){
+                    birthday_css = req_css;
+                    birthday_req = req;
+                } 
+            
+                elements.push({
+                    view:"datepicker", 
+                   // value: new Date(2012, 6, 8),
+                    name: 'birthday',
+                    label: "Birthday", 
+                    timepicker: false,
+                    css:birthday_css,
+                    required:birthday_req
+                });
+            }
+            
+            if(cDynamicData.settings.click_to_connect.ci_company){
+                var company_css = {};
+                var company_req = false;
+                if(cDynamicData.settings.click_to_connect.ci_company_required){
+                    company_css = req_css;
+                    company_req = req;
+                } 
+                elements.push({ view:"text", label:'Company', name:"company",css:company_css,required:company_req});
+            } 
+            
+            if(cDynamicData.settings.click_to_connect.ci_address){
+                var address_css = {};
+                var address_req = false;
+                if(cDynamicData.settings.click_to_connect.ci_address_required){
+                    address_css = req_css;
+                    address_req = req;
+                } 
+                elements.push({ 
+                   view:"textarea", 
+                   label:"Address",
+                   name: 'address', 
+                   height:100,
+                   css:address_css,
+                   required:address_req 
+                });
+            }
+            
+            if(cDynamicData.settings.click_to_connect.ci_city){
+                var city_css = {};
+                var city_req = false;
+                if(cDynamicData.settings.click_to_connect.ci_city_required){
+                    city_css = req_css;
+                    city_req = req;
+                } 
+                elements.push({ view:"text", label:'City', name:"company",css:city_css,required:city_req});
+            }
+            
+            if(cDynamicData.settings.click_to_connect.ci_country){
+                var country_css = {};
+                var country_req = false;
+                if(cDynamicData.settings.click_to_connect.ci_country_required){
+                    country_css = req_css;
+                    country_req = req;
+                } 
+                elements.push({ view:"text", label:'Country', name:"country",css:country_css,required:country_req});
+            }
+            
+            if(cDynamicData.settings.click_to_connect.ci_phone){
+                var phone_css = {};
+                var phone_req = false;
+                if(cDynamicData.settings.click_to_connect.ci_phone_required){
+                    phone_css = req_css;
+                    phone_req = req;
+                    rules.phone = webix.rules.intNumber;
+                } 
+                elements.push({ view:"text", label:'Phone', name:"phone",css:phone_css,required:phone_req});
+                if(cDynamicData.settings.click_to_connect.ci_phone_opt_in == true){
+                    elements.push({ view:'checkbox', label: cDynamicData.settings.click_to_connect.ci_phone_opt_in_txt, name:'phone_opt_in'});
+                }
+            }
+            
+            if(cDynamicData.settings.click_to_connect.ci_room){
+                var room_css = {};
+                var room_req = false;
+                if(cDynamicData.settings.click_to_connect.ci_room_required){
+                    room_css = req_css;
+                    room_req = req;
+                } 
+                elements.push({ view:"text", label:'Room', name:"room",css:room_css,required:room_req});
+            } 
+            
+            if(cDynamicData.settings.click_to_connect.ci_custom1){
+                var custom1_css = {};
+                var custom1_req = false;
+                if(cDynamicData.settings.click_to_connect.ci_custom1_required){
+                    custom1_css = req_css;
+                    custom1_req = req;
+                } 
+                elements.push({ view:"text", label:cDynamicData.settings.click_to_connect.ci_custom1_txt, name:"custom1",css:custom1_css,required:custom1_req});
+            }
+            
+            if(cDynamicData.settings.click_to_connect.ci_custom2){
+                var custom2_css = {};
+                var custom2_req = false;
+                if(cDynamicData.settings.click_to_connect.ci_custom2_required){
+                    custom2_css = req_css;
+                    custom2_req = req;
+                } 
+                elements.push({ view:"text", label:cDynamicData.settings.click_to_connect.ci_custom2_txt, name:"custom2",css:custom2_css,required:custom2_req});
+            }
+            
+            if(cDynamicData.settings.click_to_connect.ci_custom3){
+                var custom3_css = {};
+                var custom2_req = false;
+                if(cDynamicData.settings.click_to_connect.ci_custom3_required){
+                    custom3_css = req_css;
+                    custom3_req = req;
+                } 
+                elements.push({ view:"text", label:cDynamicData.settings.click_to_connect.ci_custom3_txt, name:"custom3",css:custom3_css,required:custom3_req});
+            } 
+            
+            elements.push({ view:"button", value: "Submit",id : 'btnClientInfo',});         
+              
+                   
+             webix.ui({
+                view    : "window",
+                autofit :true,
+                resize  : true,  
+                move    : true,
+                id      : "winClientInfo",
+                position:"top",
+                head    : {
+					view:"toolbar", cols:[
+					    { view: "label", label: 'Customer Info', align: 'center'},
+						{ view: "icon", icon: "wxi-close", hotkey: "escape", click:"$$('winClientInfo').hide();"}
+						]
+				},
+				body : {
+				    minWidth    : cMinWidth,
+                    maxWidth    : cMaxWidth,
+                    id          : 'layoutClientInfo',
+                    borderless  : true,
+                    type        : 'space', 
+                    view        : "form",
+                    elementsConfig:{
+				        labelPosition:"top"
+			        },
+			        rules       : rules,
+                    scroll      : true,
+                    rows        : elements
+                }
+            });
+        }
          
         
        var showNotHotspot = function(){ 
@@ -1022,7 +1245,8 @@ var rdDynamic = (function () {
             init            : init,
             showStatus      : showStatus,
             showNotHotspot  : showNotHotspot,
-            showConnect     : showConnect
+            showConnect     : showConnect,
+            resize          : resize
         }   
     }
 })();
