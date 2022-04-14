@@ -11,8 +11,14 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetail', {
             {   
                 title:  i18n('sDetail'),
                 xtype:  'pnlDynamicDetailDetail',
-                itemId: 'tabDetail'
-                   
+                itemId: 'tabDetail'                 
+            },
+            { 
+                title   : 'Settings',
+                itemId  : 'tabSettings',
+                xtype   : 'pnlDynamicDetailSettings',
+                dynamic_detail_id : me.dynamic_detail_id,
+                user_id : me.user_id
             },
             { 
                 title   : i18n('sLogo'),
@@ -36,20 +42,7 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetail', {
                 itemId  : 'tabPairs',
                 xtype   : 'gridDynamicDetailPairs',
                 dynamic_detail_id : me.dynamic_detail_id
-            },
-            { 
-                title   : 'Custom Tweaks',
-                itemId  : 'tabTweaks',
-                xtype   : 'pnlDynamicDetailTweaks',
-                dynamic_detail_id : me.dynamic_detail_id
-            },
-            { 
-                title   : 'Settings',
-                itemId  : 'tabSettings',
-                xtype   : 'pnlDynamicDetailSettings',
-                dynamic_detail_id : me.dynamic_detail_id,
-                user_id : me.user_id
-            },
+            },  
             { 
                 title   : 'Click To Connect',
                 itemId  : 'tabClickToConect',
@@ -62,13 +55,8 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetail', {
                 xtype   : 'pnlDynamicDetailSocialLogin',
                 dynamic_detail_id : me.dynamic_detail_id,
                 user_id : me.user_id
-            },
-            { 
-                title   : 'Mobile App',
-                itemId  : 'tabMobileApp',
-                xtype   : 'pnlDynamicDetailMobileApp',
-                dynamic_detail_id : me.dynamic_detail_id
             }
+           
         ]; 
         me.callParent(arguments);
     }

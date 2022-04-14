@@ -259,7 +259,7 @@ class DynamicDetailsController extends AppController{
 			'slideshow_check',      'seconds_per_slide','connect_check',    'connect_username', 'connect_suffix',
 			'connect_delay',        'connect_only',     'user_login_check', 'voucher_login_check',
 			'auto_suffix_check',    'auto_suffix',      'usage_show_check', 'usage_refresh_interval', 
-			'register_users',       'lost_password',
+			'register_users',       'lost_password',    'lost_password_method',
 			'slideshow_enforce_watching',
 			'slideshow_enforce_seconds',
 			'available_languages',
@@ -531,13 +531,13 @@ class DynamicDetailsController extends AppController{
         $user_id    = $user['id'];
         
         //Fields
-		$fields  	= array(
+		$fields  	= [
 			'id',		'name',			'user_id',		'available_to_siblings',
 			'phone',    'fax',			'cell',		    'email',
 			'url',		'street_no',	'street',		'town_suburb',	'city',		'country',
 			'lat',		'lon',			't_c_check',	't_c_url',		'theme',	'register_users',
-			'lost_password'
-		);
+			'lost_password', 'lost_password_method'
+		];
 		
         $query = $this->{$this->main_model}->find();
 
@@ -640,7 +640,7 @@ class DynamicDetailsController extends AppController{
             $this->request->data['user_id'] = $user_id;
         }
         
-        $check_items = array('available_to_siblings', 't_c_check', 'register_users', 'lost_password');
+        $check_items = ['available_to_siblings', 't_c_check', 'register_users', 'lost_password'];
         foreach($check_items as $ci){
             if(isset($this->request->data[$ci])){
                 $this->request->data[$ci] = 1;
@@ -1562,7 +1562,7 @@ class DynamicDetailsController extends AppController{
         }
         $user_id    = $user['id'];
 
-        $items = array();
+        $items = [];
         if(isset($this->request->query['dynamic_detail_id'])){
         
             $dd_id = $this->request->query['dynamic_detail_id'];
@@ -1573,11 +1573,15 @@ class DynamicDetailsController extends AppController{
                 ->first();
 
             if($q_r){
-                
+                           
 				$items['social_enable']    					= $q_r->social_enable;
 				$items['id']    							= $q_r->id;
 				$items['social_temp_permanent_user_id'] 	= $q_r->social_temp_permanent_user_id;
-				$items['social_temp_permanent_user_name'] 	= $q_r->permanent_user->username;
+				
+				$items['social_temp_permanent_user_name']   = '';
+				if($q_r->permanent_user){				
+				    $items['social_temp_permanent_user_name'] 	= $q_r->permanent_user->username;
+			    }
 				
 				foreach($q_r->dynamic_detail_social_logins as $i){
 				

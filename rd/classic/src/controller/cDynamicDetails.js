@@ -250,12 +250,6 @@ Ext.define('Rd.controller.cDynamicDetails', {
             'winPairEdit #save': {
                 click:      me.pairEditSave
             },
-            'pnlDynamicDetail #tabSettings': {
-                activate:       me.tabSettingsActivate
-            },
-            'pnlDynamicDetail #tabClickToConect': {
-               // activate:       me.tabDetailActivate
-            },
 			'pnlDynamicDetail #tabSocialLogin': {
                 activate:       me.tabSocialLoginActivate
             },
@@ -859,7 +853,7 @@ Ext.define('Rd.controller.cDynamicDetails', {
     },
     tabDetailActivate : function(tab){
         var me      = this;
-        var form    = tab.down('form');
+        var form    = tab;
         var dynamic_detail_id= tab.up('pnlDynamicDetail').dynamic_detail_id; 
         form.load({
             url     : me.getUrlViewDynamicDetail(), 
@@ -877,30 +871,6 @@ Ext.define('Rd.controller.cDynamicDetails', {
                 }
             }
         });
-    },
-    tabSettingsActivate : function(tab){
-        var me      = this;
-        var form    = tab.down('form');
-        var dynamic_detail_id= tab.up('pnlDynamicDetail').dynamic_detail_id;
-        form.load({
-            url         : me.getUrlViewDynamicDetail(), 
-            method      : 'GET',
-            params      : {dynamic_detail_id:dynamic_detail_id},
-            success     : function(a,b,c){
-                 if(b.result.data.realm_id != null){
-                    var realm = form.down("#realm");
-                    var mr    = Ext.create('Rd.model.mRealm', {name: b.result.data.realm, id: b.result.data.realm_id});
-                    realm.getStore().loadData([mr],false);
-                    realm.setValue(b.result.data.realm_id);
-                }
-                if(b.result.data.profile_id != null){
-                    var profile = form.down("#profile");
-                    var mp     = Ext.create('Rd.model.mProfile', {name: b.result.data.profile, id: b.result.data.profile_id});
-                    profile.getStore().loadData([mp],false);
-                    profile.setValue(b.result.data.profile_id);
-                }
-            }
-        }); 
     },
     tabLogoActivate: function(tab){
         var me      = this;
@@ -1490,7 +1460,7 @@ Ext.define('Rd.controller.cDynamicDetails', {
     },
 	tabSocialLoginActivate : function(tab){
         var me      = this;
-        var form    = tab.down('form');
+        var form    = tab;
         var dynamic_detail_id= tab.up('pnlDynamicDetail').dynamic_detail_id;
         
         if(me.modelInited == undefined ){
@@ -1544,6 +1514,7 @@ Ext.define('Rd.controller.cDynamicDetails', {
                 if(jsonData.success){
                    
 					var instance = Ext.create('SocialForm', jsonData.data);
+					console.log(instance);
 					form.loadRecord(instance);
 					//temp username 
 					var tu_id   = instance.get('social_temp_permanent_user_id');

@@ -170,6 +170,10 @@ Rd.config = {
     'icnTable'      : 'xf0ce@FontAwesome',
     'icnSkyatlas'   : 'xf216@FontAwesome',
     'icnAndroid'    : 'xf17b@FontAwesome',
-    'icnApple'      : 'xf179@FontAwesome'
+    'icnApple'      : 'xf179@FontAwesome',
+    'icnSignIn'     : 'xf090@FontAwesome',
+    'icnGavel'      : 'xf0e3@FontAwesome',
+    'icnFlag'       : 'xf024@FontAwesome',
+    'icnCertificate': 'xf0a3@FontAwesome'      
 }
 

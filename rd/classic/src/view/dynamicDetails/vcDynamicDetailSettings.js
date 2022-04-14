@@ -1,8 +1,34 @@
 Ext.define('Rd.view.dynamicDetails.vcDynamicDetailSettings', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcDynamicDetailSettings',
-    init: function() {
-    
+    config: {
+        urlViewDynamicDetail: '/cake3/rd_cake/dynamic-details/view.json'
+    }, 
+    onViewActivate: function(){
+        var me                  = this;
+        var dynamic_detail_id   = me.getView().dynamic_detail_id;
+        me.getView().getForm().load({
+            url         : me.getUrlViewDynamicDetail(), 
+            method      : 'GET',
+            params      : {dynamic_detail_id:dynamic_detail_id},
+            success     : function(a,b,c){
+                 if(b.result.data.realm_id != null){
+                    var realm = me.getView().down("#realm");
+                    var mr    = Ext.create('Rd.model.mRealm', {name: b.result.data.realm, id: b.result.data.realm_id});
+                    realm.getStore().loadData([mr],false);
+                    realm.setValue(b.result.data.realm_id);
+                }
+                if(b.result.data.profile_id != null){
+                    var profile = me.getView().down("#profile");
+                    var mp      = Ext.create('Rd.model.mProfile', {name: b.result.data.profile, id: b.result.data.profile_id});
+                    profile.getStore().loadData([mp],false);
+                    profile.setValue(b.result.data.profile_id);
+                }
+            },
+            failure : function(form, action) {
+                Ext.Msg.alert(action.response.statusText, action.response.responseText);
+            }
+        });         
     },  
     onCmbThemesChange: function(cmb){
         var me       = this;
@@ -61,6 +87,15 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailSettings', {
         }else{
              pnl.down('#txtRegSuffix').setDisabled(true);
         }
+    },
+    chkLostPasswordChange: function(chk){
+        var me  = this;
+        var pnl = chk.up('panel');
+        if(chk.getValue()){
+             pnl.down('#rgrpLostPwdMethod').setDisabled(false);
+        }else{
+             pnl.down('#rgrpLostPwdMethod').setDisabled(true);
+        }   
     },
     chkSlideshowChange: function(chk){
         var me      = this;
