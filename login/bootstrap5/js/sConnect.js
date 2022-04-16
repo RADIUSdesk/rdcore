@@ -77,11 +77,10 @@ var sConnect = (function () {
             $("#btnClickToConnect").on("click", onBtnClickToConnectClickPre );
             
             $("#aRegister").on("click", onRegisterClick);
-            $('#frmRegister').on('keyup',onFrmRegisterKeydown);
             $('#btnRegister').on('click',onBtnRegisterClick);   
             $("#aLostPassword").on("click", onLostPasswordClick);
-            $('#frmLostPwd').on('keyup',onFrmLostPwdKeydown);
-            $('#btnLostPwd').on('click',onBtnLostPwdClick);   
+            $('#btnLostPwd').on('click',onBtnLostPwdClick);
+            $('#btnLostPwdSms').on('click',onBtnLostPwdClickSms);   
             $('#btnCustInfo').on('click',onBtnCustInfoClick);
                    
             if(uamIp == undefined){
@@ -172,7 +171,6 @@ var sConnect = (function () {
             if(cDynamicData.settings.click_to_connect.cust_info_check == false){          
                 onBtnClickToConnectClick(event);       
             }else{
-                console.log("Brannas");
                 var email_check = location.protocol+'//'+document.location.hostname+"/cake3/rd_cake/data-collectors/mac-check.json";
                 var mac_address = getParameterByName('mac');
                 var nasid       = getParameterByName('nasid');
@@ -394,7 +392,7 @@ var sConnect = (function () {
                 }
                 var $phone = `
                     <div class="mb-3 `+$phone_req_class+`">
-                        <input type="text" placeholder="Phone" class="form-control" id="ciPhone" name="phone" `+$phone_req_attr+`>
+                        <input type="text" placeholder="Phone" class="form-control" id="ciPhone" minlength="8" pattern="^[0-9]*$" name="phone" `+$phone_req_attr+`>
                         <div class="invalid-feedback">
                              The number must have at least 8 digits
                         </div>
@@ -922,20 +920,20 @@ var sConnect = (function () {
               <div class="mb-3">
                 <input type="text" placeholder="Surname" class="form-control" id="txtrSurname" name="surname">
               </div>
-              <div class="mb-3">
-                <input type="email" placeholder="Email (username)" class="form-control" id="txtrEmail" name="username">
+              <div class="mb-3 p-1 bg-secondary border">
+                <input type="email" placeholder="Email (username)" class="form-control" id="txtrEmail" name="username" required>
                 <div class="invalid-feedback">
                     Please supply a valid email address
                 </div>
               </div>
-              <div class="mb-3">
-                <input type="text" placeholder="Password" class="form-control" id="txtrPassword" name="password">
+              <div class="mb-3 p-1 bg-secondary border">
+                <input type="text" placeholder="Password" class="form-control" id="txtrPassword" name="password" minlength="5" required>
                 <div class="invalid-feedback">
                     Password must be a minimum of 5 characters
                 </div>
               </div>
-              <div class="mb-3">
-                <input type="text" placeholder="Cell" class="form-control" id="txtrCell" name="phone">
+              <div class="mb-3 p-1 bg-secondary border">
+                <input type="text" placeholder="Cell" class="form-control" id="txtrCell" name="phone" pattern="^[0-9]*$" minlength="8" required>
                 <div class="invalid-feedback">
                     The number must have at least 8 digits
                 </div>
@@ -944,149 +942,84 @@ var sConnect = (function () {
             $pnl.append(ci);  
         }
         
-        var onFrmRegisterKeydown = function(event){
-            var itemName = event.target.id;
-             
-            //We use this to test and endable / disable the connect button
-            var pass = false;                   
-            if($("#"+itemName).val()==''){
-               
-                $( "#"+itemName ).addClass( "is-invalid" );
-                $( "#"+itemName ).removeClass( "is-valid" );
-                $("#btnRegister").attr('disabled',true);                           
-            }else{
-               
-                //==EMAIL==
-                if(itemName =='txtrEmail'){
-                    if(isEmail($("#"+itemName).val())){
-                        $( "#"+itemName ).addClass( "is-valid" );
-                        $( "#"+itemName ).removeClass( "is-invalid" );
-                        $email_pass = true;
-                    }else{
-                        $( "#"+itemName ).addClass( "is-invalid" );
-                        $( "#"+itemName ).removeClass( "is-valid" );
-                        $email_pass = false;
-                    }
-                }
-                
-                
-                //==PASSWORD==
-                if(itemName =='txtrPassword'){
-                    if($("#"+itemName).val().length >= 5){
-                        $( "#"+itemName ).addClass( "is-valid" );
-                        $( "#"+itemName ).removeClass( "is-invalid" );
-                        $pwd_pass = true;
-                    }else{
-                        $( "#"+itemName ).addClass( "is-invalid" );
-                        $( "#"+itemName ).removeClass( "is-valid" );
-                        $pwd_pass = false;
-                    }    
-                }
-                             
-                //==CELL==
-                if(itemName =='txtrCell'){
-                    var charCode = event.keyCode;
-	                $cell_pass = true;                            
-                    if(($("#"+itemName).val().length <  8)||
-                    (isNumberKey(event))
-                    ){
-                        $( "#"+itemName ).addClass( "is-invalid" );
-                        $( "#"+itemName ).removeClass( "is-valid" );
-                        $cell_pass = false;                      
-                    }else{                     
-                        $( "#"+itemName ).addClass( "is-valid" );
-                        $( "#"+itemName ).removeClass( "is-invalid" );
-                        $cell_pass = true;
-                    }    
-                }
-                
-                if(($email_pass)&&($cell_pass)&&($pwd_pass)){
-                    $("#btnRegister").attr('disabled',false);   
-                }else{
-                    $("#btnRegister").attr('disabled',true); 
-                }
-                
-                if((itemName =='txtrFirstName')||(itemName =='txtrSurname')){
-                     $( "#"+itemName ).addClass( "is-valid" );
-                     $( "#"+itemName ).removeClass( "is-invalid" );          
-                }              
-            }                         
-        }
-        
-        var isNumberKey = function (evt){
-	        var charCode = (evt.which) ? evt.which : event.keyCode
-	        if (charCode > 31 && (charCode < 48 || charCode > 57)){
-	            return true;
-	        }
-	        return false;
-        }
-        
-        var isEmail = function (email) {
-            var EmailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-            return EmailRegex.test(email);
-        }
-        
         var onBtnRegisterClick = function(event){
-            $('#alertWarnRegister').removeClass('show');
-            var mac = getParameterByName('mac');
-            var formData = {
-                login_page    : cDynamicData.detail.name,
-                login_page_id : cDynamicData.detail.id,
-                mac           : mac,
-                name          : $("#txtrFirstName").val(),
-                surname       : $("#txtrSurname").val(),
-                username      : $("#txtrEmail").val(),
-                password      : $("#txtrPassword").val(),
-                phone         : $("#txtrCell").val()
-            };
-              
-            $.ajax({
-                type      : "POST",
-                url       : urlAdd,
-                data      : formData,
-                dataType  : "json",
-                encode    : true,
-            })
-            .done(function (data) {
-                if(data.success){
-                    //populate the fields
-                    var r_username = data.data.username;
-                    var r_password = data.data.password;
-                    $("#txtUsername").val(r_username);
-                    $("#txtPassword").val(r_password);
-                    //Hide reg / show login
-                    $("#modalRegister").modal('hide');
-                    $("#myModal").modal('show');               
-                }else{
-                    if(data.errors !== undefined){
-                        msg = '';
-                        Object.keys(data.errors).forEach(key => {
-                            console.log(key, data.errors[key]);
-                            msg = msg+'<b>'+key+'</b>  '+data.errors[key]+"<br>\n";
-                        });                       
-                        $('#alertWarnRegister').html(msg);
-                        $('#alertWarnRegister').addClass('show');                                                
-                    }                
-                }
-            });
+        
+            var form    = document.querySelector('#frmRegister');
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }else{ 
+        
+        
+                $('#alertWarnRegister').removeClass('show');
+                var mac = getParameterByName('mac');
+                var formData = {
+                    login_page    : cDynamicData.detail.name,
+                    login_page_id : cDynamicData.detail.id,
+                    mac           : mac,
+                    name          : $("#txtrFirstName").val(),
+                    surname       : $("#txtrSurname").val(),
+                    username      : $("#txtrEmail").val(),
+                    password      : $("#txtrPassword").val(),
+                    phone         : $("#txtrCell").val()
+                };
+                  
+                $.ajax({
+                    type      : "POST",
+                    url       : urlAdd,
+                    data      : formData,
+                    dataType  : "json",
+                    encode    : true,
+                })
+                .done(function (data) {
+                    if(data.success){
+                        //populate the fields
+                        var r_username = data.data.username;
+                        var r_password = data.data.password;
+                        $("#txtUsername").val(r_username);
+                        $("#txtPassword").val(r_password);
+                        //Hide reg / show login
+                        $("#modalRegister").modal('hide');
+                        $("#myModal").modal('show');               
+                    }else{
+                        if(data.errors !== undefined){
+                            msg = '';
+                            Object.keys(data.errors).forEach(key => {
+                                console.log(key, data.errors[key]);
+                                msg = msg+'<b>'+key+'</b>  '+data.errors[key]+"<br>\n";
+                            });                       
+                            $('#alertWarnRegister').html(msg);
+                            $('#alertWarnRegister').addClass('show');                                                
+                        }                
+                    }
+                });
+            }
+            form.classList.add('was-validated');
         }
                
-        var onLostPasswordClick = function(){
-            console.log("Lost PWD Click");           
+        var onLostPasswordClick = function(){          
             $("#myModal").modal('hide');
-            $("#modalLostPwd").modal('show');
-            if(!$("#divLostPassword").data('populate')){
-                populateLostPwd();
-            }              
+            if(cDynamicData.settings.lost_password_method == 'sms'){
+                //console.log("BB");
+                $("#modalLostPwdSms").modal('show');
+                if(!$("#pnlLostPwdSms").data('populate')){
+                    populateLostPwdSms();
+                }      
+            }          
+            if(cDynamicData.settings.lost_password_method == 'email'){
+                $("#modalLostPwd").modal('show');
+                if(!$("#pnlLostPwd").data('populate')){
+                    populateLostPwd();
+                }  
+            }                 
         }
         
         var populateLostPwd = function(){
-            console.log("Populate LostPwd");
-            $("#divLostPassword").data('populate',true);
+            $("#pnlLostPwd").data('populate',true);
             var $pnl = $("#pnlLostPwd");        
             var $form = `       
-              <div class="mb-3">
-                <input type="email" placeholder="Email" class="form-control" id="txtlEmail" name="email">
+              <div class="mb-3 p-1 bg-secondary border">
+                <input type="email" placeholder="Email" class="form-control" id="txtlEmail" name="email" required>
                 <div class="invalid-feedback">
                     Please supply a valid email address
                 </div>
@@ -1096,63 +1029,96 @@ var sConnect = (function () {
             $pnl.append(ci);  
         }
         
-        var onFrmLostPwdKeydown = function(event){
-            var itemName = event.target.id;
-             
-            //We use this to test and endable / disable the connect button
-            var pass = false;                   
-            if($("#"+itemName).val()==''){
-               
-                $( "#"+itemName ).addClass( "is-invalid" );
-                $( "#"+itemName ).removeClass( "is-valid" );
-                $("#btnLostPwd").attr('disabled',true);                           
-            }else{             
-                //==EMAIL==
-                if(itemName =='txtlEmail'){
-                    if(isEmail($("#"+itemName).val())){
-                        $( "#"+itemName ).addClass( "is-valid" );
-                        $( "#"+itemName ).removeClass( "is-invalid" );
-                        $email_pass = true;
+        var populateLostPwdSms = function(){
+            $("#pnlLostPwdSms").data('populate',true);
+            var $pnl = $("#pnlLostPwdSms");        
+            var $form = `       
+              <div class="mb-3 p-1 bg-secondary border">
+                <input type="text" placeholder="Mobile Number" class="form-control" id="txtlPhone" name="phone" minlength="8" pattern="^[0-9]*$" required>
+                <div class="invalid-feedback">
+                    The number must have at least 8 digits
+                </div>
+              </div>
+             `;
+            var ci = $($form);
+            $pnl.append(ci);  
+        }
+                 
+        var onBtnLostPwdClick = function(event){       
+            var form    = document.querySelector('#frmLostPwd');
+            $('#alertWarnLostPwd').addClass('hide');
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }else{ 
+                $('#btnLostPwd').button('loading');     
+                var auto_suffix_check   = cDynamicData.settings.auto_suffix_check;
+		        var auto_suffix			= cDynamicData.settings.auto_suffix;
+            
+                var formData = {
+                    auto_suffix_check   : auto_suffix_check,
+                    auto_suffix         : auto_suffix,
+                    email               : $("#txtlEmail").val()
+                };
+                             
+                $.ajax({
+                    type      : "POST",
+                    url       : urlLostPw,
+                    data      : formData,
+                    dataType  : "json",
+                    encode    : true,
+                })
+                .done(function (data) {
+                    $('#btnLostPwd').button('reset');
+                    if(data.success){
+                        //Hide reg / show login
+                        $("#modalLostPwd").modal('hide');
+                        $("#myModal").modal('show');             
                     }else{
-                        $( "#"+itemName ).addClass( "is-invalid" );
-                        $( "#"+itemName ).removeClass( "is-valid" );
-                        $email_pass = false;
+                        $('#alertWarnLostPwd').html(data.message);
+                        $('#alertWarnLostPwd').addClass('show');
                     }
-                }
-                          
-                if(($email_pass)){
-                    $("#btnLostPwd").attr('disabled',false);   
-                }else{
-                    $("#btnLostPwd").attr('disabled',true); 
-                }                         
-            }                         
+                });
+            }
+            form.classList.add('was-validated');
         }
         
-        var onBtnLostPwdClick = function(event){
-        
-            var auto_suffix_check   = cDynamicData.settings.auto_suffix_check;
-		    var auto_suffix			= cDynamicData.settings.auto_suffix;
-        
-            var formData = {
-                auto_suffix_check   : auto_suffix_check,
-                auto_suffix         : auto_suffix,
-                email               : $("#txtlEmail").val()
-            };
-                         
-            $.ajax({
-                type      : "POST",
-                url       : urlLostPw,
-                data      : formData,
-                dataType  : "json",
-                encode    : true,
-            })
-            .done(function (data) {
-                if(data.success){
-                    //Hide reg / show login
-                    $("#modalLostPwd").modal('hide');
-                    $("#myModal").modal('show');             
-                }
-            });
+        var onBtnLostPwdClickSms = function(event){          
+            var form    = document.querySelector('#frmLostPwdSms');
+            $('#alertWarnLostPwdSms').addClass('hide');
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }else{ 
+                $('#btnLostPwdSms').button('loading');                               
+                var auto_suffix_check   = cDynamicData.settings.auto_suffix_check;
+                var auto_suffix			= cDynamicData.settings.auto_suffix;
+                var formData = {
+                    auto_suffix_check   : auto_suffix_check,
+                    auto_suffix         : auto_suffix,
+                    phone               : $("#txtlPhone").val()
+                };
+                             
+                $.ajax({
+                        type      : "POST",
+                        url       : urlLostPw,
+                        data      : formData,
+                        dataType  : "json",
+                        encode    : true,
+                    })
+                    .done(function (data) {
+                        $('#btnLostPwdSms').button('reset'); 
+                        if(data.success){
+                            //Hide reg / show login
+                            $("#modalLostPwdSms").modal('hide');
+                            $("#myModal").modal('show');             
+                        }else{
+                            $('#alertWarnLostPwdSms').html(data.message);
+                            $('#alertWarnLostPwdSms').addClass('show');
+                        }
+                });              
+            }
+            form.classList.add('was-validated');
         }
          
         var testForHotspotCoova = function(){

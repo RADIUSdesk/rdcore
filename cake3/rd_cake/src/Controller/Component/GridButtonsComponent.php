@@ -434,7 +434,7 @@ class GridButtonsComponent extends Component {
             $d  = $this->_fetchDocument();
             $a  = $this->_fetchDynamicDetailExtras();
             $dc = $this->_fetchDynamicDetailDataCollection();
-            $menu = array($b,$d,$dc,$a);
+            $menu = [$b,$d,$a,$dc];
         }
         if($type == 'nas'){
             $b  = $this->_fetchBasic('disabled',true);
@@ -1503,7 +1503,7 @@ class GridButtonsComponent extends Component {
         return $menu;
     }
     
-    private function _fetchDynamicDetailExtras(){
+    private function _fetchDynamicDetailDataCollection(){
     
         if($this->title){
             $t = __('Data Collection');
@@ -1514,7 +1514,7 @@ class GridButtonsComponent extends Component {
         $menu = array(
             'xtype' => 'buttongroup',
             'title' => $t,
-            'width' => 150, 
+           // 'width' => 150, 
             'items' => [
                 [
                     'xtype'     => 'button',  
@@ -1535,7 +1535,7 @@ class GridButtonsComponent extends Component {
         return $menu;
     }
     
-      private function _fetchDynamicDetailDataCollection(){
+      private function _fetchDynamicDetailExtras(){
       
         if($this->title){
             $t = __('Preview');
@@ -1551,14 +1551,7 @@ class GridButtonsComponent extends Component {
                     'glyph'     => Configure::read('icnMobile'),  
                     'scale'     => $this->scale, 
                     'itemId'    => 'mobile',    
-                    'tooltip'   => __('Mobile Preview')
-                ),
-                array(
-                    'xtype'     => 'button',  
-                    'glyph'     => Configure::read('icnDesktop'),  
-                    'scale'     => $this->scale, 
-                    'itemId'    => 'desktop',   
-                    'tooltip'   => __('Desktop Preview')
+                    'tooltip'   => __('Preview')
                 )
             )
         );             

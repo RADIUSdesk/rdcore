@@ -216,8 +216,8 @@ class RegisterUsersController extends AppController {
 
 		$this->set([
             'success'   => $success,
-			'data'		=> [],
-		        '_serialize' => ['success','data']
+			'message'   => 'User Not Found',
+		        '_serialize' => ['success','message']
 		    ]);
 	}
 		

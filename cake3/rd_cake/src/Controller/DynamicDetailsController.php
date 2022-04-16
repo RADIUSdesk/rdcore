@@ -172,6 +172,11 @@ class DynamicDetailsController extends AppController{
 				if($q_r->social_enable == true){
 				    $social_enable = true;
 				}
+				if($q_r->dynamic_detail_ctc){
+				    $items['settings']['click_to_connect'] =  $q_r->dynamic_detail_ctc;
+			    }else{
+			        $items['settings']['click_to_connect'] =  [];
+			    }
             }
 
         }else{ //Build a query since it was not called from the preview link
@@ -1073,10 +1078,12 @@ class DynamicDetailsController extends AppController{
             $json_return['success']             = true;
             $json_return['icon_file_name']      = $icon_file_name;
             
-            //Remove old file
-            $file_to_delete = WWW_ROOT."img/dynamic_details/".$old_file;
-            if(file_exists($file_to_delete)){
-                unlink($file_to_delete);
+            //Remove old file (if not logo.jpg)
+            if($old_file !== 'logo.jpg'){
+                $file_to_delete = WWW_ROOT."img/dynamic_details/".$old_file;
+                if(file_exists($file_to_delete)){
+                    unlink($file_to_delete);
+                }
             }
     
         }else{       

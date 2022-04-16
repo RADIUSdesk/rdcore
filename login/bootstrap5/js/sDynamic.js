@@ -134,7 +134,17 @@ var sDynamic = (function () {
             });        
         }
         
-        var guiHeader  = function(){    
+        var guiHeader  = function(){ 
+        
+            if(cDynamicData.settings.show_name){
+                $('#aTitle').text(cDynamicData.detail.name);
+                console.log(cDynamicData.settings.name_colour);
+                $('#aTitle').attr('style',"color:#"+cDynamicData.settings.name_colour+";");
+            }
+            
+            //Set the title also
+            $(document).attr("title", cDynamicData.detail.name);
+           
             var show_selection = false;
             if($.isArray(cDynamicData.settings.available_languages)){
                 $('#liLanguages').removeClass('d-none'); //Make it visible
@@ -287,14 +297,35 @@ var sDynamic = (function () {
                 var t_and_d = '';
                 var img     = '';
                 
+                var logo_included = false;
+                
                 if((i.include_title)&&(!i.include_description)){
-                    t_and_d = '<div class="carousel-caption d-none d-md-block"><h5>'+i.title+'</h5></div>';
+                    if(cDynamicData.settings.show_logo){
+                        t_and_d = '<div class="carousel-caption d-none d-md-block"><img src="'+cDynamicData.detail.icon_file_name+'"/><h5>'+i.title+'</h5></div>';
+                        logo_included = true;
+                    }else{
+                        t_and_d = '<div class="carousel-caption d-none d-md-block"><h5>'+i.title+'</h5></div>';
+                    }                 
                 } 
                 if((!i.include_title)&&(i.include_description)){
-                    t_and_d = '<div class="carousel-caption d-none d-md-block"><p>'+i.description+'</p></div>';
+                    if(cDynamicData.settings.show_logo){
+                        t_and_d = '<div class="carousel-caption d-none d-md-block"><img src="'+cDynamicData.detail.icon_file_name+'"/><p>'+i.description+'</p></div>';
+                        logo_included = true;
+                    }else{
+                        t_and_d = '<div class="carousel-caption d-none d-md-block"><p>'+i.description+'</p></div>';
+                    }                 
                 }           
                 if((i.include_title)&&(i.include_description)){
-                    t_and_d = '<div class="carousel-caption d-none d-md-block"><h5>'+i.title+'</h5><p>'+i.description+'</p></div>';
+                    if(cDynamicData.settings.show_logo){
+                        t_and_d = '<div class="carousel-caption d-none d-md-block"><img src="'+cDynamicData.detail.icon_file_name+'"/><h5>'+i.title+'</h5><p>'+i.description+'</p></div>';
+                        logo_included = true;
+                    }else{
+                        t_and_d = '<div class="carousel-caption d-none d-md-block"><h5>'+i.title+'</h5><p>'+i.description+'</p></div>';
+                    }     
+                }
+                
+                if((cDynamicData.settings.show_logo)&&(!logo_included)){
+                    t_and_d = '<div class="carousel-caption d-none d-md-block"><img src="'+cDynamicData.detail.icon_file_name+'"/></div>';
                 }
                 
                 var scrn = 'landscape';
