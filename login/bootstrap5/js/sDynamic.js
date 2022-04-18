@@ -138,7 +138,6 @@ var sDynamic = (function () {
         
             if(cDynamicData.settings.show_name){
                 $('#aTitle').text(cDynamicData.detail.name);
-                console.log(cDynamicData.settings.name_colour);
                 $('#aTitle').attr('style',"color:#"+cDynamicData.settings.name_colour+";");
             }
             
@@ -153,7 +152,7 @@ var sDynamic = (function () {
                     var $di = '<a class="dropdown-item" href="#" data-language-id="'+item.id+'">'+item.value+'</a>';
                     var ci = $($di);
                     ci.on("click",function(e,f,g){
-                        console.log($( e.target ).attr("data-language-id"));
+                        //console.log($( e.target ).attr("data-language-id"));
                         Cookies.set('i18n', $( e.target ).attr("data-language-id"));
 					    location.reload();
                     });
@@ -240,7 +239,16 @@ var sDynamic = (function () {
                         </div>`;
                         var ci = $($voucher_form);
                         $pnlLogin.append(ci);
-                }                
+                }
+                
+                 if(
+                    (cDynamicData.settings.voucher_login_check == false)&&
+                    (cDynamicData.settings.user_login_check == false)){   
+                    //Hide the connect button
+                    $('#btnConnect').addClass('d-none');                  
+                }  
+                
+                                
             }
             
             //Terms and conditions
@@ -262,9 +270,29 @@ var sDynamic = (function () {
             if(cDynamicData.settings.click_to_connect.connect_only == true){
                 $('#btnConnect').addClass('d-none');
                 $('#pnlLogin').removeClass('show');                             
-            }else{           
-                $('#pnlLogin').addClass('show');
-                $('#btnConnect').removeClass('d-none');   
+            }
+            
+            //Social Login
+            if(cDynamicData.settings.social_login.active == true){
+            
+                var $pnl = $("#divSocial");
+                $('#divSocial').removeClass('d-none');
+                cDynamicData.settings.social_login.items.forEach(function(i){
+                
+                    var n = i.name;
+			        if(n == 'Facebook'){
+				        $('#btnFacebook').removeClass('d-none');
+			        }
+			        if(n == 'Twitter'){
+				        $('#btnTwitter').removeClass('d-none');
+			        }
+			        if(n == 'Google'){
+				        $('#btnTwitter').removeClass('d-none');
+			        }
+                
+                });
+            }else{
+                $('#divSocial').addClass('d-none');
             }
             
             //User Registration
@@ -280,6 +308,8 @@ var sDynamic = (function () {
             }else{           
                 $('#divLostPassword').addClass('d-none');    
             }
+            
+            //$('#divSocial').addClass('d-none'); 
                                                  
         };
          
@@ -405,7 +435,7 @@ var sDynamic = (function () {
                 });
                 
                 
-                console.log(i);              
+                //console.log(i);              
             });
             
             var $item = $('.carousel-item'); 
@@ -418,8 +448,8 @@ var sDynamic = (function () {
         
         var guiTranslate = function(){      
             $( "[data-translate]" ).each(function( index ) {
-                console.log( index + ": " + $( this ).text() );
-                console.log($( this ).attr("data-translate"));
+                //console.log( index + ": " + $( this ).text() );
+                //console.log(i18n($( this ).attr("data-translate")));
                 $( this ).text(i18n($( this ).attr("data-translate")));
             });   
         }

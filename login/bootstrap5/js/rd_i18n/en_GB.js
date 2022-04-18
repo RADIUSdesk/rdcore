@@ -1,5 +1,6 @@
 Local = {
 localizedStrings: {
+    "sOk": "OK",
     "sHome": "Home",
     "sHelp": "Help",
     "sPhotos": "Photos",
@@ -19,6 +20,9 @@ localizedStrings: {
     'sFree_Access': 'Guest Access',
     'sLogin': 'Login',
     'sConnect_with': 'Connect with',
+    'sConnect_With_Facebook': 'Connect with Facebook',
+    'sConnect_With_Twitter': 'Connect with Twitter',
+    'sConnect_With_Google': 'Connect with Twitter',
     'sFacebook': 'Facebook',
     'sTwitter': 'Twitter',
     'sGoogle': 'Google',

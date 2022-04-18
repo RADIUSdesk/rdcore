@@ -6,6 +6,7 @@ var sConnect = (function () {
         var uamIp,uamPort;  //Variables with 'global' scope
         
         var h               = document.location.hostname;
+        var isMikroTik      = getParameterByName('link_status') != "";
         var urlUam          = 'uam.php'
         
         var retryCount      = 4;
@@ -15,6 +16,8 @@ var sConnect = (function () {
         var userName        = undefined;
         var password        = undefined;
         var ajaxTimeout		= 4000;
+        var notRequired		= [ 'q', 'res',	'challenge', 'called', 'mac', 'ip', 'sessionid', 'userurl', 'md'];
+	    var socialName		= undefined;
         
         var sessionData     = undefined; 
         var statusFb		= undefined;
@@ -39,11 +42,14 @@ var sConnect = (function () {
             cDynamicData = co.cDynamicData;
         }
          
-        var cDebug          = false;
-              
-        var $email_pass     = false;
-        var $cell_pass      = false;
-        var $pwd_pass       = false;
+        var cDebug          = false;      
+        var redirect_url    = undefined;
+        
+        //Be sure this is the same as specified in FB e.g. IP or DNS!!
+	    var urlSocialBase   = location.protocol+'//'+h+'/cake3/rd_cake/third-party-auths/index.json'; 
+	    
+	    //To pull the username and password associated with this ID + typ
+	    var urlSocialInfoFor= location.protocol+'//'+h+'/cake3/rd_cake/third-party-auths/info-for.json';
         
         //!!!!  
 	    var urlAdd			= location.protocol+'//'+h+'/cake3/rd_cake/register-users/new-permanent-user.json';
@@ -82,6 +88,30 @@ var sConnect = (function () {
             $('#btnLostPwd').on('click',onBtnLostPwdClick);
             $('#btnLostPwdSms').on('click',onBtnLostPwdClickSms);   
             $('#btnCustInfo').on('click',onBtnCustInfoClick);
+            
+            //Social Login things
+            if($('#btnFacebook') != undefined){
+                $('#btnFacebook').on('click', function(event){
+                    event.preventDefault();
+                    $('#btnFacebook').button('loading');
+                    onBtnClickSocialLogin('Facebook');
+                });
+            }
+            
+          /*  if($$('btnGoogle') != undefined){
+                $$('btnGoogle').attachEvent("onItemClick", function(){
+                    onBtnClickSocialLogin('Google');
+                });
+            }
+            
+            if($$('btnTwitter') != undefined){
+                $$('btnTwitter').attachEvent("onItemClick", function(){
+                    onBtnClickSocialLogin('Twitter');
+                });
+            }*/
+            
+            
+            
                    
             if(uamIp == undefined){
                 fDebug("First time hotspot test");
@@ -167,7 +197,6 @@ var sConnect = (function () {
         
         var onBtnClickToConnectClickPre = function(event){
             event.preventDefault();        
-            console.log(cDynamicData.settings.click_to_connect.cust_info_check);
             if(cDynamicData.settings.click_to_connect.cust_info_check == false){          
                 onBtnClickToConnectClick(event);       
             }else{
@@ -203,8 +232,7 @@ var sConnect = (function () {
         
         var populateCustInfo = function(){
             $("#pnlCustInfo").data('populate',true);
-            var $pnl = $("#pnlCustInfo");
-            console.log(cDynamicData.settings.click_to_connect);       
+            var $pnl = $("#pnlCustInfo");    
             if(cDynamicData.settings.click_to_connect.ci_first_name){
                 var $first_name_req_class = ''
                 var $first_name_req_attr  = '';
@@ -488,7 +516,6 @@ var sConnect = (function () {
         
         var onBtnCustInfoClick = function(event){
             event.preventDefault();
-            console.log("Submit Customer Info");
             var form        = document.querySelector('#frmCustInfo');
             if (!form.checkValidity()) {
                 event.preventDefault()
@@ -504,7 +531,6 @@ var sConnect = (function () {
                 //Special check to enforce the custom item of "DN" to be digits only 7 or more digits
                 if($custom1){
                     $custom1_placeholder = $( $custom1 ).attr( "placeholder" );
-                    console.log($custom1_placeholder);
                     if($custom1_placeholder == 'DN'){
                         if ((numbers_only.test($($custom1).val())==false)||($($custom1).val().length <  7)) {
                             $($custom1).addClass( "is-invalid" );
@@ -521,7 +547,6 @@ var sConnect = (function () {
                 //Special check to enforce the custom item of "DN" to be digits only 7 or more digits
                 if($custom2){
                     $custom2_placeholder = $( $custom2 ).attr( "placeholder" );
-                    console.log($custom2_placeholder);
                     if($custom2_placeholder == 'DN'){
                         if ((numbers_only.test($($custom2).val())==false)||($($custom2).val().length <  7)) {
                             $($custom2).addClass( "is-invalid" );
@@ -538,7 +563,6 @@ var sConnect = (function () {
                 //Special check to enforce the custom item of "DN" to be digits only 7 or more digits
                 if($custom3){
                     $custom3_placeholder = $( $custom3 ).attr( "placeholder" );
-                    console.log($custom3_placeholder);
                     if($custom3_placeholder == 'DN'){
                         if ((numbers_only.test($($custom3).val())==false)||($($custom3).val().length <  7)) {
                             $($custom3).addClass( "is-invalid" );
@@ -576,7 +600,7 @@ var sConnect = (function () {
                         $("#myModal").modal('show');
                         onBtnClickToConnectClick(event); 
                     }else{
-                        console.log("Neeeee bra");
+                        console.log("PROBLEMS POSTING INFOR FOR MAC");
                           
                     }         
                 })
@@ -587,6 +611,123 @@ var sConnect = (function () {
             }
             form.classList.add('was-validated')          
         }
+        
+        //===== SOCIAL LOGIN =======
+        var onBtnClickSocialLogin = function(a){
+            if (isMikroTik) {
+                onBtnClickSocialLoginMt(a);
+            }else{
+                onBtnClickSocialLoginChilli(a);
+            }
+        }
+        
+        //_________ Social Login _________________
+	    var onBtnClickSocialLoginChilli = function(a){
+		    socialName = a;
+		    var urlStatus = location.protocol+'//'+uamIp+':'+uamPort+'/json/status';
+            $.ajax({url: urlStatus + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout})
+            .done(function(j){
+                currentRetry = 0;
+                if(j.clientState == 0){
+				    userName = cDynamicData.settings.social_login.temp_username; //Makes this unique
+            		password = cDynamicData.settings.social_login.temp_password;  
+                    socialTempEncPwd(j.challenge);
+                }
+                if(j.clientState == 1){ //FIXME Think we should redirect to Social Login Login...
+                    if(userName.startsWith('sl_')) {     // Check if the logged in user is of the special social login type
+                           if (redirect_check) {         // Check if the dynamic login page instructs us to redirect to a URL
+                                execRedirect(redirect_url);
+                           } else {
+                                refresh();  
+                           }
+                    } else {                             // If the user is not of the social login type, simply refresh and show status page
+                        refresh();
+                    }
+                    
+                }
+            })
+            .fail(function(){
+                //We will retry for me.retryCount
+                currentRetry = currentRetry+1;
+                
+                if(currentRetry <= retryCount){
+                    onBtnClickSocialLogin(a);
+                }else{
+                    fDebug("Timed out"); //FIXME
+                    fShowError('Latest Challenge could not be fetched from hotspot');
+                    loadingReset();
+                    currentRetry = 0;
+                }  
+            });
+	    }
+
+	    var socialTempEncPwd = function(challenge){
+            $.ajax({url: urlUam + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout, data: {'challenge': challenge, password: password}})
+            .done(function(j){
+                socialTempLogin(j.response);
+            })
+            .fail(function(){
+                fShowError(i18n('sUAM_service_is_down'));
+                loadingReset(); 
+            });
+	    }
+
+	    var socialTempLogin	= function(encPwd){
+            var urlLogin = location.protocol+'//'+uamIp+':'+uamPort+'/json/logon';
+            $.ajax({url: urlLogin + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout, data: {username: userName, password: encPwd}})
+            .done(function(j){
+                socialTempLoginResults(j);
+            })
+            .fail(function(){
+                //We will retry for me.retryCount
+                currentRetry = currentRetry+1;
+                if(currentRetry <= retryCount){
+                    socialTempLogin(encPwd);
+                }else{
+                    fShowError(i18n('sCoova_Not_responding_to_login_requests'));
+                    loadingReset();
+                    currentRetry = 0;
+                }
+            });
+	    }
+
+	    var socialTempLoginResults = function(j){
+            currentRetry = 0;    //Reset if there were retries
+            if(j.clientState == 0){       
+                var msg = i18n('sAuthentication_failure_please_try_again')
+                if(j.message != undefined){
+                    msg =j.message;
+                }
+                fShowError(msg);
+                loadingReset();
+            }else{            
+                //console.log("Temp social login user logged in fine.... time to check if we are authenticated");
+			    //We need to add a query string but do not need to add ALL the items
+
+			    var queryString 		= window.location.search;
+			    queryString 			= queryString.substring(1);
+			    var query_object		= parseQueryString(queryString);
+			    var required			= query_object;
+
+			    $.each(notRequired, function( index, value ) {
+				    //console.log( index + ": " + value );
+				    delete required[value];
+			    });
+
+			    required.pathname   	= window.location.pathname;
+                required.hostname   	= window.location.hostname;
+                required.protocol   	= window.location.protocol;
+			    required.social_login 	= 1;
+			    required.idp_name       = socialName;
+			    var q_s 	 			= $.param(required);
+			    //console.log(q_s);
+			    //Dynamically build the redirect URL to which Social Login we will use...
+			    window.location			= urlSocialBase+"?"+q_s;
+            }
+	    }
+        
+        
+        //====== END SOCIAL LOGIN ========
             
         var onBtnClickToConnectClick = function(event){
             event.preventDefault();
@@ -632,7 +773,7 @@ var sConnect = (function () {
         }
         
         var onBtnDisconnectClick = function(){
-
+            $('#btnDisconnect').button('loading');
 		    fDebug('Disconnect the user');
 		    var urlLogoff = location.protocol+'//'+uamIp+':'+uamPort+'/json/logoff';
 		    var cb        = "?callback?"; //Coova uses 'callback'
@@ -649,6 +790,8 @@ var sConnect = (function () {
                 }else{
                     fDebug('Coova Not responding to logoff requests');
                     fShowError('Coova Not responding to logoff requests');
+                    currentRetry = 0;
+                    loadingReset();
                 }
             });   
         }
@@ -677,6 +820,7 @@ var sConnect = (function () {
                     fDebug('Latest Challenge could not be fetched from_hotspot');
                     fShowError('Latest Challenge could not be fetched from hotspot');
                     loadingReset();
+                    currentRetry = 0;
                 }
             });
         }
@@ -778,6 +922,20 @@ var sConnect = (function () {
             
         }
         
+        var parseQueryString = function( queryString ) {
+        	var params = {}, queries, temp, i, l;
+     
+        	// Split into key/value pairs
+        	queries = queryString.split("&");
+     
+        	// Convert the array of strings into an object
+        	for ( i = 0, l = queries.length; i < l; i++ ) {
+            	temp = queries[i].split('=');
+            	params[temp[0]] = temp[1];
+        	}
+        	return params;
+	    }
+        
         var time =   function ( t , zeroReturn ) {
 
             if(t == 'NA'){
@@ -856,10 +1014,25 @@ var sConnect = (function () {
                         fDebug("Not Connected");
                         $('#alertInfo').addClass('show');
                         $('#pnlSession').removeClass('show');
-                        $('#pnlLogin').addClass('show');
+                        if(!cDynamicData.settings.click_to_connect.connect_only){
+                            $('#pnlLogin').addClass('show');
+                        }
                         $('#btnDisconnect').addClass('d-none');
                         loadingReset();
-                        $('#btnConnect').removeClass('d-none');
+                        
+                        if(
+                            ((cDynamicData.settings.voucher_login_check == false)&&
+                            (cDynamicData.settings.user_login_check == false))||
+                            (cDynamicData.settings.click_to_connect.connect_only)
+                            ){   
+                            //Hide the connect button
+                            $('#btnConnect').addClass('d-none'); 
+                                            
+                        }else{
+                            $('#btnConnect').removeClass('d-none'); 
+                        }  
+                        
+                        
                         $('#hLogin').html('<i class="bi-plug"></i> Connect')                    
                     }
 
@@ -897,10 +1070,12 @@ var sConnect = (function () {
             $('#btnClickToConnect').button('reset');
             $('#btnDisconnect').button('reset');
             $('#btnConnect').button('reset');
+            $('#btnFacebook').button('reset');
+            $('#btnGoogle').button('reset');
+            $('#btnTwitter').button('reset');
         }
         
         var onRegisterClick = function(){
-            console.log("Register Click");
             $("#myModal").modal('hide');
             $("#modalRegister").modal('show');
             if(!$("#divRegister").data('populate')){
@@ -909,7 +1084,7 @@ var sConnect = (function () {
         }
         
         var populateRegister = function(){
-            console.log("Populate Data");
+
             $("#divRegister").data('populate',true);
             var $pnl = $("#pnlRegister");
             
@@ -985,7 +1160,7 @@ var sConnect = (function () {
                         if(data.errors !== undefined){
                             msg = '';
                             Object.keys(data.errors).forEach(key => {
-                                console.log(key, data.errors[key]);
+                                //console.log(key, data.errors[key]);
                                 msg = msg+'<b>'+key+'</b>  '+data.errors[key]+"<br>\n";
                             });                       
                             $('#alertWarnRegister').html(msg);
@@ -1119,6 +1294,15 @@ var sConnect = (function () {
                 });              
             }
             form.classList.add('was-validated');
+        }
+        
+        var execRedirect    = function (redir_url) {
+            if (redir_url != '' && redir_url != undefined) {
+                window.location = redir_url;
+            }else{
+                //We redirect to google
+                window.location = 'http://google.com';
+            }
         }
          
         var testForHotspotCoova = function(){
