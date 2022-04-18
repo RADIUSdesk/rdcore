@@ -34,7 +34,7 @@ separated by `/`. Examples:
 * monolog/monolog
 * igorw/event-source
 
-The name must be lowercased and consist of words separated by `-`, `.` or `_`.
+The name must be lowercase and consist of words separated by `-`, `.` or `_`.
 The complete name should match `^[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9](([_.]?|-{0,2})[a-z0-9]+)*$`.
 
 The `name` property is required for published packages (libraries).
@@ -160,7 +160,7 @@ The recommended notation for the most common licenses is (alphabetical):
 Optional, but it is highly recommended to supply this. More identifiers are
 listed at the [SPDX Open Source License Registry](https://spdx.org/licenses/).
 
-For closed-source software, you may use `"proprietary"` as the license identifier.
+> **Note:** For closed-source software, you may use `"proprietary"` as the license identifier.
 
 An Example:
 
@@ -171,7 +171,7 @@ An Example:
 ```
 
 For a package, when there is a choice between licenses ("disjunctive license"),
-multiple can be specified as array.
+multiple can be specified as an array.
 
 An Example for disjunctive licenses:
 
@@ -203,7 +203,7 @@ Each author object can have following properties:
 
 * **name:** The author's name. Usually their real name.
 * **email:** The author's email address.
-* **homepage:** An URL to the author's website.
+* **homepage:** URL to the author's website.
 * **role:** The author's role in the project (e.g. developer or translator)
 
 An example:
@@ -675,7 +675,7 @@ for more details on how to reduce this impact.
 
 ### autoload-dev <span>([root-only](04-schema.md#root-package))</span>
 
-This section allows to define autoload rules for development purposes.
+This section allows defining autoload rules for development purposes.
 
 Classes needed to run the test suite should not be included in the main autoload
 rules to avoid polluting the autoloader in production and when other people use
@@ -791,7 +791,7 @@ The following repository types are supported:
 * **vcs:** The version control system repository can fetch packages from git,
   svn, fossil and hg repositories.
 * **package:** If you depend on a project that does not have any support for
-  composer whatsoever you can define the package inline using a `package`
+  Composer whatsoever you can define the package inline using a `package`
   repository. You basically inline the `composer.json` object.
 
 For more information on any of these, see [Repositories](05-repositories.md).
@@ -884,8 +884,8 @@ Optional.
 
 ### bin
 
-A set of files that should be treated as binaries and symlinked into the `bin-dir`
-(from config).
+A set of files that should be treated as binaries and made available
+into the `bin-dir` (from config).
 
 See [Vendor Binaries](articles/vendor-binaries.md) for more details.
 
@@ -941,9 +941,9 @@ It can be boolean or a package name/URL pointing to a recommended alternative.
 
 Examples:
 
-Use `"abandoned": true` to indicates this package is abandoned.
-Use `"abandoned": "monolog/monolog"` to indicates this package is abandoned, and the
-recommended alternative is  `monolog/monolog`.
+Use `"abandoned": true` to indicate this package is abandoned.
+Use `"abandoned": "monolog/monolog"` to indicate this package is abandoned, and that 
+the recommended alternative is `monolog/monolog`.
 
 Defaults to false.
 
@@ -962,7 +962,7 @@ version of the parent branch or at least master or something.
 
 To handle non-numeric named branches as versions instead of searching for a parent branch
 with a valid version or special branch name like master, you can set patterns for branch
-names, that should be handled as dev version branches.
+names that should be handled as dev version branches.
 
 This is really helpful when you have dependencies using "self.version", so that not dev-master,
 but the same branch is installed (in the example: latest-testing).

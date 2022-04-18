@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -12,7 +12,6 @@
 
 namespace Composer\Package\Loader;
 
-use Composer\Package\AliasPackage;
 use Composer\Package\BasePackage;
 use Composer\Package\CompleteAliasPackage;
 use Composer\Package\CompletePackage;
@@ -20,10 +19,9 @@ use Composer\Package\RootPackage;
 use Composer\Package\PackageInterface;
 use Composer\Package\CompletePackageInterface;
 use Composer\Package\Link;
-use Composer\Package\Package;
 use Composer\Package\RootAliasPackage;
-use Composer\Package\RootPackageInterface;
 use Composer\Package\Version\VersionParser;
+use Composer\Pcre\Preg;
 
 /**
  * @author Konstantin Kudryashiv <ever.zet@gmail.com>
@@ -31,10 +29,15 @@ use Composer\Package\Version\VersionParser;
  */
 class ArrayLoader implements LoaderInterface
 {
+    /** @var VersionParser */
     protected $versionParser;
+    /** @var bool */
     protected $loadOptions;
 
-    public function __construct(VersionParser $parser = null, $loadOptions = false)
+    /**
+     * @param bool $loadOptions
+     */
+    public function __construct(VersionParser $parser = null, bool $loadOptions = false)
     {
         if (!$parser) {
             $parser = new VersionParser;
@@ -44,13 +47,9 @@ class ArrayLoader implements LoaderInterface
     }
 
     /**
-     * @template PackageClass of CompletePackageInterface
-     * @param  array                                $config package data
-     * @param  string                               $class  FQCN to be instantiated
-     * @return CompletePackage|CompleteAliasPackage
-     * @phpstan-param class-string<PackageClass> $class
+     * @inheritDoc
      */
-    public function load(array $config, $class = 'Composer\Package\CompletePackage')
+    public function load(array $config, string $class = 'Composer\Package\CompletePackage'): BasePackage
     {
         if ($class !== 'Composer\Package\CompletePackage' && $class !== 'Composer\Package\RootPackage') {
             trigger_error('The $class arg is deprecated, please reach out to Composer maintainers ASAP if you still need this.', E_USER_DEPRECATED);
@@ -65,7 +64,7 @@ class ArrayLoader implements LoaderInterface
                     $this->parseLinks(
                         $package->getName(),
                         $package->getPrettyVersion(),
-                        $opts['description'],
+                        $opts['method'],
                         $config[$type]
                     )
                 );
@@ -78,23 +77,17 @@ class ArrayLoader implements LoaderInterface
     }
 
     /**
-     * @template PackageClass of CompletePackageInterface
-     * @param  array                                      $versions
-     * @param  string                                     $class    FQCN to be instantiated
+     * @param list<array<mixed>> $versions
+     *
      * @return list<CompletePackage|CompleteAliasPackage>
-     * @phpstan-param class-string<PackageClass> $class
      */
-    public function loadPackages(array $versions, $class = 'Composer\Package\CompletePackage')
+    public function loadPackages(array $versions): array
     {
-        if ($class !== 'Composer\Package\CompletePackage') {
-            trigger_error('The $class arg is deprecated, please reach out to Composer maintainers ASAP if you still need this.', E_USER_DEPRECATED);
-        }
-
         $packages = array();
         $linkCache = array();
 
         foreach ($versions as $version) {
-            $package = $this->createObject($version, $class);
+            $package = $this->createObject($version, 'Composer\Package\CompletePackage');
 
             $this->configureCachedLinks($linkCache, $package, $version);
             $package = $this->configureObject($package, $version);
@@ -106,23 +99,29 @@ class ArrayLoader implements LoaderInterface
     }
 
     /**
-     * @template PackageClass of CompletePackageInterface
-     * @param  array                       $config package data
-     * @param  string                      $class  FQCN to be instantiated
+     * @template PackageClass of CompletePackage
+     *
+     * @param mixed[] $config package data
+     * @param string  $class  FQCN to be instantiated
+     *
      * @return CompletePackage|RootPackage
+     *
      * @phpstan-param class-string<PackageClass> $class
      */
-    private function createObject(array $config, $class)
+    private function createObject(array $config, string $class): CompletePackage
     {
         if (!isset($config['name'])) {
             throw new \UnexpectedValueException('Unknown package has no name defined ('.json_encode($config).').');
         }
-        if (!isset($config['version'])) {
+        if (!isset($config['version']) || !is_scalar($config['version'])) {
             throw new \UnexpectedValueException('Package '.$config['name'].' has no version defined.');
+        }
+        if (!is_string($config['version'])) {
+            $config['version'] = (string) $config['version'];
         }
 
         // handle already normalized versions
-        if (isset($config['version_normalized'])) {
+        if (isset($config['version_normalized']) && is_string($config['version_normalized'])) {
             $version = $config['version_normalized'];
 
             // handling of existing repos which need to remain composer v1 compatible, in case the version_normalized contained VersionParser::DEFAULT_BRANCH_ALIAS, we renormalize it
@@ -137,14 +136,15 @@ class ArrayLoader implements LoaderInterface
     }
 
     /**
-     * @param  CompletePackageInterface                                          $package
-     * @param  array                                                             $config  package data
+     * @param CompletePackage $package
+     * @param mixed[]         $config package data
+     *
      * @return RootPackage|RootAliasPackage|CompletePackage|CompleteAliasPackage
      */
-    private function configureObject(PackageInterface $package, array $config)
+    private function configureObject(PackageInterface $package, array $config): BasePackage
     {
-        if (!$package instanceof Package) {
-            throw new \LogicException('ArrayLoader expects instances of the Composer\Package\Package class to function correctly');
+        if (!$package instanceof CompletePackage) {
+            throw new \LogicException('ArrayLoader expects instances of the Composer\Package\CompletePackage class to function correctly');
         }
 
         $package->setType(isset($config['type']) ? strtolower($config['type']) : 'library');
@@ -185,7 +185,7 @@ class ArrayLoader implements LoaderInterface
             }
             $package->setSourceType($config['source']['type']);
             $package->setSourceUrl($config['source']['url']);
-            $package->setSourceReference(isset($config['source']['reference']) ? $config['source']['reference'] : null);
+            $package->setSourceReference(isset($config['source']['reference']) ? (string) $config['source']['reference'] : null);
             if (isset($config['source']['mirrors'])) {
                 $package->setSourceMirrors($config['source']['mirrors']);
             }
@@ -202,8 +202,8 @@ class ArrayLoader implements LoaderInterface
             }
             $package->setDistType($config['dist']['type']);
             $package->setDistUrl($config['dist']['url']);
-            $package->setDistReference(isset($config['dist']['reference']) ? $config['dist']['reference'] : null);
-            $package->setDistSha1Checksum(isset($config['dist']['shasum']) ? $config['dist']['shasum'] : null);
+            $package->setDistReference(isset($config['dist']['reference']) ? (string) $config['dist']['reference'] : null);
+            $package->setDistSha1Checksum($config['dist']['shasum'] ?? null);
             if (isset($config['dist']['mirrors'])) {
                 $package->setDistMirrors($config['dist']['mirrors']);
             }
@@ -231,7 +231,7 @@ class ArrayLoader implements LoaderInterface
         }
 
         if (!empty($config['time'])) {
-            $time = preg_match('/^\d++$/D', $config['time']) ? '@'.$config['time'] : $config['time'];
+            $time = Preg::isMatch('/^\d++$/D', $config['time']) ? '@'.$config['time'] : $config['time'];
 
             try {
                 $date = new \DateTime($time, new \DateTimeZone('UTC'));
@@ -256,8 +256,10 @@ class ArrayLoader implements LoaderInterface
                 foreach ($config['scripts'] as $event => $listeners) {
                     $config['scripts'][$event] = (array) $listeners;
                 }
-                if (isset($config['scripts']['composer'])) {
-                    trigger_error('The `composer` script name is reserved for internal use, please avoid defining it', E_USER_DEPRECATED);
+                foreach (array('composer', 'php', 'putenv') as $reserved) {
+                    if (isset($config['scripts'][$reserved])) {
+                        trigger_error('The `'.$reserved.'` script name is reserved for internal use, please avoid defining it', E_USER_DEPRECATED);
+                    }
                 }
                 $package->setScripts($config['scripts']);
             }
@@ -300,29 +302,26 @@ class ArrayLoader implements LoaderInterface
         }
 
         if ($aliasNormalized = $this->getBranchAlias($config)) {
-            $prettyAlias = preg_replace('{(\.9{7})+}', '.x', $aliasNormalized);
+            $prettyAlias = Preg::replace('{(\.9{7})+}', '.x', $aliasNormalized);
 
-            if ($package instanceof RootPackageInterface) {
+            if ($package instanceof RootPackage) {
                 return new RootAliasPackage($package, $aliasNormalized, $prettyAlias);
             }
 
-            if ($package instanceof CompletePackageInterface) {
-                return new CompleteAliasPackage($package, $aliasNormalized, $prettyAlias);
-            }
-
-            return new AliasPackage($package, $aliasNormalized, $prettyAlias);
+            return new CompleteAliasPackage($package, $aliasNormalized, $prettyAlias);
         }
 
         return $package;
     }
 
     /**
-     * @param  array            $linkCache
-     * @param  PackageInterface $package
-     * @param  array            $config
+     * @param array<string, array<string, array<string, array<string, array{string, Link}>>>> $linkCache
+     * @param PackageInterface                                                                $package
+     * @param mixed[]                                                                         $config
+     *
      * @return void
      */
-    private function configureCachedLinks(&$linkCache, $package, array $config)
+    private function configureCachedLinks(array &$linkCache, PackageInterface $package, array $config): void
     {
         $name = $package->getName();
         $prettyVersion = $package->getPrettyVersion();
@@ -334,11 +333,17 @@ class ArrayLoader implements LoaderInterface
                 $links = array();
                 foreach ($config[$type] as $prettyTarget => $constraint) {
                     $target = strtolower($prettyTarget);
+
+                    // recursive links are not supported
+                    if ($target === $name) {
+                        continue;
+                    }
+
                     if ($constraint === 'self.version') {
-                        $links[$target] = $this->createLink($name, $prettyVersion, $opts['description'], $target, $constraint);
+                        $links[$target] = $this->createLink($name, $prettyVersion, $opts['method'], $target, $constraint);
                     } else {
                         if (!isset($linkCache[$name][$type][$target][$constraint])) {
-                            $linkCache[$name][$type][$target][$constraint] = array($target, $this->createLink($name, $prettyVersion, $opts['description'], $target, $constraint));
+                            $linkCache[$name][$type][$target][$constraint] = array($target, $this->createLink($name, $prettyVersion, $opts['method'], $target, $constraint));
                         }
 
                         list($target, $link) = $linkCache[$name][$type][$target][$constraint];
@@ -352,17 +357,21 @@ class ArrayLoader implements LoaderInterface
     }
 
     /**
-     * @param  string       $source        source package name
-     * @param  string       $sourceVersion source package version (pretty version ideally)
-     * @param  Link::TYPE_* $description   link description (e.g. requires, replaces, ..)
-     * @param  array        $links         array of package name => constraint mappings
+     * @param  string                    $source        source package name
+     * @param  string                    $sourceVersion source package version (pretty version ideally)
+     * @param  string                    $description   link description (e.g. requires, replaces, ..)
+     * @param  array<string|int, string> $links         array of package name => constraint mappings
+     *
      * @return Link[]
+     *
+     * @phpstan-param Link::TYPE_* $description
      */
-    public function parseLinks($source, $sourceVersion, $description, $links)
+    public function parseLinks(string $source, string $sourceVersion, string $description, array $links): array
     {
         $res = array();
         foreach ($links as $target => $constraint) {
-            $res[strtolower($target)] = $this->createLink($source, $sourceVersion, $description, $target, $constraint);
+            $target = strtolower((string) $target);
+            $res[$target] = $this->createLink($source, $sourceVersion, $description, $target, $constraint);
         }
 
         return $res;
@@ -376,7 +385,7 @@ class ArrayLoader implements LoaderInterface
      * @param  string       $prettyConstraint constraint string
      * @return Link
      */
-    private function createLink($source, $sourceVersion, $description, $target, $prettyConstraint)
+    private function createLink(string $source, string $sourceVersion, string $description, string $target, string $prettyConstraint): Link
     {
         if (!\is_string($prettyConstraint)) {
             throw new \UnexpectedValueException('Link constraint in '.$source.' '.$description.' > '.$target.' should be a string, got '.\gettype($prettyConstraint) . ' (' . var_export($prettyConstraint, true) . ')');
@@ -393,17 +402,27 @@ class ArrayLoader implements LoaderInterface
     /**
      * Retrieves a branch alias (dev-master => 1.0.x-dev for example) if it exists
      *
-     * @param  array       $config the entire package config
+     * @param mixed[] $config the entire package config
+     *
      * @return string|null normalized version of the branch alias or null if there is none
      */
-    public function getBranchAlias(array $config)
+    public function getBranchAlias(array $config): ?string
     {
+        if (!isset($config['version']) || !is_scalar($config['version'])) {
+            throw new \UnexpectedValueException('no/invalid version defined');
+        }
+        if (!is_string($config['version'])) {
+            $config['version'] = (string) $config['version'];
+        }
+
         if (strpos($config['version'], 'dev-') !== 0 && '-dev' !== substr($config['version'], -4)) {
             return null;
         }
 
         if (isset($config['extra']['branch-alias']) && \is_array($config['extra']['branch-alias'])) {
             foreach ($config['extra']['branch-alias'] as $sourceBranch => $targetBranch) {
+                $sourceBranch = (string) $sourceBranch;
+
                 // ensure it is an alias to a -dev package
                 if ('-dev' !== substr($targetBranch, -4)) {
                     continue;

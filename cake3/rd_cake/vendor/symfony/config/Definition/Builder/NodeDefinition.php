@@ -95,7 +95,7 @@ abstract class NodeDefinition implements NodeParentInterface
     /**
      * Returns the parent node.
      *
-     * @return NodeParentInterface|NodeBuilder|NodeDefinition|ArrayNodeDefinition|VariableNodeDefinition|null The builder of the parent node
+     * @return NodeParentInterface|NodeBuilder|NodeDefinition|ArrayNodeDefinition|VariableNodeDefinition|null
      */
     public function end()
     {
@@ -104,8 +104,6 @@ abstract class NodeDefinition implements NodeParentInterface
 
     /**
      * Creates the node.
-     *
-     * @param bool $forceRootNode Whether to force this node as the root node
      *
      * @return NodeInterface
      */
@@ -359,7 +357,7 @@ abstract class NodeDefinition implements NodeParentInterface
     /**
      * Instantiate and configure the node according to this definition.
      *
-     * @return NodeInterface The node instance
+     * @return NodeInterface
      *
      * @throws InvalidDefinitionException When the definition is invalid
      */

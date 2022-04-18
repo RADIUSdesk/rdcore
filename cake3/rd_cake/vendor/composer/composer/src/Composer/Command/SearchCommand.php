@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -14,6 +14,7 @@ namespace Composer\Command;
 
 use Composer\Factory;
 use Composer\Json\JsonFile;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,19 +30,17 @@ use Composer\Plugin\PluginEvents;
  */
 class SearchCommand extends BaseCommand
 {
-    protected $matches;
-    protected $lowMatches = array();
-    protected $tokens;
-    protected $output;
-    protected $onlyName;
-
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('search')
             ->setDescription('Searches for packages.')
             ->setDefinition(array(
-                new InputOption('only-name', 'N', InputOption::VALUE_NONE, 'Search only in name'),
+                new InputOption('only-name', 'N', InputOption::VALUE_NONE, 'Search only in package names'),
+                new InputOption('only-vendor', 'O', InputOption::VALUE_NONE, 'Search only for vendor / organization names, returns only "vendor" as result'),
                 new InputOption('type', 't', InputOption::VALUE_REQUIRED, 'Search for a specific package type'),
                 new InputOption('format', 'f', InputOption::VALUE_REQUIRED, 'Format of the output: text or json', 'text'),
                 new InputArgument('tokens', InputArgument::IS_ARRAY | InputArgument::REQUIRED, 'tokens to search for'),
@@ -57,7 +56,7 @@ EOT
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         // init repos
         $platformRepo = new PlatformRepository;
@@ -70,7 +69,7 @@ EOT
             return 1;
         }
 
-        if (!($composer = $this->getComposer(false))) {
+        if (!($composer = $this->tryComposer())) {
             $composer = Factory::create($this->getIO(), array(), $input->hasParameterOption('--no-plugins'));
         }
         $localRepo = $composer->getRepositoryManager()->getLocalRepository();
@@ -80,11 +79,24 @@ EOT
         $commandEvent = new CommandEvent(PluginEvents::COMMAND, 'search', $input, $output);
         $composer->getEventDispatcher()->dispatch($commandEvent->getName(), $commandEvent);
 
-        $onlyName = $input->getOption('only-name');
-        $type = $input->getOption('type') ?: null;
+        $mode = RepositoryInterface::SEARCH_FULLTEXT;
+        if ($input->getOption('only-name') === true) {
+            if ($input->getOption('only-vendor') === true) {
+                throw new \InvalidArgumentException('--only-name and --only-vendor cannot be used together');
+            }
+            $mode = RepositoryInterface::SEARCH_NAME;
+        } elseif ($input->getOption('only-vendor') === true) {
+            $mode = RepositoryInterface::SEARCH_VENDOR;
+        }
 
-        $flags = $onlyName ? RepositoryInterface::SEARCH_NAME : RepositoryInterface::SEARCH_FULLTEXT;
-        $results = $repos->search(implode(' ', $input->getArgument('tokens')), $flags, $type);
+        $type = $input->getOption('type');
+
+        $query = implode(' ', $input->getArgument('tokens'));
+        if ($mode !== RepositoryInterface::SEARCH_FULLTEXT) {
+            $query = preg_quote($query);
+        }
+
+        $results = $repos->search($query, $mode, $type);
 
         if ($results && $format === 'text') {
             $width = $this->getTerminalWidth();
@@ -95,13 +107,19 @@ EOT
             }
             $nameLength += 1;
             foreach ($results as $result) {
-                $description = isset($result['description']) ? $result['description'] : '';
-                $remaining = $width - $nameLength - 2;
+                $description = $result['description'] ?? '';
+                $warning = !empty($result['abandoned']) ? '<warning>! Abandoned !</warning> ' : '';
+                $remaining = $width - $nameLength - strlen($warning) - 2;
                 if (strlen($description) > $remaining) {
                     $description = substr($description, 0, $remaining - 3) . '...';
                 }
 
-                $io->write(str_pad($result['name'], $nameLength, ' ') . $description);
+                $link = $result['url'] ?? null;
+                if ($link !== null) {
+                    $io->write('<href='.OutputFormatter::escape($link).'>'.$result['name'].'</>'. str_repeat(' ', $nameLength - strlen($result['name'])) . $warning . $description);
+                } else {
+                    $io->write(str_pad($result['name'], $nameLength, ' ') . $warning . $description);
+                }
             }
         } elseif ($format === 'json') {
             $io->write(JsonFile::encode($results));

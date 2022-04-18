@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -14,6 +14,7 @@ namespace Composer\Repository;
 
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\Loader\ValidatingArrayLoader;
+use Composer\Pcre\Preg;
 
 /**
  * Package repository.
@@ -22,12 +23,13 @@ use Composer\Package\Loader\ValidatingArrayLoader;
  */
 class PackageRepository extends ArrayRepository
 {
+    /** @var mixed[] */
     private $config;
 
     /**
      * Initializes filesystem repository.
      *
-     * @param array $config package definition
+     * @param array{package: mixed[]} $config package definition
      */
     public function __construct(array $config)
     {
@@ -43,11 +45,11 @@ class PackageRepository extends ArrayRepository
     /**
      * Initializes repository (reads file, or remote address).
      */
-    protected function initialize()
+    protected function initialize(): void
     {
         parent::initialize();
 
-        $loader = new ValidatingArrayLoader(new ArrayLoader(null, true), false);
+        $loader = new ValidatingArrayLoader(new ArrayLoader(null, true), true);
         foreach ($this->config as $package) {
             try {
                 $package = $loader->load($package);
@@ -59,8 +61,8 @@ class PackageRepository extends ArrayRepository
         }
     }
 
-    public function getRepoName()
+    public function getRepoName(): string
     {
-        return preg_replace('{^array }', 'package ', parent::getRepoName());
+        return Preg::replace('{^array }', 'package ', parent::getRepoName());
     }
 }

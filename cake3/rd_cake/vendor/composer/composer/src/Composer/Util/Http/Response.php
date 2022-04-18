@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -13,17 +13,32 @@
 namespace Composer\Util\Http;
 
 use Composer\Json\JsonFile;
+use Composer\Pcre\Preg;
+use Composer\Util\HttpDownloader;
 
+/**
+ * @phpstan-import-type Request from HttpDownloader
+ */
 class Response
 {
+    /** @var Request */
     private $request;
+    /** @var int */
     private $code;
+    /** @var list<string> */
     private $headers;
+    /** @var ?string */
     private $body;
 
-    public function __construct(array $request, $code, array $headers, $body)
+    /**
+     * @param Request  $request
+     * @param int      $code
+     * @param list<string> $headers
+     * @param null|string  $body
+     */
+    public function __construct(array $request, ?int $code, array $headers, ?string $body)
     {
-        if (!isset($request['url'])) {
+        if (!isset($request['url'])) { // @phpstan-ignore-line
             throw new \LogicException('url key missing from request array');
         }
         $this->request = $request;
@@ -32,7 +47,10 @@ class Response
         $this->body = $body;
     }
 
-    public function getStatusCode()
+    /**
+     * @return int
+     */
+    public function getStatusCode(): int
     {
         return $this->code;
     }
@@ -40,11 +58,11 @@ class Response
     /**
      * @return string|null
      */
-    public function getStatusMessage()
+    public function getStatusMessage(): ?string
     {
         $value = null;
         foreach ($this->headers as $header) {
-            if (preg_match('{^HTTP/\S+ \d+}i', $header)) {
+            if (Preg::isMatch('{^HTTP/\S+ \d+}i', $header)) {
                 // In case of redirects, headers contain the headers of all responses
                 // so we can not return directly and need to keep iterating
                 $value = $header;
@@ -54,41 +72,59 @@ class Response
         return $value;
     }
 
-    public function getHeaders()
+    /**
+     * @return string[]
+     */
+    public function getHeaders(): array
     {
         return $this->headers;
     }
 
-    public function getHeader($name)
+    /**
+     * @param  string  $name
+     * @return ?string
+     */
+    public function getHeader(string $name): ?string
     {
         return self::findHeaderValue($this->headers, $name);
     }
 
-    public function getBody()
+    /**
+     * @return ?string
+     */
+    public function getBody(): ?string
     {
         return $this->body;
     }
 
+    /**
+     * @return mixed
+     */
     public function decodeJson()
     {
         return JsonFile::parseJson($this->body, $this->request['url']);
     }
 
-    public function collect()
+    /**
+     * @return void
+     * @phpstan-impure
+     */
+    public function collect(): void
     {
+        /** @phpstan-ignore-next-line */
         $this->request = $this->code = $this->headers = $this->body = null;
     }
 
     /**
-     * @param  array       $headers array of returned headers like from getLastHeaders()
+     * @param  string[]    $headers array of returned headers like from getLastHeaders()
      * @param  string      $name    header name (case insensitive)
      * @return string|null
      */
-    public static function findHeaderValue(array $headers, $name)
+    public static function findHeaderValue(array $headers, string $name): ?string
     {
         $value = null;
         foreach ($headers as $header) {
-            if (preg_match('{^'.preg_quote($name).':\s*(.+?)\s*$}i', $header, $match)) {
+            if (Preg::isMatch('{^'.preg_quote($name).':\s*(.+?)\s*$}i', $header, $match)) {
                 $value = $match[1];
             }
         }

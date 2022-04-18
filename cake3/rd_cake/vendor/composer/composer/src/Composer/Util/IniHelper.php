@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -29,9 +29,9 @@ class IniHelper
      * The equivalent of calling php_ini_loaded_file then php_ini_scanned_files.
      * The loaded ini location is the first entry and may be empty.
      *
-     * @return array
+     * @return string[]
      */
-    public static function getAll()
+    public static function getAll(): array
     {
         return XdebugHandler::getAllIniFiles();
     }
@@ -41,7 +41,7 @@ class IniHelper
      *
      * @return string
      */
-    public static function getMessage()
+    public static function getMessage(): string
     {
         $paths = self::getAll();
 

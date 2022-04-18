@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -14,6 +14,7 @@ namespace Composer\Repository;
 
 use Composer\IO\IOInterface;
 use Composer\Json\JsonFile;
+use Composer\Package\BasePackage;
 use Composer\Package\Loader\ArrayLoader;
 use Composer\Package\Loader\LoaderInterface;
 use Composer\Util\Tar;
@@ -27,10 +28,16 @@ class ArtifactRepository extends ArrayRepository implements ConfigurableReposito
     /** @var LoaderInterface */
     protected $loader;
 
+    /** @var string */
     protected $lookup;
+    /** @var array{url: string} */
     protected $repoConfig;
+    /** @var IOInterface */
     private $io;
 
+    /**
+     * @param array{url: string} $repoConfig
+     */
     public function __construct(array $repoConfig, IOInterface $io)
     {
         parent::__construct();
@@ -61,13 +68,18 @@ class ArtifactRepository extends ArrayRepository implements ConfigurableReposito
         $this->scanDirectory($this->lookup);
     }
 
-    private function scanDirectory($path)
+    /**
+     * @param string $path
+     *
+     * @return void
+     */
+    private function scanDirectory(string $path): void
     {
         $io = $this->io;
 
         $directory = new \RecursiveDirectoryIterator($path, \RecursiveDirectoryIterator::FOLLOW_SYMLINKS);
         $iterator = new \RecursiveIteratorIterator($directory);
-        $regex = new \RegexIterator($iterator, '/^.+\.(zip|phar|tar|gz|tgz)$/i');
+        $regex = new \RegexIterator($iterator, '/^.+\.(zip|tar|gz|tgz)$/i');
         foreach ($regex as $file) {
             /* @var $file \SplFileInfo */
             if (!$file->isFile()) {
@@ -87,7 +99,10 @@ class ArtifactRepository extends ArrayRepository implements ConfigurableReposito
         }
     }
 
-    private function getComposerInformation(\SplFileInfo $file)
+    /**
+     * @return ?BasePackage
+     */
+    private function getComposerInformation(\SplFileInfo $file): ?BasePackage
     {
         $json = null;
         $fileType = null;
@@ -111,7 +126,7 @@ class ArtifactRepository extends ArrayRepository implements ConfigurableReposito
         }
 
         if (null === $json) {
-            return false;
+            return null;
         }
 
         $package = JsonFile::parseJson($json, $file->getPathname().'#composer.json');

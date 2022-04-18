@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2020 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -73,7 +73,7 @@ class RequirePass extends CodeCleanerPass
      *
      * @return string Exactly the same as $file, unless $file collides with a path in the currently running phar
      */
-    public static function resolve($file, $lineNumber = null)
+    public static function resolve($file, $lineNumber = null): string
     {
         $file = (string) $file;
 
@@ -115,12 +115,12 @@ class RequirePass extends CodeCleanerPass
         return $file;
     }
 
-    private function isRequireNode(Node $node)
+    private function isRequireNode(Node $node): bool
     {
         return $node instanceof Include_ && \in_array($node->type, self::$requireTypes);
     }
 
-    private static function getIncludePath()
+    private static function getIncludePath(): array
     {
         if (\PATH_SEPARATOR === ':') {
             return \preg_split('#:(?!//)#', \get_include_path());

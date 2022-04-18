@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -15,12 +15,14 @@ namespace Composer\Downloader;
 use Composer\Config;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
+use Composer\Pcre\Preg;
 use Composer\Util\Filesystem;
 use Composer\Util\Git as GitUtil;
 use Composer\Util\Url;
 use Composer\Util\Platform;
 use Composer\Util\ProcessExecutor;
 use Composer\Cache;
+use React\Promise\PromiseInterface;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -54,13 +56,13 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    protected function doDownload(PackageInterface $package, $path, $url, PackageInterface $prevPackage = null)
+    protected function doDownload(PackageInterface $package, string $path, string $url, PackageInterface $prevPackage = null): PromiseInterface
     {
         GitUtil::cleanEnv();
 
-        $cachePath = $this->config->get('cache-vcs-dir').'/'.preg_replace('{[^a-z0-9.]}i', '-', $url).'/';
+        $cachePath = $this->config->get('cache-vcs-dir').'/'.Preg::replace('{[^a-z0-9.]}i', '-', $url).'/';
         $gitVersion = GitUtil::getVersion($this->process);
 
         // --dissociate option is only available since git 2.3.0-rc0
@@ -75,70 +77,78 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
             throw new \RuntimeException('git was not found in your PATH, skipping source download');
         }
 
-        return \React\Promise\resolve();
+        return \React\Promise\resolve(null);
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    protected function doInstall(PackageInterface $package, $path, $url)
+    protected function doInstall(PackageInterface $package, string $path, string $url): PromiseInterface
     {
         GitUtil::cleanEnv();
         $path = $this->normalizePath($path);
-        $cachePath = $this->config->get('cache-vcs-dir').'/'.preg_replace('{[^a-z0-9.]}i', '-', $url).'/';
+        $cachePath = $this->config->get('cache-vcs-dir').'/'.Preg::replace('{[^a-z0-9.]}i', '-', $url).'/';
         $ref = $package->getSourceReference();
         $flag = Platform::isWindows() ? '/D ' : '';
 
         if (!empty($this->cachedPackages[$package->getId()][$ref])) {
             $msg = "Cloning ".$this->getShortHash($ref).' from cache';
+
+            $cloneFlags = '--dissociate --reference %cachePath% ';
+            $transportOptions = $package->getTransportOptions();
+            if (isset($transportOptions['git']['single_use_clone']) && $transportOptions['git']['single_use_clone']) {
+                $cloneFlags = '';
+            }
+
             $command =
-                'git clone --no-checkout %cachePath% %path% --dissociate --reference %cachePath% '
+                'git clone --no-checkout %cachePath% %path% ' . $cloneFlags
                 . '&& cd '.$flag.'%path% '
                 . '&& git remote set-url origin -- %sanitizedUrl% && git remote add composer -- %sanitizedUrl%';
         } else {
             $msg = "Cloning ".$this->getShortHash($ref);
             $command = 'git clone --no-checkout -- %url% %path% && cd '.$flag.'%path% && git remote add composer -- %url% && git fetch composer && git remote set-url origin -- %sanitizedUrl% && git remote set-url composer -- %sanitizedUrl%';
-            if (getenv('COMPOSER_DISABLE_NETWORK')) {
+            if (Platform::getEnv('COMPOSER_DISABLE_NETWORK')) {
                 throw new \RuntimeException('The required git reference for '.$package->getName().' is not in cache and network is disabled, aborting');
             }
         }
 
         $this->io->writeError($msg);
 
-        $commandCallable = function ($url) use ($path, $command, $cachePath) {
+        $commandCallable = function (string $url) use ($path, $command, $cachePath): string {
             return str_replace(
                 array('%url%', '%path%', '%cachePath%', '%sanitizedUrl%'),
                 array(
                     ProcessExecutor::escape($url),
                     ProcessExecutor::escape($path),
                     ProcessExecutor::escape($cachePath),
-                    ProcessExecutor::escape(preg_replace('{://([^@]+?):(.+?)@}', '://', $url)),
+                    ProcessExecutor::escape(Preg::replace('{://([^@]+?):(.+?)@}', '://', $url)),
                 ),
                 $command
             );
         };
 
         $this->gitUtil->runCommand($commandCallable, $url, $path, true);
-        if ($url !== $package->getSourceUrl()) {
-            $this->updateOriginUrl($path, $package->getSourceUrl());
+        $sourceUrl = $package->getSourceUrl();
+        if ($url !== $sourceUrl && $sourceUrl !== null) {
+            $this->updateOriginUrl($path, $sourceUrl);
         } else {
             $this->setPushUrl($path, $url);
         }
 
-        if ($newRef = $this->updateToCommit($path, $ref, $package->getPrettyVersion(), $package->getReleaseDate())) {
+        if ($newRef = $this->updateToCommit($package, $path, (string) $ref, $package->getPrettyVersion())) {
             if ($package->getDistReference() === $package->getSourceReference()) {
                 $package->setDistReference($newRef);
             }
             $package->setSourceReference($newRef);
         }
 
-        return \React\Promise\resolve();
+        return \React\Promise\resolve(null);
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    protected function doUpdate(PackageInterface $initial, PackageInterface $target, $path, $url)
+    protected function doUpdate(PackageInterface $initial, PackageInterface $target, string $path, string $url): PromiseInterface
     {
         GitUtil::cleanEnv();
         $path = $this->normalizePath($path);
@@ -146,7 +156,7 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
             throw new \RuntimeException('The .git directory is missing from '.$path.', see https://getcomposer.org/commit-deps for more information');
         }
 
-        $cachePath = $this->config->get('cache-vcs-dir').'/'.preg_replace('{[^a-z0-9.]}i', '-', $url).'/';
+        $cachePath = $this->config->get('cache-vcs-dir').'/'.Preg::replace('{[^a-z0-9.]}i', '-', $url).'/';
         $ref = $target->getSourceReference();
 
         if (!empty($this->cachedPackages[$target->getId()][$ref])) {
@@ -155,28 +165,28 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
         } else {
             $msg = "Checking out ".$this->getShortHash($ref);
             $command = '(git remote set-url composer -- %url% && git rev-parse --quiet --verify %ref% || (git fetch composer && git fetch --tags composer)) && git remote set-url composer -- %sanitizedUrl%';
-            if (getenv('COMPOSER_DISABLE_NETWORK')) {
+            if (Platform::getEnv('COMPOSER_DISABLE_NETWORK')) {
                 throw new \RuntimeException('The required git reference for '.$target->getName().' is not in cache and network is disabled, aborting');
             }
         }
 
         $this->io->writeError($msg);
 
-        $commandCallable = function ($url) use ($ref, $command, $cachePath) {
+        $commandCallable = function ($url) use ($ref, $command, $cachePath): string {
             return str_replace(
                 array('%url%', '%ref%', '%cachePath%', '%sanitizedUrl%'),
                 array(
                     ProcessExecutor::escape($url),
                     ProcessExecutor::escape($ref.'^{commit}'),
                     ProcessExecutor::escape($cachePath),
-                    ProcessExecutor::escape(preg_replace('{://([^@]+?):(.+?)@}', '://', $url)),
+                    ProcessExecutor::escape(Preg::replace('{://([^@]+?):(.+?)@}', '://', $url)),
                 ),
                 $command
             );
         };
 
         $this->gitUtil->runCommand($commandCallable, $url, $path);
-        if ($newRef = $this->updateToCommit($path, $ref, $target->getPrettyVersion(), $target->getReleaseDate())) {
+        if ($newRef = $this->updateToCommit($target, $path, (string) $ref, $target->getPrettyVersion())) {
             if ($target->getDistReference() === $target->getSourceReference()) {
                 $target->setDistReference($newRef);
             }
@@ -186,24 +196,24 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
         $updateOriginUrl = false;
         if (
             0 === $this->process->execute('git remote -v', $output, $path)
-            && preg_match('{^origin\s+(?P<url>\S+)}m', $output, $originMatch)
-            && preg_match('{^composer\s+(?P<url>\S+)}m', $output, $composerMatch)
+            && Preg::isMatch('{^origin\s+(?P<url>\S+)}m', $output, $originMatch)
+            && Preg::isMatch('{^composer\s+(?P<url>\S+)}m', $output, $composerMatch)
         ) {
             if ($originMatch['url'] === $composerMatch['url'] && $composerMatch['url'] !== $target->getSourceUrl()) {
                 $updateOriginUrl = true;
             }
         }
-        if ($updateOriginUrl) {
+        if ($updateOriginUrl && $target->getSourceUrl() !== null) {
             $this->updateOriginUrl($path, $target->getSourceUrl());
         }
 
-        return \React\Promise\resolve();
+        return \React\Promise\resolve(null);
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function getLocalChanges(PackageInterface $package, $path)
+    public function getLocalChanges(PackageInterface $package, string $path): ?string
     {
         GitUtil::cleanEnv();
         if (!$this->hasMetadataRepository($path)) {
@@ -215,10 +225,15 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
             throw new \RuntimeException('Failed to execute ' . $command . "\n\n" . $this->process->getErrorOutput());
         }
 
-        return trim($output) ?: null;
+        $output = trim($output);
+
+        return strlen($output) > 0 ? $output : null;
     }
 
-    public function getUnpushedChanges(PackageInterface $package, $path)
+    /**
+     * @return null|string
+     */
+    public function getUnpushedChanges(PackageInterface $package, string $path): ?string
     {
         GitUtil::cleanEnv();
         $path = $this->normalizePath($path);
@@ -232,13 +247,13 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
         }
 
         $refs = trim($output);
-        if (!preg_match('{^([a-f0-9]+) HEAD$}mi', $refs, $match)) {
+        if (!Preg::isMatch('{^([a-f0-9]+) HEAD$}mi', $refs, $match)) {
             // could not match the HEAD for some reason
             return null;
         }
 
         $headRef = $match[1];
-        if (!preg_match_all('{^'.$headRef.' refs/heads/(.+)$}mi', $refs, $matches)) {
+        if (!Preg::isMatchAll('{^'.$headRef.' refs/heads/(.+)$}mi', $refs, $matches)) {
             // not on a branch, we are either on a not-modified tag or some sort of detached head, so skip this
             return null;
         }
@@ -255,7 +270,7 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
 
             // try to find matching branch names in remote repos
             foreach ($candidateBranches as $candidate) {
-                if (preg_match_all('{^[a-f0-9]+ refs/remotes/((?:[^/]+)/'.preg_quote($candidate).')$}mi', $refs, $matches)) {
+                if (Preg::isMatchAll('{^[a-f0-9]+ refs/remotes/((?:[^/]+)/'.preg_quote($candidate).')$}mi', $refs, $matches)) {
                     foreach ($matches[1] as $match) {
                         $branch = $candidate;
                         $remoteBranches[] = $match;
@@ -313,9 +328,9 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    protected function cleanChanges(PackageInterface $package, $path, $update)
+    protected function cleanChanges(PackageInterface $package, string $path, bool $update): PromiseInterface
     {
         GitUtil::cleanEnv();
         $path = $this->normalizePath($path);
@@ -325,8 +340,8 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
             throw new \RuntimeException('Source directory ' . $path . ' has unpushed changes on the current branch: '."\n".$unpushed);
         }
 
-        if (!$changes = $this->getLocalChanges($package, $path)) {
-            return;
+        if (null === ($changes = $this->getLocalChanges($package, $path))) {
+            return \React\Promise\resolve(null);
         }
 
         if (!$this->io->isInteractive()) {
@@ -345,9 +360,9 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
             return parent::cleanChanges($package, $path, $update);
         }
 
-        $changes = array_map(function ($elem) {
+        $changes = array_map(function ($elem): string {
             return '    '.$elem;
-        }, preg_split('{\s*\r?\n\s*}', $changes));
+        }, Preg::split('{\s*\r?\n\s*}', $changes));
         $this->io->writeError('    <error>'.$package->getPrettyName().' has modified files:</error>');
         $this->io->writeError(array_slice($changes, 0, 10));
         if (count($changes) > 10) {
@@ -395,12 +410,14 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
                     break;
             }
         }
+
+        return \React\Promise\resolve(null);
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    protected function reapplyChanges($path)
+    protected function reapplyChanges(string $path): void
     {
         $path = $this->normalizePath($path);
         if (!empty($this->hasStashedChanges[$path])) {
@@ -419,12 +436,11 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
      *
      * @param  string            $path
      * @param  string            $reference
-     * @param  string            $branch
-     * @param  \DateTime         $date
+     * @param  string            $prettyVersion
      * @throws \RuntimeException
      * @return null|string       if a string is returned, it is the commit reference that was checked out if the original could not be found
      */
-    protected function updateToCommit($path, $reference, $branch, $date)
+    protected function updateToCommit(PackageInterface $package, string $path, string $reference, string $prettyVersion): ?string
     {
         $force = !empty($this->hasDiscardedChanges[$path]) || !empty($this->hasStashedChanges[$path]) ? '-f ' : '';
 
@@ -434,7 +450,7 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
         // If the non-existent branch is actually the name of a file, the file
         // is checked out.
         $template = 'git checkout '.$force.'%s -- && git reset --hard %1$s --';
-        $branch = preg_replace('{(?:^dev-|(?:\.x)?-dev$)}i', '', $branch);
+        $branch = Preg::replace('{(?:^dev-|(?:\.x)?-dev$)}i', '', $prettyVersion);
 
         $branches = null;
         if (0 === $this->process->execute('git branch -r', $output, $path)) {
@@ -443,9 +459,9 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
 
         // check whether non-commitish are branches or tags, and fetch branches with the remote name
         $gitRef = $reference;
-        if (!preg_match('{^[a-f0-9]{40}$}', $reference)
+        if (!Preg::isMatch('{^[a-f0-9]{40}$}', $reference)
             && $branches
-            && preg_match('{^\s+composer/'.preg_quote($reference).'$}m', $branches)
+            && Preg::isMatch('{^\s+composer/'.preg_quote($reference).'$}m', $branches)
         ) {
             $command = sprintf('git checkout '.$force.'-B %s %s -- && git reset --hard %2$s --', ProcessExecutor::escape($branch), ProcessExecutor::escape('composer/'.$reference));
             if (0 === $this->process->execute($command, $output, $path)) {
@@ -454,9 +470,9 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
         }
 
         // try to checkout branch by name and then reset it so it's on the proper branch name
-        if (preg_match('{^[a-f0-9]{40}$}', $reference)) {
+        if (Preg::isMatch('{^[a-f0-9]{40}$}', $reference)) {
             // add 'v' in front of the branch if it was stripped when generating the pretty name
-            if (!preg_match('{^\s+composer/'.preg_quote($branch).'$}m', $branches) && preg_match('{^\s+composer/v'.preg_quote($branch).'$}m', $branches)) {
+            if (!Preg::isMatch('{^\s+composer/'.preg_quote($branch).'$}m', $branches) && Preg::isMatch('{^\s+composer/v'.preg_quote($branch).'$}m', $branches)) {
                 $branch = 'v' . $branch;
             }
 
@@ -474,24 +490,39 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
             return null;
         }
 
+        $exceptionExtra = '';
+
         // reference was not found (prints "fatal: reference is not a tree: $ref")
         if (false !== strpos($this->process->getErrorOutput(), $reference)) {
             $this->io->writeError('    <warning>'.$reference.' is gone (history was rewritten?)</warning>');
+            $exceptionExtra = "\nIt looks like the commit hash is not available in the repository, maybe ".($package->isDev() ? 'the commit was removed from the branch' : 'the tag was recreated').'? Run "composer update '.$package->getPrettyName().'" to resolve this.';
         }
 
-        throw new \RuntimeException(Url::sanitize('Failed to execute ' . $command . "\n\n" . $this->process->getErrorOutput()));
+        throw new \RuntimeException(Url::sanitize('Failed to execute ' . $command . "\n\n" . $this->process->getErrorOutput() . $exceptionExtra));
     }
 
-    protected function updateOriginUrl($path, $url)
+    /**
+     * @param string $path
+     * @param string $url
+     *
+     * @return void
+     */
+    protected function updateOriginUrl(string $path, string $url): void
     {
         $this->process->execute(sprintf('git remote set-url origin -- %s', ProcessExecutor::escape($url)), $output, $path);
         $this->setPushUrl($path, $url);
     }
 
-    protected function setPushUrl($path, $url)
+    /**
+     * @param string $path
+     * @param string $url
+     *
+     * @return void
+     */
+    protected function setPushUrl(string $path, string $url): void
     {
         // set push url for github projects
-        if (preg_match('{^(?:https?|git)://'.GitUtil::getGitHubDomainsRegex($this->config).'/([^/]+)/([^/]+?)(?:\.git)?$}', $url, $match)) {
+        if (Preg::isMatch('{^(?:https?|git)://'.GitUtil::getGitHubDomainsRegex($this->config).'/([^/]+)/([^/]+?)(?:\.git)?$}', $url, $match)) {
             $protocols = $this->config->get('github-protocols');
             $pushUrl = 'git@'.$match[1].':'.$match[2].'/'.$match[3].'.git';
             if (!in_array('ssh', $protocols, true)) {
@@ -503,9 +534,9 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    protected function getCommitLogs($fromReference, $toReference, $path)
+    protected function getCommitLogs(string $fromReference, string $toReference, string $path): string
     {
         $path = $this->normalizePath($path);
         $command = sprintf('git log %s..%s --pretty=format:"%%h - %%an: %%s"'.GitUtil::getNoShowSignatureFlag($this->process), ProcessExecutor::escape($fromReference), ProcessExecutor::escape($toReference));
@@ -518,10 +549,13 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
     }
 
     /**
-     * @param  string            $path
+     * @param string $path
+     *
+     * @return PromiseInterface
+     *
      * @throws \RuntimeException
      */
-    protected function discardChanges($path)
+    protected function discardChanges(string $path): PromiseInterface
     {
         $path = $this->normalizePath($path);
         if (0 !== $this->process->execute('git clean -df && git reset --hard', $output, $path)) {
@@ -529,13 +563,18 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
         }
 
         $this->hasDiscardedChanges[$path] = true;
+
+        return \React\Promise\resolve(null);
     }
 
     /**
-     * @param  string            $path
+     * @param string $path
+     *
+     * @return PromiseInterface
+     *
      * @throws \RuntimeException
      */
-    protected function stashChanges($path)
+    protected function stashChanges(string $path): PromiseInterface
     {
         $path = $this->normalizePath($path);
         if (0 !== $this->process->execute('git stash --include-untracked', $output, $path)) {
@@ -543,13 +582,18 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
         }
 
         $this->hasStashedChanges[$path] = true;
+
+        return \React\Promise\resolve(null);
     }
 
     /**
-     * @param  string            $path
+     * @param string $path
+     *
+     * @return void
+     *
      * @throws \RuntimeException
      */
-    protected function viewDiff($path)
+    protected function viewDiff(string $path): void
     {
         $path = $this->normalizePath($path);
         if (0 !== $this->process->execute('git diff HEAD', $output, $path)) {
@@ -559,7 +603,12 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
         $this->io->writeError($output);
     }
 
-    protected function normalizePath($path)
+    /**
+     * @param string $path
+     *
+     * @return string
+     */
+    protected function normalizePath(string $path): string
     {
         if (Platform::isWindows() && strlen($path) > 0) {
             $basePath = $path;
@@ -581,18 +630,22 @@ class GitDownloader extends VcsDownloader implements DvcsDownloaderInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    protected function hasMetadataRepository($path)
+    protected function hasMetadataRepository(string $path): bool
     {
         $path = $this->normalizePath($path);
 
         return is_dir($path.'/.git');
     }
 
-    protected function getShortHash($reference)
+    /**
+     * @param  string $reference
+     * @return string
+     */
+    protected function getShortHash(string $reference): string
     {
-        if (!$this->io->isVerbose() && preg_match('{^[0-9a-f]{40}$}', $reference)) {
+        if (!$this->io->isVerbose() && Preg::isMatch('{^[0-9a-f]{40}$}', $reference)) {
             return substr($reference, 0, 10);
         }
 

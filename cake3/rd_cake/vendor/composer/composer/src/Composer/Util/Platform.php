@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -11,6 +11,8 @@
  */
 
 namespace Composer\Util;
+
+use Composer\Pcre\Preg;
 
 /**
  * Platform helper for uniform platform-specific tests.
@@ -25,13 +27,57 @@ class Platform
     private static $isWindowsSubsystemForLinux = null;
 
     /**
+     * getcwd() equivalent which always returns a string
+     *
+     * @throws \RuntimeException
+     */
+    public static function getCwd(bool $allowEmpty = false): string
+    {
+        $cwd = getcwd();
+
+        // fallback to realpath('') just in case this works but odds are it would break as well if we are in a case where getcwd fails
+        if (false === $cwd) {
+            $cwd = realpath('');
+        }
+
+        // crappy state, assume '' and hopefully relative paths allow things to continue
+        if (false === $cwd) {
+            if ($allowEmpty) {
+                return '';
+            }
+
+            throw new \RuntimeException('Could not determine the current working directory');
+        }
+
+        return $cwd;
+    }
+
+    /**
+     * getenv() equivalent but reads from the runtime global variables first
+     *
+     * @param  string $name
+     * @return string|false
+     */
+    public static function getEnv(string $name)
+    {
+        if (array_key_exists($name, $_SERVER)) {
+            return (string) $_SERVER[$name];
+        }
+        if (array_key_exists($name, $_ENV)) {
+            return (string) $_ENV[$name];
+        }
+
+        return getenv($name);
+    }
+
+    /**
      * putenv() equivalent but updates the runtime global variables too
      *
      * @param  string $name
      * @param  string $value
      * @return void
      */
-    public static function putEnv($name, $value)
+    public static function putEnv(string $name, string $value): void
     {
         $value = (string) $value;
         putenv($name . '=' . $value);
@@ -44,7 +90,7 @@ class Platform
      * @param  string $name
      * @return void
      */
-    public static function clearEnv($name)
+    public static function clearEnv(string $name): void
     {
         putenv($name);
         unset($_SERVER[$name], $_ENV[$name]);
@@ -56,19 +102,19 @@ class Platform
      * @param  string $path
      * @return string
      */
-    public static function expandPath($path)
+    public static function expandPath(string $path): string
     {
-        if (preg_match('#^~[\\/]#', $path)) {
+        if (Preg::isMatch('#^~[\\/]#', $path)) {
             return self::getUserDirectory() . substr($path, 1);
         }
 
-        return preg_replace_callback('#^(\$|(?P<percent>%))(?P<var>\w++)(?(percent)%)(?P<path>.*)#', function ($matches) {
+        return Preg::replaceCallback('#^(\$|(?P<percent>%))(?P<var>\w++)(?(percent)%)(?P<path>.*)#', function ($matches): string {
             // Treat HOME as an alias for USERPROFILE on Windows for legacy reasons
             if (Platform::isWindows() && $matches['var'] == 'HOME') {
-                return (getenv('HOME') ?: getenv('USERPROFILE')) . $matches['path'];
+                return (Platform::getEnv('HOME') ?: Platform::getEnv('USERPROFILE')) . $matches['path'];
             }
 
-            return getenv($matches['var']) . $matches['path'];
+            return Platform::getEnv($matches['var']) . $matches['path'];
         }, $path);
     }
 
@@ -76,13 +122,13 @@ class Platform
      * @throws \RuntimeException If the user home could not reliably be determined
      * @return string            The formal user home as detected from environment parameters
      */
-    public static function getUserDirectory()
+    public static function getUserDirectory(): string
     {
-        if (false !== ($home = getenv('HOME'))) {
+        if (false !== ($home = self::getEnv('HOME'))) {
             return $home;
         }
 
-        if (self::isWindows() && false !== ($home = getenv('USERPROFILE'))) {
+        if (self::isWindows() && false !== ($home = self::getEnv('USERPROFILE'))) {
             return $home;
         }
 
@@ -98,7 +144,7 @@ class Platform
     /**
      * @return bool Whether the host machine is running on the Windows Subsystem for Linux (WSL)
      */
-    public static function isWindowsSubsystemForLinux()
+    public static function isWindowsSubsystemForLinux(): bool
     {
         if (null === self::$isWindowsSubsystemForLinux) {
             self::$isWindowsSubsystemForLinux = false;
@@ -108,7 +154,12 @@ class Platform
                 return self::$isWindowsSubsystemForLinux = false;
             }
 
-            if (is_readable('/proc/version') && false !== stripos(file_get_contents('/proc/version'), 'microsoft')) {
+            if (
+                !ini_get('open_basedir')
+                && is_readable('/proc/version')
+                && false !== stripos(Silencer::call('file_get_contents', '/proc/version'), 'microsoft')
+                && !file_exists('/.dockerenv') // docker running inside WSL should not be seen as WSL
+            ) {
                 return self::$isWindowsSubsystemForLinux = true;
             }
         }
@@ -119,7 +170,7 @@ class Platform
     /**
      * @return bool Whether the host machine is running a Windows OS
      */
-    public static function isWindows()
+    public static function isWindows(): bool
     {
         return \defined('PHP_WINDOWS_VERSION_BUILD');
     }
@@ -128,7 +179,7 @@ class Platform
      * @param  string $str
      * @return int    return a guaranteed binary length of the string, regardless of silly mbstring configs
      */
-    public static function strlen($str)
+    public static function strlen(string $str): int
     {
         static $useMbString = null;
         if (null === $useMbString) {
@@ -142,7 +193,11 @@ class Platform
         return \strlen($str);
     }
 
-    public static function isTty($fd = null)
+    /**
+     * @param  ?resource $fd Open file descriptor or null to default to STDOUT
+     * @return bool
+     */
+    public static function isTty($fd = null): bool
     {
         if ($fd === null) {
             $fd = defined('STDOUT') ? STDOUT : fopen('php://stdout', 'w');
@@ -150,7 +205,7 @@ class Platform
 
         // detect msysgit/mingw and assume this is a tty because detection
         // does not work correctly, see https://github.com/composer/composer/issues/9690
-        if (in_array(strtoupper(getenv('MSYSTEM') ?: ''), array('MINGW32', 'MINGW64'), true)) {
+        if (in_array(strtoupper(self::getEnv('MSYSTEM') ?: ''), array('MINGW32', 'MINGW64'), true)) {
             return true;
         }
 
@@ -170,7 +225,10 @@ class Platform
         return $stat ? 0020000 === ($stat['mode'] & 0170000) : false;
     }
 
-    public static function workaroundFilesystemIssues()
+    /**
+     * @return void
+     */
+    public static function workaroundFilesystemIssues(): void
     {
         if (self::isVirtualBoxGuest()) {
             usleep(200000);
@@ -184,7 +242,7 @@ class Platform
      *
      * @return bool
      */
-    private static function isVirtualBoxGuest()
+    private static function isVirtualBoxGuest(): bool
     {
         if (null === self::$isVirtualBoxGuest) {
             self::$isVirtualBoxGuest = false;
@@ -199,7 +257,7 @@ class Platform
                 }
             }
 
-            if (getenv('COMPOSER_RUNTIME_ENV') === 'virtualbox') {
+            if (self::getEnv('COMPOSER_RUNTIME_ENV') === 'virtualbox') {
                 return self::$isVirtualBoxGuest = true;
             }
 
@@ -216,5 +274,17 @@ class Platform
         }
 
         return self::$isVirtualBoxGuest;
+    }
+
+    /**
+     * @return 'NUL'|'/dev/null'
+     */
+    public static function getDevNull(): string
+    {
+        if (self::isWindows()) {
+            return 'NUL';
+        }
+
+        return '/dev/null';
     }
 }

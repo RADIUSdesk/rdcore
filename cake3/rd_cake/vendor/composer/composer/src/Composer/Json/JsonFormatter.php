@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -12,6 +12,8 @@
 
 namespace Composer\Json;
 
+use Composer\Pcre\Preg;
+
 /**
  * Formats json strings used for php < 5.4 because the json_encode doesn't
  * supports the flags JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE
@@ -19,6 +21,8 @@ namespace Composer\Json;
  *
  * @author Konstantin Kudryashiv <ever.zet@gmail.com>
  * @author Jordi Boggiano <j.boggiano@seld.be>
+ *
+ * @deprecated Use json_encode or JsonFile::encode() with modern JSON_* flags to configure formatting - this class will be removed in 3.0
  */
 class JsonFormatter
 {
@@ -34,7 +38,7 @@ class JsonFormatter
      * @param  bool   $unescapeSlashes Un escape slashes
      * @return string
      */
-    public static function format($json, $unescapeUnicode, $unescapeSlashes)
+    public static function format(string $json, bool $unescapeUnicode, bool $unescapeSlashes): string
     {
         $result = '';
         $pos = 0;
@@ -66,7 +70,7 @@ class JsonFormatter
 
                 if ($unescapeUnicode && function_exists('mb_convert_encoding')) {
                     // https://stackoverflow.com/questions/2934563/how-to-decode-unicode-escape-sequences-like-u00ed-to-proper-utf-8-encoded-cha
-                    $buffer = preg_replace_callback('/(\\\\+)u([0-9a-f]{4})/i', function ($match) {
+                    $buffer = Preg::replaceCallback('/(\\\\+)u([0-9a-f]{4})/i', function ($match) {
                         $l = strlen($match[1]);
 
                         if ($l % 2) {

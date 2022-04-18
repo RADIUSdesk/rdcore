@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -13,6 +13,7 @@
 namespace Composer\Package\Loader;
 
 use Composer\Package\BasePackage;
+use Composer\Pcre\Preg;
 use Composer\Semver\Constraint\Constraint;
 use Composer\Package\Version\VersionParser;
 use Composer\Repository\PlatformRepository;
@@ -23,53 +24,77 @@ use Composer\Spdx\SpdxLicenses;
  */
 class ValidatingArrayLoader implements LoaderInterface
 {
-    const CHECK_ALL = 3;
-    const CHECK_UNBOUND_CONSTRAINTS = 1;
-    const CHECK_STRICT_CONSTRAINTS = 2;
+    public const CHECK_ALL = 3;
+    public const CHECK_UNBOUND_CONSTRAINTS = 1;
+    public const CHECK_STRICT_CONSTRAINTS = 2;
 
+    /** @var LoaderInterface */
     private $loader;
+    /** @var VersionParser */
     private $versionParser;
+    /** @var string[] */
     private $errors;
+    /** @var string[] */
     private $warnings;
+    /** @var mixed[] */
     private $config;
-    private $strictName;
+    /** @var int One or more of self::CHECK_* constants */
     private $flags;
 
-    public function __construct(LoaderInterface $loader, $strictName = true, VersionParser $parser = null, $flags = 0)
+    /**
+     * @param true $strictName
+     * @param int  $flags
+     */
+    public function __construct(LoaderInterface $loader, bool $strictName = true, VersionParser $parser = null, int $flags = 0)
     {
         $this->loader = $loader;
         $this->versionParser = $parser ?: new VersionParser();
-        $this->strictName = $strictName;
         $this->flags = $flags;
+
+        if ($strictName !== true) { // @phpstan-ignore-line
+            trigger_error('$strictName must be set to true in ValidatingArrayLoader\'s constructor as of 2.2, and it will be removed in 3.0', E_USER_DEPRECATED);
+        }
     }
 
-    public function load(array $config, $class = 'Composer\Package\CompletePackage')
+    /**
+     * @inheritDoc
+     */
+    public function load(array $config, string $class = 'Composer\Package\CompletePackage'): BasePackage
     {
         $this->errors = array();
         $this->warnings = array();
         $this->config = $config;
 
+        $this->validateString('name', true);
         if ($err = self::hasPackageNamingError($config['name'])) {
-            $this->warnings[] = 'Deprecation warning: Your package name '.$err.' Make sure you fix this as Composer 2.0 will error.';
-        }
-
-        if ($this->strictName) {
-            $this->validateRegex('name', '[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*', true);
-        } else {
-            $this->validateString('name', true);
+            $this->errors[] = 'name : '.$err;
         }
 
         if (!empty($this->config['version'])) {
-            try {
-                $this->versionParser->normalize($this->config['version']);
-            } catch (\Exception $e) {
-                $this->errors[] = 'version : invalid value ('.$this->config['version'].'): '.$e->getMessage();
-                unset($this->config['version']);
+            if (!is_scalar($this->config['version'])) {
+                $this->validateString('version');
+            } else {
+                if (!is_string($this->config['version'])) {
+                    $this->config['version'] = (string) $this->config['version'];
+                }
+                try {
+                    $this->versionParser->normalize($this->config['version']);
+                } catch (\Exception $e) {
+                    $this->errors[] = 'version : invalid value ('.$this->config['version'].'): '.$e->getMessage();
+                    unset($this->config['version']);
+                }
             }
         }
 
         if (!empty($this->config['config']['platform'])) {
             foreach ((array) $this->config['config']['platform'] as $key => $platform) {
+                if (false === $platform) {
+                    continue;
+                }
+                if (!is_string($platform)) {
+                    $this->errors[] = 'config.platform.' . $key . ' : invalid value ('.gettype($platform).' '.var_export($platform, true).'): expected string or false';
+                    continue;
+                }
                 try {
                     $this->versionParser->normalize($platform);
                 } catch (\Exception $e) {
@@ -179,8 +204,8 @@ class ValidatingArrayLoader implements LoaderInterface
                 unset($this->config['support']['email']);
             }
 
-            if (isset($this->config['support']['irc']) && !$this->filterUrl($this->config['support']['irc'], array('irc'))) {
-                $this->warnings[] = 'support.irc : invalid value ('.$this->config['support']['irc'].'), must be a irc://<server>/<channel> URL';
+            if (isset($this->config['support']['irc']) && !$this->filterUrl($this->config['support']['irc'], array('irc', 'ircs'))) {
+                $this->warnings[] = 'support.irc : invalid value ('.$this->config['support']['irc'].'), must be a irc://<server>/<channel> or ircs:// URL';
                 unset($this->config['support']['irc']);
             }
 
@@ -227,9 +252,14 @@ class ValidatingArrayLoader implements LoaderInterface
         foreach (array_keys(BasePackage::$supportedLinkTypes) as $linkType) {
             if ($this->validateArray($linkType) && isset($this->config[$linkType])) {
                 foreach ($this->config[$linkType] as $package => $constraint) {
+                    if (0 === strcasecmp($package, $this->config['name'])) {
+                        $this->errors[] = $linkType.'.'.$package.' : a package cannot set a '.$linkType.' on itself';
+                        unset($this->config[$linkType][$package]);
+                        continue;
+                    }
                     if ($err = self::hasPackageNamingError($package, true)) {
-                        $this->warnings[] = 'Deprecation warning: '.$linkType.'.'.$err.' Make sure you fix this as Composer 2.0 will error.';
-                    } elseif (!preg_match('{^[A-Za-z0-9_./-]+$}', $package)) {
+                        $this->errors[] = $linkType.'.'.$err;
+                    } elseif (!Preg::isMatch('{^[A-Za-z0-9_./-]+$}', $package)) {
                         $this->warnings[] = $linkType.'.'.$package.' : invalid key, package names must be strings containing only [A-Za-z0-9_./-]';
                     }
                     if (!is_string($constraint)) {
@@ -256,11 +286,16 @@ class ValidatingArrayLoader implements LoaderInterface
                             // check requires for exact constraints
                             ($this->flags & self::CHECK_STRICT_CONSTRAINTS)
                             && 'require' === $linkType
-                            && strpos($linkConstraint, '=') === 0
-                            && $stableConstraint->versionCompare($stableConstraint, $linkConstraint, '<=')
+                            && $linkConstraint instanceof Constraint && in_array($linkConstraint->getOperator(), ['==', '='], true)
+                            && (new Constraint('>=', '1.0.0.0-dev'))->matches($linkConstraint)
                         ) {
                             $this->warnings[] = $linkType.'.'.$package.' : exact version constraints ('.$constraint.') should be avoided if the package follows semantic versioning';
                         }
+                    }
+
+                    if ($linkType === 'conflict' && isset($this->config['replace']) && $keys = array_intersect_key($this->config['replace'], $this->config['conflict'])) {
+                        $this->errors[] = $linkType.'.'.$package.' : you cannot conflict with a package that is also replaced, as replace already creates an implicit conflict rule';
+                        unset($this->config[$linkType][$package]);
                     }
                 }
             }
@@ -317,19 +352,19 @@ class ValidatingArrayLoader implements LoaderInterface
                 if ($srcType === 'source' && !isset($this->config[$srcType]['reference'])) {
                     $this->errors[] = $srcType . '.reference : must be present';
                 }
-                if (!is_string($this->config[$srcType]['type'])) {
+                if (isset($this->config[$srcType]['type']) && !is_string($this->config[$srcType]['type'])) {
                     $this->errors[] = $srcType . '.type : should be a string, '.gettype($this->config[$srcType]['type']).' given';
                 }
-                if (!is_string($this->config[$srcType]['url'])) {
+                if (isset($this->config[$srcType]['url']) && !is_string($this->config[$srcType]['url'])) {
                     $this->errors[] = $srcType . '.url : should be a string, '.gettype($this->config[$srcType]['url']).' given';
                 }
                 if (isset($this->config[$srcType]['reference']) && !is_string($this->config[$srcType]['reference']) && !is_int($this->config[$srcType]['reference'])) {
                     $this->errors[] = $srcType . '.reference : should be a string or int, '.gettype($this->config[$srcType]['reference']).' given';
                 }
-                if (isset($this->config[$srcType]['reference']) && preg_match('{^\s*-}', (string) $this->config[$srcType]['reference'])) {
+                if (isset($this->config[$srcType]['reference']) && Preg::isMatch('{^\s*-}', (string) $this->config[$srcType]['reference'])) {
                     $this->errors[] = $srcType . '.reference : must not start with a "-", "'.$this->config[$srcType]['reference'].'" given';
                 }
-                if (preg_match('{^\s*-}', $this->config[$srcType]['url'])) {
+                if (isset($this->config[$srcType]['url']) && Preg::isMatch('{^\s*-}', (string) $this->config[$srcType]['url'])) {
                     $this->errors[] = $srcType . '.url : must not start with a "-", "'.$this->config[$srcType]['url'].'" given';
                 }
             }
@@ -347,6 +382,13 @@ class ValidatingArrayLoader implements LoaderInterface
                 $this->errors[] = 'extra.branch-alias : must be an array of versions => aliases';
             } else {
                 foreach ($this->config['extra']['branch-alias'] as $sourceBranch => $targetBranch) {
+                    if (!is_string($targetBranch)) {
+                        $this->warnings[] = 'extra.branch-alias.'.$sourceBranch.' : the target branch ('.json_encode($targetBranch).') must be a string, "'.gettype($targetBranch).'" received.';
+                        unset($this->config['extra']['branch-alias'][$sourceBranch]);
+
+                        continue;
+                    }
+
                     // ensure it is an alias to a -dev package
                     if ('-dev' !== substr($targetBranch, -4)) {
                         $this->warnings[] = 'extra.branch-alias.'.$sourceBranch.' : the target branch ('.$targetBranch.') must end in -dev';
@@ -381,28 +423,40 @@ class ValidatingArrayLoader implements LoaderInterface
         }
 
         $package = $this->loader->load($this->config, $class);
-        $this->config = null;
+        $this->config = array();
 
         return $package;
     }
 
-    public function getWarnings()
+    /**
+     * @return string[]
+     */
+    public function getWarnings(): array
     {
         return $this->warnings;
     }
 
-    public function getErrors()
+    /**
+     * @return string[]
+     */
+    public function getErrors(): array
     {
         return $this->errors;
     }
 
-    public static function hasPackageNamingError($name, $isLink = false)
+    /**
+     * @param string $name
+     * @param bool   $isLink
+     *
+     * @return string|null
+     */
+    public static function hasPackageNamingError(string $name, bool $isLink = false): ?string
     {
         if (PlatformRepository::isPlatformPackage($name)) {
-            return;
+            return null;
         }
 
-        if (!preg_match('{^[a-z0-9](?:[_.-]?[a-z0-9]+)*/[a-z0-9](?:(?:[_.]?|-{0,2})[a-z0-9]+)*$}iD', $name)) {
+        if (!Preg::isMatch('{^[a-z0-9](?:[_.-]?[a-z0-9]+)*/[a-z0-9](?:(?:[_.]?|-{0,2})[a-z0-9]+)*$}iD', $name)) {
             return $name.' is invalid, it should have a vendor name, a forward slash, and a package name. The vendor and package name can be words separated by -, . or _. The complete name should match "^[a-z0-9]([_.-]?[a-z0-9]+)*/[a-z0-9](([_.]?|-{0,2})[a-z0-9]+)*$".';
         }
 
@@ -412,29 +466,41 @@ class ValidatingArrayLoader implements LoaderInterface
             return $name.' is reserved, package and vendor names can not match any of: '.implode(', ', $reservedNames).'.';
         }
 
-        if (preg_match('{\.json$}', $name)) {
+        if (Preg::isMatch('{\.json$}', $name)) {
             return $name.' is invalid, package names can not end in .json, consider renaming it or perhaps using a -json suffix instead.';
         }
 
-        if (preg_match('{[A-Z]}', $name)) {
+        if (Preg::isMatch('{[A-Z]}', $name)) {
             if ($isLink) {
                 return $name.' is invalid, it should not contain uppercase characters. Please use '.strtolower($name).' instead.';
             }
 
-            $suggestName = preg_replace('{(?:([a-z])([A-Z])|([A-Z])([A-Z][a-z]))}', '\\1\\3-\\2\\4', $name);
+            $suggestName = Preg::replace('{(?:([a-z])([A-Z])|([A-Z])([A-Z][a-z]))}', '\\1\\3-\\2\\4', $name);
             $suggestName = strtolower($suggestName);
 
             return $name.' is invalid, it should not contain uppercase characters. We suggest using '.$suggestName.' instead.';
         }
+
+        return null;
     }
 
-    private function validateRegex($property, $regex, $mandatory = false)
+    /**
+     * @param string $property
+     * @param string $regex
+     * @param bool   $mandatory
+     *
+     * @return bool
+     *
+     * @phpstan-param non-empty-string $property
+     * @phpstan-param non-empty-string $regex
+     */
+    private function validateRegex(string $property, string $regex, bool $mandatory = false): bool
     {
         if (!$this->validateString($property, $mandatory)) {
             return false;
         }
 
-        if (!preg_match('{^'.$regex.'$}u', $this->config[$property])) {
+        if (!Preg::isMatch('{^'.$regex.'$}u', $this->config[$property])) {
             $message = $property.' : invalid value ('.$this->config[$property].'), must match '.$regex;
             if ($mandatory) {
                 $this->errors[] = $message;
@@ -449,7 +515,15 @@ class ValidatingArrayLoader implements LoaderInterface
         return true;
     }
 
-    private function validateString($property, $mandatory = false)
+    /**
+     * @param string $property
+     * @param bool   $mandatory
+     *
+     * @return bool
+     *
+     * @phpstan-param non-empty-string $property
+     */
+    private function validateString(string $property, bool $mandatory = false): bool
     {
         if (isset($this->config[$property]) && !is_string($this->config[$property])) {
             $this->errors[] = $property.' : should be a string, '.gettype($this->config[$property]).' given';
@@ -470,7 +544,15 @@ class ValidatingArrayLoader implements LoaderInterface
         return true;
     }
 
-    private function validateArray($property, $mandatory = false)
+    /**
+     * @param string $property
+     * @param bool   $mandatory
+     *
+     * @return bool
+     *
+     * @phpstan-param non-empty-string $property
+     */
+    private function validateArray(string $property, bool $mandatory = false): bool
     {
         if (isset($this->config[$property]) && !is_array($this->config[$property])) {
             $this->errors[] = $property.' : should be an array, '.gettype($this->config[$property]).' given';
@@ -491,7 +573,17 @@ class ValidatingArrayLoader implements LoaderInterface
         return true;
     }
 
-    private function validateFlatArray($property, $regex = null, $mandatory = false)
+    /**
+     * @param string      $property
+     * @param string|null $regex
+     * @param bool        $mandatory
+     *
+     * @return bool
+     *
+     * @phpstan-param non-empty-string      $property
+     * @phpstan-param non-empty-string|null $regex
+     */
+    private function validateFlatArray(string $property, ?string $regex = null, bool $mandatory = false): bool
     {
         if (!$this->validateArray($property, $mandatory)) {
             return false;
@@ -507,7 +599,7 @@ class ValidatingArrayLoader implements LoaderInterface
                 continue;
             }
 
-            if ($regex && !preg_match('{^'.$regex.'$}u', $value)) {
+            if ($regex && !Preg::isMatch('{^'.$regex.'$}u', $value)) {
                 $this->warnings[] = $property.'.'.$key.' : invalid value ('.$value.'), must match '.$regex;
                 unset($this->config[$property][$key]);
                 $pass = false;
@@ -517,7 +609,15 @@ class ValidatingArrayLoader implements LoaderInterface
         return $pass;
     }
 
-    private function validateUrl($property, $mandatory = false)
+    /**
+     * @param string $property
+     * @param bool $mandatory
+     *
+     * @return bool
+     *
+     * @phpstan-param non-empty-string $property
+     */
+    private function validateUrl(string $property, bool $mandatory = false): bool
     {
         if (!$this->validateString($property, $mandatory)) {
             return false;
@@ -533,7 +633,13 @@ class ValidatingArrayLoader implements LoaderInterface
         return true;
     }
 
-    private function filterUrl($value, array $schemes = array('http', 'https'))
+    /**
+     * @param mixed    $value
+     * @param string[] $schemes
+     *
+     * @return bool
+     */
+    private function filterUrl($value, array $schemes = array('http', 'https')): bool
     {
         if ($value === '') {
             return true;

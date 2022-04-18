@@ -27,19 +27,19 @@ requirements:
 1. The [type][1] attribute must be `composer-plugin`.
 2. The [extra][2] attribute must contain an element `class` defining the
    class name of the plugin (including namespace). If a package contains
-   multiple plugins, this can be array of class names.
+   multiple plugins, this can be an array of class names.
 3. You must require the special package called `composer-plugin-api`
    to define which Plugin API versions your plugin is compatible with.
    Requiring this package doesn't actually include any extra dependencies,
    it only specifies which version of the plugin API to use.
 
 > **Note:** When developing a plugin, although not required, it's useful to add
-> a require-dev dependency on `composer/composer` to have IDE auto completion on Composer classes.
+> a require-dev dependency on `composer/composer` to have IDE autocompletion on Composer classes.
 
 The required version of the `composer-plugin-api` follows the same [rules][7]
-as a normal package's.
+as a normal package's rules.
 
-The current Composer plugin API version is `2.0.0`.
+The current Composer plugin API version is `2.3.0`.
 
 An example of a valid plugin `composer.json` file (with the autoloading
 part omitted and an optional require-dev dependency on `composer/composer` for IDE auto completion):
@@ -263,12 +263,12 @@ class CommandProvider implements CommandProviderCapability
 
 class Command extends BaseCommand
 {
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('custom-plugin-command');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $output->writeln('Executing');
     }
@@ -323,14 +323,30 @@ hint to Composer that the plugin should be installed on its own before proceedin
 the rest of the package downloads. This slightly slows down the overall installation
 process however, so do not use it in plugins which do not absolutely require it.
 
+### plugin-modifies-install-path
+
+Some special plugins modify the install path of packages.
+
+As of Composer 2.2.9, you can specify `{"extra": {"plugin-modifies-install-path": true}}`
+in your composer.json to hint to Composer that the plugin should be activated as soon
+as possible to prevent any bad side-effects from Composer assuming packages are installed
+in another location than they actually are.
+
+## Plugin Autoloading
+
+Due to plugins being loaded by Composer at runtime, and to ensure that plugins which
+depend on other packages can function correctly, a runtime autoloader is created whenever
+a plugin is loaded. That autoloader is only configured to load with the plugin dependencies,
+so you may not have access to all the packages which are installed.
+
 [1]: ../04-schema.md#type
 [2]: ../04-schema.md#extra
-[3]: https://github.com/composer/composer/blob/master/src/Composer/Plugin/PluginInterface.php
-[4]: https://github.com/composer/composer/blob/master/src/Composer/Composer.php
-[5]: https://github.com/composer/composer/blob/master/src/Composer/IO/IOInterface.php
-[6]: https://github.com/composer/composer/blob/master/src/Composer/EventDispatcher/EventSubscriberInterface.php
+[3]: https://github.com/composer/composer/blob/main/src/Composer/Plugin/PluginInterface.php
+[4]: https://github.com/composer/composer/blob/main/src/Composer/Composer.php
+[5]: https://github.com/composer/composer/blob/main/src/Composer/IO/IOInterface.php
+[6]: https://github.com/composer/composer/blob/main/src/Composer/EventDispatcher/EventSubscriberInterface.php
 [7]: ../01-basic-usage.md#package-versions
-[8]: https://github.com/composer/composer/blob/master/src/Composer/Plugin/Capable.php
-[9]: https://github.com/composer/composer/blob/master/src/Composer/Plugin/Capability/CommandProvider.php
+[8]: https://github.com/composer/composer/blob/main/src/Composer/Plugin/Capable.php
+[9]: https://github.com/composer/composer/blob/main/src/Composer/Plugin/Capability/CommandProvider.php
 [10]: https://symfony.com/doc/current/components/console.html
-[11]: https://github.com/composer/composer/blob/master/src/Composer/Util/SyncHelper.php
+[11]: https://github.com/composer/composer/blob/main/src/Composer/Util/SyncHelper.php

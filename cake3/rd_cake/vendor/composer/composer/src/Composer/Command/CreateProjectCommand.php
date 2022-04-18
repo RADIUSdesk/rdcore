@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -14,6 +14,9 @@ namespace Composer\Command;
 
 use Composer\Config;
 use Composer\Factory;
+use Composer\Filter\PlatformRequirementFilter\IgnoreAllPlatformRequirementFilter;
+use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterFactory;
+use Composer\Filter\PlatformRequirementFilter\PlatformRequirementFilterInterface;
 use Composer\Installer;
 use Composer\Installer\ProjectInstaller;
 use Composer\Installer\SuggestedPackagesReporter;
@@ -22,10 +25,11 @@ use Composer\Package\BasePackage;
 use Composer\DependencyResolver\Operation\InstallOperation;
 use Composer\Package\Version\VersionSelector;
 use Composer\Package\AliasPackage;
+use Composer\Pcre\Preg;
 use Composer\Repository\RepositoryFactory;
 use Composer\Repository\CompositeRepository;
 use Composer\Repository\PlatformRepository;
-use Composer\Repository\InstalledFilesystemRepository;
+use Composer\Repository\InstalledArrayRepository;
 use Composer\Repository\RepositorySet;
 use Composer\Script\ScriptEvents;
 use Composer\Util\Silencer;
@@ -56,7 +60,10 @@ class CreateProjectCommand extends BaseCommand
      */
     protected $suggestedPackagesReporter;
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('create-project')
@@ -115,7 +122,7 @@ EOT
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $config = Factory::createConfig();
         $io = $this->getIO();
@@ -131,11 +138,13 @@ EOT
         }
 
         if ($input->isInteractive() && $input->getOption('ask')) {
-            $parts = explode("/", strtolower($input->getArgument('package')), 2);
+            $package = $input->getArgument('package');
+            if (null === $package) {
+                throw new \RuntimeException('Not enough arguments (missing: "package").');
+            }
+            $parts = explode("/", strtolower($package), 2);
             $input->setArgument('directory', $io->ask('New project directory [<comment>'.array_pop($parts).'</comment>]: '));
         }
-
-        $ignorePlatformReqs = $input->getOption('ignore-platform-reqs') ?: ($input->getOption('ignore-platform-req') ?: false);
 
         return $this->installProject(
             $io,
@@ -153,19 +162,40 @@ EOT
             $input->getOption('no-scripts'),
             $input->getOption('no-progress'),
             $input->getOption('no-install'),
-            $ignorePlatformReqs,
+            $this->getPlatformRequirementFilter($input),
             !$input->getOption('no-secure-http'),
             $input->getOption('add-repository')
         );
     }
 
-    public function installProject(IOInterface $io, Config $config, InputInterface $input, $packageName, $directory = null, $packageVersion = null, $stability = 'stable', $preferSource = false, $preferDist = false, $installDevPackages = false, $repositories = null, $disablePlugins = false, $noScripts = false, $noProgress = false, $noInstall = false, $ignorePlatformReqs = false, $secureHttp = true, $addRepository = false)
+    /**
+     * @param string|null               $packageName
+     * @param string|null               $directory
+     * @param string|null               $packageVersion
+     * @param string|null               $stability
+     * @param bool                      $preferSource
+     * @param bool                      $preferDist
+     * @param bool                      $installDevPackages
+     * @param string|array<string>|null $repositories
+     * @param bool                      $disablePlugins
+     * @param bool                      $disableScripts
+     * @param bool                      $noProgress
+     * @param bool                      $noInstall
+     * @param bool                      $secureHttp
+     * @param bool                      $addRepository
+     *
+     * @return int
+     * @throws \Exception
+     */
+    public function installProject(IOInterface $io, Config $config, InputInterface $input, ?string $packageName = null, ?string $directory = null, ?string $packageVersion = null, ?string $stability = 'stable', bool $preferSource = false, bool $preferDist = false, bool $installDevPackages = false, $repositories = null, bool $disablePlugins = false, bool $disableScripts = false, bool $noProgress = false, bool $noInstall = false, PlatformRequirementFilterInterface $platformRequirementFilter = null, bool $secureHttp = true, bool $addRepository = false): int
     {
-        $oldCwd = getcwd();
+        $oldCwd = Platform::getCwd();
 
         if ($repositories !== null && !is_array($repositories)) {
             $repositories = (array) $repositories;
         }
+
+        $platformRequirementFilter = $platformRequirementFilter ?: PlatformRequirementFilterFactory::ignoreNothing();
 
         // we need to manually load the configuration to pass the auth credentials to the io interface!
         $io->loadConfiguration($config);
@@ -173,7 +203,7 @@ EOT
         $this->suggestedPackagesReporter = new SuggestedPackagesReporter($io);
 
         if ($packageName !== null) {
-            $installedFromVcs = $this->installRootPackage($io, $config, $packageName, $directory, $packageVersion, $stability, $preferSource, $preferDist, $installDevPackages, $repositories, $disablePlugins, $noScripts, $noProgress, $ignorePlatformReqs, $secureHttp);
+            $installedFromVcs = $this->installRootPackage($io, $config, $packageName, $platformRequirementFilter, $directory, $packageVersion, $stability, $preferSource, $preferDist, $installDevPackages, $repositories, $disablePlugins, $disableScripts, $noProgress, $secureHttp);
         } else {
             $installedFromVcs = false;
         }
@@ -182,8 +212,7 @@ EOT
             unlink('composer.lock');
         }
 
-        $composer = Factory::create($io, null, $disablePlugins);
-        $composer->getEventDispatcher()->setRunScripts(!$noScripts);
+        $composer = Factory::create($io, null, $disablePlugins, $disableScripts);
 
         // add the repository to the composer.json and use it for the install run later
         if ($repositories !== null && $addRepository) {
@@ -206,7 +235,7 @@ EOT
             }
         }
 
-        $process = new ProcessExecutor($io);
+        $process = $composer->getLoop()->getProcessExecutor();
         $fs = new Filesystem($process);
 
         // dispatch event
@@ -224,7 +253,7 @@ EOT
             $installer->setPreferSource($preferSource)
                 ->setPreferDist($preferDist)
                 ->setDevMode($installDevPackages)
-                ->setIgnorePlatformRequirements($ignorePlatformReqs)
+                ->setPlatformRequirementFilter($platformRequirementFilter)
                 ->setSuggestedPackagesReporter($this->suggestedPackagesReporter)
                 ->setOptimizeAutoloader($config->get('optimize-autoloader'))
                 ->setClassMapAuthoritative($config->get('classmap-authoritative'))
@@ -255,7 +284,7 @@ EOT
             )
         ) {
             $finder = new Finder();
-            $finder->depth(0)->directories()->in(getcwd())->ignoreVCS(false)->ignoreDotFiles(false);
+            $finder->depth(0)->directories()->in(Platform::getCwd())->ignoreVCS(false)->ignoreDotFiles(false);
             foreach (array('.svn', '_svn', 'CVS', '_darcs', '.arch-params', '.monotone', '.bzr', '.git', '.hg', '.fslckout', '_FOSSIL_') as $vcsName) {
                 $finder->name($vcsName);
             }
@@ -264,7 +293,7 @@ EOT
                 $dirs = iterator_to_array($finder);
                 unset($finder);
                 foreach ($dirs as $dir) {
-                    if (!$fs->removeDirectory($dir)) {
+                    if (!$fs->removeDirectory((string) $dir)) {
                         throw new \RuntimeException('Could not remove '.$dir);
                     }
                 }
@@ -304,10 +333,27 @@ EOT
         return 0;
     }
 
-    protected function installRootPackage(IOInterface $io, Config $config, $packageName, $directory = null, $packageVersion = null, $stability = 'stable', $preferSource = false, $preferDist = false, $installDevPackages = false, array $repositories = null, $disablePlugins = false, $noScripts = false, $noProgress = false, $ignorePlatformReqs = false, $secureHttp = true)
+    /**
+     * @param string             $packageName
+     * @param string|null        $directory
+     * @param string|null        $packageVersion
+     * @param string|null        $stability
+     * @param bool               $preferSource
+     * @param bool               $preferDist
+     * @param bool               $installDevPackages
+     * @param array<string>|null $repositories
+     * @param bool               $disablePlugins
+     * @param bool               $disableScripts
+     * @param bool               $noProgress
+     * @param bool               $secureHttp
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    protected function installRootPackage(IOInterface $io, Config $config, string $packageName, PlatformRequirementFilterInterface $platformRequirementFilter, ?string $directory = null, ?string $packageVersion = null, ?string $stability = 'stable', bool $preferSource = false, bool $preferDist = false, bool $installDevPackages = false, array $repositories = null, bool $disablePlugins = false, bool $disableScripts = false, bool $noProgress = false, bool $secureHttp = true): bool
     {
         if (!$secureHttp) {
-            $config->merge(array('config' => array('secure-http' => false)));
+            $config->merge(array('config' => array('secure-http' => false)), Config::SOURCE_COMMAND);
         }
 
         $parser = new VersionParser();
@@ -320,16 +366,16 @@ EOT
         // if no directory was specified, use the 2nd part of the package name
         if (null === $directory) {
             $parts = explode("/", $name, 2);
-            $directory = getcwd() . DIRECTORY_SEPARATOR . array_pop($parts);
+            $directory = Platform::getCwd() . DIRECTORY_SEPARATOR . array_pop($parts);
         }
 
         $process = new ProcessExecutor($io);
         $fs = new Filesystem($process);
         if (!$fs->isAbsolutePath($directory)) {
-            $directory = getcwd() . DIRECTORY_SEPARATOR . $directory;
+            $directory = Platform::getCwd() . DIRECTORY_SEPARATOR . $directory;
         }
 
-        $io->writeError('<info>Creating a "' . $packageName . '" project at "' . $fs->findShortestPath(getcwd(), $directory, true) . '"</info>');
+        $io->writeError('<info>Creating a "' . $packageName . '" project at "' . $fs->findShortestPath(Platform::getCwd(), $directory, true) . '"</info>');
 
         if (file_exists($directory)) {
             if (!is_dir($directory)) {
@@ -343,7 +389,7 @@ EOT
         if (null === $stability) {
             if (null === $packageVersion) {
                 $stability = 'stable';
-            } elseif (preg_match('{^[^,\s]*?@('.implode('|', array_keys(BasePackage::$stabilities)).')$}i', $packageVersion, $match)) {
+            } elseif (Preg::isMatch('{^[^,\s]*?@('.implode('|', array_keys(BasePackage::$stabilities)).')$}i', $packageVersion, $match)) {
                 $stability = $match[1];
             } else {
                 $stability = VersionParser::parseStability($packageVersion);
@@ -381,11 +427,11 @@ EOT
 
         // find the latest version if there are multiple
         $versionSelector = new VersionSelector($repositorySet, $platformRepo);
-        $package = $versionSelector->findBestCandidate($name, $packageVersion, $stability, $ignorePlatformReqs);
+        $package = $versionSelector->findBestCandidate($name, $packageVersion, $stability, $platformRequirementFilter);
 
         if (!$package) {
             $errorMessage = "Could not find package $name with " . ($packageVersion ? "version $packageVersion" : "stability $stability");
-            if (true !== $ignorePlatformReqs && $versionSelector->findBestCandidate($name, $packageVersion, $stability, true)) {
+            if (!($platformRequirementFilter instanceof IgnoreAllPlatformRequirementFilter) && $versionSelector->findBestCandidate($name, $packageVersion, $stability, PlatformRequirementFilterFactory::ignoreAll())) {
                 throw new \InvalidArgumentException($errorMessage .' in a version installable using your PHP version, PHP extensions and Composer version.');
             }
 
@@ -397,7 +443,7 @@ EOT
             @mkdir($directory, 0777, true);
             if ($realDir = realpath($directory)) {
                 pcntl_async_signals(true);
-                pcntl_signal(SIGINT, function () use ($realDir) {
+                pcntl_signal(SIGINT, function () use ($realDir): void {
                     $fs = new Filesystem();
                     $fs->removeDirectory($realDir);
                     exit(130);
@@ -408,7 +454,7 @@ EOT
         if (function_exists('sapi_windows_set_ctrl_handler') && PHP_SAPI === 'cli') {
             @mkdir($directory, 0777, true);
             if ($realDir = realpath($directory)) {
-                sapi_windows_set_ctrl_handler(function () use ($realDir) {
+                sapi_windows_set_ctrl_handler(function () use ($realDir): void {
                     $fs = new Filesystem();
                     $fs->removeDirectory($realDir);
                     exit(130);
@@ -439,7 +485,7 @@ EOT
         $im = $composer->getInstallationManager();
         $im->setOutputProgress(!$noProgress);
         $im->addInstaller($projectInstaller);
-        $im->execute(new InstalledFilesystemRepository(new JsonFile('php://memory')), array(new InstallOperation($package)));
+        $im->execute(new InstalledArrayRepository(), array(new InstallOperation($package)));
         $im->notifyInstalls($io);
 
         // collect suggestions

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -23,7 +23,10 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class SuggestsCommand extends BaseCommand
 {
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('suggests')
@@ -47,12 +50,9 @@ EOT
         ;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $composer = $this->getComposer();
+        $composer = $this->requireComposer();
 
         $installedRepos = array(
             new RootPackageRepository(clone $composer->getPackage()),

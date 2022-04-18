@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -21,7 +21,7 @@ use Composer\Package\PackageInterface;
  */
 class InstallOperation extends SolverOperation implements OperationInterface
 {
-    const TYPE = 'install';
+    protected const TYPE = 'install';
 
     /**
      * @var PackageInterface
@@ -38,20 +38,24 @@ class InstallOperation extends SolverOperation implements OperationInterface
      *
      * @return PackageInterface
      */
-    public function getPackage()
+    public function getPackage(): PackageInterface
     {
         return $this->package;
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function show($lock)
+    public function show($lock): string
     {
         return self::format($this->package, $lock);
     }
 
-    public static function format(PackageInterface $package, $lock = false)
+    /**
+     * @param bool $lock
+     * @return string
+     */
+    public static function format(PackageInterface $package, bool $lock = false): string
     {
         return ($lock ? 'Locking ' : 'Installing ').'<info>'.$package->getPrettyName().'</info> (<comment>'.$package->getFullPrettyVersion().'</comment>)';
     }

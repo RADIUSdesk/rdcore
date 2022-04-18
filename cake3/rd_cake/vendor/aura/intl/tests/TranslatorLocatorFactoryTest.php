@@ -1,7 +1,9 @@
 <?php
 namespace Aura\Intl;
 
-class TranslatorLocatorFactoryTest extends \PHPUnit_Framework_TestCase
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
+
+class TranslatorLocatorFactoryTest extends TestCase
 {
     public function test__newInstance()
     {

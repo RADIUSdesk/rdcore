@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -21,9 +21,12 @@ use Symfony\Component\Console\Output\OutputInterface;
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
  */
-class OutdatedCommand extends ShowCommand
+class OutdatedCommand extends BaseCommand
 {
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName('outdated')
@@ -36,9 +39,12 @@ class OutdatedCommand extends ShowCommand
                 new InputOption('direct', 'D', InputOption::VALUE_NONE, 'Shows only packages that are directly required by the root package'),
                 new InputOption('strict', null, InputOption::VALUE_NONE, 'Return a non-zero exit code when there are outdated packages'),
                 new InputOption('minor-only', 'm', InputOption::VALUE_NONE, 'Show only packages that have minor SemVer-compatible updates. Use with the --outdated option.'),
+                new InputOption('patch-only', 'p', InputOption::VALUE_NONE, 'Show only packages that have patch SemVer-compatible updates. Use with the --outdated option.'),
                 new InputOption('format', 'f', InputOption::VALUE_REQUIRED, 'Format of the output: text or json', 'text'),
                 new InputOption('ignore', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Ignore specified package(s). Use it with the --outdated option if you don\'t want to be informed about new versions of some packages.'),
                 new InputOption('no-dev', null, InputOption::VALUE_NONE, 'Disables search in require-dev packages.'),
+                new InputOption('ignore-platform-req', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Ignore a specific platform requirement (php & ext- packages). Use with the --outdated option'),
+                new InputOption('ignore-platform-reqs', null, InputOption::VALUE_NONE, 'Ignore all platform requirements (php & ext- packages). Use with the --outdated option'),
             ))
             ->setHelp(
                 <<<EOT
@@ -58,7 +64,7 @@ EOT
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $args = array(
             'command' => 'show',
@@ -70,7 +76,7 @@ EOT
         if ($input->getOption('direct')) {
             $args['--direct'] = true;
         }
-        if ($input->getArgument('package')) {
+        if (null !== $input->getArgument('package')) {
             $args['package'] = $input->getArgument('package');
         }
         if ($input->getOption('strict')) {
@@ -79,11 +85,18 @@ EOT
         if ($input->getOption('minor-only')) {
             $args['--minor-only'] = true;
         }
+        if ($input->getOption('patch-only')) {
+            $args['--patch-only'] = true;
+        }
         if ($input->getOption('locked')) {
             $args['--locked'] = true;
         }
         if ($input->getOption('no-dev')) {
             $args['--no-dev'] = true;
+        }
+        $args['--ignore-platform-req'] = $input->getOption('ignore-platform-req');
+        if ($input->getOption('ignore-platform-reqs')) {
+            $args['--ignore-platform-reqs'] = true;
         }
         $args['--format'] = $input->getOption('format');
         $args['--ignore'] = $input->getOption('ignore');
@@ -94,9 +107,9 @@ EOT
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function isProxyCommand()
+    public function isProxyCommand(): bool
     {
         return true;
     }

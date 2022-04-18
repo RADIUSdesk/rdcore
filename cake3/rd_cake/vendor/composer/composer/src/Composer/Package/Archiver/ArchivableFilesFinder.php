@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -12,6 +12,7 @@
 
 namespace Composer\Package\Archiver;
 
+use Composer\Pcre\Preg;
 use Composer\Util\Filesystem;
 use FilesystemIterator;
 use Symfony\Component\Finder\Finder;
@@ -35,11 +36,11 @@ class ArchivableFilesFinder extends \FilterIterator
     /**
      * Initializes the internal Symfony Finder with appropriate filters
      *
-     * @param string $sources       Path to source files to be archived
-     * @param array  $excludes      Composer's own exclude rules from composer.json
-     * @param bool   $ignoreFilters Ignore filters when looking for files
+     * @param string $sources Path to source files to be archived
+     * @param string[] $excludes Composer's own exclude rules from composer.json
+     * @param bool $ignoreFilters Ignore filters when looking for files
      */
-    public function __construct($sources, array $excludes, $ignoreFilters = false)
+    public function __construct(string $sources, array $excludes, bool $ignoreFilters = false)
     {
         $fs = new Filesystem();
 
@@ -49,7 +50,6 @@ class ArchivableFilesFinder extends \FilterIterator
             $filters = array();
         } else {
             $filters = array(
-                new HgExcludeFilter($sources),
                 new GitExcludeFilter($sources),
                 new ComposerExcludeFilter($sources, $excludes),
             );
@@ -57,12 +57,12 @@ class ArchivableFilesFinder extends \FilterIterator
 
         $this->finder = new Finder();
 
-        $filter = function (\SplFileInfo $file) use ($sources, $filters, $fs) {
-            if ($file->isLink() && strpos($file->getRealPath(), $sources) !== 0) {
+        $filter = function (\SplFileInfo $file) use ($sources, $filters, $fs): bool {
+            if ($file->isLink() && ($file->getRealPath() === false || strpos($file->getRealPath(), $sources) !== 0)) {
                 return false;
             }
 
-            $relativePath = preg_replace(
+            $relativePath = Preg::replace(
                 '#^'.preg_quote($sources, '#').'#',
                 '',
                 $fs->normalizePath($file->getRealPath())
@@ -84,12 +84,13 @@ class ArchivableFilesFinder extends \FilterIterator
             ->in($sources)
             ->filter($filter)
             ->ignoreVCS(true)
-            ->ignoreDotFiles(false);
+            ->ignoreDotFiles(false)
+            ->sortByName();
 
         parent::__construct($this->finder->getIterator());
     }
 
-    public function accept()
+    public function accept(): bool
     {
         /** @var SplFileInfo $current */
         $current = $this->getInnerIterator()->current();
@@ -98,7 +99,7 @@ class ArchivableFilesFinder extends \FilterIterator
             return true;
         }
 
-        $iterator = new FilesystemIterator($current, FilesystemIterator::SKIP_DOTS);
+        $iterator = new FilesystemIterator((string) $current, FilesystemIterator::SKIP_DOTS);
 
         return !$iterator->valid();
     }

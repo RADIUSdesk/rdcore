@@ -349,7 +349,7 @@ function twig_cycle($values, $position)
 function twig_random(Environment $env, $values = null, $max = null)
 {
     if (null === $values) {
-        return null === $max ? mt_rand() : mt_rand(0, $max);
+        return null === $max ? mt_rand() : mt_rand(0, (int) $max);
     }
 
     if (\is_int($values) || \is_float($values)) {
@@ -366,7 +366,7 @@ function twig_random(Environment $env, $values = null, $max = null)
             $max = $max;
         }
 
-        return mt_rand($min, $max);
+        return mt_rand((int) $min, (int) $max);
     }
 
     if (\is_string($values)) {
@@ -515,7 +515,7 @@ function twig_date_converter(Environment $env, $date = null, $timezone = null)
  *
  * @param string             $str  String to replace in
  * @param array|\Traversable $from Replace values
- * @param string|null        $to   Replace to, deprecated (@see https://secure.php.net/manual/en/function.strtr.php)
+ * @param string|null        $to   Replace to, deprecated (@see https://www.php.net/manual/en/function.strtr.php)
  *
  * @return string
  */
@@ -1047,7 +1047,7 @@ function twig_escape_filter(Environment $env, $string, $strategy = 'html', $char
 
     switch ($strategy) {
         case 'html':
-            // see https://secure.php.net/htmlspecialchars
+            // see https://www.php.net/htmlspecialchars
 
             // Using a static variable to avoid initializing the array
             // each time the function is called. Moving the declaration on the
@@ -1237,7 +1237,7 @@ function _twig_escape_js_callback($matches)
         return $shortMap[$char];
     }
 
-    $codepoint = mb_ord($char);
+    $codepoint = mb_ord($char, 'UTF-8');
     if (0x10000 > $codepoint) {
         return sprintf('\u%04X', $codepoint);
     }

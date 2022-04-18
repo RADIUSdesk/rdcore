@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -16,8 +16,10 @@ use Composer\Json\JsonFile;
 use Composer\Package\AliasPackage;
 use Composer\Package\BasePackage;
 use Composer\Package\CompletePackageInterface;
+use Composer\Pcre\Preg;
 use Composer\Repository\CompositeRepository;
 use Composer\Semver\Constraint\MatchAllConstraint;
+use Symfony\Component\Console\Formatter\OutputFormatter;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -28,7 +30,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class FundCommand extends BaseCommand
 {
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this->setName('fund')
             ->setDescription('Discover how to help fund the maintenance of your dependencies.')
@@ -38,9 +43,9 @@ class FundCommand extends BaseCommand
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $composer = $this->getComposer();
+        $composer = $this->requireComposer();
 
         $repo = $composer->getRepositoryManager()->getLocalRepository();
         $remoteRepos = new CompositeRepository($composer->getRepositoryManager()->getRepositories());
@@ -109,7 +114,7 @@ class FundCommand extends BaseCommand
                         $prev = $line;
                     }
 
-                    $io->write(sprintf('    %s', $url));
+                    $io->write(sprintf('    <href=%s>%s</>', OutputFormatter::escape($url), $url));
                 }
             }
 
@@ -125,7 +130,11 @@ class FundCommand extends BaseCommand
         return 0;
     }
 
-    private function insertFundingData(array $fundings, CompletePackageInterface $package)
+    /**
+     * @param mixed[] $fundings
+     * @return mixed[]
+     */
+    private function insertFundingData(array $fundings, CompletePackageInterface $package): array
     {
         foreach ($package->getFunding() as $fundingOption) {
             list($vendor, $packageName) = explode('/', $package->getPrettyName());
@@ -134,7 +143,7 @@ class FundCommand extends BaseCommand
                 continue;
             }
             $url = $fundingOption['url'];
-            if (!empty($fundingOption['type']) && $fundingOption['type'] === 'github' && preg_match('{^https://github.com/([^/]+)$}', $url, $match)) {
+            if (!empty($fundingOption['type']) && $fundingOption['type'] === 'github' && Preg::isMatch('{^https://github.com/([^/]+)$}', $url, $match)) {
                 $url = 'https://github.com/sponsors/'.$match[1];
             }
             $fundings[$vendor][$url][] = $packageName;

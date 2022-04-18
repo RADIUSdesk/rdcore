@@ -3,7 +3,7 @@
  *
  * This file is part of the Aura Project for PHP.
  *
- * @package Aura.Intl
+ * @package aura/intl
  *
  * @license http://opensource.org/licenses/MIT MIT
  *
@@ -14,7 +14,7 @@ namespace Aura\Intl;
  *
  * Translator to translate the message
  *
- * @package Aura.Intl
+ * @package aura/intl
  *
  */
 class Translator implements TranslatorInterface

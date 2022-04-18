@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -27,6 +27,6 @@ class PearRepository extends ArrayRepository
 {
     public function __construct()
     {
-        throw new \RuntimeException('The PEAR repository has been removed from Composer 2.0');
+        throw new \InvalidArgumentException('The PEAR repository has been removed from Composer 2.x');
     }
 }

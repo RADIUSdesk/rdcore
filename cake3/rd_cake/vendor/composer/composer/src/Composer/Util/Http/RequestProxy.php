@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -20,17 +20,21 @@ use Composer\Util\Url;
  */
 class RequestProxy
 {
+    /** @var mixed[] */
     private $contextOptions;
+    /** @var bool */
     private $isSecure;
+    /** @var string */
     private $formattedUrl;
+    /** @var string */
     private $url;
 
     /**
-     * @param string $url
-     * @param array  $contextOptions
-     * @param string $formattedUrl
+     * @param string  $url
+     * @param mixed[] $contextOptions
+     * @param string  $formattedUrl
      */
-    public function __construct($url, array $contextOptions, $formattedUrl)
+    public function __construct(string $url, array $contextOptions, string $formattedUrl)
     {
         $this->url = $url;
         $this->contextOptions = $contextOptions;
@@ -41,9 +45,9 @@ class RequestProxy
     /**
      * Returns an array of context options
      *
-     * @return array
+     * @return mixed[]
      */
-    public function getContextOptions()
+    public function getContextOptions(): array
     {
         return $this->contextOptions;
     }
@@ -54,7 +58,7 @@ class RequestProxy
      * @param  string|null $format Output format specifier
      * @return string      Safe proxy, no proxy or empty
      */
-    public function getFormattedUrl($format = '')
+    public function getFormattedUrl(?string $format = ''): string
     {
         $result = '';
         if ($this->formattedUrl) {
@@ -70,7 +74,7 @@ class RequestProxy
      *
      * @return string Proxy url or empty
      */
-    public function getUrl()
+    public function getUrl(): string
     {
         return $this->url;
     }
@@ -80,7 +84,7 @@ class RequestProxy
      *
      * @return bool False if not secure or there is no proxy
      */
-    public function isSecure()
+    public function isSecure(): bool
     {
         return $this->isSecure;
     }

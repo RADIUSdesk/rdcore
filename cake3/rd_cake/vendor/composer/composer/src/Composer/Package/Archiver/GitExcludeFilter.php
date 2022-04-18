@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -12,8 +12,10 @@
 
 namespace Composer\Package\Archiver;
 
+use Composer\Pcre\Preg;
+
 /**
- * An exclude filter that processes gitignore and gitattributes
+ * An exclude filter that processes gitattributes
  *
  * It respects export-ignore git attributes
  *
@@ -22,20 +24,14 @@ namespace Composer\Package\Archiver;
 class GitExcludeFilter extends BaseExcludeFilter
 {
     /**
-     * Parses .gitignore and .gitattributes files if they exist
+     * Parses .gitattributes if it exists
      *
      * @param string $sourcePath
      */
-    public function __construct($sourcePath)
+    public function __construct(string $sourcePath)
     {
         parent::__construct($sourcePath);
 
-        if (file_exists($sourcePath.'/.gitignore')) {
-            $this->excludePatterns = $this->parseLines(
-                file($sourcePath.'/.gitignore'),
-                array($this, 'parseGitIgnoreLine')
-            );
-        }
         if (file_exists($sourcePath.'/.gitattributes')) {
             $this->excludePatterns = array_merge(
                 $this->excludePatterns,
@@ -48,30 +44,22 @@ class GitExcludeFilter extends BaseExcludeFilter
     }
 
     /**
-     * Callback line parser which process gitignore lines
-     *
-     * @param string $line A line from .gitignore
-     *
-     * @return array An exclude pattern for filter()
-     */
-    public function parseGitIgnoreLine($line)
-    {
-        return $this->generatePattern($line);
-    }
-
-    /**
      * Callback parser which finds export-ignore rules in git attribute lines
      *
      * @param string $line A line from .gitattributes
      *
-     * @return array|null An exclude pattern for filter()
+     * @return array{0: string, 1: bool, 2: bool}|null An exclude pattern for filter()
      */
-    public function parseGitAttributesLine($line)
+    public function parseGitAttributesLine(string $line): ?array
     {
-        $parts = preg_split('#\s+#', $line);
+        $parts = Preg::split('#\s+#', $line);
 
         if (count($parts) == 2 && $parts[1] === 'export-ignore') {
             return $this->generatePattern($parts[0]);
+        }
+
+        if (count($parts) == 2 && $parts[1] === '-export-ignore') {
+            return $this->generatePattern('!'.$parts[0]);
         }
 
         return null;

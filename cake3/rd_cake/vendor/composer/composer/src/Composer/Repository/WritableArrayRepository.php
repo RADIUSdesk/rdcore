@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -27,8 +27,19 @@ class WritableArrayRepository extends ArrayRepository implements WritableReposit
      */
     protected $devPackageNames = array();
 
+    /** @var bool|null */
+    private $devMode = null;
+
     /**
-     * {@inheritDoc}
+     * @return bool|null true if dev requirements were installed, false if --no-dev was used, null if yet unknown
+     */
+    public function getDevMode()
+    {
+        return $this->devMode;
+    }
+
+    /**
+     * @inheritDoc
      */
     public function setDevPackageNames(array $devPackageNames)
     {
@@ -36,7 +47,7 @@ class WritableArrayRepository extends ArrayRepository implements WritableReposit
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getDevPackageNames()
     {
@@ -44,21 +55,23 @@ class WritableArrayRepository extends ArrayRepository implements WritableReposit
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
-    public function write($devMode, InstallationManager $installationManager)
+    public function write(bool $devMode, InstallationManager $installationManager)
     {
+        $this->devMode = $devMode;
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function reload()
     {
+        $this->devMode = null;
     }
 
     /**
-     * {@inheritDoc}
+     * @inheritDoc
      */
     public function getCanonicalPackages()
     {

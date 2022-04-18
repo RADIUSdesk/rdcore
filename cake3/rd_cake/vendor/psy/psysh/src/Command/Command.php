@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2020 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -43,7 +43,7 @@ abstract class Command extends BaseCommand
     /**
      * {@inheritdoc}
      */
-    public function asText()
+    public function asText(): string
     {
         $messages = [
             '<comment>Usage:</comment>',
@@ -74,7 +74,7 @@ abstract class Command extends BaseCommand
     /**
      * {@inheritdoc}
      */
-    private function getArguments()
+    private function getArguments(): array
     {
         $hidden = $this->getHiddenArguments();
 
@@ -88,7 +88,7 @@ abstract class Command extends BaseCommand
      *
      * @return array
      */
-    protected function getHiddenArguments()
+    protected function getHiddenArguments(): array
     {
         return ['command'];
     }
@@ -96,7 +96,7 @@ abstract class Command extends BaseCommand
     /**
      * {@inheritdoc}
      */
-    private function getOptions()
+    private function getOptions(): array
     {
         $hidden = $this->getHiddenOptions();
 
@@ -110,7 +110,7 @@ abstract class Command extends BaseCommand
      *
      * @return array
      */
-    protected function getHiddenOptions()
+    protected function getHiddenOptions(): array
     {
         return ['verbose'];
     }
@@ -120,7 +120,7 @@ abstract class Command extends BaseCommand
      *
      * @return string
      */
-    private function aliasesAsText()
+    private function aliasesAsText(): string
     {
         return '<comment>Aliases:</comment> <info>'.\implode(', ', $this->getAliases()).'</info>'.\PHP_EOL;
     }
@@ -130,7 +130,7 @@ abstract class Command extends BaseCommand
      *
      * @return string
      */
-    private function argumentsAsText()
+    private function argumentsAsText(): string
     {
         $max = $this->getMaxWidth();
         $messages = [];
@@ -161,7 +161,7 @@ abstract class Command extends BaseCommand
      *
      * @return string
      */
-    private function optionsAsText()
+    private function optionsAsText(): string
     {
         $max = $this->getMaxWidth();
         $messages = [];
@@ -202,7 +202,7 @@ abstract class Command extends BaseCommand
      *
      * @return int
      */
-    private function getMaxWidth()
+    private function getMaxWidth(): int
     {
         $max = 0;
 
@@ -229,7 +229,7 @@ abstract class Command extends BaseCommand
      *
      * @return string
      */
-    private function formatDefaultValue($default)
+    private function formatDefaultValue($default): string
     {
         if (\is_array($default) && $default === \array_values($default)) {
             return \sprintf("['%s']", \implode("', '", $default));
@@ -276,7 +276,7 @@ abstract class Command extends BaseCommand
      *
      * @return TableHelper
      */
-    protected function getTableHelper()
+    protected function getTableHelper(): TableHelper
     {
         $table = $this->getApplication()->getHelperSet()->get('table');
 

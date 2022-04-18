@@ -8,7 +8,7 @@ class IntlFormatterTest extends BasicFormatterTest
         return new IntlFormatter;
     }
 
-    public function setUp()
+    public function set_up()
     {
         if (! extension_loaded('intl')) {
             $this->markTestSkipped('This test is skipped if the Intl Extension is not loaded.');
@@ -17,7 +17,7 @@ class IntlFormatterTest extends BasicFormatterTest
 
     public function testIntlVersion()
     {
-        $this->setExpectedException('Aura\Intl\Exception\IcuVersionTooLow');
+        $this->expectException('Aura\Intl\Exception\IcuVersionTooLow');
         $formatter = new IntlFormatter('4.7');
     }
 
@@ -139,7 +139,7 @@ class IntlFormatterTest extends BasicFormatterTest
                 }
             }";
         $formatter = $this->newFormatter();
-        $this->setExpectedException('Aura\Intl\Exception\CannotFormat');
+        $this->expectException('Aura\Intl\Exception\CannotFormat');
         $actual = $formatter->format($locale, $string, array('gender' => 'female', 'count' => 5,  'from' => 'Alice', 'to' => 'Bob'));
     }
 
@@ -174,7 +174,7 @@ class IntlFormatterTest extends BasicFormatterTest
         $string = '';
         $formatter = $this->newFormatter();
         if (! defined('HHVM_VERSION')) {
-            $this->setExpectedException('Aura\Intl\Exception\CannotInstantiateFormatter');
+            $this->expectException('Aura\Intl\Exception\CannotInstantiateFormatter');
         }
         $actual = $formatter->format($locale, $string, []);
         if (defined('HHVM_VERSION')) {

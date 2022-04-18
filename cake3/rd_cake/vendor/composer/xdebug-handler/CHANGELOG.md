@@ -1,5 +1,27 @@
 ## [Unreleased]
 
+## [3.0.3] - 2022-02-25
+  * Added: support for composer/pcre versions 2 and 3.
+
+## [3.0.2] - 2022-02-24
+  * Fixed: regression in 3.0.1 affecting Xdebug 2
+
+## [3.0.1] - 2022-01-04
+  * Fixed: error when calling `isXdebugActive` before class instantiation.
+
+## [3.0.0] - 2021-12-23
+  * Removed: support for legacy PHP versions (< PHP 7.2.5).
+  * Added: type declarations to arguments and return values.
+  * Added: strict typing to all classes.
+
+## [2.0.3] - 2021-12-08
+  * Added: support, type annotations and refactoring for stricter PHPStan analysis.
+
+## [2.0.2] - 2021-07-31
+  * Added: support for `xdebug_info('mode')` in Xdebug 3.1.
+  * Added: support for Psr\Log versions 2 and 3.
+  * Fixed: remove ini directives from non-cli HOST/PATH sections.
+
 ## [2.0.1] - 2021-05-05
   * Fixed: don't restart if the cwd is a UNC path and cmd.exe will be invoked.
 
@@ -21,7 +43,7 @@
   * Fixed: use `proc_open` when available for correct FD forwarding to the restarted process.
 
 ## [1.4.4] - 2020-10-24
-  * Fix: exception if 'pcntl_signal' is disabled.
+  * Fixed: exception if 'pcntl_signal' is disabled.
 
 ## [1.4.3] - 2020-08-19
   * Fixed: restore SIGINT to default handler in restarted process if no other handler exists.
@@ -86,7 +108,13 @@
   * Break: the following class was renamed:
     - `Composer\XdebugHandler` -> `Composer\XdebugHandler\XdebugHandler`
 
-[Unreleased]: https://github.com/composer/xdebug-handler/compare/2.0.1...HEAD
+[Unreleased]: https://github.com/composer/xdebug-handler/compare/3.0.3...HEAD
+[3.0.2]: https://github.com/composer/xdebug-handler/compare/3.0.2...3.0.3
+[3.0.2]: https://github.com/composer/xdebug-handler/compare/3.0.1...3.0.2
+[3.0.1]: https://github.com/composer/xdebug-handler/compare/3.0.0...3.0.1
+[3.0.0]: https://github.com/composer/xdebug-handler/compare/2.0.3...3.0.0
+[2.0.3]: https://github.com/composer/xdebug-handler/compare/2.0.2...2.0.3
+[2.0.2]: https://github.com/composer/xdebug-handler/compare/2.0.1...2.0.2
 [2.0.1]: https://github.com/composer/xdebug-handler/compare/2.0.0...2.0.1
 [2.0.0]: https://github.com/composer/xdebug-handler/compare/1.4.6...2.0.0
 [1.4.6]: https://github.com/composer/xdebug-handler/compare/1.4.5...1.4.6

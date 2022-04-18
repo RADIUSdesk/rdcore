@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -12,8 +12,9 @@
 
 namespace Composer\Util;
 
-use React\Promise\Promise;
+use React\Promise\CancellablePromiseInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
+use React\Promise\PromiseInterface;
 
 /**
  * @author Jordi Boggiano <j.boggiano@seld.be>
@@ -24,7 +25,7 @@ class Loop
     private $httpDownloader;
     /** @var ProcessExecutor|null */
     private $processExecutor;
-    /** @var Promise[][] */
+    /** @var PromiseInterface[][] */
     private $currentPromises = array();
     /** @var int */
     private $waitIndex = 0;
@@ -43,7 +44,7 @@ class Loop
     /**
      * @return HttpDownloader
      */
-    public function getHttpDownloader()
+    public function getHttpDownloader(): HttpDownloader
     {
         return $this->httpDownloader;
     }
@@ -51,20 +52,25 @@ class Loop
     /**
      * @return ProcessExecutor|null
      */
-    public function getProcessExecutor()
+    public function getProcessExecutor(): ?ProcessExecutor
     {
         return $this->processExecutor;
     }
 
-    public function wait(array $promises, ProgressBar $progress = null)
+    /**
+     * @param  PromiseInterface[] $promises
+     * @param  ?ProgressBar       $progress
+     * @return void
+     */
+    public function wait(array $promises, ProgressBar $progress = null): void
     {
         /** @var \Exception|null */
         $uncaught = null;
 
         \React\Promise\all($promises)->then(
-            function () {
+            function (): void {
             },
-            function ($e) use (&$uncaught) {
+            function ($e) use (&$uncaught): void {
                 $uncaught = $e;
             }
         );
@@ -113,11 +119,16 @@ class Loop
         }
     }
 
-    public function abortJobs()
+    /**
+     * @return void
+     */
+    public function abortJobs(): void
     {
         foreach ($this->currentPromises as $promiseGroup) {
             foreach ($promiseGroup as $promise) {
-                $promise->cancel();
+                if ($promise instanceof CancellablePromiseInterface) {
+                    $promise->cancel();
+                }
             }
         }
     }

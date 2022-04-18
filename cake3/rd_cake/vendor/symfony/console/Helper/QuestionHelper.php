@@ -33,8 +33,11 @@ use function Symfony\Component\String\s;
  */
 class QuestionHelper extends Helper
 {
+    /**
+     * @var resource|null
+     */
     private $inputStream;
-    private static $shell;
+
     private static $stty = true;
     private static $stdinIsInteractive;
 
@@ -205,7 +208,7 @@ class QuestionHelper extends Helper
     {
         $messages = [];
 
-        $maxWidth = max(array_map('self::width', array_keys($choices = $question->getChoices())));
+        $maxWidth = max(array_map([__CLASS__, 'width'], array_keys($choices = $question->getChoices())));
 
         foreach ($choices as $key => $value) {
             $padding = str_repeat(' ', $maxWidth - self::width($key));
@@ -248,6 +251,9 @@ class QuestionHelper extends Helper
         $numMatches = \count($matches);
 
         $sttyMode = shell_exec('stty -g');
+        $isStdin = 'php://stdin' === (stream_get_meta_data($inputStream)['uri'] ?? null);
+        $r = [$inputStream];
+        $w = [];
 
         // Disable icanon (so we can fread each keypress) and echo (we'll do echoing here instead)
         shell_exec('stty -icanon -echo');
@@ -257,11 +263,15 @@ class QuestionHelper extends Helper
 
         // Read a keypress
         while (!feof($inputStream)) {
+            while ($isStdin && 0 === @stream_select($r, $w, $w, 0, 100)) {
+                // Give signal handlers a chance to run
+                $r = [$inputStream];
+            }
             $c = fread($inputStream, 1);
 
             // as opposed to fgets(), fread() returns an empty string when the stream content is empty, not false.
             if (false === $c || ('' === $ret && '' === $c && null === $question->getDefault())) {
-                shell_exec(sprintf('stty %s', $sttyMode));
+                shell_exec('stty '.$sttyMode);
                 throw new MissingInputException('Aborted.');
             } elseif ("\177" === $c) { // Backspace Character
                 if (0 === $numMatches && 0 !== $i) {
@@ -311,7 +321,7 @@ class QuestionHelper extends Helper
                         $matches = array_filter(
                             $autocomplete($ret),
                             function ($match) use ($ret) {
-                                return '' === $ret || 0 === strpos($match, $ret);
+                                return '' === $ret || str_starts_with($match, $ret);
                             }
                         );
                         $numMatches = \count($matches);
@@ -348,7 +358,7 @@ class QuestionHelper extends Helper
 
                 foreach ($autocomplete($ret) as $value) {
                     // If typed characters match the beginning chunk of value (e.g. [AcmeDe]moBundle)
-                    if (0 === strpos($value, $tempRet)) {
+                    if (str_starts_with($value, $tempRet)) {
                         $matches[$numMatches++] = $value;
                     }
                 }
@@ -366,7 +376,7 @@ class QuestionHelper extends Helper
         }
 
         // Reset stty so it behaves normally again
-        shell_exec(sprintf('stty %s', $sttyMode));
+        shell_exec('stty '.$sttyMode);
 
         return $fullChoice;
     }
@@ -374,12 +384,12 @@ class QuestionHelper extends Helper
     private function mostRecentlyEnteredValue(string $entered): string
     {
         // Determine the most recent value that the user entered
-        if (false === strpos($entered, ',')) {
+        if (!str_contains($entered, ',')) {
             return $entered;
         }
 
         $choices = explode(',', $entered);
-        if (\strlen($lastChoice = trim($choices[\count($choices) - 1])) > 0) {
+        if ('' !== $lastChoice = trim($choices[\count($choices) - 1])) {
             return $lastChoice;
         }
 
@@ -427,7 +437,7 @@ class QuestionHelper extends Helper
         $value = fgets($inputStream, 4096);
 
         if (self::$stty && Terminal::hasSttyAvailable()) {
-            shell_exec(sprintf('stty %s', $sttyMode));
+            shell_exec('stty '.$sttyMode);
         }
 
         if (false === $value) {
@@ -482,11 +492,11 @@ class QuestionHelper extends Helper
         }
 
         if (\function_exists('stream_isatty')) {
-            return self::$stdinIsInteractive = stream_isatty(fopen('php://stdin', 'r'));
+            return self::$stdinIsInteractive = @stream_isatty(fopen('php://stdin', 'r'));
         }
 
         if (\function_exists('posix_isatty')) {
-            return self::$stdinIsInteractive = posix_isatty(fopen('php://stdin', 'r'));
+            return self::$stdinIsInteractive = @posix_isatty(fopen('php://stdin', 'r'));
         }
 
         if (!\function_exists('exec')) {
@@ -504,7 +514,7 @@ class QuestionHelper extends Helper
      * @param resource $inputStream The handler resource
      * @param Question $question    The question being asked
      *
-     * @return string|bool The input received, false in case input could not be read
+     * @return string|false The input received, false in case input could not be read
      */
     private function readInput($inputStream, Question $question)
     {

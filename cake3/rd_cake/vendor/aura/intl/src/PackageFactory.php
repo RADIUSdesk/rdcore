@@ -3,7 +3,7 @@
  *
  * This file is part of the Aura Project for PHP.
  *
- * @package Aura.Intl
+ * @package aura/intl
  *
  * @license http://opensource.org/licenses/MIT MIT
  *
@@ -14,7 +14,7 @@ namespace Aura\Intl;
  *
  * Creates new package instances.
  *
- * @package Aura.Intl
+ * @package aura/intl
  *
  */
 class PackageFactory

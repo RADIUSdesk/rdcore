@@ -76,7 +76,7 @@ class PrototypedArrayNode extends ArrayNode
     /**
      * Retrieves the name of the attribute which value should be used as key.
      *
-     * @return string|null The name of the attribute
+     * @return string|null
      */
     public function getKeyAttribute()
     {
@@ -145,7 +145,7 @@ class PrototypedArrayNode extends ArrayNode
     /**
      * Retrieves the prototype.
      *
-     * @return PrototypeNodeInterface The prototype
+     * @return PrototypeNodeInterface
      */
     public function getPrototype()
     {
@@ -159,18 +159,11 @@ class PrototypedArrayNode extends ArrayNode
      */
     public function addChild(NodeInterface $node)
     {
-        throw new Exception('A prototyped array node can not have concrete children.');
+        throw new Exception('A prototyped array node cannot have concrete children.');
     }
 
     /**
-     * Finalizes the value of this node.
-     *
-     * @param mixed $value
-     *
-     * @return mixed The finalized value
-     *
-     * @throws UnsetKeyException
-     * @throws InvalidConfigurationException if the node doesn't have enough children
+     * {@inheritdoc}
      */
     protected function finalizeValue($value)
     {
@@ -198,13 +191,8 @@ class PrototypedArrayNode extends ArrayNode
     }
 
     /**
-     * Normalizes the value.
+     * {@inheritdoc}
      *
-     * @param mixed $value The value to normalize
-     *
-     * @return mixed The normalized value
-     *
-     * @throws InvalidConfigurationException
      * @throws DuplicateKeyException
      */
     protected function normalizeValue($value)
@@ -272,15 +260,7 @@ class PrototypedArrayNode extends ArrayNode
     }
 
     /**
-     * Merges values together.
-     *
-     * @param mixed $leftSide  The left side to merge
-     * @param mixed $rightSide The right side to merge
-     *
-     * @return mixed The merged values
-     *
-     * @throws InvalidConfigurationException
-     * @throws \RuntimeException
+     * {@inheritdoc}
      */
     protected function mergeValues($leftSide, $rightSide)
     {
@@ -358,7 +338,7 @@ class PrototypedArrayNode extends ArrayNode
      * Now, the key becomes 'name001' and the child node becomes 'value001' and
      * the prototype of child node 'name001' should be a ScalarNode instead of an ArrayNode instance.
      *
-     * @return mixed The prototype instance
+     * @return mixed
      */
     private function getPrototypeForChild(string $key)
     {

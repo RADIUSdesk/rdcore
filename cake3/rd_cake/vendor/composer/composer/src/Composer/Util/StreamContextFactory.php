@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -31,13 +31,13 @@ final class StreamContextFactory
      * Creates a context supporting HTTP proxies
      *
      * @param string $url URL the context is to be used for
-     * @phpstan-param array{http?: array{follow_location?: int, max_redirects?: int, header?: string|array<string, string|int>}} $defaultOptions
-     * @param  array             $defaultOptions Options to merge with the default
-     * @param  array             $defaultParams  Parameters to specify on the context
+     * @phpstan-param array{http?: array{follow_location?: int, max_redirects?: int, header?: string|array<string>}} $defaultOptions
+     * @param  mixed[]           $defaultOptions Options to merge with the default
+     * @param  mixed[]           $defaultParams  Parameters to specify on the context
      * @throws \RuntimeException if https proxy required and OpenSSL uninstalled
      * @return resource          Default context
      */
-    public static function getContext($url, array $defaultOptions = array(), array $defaultParams = array())
+    public static function getContext(string $url, array $defaultOptions = array(), array $defaultParams = array())
     {
         $options = array('http' => array(
             // specify defaults again to try and work better with curlwrappers enabled
@@ -57,13 +57,13 @@ final class StreamContextFactory
     }
 
     /**
-     * @param string $url
-     * @param array  $options
-     * @param bool   $forCurl When true, will not add proxy values as these are handled separately
-     * @phpstan-return array{http: array{header: string[], proxy?: string, request_fulluri: bool}, ssl: array}
+     * @param string  $url
+     * @param mixed[] $options
+     * @param bool    $forCurl When true, will not add proxy values as these are handled separately
+     * @phpstan-return array{http: array{header: string[], proxy?: string, request_fulluri: bool}, ssl?: mixed[]}
      * @return array formatted as a stream context array
      */
-    public static function initOptions($url, array $options, $forCurl = false)
+    public static function initOptions(string $url, array $options, bool $forCurl = false): array
     {
         // Make sure the headers are in an array form
         if (!isset($options['http']['header'])) {
@@ -122,7 +122,7 @@ final class StreamContextFactory
                 $phpVersion,
                 $httpVersion,
                 $platformPhpVersion ? '; Platform-PHP '.$platformPhpVersion : '',
-                getenv('CI') ? '; CI' : ''
+                Platform::getEnv('CI') ? '; CI' : ''
             );
         }
 
@@ -130,11 +130,11 @@ final class StreamContextFactory
     }
 
     /**
-     * @param array $options
+     * @param mixed[] $options
      *
-     * @return array
+     * @return mixed[]
      */
-    public static function getTlsDefaults(array $options, LoggerInterface $logger = null)
+    public static function getTlsDefaults(array $options, LoggerInterface $logger = null): array
     {
         $ciphers = implode(':', array(
             'ECDHE-RSA-AES128-GCM-SHA256',
@@ -225,9 +225,7 @@ final class StreamContextFactory
         /**
          * Disable TLS compression to prevent CRIME attacks where supported.
          */
-        if (PHP_VERSION_ID >= 50413) {
-            $defaults['ssl']['disable_compression'] = true;
-        }
+        $defaults['ssl']['disable_compression'] = true;
 
         return $defaults;
     }
@@ -239,15 +237,15 @@ final class StreamContextFactory
      * This method fixes the array by moving the content-type header to the end
      *
      * @link https://bugs.php.net/bug.php?id=61548
-     * @param  string|array $header
-     * @return array
+     * @param  string|string[] $header
+     * @return string[]
      */
-    private static function fixHttpHeaderField($header)
+    private static function fixHttpHeaderField($header): array
     {
         if (!is_array($header)) {
             $header = explode("\r\n", $header);
         }
-        uasort($header, function ($el) {
+        uasort($header, function ($el): int {
             return stripos($el, 'content-type') === 0 ? 1 : -1;
         });
 

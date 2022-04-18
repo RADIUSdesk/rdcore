@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2020 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -26,7 +26,7 @@ if (!\function_exists('Psy\\sh')) {
      *
      * @return string
      */
-    function sh()
+    function sh(): string
     {
         if (\version_compare(\PHP_VERSION, '8.0', '<')) {
             return '\extract(\Psy\debug(\get_defined_vars(), isset($this) ? $this : @\get_called_class()));';
@@ -90,7 +90,7 @@ if (!\function_exists('Psy\\debug')) {
      *
      * @return array Scope variables from the debugger session
      */
-    function debug(array $vars = [], $bindTo = null)
+    function debug(array $vars = [], $bindTo = null): array
     {
         echo \PHP_EOL;
 
@@ -183,7 +183,7 @@ if (!\function_exists('Psy\\info')) {
         try {
             $updateAvailable = !$checker->isLatest();
             $latest = $checker->getLatest();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
         }
 
         $updates = [
@@ -327,27 +327,17 @@ if (!\function_exists('Psy\\bin')) {
      *
      * @return \Closure
      */
-    function bin()
+    function bin(): \Closure
     {
         return function () {
             if (!isset($_SERVER['PSYSH_IGNORE_ENV']) || !$_SERVER['PSYSH_IGNORE_ENV']) {
-                if (\defined('HHVM_VERSION_ID') && \HHVM_VERSION_ID < 31800) {
-                    \fwrite(\STDERR, 'HHVM 3.18 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
+                if (\defined('HHVM_VERSION_ID')) {
+                    \fwrite(\STDERR, 'PsySH v0.11 and higher does not support HHVM. Install an older version, or set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
                     exit(1);
                 }
 
-                if (\defined('HHVM_VERSION_ID') && \HHVM_VERSION_ID > 39999) {
-                    \fwrite(\STDERR, 'HHVM 4 or higher is not supported. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
-                    exit(1);
-                }
-
-                if (\PHP_VERSION_ID < 50509) {
-                    \fwrite(\STDERR, 'PHP 5.5.9 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
-                    exit(1);
-                }
-
-                if (\PHP_VERSION_ID < 50600 && \Phar::running()) {
-                    \fwrite(\STDERR, 'PHP 5.6.0 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
+                if (\PHP_VERSION_ID < 70000) {
+                    \fwrite(\STDERR, 'PHP 7.0.0 or higher is required. You can set the environment variable PSYSH_IGNORE_ENV=1 to override this restriction and proceed anyway.'.\PHP_EOL);
                     exit(1);
                 }
 
@@ -435,7 +425,7 @@ EOL;
             try {
                 // And go!
                 $shell->run();
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 \fwrite(\STDERR, $e->getMessage().\PHP_EOL);
 
                 // @todo this triggers the "exited unexpectedly" logic in the

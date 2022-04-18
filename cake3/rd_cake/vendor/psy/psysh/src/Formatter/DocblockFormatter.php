@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2020 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -31,7 +31,7 @@ class DocblockFormatter implements ReflectorFormatter
      *
      * @return string Formatted docblock
      */
-    public static function format(\Reflector $reflector)
+    public static function format(\Reflector $reflector): string
     {
         $docblock = new Docblock($reflector);
         $chunks = [];
@@ -71,7 +71,7 @@ class DocblockFormatter implements ReflectorFormatter
      *
      * @return string
      */
-    private static function formatVector(array $vector, array $lines)
+    private static function formatVector(array $vector, array $lines): string
     {
         $template = [' '];
         foreach ($vector as $type) {
@@ -109,7 +109,7 @@ class DocblockFormatter implements ReflectorFormatter
      *
      * @return string formatted tags
      */
-    private static function formatTags(array $skip, array $tags)
+    private static function formatTags(array $skip, array $tags): string
     {
         $chunks = [];
 
@@ -136,7 +136,7 @@ class DocblockFormatter implements ReflectorFormatter
      *
      * @return string
      */
-    private static function getVectorParamTemplate($type, $max)
+    private static function getVectorParamTemplate(string $type, int $max): string
     {
         if (!isset(self::$vectorParamTemplates[$type])) {
             return \sprintf('%%-%ds', $max);
@@ -153,7 +153,7 @@ class DocblockFormatter implements ReflectorFormatter
      *
      * @return string
      */
-    private static function indent($text, $indent = '  ')
+    private static function indent(string $text, string $indent = '  '): string
     {
         return $indent.\str_replace("\n", "\n".$indent, $text);
     }
@@ -165,7 +165,7 @@ class DocblockFormatter implements ReflectorFormatter
      *
      * @return string
      */
-    private static function inflect($text)
+    private static function inflect(string $text): string
     {
         $words = \trim(\preg_replace('/[\s_-]+/', ' ', \preg_replace('/([a-z])([A-Z])/', '$1 $2', $text)));
 

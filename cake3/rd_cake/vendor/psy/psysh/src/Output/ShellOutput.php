@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2020 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -64,7 +64,7 @@ class ShellOutput extends ConsoleOutput
      * @param string|array|\Closure $messages A string, array of strings or a callback
      * @param int                   $type     (default: 0)
      */
-    public function page($messages, $type = 0)
+    public function page($messages, int $type = 0)
     {
         if (\is_string($messages)) {
             $messages = (array) $messages;
@@ -195,6 +195,8 @@ class ShellOutput extends ConsoleOutput
 
         // Types
         $formatter->setStyle('number', new OutputFormatterStyle('magenta'));
+        $formatter->setStyle('integer', new OutputFormatterStyle('magenta'));
+        $formatter->setStyle('float', new OutputFormatterStyle('yellow'));
         $formatter->setStyle('string', new OutputFormatterStyle('green'));
         $formatter->setStyle('bool', new OutputFormatterStyle('cyan'));
         $formatter->setStyle('keyword', new OutputFormatterStyle('yellow'));

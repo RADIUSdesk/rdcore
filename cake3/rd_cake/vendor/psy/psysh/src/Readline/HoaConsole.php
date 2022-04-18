@@ -3,7 +3,7 @@
 /*
  * This file is part of Psy Shell.
  *
- * (c) 2012-2020 Justin Hileman
+ * (c) 2012-2022 Justin Hileman
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -30,9 +30,17 @@ class HoaConsole implements Readline
     /**
      * @return bool
      */
-    public static function isSupported()
+    public static function isSupported(): bool
     {
         return \class_exists(Console::class, true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function supportsBracketedPaste(): bool
+    {
+        return false;
     }
 
     public function __construct()
@@ -48,7 +56,7 @@ class HoaConsole implements Readline
     /**
      * {@inheritdoc}
      */
-    public function addHistory($line)
+    public function addHistory(string $line): bool
     {
         $this->hoaReadline->addHistory($line);
 
@@ -58,7 +66,7 @@ class HoaConsole implements Readline
     /**
      * {@inheritdoc}
      */
-    public function clearHistory()
+    public function clearHistory(): bool
     {
         $this->hoaReadline->clearHistory();
 
@@ -68,7 +76,7 @@ class HoaConsole implements Readline
     /**
      * {@inheritdoc}
      */
-    public function listHistory()
+    public function listHistory(): array
     {
         $i = 0;
         $list = [];
@@ -82,7 +90,7 @@ class HoaConsole implements Readline
     /**
      * {@inheritdoc}
      */
-    public function readHistory()
+    public function readHistory(): bool
     {
         return true;
     }
@@ -92,9 +100,9 @@ class HoaConsole implements Readline
      *
      * @throws BreakException if user hits Ctrl+D
      *
-     * @return string
+     * @return false|string
      */
-    public function readline($prompt = null)
+    public function readline(string $prompt = null)
     {
         $this->lastPrompt = $prompt;
 
@@ -114,7 +122,7 @@ class HoaConsole implements Readline
     /**
      * {@inheritdoc}
      */
-    public function writeHistory()
+    public function writeHistory(): bool
     {
         return true;
     }

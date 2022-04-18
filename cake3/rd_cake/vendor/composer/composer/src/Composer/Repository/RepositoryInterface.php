@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -25,8 +25,9 @@ use Composer\Semver\Constraint\ConstraintInterface;
  */
 interface RepositoryInterface extends \Countable
 {
-    const SEARCH_FULLTEXT = 0;
-    const SEARCH_NAME = 1;
+    public const SEARCH_FULLTEXT = 0;
+    public const SEARCH_NAME = 1;
+    public const SEARCH_VENDOR = 2;
 
     /**
      * Checks if specified package registered (installed).
@@ -43,9 +44,9 @@ interface RepositoryInterface extends \Countable
      * @param string                     $name       package name
      * @param string|ConstraintInterface $constraint package version or version constraint to match against
      *
-     * @return PackageInterface|null
+     * @return BasePackage|null
      */
-    public function findPackage($name, $constraint);
+    public function findPackage(string $name, $constraint);
 
     /**
      * Searches for all packages matching a name and optionally a version.
@@ -53,14 +54,14 @@ interface RepositoryInterface extends \Countable
      * @param string                     $name       package name
      * @param string|ConstraintInterface $constraint package version or version constraint to match against
      *
-     * @return PackageInterface[]
+     * @return BasePackage[]
      */
-    public function findPackages($name, $constraint = null);
+    public function findPackages(string $name, $constraint = null);
 
     /**
      * Returns list of registered packages.
      *
-     * @return PackageInterface[]
+     * @return BasePackage[]
      */
     public function getPackages();
 
@@ -75,21 +76,24 @@ interface RepositoryInterface extends \Countable
      * @param array<string, BasePackage::STABILITY_*>        $stabilityFlags        an array of package name => BasePackage::STABILITY_* value
      * @param array<string, array<string, PackageInterface>> $alreadyLoaded         an array of package name => package version => package
      *
-     * @return array{namesFound: string[], packages: PackageInterface[]}
+     * @return array
+     *
+     * @phpstan-param  array<string, ConstraintInterface|null> $packageNameMap
+     * @phpstan-return array{namesFound: array<string>, packages: array<BasePackage>}
      */
     public function loadPackages(array $packageNameMap, array $acceptableStabilities, array $stabilityFlags, array $alreadyLoaded = array());
 
     /**
      * Searches the repository for packages containing the query
      *
-     * @param string $query search query
-     * @param int    $mode  a set of SEARCH_* constants to search on, implementations should do a best effort only
-     * @param string $type  The type of package to search for. Defaults to all types of packages
+     * @param string  $query search query, for SEARCH_NAME and SEARCH_VENDOR regular expressions metacharacters are supported by implementations, and user input should be escaped through preg_quote by callers
+     * @param int     $mode  a set of SEARCH_* constants to search on, implementations should do a best effort only, default is SEARCH_FULLTEXT
+     * @param ?string $type  The type of package to search for. Defaults to all types of packages
      *
-     * @return array[] an array of array('name' => '...', 'description' => '...'|null)
-     * @phpstan-return list<array{name: string, description: ?string}>
+     * @return array[] an array of array('name' => '...', 'description' => '...'|null, 'abandoned' => 'string'|true|unset) For SEARCH_VENDOR the name will be in "vendor" form
+     * @phpstan-return list<array{name: string, description: ?string, abandoned?: string|true, url?: string}>
      */
-    public function search($query, $mode = 0, $type = null);
+    public function search(string $query, int $mode = 0, ?string $type = null);
 
     /**
      * Returns a list of packages providing a given package name
@@ -101,7 +105,7 @@ interface RepositoryInterface extends \Countable
      * @return array[] an array with the provider name as key and value of array('name' => '...', 'description' => '...', 'type' => '...')
      * @phpstan-return array<string, array{name: string, description: string, type: string}>
      */
-    public function getProviders($packageName);
+    public function getProviders(string $packageName);
 
     /**
      * Returns a name representing this repository to the user

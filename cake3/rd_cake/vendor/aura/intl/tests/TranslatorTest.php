@@ -1,7 +1,9 @@
 <?php
 namespace Aura\Intl;
 
-class TranslatorTest extends \PHPUnit_Framework_TestCase
+use Yoast\PHPUnitPolyfills\TestCases\TestCase;
+
+class TranslatorTest extends TestCase
 {
     protected $translator;
 
@@ -28,7 +30,7 @@ class TranslatorTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    protected function setUp()
+    protected function set_up()
     {
         $this->factory = new TranslatorFactory;
         $this->formatter = new MockFormatter;

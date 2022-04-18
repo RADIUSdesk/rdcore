@@ -46,7 +46,7 @@ add more repositories to your project by declaring them in `composer.json`.
 
 Repositories are only available to the root package and the repositories
 defined in your dependencies will not be loaded. Read the
-[FAQ entry](faqs/why-can't-composer-load-repositories-recursively.md) if you
+[FAQ entry](faqs/why-cant-composer-load-repositories-recursively.md) if you
 want to learn why.
 
 When resolving dependencies, packages are looked up from repositories from
@@ -149,6 +149,102 @@ number.
 
 This field is optional.
 
+### metadata-url, available-packages and available-package-patterns
+
+The `metadata-url` field allows you to provide a URL template to serve all
+packages which are in the repository. It must contain the placeholder
+`%package%`.
+
+This field is new in Composer v2, and is prioritised over the
+`provider-includes` and `providers-url` fields if both are present.
+For compatibility with both Composer v1 and v2 you ideally want
+to provide both. New repository implementations may only need to
+support v2 however.
+
+An example:
+
+```json
+{
+    "metadata-url": "/p2/%package%.json"
+}
+```
+
+Whenever Composer looks for a package, it will replace `%package%` by the
+package name, and fetch that URL. If dev stability is allowed for the package,
+it will also load the URL again with `$packageName~dev` (e.g.
+`/p2/foo/bar~dev.json` to look for `foo/bar`'s dev versions).
+
+The `foo/bar.json` and `foo/bar~dev.json` files containing package versions
+MUST contain only versions for the foo/bar package, as
+`{"packages":{"foo/bar":[ ... versions here ... ]}}`.
+
+Caching is done via the use of If-Modified-Since header, so make sure you
+return Last-Modified headers and that they are accurate.
+
+The array of versions can also optionally be minified using
+`Composer\MetadataMinifier\MetadataMinifier::minify()` from
+[composer/metadata-minifier](https://packagist.org/packages/composer/metadata-minifier).
+If you do that, you should add a `"minified": "composer/2.0"` key
+at the top level to indicate to Composer it must expand the version
+list back into the original data. See
+https://repo.packagist.org/p2/monolog/monolog.json for an example.
+
+Any requested package which does not exist MUST return a 404 status code,
+which will indicate to Composer that this package does not exist in your
+repository. Make sure the 404 response is fast to avoid blocking Composer.
+Avoid redirects to alternative 404 pages.
+
+If your repository only has a small number of packages, and you want to avoid
+the 404-requests, you can also specify an `"available-packages"` key in
+`packages.json` which should be an array with all the package names that your
+repository contains. Alternatively you can specify an
+`"available-package-patterns"` key which is an array of package name patterns
+(with `*` matching any string, e.g. `vendor/*` would make Composer look up
+every matching package name in this repository).
+
+This field is optional.
+
+### providers-api
+
+The `providers-api` field allows you to provide a URL template to serve all
+packages which provide a given package name, but not the package which has
+that name. It must contain the placeholder `%package%`.
+
+For example https://packagist.org/providers/monolog/monolog.json lists some
+package which have a "provide" rule for monolog/monolog, but it does not list
+monolog/monolog itself.
+
+```json
+{
+    "providers-api": "https://packagist.org/providers/%package%.json",
+}
+```
+
+This field is optional.
+
+### list
+
+The `list` field allows you to return the names of packages which match a
+given field (or all names if no filter is present). It should accept an
+optional `?filter=xx` query param, which can contain `*` as wildcards matching
+any substring.
+
+Replace/provide rules should not be considered here.
+
+It must return an array of package names:
+```json
+{
+    "packageNames": [
+        "a/b",
+        "c/d"
+    ]
+}
+```
+
+See <https://packagist.org/packages/list.json?filter=composer/*> for example.
+
+This field is optional.
+
 #### provider-includes and providers-url
 
 The `provider-includes` field allows you to list a set of files that list
@@ -158,6 +254,9 @@ the files in this case.
 The `providers-url` describes how provider files are found on the server. It
 is an absolute path from the repository root. It must contain the placeholders
 `%package%` and `%hash%`.
+
+These fields are used by Composer v1, or if your repository does not have the
+`metadata-url` field set.
 
 An example:
 
@@ -200,12 +299,33 @@ described [above](#packages).
 These fields are optional. You probably don't need them for your own custom
 repository.
 
-#### stream options
+#### cURL or stream options
 
-The `packages.json` file is loaded using a PHP stream. You can set extra
-options on that stream using the `options` parameter. You can set any valid
-PHP stream context option. See [Context options and
-parameters](https://php.net/manual/en/context.php) for more information.
+The repository is accessed either using cURL (Composer 2 with ext-curl enabled)
+or PHP streams. You can set extra options using the `options` parameter. For
+PHP streams, you can set any valid PHP stream context option. See [Context
+options and parameters](https://php.net/manual/en/context.php) for more
+information. When cURL is used, only a limited set of `http` and `ssl` options
+can be configured.
+
+```json
+{
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://example.org",
+            "options": {
+                "http": {
+                    "timeout": 60
+                }
+            }
+        }
+    ],
+    "require": {
+        "acme/package": "^1.0"
+    }
+}
+```
 
 ### VCS
 
@@ -222,8 +342,9 @@ project to use the patched version. If the library is on GitHub (this is the
 case most of the time), you can fork it there and push your changes to
 your fork. After that you update the project's `composer.json`. All you have
 to do is add your fork as a repository and update the version constraint to
-point to your custom branch. In `composer.json`, you should prefix your custom
-branch name with `"dev-"`. For version constraint naming conventions see
+point to your custom branch. In `composer.json` only, you should prefix your
+custom branch name with `"dev-"` (without making it part of the actual branch
+name). For version constraint naming conventions see
 [Libraries](02-libraries.md) for more information.
 
 Example assuming you patched monolog to fix a bug in the `bugfix` branch:
@@ -263,7 +384,7 @@ For more information [see the aliases article](articles/aliases.md).
 #### Using private repositories
 
 Exactly the same solution allows you to work with your private repositories at
-GitHub and BitBucket:
+GitHub and Bitbucket:
 
 ```json
 {
@@ -293,16 +414,16 @@ The following are supported:
 
 To get packages from these systems you need to have their respective clients
 installed. That can be inconvenient. And for this reason there is special
-support for GitHub and BitBucket that use the APIs provided by these sites, to
+support for GitHub and Bitbucket that use the APIs provided by these sites, to
 fetch the packages without having to install the version control system. The
 VCS repository provides `dist`s for them that fetch the packages as zips.
 
 * **GitHub:** [github.com](https://github.com) (Git)
-* **BitBucket:** [bitbucket.org](https://bitbucket.org) (Git and Mercurial)
+* **Bitbucket:** [bitbucket.org](https://bitbucket.org) (Git)
 
 The VCS driver to be used is detected automatically based on the URL. However,
-should you need to specify one for whatever reason, you can use `git-bitbucket`,
-`hg-bitbucket`, `github`, `gitlab`, `perforce`, `fossil`, `git`, `svn` or `hg`
+should you need to specify one for whatever reason, you can use `bitbucket`,
+`github`, `gitlab`, `perforce`, `fossil`, `git`, `svn` or `hg`
 as the repository type instead of `vcs`.
 
 If you set the `no-api` key to `true` on a github repository it will clone the
@@ -312,11 +433,12 @@ attempt to use github's zip files.
 
 Please note:
 * **To let Composer choose which driver to use** the repository type needs to be defined as "vcs"
-* **If you already used a private repository**, this means Composer should have cloned it in cache. If you want to install the same package with drivers, remember to launch the command `composer clearcache` followed by the command `composer update` to update composer cache and install the package from dist.
+* **If you already used a private repository**, this means Composer should have cloned it in cache. If you want to install the same package with drivers, remember to launch the command `composer clearcache` followed by the command `composer update` to update Composer cache and install the package from dist.
+* VCS driver `git-bitbucket` is deprecated in favor of `bitbucket`
 
-#### BitBucket Driver Configuration
+#### Bitbucket Driver Configuration
 
-> **Note that the repository endpoint for BitBucket needs to be https rather than git.**
+> **Note that the repository endpoint for Bitbucket needs to be https rather than git.**
 
 After setting up your bitbucket repository, you will also need to
 [set up authentication](articles/authentication-for-private-packages.md#bitbucket-oauth).
@@ -346,7 +468,7 @@ repository like this:
 If you have no branches or tags directory you can disable them entirely by
 setting the `branches-path` or `tags-path` to `false`.
 
-If the package is in a sub-directory, e.g. `/trunk/foo/bar/composer.json` and
+If the package is in a subdirectory, e.g. `/trunk/foo/bar/composer.json` and
 `/tags/1.0/foo/bar/composer.json`, then you can make Composer access it by
 setting the `"package-path"` option to the sub-directory, in this example it
 would be `"package-path": "foo/bar/"`.
@@ -633,6 +755,31 @@ variables are parsed in both Windows and Linux/Mac notations. For example
 > **Note:** Repository paths can also contain wildcards like `*` and `?`.
 > For details, see the [PHP glob function](https://php.net/glob).
 
+You can configure the way the package's dist reference (which appears in
+the composer.lock file) is built.
+
+The following modes exist:
+- `none` - reference will be always null. This can help reduce lock file conflicts
+  in the lock file but reduces clarity as to when the last update happened and whether
+  the package is in the latest state.
+- `config` - reference is built based on a hash of the package's composer.json and repo config
+- `auto` (used by default) - reference is built basing on the hash like with `config`, but if
+  the package folder contains a git repository, the HEAD commit's hash is used as reference instead.
+
+```json
+{
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../../packages/my-package",
+            "options": {
+                "reference": "config"
+            }
+        }
+    ]
+}
+```
+
 ## Disabling Packagist.org
 
 You can disable the default Packagist.org repository by adding this to your
@@ -651,7 +798,7 @@ You can disable the default Packagist.org repository by adding this to your
 You can disable Packagist.org globally by using the global config flag:
 
 ```bash
-composer config -g repo.packagist false
+php composer.phar config -g repo.packagist false
 ```
 
 &larr; [Schema](04-schema.md)  |  [Config](06-config.md) &rarr;

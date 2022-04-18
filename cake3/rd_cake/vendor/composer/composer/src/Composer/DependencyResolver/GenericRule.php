@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -12,20 +12,16 @@
 
 namespace Composer\DependencyResolver;
 
-use Composer\Package\BasePackage;
-use Composer\Package\Link;
-
 /**
  * @author Nils Adermann <naderman@naderman.de>
  */
 class GenericRule extends Rule
 {
+    /** @var int[] */
     protected $literals;
 
     /**
-     * @param array                     $literals
-     * @param int|null                  $reason     A RULE_* constant describing the reason for generating this rule
-     * @param Link|BasePackage|int|null $reasonData
+     * @param int[] $literals
      */
     public function __construct(array $literals, $reason, $reasonData)
     {
@@ -37,11 +33,17 @@ class GenericRule extends Rule
         $this->literals = $literals;
     }
 
-    public function getLiterals()
+    /**
+     * @return int[]
+     */
+    public function getLiterals(): array
     {
         return $this->literals;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function getHash()
     {
         $data = unpack('ihash', md5(implode(',', $this->literals), true));
@@ -57,12 +59,15 @@ class GenericRule extends Rule
      * @param  Rule $rule The rule to check against
      * @return bool Whether the rules are equal
      */
-    public function equals(Rule $rule)
+    public function equals(Rule $rule): bool
     {
         return $this->literals === $rule->getLiterals();
     }
 
-    public function isAssertion()
+    /**
+     * @return bool
+     */
+    public function isAssertion(): bool
     {
         return 1 === \count($this->literals);
     }
@@ -72,7 +77,7 @@ class GenericRule extends Rule
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $result = $this->isDisabled() ? 'disabled(' : '(';
 

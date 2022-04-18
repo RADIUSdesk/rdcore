@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -23,6 +23,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class DumpAutoloadCommand extends BaseCommand
 {
+    /**
+     * @return void
+     */
     protected function configure()
     {
         $this
@@ -30,7 +33,6 @@ class DumpAutoloadCommand extends BaseCommand
             ->setAliases(array('dumpautoload'))
             ->setDescription('Dumps the autoloader.')
             ->setDefinition(array(
-                new InputOption('no-scripts', null, InputOption::VALUE_NONE, 'Skips the execution of all scripts defined in composer.json file.'),
                 new InputOption('optimize', 'o', InputOption::VALUE_NONE, 'Optimizes PSR0 and PSR4 packages to be loaded with classmaps too, good for production.'),
                 new InputOption('classmap-authoritative', 'a', InputOption::VALUE_NONE, 'Autoload classes from the classmap only. Implicitly enables `--optimize`.'),
                 new InputOption('apcu', null, InputOption::VALUE_NONE, 'Use APCu to cache found/not-found classes.'),
@@ -52,8 +54,7 @@ EOT
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $composer = $this->getComposer();
-        $composer->getEventDispatcher()->setRunScripts(!$input->getOption('no-scripts'));
+        $composer = $this->requireComposer();
 
         $commandEvent = new CommandEvent(PluginEvents::COMMAND, 'dump-autoload', $input, $output);
         $composer->getEventDispatcher()->dispatch($commandEvent->getName(), $commandEvent);
@@ -76,8 +77,6 @@ EOT
             $this->getIO()->write('<info>Generating autoload files</info>');
         }
 
-        $ignorePlatformReqs = $input->getOption('ignore-platform-reqs') ?: ($input->getOption('ignore-platform-req') ?: false);
-
         $generator = $composer->getAutoloadGenerator();
         if ($input->getOption('no-dev')) {
             $generator->setDevMode(false);
@@ -91,7 +90,7 @@ EOT
         $generator->setClassMapAuthoritative($authoritative);
         $generator->setRunScripts(true);
         $generator->setApcu($apcu, $apcuPrefix);
-        $generator->setIgnorePlatformRequirements($ignorePlatformReqs);
+        $generator->setPlatformRequirementFilter($this->getPlatformRequirementFilter($input));
         $numberOfClasses = $generator->dump($config, $localRepo, $package, $installationManager, 'composer', $optimize);
 
         if ($authoritative) {

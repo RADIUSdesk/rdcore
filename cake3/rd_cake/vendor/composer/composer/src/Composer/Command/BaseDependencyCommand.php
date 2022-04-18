@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -14,6 +14,7 @@ namespace Composer\Command;
 
 use Composer\Package\Link;
 use Composer\Package\PackageInterface;
+use Composer\Package\CompletePackageInterface;
 use Composer\Package\RootPackage;
 use Composer\Repository\InstalledArrayRepository;
 use Composer\Repository\CompositeRepository;
@@ -33,27 +34,26 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author Niels Keurentjes <niels.keurentjes@omines.com>
  */
-class BaseDependencyCommand extends BaseCommand
+abstract class BaseDependencyCommand extends BaseCommand
 {
-    const ARGUMENT_PACKAGE = 'package';
-    const ARGUMENT_CONSTRAINT = 'version';
-    const OPTION_RECURSIVE = 'recursive';
-    const OPTION_TREE = 'tree';
+    protected const ARGUMENT_PACKAGE = 'package';
+    protected const ARGUMENT_CONSTRAINT = 'version';
+    protected const OPTION_RECURSIVE = 'recursive';
+    protected const OPTION_TREE = 'tree';
 
+    /** @var ?string[] */
     protected $colors;
 
     /**
      * Execute the command.
      *
-     * @param  InputInterface  $input
-     * @param  OutputInterface $output
      * @param  bool            $inverted Whether to invert matching process (why-not vs why behaviour)
      * @return int             Exit code of the operation.
      */
-    protected function doExecute(InputInterface $input, OutputInterface $output, $inverted = false)
+    protected function doExecute(InputInterface $input, OutputInterface $output, bool $inverted = false): int
     {
         // Emit command event on startup
-        $composer = $this->getComposer();
+        $composer = $this->requireComposer();
         $commandEvent = new CommandEvent(PluginEvents::COMMAND, $this->getName(), $input, $output);
         $composer->getEventDispatcher()->dispatch($commandEvent->getName(), $commandEvent);
 
@@ -90,7 +90,7 @@ class BaseDependencyCommand extends BaseCommand
         $needles = array($needle);
         if ($inverted) {
             foreach ($packages as $package) {
-                $needles = array_merge($needles, array_map(function (Link $link) {
+                $needles = array_merge($needles, array_map(function (Link $link): string {
                     return $link->getTarget();
                 }, $package->getReplaces()));
             }
@@ -120,7 +120,7 @@ class BaseDependencyCommand extends BaseCommand
         } elseif ($renderTree) {
             $this->initStyles($output);
             $root = $packages[0];
-            $this->getIO()->write(sprintf('<info>%s</info> %s %s', $root->getPrettyName(), $root->getPrettyVersion(), $root->getDescription()));
+            $this->getIO()->write(sprintf('<info>%s</info> %s %s', $root->getPrettyName(), $root->getPrettyVersion(), $root instanceof CompletePackageInterface ? $root->getDescription() : ''));
             $this->printTree($results);
         } else {
             $this->printTable($output, $results);
@@ -132,10 +132,11 @@ class BaseDependencyCommand extends BaseCommand
     /**
      * Assembles and prints a bottom-up table of the dependencies.
      *
-     * @param OutputInterface $output
-     * @param array           $results
+     * @param array{PackageInterface, Link, mixed}[] $results
+     *
+     * @return void
      */
-    protected function printTable(OutputInterface $output, $results)
+    protected function printTable(OutputInterface $output, $results): void
     {
         $table = array();
         $doubles = array();
@@ -169,9 +170,9 @@ class BaseDependencyCommand extends BaseCommand
     /**
      * Init styles for tree
      *
-     * @param OutputInterface $output
+     * @return void
      */
-    protected function initStyles(OutputInterface $output)
+    protected function initStyles(OutputInterface $output): void
     {
         $this->colors = array(
             'green',
@@ -190,20 +191,17 @@ class BaseDependencyCommand extends BaseCommand
     /**
      * Recursively prints a tree of the selected results.
      *
-     * @param array  $results Results to be printed at this level.
-     * @param string $prefix  Prefix of the current tree level.
-     * @param int    $level   Current level of recursion.
+     * @param array{PackageInterface, Link, mixed[]|bool}[] $results Results to be printed at this level.
+     * @param string  $prefix  Prefix of the current tree level.
+     * @param int     $level   Current level of recursion.
+     *
+     * @return void
      */
-    protected function printTree($results, $prefix = '', $level = 1)
+    protected function printTree(array $results, string $prefix = '', int $level = 1): void
     {
         $count = count($results);
         $idx = 0;
         foreach ($results as $result) {
-            /**
-             * @var PackageInterface $package
-             * @var Link             $link
-             * @var array|bool       $children
-             */
             list($package, $link, $children) = $result;
 
             $color = $this->colors[$level % count($this->colors)];
@@ -220,7 +218,12 @@ class BaseDependencyCommand extends BaseCommand
         }
     }
 
-    private function writeTreeLine($line)
+    /**
+     * @param string $line
+     *
+     * @return void
+     */
+    private function writeTreeLine(string $line): void
     {
         $io = $this->getIO();
         if (!$io->isDecorated()) {

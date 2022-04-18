@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -29,6 +29,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class InstallCommand extends BaseCommand
 {
+    /**
+     * @return void
+     */
     protected function configure()
     {
         $this
@@ -44,7 +47,6 @@ class InstallCommand extends BaseCommand
                 new InputOption('no-suggest', null, InputOption::VALUE_NONE, 'DEPRECATED: This flag does not exist anymore.'),
                 new InputOption('no-dev', null, InputOption::VALUE_NONE, 'Disables installation of require-dev packages.'),
                 new InputOption('no-autoloader', null, InputOption::VALUE_NONE, 'Skips autoloader generation'),
-                new InputOption('no-scripts', null, InputOption::VALUE_NONE, 'Skips the execution of all scripts defined in composer.json file.'),
                 new InputOption('no-progress', null, InputOption::VALUE_NONE, 'Do not output download progress.'),
                 new InputOption('no-install', null, InputOption::VALUE_NONE, 'Do not use, only defined here to catch misuse of the install command.'),
                 new InputOption('verbose', 'v|vv|vvv', InputOption::VALUE_NONE, 'Shows more details including new commits pulled in when updating packages.'),
@@ -81,7 +83,8 @@ EOT
             $io->writeError('<warning>You are using the deprecated option "--no-suggest". It has no effect and will break in Composer 3.</warning>');
         }
 
-        if ($args = $input->getArgument('packages')) {
+        $args = $input->getArgument('packages');
+        if (count($args) > 0) {
             $io->writeError('<error>Invalid argument '.implode(' ', $args).'. Use "composer require '.implode(' ', $args).'" instead to add packages to your composer.json.</error>');
 
             return 1;
@@ -93,10 +96,9 @@ EOT
             return 1;
         }
 
-        $composer = $this->getComposer(true, $input->getOption('no-plugins'));
-        $composer->getEventDispatcher()->setRunScripts(!$input->getOption('no-scripts'));
+        $composer = $this->requireComposer();
 
-        if ((!$composer->getLocker() || !$composer->getLocker()->isLocked()) && !HttpDownloader::isCurlEnabled()) {
+        if (!$composer->getLocker()->isLocked() && !HttpDownloader::isCurlEnabled()) {
             $io->writeError('<warning>Composer is operating significantly slower than normal because you do not have the PHP curl extension enabled.</warning>');
         }
 
@@ -113,8 +115,6 @@ EOT
         $apcuPrefix = $input->getOption('apcu-autoloader-prefix');
         $apcu = $apcuPrefix !== null || $input->getOption('apcu-autoloader') || $config->get('apcu-autoloader');
 
-        $ignorePlatformReqs = $input->getOption('ignore-platform-reqs') ?: ($input->getOption('ignore-platform-req') ?: false);
-
         $composer->getInstallationManager()->setOutputProgress(!$input->getOption('no-progress'));
 
         $install
@@ -127,7 +127,7 @@ EOT
             ->setOptimizeAutoloader($optimize)
             ->setClassMapAuthoritative($authoritative)
             ->setApcuAutoloader($apcu, $apcuPrefix)
-            ->setIgnorePlatformRequirements($ignorePlatformReqs)
+            ->setPlatformRequirementFilter($this->getPlatformRequirementFilter($input))
         ;
 
         if ($input->getOption('no-plugins')) {

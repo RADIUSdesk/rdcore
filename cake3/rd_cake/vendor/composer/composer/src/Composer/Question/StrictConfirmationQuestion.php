@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -12,6 +12,7 @@
 
 namespace Composer\Question;
 
+use Composer\Pcre\Preg;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Question\Question;
 
@@ -24,7 +25,9 @@ use Symfony\Component\Console\Question\Question;
  */
 class StrictConfirmationQuestion extends Question
 {
+    /** @var non-empty-string */
     private $trueAnswerRegex;
+    /** @var non-empty-string */
     private $falseAnswerRegex;
 
     /**
@@ -32,10 +35,10 @@ class StrictConfirmationQuestion extends Question
      *
      * @param string $question         The question to ask to the user
      * @param bool   $default          The default answer to return, true or false
-     * @param string $trueAnswerRegex  A regex to match the "yes" answer
-     * @param string $falseAnswerRegex A regex to match the "no" answer
+     * @param non-empty-string $trueAnswerRegex  A regex to match the "yes" answer
+     * @param non-empty-string $falseAnswerRegex A regex to match the "no" answer
      */
-    public function __construct($question, $default = true, $trueAnswerRegex = '/^y(?:es)?$/i', $falseAnswerRegex = '/^no?$/i')
+    public function __construct(string $question, bool $default = true, string $trueAnswerRegex = '/^y(?:es)?$/i', string $falseAnswerRegex = '/^no?$/i')
     {
         parent::__construct($question, (bool) $default);
 
@@ -50,7 +53,7 @@ class StrictConfirmationQuestion extends Question
      *
      * @return callable
      */
-    private function getDefaultNormalizer()
+    private function getDefaultNormalizer(): callable
     {
         $default = $this->getDefault();
         $trueRegex = $this->trueAnswerRegex;
@@ -64,11 +67,11 @@ class StrictConfirmationQuestion extends Question
                 return $default;
             }
 
-            if (preg_match($trueRegex, $answer)) {
+            if (Preg::isMatch($trueRegex, $answer)) {
                 return true;
             }
 
-            if (preg_match($falseRegex, $answer)) {
+            if (Preg::isMatch($falseRegex, $answer)) {
                 return false;
             }
 
@@ -81,9 +84,9 @@ class StrictConfirmationQuestion extends Question
      *
      * @return callable
      */
-    private function getDefaultValidator()
+    private function getDefaultValidator(): callable
     {
-        return function ($answer) {
+        return function ($answer): bool {
             if (!is_bool($answer)) {
                 throw new InvalidArgumentException('Please answer yes, y, no, or n.');
             }

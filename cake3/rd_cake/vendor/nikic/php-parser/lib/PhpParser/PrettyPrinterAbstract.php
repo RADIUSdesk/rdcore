@@ -824,7 +824,11 @@ abstract class PrettyPrinterAbstract
                     return null;
                 }
 
-                if ($insertStr === ', ' && $this->isMultiline($origNodes)) {
+                // We go multiline if the original code was multiline,
+                // or if it's an array item with a comment above it.
+                if ($insertStr === ', ' &&
+                    ($this->isMultiline($origNodes) || $arrItem->getComments())
+                ) {
                     $insertStr = ',';
                     $insertNewline = true;
                 }
@@ -842,11 +846,11 @@ abstract class PrettyPrinterAbstract
                 $this->setIndentLevel($lastElemIndentLevel);
 
                 if ($insertNewline) {
+                    $result .= $insertStr . $this->nl;
                     $comments = $arrItem->getComments();
                     if ($comments) {
-                        $result .= $this->nl . $this->pComments($comments);
+                        $result .= $this->pComments($comments) . $this->nl;
                     }
-                    $result .= $insertStr . $this->nl;
                 } else {
                     $result .= $insertStr;
                 }
@@ -1074,7 +1078,8 @@ abstract class PrettyPrinterAbstract
              . ($modifiers & Stmt\Class_::MODIFIER_PRIVATE   ? 'private '   : '')
              . ($modifiers & Stmt\Class_::MODIFIER_STATIC    ? 'static '    : '')
              . ($modifiers & Stmt\Class_::MODIFIER_ABSTRACT  ? 'abstract '  : '')
-             . ($modifiers & Stmt\Class_::MODIFIER_FINAL     ? 'final '     : '');
+             . ($modifiers & Stmt\Class_::MODIFIER_FINAL     ? 'final '     : '')
+             . ($modifiers & Stmt\Class_::MODIFIER_READONLY  ? 'readonly '  : '');
     }
 
     /**
@@ -1123,7 +1128,8 @@ abstract class PrettyPrinterAbstract
         for ($i = 0; $i < 256; $i++) {
             // Since PHP 7.1 The lower range is 0x80. However, we also want to support code for
             // older versions.
-            $this->labelCharMap[chr($i)] = $i >= 0x7f || ctype_alnum($i);
+            $chr = chr($i);
+            $this->labelCharMap[$chr] = $i >= 0x7f || ctype_alnum($chr);
         }
     }
 
@@ -1341,6 +1347,7 @@ abstract class PrettyPrinterAbstract
             //'Scalar_Encapsed->parts' => '',
             'Stmt_Catch->types' => '|',
             'UnionType->types' => '|',
+            'IntersectionType->types' => '&',
             'Stmt_If->elseifs' => ' ',
             'Stmt_TryCatch->catches' => ' ',
 

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -29,9 +29,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class HomeCommand extends BaseCommand
 {
     /**
-     * {@inheritDoc}
+     * @inheritDoc
+     *
+     * @return void
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setName('browse')
@@ -55,19 +57,16 @@ EOT
             );
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $repos = $this->initializeRepos();
         $io = $this->getIO();
         $return = 0;
 
         $packages = $input->getArgument('packages');
-        if (!$packages) {
+        if (count($packages) === 0) {
             $io->writeError('No package specified, opening homepage for the root package');
-            $packages = array($this->getComposer()->getPackage()->getName());
+            $packages = array($this->requireComposer()->getPackage()->getName());
         }
 
         foreach ($packages as $packageName) {
@@ -97,10 +96,15 @@ EOT
         return $return;
     }
 
-    private function handlePackage(CompletePackageInterface $package, $showHomepage, $showOnly)
+    /**
+     * @param bool $showHomepage
+     * @param bool $showOnly
+     * @return bool
+     */
+    private function handlePackage(CompletePackageInterface $package, bool $showHomepage, bool $showOnly): bool
     {
         $support = $package->getSupport();
-        $url = isset($support['source']) ? $support['source'] : $package->getSourceUrl();
+        $url = $support['source'] ?? $package->getSourceUrl();
         if (!$url || $showHomepage) {
             $url = $package->getHomepage();
         }
@@ -122,14 +126,17 @@ EOT
      * opens a url in your system default browser
      *
      * @param string $url
+     * @return void
      */
-    private function openBrowser($url)
+    private function openBrowser(string $url): void
     {
         $url = ProcessExecutor::escape($url);
 
         $process = new ProcessExecutor($this->getIO());
         if (Platform::isWindows()) {
-            return $process->execute('start "web" explorer "' . $url . '"', $output);
+            $process->execute('start "web" explorer ' . $url, $output);
+
+            return;
         }
 
         $linux = $process->execute('which xdg-open', $output);
@@ -151,9 +158,9 @@ EOT
      *
      * @return RepositoryInterface[]
      */
-    private function initializeRepos()
+    private function initializeRepos(): array
     {
-        $composer = $this->getComposer(false);
+        $composer = $this->tryComposer();
 
         if ($composer) {
             return array_merge(

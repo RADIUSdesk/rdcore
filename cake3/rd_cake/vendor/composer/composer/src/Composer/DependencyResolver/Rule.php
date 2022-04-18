@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -12,42 +12,52 @@
 
 namespace Composer\DependencyResolver;
 
-use Composer\Package\Link;
-use Composer\Package\BasePackage;
 use Composer\Package\AliasPackage;
-use Composer\Repository\RepositorySet;
+use Composer\Package\BasePackage;
+use Composer\Package\Link;
 use Composer\Repository\PlatformRepository;
+use Composer\Repository\RepositorySet;
 use Composer\Package\Version\VersionParser;
 use Composer\Semver\Constraint\Constraint;
+use Composer\Semver\Constraint\ConstraintInterface;
 
 /**
  * @author Nils Adermann <naderman@naderman.de>
  * @author Ruben Gonzalez <rubenrua@gmail.com>
+ * @phpstan-type ReasonData Link|BasePackage|string|int|array{packageName: string, constraint: ConstraintInterface}|array{package: BasePackage}
  */
 abstract class Rule
 {
-    // reason constants
-    const RULE_ROOT_REQUIRE = 2;
-    const RULE_FIXED = 3;
-    const RULE_PACKAGE_CONFLICT = 6;
-    const RULE_PACKAGE_REQUIRES = 7;
-    const RULE_PACKAGE_SAME_NAME = 10;
-    const RULE_LEARNED = 12;
-    const RULE_PACKAGE_ALIAS = 13;
-    const RULE_PACKAGE_INVERSE_ALIAS = 14;
+    // reason constants and // their reason data contents
+    public const RULE_ROOT_REQUIRE = 2; // array{packageName: string, constraint: ConstraintInterface}
+    public const RULE_FIXED = 3; // array{package: BasePackage}
+    public const RULE_PACKAGE_CONFLICT = 6; // Link
+    public const RULE_PACKAGE_REQUIRES = 7; // Link
+    public const RULE_PACKAGE_SAME_NAME = 10; // string (package name)
+    public const RULE_LEARNED = 12; // int (rule id)
+    public const RULE_PACKAGE_ALIAS = 13; // BasePackage
+    public const RULE_PACKAGE_INVERSE_ALIAS = 14; // BasePackage
 
     // bitfield defs
-    const BITFIELD_TYPE = 0;
-    const BITFIELD_REASON = 8;
-    const BITFIELD_DISABLED = 16;
+    private const BITFIELD_TYPE = 0;
+    private const BITFIELD_REASON = 8;
+    private const BITFIELD_DISABLED = 16;
 
+    /** @var int */
     protected $bitfield;
+    /** @var Request */
     protected $request;
+    /**
+     * @var Link|BasePackage|ConstraintInterface|string
+     * @phpstan-var ReasonData
+     */
     protected $reasonData;
 
     /**
-     * @param int              $reason     A RULE_* constant describing the reason for generating this rule
-     * @param Link|BasePackage $reasonData
+     * @param self::RULE_* $reason     A RULE_* constant describing the reason for generating this rule
+     * @param mixed        $reasonData
+     *
+     * @phpstan-param ReasonData $reasonData
      */
     public function __construct($reason, $reasonData)
     {
@@ -58,25 +68,44 @@ abstract class Rule
             (255 << self::BITFIELD_TYPE);
     }
 
-    abstract public function getLiterals();
+    /**
+     * @return int[]
+     */
+    abstract public function getLiterals(): array;
 
+    /**
+     * @return int|string
+     */
     abstract public function getHash();
 
-    abstract public function __toString();
+    abstract public function __toString(): string;
 
-    abstract public function equals(Rule $rule);
+    /**
+     * @param Rule $rule
+     * @return bool
+     */
+    abstract public function equals(Rule $rule): bool;
 
-    public function getReason()
+    /**
+     * @return int
+     */
+    public function getReason(): int
     {
         return ($this->bitfield & (255 << self::BITFIELD_REASON)) >> self::BITFIELD_REASON;
     }
 
+    /**
+     * @phpstan-return ReasonData
+     */
     public function getReasonData()
     {
         return $this->reasonData;
     }
 
-    public function getRequiredPackage()
+    /**
+     * @return string|null
+     */
+    public function getRequiredPackage(): ?string
     {
         $reason = $this->getReason();
 
@@ -91,41 +120,68 @@ abstract class Rule
         if ($reason === self::RULE_PACKAGE_REQUIRES) {
             return $this->reasonData->getTarget();
         }
+
+        return null;
     }
 
-    public function setType($type)
+    /**
+     * @param RuleSet::TYPE_* $type
+     * @return void
+     */
+    public function setType($type): void
     {
         $this->bitfield = ($this->bitfield & ~(255 << self::BITFIELD_TYPE)) | ((255 & $type) << self::BITFIELD_TYPE);
     }
 
-    public function getType()
+    /**
+     * @return int
+     */
+    public function getType(): int
     {
         return ($this->bitfield & (255 << self::BITFIELD_TYPE)) >> self::BITFIELD_TYPE;
     }
 
-    public function disable()
+    /**
+     * @return void
+     */
+    public function disable(): void
     {
         $this->bitfield = ($this->bitfield & ~(255 << self::BITFIELD_DISABLED)) | (1 << self::BITFIELD_DISABLED);
     }
 
-    public function enable()
+    /**
+     * @return void
+     */
+    public function enable(): void
     {
         $this->bitfield &= ~(255 << self::BITFIELD_DISABLED);
     }
 
-    public function isDisabled()
+    /**
+     * @return bool
+     */
+    public function isDisabled(): bool
     {
         return (bool) (($this->bitfield & (255 << self::BITFIELD_DISABLED)) >> self::BITFIELD_DISABLED);
     }
 
-    public function isEnabled()
+    /**
+     * @return bool
+     */
+    public function isEnabled(): bool
     {
         return !(($this->bitfield & (255 << self::BITFIELD_DISABLED)) >> self::BITFIELD_DISABLED);
     }
 
-    abstract public function isAssertion();
+    /**
+     * @return bool
+     */
+    abstract public function isAssertion(): bool;
 
-    public function isCausedByLock(RepositorySet $repositorySet, Request $request, Pool $pool)
+    /**
+     * @return bool
+     */
+    public function isCausedByLock(RepositorySet $repositorySet, Request $request, Pool $pool): bool
     {
         if ($this->getReason() === self::RULE_PACKAGE_REQUIRES) {
             if (PlatformRepository::isPlatformPackage($this->reasonData->getTarget())) {
@@ -172,7 +228,46 @@ abstract class Rule
         return false;
     }
 
-    public function getPrettyString(RepositorySet $repositorySet, Request $request, Pool $pool, $isVerbose, array $installedMap = array(), array $learnedPool = array())
+    /**
+     * @internal
+     * @return BasePackage
+     */
+    public function getSourcePackage(Pool $pool): BasePackage
+    {
+        $literals = $this->getLiterals();
+
+        switch ($this->getReason()) {
+            case self::RULE_PACKAGE_CONFLICT:
+                $package1 = $this->deduplicateDefaultBranchAlias($pool->literalToPackage($literals[0]));
+                $package2 = $this->deduplicateDefaultBranchAlias($pool->literalToPackage($literals[1]));
+
+                if ($reasonData = $this->getReasonData()) {
+                    // swap literals if they are not in the right order with package2 being the conflicter
+                    if ($reasonData->getSource() === $package1->getName()) {
+                        list($package2, $package1) = array($package1, $package2);
+                    }
+                }
+
+                return $package2;
+
+            case self::RULE_PACKAGE_REQUIRES:
+                $sourceLiteral = array_shift($literals);
+                $sourcePackage = $this->deduplicateDefaultBranchAlias($pool->literalToPackage($sourceLiteral));
+
+                return $sourcePackage;
+
+            default:
+                throw new \LogicException('Not implemented');
+        }
+    }
+
+    /**
+     * @param bool $isVerbose
+     * @param BasePackage[] $installedMap
+     * @param array<Rule[]> $learnedPool
+     * @return string
+     */
+    public function getPrettyString(RepositorySet $repositorySet, Request $request, Pool $pool, bool $isVerbose, array $installedMap = array(), array $learnedPool = array()): string
     {
         $literals = $this->getLiterals();
 
@@ -186,7 +281,7 @@ abstract class Rule
                     return 'No package found to satisfy root composer.json require '.$packageName.($constraint ? ' '.$constraint->getPrettyString() : '');
                 }
 
-                $packagesNonAlias = array_values(array_filter($packages, function ($p) {
+                $packagesNonAlias = array_values(array_filter($packages, function ($p): bool {
                     return !($p instanceof AliasPackage);
                 }));
                 if (count($packagesNonAlias) === 1) {
@@ -196,7 +291,7 @@ abstract class Rule
                     }
                 }
 
-                return 'Root composer.json requires '.$packageName.($constraint ? ' '.$constraint->getPrettyString() : '').' -> satisfiable by '.$this->formatPackagesUnique($pool, $packages, $isVerbose).'.';
+                return 'Root composer.json requires '.$packageName.($constraint ? ' '.$constraint->getPrettyString() : '').' -> satisfiable by '.$this->formatPackagesUnique($pool, $packages, $isVerbose, $constraint).'.';
 
             case self::RULE_FIXED:
                 $package = $this->deduplicateDefaultBranchAlias($this->reasonData['package']);
@@ -213,9 +308,12 @@ abstract class Rule
 
                 $conflictTarget = $package1->getPrettyString();
                 if ($reasonData = $this->getReasonData()) {
+                    assert($reasonData instanceof Link);
+
                     // swap literals if they are not in the right order with package2 being the conflicter
                     if ($reasonData->getSource() === $package1->getName()) {
                         list($package2, $package1) = array($package1, $package2);
+                        $conflictTarget = $package1->getPrettyName().' '.$reasonData->getPrettyConstraint();
                     }
 
                     // if the conflict is not directly against the package but something it provides/replaces,
@@ -248,17 +346,19 @@ abstract class Rule
             case self::RULE_PACKAGE_REQUIRES:
                 $sourceLiteral = array_shift($literals);
                 $sourcePackage = $this->deduplicateDefaultBranchAlias($pool->literalToPackage($sourceLiteral));
+                /** @var Link */
+                $reasonData = $this->reasonData;
 
                 $requires = array();
                 foreach ($literals as $literal) {
                     $requires[] = $pool->literalToPackage($literal);
                 }
 
-                $text = $this->reasonData->getPrettyString($sourcePackage);
+                $text = $reasonData->getPrettyString($sourcePackage);
                 if ($requires) {
-                    $text .= ' -> satisfiable by ' . $this->formatPackagesUnique($pool, $requires, $isVerbose) . '.';
+                    $text .= ' -> satisfiable by ' . $this->formatPackagesUnique($pool, $requires, $isVerbose, $this->reasonData->getConstraint()) . '.';
                 } else {
-                    $targetName = $this->reasonData->getTarget();
+                    $targetName = $reasonData->getTarget();
 
                     $reason = Problem::getMissingPackageReason($repositorySet, $request, $pool, $isVerbose, $targetName, $this->reasonData->getConstraint());
 
@@ -273,6 +373,7 @@ abstract class Rule
                     $package = $pool->literalToPackage($literal);
                     $packageNames[$package->getName()] = true;
                 }
+                /** @var string $replacedName */
                 $replacedName = $this->reasonData;
 
                 if (count($packageNames) > 1) {
@@ -304,13 +405,13 @@ abstract class Rule
                     }
 
                     if ($installedPackages && $removablePackages) {
-                        return $this->formatPackagesUnique($pool, $removablePackages, $isVerbose).' cannot be installed as that would require removing '.$this->formatPackagesUnique($pool, $installedPackages, $isVerbose).'. '.$reason;
+                        return $this->formatPackagesUnique($pool, $removablePackages, $isVerbose, null, true).' cannot be installed as that would require removing '.$this->formatPackagesUnique($pool, $installedPackages, $isVerbose, null, true).'. '.$reason;
                     }
 
-                    return 'Only one of these can be installed: '.$this->formatPackagesUnique($pool, $literals, $isVerbose).'. '.$reason;
+                    return 'Only one of these can be installed: '.$this->formatPackagesUnique($pool, $literals, $isVerbose, null, true).'. '.$reason;
                 }
 
-                return 'You can only install one version of a package, so only one of these can be installed: ' . $this->formatPackagesUnique($pool, $literals, $isVerbose) . '.';
+                return 'You can only install one version of a package, so only one of these can be installed: ' . $this->formatPackagesUnique($pool, $literals, $isVerbose, null, true) . '.';
             case self::RULE_LEARNED:
                 /** @TODO currently still generates way too much output to be helpful, and in some cases can even lead to endless recursion */
                 // if (isset($learnedPool[$this->reasonData])) {
@@ -379,12 +480,12 @@ abstract class Rule
     }
 
     /**
-     * @param Pool  $pool
-     * @param array $packages
-     *
+     * @param array<int|BasePackage> $packages An array containing packages or literals
+     * @param bool $isVerbose
+     * @param bool $useRemovedVersionGroup
      * @return string
      */
-    protected function formatPackagesUnique($pool, array $packages, $isVerbose)
+    protected function formatPackagesUnique(Pool $pool, array $packages, bool $isVerbose, ConstraintInterface $constraint = null, bool $useRemovedVersionGroup = false): string
     {
         foreach ($packages as $index => $package) {
             if (!\is_object($package)) {
@@ -392,10 +493,13 @@ abstract class Rule
             }
         }
 
-        return Problem::getPackageList($packages, $isVerbose);
+        return Problem::getPackageList($packages, $isVerbose, $pool, $constraint, $useRemovedVersionGroup);
     }
 
-    private function deduplicateDefaultBranchAlias(BasePackage $package)
+    /**
+     * @return BasePackage
+     */
+    private function deduplicateDefaultBranchAlias(BasePackage $package): BasePackage
     {
         if ($package instanceof AliasPackage && $package->getPrettyVersion() === VersionParser::DEFAULT_BRANCH_ALIAS) {
             $package = $package->getAliasOf();

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -22,18 +22,23 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class ScriptAliasCommand extends BaseCommand
 {
+    /** @var string */
     private $script;
+    /** @var string */
     private $description;
 
-    public function __construct($script, $description)
+    public function __construct(string $script, ?string $description)
     {
         $this->script = $script;
-        $this->description = empty($description) ? 'Runs the '.$script.' script as defined in composer.json.' : $description;
+        $this->description = $description ?? 'Runs the '.$script.' script as defined in composer.json.';
 
         parent::__construct();
     }
 
-    protected function configure()
+    /**
+     * @return void
+     */
+    protected function configure(): void
     {
         $this
             ->setName($this->script)
@@ -55,9 +60,9 @@ EOT
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $composer = $this->getComposer();
+        $composer = $this->requireComposer();
 
         $args = $input->getArguments();
 

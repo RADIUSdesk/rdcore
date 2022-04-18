@@ -86,6 +86,15 @@ class NameResolver extends NodeVisitorAbstract
 
             $this->resolveAttrGroups($node);
             $this->addNamespacedName($node);
+         } elseif ($node instanceof Stmt\Enum_) {
+            foreach ($node->implements as &$interface) {
+                $interface = $this->resolveClassName($interface);
+            }
+
+            $this->resolveAttrGroups($node);
+            if (null !== $node->name) {
+                $this->addNamespacedName($node);
+            }
         } elseif ($node instanceof Stmt\Trait_) {
             $this->resolveAttrGroups($node);
             $this->addNamespacedName($node);
@@ -109,6 +118,8 @@ class NameResolver extends NodeVisitorAbstract
                 $this->addNamespacedName($const);
             }
         } else if ($node instanceof Stmt\ClassConst) {
+            $this->resolveAttrGroups($node);
+        } else if ($node instanceof Stmt\EnumCase) {
             $this->resolveAttrGroups($node);
         } elseif ($node instanceof Expr\StaticCall
                   || $node instanceof Expr\StaticPropertyFetch
@@ -178,7 +189,7 @@ class NameResolver extends NodeVisitorAbstract
             $node->type = $this->resolveType($node->type);
             return $node;
         }
-        if ($node instanceof Node\UnionType) {
+        if ($node instanceof Node\UnionType || $node instanceof Node\IntersectionType) {
             foreach ($node->types as &$type) {
                 $type = $this->resolveType($type);
             }

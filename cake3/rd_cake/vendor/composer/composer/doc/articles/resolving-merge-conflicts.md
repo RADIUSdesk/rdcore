@@ -33,9 +33,9 @@ An example where we have two branches:
 To resolve the conflict when we merge these two branches:
 
 - We choose the branch that has the most changes, and accept the `composer.json` and `composer.lock`
-  files from that branch. In this case, we choose the composer files from branch 2.
+  files from that branch. In this case, we choose the Composer files from branch 2.
 - We reapply the changes from the other branch (branch 1). In this case we have to run
-  ```composer require package/A``` again.
+  `composer require package/A` again.
 
 ## 2. Validating your merged files
 
@@ -43,14 +43,14 @@ Before committing, make sure the resulting `composer.json` and `composer.lock` f
 To do this, run the following commands:
 
 ```sh
-composer validate
-composer install [--dry-run]
+php composer.phar validate
+php composer.phar install [--dry-run]
 ```
 
 ## Important considerations
 
-Keep in mind that whenever merge conflicts occur on the lock file, the information about the exact version
-new packages were locked on for one of the branches gets lost. When package A in branch 1 is constrained
+Keep in mind that whenever merge conflicts occur on the lock file, the information, about the exact version
+new packages were locked on for one of the branches, is lost. When package A in branch 1 is constrained
 as `^1.2.0` and locked as `1.2.0`, it might get updated when branch 2 is used as baseline and a new
 `composer require package/A:^1.2.0` is executed, as that will use the most recent version that the
 constraint allows when possible. There might be a version 1.3.0 for that package available by now, which

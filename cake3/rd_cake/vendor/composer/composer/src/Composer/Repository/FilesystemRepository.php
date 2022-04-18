@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 /*
  * This file is part of Composer.
@@ -19,6 +19,7 @@ use Composer\Package\AliasPackage;
 use Composer\Package\Dumper\ArrayDumper;
 use Composer\Installer\InstallationManager;
 use Composer\Util\Filesystem;
+use Composer\Util\Platform;
 
 /**
  * Filesystem repository.
@@ -28,9 +29,16 @@ use Composer\Util\Filesystem;
  */
 class FilesystemRepository extends WritableArrayRepository
 {
+    /** @var JsonFile */
     protected $file;
+    /** @var bool */
     private $dumpVersions;
+    /** @var ?RootPackageInterface */
     private $rootPackage;
+    /** @var Filesystem */
+    private $filesystem;
+    /** @var bool|null */
+    private $devMode = null;
 
     /**
      * Initializes filesystem repository.
@@ -39,15 +47,24 @@ class FilesystemRepository extends WritableArrayRepository
      * @param bool                  $dumpVersions
      * @param ?RootPackageInterface $rootPackage    Must be provided if $dumpVersions is true
      */
-    public function __construct(JsonFile $repositoryFile, $dumpVersions = false, RootPackageInterface $rootPackage = null)
+    public function __construct(JsonFile $repositoryFile, bool $dumpVersions = false, RootPackageInterface $rootPackage = null, Filesystem $filesystem = null)
     {
         parent::__construct();
         $this->file = $repositoryFile;
         $this->dumpVersions = $dumpVersions;
         $this->rootPackage = $rootPackage;
+        $this->filesystem = $filesystem ?: new Filesystem;
         if ($dumpVersions && !$rootPackage) {
             throw new \InvalidArgumentException('Expected a root package instance if $dumpVersions is true');
         }
+    }
+
+    /**
+     * @return bool|null true if dev requirements were installed, false if --no-dev was used, null if yet unknown
+     */
+    public function getDevMode()
+    {
+        return $this->devMode;
     }
 
     /**
@@ -71,6 +88,9 @@ class FilesystemRepository extends WritableArrayRepository
 
             if (isset($data['dev-package-names'])) {
                 $this->setDevPackageNames($data['dev-package-names']);
+            }
+            if (isset($data['dev'])) {
+                $this->devMode = $data['dev'];
             }
 
             if (!is_array($packages)) {
@@ -96,18 +116,28 @@ class FilesystemRepository extends WritableArrayRepository
     /**
      * Writes writable repository.
      */
-    public function write($devMode, InstallationManager $installationManager)
+    public function write(bool $devMode, InstallationManager $installationManager)
     {
         $data = array('packages' => array(), 'dev' => $devMode, 'dev-package-names' => array());
         $dumper = new ArrayDumper();
-        $fs = new Filesystem();
-        $repoDir = dirname($fs->normalizePath($this->file->getPath()));
+
+        // make sure the directory is created so we can realpath it
+        // as realpath() does some additional normalizations with network paths that normalizePath does not
+        // and we need to find shortest path correctly
+        $repoDir = dirname($this->file->getPath());
+        $this->filesystem->ensureDirectoryExists($repoDir);
+
+        $repoDir = $this->filesystem->normalizePath(realpath($repoDir));
         $installPaths = array();
 
         foreach ($this->getCanonicalPackages() as $package) {
             $pkgArray = $dumper->dump($package);
             $path = $installationManager->getInstallPath($package);
-            $installPath = ('' !== $path && null !== $path) ? $fs->findShortestPath($repoDir, $fs->isAbsolutePath($path) ? $path : getcwd() . '/' . $path, true) : null;
+            $installPath = null;
+            if ('' !== $path && null !== $path) {
+                $normalizedPath = $this->filesystem->normalizePath($this->filesystem->isAbsolutePath($path) ? $path : Platform::getCwd() . '/' . $path);
+                $installPath = $this->filesystem->findShortestPath($repoDir, $normalizedPath, true);
+            }
             $installPaths[$package->getName()] = $installPath;
 
             $pkgArray['install-path'] = $installPath;
@@ -121,7 +151,7 @@ class FilesystemRepository extends WritableArrayRepository
         }
 
         sort($data['dev-package-names']);
-        usort($data['packages'], function ($a, $b) {
+        usort($data['packages'], function ($a, $b): int {
             return strcmp($a['name'], $b['name']);
         });
 
@@ -130,15 +160,21 @@ class FilesystemRepository extends WritableArrayRepository
         if ($this->dumpVersions) {
             $versions = $this->generateInstalledVersions($installationManager, $installPaths, $devMode, $repoDir);
 
-            $fs->filePutContentsIfModified($repoDir.'/installed.php', '<?php return ' . $this->dumpToPhpCode($versions) . ';'."\n");
+            $this->filesystem->filePutContentsIfModified($repoDir.'/installed.php', '<?php return ' . $this->dumpToPhpCode($versions) . ';'."\n");
             $installedVersionsClass = file_get_contents(__DIR__.'/../InstalledVersions.php');
-            $fs->filePutContentsIfModified($repoDir.'/InstalledVersions.php', $installedVersionsClass);
+            $this->filesystem->filePutContentsIfModified($repoDir.'/InstalledVersions.php', $installedVersionsClass);
 
             \Composer\InstalledVersions::reload($versions);
         }
     }
 
-    private function dumpToPhpCode(array $array = array(), $level = 0)
+    /**
+     * @param array<mixed> $array
+     * @param int $level
+     *
+     * @return string
+     */
+    private function dumpToPhpCode(array $array = array(), int $level = 0): string
     {
         $lines = "array(\n";
         $level++;
@@ -154,8 +190,7 @@ class FilesystemRepository extends WritableArrayRepository
                     $lines .= "array(),\n";
                 }
             } elseif ($key === 'install_path' && is_string($value)) {
-                $fs = new Filesystem();
-                if ($fs->isAbsolutePath($value)) {
+                if ($this->filesystem->isAbsolutePath($value)) {
                     $lines .= var_export($value, true) . ",\n";
                 } else {
                     $lines .= "__DIR__ . " . var_export('/' . $value, true) . ",\n";
@@ -171,9 +206,13 @@ class FilesystemRepository extends WritableArrayRepository
     }
 
     /**
-     * @return ?array
+     * @param array<string, string> $installPaths
+     * @param bool $devMode
+     * @param string $repoDir
+     *
+     * @return ?array<mixed>
      */
-    private function generateInstalledVersions(InstallationManager $installationManager, array $installPaths, $devMode, $repoDir)
+    private function generateInstalledVersions(InstallationManager $installationManager, array $installPaths, bool $devMode, string $repoDir): ?array
     {
         if (!$this->dumpVersions) {
             return null;
@@ -203,9 +242,8 @@ class FilesystemRepository extends WritableArrayRepository
             }
 
             if ($package instanceof RootPackageInterface) {
-                $fs = new Filesystem();
-                $to = getcwd();
-                $installPath = $fs->findShortestPath($repoDir, $to, true);
+                $to = $this->filesystem->normalizePath(realpath(Platform::getCwd()));
+                $installPath = $this->filesystem->findShortestPath($repoDir, $to, true);
             } else {
                 $installPath = $installPaths[$package->getName()];
             }

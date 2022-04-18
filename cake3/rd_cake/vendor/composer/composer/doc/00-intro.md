@@ -33,9 +33,11 @@ dependencies.
 
 ## System Requirements
 
-Composer requires PHP 5.3.2+ to run. A few sensitive php settings and compile
-flags are also required, but when using the installer you will be warned about
-any incompatibilities.
+Composer in its latest version requires PHP 7.2.5 to run. A long-term-support
+version (2.2.x) still offers support for PHP 5.3.2+ in case you are stuck with
+a legacy PHP version. A few sensitive php settings and compile flags are also
+required, but when using the installer you will be warned about any
+incompatibilities.
 
 To install packages from sources instead of plain zip archives, you will need
 git, svn, fossil or hg depending on how the package is version-controlled.
@@ -49,11 +51,11 @@ Linux and macOS.
 
 Composer offers a convenient installer that you can execute directly from the
 command line. Feel free to [download this file](https://getcomposer.org/installer)
-or review it on [GitHub](https://github.com/composer/getcomposer.org/blob/master/web/installer)
+or review it on [GitHub](https://github.com/composer/getcomposer.org/blob/main/web/installer)
 if you wish to know more about the inner workings of the installer. The source
 is plain PHP.
 
-There are in short, two ways to install Composer. Locally as part of your
+There are, in short, two ways to install Composer. Locally as part of your
 project, or globally as a system wide executable.
 
 #### Locally
@@ -99,7 +101,7 @@ you can use `~/.local/bin` instead which is available by default on some
 Linux distributions.
 
 > **Note:** If the above fails due to permissions, you may need to run it again
-> with sudo.
+> with `sudo`.
 
 > **Note:** On some versions of macOS the `/usr` directory does not exist by
 > default. If you receive the error "/usr/local/bin/composer: No such file or

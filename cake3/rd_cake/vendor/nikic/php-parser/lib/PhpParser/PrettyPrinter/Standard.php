@@ -33,6 +33,10 @@ class Standard extends PrettyPrinterAbstract
              . $this->p($node->value);
     }
 
+    protected function pVariadicPlaceholder(Node\VariadicPlaceholder $node) {
+        return '...';
+    }
+
     protected function pConst(Node\Const_ $node) {
         return $node->name . ' = ' . $this->p($node->value);
     }
@@ -43,6 +47,10 @@ class Standard extends PrettyPrinterAbstract
 
     protected function pUnionType(Node\UnionType $node) {
         return $this->pImplode($node->types, '|');
+    }
+
+    protected function pIntersectionType(Node\IntersectionType $node) {
+        return $this->pImplode($node->types, '&');
     }
 
     protected function pIdentifier(Node\Identifier $node) {
@@ -730,6 +738,7 @@ class Standard extends PrettyPrinterAbstract
     protected function pStmt_Enum(Stmt\Enum_ $node) {
         return $this->pAttrGroups($node->attrGroups)
              . 'enum ' . $node->name
+             . ($node->scalarType ? " : $node->scalarType" : '')
              . (!empty($node->implements) ? ' implements ' . $this->pCommaSeparated($node->implements) : '')
              . $this->nl . '{' . $this->pStmts($node->stmts) . $this->nl . '}';
     }

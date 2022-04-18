@@ -3,7 +3,7 @@
  *
  * This file is part of the Aura Project for PHP.
  *
- * @package Aura.Intl
+ * @package aura/intl
  *
  * @license http://opensource.org/licenses/MIT MIT
  *
@@ -16,7 +16,7 @@ use Aura\Intl\Exception;
  *
  * A formatter name is not mapped in the locator.
  *
- * @package Aura.Intl
+ * @package aura/intl
  *
  */
 class FormatterNotMapped extends \Exception
