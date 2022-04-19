@@ -620,8 +620,163 @@ var sConnect = (function () {
                 onBtnClickSocialLoginChilli(a);
             }
         }
+        //==== END SOCIAL LOGIN ====
         
-        //_________ Social Login _________________
+        //=== SOCIAL MIKROTIK ===
+        var onBtnClickSocialLoginMt = function(a){
+            var me 		    = this;          
+		    socialName      = a
+            var userName    = cDynamicData.settings.social_login.temp_username; 
+            var password    = cDynamicData.settings.social_login.temp_password;  
+            var urlLogin    = getParameterByName('link_login_only');
+            
+            $.ajax({url: urlLogin + "?var=?", dataType: "jsonp",timeout: ajaxTimeout, data: {username: userName, password: password}})
+            .done(function(j){
+                socialTempLoginResultsMt(j);
+            })
+            .fail(function(){
+                //We will retry for retryCount
+                currentRetry = currentRetry+1;
+                if(currentRetry <= retryCount){
+                    onBtnClickSocialLoginMt(a);
+                }else{
+                    fShowError(i18n('sMT_Not_responding_to_login_requests'));
+                    loadingReset();
+                    currentRetry = 0;
+                }
+            });
+	    }
+                 
+	    var socialTempLoginResultsMt = function(j){
+
+            currentRetry = 0;    //Reset if there were retries
+            if(j.logged_in == 'no'){       
+                var msg = i18n('sAuthentication_failure_please_try_again')
+                if(j.error_orig != undefined){
+                    msg =j.error_orig;
+                }
+                fShowError(msg);
+            }else{            
+                //console.log("Temp social login user logged in fine.... time to check if we are authenticated");
+			    //We need to add a query string but do not need to add ALL the items
+
+			    var queryString 		= window.location.search;
+			    queryString 			= queryString.substring(1);
+			    var query_object		= parseQueryString(queryString);
+			    var required			= query_object;
+
+			    $.each(notRequired, function( index, value ) { //FIXME adapt the notRequired list for MT
+				    delete required[value];
+			    });
+
+			    required.pathname   	= window.location.pathname;
+                required.hostname   	= window.location.hostname;
+                required.protocol   	= window.location.protocol;
+			    required.social_login 	= 1;
+			    required.idp_name       = socialName;
+			    var q_s 	 			= $.param(required);
+			    window.location			= urlSocialBase+"?"+q_s;
+            }
+	    }
+        
+        var checkSocialLoginReturnMt = function(){
+
+           	if(	(getParameterByName('sl_type') 	!= '')&& //e.g. user or voucher
+			    (getParameterByName('sl_name') 	!= '')&& //e.g. Facebook
+			    (getParameterByName('sl_value') != '')   //e.g. 3_34564654645694 (Dynamic Pages ID + provider unique ID)
+		    ){ 
+			    //console.log("Finding transaction details for "+ me.queryObj.tx);
+			    var t = getParameterByName('sl_type');
+			    var n = getParameterByName('sl_name');
+			    var v = getParameterByName('sl_value');
+
+			    t = t.replace(/#.?/g, ""); //JQuery Mobile tend to add a #bla which we need to filter out
+			    n = n.replace(/#.?/g, "");
+			    v = v.replace(/#.?/g, "");
+
+			    var jqxhr = $.getJSON( urlSocialInfoFor, {'sl_type' : t,'sl_name' : n,'sl_value' : v}, function(j) {
+				    //console.log( "success getting social login return" );
+				    if(j.success){   
+					    userName = j.data.username; //Makes this unique
+					    password = j.data.password;   
+					    socialTempDisconnectMt();
+				    }else{
+					    //console.log("big problems");
+					    fShowError(i18n('sCould_not_retrieve_Social_Login_Info')); 
+					    loadingReset();
+				    }
+			    })
+			    .fail(function() {
+				    fShowError(i18n('sCould_not_retrieve_Social_Login_Info'));
+				    loadingReset(); 
+			    });
+            }
+	    }
+	    
+	    var socialTempDisconnectMt 	=  function(){
+
+            var urlLogout = getParameterByName('link_logout');
+            $.ajax({url: urlLogout + "?var=?", dataType: "jsonp",timeout: ajaxTimeout,date: {}})
+            .done(function(j){
+                retryCount = 0;
+                socialFinalLoginMt();
+            })
+            .fail(function(){ 
+                //We will retry for me.retryCount
+                currentRetry = currentRetry+1;
+                if(currentRetry <= retryCount){
+                    socialTempDisconnectMt();
+                }else{
+                    fShowError(i18n('sMT_Not_responding_to_logout_requests'));
+                    loadingReset();
+                }     
+            });
+        }
+
+        var socialFinalLoginMt = function(encPwd){
+            var urlLogin = getParameterByName('link_login_only');
+            $.ajax({url: urlLogin + "?var=?", dataType: "jsonp",timeout: ajaxTimeout, data: {username: userName, password: password}})
+            .done(function(j){
+                socialFinalLoginResultsMt(j);
+            })
+            .fail(function(){
+                //We will retry for retryCount
+                currentRetry = currentRetry+1;
+                if(currentRetry <= retryCount){
+                    socialFinalLoginMt();
+                }else{
+                    fShowError(i18n('sMT_Not_responding_to_login_requests'));
+                    loadingReset();
+                }
+            });
+        }
+          
+        var socialFinalLoginResultsMt = function(j){
+            hideFeedback();
+            currentRetry = 0;    //Reset if there were retries
+            if(j.logged_in == 'yes'){          
+                var redirect_check 	= false;
+			    var redirect_url  	= 'http://google.com';
+			    if($("body").data("DynamicDetail") != undefined){ //We had to add this sine it is not always populated by the time this is run
+				    redirect_check = cDynamicData.settings.redirect_check;
+				    redirect_url   = cDynamicData.settings.redirect_url;
+			    }
+			    if(redirect_check){
+		            window.location= redirect_url;
+			    }else{             
+                    mtRefresh(true); //Refresh session and usage
+                }
+            }else{
+                var msg = i18n('sAuthentication_failure_please_try_again')
+                if(j.error_orig != undefined){
+                    msg =j.error_orig;
+                }
+                fShowError(msg);  
+            }
+        }  
+        //=== END SOCIAL MIKROTIK ===
+        
+        //=== SOCIAL COOVACHILLI ===
 	    var onBtnClickSocialLoginChilli = function(a){
 		    socialName = a;
 		    var urlStatus = location.protocol+'//'+uamIp+':'+uamPort+'/json/status';
@@ -651,9 +806,9 @@ var sConnect = (function () {
                 currentRetry = currentRetry+1;
                 
                 if(currentRetry <= retryCount){
-                    onBtnClickSocialLogin(a);
+                    onBtnClickSocialLoginChilli(a);
                 }else{
-                    fDebug("Timed out"); //FIXME
+                    fDebug("Timed out"); 
                     fShowError('Latest Challenge could not be fetched from hotspot');
                     loadingReset();
                     currentRetry = 0;
@@ -725,9 +880,147 @@ var sConnect = (function () {
 			    window.location			= urlSocialBase+"?"+q_s;
             }
 	    }
+	    
+	    var checkSocialLoginReturn = function(){
+	        if(isMikroTik){
+                checkSocialLoginReturnMt();
+            }else{
+                checkSocialLoginReturnChilli()
+            }  
+	    }
+
+        var checkSocialLoginReturnChilli = function(){
+
+		    //console.log("Check for social login returns...");
+
+           	if(	(getParameterByName('sl_type') 	!= '')&& //e.g. user or voucher
+			    (getParameterByName('sl_name') 	!= '')&& //e.g. Facebook
+			    (getParameterByName('sl_value') != '')   //e.g. 3_34564654645694 (Dynamic Pages ID + provider unique ID)
+		    ){ 
+			    //console.log("Finding transaction details for "+ me.queryObj.tx);
+			    var t = getParameterByName('sl_type');
+			    var n = getParameterByName('sl_name');
+			    var v = getParameterByName('sl_value');
+
+			    t = t.replace(/#.?/g, ""); //JQuery Mobile tend to add a #bla which we need to filter out
+			    n = n.replace(/#.?/g, "");
+			    v = v.replace(/#.?/g, "");
+
+			    var jqxhr = $.getJSON( urlSocialInfoFor, {'sl_type' : t,'sl_name' : n,'sl_value' : v}, function(j) {
+				    //console.log( "success getting social login return" );
+				    if(j.success){   
+					    userName = j.data.username; //Makes this unique
+					    password = j.data.password;   
+					    //console.log(j.data.username);
+					    //console.log(j.data.password);
+					    socialTempDisconnect();
+				    }else{
+					    //console.log("big problems");
+					    fShowError(i18n('sCould_not_retrieve_Social_Login_Info'));
+				    }
+			    })
+			    .fail(function() {
+				    fShowError(i18n('sCould_not_retrieve_Social_Login_Info')); 
+			    });
+            }
+	    }
+
+	    var socialTempDisconnect 	=  function(){
+
+            var urlLogoff = location.protocol+'//'+uamIp+':'+uamPort+'/json/logoff';
+            $.ajax({url: urlLogoff + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout})
+            .done(function(j){     
+			    socialFinalSatus();
+            })
+            .fail(function(){
+                //We will retry for me.retryCount
+                currentRetry = currentRetry+1;
+                if(currentRetry <= retryCount){
+                    socialTempDisconnect();
+                }else{
+                    fShowError(i18n('sCoova_Not_responding_to_logoff_requests'));
+                }
+            });
+        }
+
+	    var socialFinalSatus = function(){
+		    var urlStatus = location.protocol+'//'+uamIp+':'+uamPort+'/json/status';
+            $.ajax({url: urlStatus + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout})
+            .done(function(j){
+                currentRetry = 0;
+                if(j.clientState == 0){
+				    socialFinalEncPwd(j.challenge);
+                }
+                if(j.clientState == 1){ 
+                    //initRedirect(); FIXME CHECK LATER
+                    if(redirect_check){
+                        execRedirect(redirect_url);
+				    }else{             
+                        refresh(); //Refresh 
+                    }
+                }
+            })
+            .fail(function(){
+                //We will retry for me.retryCount
+                currentRetry = currentRetry+1;          
+                if(currentRetry <= retryCount){
+                    socialFinalSatus();
+                }else{
+                    fDebug("Timed out"); //FIXME
+                    fShowError(i18n('sHotspot_not_responding'));
+                }     
+            });
+        }
+
+	    var socialFinalEncPwd = function(challenge){
+
+            $.ajax({url: urlUam + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout, data: {'challenge': challenge, password: password}})
+            .done(function(j){
+                socialFinalLogin(j.response);
+			    hideFeedback();
+            })
+            .fail(function(){
+                fShowError(i18n('sUAM_service_is_down')); 
+            });
+        }
         
-        
-        //====== END SOCIAL LOGIN ========
+	    var socialFinalLogin = function(encPwd){
+
+		    var urlLogin = location.protocol+'//'+uamIp+':'+uamPort+'/json/logon';
+            $.ajax({url: urlLogin + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout, data: {username: userName, password: encPwd}})
+            .done(function(j){
+                socialFinalLoginResults(j);
+            })
+            .fail(function(){
+                //We will retry for me.retryCount
+                currentRetry = currentRetry+1;
+                if(currentRetry <= retryCount){
+                    socialFinalLogin(encPwd);
+                }else{
+                    fShowError(i18n('sCoova_Not_responding_to_login_requests'));
+                }
+            });
+        }
+
+        var socialFinalLoginResults = function(j){
+		    hideFeedback();
+		    currentRetry = 0;    //Reset if there were retries
+            if(j.clientState == 0){    
+                var msg = i18n('sSocial_Login_user_failed_authentication')
+                if(j.message != undefined){
+                    msg =j.message;
+                }
+                fShowError(msg);
+            }else{
+			    
+			    if(redirect_check){
+		            execRedirect(redirect_url);
+			    }else{             
+                    refresh(true); //Refresh session and usage
+                }
+            }
+        }        
+        //=== END SOCIAL COOVACHILLI ===
             
         var onBtnClickToConnectClick = function(event){
             event.preventDefault();
@@ -1345,7 +1638,8 @@ var sConnect = (function () {
 
          //Expose those public items...
         return {         
-            init  : init  
+            init                    : init,
+            checkSocialLoginReturn  : checkSocialLoginReturn	  
         }   
     }
     

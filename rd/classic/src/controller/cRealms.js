@@ -653,7 +653,7 @@ Ext.define('Rd.controller.cRealms', {
     },
     tabDetailActivate : function(tab){
         var me      = this;
-        var form    = tab.down('form');
+        var form    = tab;
         var realm_id= tab.realm_id;       
         form.load({
             url     : me.getUrlViewRealmDetail(), 

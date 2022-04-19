@@ -802,7 +802,7 @@ Ext.define('Rd.controller.cAccessProviders', {
     },
     tabDetailActivate : function(tab){
         var me      = this;
-        var form    = tab.down('form');
+        var form    = tab;
         var ap_id  = tab.up('pnlAccessProvider').ap_id;
         form.load({
             url :me.getUrlViewAPDetail(), 

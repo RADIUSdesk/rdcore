@@ -90,37 +90,15 @@ var sDynamic = (function () {
             }else{
                 showLogin();
             }
-            
-            /*
-            if(cDynamicData.settings.show_logo !== undefined){
-                var s_branding = '';
-                if(cDynamicData.settings.show_logo == true){
-                    s_branding = '<div class="logo"><img src="'+cDynamicData.detail.icon_file_name+'"/></div>';  
-                }
-                if(cDynamicData.settings.show_name == true){
-                    s_branding = s_branding+ '<div class="content" style="color: #'+cDynamicData.settings.name_colour+'"><h1>'+cDynamicData.detail.name+'</h1></div>';  
-                }
-                
-                if(s_branding !== ''){
-                    webix.ui({
-                        id      : "winBranding",
-                        view    : "window",
-                        css     : "branding",
-                        modal   : false,
-                        position: "top",
-                        head    : false,
-                        borderless: true,
-                        body: {
-                            template: s_branding                 
-                        }
-                    });
-                    $$('winBranding').show();
-                }                    
-           }*/
-           
+                   
             //Call the Connect side....
             var c       = sConnect({cDynamicData: cDynamicData});
-            c.init();                        	    
+            c.init();
+        
+            if(cDynamicData.settings.social_login.active == true){
+                c.checkSocialLoginReturn();
+            }	
+                                           	    
         };
         
         function showLogin() {       

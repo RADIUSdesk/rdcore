@@ -188,7 +188,7 @@ class ThirdPartyAuthsController extends AppController{
                                     'enabled'   => true,
                                     'callback'  => $callback,
                                     'keys'      => [ "id" => $ssli->special_key, "secret" => $ssli->secret],
-                                    'scope'     => ['email','public_profile'], // optional
+                                   // 'scope'     => ['email','public_profile'], // optional //FIXME !!!APRIL 2022 comment out for FB to work !!!!
                                     'display'   => "popup", // optional,
                                     'authorize_url_parameters' => [
                                         'state'   => $query_string
@@ -411,7 +411,7 @@ class ThirdPartyAuthsController extends AppController{
 			$radchecks              = TableRegistry::get('Radchecks');
 			
 			$q_pw  = $radchecks->find()
-			    ->where(['Radcheck.username' => $un,'Radcheck.attribute' => 'Cleartext-Password'])
+			    ->where(['Radchecks.username' => $un,'Radchecks.attribute' => 'Cleartext-Password'])
 			    ->first();
 			    
 			if($q_pw){
