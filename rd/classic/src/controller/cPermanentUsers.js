@@ -1145,7 +1145,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
     },
     onTabBasicInfoActive: function(t){
         var me      = this;
-        var form    = t.down('form');
+        var form    = t;
         //get the user's id
         var user_id = t.up('pnlPermanentUser').pu_id;
         form.load({url:me.getUrlViewBasic(), method:'GET',params:{user_id:user_id}, 
@@ -1207,7 +1207,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
     },
     onTabPersonalInfoActive: function(t){
         var me      = this;
-        var form    = t.down('form');
+        var form    = t;
         //get the user's id
         var user_id = t.up('pnlPermanentUser').pu_id;
         form.load({url:me.getUrlViewPersonal(), method:'GET',params:{user_id:user_id}});

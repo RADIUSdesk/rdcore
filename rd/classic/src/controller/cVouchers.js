@@ -647,7 +647,7 @@ Ext.define('Rd.controller.cVouchers', {
     },
     onTabBasicInfoActive: function(t){
         var me      = this;
-        var form    = t.down('form');
+        var form    = t;
         //get the voucher's id
         var voucher_id = t.up('pnlVoucher').v_id;
         form.load({url:me.getUrlViewBasic(), method:'GET',params:{voucher_id:voucher_id},
