@@ -578,7 +578,7 @@ Ext.define('Rd.controller.cMeshEdits', {
     },
     frmMeshGeneralLoad: function(tab){
         var me      = this;
-        var form    = tab.down('form');
+        var form    = tab;
         var meshId  = tab.meshId;
         form.load({
             url     : me.getUrlViewMeshSettings(), 
@@ -602,7 +602,7 @@ Ext.define('Rd.controller.cMeshEdits', {
     },
     frmMeshSettingsLoad: function(tab){
         var me      = this;
-        var form    = tab.down('form');
+        var form    = tab;
         var meshId  = tab.meshId;
         form.load({url:me.getUrlViewMeshSettings(), method:'GET',params:{mesh_id:meshId}});
     },
@@ -1121,7 +1121,7 @@ Ext.define('Rd.controller.cMeshEdits', {
     },//Common node settings
     frmNodeCommonSettingsLoad: function(tab){
         var me      = this;
-        var form    = tab.down('form');
+        var form    = tab;
         var meshId  = tab.meshId;
         form.load({
             url     : me.getUrlViewNodeCommonSettings(), 

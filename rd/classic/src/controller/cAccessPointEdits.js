@@ -862,7 +862,7 @@ Ext.define('Rd.controller.cAccessPointEdits', {
     //Common ap settings
     frmApCommonSettingsLoad: function(tab){
         var me          = this;
-        var form        = tab.down('form');
+        var form        = tab;
         var apProfileId = tab.apProfileId;
         form.load({
             url     : me.getUrlViewApCommonSettings(), 
@@ -1301,7 +1301,7 @@ Ext.define('Rd.controller.cAccessPointEdits', {
 	},
 	frmApGeneralLoad: function(tab){
         var me          = this;
-        var form        = tab.down('form');
+        var form        = tab;
         var apProfileId = tab.apProfileId;
         form.load({
             url     : me.getUrlViewApProfileSettings(), 

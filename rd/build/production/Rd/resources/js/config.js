@@ -174,6 +174,9 @@ Rd.config = {
     'icnSignIn'     : 'xf090@FontAwesome',
     'icnGavel'      : 'xf0e3@FontAwesome',
     'icnFlag'       : 'xf024@FontAwesome',
-    'icnCertificate': 'xf0a3@FontAwesome'      
+    'icnCertificate': 'xf0a3@FontAwesome',
+    'icnArrows'     : 'xf047@FontAwesome',
+    'icnExchange'   : 'xf0ec@FontAwesome',
+    'icnHeartbeat'  : 'f21e@FontAwesome' 
 }
 

@@ -752,7 +752,6 @@ var sConnect = (function () {
         }
           
         var socialFinalLoginResultsMt = function(j){
-            hideFeedback();
             currentRetry = 0;    //Reset if there were retries
             if(j.logged_in == 'yes'){          
                 var redirect_check 	= false;
@@ -793,10 +792,10 @@ var sConnect = (function () {
                            if (redirect_check) {         // Check if the dynamic login page instructs us to redirect to a URL
                                 execRedirect(redirect_url);
                            } else {
-                                refresh();  
+                                coovaRefresh();  
                            }
                     } else {                             // If the user is not of the social login type, simply refresh and show status page
-                        refresh();
+                        coovaRefresh();
                     }
                     
                 }
@@ -956,7 +955,7 @@ var sConnect = (function () {
                     if(redirect_check){
                         execRedirect(redirect_url);
 				    }else{             
-                        refresh(); //Refresh 
+                        coovaRefresh(); //Refresh 
                     }
                 }
             })
@@ -977,7 +976,6 @@ var sConnect = (function () {
             $.ajax({url: urlUam + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout, data: {'challenge': challenge, password: password}})
             .done(function(j){
                 socialFinalLogin(j.response);
-			    hideFeedback();
             })
             .fail(function(){
                 fShowError(i18n('sUAM_service_is_down')); 
@@ -1003,7 +1001,6 @@ var sConnect = (function () {
         }
 
         var socialFinalLoginResults = function(j){
-		    hideFeedback();
 		    currentRetry = 0;    //Reset if there were retries
             if(j.clientState == 0){    
                 var msg = i18n('sSocial_Login_user_failed_authentication')
@@ -1016,7 +1013,7 @@ var sConnect = (function () {
 			    if(redirect_check){
 		            execRedirect(redirect_url);
 			    }else{             
-                    refresh(true); //Refresh session and usage
+                    coovaRefresh(true); //Refresh session and usage
                 }
             }
         }        

@@ -1,146 +1,167 @@
 Ext.define('Rd.view.meshes.pnlMeshGeneral', {
-    extend  : 'Ext.panel.Panel',
-    alias   : 'widget.pnlMeshGeneral',
-    border  : false,
-    layout  : 'hbox',
-    bodyStyle: {backgroundColor : Rd.config.panelGrey },
+    extend      : 'Ext.form.Panel',
+    alias       : 'widget.pnlMeshGeneral',
+    autoScroll	: true,
+    plain       : true,
+    frame       : false,
+    layout      : {
+        type    : 'vbox',
+        pack    : 'start',
+        align   : 'stretch'
+    },
+    margin      : 5,  
+    fieldDefaults: {
+        msgTarget       : 'under',
+        labelAlign      : 'left',
+        labelSeparator  : '',
+        labelWidth      : Rd.config.labelWidth+20,
+        margin          : Rd.config.fieldMargin,
+        labelClsExtra   : 'lblRdReq'
+    },
+    buttons : [
+        {
+            itemId  : 'save',
+            text    : 'SAVE',
+            scale   : 'large',
+            formBind: true,
+            glyph   : Rd.config.icnYes,
+            margin  : Rd.config.buttonMargin,
+            ui      : 'button-teal'
+        }
+    ],
     hide_owner  : false,
     requires: [
         'Rd.view.components.winSelectOwner'
     ],
     initComponent: function(){
         var me = this;
-        me.items =  { 
-                xtype   :  'form',
-                height  : '100%', 
-                width   :  500,
-                layout  : 'anchor',
-                autoScroll:true,
-                frame   : true,
-                defaults    : {
-                    anchor: '100%'
-                },
-                fieldDefaults: {
-                    msgTarget       : 'under',
-                    labelClsExtra   : 'lblRdReq',
-                    labelAlign      : 'left',
-                    labelSeparator  : '',
-                    margin          : Rd.config.fieldMargin,
-                   // labelWidth      : Rd.config.labelWidth,
-                    labelWidth      : 100
-                },
-                items       : [
-                    {
-                        xtype       : 'fieldcontainer',
-                        itemId      : 'fcPickOwner',
-                        hidden      : true,  
-                        layout      : {
-                            type    : 'hbox',
-                            align   : 'begin',
-                            pack    : 'start'
+        var w_prim      = 550;   
+        var cntGeneral  = {
+            xtype       : 'container',
+            width       : w_prim,
+            layout      : 'anchor',
+            defaults    : {
+                anchor  : '100%'
+            },
+            items       : [
+                {
+                    xtype       : 'fieldcontainer',
+                    itemId      : 'fcPickOwner',
+                    hidden      : true,  
+                    layout      : {
+                        type    : 'hbox',
+                        align   : 'begin',
+                        pack    : 'start'
+                    },
+                    items:[
+                        {
+                            itemId      : 'owner',
+                            xtype       : 'displayfield',
+                            fieldLabel  : i18n('sOwner'),
+                            name        : 'username',
+                            itemId      : 'displUser',
+                            margin      : 0,
+                            padding     : 0,
+                            width       : 410
                         },
-                        items:[
-                            {
-                                itemId      : 'owner',
-                                xtype       : 'displayfield',
-                                fieldLabel  : i18n('sOwner'),
-                                name        : 'username',
-                                itemId      : 'displUser',
-                                margin      : 0,
-                                padding     : 0,
-                                width       : 360
-                            },
-                            {
-                                xtype       : 'button',
-                                text        : 'Pick Owner',
-                                margin      : 5,
-                                padding     : 5,
-                                ui          : 'button-green',
-                                itemId      : 'btnPickOwner',
-                                width       : 100
-                            },
-                            {
-                                xtype       : 'textfield',
-                                name        : "user_id",
-                                itemId      : 'hiddenUser',
-                                hidden      : true
-                            }
-                        ]
-                    },
-                    {
-                        xtype       : 'fieldcontainer',
-                        itemId      : 'fcPickGroup',
-                        hidden      : true,
-                        layout      : {
-                            type    : 'hbox',
-                            align   : 'begin',
-                            pack    : 'start'
+                        {
+                            xtype       : 'button',
+                            text        : 'Pick Owner',
+                            margin      : 5,
+                            padding     : 5,
+                            ui          : 'button-green',
+                            itemId      : 'btnPickOwner',
+                            width       : 100
                         },
-                        items:[
-                            {
-                                itemId      : 'displTag',
-                                xtype       : 'displayfield',
-                                fieldLabel  : 'Grouping',
-                                name        : 'tag_path',
-                                margin      : 0,
-                                padding     : 0,
-                                width       : 360
-                            },
-                            {
-                                xtype       : 'button',
-                                text        : 'Change Group',
-                                margin      : 5,
-                                padding     : 5,
-                                ui          : 'button-green',
-                                itemId      : 'btnPickGroup',
-                                width       : 100
-                            },
-                            {
-                                xtype       : 'textfield',
-                                //name        : 'tree_tag_id',
-                                name        : 'network_id',
-                                itemId      : 'hiddenTag',
-                                hidden      : true
-                            }
-                        ]
+                        {
+                            xtype       : 'textfield',
+                            name        : "user_id",
+                            itemId      : 'hiddenUser',
+                            hidden      : true
+                        }
+                    ]
+                },
+                {
+                    xtype       : 'fieldcontainer',
+                    itemId      : 'fcPickGroup',
+                    hidden      : true,
+                    layout      : {
+                        type    : 'hbox',
+                        align   : 'begin',
+                        pack    : 'start'
                     },
-                    {
-                        xtype       : 'textfield',
-                        fieldLabel  : i18n('sName'),
-                        name        : "name",
-                        allowBlank  : false,
-                        blankText   : i18n("sSupply_a_value"),
-                    },
-                    {
-                        xtype       : 'checkbox',
-                        boxLabel    : 'Enable Alerts',
-                        name        : 'enable_alerts',
-                        margin      : '0 0 0 15'   
-                    },
-                    {
-                        xtype       : 'checkbox',
-                        boxLabel    : 'Include In Overviews',
-                        name        : 'enable_overviews',
-                        margin      : '0 0 0 15'   
-                    },
-                    {
-                        xtype       : 'checkbox',
-                        boxLabel    : 'Available To Sub-Providers',
-                        name        : 'available_to_siblings',
-                        margin      : '0 0 0 15'   
-                    }
-                ],    
-                buttons: [
-                    {
-                        itemId      : 'save',
-                        formBind    : true,
-                        text        : i18n('sSave'),
-                        scale       : 'large',
-                        glyph       : Rd.config.icnYes,
-                        margin      : Rd.config.buttonMargin
-                    }
-                ]
-            };
+                    items:[
+                        {
+                            itemId      : 'displTag',
+                            xtype       : 'displayfield',
+                            fieldLabel  : 'Grouping',
+                            name        : 'tag_path',
+                            margin      : 0,
+                            padding     : 0,
+                            width       : 410
+                        },
+                        {
+                            xtype       : 'button',
+                            text        : 'Change Group',
+                            margin      : 5,
+                            padding     : 5,
+                            ui          : 'button-green',
+                            itemId      : 'btnPickGroup',
+                            width       : 100
+                        },
+                        {
+                            xtype       : 'textfield',
+                            //name        : 'tree_tag_id',
+                            name        : 'network_id',
+                            itemId      : 'hiddenTag',
+                            hidden      : true
+                        }
+                    ]
+                },
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : i18n('sName'),
+                    name        : "name",
+                    allowBlank  : false,
+                    blankText   : i18n("sSupply_a_value"),
+                },
+                {
+                    xtype       : 'checkbox',
+                    boxLabel    : 'Enable Alerts',
+                    name        : 'enable_alerts',
+                    margin      : '0 0 0 15'   
+                },
+                {
+                    xtype       : 'checkbox',
+                    boxLabel    : 'Include In Overviews',
+                    name        : 'enable_overviews',
+                    margin      : '0 0 0 15'   
+                },
+                {
+                    xtype       : 'checkbox',
+                    boxLabel    : 'Available To Sub-Providers',
+                    name        : 'available_to_siblings',
+                    margin      : '0 0 0 15'   
+                }            
+            ]
+        };
+        
+         me.items = [
+            {
+                xtype       : 'panel',
+                title       : 'General Settings',
+                glyph       : Rd.config.icnGears,  
+                ui          : 'panel-blue',
+                layout      : {
+                  type  : 'vbox',
+                  align : 'start',
+                  pack  : 'start'
+                },
+                bodyPadding : 10,
+                items       : cntGeneral				
+            }
+        ];    
+      
         me.callParent(arguments);
     }
 });
