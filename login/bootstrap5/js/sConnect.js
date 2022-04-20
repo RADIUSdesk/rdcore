@@ -1304,6 +1304,7 @@ var sConnect = (function () {
                         fDebug("Not Connected");
                         $('#alertInfo').addClass('show');
                         $('#pnlSession').removeClass('show');
+                        $('#divSocial').removeClass('d-none'); 
                         if(!cDynamicData.settings.click_to_connect.connect_only){
                             $('#pnlLogin').addClass('show');
                         }
@@ -1316,29 +1317,40 @@ var sConnect = (function () {
                             (cDynamicData.settings.click_to_connect.connect_only)
                             ){   
                             //Hide the connect button
-                            $('#btnConnect').addClass('d-none'); 
+                            $('#btnConnect').addClass('d-none');
                                             
                         }else{
                             $('#btnConnect').removeClass('d-none'); 
-                        }  
-                        
+                        }                       
                         
                         $('#hLogin').html('<i class="bi-plug"></i> Connect')                    
                     }
 
                     if(j.clientState == 1){
                         fDebug("Connected");
-                        refreshStatusCoova(j);
-                        $('#alertInfo').removeClass('show');
-                        $('#pnlSession').addClass('show');
-                        $('#pnlLogin').removeClass('show');
-                        $('#btnDisconnect').removeClass('d-none');
-                        loadingReset();
-                        $('#btnConnect').addClass('d-none');
-                        $('#hLogin').html('<i class="bi-star"></i> Connected')  
-                        if(counter == undefined){    //If it is the first time so initialise the loop counter
-                            sessionData = j;
-                            refreshCounter();
+                        //Redirect if enabled                      
+                        if(cDynamicData.settings.redirect_check){
+                        
+                            window.location = cDynamicData.settings.redirect_url;
+                            
+                        }else{
+                        
+                            refreshStatusCoova(j);
+                            $('#alertInfo').removeClass('show');
+                            $('#pnlSession').addClass('show');
+                            $('#pnlLogin').removeClass('show');
+                            $('#btnDisconnect').removeClass('d-none');
+                            loadingReset();
+                            $('#btnConnect').addClass('d-none');
+                            $('#divRegister').addClass('d-none');
+                            $('#divLostPassword').addClass('d-none');
+                            $('#divSocial').addClass('d-none');  
+                            
+                            $('#hLogin').html('<i class="bi-star"></i> Connected')  
+                            if(counter == undefined){    //If it is the first time so initialise the loop counter
+                                sessionData = j;
+                                refreshCounter();
+                            }                           
                         } 
                     }
                 })

@@ -274,14 +274,14 @@ var sDynamic = (function () {
             }
             
             //User Registration
-            if(cDynamicData.settings.register_users == true){
+            if((cDynamicData.settings.register_users == true)&&(cDynamicData.settings.user_login_check == true)){
                 $('#divRegister').removeClass('d-none');                             
             }else{           
                 $('#divRegister').addClass('d-none');    
             }
             
             //Lost Password
-            if(cDynamicData.settings.lost_password == true){
+            if((cDynamicData.settings.lost_password == true)&&(cDynamicData.settings.user_login_check == true)){
                 $('#divLostPassword').removeClass('d-none');                             
             }else{           
                 $('#divLostPassword').addClass('d-none');    
