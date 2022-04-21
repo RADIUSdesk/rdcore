@@ -207,6 +207,7 @@ var sConnect = (function () {
                 .done(function(j){
                     if(j.success == true){
                         if(j.data.ci_required == true){
+                            console.log("Gooi hom");
                             showCustInfo();
                         }else{
                             onBtnClickToConnectClick(event);
@@ -227,7 +228,7 @@ var sConnect = (function () {
             if(!$("#pnlCustInfo").data('populate')){
                 populateCustInfo();
             }
-            $("#modalCustInfo").modal('show');              
+            $("#modalCustInfo").modal('show');         
         }
         
         var populateCustInfo = function(){
