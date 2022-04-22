@@ -1322,7 +1322,13 @@ var sConnect = (function () {
                                             
                         }else{
                             $('#btnConnect').removeClass('d-none'); 
-                        }                       
+                        }
+                        
+                        if(cDynamicData.settings.click_to_connect.connect_check == true){
+                            $('#btnClickToConnect').removeClass('d-none');                             
+                        }else{           
+                            $('#btnClickToConnect').addClass('d-none');    
+                        }                                               
                         
                         $('#hLogin').html('<i class="bi-plug"></i> Connect')                    
                     }
@@ -1343,6 +1349,7 @@ var sConnect = (function () {
                             $('#btnDisconnect').removeClass('d-none');
                             loadingReset();
                             $('#btnConnect').addClass('d-none');
+                            $('#btnClickToConnect').addClass('d-none');
                             $('#divRegister').addClass('d-none');
                             $('#divLostPassword').addClass('d-none');
                             $('#divSocial').addClass('d-none');  
