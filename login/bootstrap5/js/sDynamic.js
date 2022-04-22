@@ -309,31 +309,31 @@ var sDynamic = (function () {
                 
                 if((i.include_title)&&(!i.include_description)){
                     if(cDynamicData.settings.show_logo){
-                        t_and_d = '<div class="carousel-caption d-none d-md-block"><img src="'+cDynamicData.detail.icon_file_name+'"/><h5>'+i.title+'</h5></div>';
+                        t_and_d = '<div class="carousel-caption"><img src="'+cDynamicData.detail.icon_file_name+'"/><h5>'+i.title+'</h5></div>';
                         logo_included = true;
                     }else{
-                        t_and_d = '<div class="carousel-caption d-none d-md-block"><h5>'+i.title+'</h5></div>';
+                        t_and_d = '<div class="carousel-caption"><h5>'+i.title+'</h5></div>';
                     }                 
                 } 
                 if((!i.include_title)&&(i.include_description)){
                     if(cDynamicData.settings.show_logo){
-                        t_and_d = '<div class="carousel-caption d-none d-md-block"><img src="'+cDynamicData.detail.icon_file_name+'"/><p>'+i.description+'</p></div>';
+                        t_and_d = '<div class="carousel-caption"><img src="'+cDynamicData.detail.icon_file_name+'"/><p>'+i.description+'</p></div>';
                         logo_included = true;
                     }else{
-                        t_and_d = '<div class="carousel-caption d-none d-md-block"><p>'+i.description+'</p></div>';
+                        t_and_d = '<div class="carousel-caption"><p>'+i.description+'</p></div>';
                     }                 
                 }           
                 if((i.include_title)&&(i.include_description)){
                     if(cDynamicData.settings.show_logo){
-                        t_and_d = '<div class="carousel-caption d-none d-md-block"><img src="'+cDynamicData.detail.icon_file_name+'"/><h5>'+i.title+'</h5><p>'+i.description+'</p></div>';
+                        t_and_d = '<div class="carousel-caption"><img src="'+cDynamicData.detail.icon_file_name+'"/><h5>'+i.title+'</h5><p>'+i.description+'</p></div>';
                         logo_included = true;
                     }else{
-                        t_and_d = '<div class="carousel-caption d-none d-md-block"><h5>'+i.title+'</h5><p>'+i.description+'</p></div>';
+                        t_and_d = '<div class="carousel-caption"><h5>'+i.title+'</h5><p>'+i.description+'</p></div>';
                     }     
                 }
                 
                 if((cDynamicData.settings.show_logo)&&(!logo_included)){
-                    t_and_d = '<div class="carousel-caption d-none d-md-block"><img src="'+cDynamicData.detail.icon_file_name+'"/></div>';
+                    t_and_d = '<div class="carousel-caption"><img src="'+cDynamicData.detail.icon_file_name+'"/></div>';
                 }
                 
                 var scrn = 'landscape';
