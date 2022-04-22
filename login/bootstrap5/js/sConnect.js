@@ -1328,7 +1328,28 @@ var sConnect = (function () {
                             $('#btnClickToConnect').removeClass('d-none');                             
                         }else{           
                             $('#btnClickToConnect').addClass('d-none');    
-                        }                                               
+                        }
+                        
+                        if(cDynamicData.settings.t_c_check == true){            
+                            $('#divTerms').removeClass('d-none');         
+                        }else{           
+                            $('#divTerms').addClass('d-none');
+                        }
+                        
+                        //User Registration
+                        if((cDynamicData.settings.register_users == true)&&(cDynamicData.settings.user_login_check == true)){
+                            $('#divRegister').removeClass('d-none');                             
+                        }else{           
+                            $('#divRegister').addClass('d-none');    
+                        }
+                        
+                        //Lost Password
+                        if((cDynamicData.settings.lost_password == true)&&(cDynamicData.settings.user_login_check == true)){
+                            $('#divLostPassword').removeClass('d-none');                             
+                        }else{           
+                            $('#divLostPassword').addClass('d-none');    
+                        }
+                                                                       
                         
                         $('#hLogin').html('<i class="bi-plug"></i> Connect')                    
                     }
@@ -1352,6 +1373,7 @@ var sConnect = (function () {
                             $('#btnClickToConnect').addClass('d-none');
                             $('#divRegister').addClass('d-none');
                             $('#divLostPassword').addClass('d-none');
+                            $('#divTerms').addClass('d-none');
                             $('#divSocial').addClass('d-none');  
                             
                             $('#hLogin').html('<i class="bi-star"></i> Connected')  
