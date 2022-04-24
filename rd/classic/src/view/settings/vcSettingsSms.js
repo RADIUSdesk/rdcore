@@ -78,14 +78,18 @@ Ext.define('Rd.view.settings.vcSettingsSms', {
         form.submit({
             clientValidation    : true,
             url                 : me.getUrlSms(),
-            success             : function(form, action) {              
-                Ext.ux.Toaster.msg(
-                    'SMS Sent',
-                    'SMS Sent Please Check',
-                    Ext.ux.Constants.clsInfo,
-                    Ext.ux.Constants.msgInfo
-                );
-                win.close();
+            success             : function(form, action) {
+            
+                if(action.result.success == true){
+                    win.down('#pnlSmsTestReply').setData(action.result.data);            
+                    Ext.ux.Toaster.msg(
+                        'SMS Sent',
+                        'SMS Sent Please Check',
+                        Ext.ux.Constants.clsInfo,
+                        Ext.ux.Constants.msgInfo
+                    );
+                }
+                //win.close();
             },
             failure  : Ext.ux.formFail
         });       

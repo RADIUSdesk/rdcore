@@ -29,6 +29,13 @@ Ext.define('Rd.view.settings.pnlSettingsMqtt', {
             ui      : 'button-teal'
         }
     ],
+    requires: [
+        'Rd.view.settings.vcSettingsMqtt'
+    ],
+    controller  : 'vcSettingsMqtt',
+    listeners       : {
+        activate  : 'onViewActivate'
+    },
     initComponent: function(){
         var me      = this;
         var w_prim  = 550;
@@ -45,7 +52,6 @@ Ext.define('Rd.view.settings.pnlSettingsMqtt', {
                 { 
                     fieldLabel      : 'Enable', 
                     name            : 'mqtt_enabled', 
-                    inputValue      : 'mqtt_enabled',
                     itemId          : 'chkMqttEnabled',
                     labelClsExtra   : 'lblRdReq',
                     checked         : false, 
@@ -63,14 +69,14 @@ Ext.define('Rd.view.settings.pnlSettingsMqtt', {
                 {
                     xtype           : 'rdPasswordfield',
                     rdName          : 'mqtt_password',
-                    itemId          : 'txtMqttPasswordZ',
+                    itemId          : 'txtMqttPassword',
                     rdLabel         : 'Password',
                     disabled        : true
                 },              
                 {
                     fieldLabel      : 'Server URL',
                     name            : 'mqtt_server_url',
-                    itemId          : 'txtMqttServerUrlZ',
+                    itemId          : 'txtMqttServerUrl',
                     allowBlank      : false,
                     blankText       : i18n('sSupply_a_value'),
                     labelClsExtra   : 'lblRdReq',
@@ -79,7 +85,7 @@ Ext.define('Rd.view.settings.pnlSettingsMqtt', {
                 {
                     fieldLabel      : 'Command Topic',
                     name            : 'mqtt_command_topic',
-                    itemId          : 'txtMqttCommandTopicZ',
+                    itemId          : 'txtMqttCommandTopic',
                     allowBlank      : false,
                     blankText       : i18n('sSupply_a_value'),
                     labelClsExtra   : 'lblRdReq',

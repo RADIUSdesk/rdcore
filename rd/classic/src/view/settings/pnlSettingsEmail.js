@@ -29,6 +29,13 @@ Ext.define('Rd.view.settings.pnlSettingsEmail', {
             ui      : 'button-teal'
         }
     ],
+    requires: [
+        'Rd.view.settings.vcSettingsEmail'
+    ],
+    controller  : 'vcSettingsEmail',
+    listeners       : {
+        activate  : 'onViewActivate'
+    },
     initComponent: function(){
         var me      = this;
         var w_prim  = 550;

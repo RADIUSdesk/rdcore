@@ -29,6 +29,13 @@ Ext.define('Rd.view.settings.pnlSettingsDefaults', {
             ui      : 'button-teal'
         }
     ],
+    requires: [
+        'Rd.view.settings.vcSettingsDefaults'
+    ],
+    controller  : 'vcSettingsDefaults',
+    listeners       : {
+        activate  : 'onViewActivate'
+    },
     initComponent: function(){
         var me      = this;
         var w_prim  = 550;
@@ -40,6 +47,7 @@ Ext.define('Rd.view.settings.pnlSettingsDefaults', {
             defaults    : {
                 anchor  : '100%'
             },
+            defaultType : 'textfield',
             items       : [
                 {
                     xtype   : 'rdPasswordfield'
@@ -72,6 +80,7 @@ Ext.define('Rd.view.settings.pnlSettingsDefaults', {
             defaults    : {
                 anchor  : '100%'
             },
+            defaultType : 'textfield',
             items       : [
                 {
                     fieldLabel      : 'RADIUS-1',
@@ -106,16 +115,14 @@ Ext.define('Rd.view.settings.pnlSettingsDefaults', {
                 }, 
                 { 
                     fieldLabel      : 'Swap Octets', 
-                    name            : 'cp_swap_octet', 
-                    inputValue      : 'cp_swap_octet',
+                    name            : 'cp_swap_octet',
                     labelClsExtra   : 'lblRdReq',
                     checked         : true, 
                     xtype           : 'checkbox' 
                 },
                 { 
                     fieldLabel      : 'MAC Auth', 
-                    name            : 'cp_mac_auth', 
-                    inputValue      : 'cp_mac_auth',
+                    name            : 'cp_mac_auth',
                     labelClsExtra   : 'lblRdReq',
                     checked         : true, 
                     xtype           : 'checkbox' 

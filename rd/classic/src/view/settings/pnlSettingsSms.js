@@ -70,7 +70,6 @@ Ext.define('Rd.view.settings.pnlSettingsSms', {
                 {
 			        xtype           : 'textfield',
 			        fieldLabel      : 'URL',
-			        itemId          : 'txtUrl',
 			        name            : 'sms_'+me.nr+'_url',
 			        allowBlank      : false,
 			        vtype           : 'url'
@@ -78,40 +77,34 @@ Ext.define('Rd.view.settings.pnlSettingsSms', {
 			    {
                     fieldLabel      : 'Sender Parameter',
                     name            : 'sms_'+me.nr+'_sender_parameter',
-                    itemId          : 'txtSenderParameter',
                     allowBlank      : true,
                     labelClsExtra   : 'lblRd'
                 },
                 {
                     fieldLabel      : 'Sender Value',
                     name            : 'sms_'+me.nr+'_sender_value',
-                    itemId          : 'txtSenderValue',
                     allowBlank      : true,
                     labelClsExtra   : 'lblRd'
                 },
                 {
                     fieldLabel      : 'Receiver Parameter',
                     name            : 'sms_'+me.nr+'_receiver_parameter',
-                    itemId          : 'txtReceiverParameter',
                     allowBlank      : false
                 },
                 {
                     fieldLabel      : 'Message Parameter',
                     name            : 'sms_'+me.nr+'_message_parameter',
-                    itemId          : 'txtReceiverParameter',
                     allowBlank      : false
                 },
                 {
                     fieldLabel      : 'Key Parameter',
                     name            : 'sms_'+me.nr+'_key_parameter',
-                    itemId          : 'txtKeyParameter',
                     allowBlank      : true,
                     labelClsExtra   : 'lblRd'
                 },
                 {
                     fieldLabel      : 'Key Value',
                     name            : 'sms_'+me.nr+'_key_value',
-                    itemId          : 'txtKeyValue',
                     allowBlank      : true,
                     labelClsExtra   : 'lblRd'
                 }     
@@ -130,21 +123,12 @@ Ext.define('Rd.view.settings.pnlSettingsSms', {
                 {
                     fieldLabel      : 'Content-Type',
                     name            : 'sms_'+me.nr+'_header_content_type',
-                    itemId          : 'txtHeaderContentType',
                     allowBlank      : true,
                     labelClsExtra   : 'lblRd'
                 },
                 {
                     fieldLabel      : 'Authorization',
                     name            : 'sms_'+me.nr+'_header_authorization',
-                    itemId          : 'txtHeaderAuthorization',
-                    allowBlank      : true,
-                    labelClsExtra   : 'lblRd'
-                },
-                {
-                    fieldLabel      : 'Authorization',
-                    name            : 'sms_'+me.nr+'_header_authorization',
-                    itemId          : 'txtHeaderAuthorization',
                     allowBlank      : true,
                     labelClsExtra   : 'lblRd'
                 },
@@ -154,8 +138,8 @@ Ext.define('Rd.view.settings.pnlSettingsSms', {
                     columns     : 2,
                     vertical    : false,
                     items: [
-                        { boxLabel: 'SSL Verify Host',  name: 'sms_'+me.nr+'_ssl_verify_host', itemId: 'cmp_realms'},
-                        { boxLabel: 'SSL Verify Peer',  name: 'sms_'+me.nr+'_ssl_verify_peer', itemId: 'cmp_permanent_users'}                      
+                        { boxLabel: 'SSL Verify Host',  name: 'sms_'+me.nr+'_ssl_verify_host'},
+                        { boxLabel: 'SSL Verify Peer',  name: 'sms_'+me.nr+'_ssl_verify_peer'}                      
                     ]
                 } 
             ]
