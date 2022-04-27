@@ -147,11 +147,9 @@ class MeshHelperComponent extends Component {
 		$json['config_settings']['system']		= [];
 
         //============ Network ================
-        if($this->request->getQuery('version') == '19.07'){
-            $net_return = $this->_build_network_19_07($ent_mesh,$gateway);
-        }else{
-            $net_return = $this->_build_network($ent_mesh,$gateway);
-        }
+        $version    = $this->request->getQuery('version');
+        $net_return = $this->_build_network($ent_mesh,$gateway,$version); //version can be 18.06/19.07/21.02
+
               
         $json_network       = $net_return[0];
         $json['config_settings']['network'] = $json_network;
@@ -243,7 +241,7 @@ class MeshHelperComponent extends Component {
 			$batman_adv = $ent_mesh->mesh_setting;
 		}
 		
-		if($this->request->getQuery('version') !== '19.07'){
+		if($this->request->getQuery('version') == '18.06'){
             $json['config_settings']['batman_adv'] = $batman_adv;
         }
 	
@@ -384,7 +382,7 @@ class MeshHelperComponent extends Component {
         return $data;
     }
         
-    private function _build_network($ent_mesh,$gateway = false){
+    private function _build_network($ent_mesh,$gateway = false,$version='18.06'){
 
         $network 				= [];
         $nat_data				= [];
@@ -423,7 +421,6 @@ class MeshHelperComponent extends Component {
 
 		$lan_bridge_flag 	= false;
 		
-
 		//If we need to bridge and it is with the LAN (the easiest)
 		if(
 			($eth_br_chk)&&
@@ -434,6 +431,7 @@ class MeshHelperComponent extends Component {
 
         //LAN(Actually WAN e.g. eth1)
 		$br_int = $this->_eth_br_for($this->Hardware);
+		$wan_if = $this->_eth_br_for($this->Hardware);
 		
 		if($gateway == true){
 		    if($this->Vlan){
@@ -473,113 +471,155 @@ class MeshHelperComponent extends Component {
             $m = strtolower($m);
             $m = str_replace('-', ':', $m);
             //SMALL HACK END
-          
-          /*  
-            if($this->request->getQuery('zzversion') !== null){ //For now we just check for its presence //FIXME Disable till IPv6 fully fixed for mesh also
-
-	            array_push( $network,
-	                [
-	                    "interface"    => "lan",
-	                    "options"   => [
-	                        "ipv6"          => '1',
-	                        "ifname"        => "$br_int", 
-	                        "type"          => "bridge",
-	                        "macaddr"       => "$m" //SMALL HACK II
-	                   ]
-	           	]);
-	           	
-	           	array_push( $network,
-	                [
-	                    "interface"    => "lan_4",
-	                    "options"   => [
-	                        "ifname"        => "@lan",
-	                        "proto"         => "$proto"
-
-	                   ]
-	           	]);
-	           	
-	           	array_push( $network,
-	                [
-	                    "interface"    => "lan_6",
-	                    "options"   => [
-	                        "ifname"        => "@lan",
-	                        "proto"         => 'dhcpv6',
-                            "ifname"        => '@lan',
-                            "reqaddress"    => 'try',
-                            "reqprefix"     => 'auto'
-
-	                   ]
-	           	]);
-	           		
-	        }else{*/
-	                
-	            array_push( $network,
-		            [
-		                "interface"    => "lan",
-		                "options"   => [
-		                    "ifname"        => "$br_int", 
-		                    "type"          => "bridge",
-		                    "proto"         => "$proto",
-		                    "macaddr"       => "$m" //SMALL HACK II
-		               ]
-		       	]);
-		       	
-		       	//-- Jul 2021 -ADD LTE Support--
-                $qmi_return =  $this->_checkForQmi();
-                if($qmi_return){
-                    array_push( $network,$qmi_return);
-                }  
-		       	
-		       	
-	      //  }   	
-		   	
+                               
+            $lan_options = [
+                "ifname"        => "$br_int", 
+                "type"          => "bridge",
+                "proto"         => "$proto"
+            ];
+            if($version !== '21.02'){
+                $lan_options['macaddr'] = $m;  
+            }
+            
+            array_push( $network,
+                [
+                    "interface" => "lan",
+                    "options"   => $lan_options
+            ]);
+            
+            if($version == '21.02'){         
+                if($wan_if == 'wan'){      
+                    array_push( $network,
+                        [
+                            "device"    => $wan_if,
+                            "options"   => [
+                                "name"      => $wan_if, 
+                                "macaddr"   => "$m"
+                           ]
+                    ]);
+                }      
+            }
+                    
+	        //-- Jul 2021 -ADD LTE Support--
+            $qmi_return =  $this->_checkForQmi();
+            if($qmi_return){
+                array_push( $network,$qmi_return);
+            }  	       	
 		}
-
-		//Add an interface called b to list the batman interface
-		array_push( $network,
-            [
-                "interface"    => "b",
-                "options"   => [
-                    "ifname"    => "bat0"
-               ]
-            ]);
 		
-        //Mesh
-        array_push( $network,
-            [
-                "interface"    => "mesh",
-                "options"   => [
-                    "mtu"       => "1560",
-                    "proto"     => "batadv",
-                    "mesh"      => "bat0"
-               ]
-            ]);
+		if($version == '18.06'){
+		
+		    //== BATMAN ADV FOR 18.06 AND OLDER==
 
-        $ip = $this->EntNode->ip;
+		    //Add an interface called b to list the batman interface
+		    array_push( $network,
+                [
+                    "interface"    => "b",
+                    "options"   => [
+                        "ifname"    => "bat0"
+                   ]
+                ]);
+		    
+            //Mesh
+            array_push( $network,
+                [
+                    "interface"    => "mesh",
+                    "options"   => [
+                        "mtu"       => "1560",
+                        "proto"     => "batadv",
+                        "mesh"      => "bat0"
+                   ]
+                ]);
 
-        //Admin interface
-        array_push($network,
-            [
-                "interface"    => "one",
-                "options"   => [
-                    "ifname"    => "bat0.1",
-                    "proto"     => "static",
-                    "ipaddr"    => $ip,
-                    "netmask"   => "255.255.255.0",
-                    "type"      => "bridge"
-               ]
-            ]);
+            $ip = $this->EntNode->ip;
 
-		//***With its VLAN***
-		 array_push($network,
-            [
-                "interface"    => "bat_vlan_one",
-                "options"   => [
-                    "ifname"    	=> "bat0.1",
-                    "proto"     	=> "batadv_vlan",
-                    'ap_isolation' 	=> '0'
-               ]
-            ]);
+            //Admin interface
+            array_push($network,
+                [
+                    "interface"    => "one",
+                    "options"   => [
+                        "ifname"    => "bat0.1",
+                        "proto"     => "static",
+                        "ipaddr"    => $ip,
+                        "netmask"   => "255.255.255.0",
+                        "type"      => "bridge"
+                   ]
+                ]);
+
+		    //***With its VLAN***
+		     array_push($network,
+                [
+                    "interface"    => "bat_vlan_one",
+                    "options"   => [
+                        "ifname"    	=> "bat0.1",
+                        "proto"     	=> "batadv_vlan",
+                        'ap_isolation' 	=> '0'
+                   ]
+                ]);
+                
+            //== END BATMAN ADV FOR 18.06 AND OLDER==
+        }
+        
+        if(($version == '19.07')||($version == '21.02')){
+        
+            //== BATMAN ADV FOR 19.07 AND NEWER==
+
+		    //Add an interface called b to list the batman interface
+		    array_push( $network,
+                [
+                    "interface"    => "bat0",
+                    "options"   => [
+                        "ifname"        => "bat0",
+                        'proto'         => 'batadv',
+                        'routing_algo'  => 'BATMAN_IV',
+                        'aggregated_ogms'   => 1,
+                        'ap_isolation'      => 0,
+                        'bonding'           => 0,
+                        'fragmentation'     => 1,
+                        #'gw_bandwidth'     =>'10000/2000',
+                        'gw_mode'           => 'off',
+                        #'gw_sel_class'     => 20,
+                        'log_level'         => 0,
+                        'orig_interval'     => 1000,
+                        'bridge_loop_avoidance' => 0, //FIXME It seems the originator mac message stops when this is disabled
+                        'distributed_arp_table' => 1,
+                        'multicast_mode'    => 1,
+                        'network_coding'    => 0,
+                        'hop_penalty'       => 30,
+                        'isolation_mark'    => '0x00000000/0x00000000'      
+                   ]
+                ]);
+		    
+            //Mesh
+            array_push( $network,
+                [
+                    "interface"    => "mesh",
+                    "options"   => [
+                        "proto"     => "batadv_hardif",
+                        'master'    => 'bat0',
+                        'mtu'       => 2304            
+                   ]
+                ]);
+
+            $ip = $this->EntNode->ip;
+
+            //Admin interface
+            array_push($network,
+                [
+                    "interface"    => "one",
+                    "options"   => [
+                        "ifname"    => "bat0.1",
+                        "proto"     => "static",
+                        "ipaddr"    => $ip,
+                        "netmask"   => "255.255.255.0",
+                        "type"      => "bridge",
+                        'stp'       => 1,
+                        'delegate'  => 0
+                   ]
+                ]);
+
+            //== END BATMAN ADV FOR 19.07 AND NEVER==      
+        }
 
         //================================
 
@@ -606,8 +646,7 @@ class MeshHelperComponent extends Component {
             //Mar 2021 The eth_br_with will have the ID of the exit point. If it matches we need to add it even if it does not have a macting SSID
             if($eth_br_with == $me->id){
                 $has_entries_attached = true;
-            }  
-            
+            }              
             //This is used to fetch info eventually about the entry points
             if(count($me->mesh_exit_mesh_entries) > 0){
                 $has_entries_attached = true;
@@ -621,14 +660,12 @@ class MeshHelperComponent extends Component {
                     }
                 }
             }
-            
-                        
+                                    
             if($type == 'tagged_bridge_l3'){
                 $has_entries_attached = true;    
             }
   
             if($has_entries_attached == true){
-
 				
                 //=======================================
                 //========= GATEWAY NODES ===============
@@ -663,24 +700,26 @@ class MeshHelperComponent extends Component {
                             "interface"    => "$if_name",
                             "options"   => [
                                 "ifname"    => $interfaces,
-                                "type"      => "bridge"
+                                "type"      => "bridge",
+                                'stp'       => 1,
+                                'delegate'  => 0 
                         ]]
                     );
 
-					//***With its VLAN***
-					$nr = $this->_number_to_word($start_number);
-					array_push($network,
-						[
-							"interface"    => "bat_vlan_".$nr,
-							"options"   => [
-							    "ifname"    	=> "bat0.".$start_number,
-							    "proto"     	=> "batadv_vlan",
-							    'ap_isolation' 	=> '0'
-						   ]
-					]);
-
-
-                    $start_number++;
+					//***With its VLAN*** 
+					if($version == '18.06'){
+					    $nr = $this->_number_to_word($start_number);
+					    array_push($network,
+						    [
+							    "interface"    => "bat_vlan_".$nr,
+							    "options"   => [
+							        "ifname"    	=> "bat0.".$start_number,
+							        "proto"     	=> "batadv_vlan",
+							        'ap_isolation' 	=> '0'
+						       ]
+					    ]);					    
+			        } 
+			        $start_number++;                 
                     continue;   //We don't car about the other if's
                 }
         
@@ -712,21 +751,25 @@ class MeshHelperComponent extends Component {
                                 "type"      => "bridge",
                                 'ipaddr'    => $if_ipaddr,
                                 'netmask'   => $if_netmask,
-                                'proto'     => 'static'
+                                'proto'     => 'static',
+                                'stp'       => 1,
+                                'delegate'  => 0 
                         ]]
                     );
 
 					//***With its VLAN***
-					$nr = $this->_number_to_word($start_number);
-					array_push($network,
-						[
-							"interface"    => "bat_vlan_".$nr,
-							"options"   => [
-							    "ifname"    	=> $interfaces,
-							    "proto"     	=> "batadv_vlan",
-							    'ap_isolation' 	=> '0'
-						   ]
-					]);
+					if($version == '18.06'){
+					    $nr = $this->_number_to_word($start_number);
+					    array_push($network,
+						    [
+							    "interface"    => "bat_vlan_".$nr,
+							    "options"   => [
+							        "ifname"    	=> $interfaces,
+							        "proto"     	=> "batadv_vlan",
+							        'ap_isolation' 	=> '0'
+						       ]
+					    ]);
+				    }
 
                     //Push the nat data
                     array_push($nat_data,$if_name);
@@ -734,7 +777,7 @@ class MeshHelperComponent extends Component {
                     continue; //We dont care about the other if's
                 }
 
-
+                //=== GATEWAY BRIDGE ===
                 if(($type=='bridge')&&($gateway)){                         
                     //Here we have to override the bridge with a NAT if wbw
                     if(($this->request->getQuery('wbw_active') == '1')||($this->QmiActive == true)){                 
@@ -760,8 +803,8 @@ class MeshHelperComponent extends Component {
                         $network[1]['options']['stp'] = 1;
                         $network[1]['options']['delegate'] = 0;
                         
-                        $dns    = '';
-                        $wan_specific = $this->_checkForWanSpecific();
+                        $dns            = '';
+                        $wan_specific   = $this->_checkForWanSpecific();
                         foreach($wan_specific as $x => $val){
                             if(($x == 'dns_1')or($x == 'dns_2')){
                                 $dns = $dns.' '.$val;
@@ -836,21 +879,25 @@ class MeshHelperComponent extends Component {
                             "interface"    => "$if_name",
                             "options"   => [
                                 "ifname"    => $interfaces,
-                                "type"      => "bridge",       
+                                "type"      => "bridge",
+                                'stp'       => 1,
+                                'delegate'  => 0    
                         ]]
                     );
 
-					//***With its VLAN***
-					$nr = $this->_number_to_word($start_number);
-					array_push($network,
-						[
-							"interface"    => "bat_vlan_".$nr,
-							"options"   => [
-							    "ifname"    	=> $interfaces,
-							    "proto"     	=> "batadv_vlan",
-							    'ap_isolation' 	=> '0'
-						   ]
-					]);
+					//***With its VLAN*** //FIXME for 18.06 and older
+					if($version == '18.06'){
+					    $nr = $this->_number_to_word($start_number);
+					    array_push($network,
+						    [
+							    "interface"    => "bat_vlan_".$nr,
+							    "options"   => [
+							        "ifname"    	=> $interfaces,
+							        "proto"     	=> "batadv_vlan",
+							        'ap_isolation' 	=> '0'
+						       ]
+					    ]);
+				    }
                     $start_number++;
                     continue; //We dont care about the other if's
                 }
@@ -892,22 +939,26 @@ class MeshHelperComponent extends Component {
                                 "type"      => "bridge",
                                 'ipaddr'    => $me->openvpn_server_client->ip_address,
                                 'netmask'   => $a['vpn_mask'],
-                                'proto'     => 'static'
+                                'proto'     => 'static',
+                                'stp'       => 1,
+                                'delegate'  => 0 
                                 
                         ))
                     );
 
-					//***With its VLAN***
-					$nr = $this->_number_to_word($start_number);
-					array_push($network,
-						array(
-							"interface"    => "bat_vlan_".$nr,
-							"options"   => array(
-							    "ifname"    	=> $interfaces,
-							    "proto"     	=> "batadv_vlan",
-							    'ap_isolation' 	=> '0'
-						   )
-					));
+					//***With its VLAN*** //FIXME for 18.06 and older
+					if($version == '18.06'){
+					    $nr = $this->_number_to_word($start_number);
+					    array_push($network,
+						    array(
+							    "interface"    => "bat_vlan_".$nr,
+							    "options"   => array(
+							        "ifname"    	=> $interfaces,
+							        "proto"     	=> "batadv_vlan",
+							        'ap_isolation' 	=> '0'
+						       )
+					    ));
+				    }
                     $start_number++;
                     continue; //We dont care about the other if's            
                     
@@ -916,575 +967,8 @@ class MeshHelperComponent extends Component {
                 //____ LAYER 3 Tagged Bridge ____
                 if(($type == 'tagged_bridge_l3')&&($gateway)){
                 
-                    $tmp_br_int     = $this->_eth_br_for($this->Hardware);
-                    
+                    $tmp_br_int     = $this->_eth_br_for($this->Hardware);                    
                     $interfaces     = $tmp_br_int.'.'.$me->vlan;  //We only do eth0  
-                    $exit_point_id  = $me->id;
-                    
-                             
-                    $this->l3_vlans[$exit_point_id] = $if_name;
-                    if($me->proto == 'dhcp'){
-                         array_push($network,
-                            array(
-                                "interface"    => "$if_name",
-                                "options"   => array(
-                                    'ifname'    => "$tmp_br_int",
-                                    'type'      => '8021q',
-                                    'proto'     => 'dhcp',
-                                    'name'      => $tmp_br_int.'.'.$me->vlan,
-                                    'vid'       => $me->vlan
-                            ))
-                        );
-                    }
-                    if($me->proto == 'static'){  
-                        $options = [
-                            'ifname'    => "$tmp_br_int",
-                            'type'      => '8021q',
-                            'proto'     => $me->proto,
-                            'ipaddr'    => $me->ipaddr,
-                            'netmask'   => $me->netmask,
-                            'gateway'   => $me->gateway,
-                            'name'      => $tmp_br_int.'.'.$me->vlan,
-                            'vid'       => $me->vlan
-                        ];
-                        $lists = [];
-                        if($me->dns_2 != ''){
-                            array_push($lists,['dns'=> $me->dns_2]);
-                        }
-                        if($me->dns_1 != ''){
-                            array_push($lists,['dns'=> $me->dns_1]);
-                        }
-                    
-                        array_push($network,
-                            [
-                                "interface" => "$if_name",
-                                "options"   => $options,
-                                "lists"     => $lists
-                        ]); 
-                    }
-                    continue; //We dont care about the other if's 
-                }
-
-                //=======================================
-                //==== STANDARD NODES ===================
-                //=======================================
-
-                if(($type == 'nat')||($type == 'tagged_bridge')||($type == 'bridge')||($type =='captive_portal')||($type =='openvpn_bridge')){
-                    $interfaces =  "bat0.".$start_number;
-                    
-					//===Check if this standard node has an ethernet bridge that has to be included here (NON LAN bridge)
-					if(
-						($eth_br_chk)&& 			//Eth br specified
-						($eth_br_with == $exit_id) 	//Only if the current one is the one to be bridged
-					){
-						$interfaces = "$br_int $interfaces";
-					}
-
-                    array_push($network,
-                        array(
-                            "interface"    => "$if_name",
-                            "options"   => array(
-                                "ifname"    => $interfaces,
-                                "type"      => "bridge" 
-                        ))
-                    );
-
-					//***With its VLAN***
-					$nr = $this->_number_to_word($start_number);
-					array_push($network,
-						array(
-							"interface"    => "bat_vlan_".$nr,
-							"options"   => array(
-							    "ifname"    	=> $interfaces,
-							    "proto"     	=> "batadv_vlan",
-							    'ap_isolation' 	=> '0'
-						   )
-					));
-                    $start_number++;
-                    continue; //We dont care about the other if's
-                }
-            }
-        }
-       
-        //Captive Portal layer2 VLAN upstream enhancement 
-        $cp_counter = 0;
-        foreach($captive_portal_data as $cpd){
-            if($cpd['mesh_exit_upstream_id'] == 0){
-                $captive_portal_data[$cp_counter]['hswan_if'] = 'br-lan';
-            }else{
-                $captive_portal_data[$cp_counter]['hswan_if'] = $this->l3_vlans[$cpd['mesh_exit_upstream_id']];
-            }
-            $cp_counter++;
-        }
-                  
-        return [$network,$entry_point_data,$nat_data,$captive_portal_data,$openvpn_bridge_data,$nat_detail];     
-    }
-    
-    private function _build_network_19_07($ent_mesh,$gateway = false){
-
-        $network 				= [];
-        $nat_data				= [];
-        $captive_portal_data 	= [];
-        $openvpn_bridge_data    = [];
-		$include_lan_dhcp 		= true;
-	    $nat_detail				= [];
-
-
-        //=================================
-        //loopback if
-        array_push( $network,
-            [
-                "interface"    => "loopback",
-                "options"   => [
-                    "ifname"        => "lo",
-                    "proto"         => "static",
-                    "ipaddr"        => "127.0.0.1",
-                    "netmask"       => "255.0.0.0"
-               ]
-            ]);
-        //========================
-
-		//We add a new feature - we can specify for NON Gateway nodes to which their LAN port should be connected with
-		if($ent_mesh->node_setting !== null && $ent_mesh->node_setting->eth_br_chk != ''){
-			$eth_br_chk 		= $ent_mesh->node_setting->eth_br_chk;
-			$eth_br_with	    = $ent_mesh->node_setting->eth_br_with;
-			$eth_br_for_all	    = $ent_mesh->node_setting->eth_br_for_all;
-		}else{
-	    	Configure::load('MESHdesk');
-			$c_n_s 				= Configure::read('common_node_settings'); //Read the defaults
-			$eth_br_chk 		= $c_n_s['eth_br_chk'];
-			$eth_br_with	    = $c_n_s['eth_br_with'];
-			$eth_br_for_all	    = $c_n_s['eth_br_for_all'];
-		}
-
-		$lan_bridge_flag 	= false;		
-
-		//If we need to bridge and it is with the LAN (the easiest)
-		if(
-			($eth_br_chk)&&
-			($eth_br_with == 0)
-		){
-			$lan_bridge_flag = true;
-		}
-
-        //LAN
-		$br_int = $this->_eth_br_for($this->Hardware);
-		
-		if($gateway == true){
-		    if($this->Vlan){
-		        $br_int = $br_int.'.'.$this->Vlan;
-		    }
-		}
-		
-		if($lan_bridge_flag){
-			$br_int = "$br_int bat0.100";
-		}
-
-		//If we need to bridge and it is NOT with the LAN (more involved)
-		if(
-			($eth_br_chk)&&
-			($eth_br_with != 0)&&
-			($gateway == false) //Only on non-gw nodes
-		){
-			$include_lan_dhcp = false; //This case we do not include the lan dhcp bridge
-		}
-        //==================
-        
-
-        if($include_lan_dhcp){
-
-			//We need to se the non-gw nodes to have:
-			//1.) DNS Masq must not be running
-			//2.) The LAN must now have DHCP client since this will trigger the setup script as soon as the interface get an IP
-			//3.) This will cause a perpetiual loop since it will kick off the setup script and reconfigure itself.
-			//4.) The gateway however still needs to maintain its dhcp client status.
-			$proto = 'dhcp';
-			if(($lan_bridge_flag)&&($gateway == false)){
-				$proto = 'static';
-			}
-			
-			//SMALL HACK START 
-			$m = $this->request->query['mac'];
-            $m = strtolower($m);
-            $m = str_replace('-', ':', $m);
-            //SMALL HACK END
-            
-            
-            //-------DEC2019--- Small hack if it has wbw we have to substitute the bridge with NAT + DHCP          
-            array_push( $network,
-                [
-                    "interface"    => "lan",
-                    "options"   => [
-                        "ifname"        => "$br_int", 
-                        "type"          => "bridge",
-                        "proto"         => "$proto",
-                        "macaddr"       => "$m" //SMALL HACK II
-                   ]
-            ]);
-            //-------END DEC2019---
-            
-            //-- Jul 2021 -ADD LTE Support--
-            $qmi_return =  $this->_checkForQmi();
-            if($qmi_return){
-                array_push( $network,$qmi_return);
-            }                    	   	
-		}
-
-		//Add an interface called b to list the batman interface
-		array_push( $network,
-            [
-                "interface"    => "bat0",
-                "options"   => [
-                    "ifname"        => "bat0",
-                    'proto'         => 'batadv',
-                    'routing_algo'  => 'BATMAN_IV',
-                    'aggregated_ogms'   => 1,
-                    'ap_isolation'      => 0,
-                    'bonding'           => 0,
-                    'fragmentation'     => 1,
-                    #'gw_bandwidth'     =>'10000/2000',
-                    'gw_mode'           => 'off',
-                    #'gw_sel_class'     => 20,
-                    'log_level'         => 0,
-                    'orig_interval'     => 1000,
-                    'bridge_loop_avoidance' => 0, //FIXME It seems the originator mac message stops when this is disabled
-                    'distributed_arp_table' => 1,
-                    'multicast_mode'    => 1,
-                    'network_coding'    => 0,
-                    'hop_penalty'       => 30,
-                    'isolation_mark'    => '0x00000000/0x00000000'      
-               ]
-            ]);
-		
-        //Mesh
-        array_push( $network,
-            [
-                "interface"    => "mesh",
-                "options"   => [
-                    "proto"     => "batadv_hardif",
-                    'master'    => 'bat0',
-                    'mtu'       => 2304            
-               ]
-            ]);
-
-        $ip = $this->EntNode->ip;
-
-        //Admin interface
-        array_push($network,
-            [
-                "interface"    => "one",
-                "options"   => [
-                    "ifname"    => "bat0.1",
-                    "proto"     => "static",
-                    "ipaddr"    => $ip,
-                    "netmask"   => "255.255.255.0",
-                    "type"      => "bridge",
-                    'stp'       => 1,
-                    'delegate'  => 0
-               ]
-            ]);
-
-
-        //================================
-
-        //Now we will loop all the defined exits **that has entries assigned** to them and add them as bridges as we loop. 
-        //The members of these bridges will be determined by which entries are assigned to them and specified
-        //in the wireless configuration file
-
-        $start_number = 2;
-
-        //We create a data structure which will be used to add the entry points and bridge them with
-        //The correct network defined here
-        $entry_point_data = [];
-
-        //Add the auto-attach entry points
-        foreach($ent_mesh->mesh_exits as $me){
-        
-            $has_entries_attached   = false;
-            $if_name                = 'ex_'.$this->_number_to_word($start_number);
-            $exit_id                = $me->id;
-            $type                   = $me->type;
-            $vlan                   = $me->vlan;
-            $openvpn_server_id      = $me->openvpn_server_id;
-            
-            //Mar 2021 The eth_br_with will have the ID of the exit point. If it matches we need to add it even if it does not have a macting SSID
-            if($eth_br_with == $me->id){
-                $has_entries_attached = true;
-            }            
-            //This is used to fetch info eventually about the entry points
-            if(count($me->mesh_exit_mesh_entries) > 0){
-                $has_entries_attached = true;
-                foreach($me->mesh_exit_mesh_entries as $entry){
-                    if($entry->mesh_entry_id!=0){ //Entry id of 0 is for eth1 ...
-                    
-                        if(($type == 'bridge')&&($gateway)){ //The gateway needs the entry points to be bridged to the LAN
-                            array_push($entry_point_data, ['network' => 'lan','entry_id' => $entry->mesh_entry_id]);
-                        }else{
-                            array_push($entry_point_data, ['network' => $if_name,'entry_id' => $entry->mesh_entry_id]);
-                        }
-                    }
-                }
-            }
-                        
-            if($type == 'tagged_bridge_l3'){
-                $has_entries_attached = true;    
-            }
-  
-            if($has_entries_attached == true){
-				
-                //=======================================
-                //========= GATEWAY NODES ===============
-                //=======================================
-                $captive_portal_count = 1;
-                
-                //-- Common to gateway --
-                if($gateway){
-                    $eth_one_bridge = false;
-                    $interfaces     =  "bat0.".$start_number;
-                    foreach($me->mesh_exit_mesh_entries as $cp_ent){
-                        if($cp_ent['mesh_entry_id'] == 0){
-                            $eth_one_bridge = true;
-                            break;
-                        }
-                    }     
-                    
-                    if($eth_one_bridge == true){
-                        $lan_if = $this->_lan_if_for($this->Hardware);
-                        if($lan_if){
-                            $interfaces =  "bat0.".$start_number." ".$lan_if;
-                        }
-                    }
-                    
-                }        
-
-                if(($type == 'tagged_bridge')&&($gateway)){
-                               
-					$br_int = $this->_eth_br_for($this->Hardware);
-				    $interfaces =  "bat0.".$start_number." $br_int.".$vlan; //only one
-
-                    array_push($network,
-                        [
-                            "interface"    => "$if_name",
-                            "options"   => [
-                                "ifname"    => $interfaces,
-                                "type"      => "bridge",
-                                'stp'       => 1,
-                                'delegate'  => 0
-                        ]]
-                    );
-
-                    $start_number++;
-                    continue;   //We don't car about the other if's
-                }
-        
-                //== 21May2021 == Modify so it will use custom settings if defined 
-                if(($type == 'nat')&&($gateway)){
-                
-                    $if_ipaddr          = "10.200.".(100+$start_number).".1";
-                    $if_netmask         = "255.255.255.0";
-                    $nat_detail_item    = [];
-                    
-                    foreach($me->mesh_exit_settings as $s){                        
-                        if(preg_match('/^nat_/',$s->name)){
-                            $nat_item  = preg_replace('/^nat_/', '', $s->name);
-                            $nat_detail_item[$nat_item] = $s->value;
-                        }                             
-                    }
-                    
-                    if(!empty($nat_detail_item)){
-                        $if_ipaddr  = $nat_detail_item['ipaddr'];
-                        $if_netmask = $nat_detail_item['netmask'];
-                        $nat_detail[$if_name]=$nat_detail_item;
-                    }
-                                    
-                    array_push($network,
-                        [
-                            "interface"    => "$if_name",
-                            "options"   => [
-                                "ifname"    => $interfaces,
-                                "type"      => "bridge",
-                                'ipaddr'    => $if_ipaddr,
-                                'netmask'   => $if_netmask,
-                                'proto'     => 'static',
-                                'stp'       => 1,
-                                'delegate'  => 0
-                        ]]
-                    );
-
-                    //Push the nat data
-                    array_push($nat_data,$if_name);
-                    $start_number++;
-                    continue; //We dont care about the other if's
-                }
-
-                //=== GATEWAY BRIDGE ===
-                if(($type=='bridge')&&($gateway)){
-                                                  
-                    //Here we have to override the bridge with a NAT if wbw
-                    if(($this->request->getQuery('wbw_active') == '1')||($this->QmiActive == true)){                     
-                        $this->if_wbw_nat_br = $if_name;
-                        array_push($network,
-                            [
-                                "interface"    => "$if_name",
-                                "options"   => [
-                                    "ifname"    => $interfaces,
-                                    "type"      => "bridge",
-                                    'ipaddr'    =>  "10.210.".(100+$start_number).".1",
-                                    'netmask'   =>  "255.255.255.0",
-                                    'proto'     => 'static',
-                                    'stp'       => 1,
-                                    'delegate'  => 0
-                            ]]
-                        );
-                        //Push the nat data
-                        array_push($nat_data,$if_name);
-                    }else{       
-                        $current_interfaces = $network[1]['options']['ifname'];                       
-                        $network[1]['options']['ifname'] = $current_interfaces." ".$interfaces;
-                        $network[1]['options']['stp'] = 1;
-                        $network[1]['options']['delegate'] = 0;
-                        
-                        $dns            = '';
-                        $wan_specific   = $this->_checkForWanSpecific();
-                        foreach($wan_specific as $x => $val){
-                            if(($x == 'dns_1')or($x == 'dns_2')){
-                                $dns = $dns.' '.$val;
-                            }else{
-                                $network[1]['options'][$x] = $val;
-                            }
-                        }
-                        if($dns !== ''){
-                            $network[1]['options']['dns'] = trim($dns); 
-                        }                         
-                    } 
-                                   
-                    $start_number++;
-                    continue; //We dont care about the other if's
-                }
-                
-                if(($type == 'captive_portal')&&($gateway)){
-                    
-                    //---WIP Start---
-                    if($me->mesh_exit_captive_portal->dnsdesk == true){
-                        $if_ip      = "10.$captive_portal_count.0.2";
-                    }
-                    $captive_portal_count++; //Up it for the next one
-                    //---WIP END---
-
-                    //Add the captive portal's detail
-                    if($type =='captive_portal'){
-                        $a = $me->mesh_exit_captive_portal;
-                        $a->hslan_if = 'br-'.$if_name;
-                        $a->network  = $if_name;
-                        
-                        //---WIP Start---
-                        if($me->mesh_exit_captive_portal->dnsdesk == true){
-                            $a->dns1      = $if_ip;
-                            //Also sent along the upstream DNS Server to use
-                            $a->upstream_dns1 = Configure::read('dnsfilter.dns1'); //Read the defaults
-                            $a->upstream_dns2 = Configure::read('dnsfilter.dns2'); //Read the defaults
-                        }
-                        //---WIP END---
-                        
-                        //Walled garden fix
-                        $a->walled_garden = preg_replace('#\s+#',',',trim($a->walled_garden));
-                        
-                        
-                        //Facebook XWF automatically add walled garden based on value of xwf_homepage and optioal config file entries
-                        if($a->xwf_enable){
-                            $xwf_walled_garden = $a->xwf_uamhomepage;
-                            $xwf_walled_garden = preg_replace('#^(https|http)://#','',$xwf_walled_garden);
-                            $xwf_walled_garden = preg_replace('#/.*#','',$xwf_walled_garden);
-                            
-                            Configure::load('MESHdesk');
-                            if(Configure::read('MEHSdesk.xwf_extra_walled_garden')){
-                                $xwf_walled_garden = $xwf_walled_garden.','.Configure::read('MEHSdesk.xwf_extra_walled_garden');
-                            }                            
-                            
-                            if($a->walled_garden == ''){
-                                $a->walled_garden = $xwf_walled_garden;
-                            }else{
-                                $a->walled_garden = $a->walled_garden.",".$xwf_walled_garden;
-                            }
-                        }
-                                                                       
-                        //coova_optional fix
-                        if($a->coova_optional !== ''){
-                            $a->coova_optional = trim($a->coova_optional);
-                            $a->coova_optional = $a->coova_optional."\n";
-                        }
-                        //print_r($a);                        
-                        
-                        array_push($captive_portal_data,$a);             
-                    }
-                                      
-                    array_push($network,
-                        [
-                            "interface"    => "$if_name",
-                            "options"   => [
-                                "ifname"    => $interfaces,
-                                "type"      => "bridge",
-                                'stp'       => 1,
-                                'delegate'  => 0       
-                        ]]
-                    );
-                    $start_number++;
-                    continue; //We dont care about the other if's
-                }
-                
-                //___ OpenVPN Bridge ________
-                if(($type == 'openvpn_bridge')&&($gateway)){
-
-                    //Add the OpenvpnServer detail
-                    if($type =='openvpn_bridge'){
-                       
-                        $a              = $me->openvpn_server_client->toArray();
-
-                        $a['bridge']    = 'br-'.$if_name;
-                        $a['interface'] = $if_name;
-                        
-                        //Get the info for the OpenvpnServer
-                        $ent_vpn        = $this->OpenvpnServers->find()
-                            ->where(['OpenvpnServers.id' => $me->openvpn_server_client->openvpn_server_id])
-                            ->first();
-                        
-                        $a['protocol']  = $ent_vpn->protocol;
-                        $a['ip_address']= $ent_vpn->ip_address;
-                        $a['port']      = $ent_vpn->port;
-                        $a['vpn_mask']  = $ent_vpn->vpn_mask;
-                        $a['ca_crt']    = $ent_vpn->ca_crt;   
-                        
-                        $a['config_preset']        = $ent_vpn->config_preset;  
-                        $a['vpn_gateway_address']  = $ent_vpn->vpn_gateway_address;
-                        $a['vpn_client_id']        = $me->openvpn_server_client->id;                      
-                        array_push($openvpn_bridge_data,$a);
-                                     
-                    }
-                    $interfaces =  "bat0.".$start_number;
-                    array_push($network,
-                        array(
-                            "interface"    => "$if_name",
-                            "options"   => array(
-                                "ifname"    => $interfaces,
-                                "type"      => "bridge",
-                                'ipaddr'    => $me->openvpn_server_client->ip_address,
-                                'netmask'   => $a['vpn_mask'],
-                                'proto'     => 'static',
-                                'stp'       => 1,
-                                'delegate'  => 0
-                                
-                        ))
-                    );
-                    $start_number++;
-                    continue; //We dont care about the other if's            
-                    
-                }
-                
-                //____ LAYER 3 Tagged Bridge ____
-                if(($type == 'tagged_bridge_l3')&&($gateway)){
-                
-                    $tmp_br_int     = $this->_eth_br_for($this->Hardware);               
-                    $interfaces     = $tmp_br_int.'.'.$me->vlan;  //We only do eth0                    
                     $exit_point_id  = $me->id;
                                                  
                     $this->l3_vlans[$exit_point_id] = $if_name;
@@ -1555,6 +1039,20 @@ class MeshHelperComponent extends Component {
                                 'delegate'  => 0 
                         ))
                     );
+
+					//***With its VLAN*** //FIXME for 18.06 and older
+					if($version == '18.06'){
+					    $nr = $this->_number_to_word($start_number);
+					    array_push($network,
+						    array(
+							    "interface"    => "bat_vlan_".$nr,
+							    "options"   => array(
+							        "ifname"    	=> $interfaces,
+							        "proto"     	=> "batadv_vlan",
+							        'ap_isolation' 	=> '0'
+						       )
+					    ));
+                    }
                     $start_number++;
                     continue; //We dont care about the other if's
                 }
@@ -1571,10 +1069,10 @@ class MeshHelperComponent extends Component {
             }
             $cp_counter++;
         }
-          
-        return array($network,$entry_point_data,$nat_data,$captive_portal_data,$openvpn_bridge_data,$nat_detail);     
+                  
+        return [$network,$entry_point_data,$nat_data,$captive_portal_data,$openvpn_bridge_data,$nat_detail];     
     }
-    
+     
     private function _build_wireless($ent_mesh,$entry_point_data){
 
         $wireless = [];
