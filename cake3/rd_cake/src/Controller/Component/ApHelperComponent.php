@@ -402,7 +402,14 @@ class ApHelperComponent extends Component {
             ]);
 
 
-        $br_int = $this->_wan_for($this->Hardware);
+        $br_int     = $this->_wan_for($this->Hardware);
+        $wan_if     = $this->_wan_for($this->Hardware);
+        $version    = $this->request->getQuery('version');
+        //SMALL HACK START 
+		$m = $this->request->getQuery('mac');
+        $m = strtolower($m);
+        $m = str_replace('-', ':', $m);
+        //SMALL HACK END
         
         //Default
         $wan_if = 'wan0'; //Just bogus value
@@ -516,7 +523,20 @@ class ApHelperComponent extends Component {
 		                "interface" => "lan",
 		                "options"   => $wan_options
 		       	]);
-		    }    	
+		    }
+		    
+		    if($version == '21.02'){         
+                if($wan_if == 'wan'){      
+                    array_push( $network,
+                        [
+                            "device"    => $wan_if,
+                            "options"   => [
+                                "name"      => $wan_if, 
+                                "macaddr"   => "$m"
+                           ]
+                    ]);
+                }      
+            }	        	
 		}
 		
 		//LTE/4G - !!HEADSUP Place it here since some code expect the LAN IF to be on $network[1]['options']['ifname'];!!
