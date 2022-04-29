@@ -584,30 +584,31 @@ CREATE TABLE `ap_stations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `ap_id` int(11) DEFAULT NULL,
   `ap_profile_entry_id` int(11) DEFAULT NULL,
-  `vendor` varchar(255) DEFAULT NULL,
+  `radio_number` tinyint(3) NOT NULL DEFAULT 0,
+  `frequency_band` enum('two','five_lower','five_upper') DEFAULT 'two',
   `mac` varchar(17) NOT NULL,
   `tx_bytes` bigint(20) NOT NULL,
   `rx_bytes` bigint(20) NOT NULL,
-  `tx_packets` int(11) NOT NULL,
-  `rx_packets` int(11) NOT NULL,
+  `tx_packets` bigint(20) NOT NULL,
+  `rx_packets` bigint(20) NOT NULL,
   `tx_bitrate` int(11) NOT NULL,
   `rx_bitrate` int(11) NOT NULL,
-  `tx_extra_info` varchar(255) NOT NULL,
-  `rx_extra_info` varchar(255) NOT NULL,
-  `authenticated` enum('yes','no') DEFAULT 'no',
-  `authorized` enum('yes','no') DEFAULT 'no',
-  `tdls_peer` varchar(255) NOT NULL,
-  `preamble` enum('long','short') DEFAULT 'long',
+  `authenticated` tinyint(2) NOT NULL DEFAULT 1,
+  `authorized` tinyint(2) NOT NULL DEFAULT 1,
+  `tdls_peer` tinyint(2) NOT NULL DEFAULT 1,
+  `preamble` varchar(255) NOT NULL,
   `tx_failed` int(11) NOT NULL,
-  `inactive_time` int(11) NOT NULL,
-  `WMM_WME` enum('yes','no') DEFAULT 'no',
+  `wmm_wme` tinyint(2) NOT NULL DEFAULT 0,
   `tx_retries` int(11) NOT NULL,
-  `MFP` enum('yes','no') DEFAULT 'no',
+  `mfp` tinyint(2) NOT NULL DEFAULT 1,
   `signal_now` int(11) NOT NULL,
   `signal_avg` int(11) NOT NULL,
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `idx_ap_stations_ap_id` (`ap_id`),
+  KEY `idx_ap_stations_ap_profile_entry_id` (`ap_profile_entry_id`),
+  KEY `idx_ap_stations_modified` (`modified`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -9095,4 +9096,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-30 14:05:37
+-- Dump completed on 2022-04-29 16:07:16
