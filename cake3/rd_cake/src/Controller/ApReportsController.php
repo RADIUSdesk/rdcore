@@ -155,7 +155,7 @@ class ApReportsController extends AppController {
                     array_push($mem_and_system, ['description' => 'Uptime','value' => $uptime,'style' => 'rdInfo' ]);
                     $system_time= $q_r->ap_load->system_time;
                     array_push($mem_and_system, ['description' => 'System time','value' => $system_time,'style' => 'rdInfo' ]);
-                    array_push($mem_and_system, ['description' => 'IP','value' => $q_r['Ap']['last_contact_from_ip'],'style' => 'rdInfo' ]);
+                    array_push($mem_and_system, ['description' => 'IP','value' => $q_r->last_contact_from_ip,'style' => 'rdInfo' ]);
 
                     $data['components'][1]['name'] = "System";
                     $data['components'][1]['items'] = $mem_and_system;
