@@ -243,9 +243,9 @@ var sConnect = (function () {
                 }
                 var $first_name = `
                     <div class="mb-3 `+$first_name_req_class+`">
-                        <input type="text" placeholder="`+i18n("sFirstName")+`" class="form-control" id="ciFirstName" name="first_name" `+$first_name_req_attr+`>
+                        <input type="text" placeholder="First Name" class="form-control" id="ciFirstName" name="first_name" `+$first_name_req_attr+`>
                         <div class="invalid-feedback">
-                            `+i18n("sPlease_supply_a_valid")+' '+i18n("sFirstName")+`
+                            Please supply a valid First Name
                         </div>
                     </div>`     
                 var first_name = $($first_name);
@@ -261,9 +261,9 @@ var sConnect = (function () {
                 }
                 var $last_name = `
                     <div class="mb-3 `+$last_name_req_class+`">
-                        <input type="text" placeholder="`+i18n("sSurname")+`" class="form-control" id="ciSurname" name="last_name" `+$last_name_req_attr+`>
+                        <input type="text" placeholder="Surname" class="form-control" id="ciSurname" name="last_name" `+$last_name_req_attr+`>
                         <div class="invalid-feedback">
-                             `+i18n("sPlease_supply_a_valid")+' '+i18n("sSurname")+`
+                            Please supply a valid Surname
                         </div>
                     </div>`     
                 var last_name = $($last_name);
@@ -279,9 +279,9 @@ var sConnect = (function () {
                 }
                 var $email = `
                     <div class="mb-3 `+$email_req_class+`">
-                        <input type="email" placeholder="`+i18n("sEmail")+`" class="form-control" id="ciEmail" name="email" `+$email_req_attr+`>
+                        <input type="email" placeholder="Email" class="form-control" id="ciEmail" name="email" `+$email_req_attr+`>
                         <div class="invalid-feedback">
-                            `+i18n("sPlease_supply_a_valid")+' '+i18n("sEmail")+`
+                            Please supply a valid Email
                         </div>
                     </div>`     
                 var email = $($email);
@@ -307,14 +307,14 @@ var sConnect = (function () {
                 }
                 var $gender = `
                     <div class="mb-3 `+$gender_req_class+`">
-                        <label>`+i18n("sGender")+`</label>
+                        <label>Gender  </label>
                         <div class="form-check form-check-inline">
                         <input class="form-check-input" type="radio" id='genderMale' name="gender"  value="male" checked>
-                          <label class="form-check-label" for="genderMale">`+i18n("sMale")+`</label>
+                          <label class="form-check-label" for="genderMale">Male</label>
                         </div>
                         <div class="form-check form-check-inline">
                           <input class="form-check-input" type="radio" id='genderFemale' name="gender" value="female">
-                          <label class="form-check-label" for="genderFemale">`+i18n("sFemale")+`</label>
+                          <label class="form-check-label" for="genderFemale">Female</label>
                         </div>     
                     </div>`     
                 var gender = $($gender);
@@ -330,10 +330,10 @@ var sConnect = (function () {
                 }
                 var $birthday = `
                     <div class="mb-3 `+$birthday_req_class+`">
-                        <label for="ciBirthday">`+i18n("sBirthday")+`</label>
+                        <label for="ciBirthday">Birthday</label>
                         <input id="ciBirthday" class="form-control" type="date" name="birthday"  `+$birthday_req_attr+ `/>
                         <div class="invalid-feedback">
-                            `+i18n("sPlease_supply_a_valid")+' '+i18n("sBirthday")+`
+                            Please supply a valid Birthday
                         </div>
                     </div>`     
                 var birthday = $($birthday);
@@ -349,9 +349,9 @@ var sConnect = (function () {
                 }
                 var $company = `
                     <div class="mb-3 `+$company_req_class+`">
-                        <input type="text" placeholder="`+i18n("sCompany")+`" class="form-control" id="ciCompany" name="company" `+$company_req_attr+`>
+                        <input type="text" placeholder="Company" class="form-control" id="ciCompany" name="company" `+$company_req_attr+`>
                         <div class="invalid-feedback">
-                            `+i18n("sPlease_supply_a_valid")+' '+i18n("sCompany")+`
+                            Please supply a valid value for Company
                         </div>
                     </div>`   
                 var company = $($company);
@@ -367,9 +367,9 @@ var sConnect = (function () {
                 }
                 var $address = `
                     <div class="mb-3 `+$address_req_class+`">
-                        <textarea placeholder="`+i18n("sAddress")+`" class="form-control" id="ciAddress" rows="3" name="address" `+$address_req_attr+`></textarea>
+                        <textarea placeholder="Address" class="form-control" id="ciAddress" rows="3" name="address" `+$address_req_attr+`></textarea>
                         <div class="invalid-feedback">
-                            `+i18n("sPlease_supply_a_valid")+' '+i18n("sAddress")+`
+                            Please supply a valid value for Address
                         </div>
                     </div>`   
                 var address = $($address);
@@ -385,9 +385,9 @@ var sConnect = (function () {
                 }
                 var $city = `
                     <div class="mb-3 `+$company_req_class+`">
-                        <input type="text" placeholder="`+i18n("sCity")+`" class="form-control" id="ciCity" name="city" `+$city_req_attr+`>
+                        <input type="text" placeholder="City" class="form-control" id="ciCity" name="city" `+$city_req_attr+`>
                         <div class="invalid-feedback">
-                            `+i18n("sPlease_supply_a_valid")+' '+i18n("sCity")+`
+                            Please supply a valid value for City
                         </div>
                     </div>`   
                 var city = $($city);
@@ -403,9 +403,9 @@ var sConnect = (function () {
                 }
                 var $country = `
                     <div class="mb-3 `+$country_req_class+`">
-                        <input type="text" placeholder="`+i18n("sCountry")+`" class="form-control" id="ciCountry" name="country" `+$country_req_attr+`>
+                        <input type="text" placeholder="Country" class="form-control" id="ciCountry" name="country" `+$country_req_attr+`>
                         <div class="invalid-feedback">
-                             `+i18n("sPlease_supply_a_valid")+' '+i18n("sCountry")+`
+                            Please supply a valid value for Country
                         </div>
                     </div>`   
                 var country = $($country);
@@ -421,9 +421,9 @@ var sConnect = (function () {
                 }
                 var $phone = `
                     <div class="mb-3 `+$phone_req_class+`">
-                        <input type="text" placeholder="`+i18n("sPhone")+`" class="form-control" id="ciPhone" minlength="8" pattern="^[0-9]*$" name="phone" `+$phone_req_attr+`>
+                        <input type="text" placeholder="Phone" class="form-control" id="ciPhone" minlength="8" pattern="^[0-9]*$" name="phone" `+$phone_req_attr+`>
                         <div class="invalid-feedback">
-                            `+i18n("sThe_number_must_have_at_least_8_digits")+`
+                             The number must have at least 8 digits
                         </div>
                     </div>`     
                 var phone = $($phone);
@@ -451,9 +451,9 @@ var sConnect = (function () {
                 }
                 var $room = `
                     <div class="mb-3 `+$room_req_class+`">
-                        <input type="text" placeholder="`+i18n("sRoom")+`" class="form-control" id="ciRoom" name="room" `+$room_req_attr+`>
+                        <input type="text" placeholder="Room" class="form-control" id="ciRoom" name="room" `+$room_req_attr+`>
                         <div class="invalid-feedback">
-                            `+i18n("sPlease_supply_a_valid")+' '+i18n("sRoom")+`
+                            Please supply a valid value for Room
                         </div>
                     </div>`   
                 var room = $($room);
@@ -498,7 +498,7 @@ var sConnect = (function () {
             
             if(cDynamicData.settings.click_to_connect.ci_custom3){
                 var $custom3_req_class = ''
-                var $custom3_req_attr  = ''
+                var $custom2_req_attr  = ''
                 if(cDynamicData.settings.click_to_connect.ci_custom3_required){
                     $custom3_req_class = req_class
                     $custom3_req_attr  = req_attr
@@ -1422,27 +1422,27 @@ var sConnect = (function () {
             
             var $form = `
              <div class="mb-3">
-                <input type="text" placeholder="`+i18n("sFirstName")+`" class="form-control" id="txtrFirstName" name="name">
+                <input type="text" placeholder="First Name" class="form-control" id="txtrFirstName" name="name">
               </div>
               <div class="mb-3">
-                <input type="text" placeholder="`+i18n("sSurname")+`" class="form-control" id="txtrSurname" name="surname">
+                <input type="text" placeholder="Surname" class="form-control" id="txtrSurname" name="surname">
               </div>
               <div class="mb-3 p-1 bg-secondary border">
-                <input type="email" placeholder="`+i18n("sEmail_br_username_br")+`" class="form-control" id="txtrEmail" name="username" required>
+                <input type="email" placeholder="Email (username)" class="form-control" id="txtrEmail" name="username" required>
                 <div class="invalid-feedback">
-                     `+i18n("sPlease_supply_a_valid")+' '+i18n("sEmail")+`
+                    Please supply a valid email address
                 </div>
               </div>
               <div class="mb-3 p-1 bg-secondary border">
-                <input type="text" placeholder="`+i18n("sPassword")+`" class="form-control" id="txtrPassword" name="password" minlength="5" required>
+                <input type="text" placeholder="Password" class="form-control" id="txtrPassword" name="password" minlength="5" required>
                 <div class="invalid-feedback">
-                    `+i18n("sThe_password_must_have_at_least_5_characters")+`
+                    Password must be a minimum of 5 characters
                 </div>
               </div>
               <div class="mb-3 p-1 bg-secondary border">
-                <input type="text" placeholder="`+i18n("sCell")+`" class="form-control" id="txtrCell" name="phone" pattern="^[0-9]*$" minlength="8" required>
+                <input type="text" placeholder="Cell" class="form-control" id="txtrCell" name="phone" pattern="^[0-9]*$" minlength="8" required>
                 <div class="invalid-feedback">
-                    `+i18n("sThe_number_must_have_at_least_8_digits")+`
+                    The number must have at least 8 digits
                 </div>
               </div>`;
             var ci = $($form);
@@ -1526,9 +1526,9 @@ var sConnect = (function () {
             var $pnl = $("#pnlLostPwd");        
             var $form = `       
               <div class="mb-3 p-1 bg-secondary border">
-                <input type="email" placeholder="`+i18n("sEmail")+`" class="form-control" id="txtlEmail" name="email" required>
+                <input type="email" placeholder="Email" class="form-control" id="txtlEmail" name="email" required>
                 <div class="invalid-feedback">
-                    `+i18n("sPlease_supply_a_valid")+' '+i18n("sEmail")+`
+                    Please supply a valid email address
                 </div>
               </div>
              `;
@@ -1541,9 +1541,9 @@ var sConnect = (function () {
             var $pnl = $("#pnlLostPwdSms");        
             var $form = `       
               <div class="mb-3 p-1 bg-secondary border">
-                <input type="text" placeholder="`+i18n("sCell")+`" class="form-control" id="txtlPhone" name="phone" minlength="8" pattern="^[0-9]*$" required>
+                <input type="text" placeholder="Mobile Number" class="form-control" id="txtlPhone" name="phone" minlength="8" pattern="^[0-9]*$" required>
                 <div class="invalid-feedback">
-                    `+i18n("sThe_number_must_have_at_least_8_digits")+`
+                    The number must have at least 8 digits
                 </div>
               </div>
              `;

@@ -1159,6 +1159,18 @@ CREATE TABLE `data_collectors` (
   `dn` varchar(36) NOT NULL DEFAULT '',
   `phone_opt_in` tinyint(1) NOT NULL DEFAULT 0,
   `email_opt_in` tinyint(1) NOT NULL DEFAULT 0,
+  `first_name` char(50) NOT NULL DEFAULT '',
+  `last_name` char(50) NOT NULL DEFAULT '',
+  `gender` enum('male','female','not_recorded') DEFAULT 'not_recorded',
+  `birthday` datetime DEFAULT NULL,
+  `company` char(50) NOT NULL DEFAULT '',
+  `address` char(50) NOT NULL DEFAULT '',
+  `city` char(50) NOT NULL DEFAULT '',
+  `country` char(50) NOT NULL DEFAULT '',
+  `room` char(50) NOT NULL DEFAULT '',
+  `custom1` char(50) NOT NULL DEFAULT '',
+  `custom2` char(50) NOT NULL DEFAULT '',
+  `custom3` char(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1379,6 +1391,73 @@ LOCK TABLES `dynamic_clients` WRITE;
 /*!40000 ALTER TABLE `dynamic_clients` DISABLE KEYS */;
 INSERT INTO `dynamic_clients` VALUES (1,'Demo1','','',NULL,'','','off',0,3600,1,1,0,NULL,NULL,'logo.jpg',45,'2021-10-25 22:48:48','2021-10-25 22:48:48',0,1.000,'mb',1,0,0,NULL,'hard',0,1.000,'mb','hard',0,0,NULL),(2,'MESHdesk_demo1_mcp_1','demo1_mcp_1','',NULL,'','24','off',1,3600,1,1,0,NULL,NULL,'logo.jpg',45,'2021-10-25 22:48:48','2021-10-25 22:48:58',0,1.000,'mb',1,0,0,NULL,'hard',0,1.000,'mb','hard',0,0,NULL);
 /*!40000 ALTER TABLE `dynamic_clients` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `dynamic_detail_ctcs`
+--
+
+DROP TABLE IF EXISTS `dynamic_detail_ctcs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dynamic_detail_ctcs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `dynamic_detail_id` int(11) DEFAULT NULL,
+  `connect_check` tinyint(1) NOT NULL DEFAULT 0,
+  `connect_username` char(50) NOT NULL DEFAULT '',
+  `connect_suffix` char(50) NOT NULL DEFAULT 'nasid',
+  `connect_delay` int(3) NOT NULL DEFAULT 0,
+  `connect_only` tinyint(1) NOT NULL DEFAULT 0,
+  `cust_info_check` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_resupply_interval` int(4) NOT NULL DEFAULT 0,
+  `ci_first_name` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_first_name_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_last_name` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_last_name_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_email` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_email_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_email_opt_in` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_email_opt_in_txt` char(50) NOT NULL DEFAULT 'Send Promotional Email',
+  `ci_gender` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_gender_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_birthday` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_birthday_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_company` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_company_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_address` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_address_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_city` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_city_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_country` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_country_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_phone` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_phone_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_phone_opt_in` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_phone_opt_in_txt` char(50) NOT NULL DEFAULT 'Send Promotional SMS',
+  `ci_room` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_room_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_custom1` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_custom1_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_custom1_txt` char(50) NOT NULL DEFAULT 'Custom One',
+  `ci_custom2` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_custom2_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_custom2_txt` char(50) NOT NULL DEFAULT 'Custom Two',
+  `ci_custom3` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_custom3_required` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_custom3_txt` char(50) NOT NULL DEFAULT 'Custom Three',
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `dynamic_detail_ctcs`
+--
+
+LOCK TABLES `dynamic_detail_ctcs` WRITE;
+/*!40000 ALTER TABLE `dynamic_detail_ctcs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `dynamic_detail_ctcs` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1658,14 +1737,7 @@ CREATE TABLE `dynamic_details` (
   `show_logo` tinyint(1) NOT NULL DEFAULT 1,
   `show_name` tinyint(1) NOT NULL DEFAULT 1,
   `name_colour` varchar(255) NOT NULL DEFAULT '',
-  `ctc_require_phone` tinyint(1) NOT NULL DEFAULT 0,
-  `ctc_resupply_phone_interval` int(4) NOT NULL DEFAULT 0,
-  `ctc_require_dn` tinyint(1) NOT NULL DEFAULT 0,
-  `ctc_resupply_dn_interval` int(4) NOT NULL DEFAULT 0,
-  `ctc_phone_opt_in` tinyint(1) NOT NULL DEFAULT 0,
-  `ctc_phone_opt_in_txt` varchar(200) NOT NULL DEFAULT 'Send Promotional SMS',
-  `ctc_email_opt_in` tinyint(1) NOT NULL DEFAULT 0,
-  `ctc_email_opt_in_txt` varchar(200) NOT NULL DEFAULT 'Send Promotional Email',
+  `lost_password_method` enum('email','sms') DEFAULT 'email',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1676,7 +1748,7 @@ CREATE TABLE `dynamic_details` (
 
 LOCK TABLES `dynamic_details` WRITE;
 /*!40000 ALTER TABLE `dynamic_details` DISABLE KEYS */;
-INSERT INTO `dynamic_details` VALUES (1,'Demo1',1,'logo.jpg','','','','','','','','','','',NULL,NULL,45,0,'',0,'',0,30,1,'click_to_connect','ssid',0,0,'2021-10-25 22:48:48','2021-10-26 18:17:34',0,0,0,'demo1',1,120,'Default',0,0,0,NULL,'','','','','en_GB',1,3,1,'demo1',0,0,0,0,10,'',0,0,0,1,0,'',0,0,0,0,0,'Send Promotional SMS',0,'Send Promotional Email');
+INSERT INTO `dynamic_details` VALUES (1,'Demo1',1,'logo.jpg','','','','','','','','','','',NULL,NULL,45,0,'',0,'',0,30,1,'click_to_connect','ssid',0,0,'2021-10-25 22:48:48','2021-10-26 18:17:34',0,0,0,'demo1',1,120,'Default',0,0,0,NULL,'','','','','en_GB',1,3,1,'demo1',0,0,0,0,10,'',0,0,0,1,0,'','email');
 /*!40000 ALTER TABLE `dynamic_details` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -5677,6 +5749,140 @@ DELIMITER ;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;
 /*!50003 SET character_set_results = @saved_cs_results */ ;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `add_dynamic_detail_ctcs` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_dynamic_detail_ctcs`()
+begin
+
+if not exists (select * from information_schema.columns
+    where table_name = 'dynamic_detail_ctcs' and table_schema = 'rd') then	
+    CREATE TABLE IF NOT EXISTS `dynamic_detail_ctcs` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `dynamic_detail_id` int(11) DEFAULT NULL,
+        `connect_check` tinyint(1) NOT NULL DEFAULT 0,
+        `connect_username` char(50) NOT NULL DEFAULT '',
+        `connect_suffix` char(50) NOT NULL DEFAULT 'nasid',
+        `connect_delay` int(3) NOT NULL DEFAULT 0,
+        `connect_only` tinyint(1) NOT NULL DEFAULT 0,
+        `cust_info_check` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_resupply_interval` int(4) NOT NULL DEFAULT 0,
+        `ci_first_name` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_first_name_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_last_name` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_last_name_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_email` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_email_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_email_opt_in` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_email_opt_in_txt` char(50) NOT NULL DEFAULT 'Send Promotional Email',
+        `ci_gender` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_gender_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_birthday` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_birthday_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_company` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_company_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_address` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_address_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_city` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_city_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_country` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_country_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_phone` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_phone_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_phone_opt_in` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_phone_opt_in_txt` char(50) NOT NULL DEFAULT 'Send Promotional SMS',
+        `ci_room` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_room_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_custom1` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_custom1_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_custom1_txt` char(50) NOT NULL DEFAULT 'Custom One',
+        `ci_custom2` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_custom2_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_custom2_txt` char(50) NOT NULL DEFAULT 'Custom Two',
+        `ci_custom3` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_custom3_required` tinyint(1) NOT NULL DEFAULT 0,
+        `ci_custom3_txt` char(50) NOT NULL DEFAULT 'Custom Three',
+        `created` datetime NOT NULL,
+        `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT 1 DEFAULT CHARSET=utf8;
+
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'first_name' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `first_name` char(50) NOT NULL DEFAULT '';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'last_name' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `last_name` char(50) NOT NULL DEFAULT '';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'gender' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `gender` enum('male','female','not_recorded') DEFAULT 'not_recorded';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'birthday' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `birthday` datetime DEFAULT NULL;
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'company' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `company` char(50) NOT NULL DEFAULT '';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'address' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `address` char(50) NOT NULL DEFAULT '';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'city' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `city` char(50) NOT NULL DEFAULT '';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'country' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `country` char(50) NOT NULL DEFAULT '';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'room' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `room` char(50) NOT NULL DEFAULT '';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'custom1' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `custom1` char(50) NOT NULL DEFAULT '';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'custom2' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `custom2` char(50) NOT NULL DEFAULT '';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'custom3' and table_name = 'data_collectors' and table_schema = 'rd') then
+    alter table data_collectors add column `custom3` char(50) NOT NULL DEFAULT '';
+end if;
+
+
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `add_dynamic_detail_mobile` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -5807,6 +6013,37 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `add_legacy_wifi_support`()
 begin
 
 alter table hardware_radios modify `mode` enum('a','g','n','ac','ax') DEFAULT 'n';
+
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `add_lost_pwd_method` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_lost_pwd_method`()
+begin
+
+if exists (select * from information_schema.columns
+    where column_name = 'ctc_require_phone' and table_name = 'dynamic_details' and table_schema = 'rd') then
+    alter table dynamic_details drop column ctc_require_phone, drop column ctc_resupply_phone_interval,drop column ctc_require_dn,drop column ctc_resupply_dn_interval,drop column ctc_phone_opt_in, drop column ctc_phone_opt_in_txt,drop column ctc_email_opt_in,drop column ctc_email_opt_in_txt;  
+end if;
+
+
+if not exists (select * from information_schema.columns
+    where column_name = 'lost_password_method' and table_name = 'dynamic_details' and table_schema = 'rd') then
+    alter table dynamic_details add column `lost_password_method` enum('email','sms') DEFAULT 'email';
+end if;
+
 
 end ;;
 DELIMITER ;
@@ -9096,4 +9333,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-04-29 16:07:16
+-- Dump completed on 2022-05-03 12:47:55
