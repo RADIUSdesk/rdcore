@@ -51,6 +51,7 @@ class DataCollectorsController extends AppController{
                 }else{       
                     $q_dd = $this->{$this->main_model}->find()
                         ->where([$this->main_model.'.dynamic_detail_id' => $dd_id,$this->main_model.'.mac' => $this->request->data['mac']])
+                        ->order(['modified' => 'DESC']) //Get the most recent one 
                         ->first();
                     if($q_dd){
                         if($dd_resuply_int > 0){ //This has an expiry date lets compare           
@@ -101,7 +102,8 @@ class DataCollectorsController extends AppController{
             $this->request->data['is_mobile'] = $this->request->isMobile();
             
             //See if there are not perhaps one already that just needs refreshing
-            $q_dd = $this->{$this->main_model}->find()
+            //== Record EVERY TIME ==
+          /*  $q_dd = $this->{$this->main_model}->find()
                     ->where([
                         $this->main_model.'.dynamic_detail_id' => $dd->dynamic_detail->id,
                         $this->main_model.'.mac' => $this->request->data['mac']
@@ -110,10 +112,10 @@ class DataCollectorsController extends AppController{
             if($q_dd){
                 $this->{$this->main_model}->patchEntity($q_dd, $this->request->data);
                 $this->{$this->main_model}->save($q_dd);
-            }else{      
+            }else{ */     
                 $entity = $this->{$this->main_model}->newEntity($this->request->data);
                 $this->{$this->main_model}->save($entity);
-            }
+          //  }
             
             $this->set(array(
                 'success' => true,
