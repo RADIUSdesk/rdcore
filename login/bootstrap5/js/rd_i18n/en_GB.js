@@ -1,5 +1,9 @@
 Local = {
 localizedStrings: {
+    'sPlease_connect_through_a_valid_Hotspot': 'Please connect through a valid Hotspot',
+    'sLatest_Challenge_could_not_be_fetched_from_hotspot':'Latest Challenge could not be fetched from hotspot',
+    
+    
     "sPlease_log_in_to_use_the_Wi-Fi_Internet_services_fs":"Please log in to use the Wi-Fi Internet services.",
     "sCustomer_Info": "Customer Info",
     'sSupplyYour_Mobile_Number' : 'Supply Your Mobile Number',

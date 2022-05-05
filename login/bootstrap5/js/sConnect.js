@@ -109,17 +109,15 @@ var sConnect = (function () {
                     onBtnClickSocialLogin('Twitter');
                 });
             }*/
-            
-            
-            
-                   
+                    
             if(uamIp == undefined){
                 fDebug("First time hotspot test");
                 if(testForHotspotCoova()){
                     fDebug("It is a hotspot, now check if connected or not...");
                     coovaRefresh(true);
                 }else{
-                    fShowError("Please connect through a valid Hotspot");
+                    
+                    fShowError(i18n('sPlease_connect_through_a_valid_Hotspot'));
                     fDebug("It is NOT a hotspot");
                 }  
             }else{
@@ -471,7 +469,7 @@ var sConnect = (function () {
                     <div class="mb-3 `+$custom1_req_class+`">
                         <input type="text" placeholder="`+cDynamicData.settings.click_to_connect.ci_custom1_txt+`" class="form-control" id="ciCustom1" name="custom1" `+$custom1_req_attr+`>
                         <div class="invalid-feedback">
-                            Please supply a valid value for `+cDynamicData.settings.click_to_connect.ci_custom1_txt+`
+                            `+i18n("sPlease_supply_a_valid")+' '+cDynamicData.settings.click_to_connect.ci_custom1_txt+`
                         </div>
                     </div>`     
                 var custom1 = $($custom1);
@@ -489,7 +487,7 @@ var sConnect = (function () {
                     <div class="mb-3 `+$custom2_req_class+`">
                         <input type="text" placeholder="`+cDynamicData.settings.click_to_connect.ci_custom2_txt+`" class="form-control" id="ciCustom2" name="custom2" `+$custom2_req_attr+`>
                         <div class="invalid-feedback">
-                            Please supply a valid value for `+cDynamicData.settings.click_to_connect.ci_custom2_txt+`
+                            `+i18n("sPlease_supply_a_valid")+' '+cDynamicData.settings.click_to_connect.ci_custom2_txt+`
                         </div>
                     </div>`     
                 var custom2 = $($custom2);
@@ -507,7 +505,7 @@ var sConnect = (function () {
                     <div class="mb-3 `+$custom3_req_class+`">
                         <input type="text" placeholder="`+cDynamicData.settings.click_to_connect.ci_custom3_txt+`" class="form-control" id="ciCustom3" name="custom3" `+$custom3_req_attr+`>
                         <div class="invalid-feedback">
-                            Please supply a valid value for `+cDynamicData.settings.click_to_connect.ci_custom3_txt+`
+                            `+i18n("sPlease_supply_a_valid")+' '+cDynamicData.settings.click_to_connect.ci_custom3_txt+`
                         </div>
                     </div>`     
                 var custom3 = $($custom3);
@@ -809,7 +807,7 @@ var sConnect = (function () {
                     onBtnClickSocialLoginChilli(a);
                 }else{
                     fDebug("Timed out"); 
-                    fShowError('Latest Challenge could not be fetched from hotspot');
+                    fShowError(i18n('sLatest_Challenge_could_not_be_fetched_from_hotspot'));
                     loadingReset();
                     currentRetry = 0;
                 }  
@@ -1080,7 +1078,7 @@ var sConnect = (function () {
                     onBtnDisconnectClick();
                 }else{
                     fDebug('Coova Not responding to logoff requests');
-                    fShowError('Coova Not responding to logoff requests');
+                    fShowError(i18n('sCoova_Not_responding_to_logoff_requests'));
                     currentRetry = 0;
                     loadingReset();
                 }
@@ -1109,7 +1107,7 @@ var sConnect = (function () {
                     getLatestChallenge();
                 }else{
                     fDebug('Latest Challenge could not be fetched from_hotspot');
-                    fShowError('Latest Challenge could not be fetched from hotspot');
+                    fShowError(i18n('sLatest_Challenge_could_not_be_fetched_from_hotspot'));
                     loadingReset();
                     currentRetry = 0;
                 }
@@ -1140,7 +1138,7 @@ var sConnect = (function () {
                         encPwd(challenge);
                     }else{
                         fDebug("UAM  service is down");
-                        fShowError("UAM  service is down");
+                        fShowError(i18n('sUAM_service_is_down'));
                         loadingReset();
                     }
                 });
@@ -1186,7 +1184,7 @@ var sConnect = (function () {
                     } else {
                       loadingReset();
                       fDebug('Coova Not responding to login requests');
-                      fShowError('Coova Not responding to login requests');
+                      fShowError(i18n('sCoova_Not_responding_to_login_requests'));
                     }
                 });
         }
@@ -1392,7 +1390,7 @@ var sConnect = (function () {
                         coovaRefresh();
                     }else{
                         fDebug("Timed out");
-                        fShowError('Latest Challenge could not be fetched from hotspot');
+                        fShowError(i18n('sLatest_Challenge_could_not_be_fetched_from_hotspot'));
                         loadingReset();
                     }
                 });
