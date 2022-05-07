@@ -870,6 +870,12 @@ class MeshHelperComponent extends Component {
                             $a->coova_optional = trim($a->coova_optional);
                             $a->coova_optional = $a->coova_optional."\n";
                         }
+                        
+                        //7May2022 remove empty UAMsecret
+                        if($a->uam_secret == ''){
+                            unset($a->uam_secret);
+                        }
+                        
                         //print_r($a);                        
                         array_push($captive_portal_data,$a);             
                     }
