@@ -447,8 +447,7 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
                                                     xtype       : 'textfield',
                                                     fieldLabel  : i18n("sUAM_Secret"),
                                                     name        : 'uam_secret',
-                                                    allowBlank  : false,
-                                                    labelClsExtra: 'lblRdReq'
+                                                    labelClsExtra: 'lblRd'
                                                 },
                                                 {
                                                     xtype       : 'textareafield',

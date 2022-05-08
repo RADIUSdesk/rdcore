@@ -34,8 +34,7 @@ class MeshExitCaptivePortalsTable extends Table {
             ])
             ->notBlank('radius1','Value is required')
             ->notBlank('secret','Value is required')
-            ->notBlank('uam_url','Value is required')
-            ->notBlank('uam_secret','Value is required');
+            ->notBlank('uam_url','Value is required');
         return $validator;
     }
 }

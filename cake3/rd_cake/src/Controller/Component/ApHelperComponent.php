@@ -715,6 +715,7 @@ class ApHelperComponent extends Component {
                 }
 
                 if($type == 'captive_portal'){
+                
 
                     //---WIP Start---
                     if($ap_profile_e->ap_profile_exit_captive_portal->dnsdesk == true){
@@ -723,7 +724,20 @@ class ApHelperComponent extends Component {
                     $captive_portal_count++; //Up it for the next one
                     //---WIP END---
 
-                    $a = $ap_profile_e->ap_profile_exit_captive_portal;
+                    $a = $ap_profile_e->ap_profile_exit_captive_portal;                   
+                    
+                    //Walled garden fix
+                    $a->walled_garden = preg_replace('#\s+#',',',trim($a->walled_garden));
+                    //coova_optional fix
+                    if($a->coova_optional !== ''){
+                        $a->coova_optional = trim($a->coova_optional);
+                        $a->coova_optional = $a->coova_optional."\n";
+                    }
+                    //7May2022 remove empty UAMsecret
+                    if($a->uam_secret == ''){
+                        unset($a->uam_secret);
+                    }                    
+                    
                     $a['hslan_if']      = 'br-'.$if_name;
                     $a['network']       = $if_name;
 

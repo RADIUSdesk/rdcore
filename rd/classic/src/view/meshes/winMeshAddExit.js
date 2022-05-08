@@ -227,8 +227,8 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
                 xtype       : 'textfield',
                 fieldLabel  : i18n('sUAM_Secret'),
                 name        : 'uam_secret',
-                allowBlank  : false,
-                labelClsExtra: 'lblRdReq'
+                allowBlank  : true,
+                labelClsExtra: 'lblRd'
             },
             {
                 xtype       : 'textareafield',
