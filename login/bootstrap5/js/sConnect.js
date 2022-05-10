@@ -32,7 +32,7 @@ var sConnect = (function () {
 
 	    var timeUntilUsage  = 20 //Default value
 	    var usageInterval	= 20; 
-        var useCHAP         = false; 
+        var useCHAP         = true; 
         
         var cDynamicData    = undefined;
         var redirect_check 	= false;
@@ -42,7 +42,7 @@ var sConnect = (function () {
             cDynamicData = co.cDynamicData;
         }
          
-        var cDebug          = false;      
+        var cDebug          = true;      
         var redirect_url    = undefined;
         
         //Be sure this is the same as specified in FB e.g. IP or DNS!!
@@ -98,31 +98,35 @@ var sConnect = (function () {
                 });
             }
             
-          /*  if($$('btnGoogle') != undefined){
-                $$('btnGoogle').attachEvent("onItemClick", function(){
+            if($('#btnGoogle') != undefined){
+                $('#btnGoogle').on('click', function(event){
+                    event.preventDefault();
+                    $('#btnGoogle').button('loading');
                     onBtnClickSocialLogin('Google');
                 });
             }
             
-            if($$('btnTwitter') != undefined){
-                $$('btnTwitter').attachEvent("onItemClick", function(){
+            if($('#btnTwitter') != undefined){
+                $('#btnTwitter').on('click', function(event){
+                    event.preventDefault();
+                    $('#btnTwitter').button('loading');
                     onBtnClickSocialLogin('Twitter');
                 });
-            }*/
-                    
+            }
+                        
             if(uamIp == undefined){
                 fDebug("First time hotspot test");
-                if(testForHotspotCoova()){
-                    fDebug("It is a hotspot, now check if connected or not...");
-                    coovaRefresh(true);
+                if(testForHotspot()){
+                    fDebug("It is a hotspot, now check if connected or not...");                 
+                    refresh(true);
                 }else{
-                    
                     fShowError(i18n('sPlease_connect_through_a_valid_Hotspot'));
                     fDebug("It is NOT a hotspot");
                 }  
             }else{
-                coovaRefresh(true);  //Already established we are a hotspot, simply refresh
+                refresh(true);  //Already established we are a hotspot, simply refresh
             }
+            
         }
         
         var fDebug  = function(message){  
@@ -161,7 +165,7 @@ var sConnect = (function () {
                     $('#status_refresh').text(timeUntilStatus);
                     if(timeUntilStatus == 0){      //Each time we reach null we refresh the screens
                         timeUntilStatus = refreshInterval; //Start anew
-                        coovaRefresh();
+                        refresh();
                     }
                 }
 
@@ -199,7 +203,9 @@ var sConnect = (function () {
                 onBtnClickToConnectClick(event);       
             }else{
                 var email_check = location.protocol+'//'+document.location.hostname+"/cake3/rd_cake/data-collectors/mac-check.json";
-                var mac_address = getParameterByName('mac');
+                var mac_address = decodeURIComponent(getParameterByName('mac'));
+                mac_address     = mac_address.replace(/:/g, '-');
+                console.log("MAC IS "+mac_address);
                 var nasid       = getParameterByName('nasid');
                 $.ajax({url: email_check, method: "POST", dataType: "json",timeout: 3000,data: {'mac': mac_address, 'nasid': nasid}})
                 .done(function(j){
@@ -702,12 +708,10 @@ var sConnect = (function () {
 				    }else{
 					    //console.log("big problems");
 					    fShowError(i18n('sCould_not_retrieve_Social_Login_Info')); 
-					    loadingReset();
 				    }
 			    })
 			    .fail(function() {
 				    fShowError(i18n('sCould_not_retrieve_Social_Login_Info'));
-				    loadingReset(); 
 			    });
             }
 	    }
@@ -727,7 +731,6 @@ var sConnect = (function () {
                     socialTempDisconnectMt();
                 }else{
                     fShowError(i18n('sMT_Not_responding_to_logout_requests'));
-                    loadingReset();
                 }     
             });
         }
@@ -745,7 +748,6 @@ var sConnect = (function () {
                     socialFinalLoginMt();
                 }else{
                     fShowError(i18n('sMT_Not_responding_to_login_requests'));
-                    loadingReset();
                 }
             });
         }
@@ -1012,7 +1014,7 @@ var sConnect = (function () {
 			    if(redirect_check){
 		            execRedirect(redirect_url);
 			    }else{             
-                    coovaRefresh(true); //Refresh session and usage
+                    coovaRefresh(); //Refresh session and usage
                 }
             }
         }        
@@ -1036,7 +1038,11 @@ var sConnect = (function () {
 		        }
 		    }
 		    $('#btnClickToConnect').button('loading');
-            getLatestChallenge();        
+		    if (isMikroTik) {
+                login();
+            } else {
+                getLatestChallenge(); 
+            }                  
         }
                  
         var onBtnConnectClick = function(event){  //Get the latest challenge and continue from there onwards....
@@ -1058,18 +1064,33 @@ var sConnect = (function () {
                      password = $("#txtPassword").val();
                 }           
             }
-            getLatestChallenge();
+
+            if (isMikroTik) {
+                login();
+            } else {
+                getLatestChallenge();
+            }    
         }
-        
+                
         var onBtnDisconnectClick = function(){
-            $('#btnDisconnect').button('loading');
+	        $('#btnDisconnect').button('loading');
 		    fDebug('Disconnect the user');
+		    
 		    var urlLogoff = location.protocol+'//'+uamIp+':'+uamPort+'/json/logoff';
 		    var cb        = "?callback?"; //Coova uses 'callback'
-		  
+		    
+		    if(isMikroTik) {
+                urlLogoff = getParameterByName('link_logout');
+                cb = "?var=?"; //MT uses 'var'
+            }
+           
             $.ajax({url: urlLogoff +cb, dataType: "jsonp",timeout: ajaxTimeout ,date: {}})
-            .done(function(j){   
-               coovaRefresh();
+            .done(function(j){    
+                if(isMikroTik){
+                    mtRefresh(); 
+                }else{
+                    coovaRefresh();
+                }
             })
             .fail(function(){
                 //We will retry for me.retryCount    
@@ -1082,8 +1103,8 @@ var sConnect = (function () {
                     currentRetry = 0;
                     loadingReset();
                 }
-            });   
-        }
+            });
+	    }
         
         var getLatestChallenge = function(){
 		    fDebug('Get latest challenge');
@@ -1095,8 +1116,7 @@ var sConnect = (function () {
                     encPwd(j.challenge);
                 }
                 if(j.clientState == 1){
-                    //Show status screen since we don't need the challenge
-                    coovaRefresh(true);
+                    coovaRefresh();
                 }
             })
             .fail(function(){
@@ -1119,7 +1139,11 @@ var sConnect = (function () {
             if(useCHAP == true){
                 var myMD5 = new ChilliMD5();
                 var ident ='00';
-		        response = myMD5.chap ( ident , password , challenge );
+                var n_ch = challenge + 'greatsecret';
+                var ch = myMD5.hex_md5(n_ch);
+                console.log(n_ch);
+                console.log(ch);
+		        response = myMD5.chap ( ident , password , ch );
 		        fDebug('Calculating CHAP-Password = ' + response );
 		        login(response);
             }else{
@@ -1156,23 +1180,25 @@ var sConnect = (function () {
                     'username': userName, 'response': encPwd
                 }
             }
-        
-            fDebug('Log '+ userName + ' into Captive Portal');  
-            var urlLogin = location.protocol+'//' + uamIp + ':' + uamPort + '/json/logon';
-            var ajax = { url: urlLogin + "?callback=?", dataType: "jsonp", timeout: ajaxTimeout, data: data };
-                    
+            
+            var urlLogin    = "";
+            var ajax        = {};
+            if (isMikroTik) {
+                urlLogin = getParameterByName('link_login_only');
+                ajax = {url: urlLogin + "?var=?", dataType: "jsonp",timeout: ajaxTimeout, data: {username: userName, password: password}};
+            } else {
+                urlLogin = location.protocol+'//' + uamIp + ':' + uamPort + '/json/logon';
+                ajax = { url: urlLogin + "?callback=?", dataType: "jsonp", timeout: ajaxTimeout, data: data };
+            }                                 
             $.ajax(ajax)
                 .done(function (j) { 
                     loadingReset();
                     currentRetry = 0;    //Reset if there were retries
-                    if(j.clientState == 0){    
-                        var msg = 'Authentication failure please try again';
-                        if(j.message != undefined){
-                            msg =j.message;
-                        }
-                        fShowError(msg);
-                    }else{      
-                        coovaRefresh(); //Refresh
+                    
+                    if(isMikroTik){
+                        loginResultsMt(j);
+                    }else{
+                        loginResultsCoova(j);
                     }
                 })
                 .fail(function (error) {
@@ -1183,12 +1209,54 @@ var sConnect = (function () {
                         login(encPwd);
                     } else {
                       loadingReset();
-                      fDebug('Coova Not responding to login requests');
-                      fShowError(i18n('sCoova_Not_responding_to_login_requests'));
+                        var error = i18n('sCoova_Not_responding_to_login_requests'); //Default
+                        if (isMikroTik) {
+                            error = i18n('sMT_Not_responding_to_login_requests');
+                            fDebug('Mikrotik Not responding to login requests');
+                        } else {
+                            fDebug('Coova Not responding to login requests');
+                        }                                                                    
+                        fShowError(error);
                     }
                 });
         }
         
+        var loginResultsMt = function(j){
+            if(j.logged_in == 'yes'){          
+                mtRefresh(true); //Refresh
+            }else{
+                var msg = i18n('sAuthentication_failure_please_try_again');
+                if(j.error_orig != undefined){
+                    msg =j.error_orig;
+                }
+                fShowError(msg);  
+            }
+        }
+        
+        var loginResultsCoova = function(j){
+            if(j.clientState == 0){    
+                var msg = i18n('sAuthentication_failure_please_try_again');
+                if(j.message != undefined){
+                    msg =j.message;
+                }
+                fShowError(msg);
+            }else{      
+                coovaRefresh(); //Refresh
+            }
+        }
+         
+        var refreshStatusMikrotik = function(j){     
+            var dat_i   = bytes(j.bytes_in);
+            var dat_o   = bytes(j.bytes_out);
+            var t       = parseInt(j.bytes_out) + parseInt(j.bytes_in);
+            var dat_t   = bytes(t);                 
+            $('#acct_un').text(j.username);
+            $('#acct_up').text(j.uptime);
+            $('#acct_di').text(dat_i);
+            $('#acct_do').text(dat_o);
+            $('#acct_dt').text(dat_t);       
+        }
+         
         var refreshStatusCoova = function(j){
 
             var gw = 4294967296;
@@ -1290,8 +1358,40 @@ var sConnect = (function () {
 
             return gb + ' '+'Gigabytes';
         }
+        
+        var coovaRefreshZ    = function(){
+            console.log("Doing Coova Refresh");
+            
+            var myMD5 = new ChilliMD5();
+            var pwd   = myMD5.hex_md5
+            
+            
+            if(sessionStorage.getItem('refreshCount') == null){
+                sessionStorage.setItem('refreshCount', currentRetry);
+            }else{
+                var new_retry = parseInt(sessionStorage.getItem('refreshCount'))+1;
+                sessionStorage.setItem('refreshCount', new_retry);
+            }
+            console.log(sessionStorage.getItem('refreshCount'));
+            if(parseInt(sessionStorage.getItem('refreshCount'))>=1){
+                sessionStorage.removeItem('refreshCount');     
+            }else{
+                //window.location = 'http://127.0.0.1/login/bootstrap5/index.html?res=notyet&uamip=10.1.0.1&uamport=3990&challenge=fa6f27d215141b0b86f67b423352349a&called=0A-B4-B1-A2-87-7E&mac=68-17-29-D2-AC-62&ip=10.1.1.0&ssid=our_internet_cafe&nasid=our_internet_cafe_mcp_34'
+                fShowError("Reloading Login Page<br>Please Wait.....");
+                //window.location = 'http://'+uamIp+':'+uamPort+'/prelogin';
+            }      
+        }
+        
+        var refresh = function () {
+            if (isMikroTik) {
+                mtRefresh();
+            } else {
+                coovaRefresh();
+            }
+        }
            
         var coovaRefresh    = function(){
+            fDebug("FIXME DOING coovaRefresh...");
             var urlStatus = location.protocol+'//'+uamIp+':'+uamPort+'/json/status';  
             $.ajax({url: urlStatus + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout})
                 .done(function(j){
@@ -1396,6 +1496,112 @@ var sConnect = (function () {
                 });
         }
         
+        var mtRefresh = function () {
+            var urlStatus = getParameterByName('link_status');
+
+            $.ajax({ url: urlStatus + "?var=?", dataType: "jsonp", timeout: ajaxTimeout })
+                .done(function (j) {
+                    statusFb = j;		//Store the status feedback
+				    fDebug("mtRefresh...");
+				    fDebug(JSON.stringify(j));
+				    
+                    currentRetry = 0 //Reset the current retry if it was perhaps already some value
+                    if(j.logged_in == 'no'){
+                        fDebug("Not Connected");
+                        $('#alertInfo').addClass('show');
+                        $('#pnlSession').removeClass('show');
+                        $('#divSocial').removeClass('d-none'); 
+                        if(!cDynamicData.settings.click_to_connect.connect_only){
+                            $('#pnlLogin').addClass('show');
+                        }
+                        $('#btnDisconnect').addClass('d-none');
+                        loadingReset();
+                        
+                        if(
+                            ((cDynamicData.settings.voucher_login_check == false)&&
+                            (cDynamicData.settings.user_login_check == false))||
+                            (cDynamicData.settings.click_to_connect.connect_only)
+                            ){   
+                            //Hide the connect button
+                            $('#btnConnect').addClass('d-none');
+                                            
+                        }else{
+                            $('#btnConnect').removeClass('d-none'); 
+                        }
+                        
+                        if(cDynamicData.settings.click_to_connect.connect_check == true){
+                            $('#btnClickToConnect').removeClass('d-none');                             
+                        }else{           
+                            $('#btnClickToConnect').addClass('d-none');    
+                        }
+                        
+                        if(cDynamicData.settings.t_c_check == true){            
+                            $('#divTerms').removeClass('d-none');         
+                        }else{           
+                            $('#divTerms').addClass('d-none');
+                        }
+                        
+                        //User Registration
+                        if((cDynamicData.settings.register_users == true)&&(cDynamicData.settings.user_login_check == true)){
+                            $('#divRegister').removeClass('d-none');                             
+                        }else{           
+                            $('#divRegister').addClass('d-none');    
+                        }
+                        
+                        //Lost Password
+                        if((cDynamicData.settings.lost_password == true)&&(cDynamicData.settings.user_login_check == true)){
+                            $('#divLostPassword').removeClass('d-none');                             
+                        }else{           
+                            $('#divLostPassword').addClass('d-none');    
+                        }                                                                       
+                        
+                        $('#hLogin').html('<i class="bi-plug"></i> Connect')                    
+                    }
+
+                    if(j.logged_in == 'yes'){
+                        fDebug("Connected");
+                        //Redirect if enabled                      
+                        if(cDynamicData.settings.redirect_check){
+                        
+                            window.location = cDynamicData.settings.redirect_url;
+                            
+                        }else{
+                            refreshStatusMikrotik(j);
+                            $('#alertInfo').removeClass('show');
+                            $('#pnlSession').addClass('show');
+                            $('#pnlLogin').removeClass('show');
+                            $('#btnDisconnect').removeClass('d-none');
+                            loadingReset();
+                            $('#btnConnect').addClass('d-none');
+                            $('#btnClickToConnect').addClass('d-none');
+                            $('#divRegister').addClass('d-none');
+                            $('#divLostPassword').addClass('d-none');
+                            $('#divTerms').addClass('d-none');
+                            $('#divSocial').addClass('d-none');  
+                            
+                            $('#hLogin').html('<i class="bi-star"></i> Connected')  
+                            if(counter == undefined){    //If it is the first time so initialise the loop counter
+                                sessionData = j;
+                                refreshCounter();
+                            }                           
+                        } 
+                    }
+                
+                })
+                .fail(function () {
+                    //We will retry for retryCount
+                    currentRetry = currentRetry+1;
+                    if(currentRetry <= retryCount){
+                        fDebug("Trying to get status retry #"+currentRetry);
+                        coovaRefresh();
+                    }else{
+                        fDebug("Timed out");
+                        fShowError(i18n('sThe_hotspot_is_not_responding_to_status_queries'));
+                        loadingReset();
+                    }
+                });
+        }
+              
         var loadingReset = function(){
             $('#btnClickToConnect').button('reset');
             $('#btnDisconnect').button('reset');
@@ -1634,6 +1840,15 @@ var sConnect = (function () {
                 window.location = 'http://google.com';
             }
         }
+        
+        var testForHotspot = function () {
+            if (isMikroTik) {
+                return testForHotspotMT();
+            }
+            else {
+                return testForHotspotCoova();
+            }
+        }
          
         var testForHotspotCoova = function(){
 
@@ -1665,6 +1880,15 @@ var sConnect = (function () {
             return true;        //Is a hotspot
         }
         
+        var testForHotspotMT = function () {
+            var ls = getParameterByName('link_status');
+            if (ls != undefined) {  //Override defaults
+                return true
+            } else {
+                return false;   //Not a hotspot
+            }
+        }
+        
         function getParameterByName(name) {
            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -1690,12 +1914,19 @@ function ChilliMD5() {
 	this.hex_md5 = function (s){
 		return binl2hex(core_md5(str2binl(s), s.length * chrsz));
 	};
+	
+	this.str2hex = function(s){
+	    return str2hex(s);	
+	}
+	this.md5 = function(s){
+	    return core_md5(s, s.length * chrsz);
+	}
 
 	this.chap = function ( hex_ident , str_password , hex_chal ) {
 
 		//  Convert everything to hex encoded strings
 		var hex_password =  str2hex ( str_password );
-
+		
 		// concatenate hex encoded strings
 		var hex   = hex_ident + hex_password + hex_chal;
 
