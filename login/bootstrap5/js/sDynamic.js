@@ -361,31 +361,29 @@ var sDynamic = (function () {
 
                 if(i.fit == 'dynamic'){ 
                          
-                    if((scrn == 'portrait')&&(obj.layout == 'landscape')){
+                    if((scrn == 'portrait')&&(i.layout == 'landscape')){
                         imgFit = 'imgX';
                     } 
-                    if((scrn == 'landscape')&&(obj.layout == 'portrait')){
+                    if((scrn == 'landscape')&&(i.layout == 'portrait')){
                         imgFit = 'imgY';
                     } 
                     
-                    if((scrn == 'landscape')&&(obj.layout == 'landscape')){  
+                    if((scrn == 'landscape')&&(i.layout == 'landscape')){  
                     
-                        if(window.innerWidth < obj.width){ //Small Graphic
+                        if(window.innerWidth < i.width){ //Small Graphic
                             imgFit = 'imgX';
                         }
                       
-                        if((window.innerWidth < obj.width)&&(obj.width > 2000)){ //Big graphic
+                        if((window.innerWidth < i.width)&&(i.width > 2000)){ //Big graphic
                             imgFit = 'imgY';
                         }
                         
-                        if(window.innerWidth > obj.width){ //Small Graphic
+                        if(window.innerWidth > i.width){ //Small Graphic
                             imgFit = 'imgY';
                         }       
                     } 
                 }
-                
-                
-                
+                              
                 var $src    = i.file_name;
                 var $color  = '#'+i.background_color;
                 var $css    = {
@@ -410,8 +408,7 @@ var sDynamic = (function () {
                 $(window).on('resize', function (){
                   $wHeight = $(window).height();
                   ci.height($wHeight);
-                });
-                
+                });               
                 
                 //console.log(i);              
             });
@@ -421,7 +418,13 @@ var sDynamic = (function () {
             $item.eq(0).addClass('active');
             $item.height($wHeight); 
             $item.addClass('full-screen');
-                   
+            
+            //Hide controlls if there are only one item
+            if(cDynamicData.photos.length <=1){
+                $('#carIndicator').addClass('d-none');
+                $('#carCtlPrev').addClass('d-none');
+                $('#carCtlNext').addClass('d-none');
+            }              
         };
         
         var guiTranslate = function(){      
