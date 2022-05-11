@@ -32,7 +32,7 @@ var sConnect = (function () {
 
 	    var timeUntilUsage  = 20 //Default value
 	    var usageInterval	= 20; 
-        var useCHAP         = true; 
+        var useCHAP         = false; // Set to true if uamsecret is *NOT* specified (else set to false and use UAM service)
         
         var cDynamicData    = undefined;
         var redirect_check 	= false;
