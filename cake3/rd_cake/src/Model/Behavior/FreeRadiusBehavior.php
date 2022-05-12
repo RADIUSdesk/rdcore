@@ -45,7 +45,8 @@ class FreeRadiusBehavior extends Behavior {
     protected  $readOnlyAttributes = [
             'Rd-User-Type', 'Rd-Device-Owner', 'Rd-Account-Disabled', 'User-Profile', 'Expiration',
             'Rd-Account-Activation-Time', 'Rd-Not-Track-Acct', 'Rd-Not-Track-Auth', 'Rd-Auth-Type', 
-            'Rd-Cap-Type-Data', 'Rd-Cap-Type-Time' ,'Rd-Realm', 'Cleartext-Password'
+            'Rd-Cap-Type-Data', 'Rd-Cap-Type-Time' ,'Rd-Realm', 'Cleartext-Password',
+            'Rd-Voucher'
     ];
 
     protected $binaries = [
@@ -391,33 +392,35 @@ class FreeRadiusBehavior extends Behavior {
     private function _forVouchersBeforeSave($entity){
 
         $request = Router::getRequest();
-        if(isset($request->data['days_valid'])){
-            if($request->data['days_valid'] !== ''){
-                $hours      = 0;
-                $minutes    = 0;
-                if(isset($request->data['hours_valid'])){
-                    $hours = $request->data['hours_valid'];
-                }
+        if($request){
+            if(isset($request->data['days_valid'])){
+                if($request->data['days_valid'] !== ''){
+                    $hours      = 0;
+                    $minutes    = 0;
+                    if(isset($request->data['hours_valid'])){
+                        $hours = $request->data['hours_valid'];
+                    }
 
-                if(isset($request->data['minutes_valid'])){
-                    $minutes = $request->data['minutes_valid'];
-                }
+                    if(isset($request->data['minutes_valid'])){
+                        $minutes = $request->data['minutes_valid'];
+                    }
 
-                $hours      = sprintf("%02d", $hours);
-                $minutes    = sprintf("%02d", $minutes);
-                $valid      = $request->data['days_valid']."-".$hours."-".$minutes."-00";
-                $entity->time_valid = $valid;    
+                    $hours      = sprintf("%02d", $hours);
+                    $minutes    = sprintf("%02d", $minutes);
+                    $valid      = $request->data['days_valid']."-".$hours."-".$minutes."-00";
+                    $entity->time_valid = $valid;    
+                }
+            }else{
+                $entity->time_valid = '';
             }
-        }else{
-            $entity->time_valid = '';
+		    //Auto-populate the time_cap field with the value for time_valid
+		    if($entity->time_valid !== ''){
+			    $expire		= $entity->time_valid;
+			    $pieces     = explode("-", $expire);
+                $time_avail = ($pieces[0] * 86400)+($pieces[1] * 3600)+($pieces[2] * 60)+($pieces[3]);
+			    $entity->time_cap = $time_avail;
+		    }
         }
-		//Auto-populate the time_cap field with the value for time_valid
-		if($entity->time_valid !== ''){
-			$expire		= $entity->time_valid;
-			$pieces     = explode("-", $expire);
-            $time_avail = ($pieces[0] * 86400)+($pieces[1] * 3600)+($pieces[2] * 60)+($pieces[3]);
-			$entity->time_cap = $time_avail;
-		}
     }
 
     private function _deleteUsernameEntriesFromTables($username){
@@ -506,15 +509,15 @@ class FreeRadiusBehavior extends Behavior {
         }
 
         $request = Router::getRequest();
-        if(!(isset($request->data['days_valid']))){
-            $this->_remove_radcheck_item($username,$this->vChecks["time_valid"]);
-        }
-
-        //If always_active is selected remove fr->dates
-       
-        if(isset($request->data['never_expire'])){
-            $this->_remove_radcheck_item($username,$this->vChecks["expire"]);
-        }
+        if($request){
+            if(!(isset($request->data['days_valid']))){
+                $this->_remove_radcheck_item($username,$this->vChecks["time_valid"]);
+            }
+            //If always_active is selected remove fr->dates
+            if(isset($request->data['never_expire'])){
+                $this->_remove_radcheck_item($username,$this->vChecks["expire"]);
+            }
+        }      
     }
 
     private function _forDeviceEdit($entity){
