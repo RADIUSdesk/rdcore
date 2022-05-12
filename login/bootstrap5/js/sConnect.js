@@ -1134,20 +1134,15 @@ var sConnect = (function () {
             });
         }
         
-        var encPwd = function(challenge){ 
-        
+        var encPwd = function(challenge){
+              
             if(useCHAP == true){
                 var myMD5 = new ChilliMD5();
                 var ident ='00';
-                var n_ch = challenge + 'greatsecret';
-                var ch = myMD5.hex_md5(n_ch);
-                console.log(n_ch);
-                console.log(ch);
-		        response = myMD5.chap ( ident , password , ch );
+		        response = myMD5.chap ( ident , password , challenge );
 		        fDebug('Calculating CHAP-Password = ' + response );
-		        login(response);
-            }else{
-        
+		        login(response); 
+            }else{        
 		        fDebug('Get encrypted values');
                 $.ajax({url: urlUam + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout, data: {'challenge': challenge, 'password': password}})
                 .done(function(j){
