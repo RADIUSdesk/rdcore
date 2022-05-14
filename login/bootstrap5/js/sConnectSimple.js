@@ -1,4 +1,4 @@
-var sConnect = (function () {
+var sConnectSimple = (function () {
 
     //Immediately returns an anonymous function which builds our modules
     return function (co) {    //co is short for config object
@@ -11,6 +11,7 @@ var sConnect = (function () {
         
         var retryCount      = 4;
         var currentRetry    = 0;
+        var connectedTime   = 0;
         var divFeedBack     = '#cpDivFeedback';
         
         var userName        = undefined;
@@ -21,6 +22,10 @@ var sConnect = (function () {
         
         var sessionData     = undefined; 
         var statusFb		= undefined;
+        
+        var counter         = undefined; //refresh counter's id
+        var timeUntilStatus = 20; //interval to refresh
+        var refreshInterval = 20; //ditto
         
         var counter         = undefined; //refresh counter's id
         var timeUntilStatus = 20; //interval to refresh
@@ -88,43 +93,20 @@ var sConnect = (function () {
             $('#btnLostPwd').on('click',onBtnLostPwdClick);
             $('#btnLostPwdSms').on('click',onBtnLostPwdClickSms);   
             $('#btnCustInfo').on('click',onBtnCustInfoClick);
-            
-            //Social Login things
-            if($('#btnFacebook') != undefined){
-                $('#btnFacebook').on('click', function(event){
-                    event.preventDefault();
-                    $('#btnFacebook').button('loading');
-                    onBtnClickSocialLogin('Facebook');
-                });
-            }
-            
-            if($('#btnGoogle') != undefined){
-                $('#btnGoogle').on('click', function(event){
-                    event.preventDefault();
-                    $('#btnGoogle').button('loading');
-                    onBtnClickSocialLogin('Google');
-                });
-            }
-            
-            if($('#btnTwitter') != undefined){
-                $('#btnTwitter').on('click', function(event){
-                    event.preventDefault();
-                    $('#btnTwitter').button('loading');
-                    onBtnClickSocialLogin('Twitter');
-                });
-            }
-                        
+                                 
             if(uamIp == undefined){
                 fDebug("First time hotspot test");
                 if(testForHotspot()){
                     fDebug("It is a hotspot, now check if connected or not...");                 
-                    refresh(true);
+                    //refresh(true);
+                    prelogin();
                 }else{
                     fShowError(i18n('sPlease_connect_through_a_valid_Hotspot'));
                     fDebug("It is NOT a hotspot");
                 }  
             }else{
-                refresh(true);  //Already established we are a hotspot, simply refresh
+                //refresh(true);  //Already established we are a hotspot, simply refresh
+                prelogin();
             }
             
         }
@@ -141,37 +123,7 @@ var sConnect = (function () {
             $('#alertWarn').html(msg);
             $('#alertWarn').addClass('show');
         }      
-        
-        var clearRefresh = function(){
-            if(counter != undefined){
-                clearInterval(counter);
-                counter   = undefined;
-                timeUntilStatus = refreshInterval;
-			    timeUntilUsage  = usageInterval;
-            }
-        }
-        
-        var refreshCounter = function(){
-            var me = this; 
-
-            counter = setInterval (function(){
-			    //Status part
-                timeUntilStatus = timeUntilStatus-1;
-                if(false){    //We remove ourself gracefully FIXME
-                    clearInterval(counter);
-                    counter   = undefined;
-                    timeUntilStatus = refreshInterval;
-                }else{
-                    $('#status_refresh').text(timeUntilStatus);
-                    if(timeUntilStatus == 0){      //Each time we reach null we refresh the screens
-                        timeUntilStatus = refreshInterval; //Start anew
-                        refresh();
-                    }
-                }
-
-            }, 1000 );
-        }
-        
+               
         var onFrmLoginKeydown = function(event){
             var itemName = event.target.id;
             //We use this to test and endable / disable the connect button
@@ -605,7 +557,7 @@ var sConnect = (function () {
                         $("#myModal").modal('show');
                         onBtnClickToConnectClick(event); 
                     }else{
-                        console.log("PROBLEMS POSTING INFOR FOR MAC");
+                        console.log("PROBLEMS POSTING INFO FOR MAC");
                           
                     }         
                 })
@@ -616,410 +568,8 @@ var sConnect = (function () {
             }
             form.classList.add('was-validated')          
         }
-        
-        //===== SOCIAL LOGIN =======
-        var onBtnClickSocialLogin = function(a){
-            if (isMikroTik) {
-                onBtnClickSocialLoginMt(a);
-            }else{
-                onBtnClickSocialLoginChilli(a);
-            }
-        }
-        //==== END SOCIAL LOGIN ====
-        
-        //=== SOCIAL MIKROTIK ===
-        var onBtnClickSocialLoginMt = function(a){
-            var me 		    = this;          
-		    socialName      = a
-            var userName    = cDynamicData.settings.social_login.temp_username; 
-            var password    = cDynamicData.settings.social_login.temp_password;  
-            var urlLogin    = getParameterByName('link_login_only');
-            
-            $.ajax({url: urlLogin + "?var=?", dataType: "jsonp",timeout: ajaxTimeout, data: {username: userName, password: password}})
-            .done(function(j){
-                socialTempLoginResultsMt(j);
-            })
-            .fail(function(){
-                //We will retry for retryCount
-                currentRetry = currentRetry+1;
-                if(currentRetry <= retryCount){
-                    onBtnClickSocialLoginMt(a);
-                }else{
-                    fShowError(i18n('sMT_Not_responding_to_login_requests'));
-                    loadingReset();
-                    currentRetry = 0;
-                }
-            });
-	    }
-                 
-	    var socialTempLoginResultsMt = function(j){
+           
 
-            currentRetry = 0;    //Reset if there were retries
-            if(j.logged_in == 'no'){       
-                var msg = i18n('sAuthentication_failure_please_try_again')
-                if(j.error_orig != undefined){
-                    msg =j.error_orig;
-                }
-                fShowError(msg);
-            }else{            
-                //console.log("Temp social login user logged in fine.... time to check if we are authenticated");
-			    //We need to add a query string but do not need to add ALL the items
-
-			    var queryString 		= window.location.search;
-			    queryString 			= queryString.substring(1);
-			    var query_object		= parseQueryString(queryString);
-			    var required			= query_object;
-
-			    $.each(notRequired, function( index, value ) { //FIXME adapt the notRequired list for MT
-				    delete required[value];
-			    });
-
-			    required.pathname   	= window.location.pathname;
-                required.hostname   	= window.location.hostname;
-                required.protocol   	= window.location.protocol;
-			    required.social_login 	= 1;
-			    required.idp_name       = socialName;
-			    var q_s 	 			= $.param(required);
-			    window.location			= urlSocialBase+"?"+q_s;
-            }
-	    }
-        
-        var checkSocialLoginReturnMt = function(){
-
-           	if(	(getParameterByName('sl_type') 	!= '')&& //e.g. user or voucher
-			    (getParameterByName('sl_name') 	!= '')&& //e.g. Facebook
-			    (getParameterByName('sl_value') != '')   //e.g. 3_34564654645694 (Dynamic Pages ID + provider unique ID)
-		    ){ 
-			    //console.log("Finding transaction details for "+ me.queryObj.tx);
-			    var t = getParameterByName('sl_type');
-			    var n = getParameterByName('sl_name');
-			    var v = getParameterByName('sl_value');
-
-			    t = t.replace(/#.?/g, ""); //JQuery Mobile tend to add a #bla which we need to filter out
-			    n = n.replace(/#.?/g, "");
-			    v = v.replace(/#.?/g, "");
-
-			    var jqxhr = $.getJSON( urlSocialInfoFor, {'sl_type' : t,'sl_name' : n,'sl_value' : v}, function(j) {
-				    //console.log( "success getting social login return" );
-				    if(j.success){   
-					    userName = j.data.username; //Makes this unique
-					    password = j.data.password;   
-					    socialTempDisconnectMt();
-				    }else{
-					    //console.log("big problems");
-					    fShowError(i18n('sCould_not_retrieve_Social_Login_Info')); 
-				    }
-			    })
-			    .fail(function() {
-				    fShowError(i18n('sCould_not_retrieve_Social_Login_Info'));
-			    });
-            }
-	    }
-	    
-	    var socialTempDisconnectMt 	=  function(){
-
-            var urlLogout = getParameterByName('link_logout');
-            $.ajax({url: urlLogout + "?var=?", dataType: "jsonp",timeout: ajaxTimeout,date: {}})
-            .done(function(j){
-                retryCount = 0;
-                socialFinalLoginMt();
-            })
-            .fail(function(){ 
-                //We will retry for me.retryCount
-                currentRetry = currentRetry+1;
-                if(currentRetry <= retryCount){
-                    socialTempDisconnectMt();
-                }else{
-                    fShowError(i18n('sMT_Not_responding_to_logout_requests'));
-                }     
-            });
-        }
-
-        var socialFinalLoginMt = function(encPwd){
-            var urlLogin = getParameterByName('link_login_only');
-            $.ajax({url: urlLogin + "?var=?", dataType: "jsonp",timeout: ajaxTimeout, data: {username: userName, password: password}})
-            .done(function(j){
-                socialFinalLoginResultsMt(j);
-            })
-            .fail(function(){
-                //We will retry for retryCount
-                currentRetry = currentRetry+1;
-                if(currentRetry <= retryCount){
-                    socialFinalLoginMt();
-                }else{
-                    fShowError(i18n('sMT_Not_responding_to_login_requests'));
-                }
-            });
-        }
-          
-        var socialFinalLoginResultsMt = function(j){
-            currentRetry = 0;    //Reset if there were retries
-            if(j.logged_in == 'yes'){          
-                var redirect_check 	= false;
-			    var redirect_url  	= 'http://google.com';
-			    if($("body").data("DynamicDetail") != undefined){ //We had to add this sine it is not always populated by the time this is run
-				    redirect_check = cDynamicData.settings.redirect_check;
-				    redirect_url   = cDynamicData.settings.redirect_url;
-			    }
-			    if(redirect_check){
-		            window.location= redirect_url;
-			    }else{             
-                    mtRefresh(true); //Refresh session and usage
-                }
-            }else{
-                var msg = i18n('sAuthentication_failure_please_try_again')
-                if(j.error_orig != undefined){
-                    msg =j.error_orig;
-                }
-                fShowError(msg);  
-            }
-        }  
-        //=== END SOCIAL MIKROTIK ===
-        
-        //=== SOCIAL COOVACHILLI ===
-	    var onBtnClickSocialLoginChilli = function(a){
-		    socialName = a;
-		    var urlStatus = location.protocol+'//'+uamIp+':'+uamPort+'/json/status';
-            $.ajax({url: urlStatus + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout})
-            .done(function(j){
-                currentRetry = 0;
-                if(j.clientState == 0){
-				    userName = cDynamicData.settings.social_login.temp_username; //Makes this unique
-            		password = cDynamicData.settings.social_login.temp_password;  
-                    socialTempEncPwd(j.challenge);
-                }
-                if(j.clientState == 1){ //FIXME Think we should redirect to Social Login Login...
-                    if(userName.startsWith('sl_')) {     // Check if the logged in user is of the special social login type
-                           if (redirect_check) {         // Check if the dynamic login page instructs us to redirect to a URL
-                                execRedirect(redirect_url);
-                           } else {
-                                coovaRefresh();  
-                           }
-                    } else {                             // If the user is not of the social login type, simply refresh and show status page
-                        coovaRefresh();
-                    }
-                    
-                }
-            })
-            .fail(function(){
-                //We will retry for me.retryCount
-                currentRetry = currentRetry+1;
-                
-                if(currentRetry <= retryCount){
-                    onBtnClickSocialLoginChilli(a);
-                }else{
-                    fDebug("Timed out"); 
-                    fShowError(i18n('sLatest_Challenge_could_not_be_fetched_from_hotspot'));
-                    loadingReset();
-                    currentRetry = 0;
-                }  
-            });
-	    }
-
-	    var socialTempEncPwd = function(challenge){
-            $.ajax({url: urlUam + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout, data: {'challenge': challenge, password: password}})
-            .done(function(j){
-                socialTempLogin(j.response);
-            })
-            .fail(function(){
-                fShowError(i18n('sUAM_service_is_down'));
-                loadingReset(); 
-            });
-	    }
-
-	    var socialTempLogin	= function(encPwd){
-            var urlLogin = location.protocol+'//'+uamIp+':'+uamPort+'/json/logon';
-            $.ajax({url: urlLogin + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout, data: {username: userName, password: encPwd}})
-            .done(function(j){
-                socialTempLoginResults(j);
-            })
-            .fail(function(){
-                //We will retry for me.retryCount
-                currentRetry = currentRetry+1;
-                if(currentRetry <= retryCount){
-                    socialTempLogin(encPwd);
-                }else{
-                    fShowError(i18n('sCoova_Not_responding_to_login_requests'));
-                    loadingReset();
-                    currentRetry = 0;
-                }
-            });
-	    }
-
-	    var socialTempLoginResults = function(j){
-            currentRetry = 0;    //Reset if there were retries
-            if(j.clientState == 0){       
-                var msg = i18n('sAuthentication_failure_please_try_again')
-                if(j.message != undefined){
-                    msg =j.message;
-                }
-                fShowError(msg);
-                loadingReset();
-            }else{            
-                //console.log("Temp social login user logged in fine.... time to check if we are authenticated");
-			    //We need to add a query string but do not need to add ALL the items
-
-			    var queryString 		= window.location.search;
-			    queryString 			= queryString.substring(1);
-			    var query_object		= parseQueryString(queryString);
-			    var required			= query_object;
-
-			    $.each(notRequired, function( index, value ) {
-				    //console.log( index + ": " + value );
-				    delete required[value];
-			    });
-
-			    required.pathname   	= window.location.pathname;
-                required.hostname   	= window.location.hostname;
-                required.protocol   	= window.location.protocol;
-			    required.social_login 	= 1;
-			    required.idp_name       = socialName;
-			    var q_s 	 			= $.param(required);
-			    //console.log(q_s);
-			    //Dynamically build the redirect URL to which Social Login we will use...
-			    window.location			= urlSocialBase+"?"+q_s;
-            }
-	    }
-	    
-	    var checkSocialLoginReturn = function(){
-	        if(isMikroTik){
-                checkSocialLoginReturnMt();
-            }else{
-                checkSocialLoginReturnChilli()
-            }  
-	    }
-
-        var checkSocialLoginReturnChilli = function(){
-
-		    //console.log("Check for social login returns...");
-
-           	if(	(getParameterByName('sl_type') 	!= '')&& //e.g. user or voucher
-			    (getParameterByName('sl_name') 	!= '')&& //e.g. Facebook
-			    (getParameterByName('sl_value') != '')   //e.g. 3_34564654645694 (Dynamic Pages ID + provider unique ID)
-		    ){ 
-			    //console.log("Finding transaction details for "+ me.queryObj.tx);
-			    var t = getParameterByName('sl_type');
-			    var n = getParameterByName('sl_name');
-			    var v = getParameterByName('sl_value');
-
-			    t = t.replace(/#.?/g, ""); //JQuery Mobile tend to add a #bla which we need to filter out
-			    n = n.replace(/#.?/g, "");
-			    v = v.replace(/#.?/g, "");
-
-			    var jqxhr = $.getJSON( urlSocialInfoFor, {'sl_type' : t,'sl_name' : n,'sl_value' : v}, function(j) {
-				    //console.log( "success getting social login return" );
-				    if(j.success){   
-					    userName = j.data.username; //Makes this unique
-					    password = j.data.password;   
-					    //console.log(j.data.username);
-					    //console.log(j.data.password);
-					    socialTempDisconnect();
-				    }else{
-					    //console.log("big problems");
-					    fShowError(i18n('sCould_not_retrieve_Social_Login_Info'));
-				    }
-			    })
-			    .fail(function() {
-				    fShowError(i18n('sCould_not_retrieve_Social_Login_Info')); 
-			    });
-            }
-	    }
-
-	    var socialTempDisconnect 	=  function(){
-
-            var urlLogoff = location.protocol+'//'+uamIp+':'+uamPort+'/json/logoff';
-            $.ajax({url: urlLogoff + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout})
-            .done(function(j){     
-			    socialFinalSatus();
-            })
-            .fail(function(){
-                //We will retry for me.retryCount
-                currentRetry = currentRetry+1;
-                if(currentRetry <= retryCount){
-                    socialTempDisconnect();
-                }else{
-                    fShowError(i18n('sCoova_Not_responding_to_logoff_requests'));
-                }
-            });
-        }
-
-	    var socialFinalSatus = function(){
-		    var urlStatus = location.protocol+'//'+uamIp+':'+uamPort+'/json/status';
-            $.ajax({url: urlStatus + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout})
-            .done(function(j){
-                currentRetry = 0;
-                if(j.clientState == 0){
-				    socialFinalEncPwd(j.challenge);
-                }
-                if(j.clientState == 1){ 
-                    //initRedirect(); FIXME CHECK LATER
-                    if(redirect_check){
-                        execRedirect(redirect_url);
-				    }else{             
-                        coovaRefresh(); //Refresh 
-                    }
-                }
-            })
-            .fail(function(){
-                //We will retry for me.retryCount
-                currentRetry = currentRetry+1;          
-                if(currentRetry <= retryCount){
-                    socialFinalSatus();
-                }else{
-                    fDebug("Timed out"); //FIXME
-                    fShowError(i18n('sHotspot_not_responding'));
-                }     
-            });
-        }
-
-	    var socialFinalEncPwd = function(challenge){
-
-            $.ajax({url: urlUam + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout, data: {'challenge': challenge, password: password}})
-            .done(function(j){
-                socialFinalLogin(j.response);
-            })
-            .fail(function(){
-                fShowError(i18n('sUAM_service_is_down')); 
-            });
-        }
-        
-	    var socialFinalLogin = function(encPwd){
-
-		    var urlLogin = location.protocol+'//'+uamIp+':'+uamPort+'/json/logon';
-            $.ajax({url: urlLogin + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout, data: {username: userName, password: encPwd}})
-            .done(function(j){
-                socialFinalLoginResults(j);
-            })
-            .fail(function(){
-                //We will retry for me.retryCount
-                currentRetry = currentRetry+1;
-                if(currentRetry <= retryCount){
-                    socialFinalLogin(encPwd);
-                }else{
-                    fShowError(i18n('sCoova_Not_responding_to_login_requests'));
-                }
-            });
-        }
-
-        var socialFinalLoginResults = function(j){
-		    currentRetry = 0;    //Reset if there were retries
-            if(j.clientState == 0){    
-                var msg = i18n('sSocial_Login_user_failed_authentication')
-                if(j.message != undefined){
-                    msg =j.message;
-                }
-                fShowError(msg);
-            }else{
-			    
-			    if(redirect_check){
-		            execRedirect(redirect_url);
-			    }else{             
-                    coovaRefresh(); //Refresh session and usage
-                }
-            }
-        }        
-        //=== END SOCIAL COOVACHILLI ===
-            
         var onBtnClickToConnectClick = function(event){
             event.preventDefault();
             $('#alertWarn').removeClass('show');
@@ -1038,11 +588,9 @@ var sConnect = (function () {
 		        }
 		    }
 		    $('#btnClickToConnect').button('loading');
-		    if (isMikroTik) {
-                login();
-            } else {
-                getLatestChallenge(); 
-            }                  
+		    var challenge = getParameterByName('challenge');
+		    encPwd(challenge);
+                           
         }
                  
         var onBtnConnectClick = function(event){  //Get the latest challenge and continue from there onwards....
@@ -1064,76 +612,16 @@ var sConnect = (function () {
                      password = $("#txtPassword").val();
                 }           
             }
-
-            if (isMikroTik) {
-                login();
-            } else {
-                getLatestChallenge();
-            }    
+            var challenge = getParameterByName('challenge'); 
+            encPwd(challenge);
         }
                 
         var onBtnDisconnectClick = function(){
 	        $('#btnDisconnect').button('loading');
-		    fDebug('Disconnect the user');
-		    
-		    var urlLogoff = location.protocol+'//'+uamIp+':'+uamPort+'/json/logoff';
-		    var cb        = "?callback?"; //Coova uses 'callback'
-		    
-		    if(isMikroTik) {
-                urlLogoff = getParameterByName('link_logout');
-                cb = "?var=?"; //MT uses 'var'
-            }
-           
-            $.ajax({url: urlLogoff +cb, dataType: "jsonp",timeout: ajaxTimeout ,date: {}})
-            .done(function(j){    
-                if(isMikroTik){
-                    mtRefresh(); 
-                }else{
-                    coovaRefresh();
-                }
-            })
-            .fail(function(){
-                //We will retry for me.retryCount    
-                currentRetry = currentRetry+1;
-                if(currentRetry <= retryCount){
-                    onBtnDisconnectClick();
-                }else{
-                    fDebug('Coova Not responding to logoff requests');
-                    fShowError(i18n('sCoova_Not_responding_to_logoff_requests'));
-                    currentRetry = 0;
-                    loadingReset();
-                }
-            });
+		    fDebug('Disconnect the user');		    
+		    window.location = 'http://'+uamIp+':'+uamPort+'/logoff'		    
 	    }
-        
-        var getLatestChallenge = function(){
-		    fDebug('Get latest challenge');
-            var urlStatus = location.protocol+'//'+uamIp+':'+uamPort+'/json/status';
-            $.ajax({url: urlStatus + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout})
-            .done(function(j){
-                currentRetry = 0;
-                if(j.clientState == 0){
-                    encPwd(j.challenge);
-                }
-                if(j.clientState == 1){
-                    coovaRefresh();
-                }
-            })
-            .fail(function(){
-                //We will retry for me.retryCount
-                currentRetry = currentRetry+1;
-                if(currentRetry <= retryCount){
-                    fDebug("Trying to get latest challenge retry #"+currentRetry);
-                    getLatestChallenge();
-                }else{
-                    fDebug('Latest Challenge could not be fetched from_hotspot');
-                    fShowError(i18n('sLatest_Challenge_could_not_be_fetched_from_hotspot'));
-                    loadingReset();
-                    currentRetry = 0;
-                }
-            });
-        }
-        
+             
         var encPwd = function(challenge){
               
             if(useCHAP == true){
@@ -1165,115 +653,15 @@ var sConnect = (function () {
             }
         }
       
-        var login = function (encPwd) {
-        
-            var data = {
-                 'username': userName, 'password': encPwd
-            };
+        var login = function (encPwd) {       
+            var data = 'username='+userName+'&password='+encPwd;
             if(useCHAP == true){
-                data = {
-                    'username': userName, 'response': encPwd
-                }
+                data = 'username='+userName+'&response='+encPwd;
             }
-            
-            var urlLogin    = "";
-            var ajax        = {};
-            if (isMikroTik) {
-                urlLogin = getParameterByName('link_login_only');
-                ajax = {url: urlLogin + "?var=?", dataType: "jsonp",timeout: ajaxTimeout, data: {username: userName, password: password}};
-            } else {
-                urlLogin = location.protocol+'//' + uamIp + ':' + uamPort + '/json/logon';
-                ajax = { url: urlLogin + "?callback=?", dataType: "jsonp", timeout: ajaxTimeout, data: data };
-            }                                 
-            $.ajax(ajax)
-                .done(function (j) { 
-                    loadingReset();
-                    currentRetry = 0;    //Reset if there were retries
-                    
-                    if(isMikroTik){
-                        loginResultsMt(j);
-                    }else{
-                        loginResultsCoova(j);
-                    }
-                })
-                .fail(function (error) {
-                    
-                    //We will retry for me.retryCount
-                    currentRetry = currentRetry + 1;
-                    if (currentRetry <= retryCount) {
-                        login(encPwd);
-                    } else {
-                      loadingReset();
-                        var error = i18n('sCoova_Not_responding_to_login_requests'); //Default
-                        if (isMikroTik) {
-                            error = i18n('sMT_Not_responding_to_login_requests');
-                            fDebug('Mikrotik Not responding to login requests');
-                        } else {
-                            fDebug('Coova Not responding to login requests');
-                        }                                                                    
-                        fShowError(error);
-                    }
-                });
+            fShowError("Login User<br>Please Wait.....");
+            window.location = 'http://'+uamIp+':'+uamPort+'/logon?'+data;                               
         }
-        
-        var loginResultsMt = function(j){
-            if(j.logged_in == 'yes'){          
-                mtRefresh(true); //Refresh
-            }else{
-                var msg = i18n('sAuthentication_failure_please_try_again');
-                if(j.error_orig != undefined){
-                    msg =j.error_orig;
-                }
-                fShowError(msg);  
-            }
-        }
-        
-        var loginResultsCoova = function(j){
-            if(j.clientState == 0){    
-                var msg = i18n('sAuthentication_failure_please_try_again');
-                if(j.message != undefined){
-                    msg =j.message;
-                }
-                fShowError(msg);
-            }else{      
-                coovaRefresh(); //Refresh
-            }
-        }
-         
-        var refreshStatusMikrotik = function(j){     
-            var dat_i   = bytes(j.bytes_in);
-            var dat_o   = bytes(j.bytes_out);
-            var t       = parseInt(j.bytes_out) + parseInt(j.bytes_in);
-            var dat_t   = bytes(t);                 
-            $('#acct_un').text(j.username);
-            $('#acct_up').text(j.uptime);
-            $('#acct_di').text(dat_i);
-            $('#acct_do').text(dat_o);
-            $('#acct_dt').text(dat_t);       
-        }
-         
-        var refreshStatusCoova = function(j){
-
-            var gw = 4294967296;
-            var time_i  = time(j.accounting.idleTime);
-            var time_s  = time(j.accounting.sessionTime);
-            var d_in    = (j.accounting.inputOctets+(j.accounting.inputGigawords*gw));
-            var d_out   = (j.accounting.outputOctets+(j.accounting.outputGigawords*gw));
-            var usr     = j.session.userName;
-
-            var dat_i   = bytes(d_in);
-            var dat_o   = bytes(d_out);
-            var t       = d_in + d_out;
-            var dat_t   = bytes(t);
-
-            $('#acct_un').text(usr);
-            $('#acct_up').text(time_s);
-            $('#acct_di').text(dat_i);
-            $('#acct_do').text(dat_o);
-            $('#acct_dt').text(dat_t);
-            
-        }
-        
+                  
         var parseQueryString = function( queryString ) {
         	var params = {}, queries, temp, i, l;
      
@@ -1353,227 +741,117 @@ var sConnect = (function () {
 
             return gb + ' '+'Gigabytes';
         }
-               
-        var refresh = function () {
-            if (isMikroTik) {
-                mtRefresh();
-            } else {
-                coovaRefresh();
+        
+        
+        var prelogin = function(){
+            var res    = getParameterByName('res'); //res can be 'notyet', 'success', 'already'           
+            if(res == 'failed'){
+                var reason    = getParameterByName('reason');
+                fShowError(reason);
+                showConnect();
             }
-        }
-           
-        var coovaRefresh    = function(){
-            fDebug("DOING coovaRefresh...");
-            var urlStatus = location.protocol+'//'+uamIp+':'+uamPort+'/json/status';  
-            $.ajax({url: urlStatus + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout})
-                .done(function(j){
-				    statusFb = j;		//Store the status feedback
-				    fDebug("coovaRefresh...");
-				    fDebug(JSON.stringify(j));
-                    currentRetry = 0 //Reset the current retry if it was perhaps already some value
-                    if(j.clientState == 0){
-                        fDebug("Not Connected");
-                        $('#alertInfo').addClass('show');
-                        $('#pnlSession').removeClass('show');
-                        $('#divSocial').removeClass('d-none'); 
-                        if(!cDynamicData.settings.click_to_connect.connect_only){
-                            $('#pnlLogin').addClass('show');
-                        }
-                        $('#btnDisconnect').addClass('d-none');
-                        loadingReset();
-                        
-                        if(
-                            ((cDynamicData.settings.voucher_login_check == false)&&
-                            (cDynamicData.settings.user_login_check == false))||
-                            (cDynamicData.settings.click_to_connect.connect_only)
-                            ){   
-                            //Hide the connect button
-                            $('#btnConnect').addClass('d-none');
-                                            
-                        }else{
-                            $('#btnConnect').removeClass('d-none'); 
-                        }
-                        
-                        if(cDynamicData.settings.click_to_connect.connect_check == true){
-                            $('#btnClickToConnect').removeClass('d-none');                             
-                        }else{           
-                            $('#btnClickToConnect').addClass('d-none');    
-                        }
-                        
-                        if(cDynamicData.settings.t_c_check == true){            
-                            $('#divTerms').removeClass('d-none');         
-                        }else{           
-                            $('#divTerms').addClass('d-none');
-                        }
-                        
-                        //User Registration
-                        if((cDynamicData.settings.register_users == true)&&(cDynamicData.settings.user_login_check == true)){
-                            $('#divRegister').removeClass('d-none');                             
-                        }else{           
-                            $('#divRegister').addClass('d-none');    
-                        }
-                        
-                        //Lost Password
-                        if((cDynamicData.settings.lost_password == true)&&(cDynamicData.settings.user_login_check == true)){
-                            $('#divLostPassword').removeClass('d-none');                             
-                        }else{           
-                            $('#divLostPassword').addClass('d-none');    
-                        }
-                                                                       
-                        
-                        $('#hLogin').html('<i class="bi-plug"></i>'+i18n('sConnect'))                    
+                      
+            if(res == 'notyet'){
+                showConnect();
+            }
+            if((res == 'success')||(res == 'already')){
+                showConnected();
+                paintConnected()
+                counter = setInterval (function(){
+			        //Status part
+                    timeUntilStatus = timeUntilStatus-1;
+                    connectedTime   = connectedTime+1;
+                    $('#status_refresh').text(timeUntilStatus);                   
+                    if(timeUntilStatus == 0){      //Each time we reach null we refresh the screens
+                        timeUntilStatus = refreshInterval; //Start anew
+                        paintConnected()                                        
                     }
-
-                    if(j.clientState == 1){
-                        fDebug("Connected");
-                        //Redirect if enabled                      
-                        if(cDynamicData.settings.redirect_check){
-                        
-                            window.location = cDynamicData.settings.redirect_url;
-                            
-                        }else{
-                        
-                            refreshStatusCoova(j);
-                            $('#alertInfo').removeClass('show');
-                            $('#pnlSession').addClass('show');
-                            $('#pnlLogin').removeClass('show');
-                            $('#btnDisconnect').removeClass('d-none');
-                            loadingReset();
-                            $('#btnConnect').addClass('d-none');
-                            $('#btnClickToConnect').addClass('d-none');
-                            $('#divRegister').addClass('d-none');
-                            $('#divLostPassword').addClass('d-none');
-                            $('#divTerms').addClass('d-none');
-                            $('#divSocial').addClass('d-none');  
-                            
-                            $('#hLogin').html('<i class="bi-star"></i> '+i18n('sConnected'))  
-                            if(counter == undefined){    //If it is the first time so initialise the loop counter
-                                sessionData = j;
-                                refreshCounter();
-                            }                           
-                        } 
-                    }
-                })
-                .fail(function(){
-                    //We will retry for retryCount
-                    currentRetry = currentRetry+1;
-                    if(currentRetry <= retryCount){
-                        fDebug("Trying to get status retry #"+currentRetry);
-                        coovaRefresh();
-                    }else{
-                        fDebug("Timed out");
-                        fShowError(i18n('sLatest_Challenge_could_not_be_fetched_from_hotspot'));
-                        loadingReset();
-                    }
-                });
+                }, 1000 );               
+            }        
         }
         
-        var mtRefresh = function () {
-            var urlStatus = getParameterByName('link_status');
-
-            $.ajax({ url: urlStatus + "?var=?", dataType: "jsonp", timeout: ajaxTimeout })
-                .done(function (j) {
-                    statusFb = j;		//Store the status feedback
-				    fDebug("mtRefresh...");
-				    fDebug(JSON.stringify(j));
-				    
-                    currentRetry = 0 //Reset the current retry if it was perhaps already some value
-                    if(j.logged_in == 'no'){
-                        fDebug("Not Connected");
-                        $('#alertInfo').addClass('show');
-                        $('#pnlSession').removeClass('show');
-                        $('#divSocial').removeClass('d-none'); 
-                        if(!cDynamicData.settings.click_to_connect.connect_only){
-                            $('#pnlLogin').addClass('show');
-                        }
-                        $('#btnDisconnect').addClass('d-none');
-                        loadingReset();
-                        
-                        if(
-                            ((cDynamicData.settings.voucher_login_check == false)&&
-                            (cDynamicData.settings.user_login_check == false))||
-                            (cDynamicData.settings.click_to_connect.connect_only)
-                            ){   
-                            //Hide the connect button
-                            $('#btnConnect').addClass('d-none');
-                                            
-                        }else{
-                            $('#btnConnect').removeClass('d-none'); 
-                        }
-                        
-                        if(cDynamicData.settings.click_to_connect.connect_check == true){
-                            $('#btnClickToConnect').removeClass('d-none');                             
-                        }else{           
-                            $('#btnClickToConnect').addClass('d-none');    
-                        }
-                        
-                        if(cDynamicData.settings.t_c_check == true){            
-                            $('#divTerms').removeClass('d-none');         
-                        }else{           
-                            $('#divTerms').addClass('d-none');
-                        }
-                        
-                        //User Registration
-                        if((cDynamicData.settings.register_users == true)&&(cDynamicData.settings.user_login_check == true)){
-                            $('#divRegister').removeClass('d-none');                             
-                        }else{           
-                            $('#divRegister').addClass('d-none');    
-                        }
-                        
-                        //Lost Password
-                        if((cDynamicData.settings.lost_password == true)&&(cDynamicData.settings.user_login_check == true)){
-                            $('#divLostPassword').removeClass('d-none');                             
-                        }else{           
-                            $('#divLostPassword').addClass('d-none');    
-                        }                                                                       
-                        
-                        $('#hLogin').html('<i class="bi-plug"></i> '+i18n('sConnect'))                    
-                    }
-
-                    if(j.logged_in == 'yes'){
-                        fDebug("Connected");
-                        //Redirect if enabled                      
-                        if(cDynamicData.settings.redirect_check){
-                        
-                            window.location = cDynamicData.settings.redirect_url;
-                            
-                        }else{
-                            refreshStatusMikrotik(j);
-                            $('#alertInfo').removeClass('show');
-                            $('#pnlSession').addClass('show');
-                            $('#pnlLogin').removeClass('show');
-                            $('#btnDisconnect').removeClass('d-none');
-                            loadingReset();
-                            $('#btnConnect').addClass('d-none');
-                            $('#btnClickToConnect').addClass('d-none');
-                            $('#divRegister').addClass('d-none');
-                            $('#divLostPassword').addClass('d-none');
-                            $('#divTerms').addClass('d-none');
-                            $('#divSocial').addClass('d-none');  
-                            
-                            $('#hLogin').html('<i class="bi-star"></i>'+i18n('sConnected'))  
-                            if(counter == undefined){    //If it is the first time so initialise the loop counter
-                                sessionData = j;
-                                refreshCounter();
-                            }                           
-                        } 
-                    }
-                
-                })
-                .fail(function () {
-                    //We will retry for retryCount
-                    currentRetry = currentRetry+1;
-                    if(currentRetry <= retryCount){
-                        fDebug("Trying to get status retry #"+currentRetry);
-                        coovaRefresh();
-                    }else{
-                        fDebug("Timed out");
-                        fShowError(i18n('sThe_hotspot_is_not_responding_to_status_queries'));
-                        loadingReset();
-                    }
-                });
+        var showConnect     = function(){
+            $('#alertInfo').addClass('show');
+            $('#pnlSession').removeClass('show');
+            $('#divSocial').removeClass('d-none'); 
+            if(!cDynamicData.settings.click_to_connect.connect_only){
+                $('#pnlLogin').addClass('show');
+            }
+            $('#btnDisconnect').addClass('d-none');
+            loadingReset();
+            
+            if(
+                ((cDynamicData.settings.voucher_login_check == false)&&
+                (cDynamicData.settings.user_login_check == false))||
+                (cDynamicData.settings.click_to_connect.connect_only)
+                ){   
+                //Hide the connect button
+                $('#btnConnect').addClass('d-none');
+                                
+            }else{
+                $('#btnConnect').removeClass('d-none'); 
+            }
+            
+            if(cDynamicData.settings.click_to_connect.connect_check == true){
+                $('#btnClickToConnect').removeClass('d-none');                             
+            }else{           
+                $('#btnClickToConnect').addClass('d-none');    
+            }
+            
+            if(cDynamicData.settings.t_c_check == true){            
+                $('#divTerms').removeClass('d-none');         
+            }else{           
+                $('#divTerms').addClass('d-none');
+            }
+            
+            //User Registration
+            if((cDynamicData.settings.register_users == true)&&(cDynamicData.settings.user_login_check == true)){
+                $('#divRegister').removeClass('d-none');                             
+            }else{           
+                $('#divRegister').addClass('d-none');    
+            }
+            
+            //Lost Password
+            if((cDynamicData.settings.lost_password == true)&&(cDynamicData.settings.user_login_check == true)){
+                $('#divLostPassword').removeClass('d-none');                             
+            }else{           
+                $('#divLostPassword').addClass('d-none');    
+            }          
+            $('#hLogin').html('<i class="bi-plug"></i>'+i18n('sConnect'))        
         }
-              
+        
+        var showConnected   = function(){
+            if(cDynamicData.settings.redirect_check){          
+                window.location = cDynamicData.settings.redirect_url;               
+            }else{
+                $('#alertInfo').removeClass('show');
+                $('#pnlSession').addClass('show');
+                $('#pnlLogin').removeClass('show');
+                $('#btnDisconnect').removeClass('d-none');
+                loadingReset();
+                $('#btnConnect').addClass('d-none');
+                $('#btnClickToConnect').addClass('d-none');
+                $('#divRegister').addClass('d-none');
+                $('#divLostPassword').addClass('d-none');
+                $('#divTerms').addClass('d-none');
+                $('#divSocial').addClass('d-none');               
+                $('#hLogin').html('<i class="bi-star"></i> '+i18n('sConnected'))  
+                if(counter == undefined){    //If it is the first time so initialise the loop counter
+                    //sessionData = j;
+                    //refreshCounter();
+                }                           
+            }         
+        }
+        
+        var paintConnected = function(){
+            var time_s  = time(connectedTime);
+            $('#acct_un').text('N/A');
+            $('#acct_up').text(time_s);
+            $('#acct_di').text('N/A');
+            $('#acct_do').text('N/A');
+            $('#acct_dt').text('N/A');           
+        }
+                                        
         var loadingReset = function(){
             $('#btnClickToConnect').button('reset');
             $('#btnDisconnect').button('reset');
@@ -1683,7 +961,6 @@ var sConnect = (function () {
         var onLostPasswordClick = function(){          
             $("#myModal").modal('hide');
             if(cDynamicData.settings.lost_password_method == 'sms'){
-                //console.log("BB");
                 $("#modalLostPwdSms").modal('show');
                 if(!$("#pnlLostPwdSms").data('populate')){
                     populateLostPwdSms();
@@ -1803,33 +1080,15 @@ var sConnect = (function () {
             }
             form.classList.add('was-validated');
         }
-        
-        var execRedirect    = function (redir_url) {
-            if (redir_url != '' && redir_url != undefined) {
-                window.location = redir_url;
-            }else{
-                //We redirect to google
-                window.location = 'http://google.com';
-            }
-        }
-        
+            
         var testForHotspot = function () {
-            if (isMikroTik) {
-                return testForHotspotMT();
-            }
-            else {
-                return testForHotspotCoova();
-            }
+            return testForHotspotCoova();
         }
          
         var testForHotspotCoova = function(){
 
             var ip      = getParameterByName('uamip');
             var port    = getParameterByName('uamport');
-            
-            //ssl test
-            var ssl     = getParameterByName('ssl');
-
             if(ip != ''){  //Override defaults
                 uamIp = ip;
             }else{
@@ -1838,29 +1097,10 @@ var sConnect = (function () {
 
             if(port != ''){    //Override defaults
                 uamPort = port;
-            }
-            
-            if(ssl != ''){
-                //console.log("The Captive Portal Supports SSL");
-                //console.log(ssl); 
-                uamIp   = ssl.replace(":4990/","");
-                uamIp   = uamIp.replace("https://","");
-                //console.log("uamIP is "+uamIp);
-                uamPort = 4990;
-            }
-            
+            }    
             return true;        //Is a hotspot
         }
-        
-        var testForHotspotMT = function () {
-            var ls = getParameterByName('link_status');
-            if (ls != undefined) {  //Override defaults
-                return true
-            } else {
-                return false;   //Not a hotspot
-            }
-        }
-        
+              
         function getParameterByName(name) {
            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -1871,8 +1111,7 @@ var sConnect = (function () {
 
          //Expose those public items...
         return {         
-            init                    : init,
-            checkSocialLoginReturn  : checkSocialLoginReturn	  
+            init                    : init  
         }   
     }
     

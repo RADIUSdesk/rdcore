@@ -92,13 +92,28 @@ var sDynamic = (function () {
             }
                    
             //Call the Connect side....
-            var c       = sConnect({cDynamicData: cDynamicData});
+            var chilli_json_unavailable = false;
+            var useCHAP = false;
+            if(cDynamicData.settings.chilli_json_unavailable !== undefined){
+                if(cDynamicData.settings.chilli_json_unavailable == true){
+                    chilli_json_unavailable = true;
+                }          
+            }
+            if(cDynamicData.settings.chilli_use_chap !== undefined){
+                if(cDynamicData.settings.chilli_use_chap == true){
+                    useCHAP = true;
+                }          
+            }
+            if(chilli_json_unavailable == true){
+                var c   = sConnectSimple({cDynamicData: cDynamicData, useCHAP: useCHAP});
+            }else{            
+                var c   = sConnect({cDynamicData: cDynamicData, useCHAP: useCHAP});
+            }
             c.init();
         
             if(cDynamicData.settings.social_login.active == true){
                 c.checkSocialLoginReturn();
-            }	
-                                           	    
+            }	                                           	    
         };
         
         function showLogin() {       
