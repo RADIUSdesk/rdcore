@@ -272,7 +272,9 @@ class DynamicDetailsController extends AppController{
 			'show_screen_delay',
 			'show_logo',
 			'show_name',
-			'name_colour'
+			'name_colour',
+			'chilli_json_unavailable',
+			'chilli_use_chap'
 		];
         
 		//print_r($q_r);
