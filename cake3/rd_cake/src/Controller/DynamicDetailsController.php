@@ -754,7 +754,9 @@ class DynamicDetailsController extends AppController{
             'slideshow_enforce_watching',
             'prelogin_check',
             'show_logo',
-			'show_name'
+			'show_name',
+			'chilli_json_unavailable',
+			'chilli_use_chap'
 	    ];
 	    
         foreach($check_items as $i){

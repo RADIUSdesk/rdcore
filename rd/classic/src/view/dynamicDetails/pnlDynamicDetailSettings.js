@@ -478,6 +478,48 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailSettings', {
                 }             
             ]     
         }
+        
+         
+        var cntCoova = {
+            xtype       : 'container',
+            width       : w_prim,
+            layout      : 'anchor',
+            defaults    : {
+                anchor  : '100%'
+            },
+            items       : [
+                {
+			        xtype       : 'checkbox',      
+			        fieldLabel  : 'JSON Unavailable',
+			        name        : 'chilli_json_unavailable',
+			        labelClsExtra: 'lblRdReq',
+			        afterRender: function (ct, position) {
+                        new Ext.ToolTip({
+                            target : this.id,
+                            trackMouse : false,
+                            maxWidth : 250,
+                            minWidth : 100,
+                            html : "<label class=\'lblTipItem\'>Use with DD-Wrt and Teltonika. Does not need SSL Certs</label>"
+                        });
+                    }
+			    },
+			    {
+			        xtype       : 'checkbox', 
+			        fieldLabel  : 'Use CHAP',
+			        name        : "chilli_use_chap",
+			        labelClsExtra: 'lblRdReq',
+			        afterRender: function (ct, position) {
+                        new Ext.ToolTip({
+                            target : this.id,
+                            trackMouse : false,
+                            maxWidth : 250,
+                            minWidth : 100,
+                            html : "<label class=\'lblTipItem\'>Use CHAP instead of UAM service. UAM Secret needs to be left out on Coova</label>"
+                        });
+                    }
+			    }     
+            ]
+        }
             
         me.items = [
             {
@@ -557,6 +599,19 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailSettings', {
                 },
                 bodyPadding : 10,
                 items       : cntLanguage				
+            },
+            {
+                xtype       : 'panel',
+                title       : 'Coova Chilli Specific',
+                glyph       : Rd.config.icnThermometer, 
+                ui          : 'panel-green',
+                layout      : {
+                  type      : 'vbox',
+                  align     : 'start',
+                  pack      : 'start'
+                },
+                bodyPadding : 10,
+                items       : cntCoova				
             }
         ];
         me.callParent(arguments);

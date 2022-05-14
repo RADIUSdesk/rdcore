@@ -177,6 +177,7 @@ Rd.config = {
     'icnCertificate': 'xf0a3@FontAwesome',
     'icnArrows'     : 'xf047@FontAwesome',
     'icnExchange'   : 'xf0ec@FontAwesome',
-    'icnHeartbeat'  : 'f21e@FontAwesome' 
+    'icnHeartbeat'  : 'xf21e@FontAwesome',
+    'icnThermometer': 'xf2c9@FontAwesome' 
 }
 
