@@ -638,7 +638,7 @@ class ProfilesController extends AppController
             if($ent){ 
                 $pc_name        = $this->profCompPrefix.$ent->id;
                 $data           = $this->_getRadius($pc_name);
-                
+                             
                 $data['id']     = $ent->id;
                 $data['name']   = $ent->name;
                 $data['available_to_siblings'] = $ent->available_to_siblings;
@@ -910,8 +910,15 @@ class ProfilesController extends AppController
     
         $e_list = $this->{'Radgroupreplies'}->find()->where(['Radgroupreplies.groupname' => $groupname])->all();
         
-        $data = ['speed_limit_enabled' =>false,'time_limit_enabled' =>false,'data_limit_enabled' => false];
-        
+        $data = [
+            'speed_limit_enabled'   => false,
+            'time_limit_enabled'    => false,
+            'data_limit_enabled'    => false,
+            'logintime_1_span'      => 'disabled',
+            'logintime_2_span'      => 'disabled',
+            'logintime_3_span'      => 'disabled',
+        ];
+                   
         $bw_up_check    = false;
         $bw_down_check  = false;
            
@@ -995,6 +1002,48 @@ class ProfilesController extends AppController
             }        
         }
         
+        //Logintime  
+        //$login_time = 'Al0800-1600|Wk1301-1402|Mo,Sa,Su1500-2000';
+        $login_time = '';
+        if($login_time){
+            $pieces = preg_split("/,|\|/", $login_time);
+            $days   = [];
+            $count = 0;
+            foreach($pieces as $i){
+                $pattern = '/^(Wk|Mo|Tu|We|Th|Fr|Sa|Su|Any|Al)/';
+                if(preg_match($pattern, $i,$matches_main)){
+                    $j = $i;
+                    if(preg_match('/^(Wk|Mo|Tu|We|Th|Fr|Sa|Su|Any|Al)([0-9]{4}-[0-9]{4})/',$j,$matches)){
+                        $count++;
+                        $span                       = $matches[2];
+                        [$span_start,$span_end]     = explode("-",$span);
+                        $span_start_hour            = substr($span_start, 0, 2);
+                        $span_start_min             = substr($span_start, 2, 4);
+                        $span_end_hour              = substr($span_end, 0, 2);
+                        $span_end_min               = substr($span_end, 2, 4);
+                        if($span_end_hour < $span_start_hour){
+                            [$span_start_hour, $span_end_hour]  = [$span_end_hour, $span_start_hour]; #Swap them
+                            [$span_start_min, $span_end_min]    = [$span_end_min, $span_start_min]; #Swap them   
+                        }
+                        array_push($days,$matches[1]);          
+                        if(($matches[1] == 'Al')||($matches[1] == 'Any')||($matches[1] == 'Wk')){
+                            $data['logintime_'.$count.'_span'] = $matches[1];
+                        }else{
+                            $data['logintime_'.$count.'_span']  = 'specific';
+                            $data['logintime_'.$count.'_days']  = $days;
+                        }
+                        $data['logintime_'.$count.'_start'] =  $span_start_hour.":".$span_start_min;
+                        $data['logintime_'.$count.'_end']   =  $span_end_hour.":".$span_end_min;
+                        
+                        $days = [];          
+                    }else{
+                        array_push($days,$matches_main[1]);        
+                    }   
+                }
+            }
+            
+        }
+             
         if((!array_key_exists('data_amount',$data))&&(array_key_exists('data_reset',$data))){
             $data['data_reset'] = 'top_up';        
         }

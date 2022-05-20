@@ -25,7 +25,9 @@ Ext.define('Rd.view.profiles.pnlAddEditProfile', {
         'Ext.form.field.Text',
         'Rd.view.profiles.vcProfileGeneric',
         'Rd.view.profiles.pnlDataLimit',
-        'Rd.view.profiles.pnlTimeLimit'
+        'Rd.view.profiles.pnlTimeLimit',
+        'Rd.view.profiles.pnlLogintime',
+        'Rd.view.profiles.pnlSessionLimit'
     ],
     controller  : 'vcProfileGeneric',
     listeners       : {
@@ -62,7 +64,8 @@ Ext.define('Rd.view.profiles.pnlAddEditProfile', {
                 ui      : 'button-teal'
             }
         ];
-               
+		
+		              
 		me.items = [
             {
                 xtype       : 'panel',
@@ -156,6 +159,7 @@ Ext.define('Rd.view.profiles.pnlAddEditProfile', {
                         xtype       : 'container',
                         html        : '<h1><span style="color:grey;font-weight:700; font-size: smaller;">PROFILE LIMITS</span><h1>'
                     },
+                    
                     {
                         xtype       : 'container',
                         layout      : {
@@ -192,9 +196,32 @@ Ext.define('Rd.view.profiles.pnlAddEditProfile', {
                                 xtype       : 'pnlSpeedLimit'
                             }
                         ]
-                    }
-                ],
-                height      : 1000
+                    },
+                    {
+                        xtype       : 'container',
+                        layout      : {
+                            type    : 'hbox',
+                            pack    : 'center',
+                            align   : 'stretchmax'
+                        },
+                        items       : [
+                            {
+                                itemId      : 'pnlLogintime',
+                                hidden      : false,
+                                flex        : 1,
+                                ui          : 'panel-blue',
+                                xtype       : 'pnlLogintime'
+                            },
+                            {
+                                itemId      : 'pnlSessionLimit',
+                                hidden      : false,
+                                flex        : 1,
+                                ui          : 'panel-blue',
+                                xtype       : 'pnlSessionLimit'
+                            }
+                        ]
+                    },
+                ]
             }  
         ];
      
