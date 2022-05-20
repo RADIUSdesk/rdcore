@@ -66,13 +66,13 @@ Ext.define('Rd.view.profiles.pnlLogintime', {
                     itemId      : 'chkGrpDays',
                     disabled    : true,
                     items: [
-                        { boxLabel: 'Mo', name: 'logintime_1_days', inputValue: 'Mo' },
-                        { boxLabel: 'Tu', name: 'logintime_1_days', inputValue: 'Tu' },
-                        { boxLabel: 'We', name: 'logintime_1_days', inputValue: 'We' },
-                        { boxLabel: 'Th', name: 'logintime_1_days', inputValue: 'Th' },
-                        { boxLabel: 'Fr', name: 'logintime_1_days', inputValue: 'Fr' },
-                        { boxLabel: 'Sa', name: 'logintime_1_days', inputValue: 'Su' },
-                        { boxLabel: 'So', name: 'logintime_1_days', inputValue: 'Su' }
+                        { boxLabel: 'Mo', name: 'logintime_1_days_Mo', inputValue: 'Mo' },
+                        { boxLabel: 'Tu', name: 'logintime_1_days_Tu', inputValue: 'Tu' },
+                        { boxLabel: 'We', name: 'logintime_1_days_We', inputValue: 'We' },
+                        { boxLabel: 'Th', name: 'logintime_1_days_Th', inputValue: 'Th' },
+                        { boxLabel: 'Fr', name: 'logintime_1_days_Fr', inputValue: 'Fr' },
+                        { boxLabel: 'Sa', name: 'logintime_1_days_Sa', inputValue: 'Sa' },
+                        { boxLabel: 'Su', name: 'logintime_1_days_Su', inputValue: 'Su' }
                     ]
                 },		    
 		        {
@@ -154,13 +154,13 @@ Ext.define('Rd.view.profiles.pnlLogintime', {
                     itemId      : 'chkGrpDays',
                     disabled    : true,
                     items: [
-                        { boxLabel: 'Mo', name: 'logintime_2_days', inputValue: 'Mo' },
-                        { boxLabel: 'Tu', name: 'logintime_2_days', inputValue: 'Tu' },
-                        { boxLabel: 'We', name: 'logintime_2_days', inputValue: 'We' },
-                        { boxLabel: 'Th', name: 'logintime_2_days', inputValue: 'Th' },
-                        { boxLabel: 'Fr', name: 'logintime_2_days', inputValue: 'Fr' },
-                        { boxLabel: 'Sa', name: 'logintime_2_days', inputValue: 'Su' },
-                        { boxLabel: 'So', name: 'logintime_2_days', inputValue: 'Su' }
+                        { boxLabel: 'Mo', name: 'logintime_2_days_Mo', inputValue: 'Mo' },
+                        { boxLabel: 'Tu', name: 'logintime_2_days_Tu', inputValue: 'Tu' },
+                        { boxLabel: 'We', name: 'logintime_2_days_We', inputValue: 'We' },
+                        { boxLabel: 'Th', name: 'logintime_2_days_Th', inputValue: 'Th' },
+                        { boxLabel: 'Fr', name: 'logintime_2_days_Fr', inputValue: 'Fr' },
+                        { boxLabel: 'Sa', name: 'logintime_2_days_Sa', inputValue: 'Sa' },
+                        { boxLabel: 'Su', name: 'logintime_2_days_Su', inputValue: 'Su' }
                     ]
                 },		    
 		        {
@@ -242,13 +242,13 @@ Ext.define('Rd.view.profiles.pnlLogintime', {
                     itemId      : 'chkGrpDays',
                     disabled    : true,
                     items: [
-                        { boxLabel: 'Mo', name: 'logintime_3_days', inputValue: 'Mo' },
-                        { boxLabel: 'Tu', name: 'logintime_3_days', inputValue: 'Tu' },
-                        { boxLabel: 'We', name: 'logintime_3_days', inputValue: 'We' },
-                        { boxLabel: 'Th', name: 'logintime_3_days', inputValue: 'Th' },
-                        { boxLabel: 'Fr', name: 'logintime_3_days', inputValue: 'Fr' },
-                        { boxLabel: 'Sa', name: 'logintime_3_days', inputValue: 'Su' },
-                        { boxLabel: 'So', name: 'logintime_3_days', inputValue: 'Su' }
+                        { boxLabel: 'Mo', name: 'logintime_3_days_Mo', inputValue: 'Mo' },
+                        { boxLabel: 'Tu', name: 'logintime_3_days_Tu', inputValue: 'Tu' },
+                        { boxLabel: 'We', name: 'logintime_3_days_We', inputValue: 'We' },
+                        { boxLabel: 'Th', name: 'logintime_3_days_Th', inputValue: 'Th' },
+                        { boxLabel: 'Fr', name: 'logintime_3_days_Fr', inputValue: 'Fr' },
+                        { boxLabel: 'Sa', name: 'logintime_3_days_Sa', inputValue: 'Sa' },
+                        { boxLabel: 'Su', name: 'logintime_3_days_Su', inputValue: 'Su' }
                     ]
                 },		    
 		        {

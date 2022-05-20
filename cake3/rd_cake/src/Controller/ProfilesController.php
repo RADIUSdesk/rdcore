@@ -894,6 +894,49 @@ class ProfilesController extends AppController
 
         }
         
+        //===LOGINTIME===
+        //Test the three timeslots
+        $logintime_string = '';
+        for ($x = 1; $x <= 3; $x++) {
+            $slot_span = $this->request->getData('logintime_'.$x.'_span');
+            if($slot_span !== 'disabled'){
+                $slot_start = str_replace(':','',$this->request->getData('logintime_'.$x.'_start'));
+                $slot_end   = str_replace(':','',$this->request->getData('logintime_'.$x.'_end'));
+                if(($slot_span == 'Al')||($slot_span == 'Wk')){
+                    $logintime_string = $logintime_string.$slot_span.$slot_start.'-'.$slot_end.'|';  
+                
+                }else{
+                    $dat = $this->request->getData();                   
+                    $match_day_string   = 'logintime_'.$x.'_days_';
+                    $day_string         = "";
+                    foreach(array_keys($dat) as $d){
+                        if(preg_match("/^$match_day_string/",  $d)){
+                            $day = $dat[$d];
+                            $day_string = $day_string.$day.",";
+                        }                   
+                    }                   
+                    if($day_string !== ''){
+                        $day_string = rtrim($day_string, ',');
+                    }
+                    $logintime_string = $logintime_string.$day_string.$slot_start.'-'.$slot_end.'|'; 
+                }                          
+            }
+        }
+        if($logintime_string !== ''){
+            $logintime_string = rtrim($logintime_string, '|');
+            $d_logintime = [
+                'groupname' => $groupname,
+                'attribute' => 'Login-Time',
+                'op'        => ':=',
+                'value'     => $logintime_string,
+                'comment'   => 'SimpleProfile'
+            ];
+            $e_logintime = $this->{'Radgroupchecks'}->newEntity($d_logintime);
+            $this->{'Radgroupchecks'}->save($e_logintime);        
+        }
+        //=== END LOGINTIME ===
+              
+        
         //Fall Through      
         $d_fall_through = [
             'groupname' => $groupname,
