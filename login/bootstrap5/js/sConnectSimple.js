@@ -594,7 +594,12 @@ var sConnectSimple = (function () {
         }
                  
         var onBtnConnectClick = function(event){  //Get the latest challenge and continue from there onwards....
-            event.preventDefault();             
+            event.preventDefault();
+            
+            //Auto suffix check
+		    var auto_suffix_check   = cDynamicData.settings.auto_suffix_check;
+		    var auto_suffix			= cDynamicData.settings.auto_suffix;
+                         
             fDebug("Button Connect Clicked");
             $('#alertWarn').removeClass('show');
             currentRetry = 0;
@@ -608,8 +613,16 @@ var sConnectSimple = (function () {
             }
             if($("#txtUsername").length){ //It might not be there depending on the settings
                 if($("#txtUsername").val() !== ''){
-                     userName = $("#txtUsername").val().toLowerCase();
-                     password = $("#txtPassword").val();
+                    userName = $("#txtUsername").val();
+                    if(auto_suffix_check){
+				        //Check if not already in username
+				        var re = new RegExp(".+@"+auto_suffix+"$");
+				        if(userName.match(re)==null){
+				            userName = userName+'@'+auto_suffix;
+				        }
+			        }
+                    userName = userName.toLowerCase();
+                    password = $("#txtPassword").val();
                 }           
             }
             var challenge = getParameterByName('challenge'); 
@@ -747,6 +760,7 @@ var sConnectSimple = (function () {
             var res    = getParameterByName('res'); //res can be 'notyet', 'success', 'already'           
             if(res == 'failed'){
                 var reason    = getParameterByName('reason');
+                fShowError("Error "+reason+"<br>Please Try Again.....");
                 fShowError(reason);
                 showConnect();
             }
