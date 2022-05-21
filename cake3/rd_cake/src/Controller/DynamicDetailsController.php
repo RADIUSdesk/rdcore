@@ -817,9 +817,16 @@ class DynamicDetailsController extends AppController{
     
     public function viewClickToConnect(){
 
-        if(!$this->_ap_right_check()){
+        //FIXME ADD THIS RIGHT IN A PATC LATER (21May2022)
+        //if(!$this->_ap_right_check()){
+        //    return;
+        //}
+        
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
             return;
         }
+        
         
         $data = [];
         $entity = $this->{'DynamicDetailCtcs'}->find()->where(['dynamic_detail_id' =>$this->request->query['dynamic_detail_id']])->first();

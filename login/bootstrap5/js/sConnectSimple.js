@@ -761,7 +761,6 @@ var sConnectSimple = (function () {
             if(res == 'failed'){
                 var reason    = getParameterByName('reason');
                 fShowError("Error "+reason+"<br>Please Try Again.....");
-                fShowError(reason);
                 showConnect();
             }
                       
