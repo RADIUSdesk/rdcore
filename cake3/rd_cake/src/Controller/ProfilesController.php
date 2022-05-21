@@ -429,11 +429,11 @@ class ProfilesController extends AppController
             }
         }
 
-        $check_items = array(
+        $check_items = [
 			'available_to_siblings',
 			'data_limit_mac',
 			'time_limit_mac'	
-		);
+		];
         foreach($check_items as $i){
             if(isset($this->request->data[$i])){
                 $this->request->data[$i] = 1;
@@ -445,7 +445,8 @@ class ProfilesController extends AppController
         $t_f_settings = [
             'speed_limit_enabled',
             'time_limit_enabled',
-            'data_limit_enabled'
+            'data_limit_enabled',
+            'session_limit_enabled'
         ];
         
         foreach($t_f_settings as $i){
@@ -522,7 +523,8 @@ class ProfilesController extends AppController
         $t_f_settings = [
             'speed_limit_enabled',
             'time_limit_enabled',
-            'data_limit_enabled'
+            'data_limit_enabled',
+            'session_limit_enabled'
         ];
         
         foreach($t_f_settings as $i){
@@ -626,7 +628,7 @@ class ProfilesController extends AppController
             return;
         }
         //Turn everything off by default
-        $data = ['speed_limit_enabled' =>false,'time_limit_enabled' =>false,'data_limit_enabled' => false];
+        $data = ['speed_limit_enabled' =>false,'time_limit_enabled' =>false,'data_limit_enabled' => false,'session_limit_enabled'=> false];
         
         if(isset($this->request->query['profile_id'])){
             $profile_id = $this->request->query['profile_id'];
@@ -935,7 +937,21 @@ class ProfilesController extends AppController
             $this->{'Radgroupchecks'}->save($e_logintime);        
         }
         //=== END LOGINTIME ===
-              
+                
+        //===Session Limit===
+        if($this->request->data['session_limit_enabled']){ //IF it is there 
+            $session_limit = $this->request->data['session_limit'];
+            $d_session = [
+                'groupname' => $groupname,
+                'attribute' => 'Simultaneous-Use',
+                'op'        => ':=',
+                'value'     => $session_limit,
+                'comment'   => 'SimpleProfile'
+            ];
+            $e_session = $this->{'Radgroupchecks'}->newEntity($d_session);
+            $this->{'Radgroupchecks'}->save($e_session);               
+        }
+        //===END Session Limit===      
         
         //Fall Through      
         $d_fall_through = [
@@ -957,6 +973,7 @@ class ProfilesController extends AppController
             'speed_limit_enabled'   => false,
             'time_limit_enabled'    => false,
             'data_limit_enabled'    => false,
+            'session_limit_enabled' => false,
             'logintime_1_span'      => 'disabled',
             'logintime_2_span'      => 'disabled',
             'logintime_3_span'      => 'disabled',
@@ -995,6 +1012,9 @@ class ProfilesController extends AppController
             $data['speed_download_amount']  = $speed_download_amount;
             $data['speed_download_unit']    = $speed_download_unit;
         }
+        
+        //$login_time = 'Al0800-1600|Wk1301-1402|Mo,Sa,Su1500-2000';
+        $login_time = '';
         
         $e_chk = $this->{'Radgroupchecks'}->find()->where(['Radgroupchecks.groupname' => $groupname])->all();
         foreach($e_chk as $e){       
@@ -1042,12 +1062,20 @@ class ProfilesController extends AppController
                     $data['time_amount'] = $t/60;
                     $data['time_unit'] = 'min';
                 }
-            }        
+            }
+            
+            if($e->attribute == 'Login-Time'){
+                $login_time = $e->value;
+            }
+            
+            if($e->attribute == 'Simultaneous-Use'){
+                unset($data['session_limit_enabled']);
+                $data['session_limit'] = $e->value;  
+            }   
+                    
         }
         
         //Logintime  
-        //$login_time = 'Al0800-1600|Wk1301-1402|Mo,Sa,Su1500-2000';
-        $login_time = '';
         if($login_time){
             $pieces = preg_split("/,|\|/", $login_time);
             $days   = [];
@@ -1073,7 +1101,9 @@ class ProfilesController extends AppController
                             $data['logintime_'.$count.'_span'] = $matches[1];
                         }else{
                             $data['logintime_'.$count.'_span']  = 'specific';
-                            $data['logintime_'.$count.'_days']  = $days;
+                            foreach($days as $j){
+                                $data['logintime_'.$count.'_days_'.$j]  = $j;
+                            }                          
                         }
                         $data['logintime_'.$count.'_start'] =  $span_start_hour.":".$span_start_min;
                         $data['logintime_'.$count.'_end']   =  $span_end_hour.":".$span_end_min;

@@ -31,7 +31,13 @@ Ext.define('Rd.view.profiles.pnlSessionLimit', {
 			    xtype       : 'container',
 			    itemId      : 'cntDetail',
 			    items       : [
-			        
+			        {
+			            xtype       : 'rdSlider',
+			            sliderName  : 'session_limit',
+			            fieldLabel  : "Amount",
+                        minValue    : 1,
+                        maxValue    : 120
+			        }			        
                 ]
             }
         ];       
