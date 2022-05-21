@@ -178,6 +178,7 @@ Rd.config = {
     'icnArrows'     : 'xf047@FontAwesome',
     'icnExchange'   : 'xf0ec@FontAwesome',
     'icnHeartbeat'  : 'xf21e@FontAwesome',
-    'icnThermometer': 'xf2c9@FontAwesome' 
+    'icnThermometer': 'xf2c9@FontAwesome',
+    'icnListOl'     : 'xf0cb@FontAwesome' 
 }
 
