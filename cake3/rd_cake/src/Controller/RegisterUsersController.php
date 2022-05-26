@@ -110,6 +110,23 @@ class RegisterUsersController extends AppController {
 		//Profile id
 		$profile_id	= $q_r->profile_id;
 		
+		//Determine the Data / Time cap
+		$e_profile = $this->{'Profiles'}->find()->where(['Profiles.id' => $profile_id])->contain(['Radusergroups'=> ['Radgroupchecks']])->first();
+		
+		$data_cap_in_profile    = false; 
+        $time_cap_in_profile    = false; 
+
+        foreach ($e_profile->radusergroups as $cmp){
+            foreach ($cmp->radgroupchecks as $radgroupcheck) {
+                if($radgroupcheck->attribute == 'Rd-Cap-Type-Data'){
+                    $data_cap_in_profile = $radgroupcheck->value;
+                }
+                if($radgroupcheck->attribute == 'Rd-Cap-Type-Time'){
+                    $time_cap_in_profile = $radgroupcheck->value;
+                }              
+            }
+        }
+        	
         $active   	= 'active';
         $cap_data 	= 'hard';
         $language   = '4_4';
@@ -118,10 +135,6 @@ class RegisterUsersController extends AppController {
         $username	= $this->request->getData('username');
 		$password	= $this->request->getData('password');
 		
-		$auto_add   = 0;
-		if($q_r->reg_auto_add){
-		    $auto_add = 1;
-		}
 		
 		//--- ADD ON ---- Expire them after 30 days
 		/*
@@ -147,18 +160,30 @@ class RegisterUsersController extends AppController {
             'email'         => $username, //Email and username will be the same / email required
 			'extra_name'	=> $mac_name,
 			'extra_value'	=> $mac_value,
-			'auto_add'      => $auto_add,
 			'name'          => $this->request->getData('name'),
 			'surname'       => $this->request->getData('surname'),
 			'phone'         => $this->request->getData('phone')
         ];
+               
+		if($q_r->reg_auto_add){
+		    $postData['auto_add'] = 1;
+		}
+        
+        //Add the Cap Type if defined
+        if($data_cap_in_profile){
+            $postData['data_cap_type'] = $data_cap_in_profile;
+        }
+        if($time_cap_in_profile){
+            $postData['time_cap_type'] = $time_cap_in_profile;
+        }
+        
      
         $response = $this->_create_permanent_user($url, $postData);
 
 		$responseData = json_decode($response, true);
 		//print_r($responseData);
 
-        if($responseData['success'] == false){
+        if($responseData['success'] == false){     
 			$this->set([
             'success'   => $responseData['success'],
 			'errors'	=> $responseData['errors'],
@@ -173,7 +198,32 @@ class RegisterUsersController extends AppController {
 			if($q_r->reg_email){
 				$this->_email_user_detail($username,$password);
 			}
-
+			
+			
+			//============== SMALL HACK 26 MAY 2022 ===============
+			//==== USE THIS TO ADD THE INITIAL DATA / TIME FOR USER REGISTRATION WITH **TOP-UP** PROFILES ====
+			//=====================================================
+			
+            $add_topup = false;
+            if($add_topup){
+                $postTopupData  = [
+                    'user_id'           => $q_u->id, //We make the owner of the Login Page the owner or the Top-Up 
+                    'permanent_user_id' => $responseData['data']['id'], //Permanent User who gets the Top-Up
+                    'type'              => 'data',  //Type (data, time or days_to_use)
+                    'value'             => '10', //**Change VALUE**
+                    'data_unit'         => 'mb', //**Change VALUE**
+                    'comment'           => 'User Reg First TopUp', //Comment to ID them
+                    'token'             => $token //Token of the Login Page owner                
+                ];
+                $topup_add_url  = 'http://127.0.0.1/cake3/rd_cake/top-ups/add.json';
+                $topup_response = $this->_add_initial_topup($topup_add_url,$postTopupData);
+                $postData['top_up'] = $topup_response;          
+            }
+            //-----------------------------------------------
+            //======== SMALL HACK 26 MAY 2022 ===============
+            //----------------------------------------------
+            
+            
 			$this->set([
             'success'   => $responseData['success'],
 			'data'		=> $postData,
@@ -275,6 +325,28 @@ class RegisterUsersController extends AppController {
         }
         curl_close($ch);
         return $response;
+	}
+	
+	private function _add_initial_topup($url, $postData){
+	    // Setup cURL
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [
+            CURLOPT_POST            => TRUE,
+            CURLOPT_RETURNTRANSFER  => TRUE,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json'
+            ],
+            CURLOPT_POSTFIELDS => json_encode($postData)
+        ]);
+
+        // Send the request
+        $response = curl_exec($ch);
+        // Check for errors
+        if($response === false){
+            die(curl_error($ch));
+        }
+        curl_close($ch);
+        return $response;	
 	}
 
 }

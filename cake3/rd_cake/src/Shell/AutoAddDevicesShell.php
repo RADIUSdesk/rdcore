@@ -42,7 +42,7 @@ class AutoAddDevicesShell extends Shell {
 
         //Clear the table for the next lot
         $conn = ConnectionManager::get('default');   
-        //$conn->execute('TRUNCATE table auto_devices;');
+        $conn->execute('TRUNCATE table auto_devices;');
     }
 
     private function process_auto_device($mac,$username){
