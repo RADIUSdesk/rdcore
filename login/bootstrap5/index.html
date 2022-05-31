@@ -101,43 +101,77 @@
                                 </div>
                                 <!-- END LOGIN SCREEN-->
                    
+                                <!-- === SESSION + USAGE === -->
                                 <div class="row collapse" id='pnlSession'>
-                                    <table class="table table-striped">
-                                       <thead>
-                                          <tr>
-                                             <th data-translate="sItem">Item</th>
-                                             <th data-translate="sValue">Value</th>
-                                          </tr>
-                                       </thead>
-                                       <tbody>
-                                          <tr>
-                                             <td><i class="bi-person"></i> <span data-translate="sUsername">Username</span></td>
-                                             <td id='acct_un' style="color:#2759A2;"></td>
-                                          </tr>
-                                          <tr>
-                                             <td><i class="bi-clock"></i>  <span data-translate="sConnected">Connected</span></td>
-                                             <td id='acct_up' style="color:#2759A2;"></td>
-                                          </tr>
-                                          <tr>
-                                             <td><i class="bi-arrow-down"></i>  <span data-translate="sData_In">Data In</span></td>
-                                             <td id='acct_di' style="color:#2759A2;"></td>
-                                          </tr>
-                                          <tr>
-                                             <td><i class="bi-arrow-up"></i>  <span data-translate="sData_Out">Data Out</span></td>
-                                             <td id='acct_do' style="color:#2759A2;"></td>
-                                          </tr>
-                                          <tr>
-                                             <td><i class="bi-hdd"></i>  <span data-translate="sData_Total">Data Total</span></td>
-                                             <td id='acct_dt' style="color:#2759A2;"></td>
-                                          </tr>
-                                       </tbody>
-                                    </table>
-                                    <div class="col-sm-12">
-                                        <span data-translate="sRefreshing_in">Refreshing in</span>
-                                        <span id='status_refresh' class='info' style="color:#2759A2;"></span>
-                                        <span data-translate="sseconds_fs">seconds.</span>
-                                    </div>
+                                    <ul id='tabSession' class="nav nav-pills">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" data-bs-toggle="tab" data-bs-target="#nav-session" href="#">Session</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" data-bs-toggle="tab" data-bs-target="#nav-usage" href="#">Usage</a>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content p-0" id="nav-tabContent">
+                                        <div class="tab-pane fade show active" id="nav-session" role="tabpanel" aria-labelledby="nav-session-tab">                                       
+                                            <table class="table table-striped">
+                                               <thead>
+                                                  <tr>
+                                                     <th data-translate="sItem">Item</th>
+                                                     <th data-translate="sValue">Value</th>
+                                                  </tr>
+                                               </thead>
+                                               <tbody>
+                                                  <tr>
+                                                     <td><i class="bi-person"></i> <span data-translate="sUsername">Username</span></td>
+                                                     <td id='acct_un' style="color:#2759A2;"></td>
+                                                  </tr>
+                                                  <tr>
+                                                     <td><i class="bi-clock"></i>  <span data-translate="sConnected">Connected</span></td>
+                                                     <td id='acct_up' style="color:#2759A2;"></td>
+                                                  </tr>
+                                                  <tr>
+                                                     <td><i class="bi-arrow-down"></i>  <span data-translate="sData_In">Data In</span></td>
+                                                     <td id='acct_di' style="color:#2759A2;"></td>
+                                                  </tr>
+                                                  <tr>
+                                                     <td><i class="bi-arrow-up"></i>  <span data-translate="sData_Out">Data Out</span></td>
+                                                     <td id='acct_do' style="color:#2759A2;"></td>
+                                                  </tr>
+                                                  <tr>
+                                                     <td><i class="bi-hdd"></i>  <span data-translate="sData_Total">Data Total</span></td>
+                                                     <td id='acct_dt' style="color:#2759A2;"></td>
+                                                  </tr>
+                                               </tbody>
+                                            </table>
+                                            <div class="col-sm-12">
+                                                <span data-translate="sRefreshing_in">Refreshing in</span>
+                                                <span id='status_refresh' class='info' style="color:#2759A2;"></span>
+                                                <span data-translate="sseconds_fs">seconds.</span>
+                                            </div>                                                                            
+                                        </div>
+                                        <div class="tab-pane fade" id="nav-usage" role="tabpanel" aria-labelledby="nav-usage-tab">
+                                            <div class="mt-3 mb-3">
+                                                <div class="progress" style="height: 30px;">
+                                                    <div class="progress-bar progress-bar-striped" style="min-width: 20px;"></div>
+                                                </div>
+                                            </div>
+                                            <div class="mt-3 mb-3">
+                                                <div class="progress" style="height: 30px;">
+                                                    <div class="progress-bar progress-bar-striped" style="min-width: 20px;"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-12">
+                                                <span data-translate="sRefreshing_in">Refreshing in</span>
+                                                <span id='usage_refresh' class='info' style="color:#2759A2;"></span>
+                                                <span data-translate="sseconds_fs">seconds.</span>
+                                            </div>  
+                                        </div>
+                                    </div>                                
+                                    
                                 </div>
+                                <!-- === END SESSION + USAGE === -->
+                                
+                                
                                 <!-- T&C-->
                                 <div class="row d-none" id='divTerms'>
                                     <div class="form-check">

@@ -302,8 +302,13 @@ var sDynamic = (function () {
                 $('#divLostPassword').addClass('d-none');    
             }
             
-            //$('#divSocial').addClass('d-none'); 
-                                                 
+            //$('#divSocial').addClass('d-none');
+
+            if(cDynamicData.settings.usage_show_check == true){
+                $('#tabSession').removeClass('d-none'); 
+            }else{
+                $('#tabSession').addClass('d-none'); 
+            }                                                 
         };
          
         var guiGallery = function(){

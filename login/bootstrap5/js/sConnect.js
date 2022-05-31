@@ -42,7 +42,7 @@ var sConnect = (function () {
             useCHAP = co.useCHAP;
         }
          
-        var cDebug          = false;      
+        var cDebug          = true;      
         var redirect_url    = undefined;
         
         //Be sure this is the same as specified in FB e.g. IP or DNS!!
@@ -152,8 +152,8 @@ var sConnect = (function () {
         }
         
         var refreshCounter = function(){
-            var me = this; 
-
+            var me = this;
+            
             counter = setInterval (function(){
 			    //Status part
                 timeUntilStatus = timeUntilStatus-1;
@@ -168,9 +168,108 @@ var sConnect = (function () {
                         refresh();
                     }
                 }
-
+                
+                //Usage part
+			    timeUntilUsage = timeUntilUsage-1;
+                if(false){    //We remove ourself gracefully FIXME
+                    clearInterval(counter);
+                    counter   = undefined;
+                    timeUntilUsage = usageInterval;
+                }else{
+                    $('#usage_refresh').text(timeUntilUsage);
+                    if(timeUntilUsage == 0){      //Each time we reach null we refresh the screens
+                        timeUntilUsage = usageInterval; //Start anew
+                        rdUsageRefresh();
+                    }
+                }
+                
             }, 1000 );
         }
+        
+        
+        var rdUsageRefresh = function(){
+
+		    if(cDynamicData.settings.usage_show_check == false){
+			    return;
+		    }
+		    
+		    if(isMikroTik){
+		         if(statusFb != undefined){
+			        if(statusFb.mac == undefined){
+				        return;
+			        }else{
+                        var mac = statusFb.mac.replace(/:/g, "-");
+			        }
+			        if(statusFb.username == undefined){
+				        return;
+			        }else{
+				        var un	= statusFb.username;
+			        }
+		        }
+		    }else{
+		        if(statusFb != undefined){
+			        if(statusFb.redir == undefined){
+				        return;
+			        }else{
+				        var mac	= statusFb.redir.macAddress;
+			        }
+			        if(statusFb.session == undefined){
+				        return;
+			        }else{
+				        var un	= statusFb.session.userName;
+			        }
+		        }
+		    }
+
+            $.getJSON(urlUse,{'username' : un, 'mac' : mac}, 
+                function(j) {
+
+                    fDebug(j);
+                    
+                    console.log("GOOI HOM PAPPIE!");
+                    
+				    if(j.success == false){
+					    return;
+				    }
+
+/*
+                    //If the time available is 'NA' we must hide the time div
+                    if(j.data.time_cap == null){
+                        $$('sliderTime').hide();
+
+                    }else{
+
+                        var time_total     = j.data.time_cap;
+			            var pers_time_used = (j.data.time_used / j.data.time_cap) * 100;
+					    var time_avail	   = j.data.time_cap - j.data.time_used;
+                        
+                        $$('sliderTime').setValue(pers_time_used);
+                        $$('sliderTime').define("title", "<strong>"+i18n('sUsed')+" </strong>"+time(j.data.time_used)+"<strong> "+i18n('sAvailable')+" </strong>"+ time(time_avail));
+                        $$('sliderTime').refresh();
+                        
+                    }
+
+                    //If the data available is 'NA' we must hide the time div
+                    if(j.data.data_cap == null){
+                        $$('sliderData').hide();
+                    }else{
+
+                        var data_total     = j.data.data_cap;
+			            var pers_data_used = (j.data.data_used / j.data.data_cap) * 100;  
+					    var data_avail	   = j.data.data_cap - j.data.data_used;
+					    
+                        $$('sliderData').setValue(pers_data_used);
+                        $$('sliderData').define("title", "<strong>"+i18n('sUsed')+" </strong>"+bytes(j.data.data_used)+"<strong> "+i18n('sAvailable')+" </strong>"+ bytes(data_avail));
+$$('sliderData').refresh();
+                        
+                        //.html("<strong>Used </strong>"+bytes(j.data.data_used)+"<strong> Available </strong>"+ bytes(data_avail));
+
+
+                    }
+                    */
+                });
+        }
+        
         
         var onFrmLoginKeydown = function(event){
             var itemName = event.target.id;
