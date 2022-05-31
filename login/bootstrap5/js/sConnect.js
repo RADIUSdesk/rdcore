@@ -7,6 +7,7 @@ var sConnect = (function () {
         
         var h               = document.location.hostname;
         var isMikroTik      = getParameterByName('link_status') != "";
+        var urlUse          = location.protocol+'//'+h+'/cake3/rd_cake/radaccts/get_usage.json'
         var urlUam          = 'uam.php'
         
         var retryCount      = 4;
@@ -225,52 +226,40 @@ var sConnect = (function () {
                 function(j) {
 
                     fDebug(j);
-                    
-                    console.log("GOOI HOM PAPPIE!");
-                    
+                                       
 				    if(j.success == false){
 					    return;
 				    }
 
-/*
                     //If the time available is 'NA' we must hide the time div
                     if(j.data.time_cap == null){
-                        $$('sliderTime').hide();
-
+                        $('#progTime').addClass('d-none'); 
                     }else{
-
+                        $('#progTime').removeClass('d-none'); 
                         var time_total     = j.data.time_cap;
 			            var pers_time_used = (j.data.time_used / j.data.time_cap) * 100;
-					    var time_avail	   = j.data.time_cap - j.data.time_used;
-                        
-                        $$('sliderTime').setValue(pers_time_used);
-                        $$('sliderTime').define("title", "<strong>"+i18n('sUsed')+" </strong>"+time(j.data.time_used)+"<strong> "+i18n('sAvailable')+" </strong>"+ time(time_avail));
-                        $$('sliderTime').refresh();
-                        
+			            pers_time_used     = pers_time_used.toFixed(1);
+					    var time_avail	   = j.data.time_cap - j.data.time_used;					    
+					    $("#pbTime").css("width", pers_time_used + "%").text(pers_time_used + "%");
+					    $("#divTime").html("<strong>"+i18n('sUsed')+" </strong>"+time(j.data.time_used)+"<strong> "+i18n('sAvailable')+" </strong>"+ time(time_avail));
+                       
                     }
 
                     //If the data available is 'NA' we must hide the time div
                     if(j.data.data_cap == null){
-                        $$('sliderData').hide();
+                        $('#progData').addClass('d-none');
                     }else{
-
+                        $('#progData').removeClass('d-none');
                         var data_total     = j.data.data_cap;
-			            var pers_data_used = (j.data.data_used / j.data.data_cap) * 100;  
-					    var data_avail	   = j.data.data_cap - j.data.data_used;
-					    
-                        $$('sliderData').setValue(pers_data_used);
-                        $$('sliderData').define("title", "<strong>"+i18n('sUsed')+" </strong>"+bytes(j.data.data_used)+"<strong> "+i18n('sAvailable')+" </strong>"+ bytes(data_avail));
-$$('sliderData').refresh();
-                        
-                        //.html("<strong>Used </strong>"+bytes(j.data.data_used)+"<strong> Available </strong>"+ bytes(data_avail));
-
-
+			            var pers_data_used = (j.data.data_used / j.data.data_cap) * 100;
+			            pers_data_used     = pers_data_used.toFixed(1);  
+					    var data_avail	   = j.data.data_cap - j.data.data_used;					    
+                        $("#pbData").css("width", pers_data_used + "%").text(pers_data_used + "%");
+                        $("#divData").html("<strong>"+i18n('sUsed')+" </strong>"+bytes(j.data.data_used)+"<strong> "+i18n('sAvailable')+" </strong>"+ bytes(data_avail)); 
                     }
-                    */
                 });
         }
-        
-        
+             
         var onFrmLoginKeydown = function(event){
             var itemName = event.target.id;
             //We use this to test and endable / disable the connect button
