@@ -113,7 +113,7 @@ class CountersTask extends Shell {
             
             if(!array_key_exists('Rd-Total-Data', $counters_info)){ //With Top-Ups its not defined on profile but on user level   
                 $total_data = $this->_query_radcheck($username,'Rd-Total-Data');
-                if($total_time){
+                if($total_data){
                     $counters['value'] = $total_data;
                 }           
             }else{
