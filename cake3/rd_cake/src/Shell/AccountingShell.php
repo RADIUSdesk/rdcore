@@ -49,7 +49,7 @@ class AccountingShell extends Shell {
             //Find the profile
             $profile = $this->_find_user_profile($username);
             if($profile){
-                $counters = $this->Counters->return_counter_data($profile,$type);
+                $counters = $this->Counters->return_counter_data($profile,$type,$username);
                 //print_r($counters);
                 if(array_key_exists('time', $counters)){
                        
@@ -199,7 +199,7 @@ class AccountingShell extends Shell {
             //Find the profile
             $profile = $this->_find_user_profile($username);
             if($profile){
-                $counters = $this->Counters->return_counter_data($profile,$type);
+                $counters = $this->Counters->return_counter_data($profile,$type,$username);
 				//print_r($counters);
                 //___time___
                 if(array_key_exists('time', $counters)){
@@ -279,7 +279,7 @@ class AccountingShell extends Shell {
             //Find the profile
             $profile = $this->_find_user_profile($username);
             if($profile){
-                $counters = $this->Counters->return_counter_data($profile,$type);
+                $counters = $this->Counters->return_counter_data($profile,$type,$username);
                 //___time___
                 if(array_key_exists('time', $counters)){
                     
