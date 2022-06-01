@@ -1345,8 +1345,12 @@ var sConnect = (function () {
             var dat_i   = bytes(j.bytes_in);
             var dat_o   = bytes(j.bytes_out);
             var t       = parseInt(j.bytes_out) + parseInt(j.bytes_in);
-            var dat_t   = bytes(t);                 
-            $('#acct_un').text(j.username);
+            var dat_t   = bytes(t);        
+            //Truncate username 
+            var usr     = j.username
+            usr         = usr.substring(0,15);
+                                   
+            $('#acct_un').text(usr);
             $('#acct_up').text(j.uptime);
             $('#acct_di').text(dat_i);
             $('#acct_do').text(dat_o);
@@ -1360,7 +1364,9 @@ var sConnect = (function () {
             var time_s  = time(j.accounting.sessionTime);
             var d_in    = (j.accounting.inputOctets+(j.accounting.inputGigawords*gw));
             var d_out   = (j.accounting.outputOctets+(j.accounting.outputGigawords*gw));
-            var usr     = j.session.userName;
+            var usr     = j.session.userName;         
+            //Truncate username 
+            usr         = usr.substring(0,15);
 
             var dat_i   = bytes(d_in);
             var dat_o   = bytes(d_out);
