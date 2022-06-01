@@ -15,10 +15,36 @@ class CountersComponent extends Component {
         }
         return $counters;    
     }
-
+    
+    public function return_counter_data_for_username($profile_name,$username) {
+        $counters = [];
+	    $this->_init_models();
+        $counters = $this->_find_counters($profile_name);
+        if(array_key_exists('time', $counters)){
+            if($counters['time']['value'] == ''){ // Assume topup where there is not a value set on the profile but rather on the user
+                $total_time = $this->_query_radcheck($username,'Rd-Total-Time');
+                if($total_time){
+                    $counters['time']['value'] = $total_time;
+                }
+            }
+        }
+               
+        if(array_key_exists('data', $counters)){
+            if($counters['data']['value'] == ''){ // Assume topup where there is not a value set on the profile but rather on the user               
+                $total_data = $this->_query_radcheck($username,'Rd-Total-Data');
+                if($total_data){
+                    $counters['data']['value'] = $total_data;
+                }
+            }
+        }
+           
+        return $counters;    
+    }
+    
 	private function _init_models(){
 		$this->Radusergroups  = TableRegistry::get('Radusergroups');
 		$this->Radgroupchecks = TableRegistry::get('Radgroupchecks');
+		$this->Radchecks      = TableRegistry::get('Radchecks');
 	}
 
 	private function _find_counters($username){
@@ -96,5 +122,14 @@ class CountersComponent extends Component {
             $retval = $q_r->value;
         }
         return $retval;
+    }
+    
+    private function _query_radcheck($username,$attribute){
+        $retval = false;
+        $q_r = $this->Radchecks->find()->where(['Radchecks.username' => $username, 'Radchecks.attribute' => $attribute])->first();
+        if($q_r){
+            $retval = $q_r->value;
+        }
+        return $retval;   
     }
 }

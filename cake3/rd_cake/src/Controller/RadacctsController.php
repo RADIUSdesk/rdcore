@@ -122,9 +122,10 @@ class RadacctsController extends AppController {
 
 			//If we don't have any data yet for this user ..we just specify its cap and 0 used....
 			if($new_entry){
+			
 				$profile = $this->_find_user_profile($username);
             	if($profile){
-					$counters = $this->Counters->return_counter_data($profile,$type);
+					$counters = $this->Counters->return_counter_data_for_username($profile,$username);
 					if(array_key_exists('time', $counters)){
 						$time_cap = $counters['time']['value'];
 						$time_used= 0;
