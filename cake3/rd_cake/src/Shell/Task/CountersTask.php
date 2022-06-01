@@ -82,7 +82,7 @@ class CountersTask extends Shell {
             if(!array_key_exists('Rd-Total-Time', $counters_info)){ //With Top-Ups its not defined on profile but on user level   
                 $total_time = $this->_query_radcheck($username,'Rd-Total-Time');
                 if($total_time){
-                    $counters['value'] = $total_time;
+                    $counter['value'] = $total_time;
                 }           
             }else{
                 $counter['value']   = $counters_info['Rd-Total-Time'];
@@ -114,7 +114,7 @@ class CountersTask extends Shell {
             if(!array_key_exists('Rd-Total-Data', $counters_info)){ //With Top-Ups its not defined on profile but on user level   
                 $total_data = $this->_query_radcheck($username,'Rd-Total-Data');
                 if($total_data){
-                    $counters['value'] = $total_data;
+                    $counter['value'] = $total_data;
                 }           
             }else{
                 $counter['value']   = $counters_info['Rd-Total-Data'];
