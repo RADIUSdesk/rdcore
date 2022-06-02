@@ -15,10 +15,8 @@ class TopUpsTable extends Table
         $this->addBehavior('Timestamp');     
         $this->belongsTo('PermanentUsers');
         $this->belongsTo('Users');  
-        $this->hasMany('TopUpTransactions',['dependent' => false]);
-          
-        $this->Radchecks    = TableRegistry::get('Radchecks'); 
-       // $this->TopUpTransactions    = TableRegistry::get('TopUpTransactions');     
+        $this->hasMany('TopUpTransactions',['dependent' => false]);        
+        $this->Radchecks    = TableRegistry::get('Radchecks');    
     }
     
     public function beforeDelete($event, $entity){
@@ -114,7 +112,7 @@ class TopUpsTable extends Table
             }
             return;
         } 
-    
+           
         if($entity->isNew()){
             //Data Type of Entries    
             $ret_val = $this->_update_radchecks($entity->permanent_user,$attribute,$value);          

@@ -242,7 +242,10 @@ class TopUpsController extends AppController{
         //====END Check what type it is====
        
         if($type == 'add'){ 
-            $entity = $this->{$this->main_model}->newEntity($this->request->data());
+            //Unset the ID in the request data (if the call has it though it should not include an ID) 02-Jun-2022
+            $add_data = $this->request->getData();
+            unset($add_data['id']);  
+            $entity = $this->{$this->main_model}->newEntity($add_data);
         }
        
         if($type == 'edit'){

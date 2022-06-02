@@ -21,8 +21,7 @@ class RegisterUsersController extends AppController {
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('MailTransport');
     }
-
-
+    
     public function newPermanentUser(){
 
 		//--No login_page_id no reg --
