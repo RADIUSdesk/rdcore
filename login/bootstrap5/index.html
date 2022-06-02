@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html class="h-100" lang="en">
+<html id='htmlMain' class="h-100" lang="en">
+
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,7 +10,8 @@
         <title>Wi-Fi Hotspot | Login</title>
         
         <link rel="stylesheet" href="css/bootstrap-icons.css">
-        
+        <!--<link href="css/bootstrap.rtl.min.css" rel="stylesheet">-->
+        <!--Comment the line below out if you are planning to implement languages including Arabic-->
         <link href="css/bootstrap.min.css" rel="stylesheet">
         <meta name="theme-color" content="#7952b3">
         
@@ -400,6 +402,26 @@
         }
         
          $(document).ready(function(){
+         
+            if(i18n == 'ar_AR'){
+                $('#htmlMain').attr('dir','rtl');
+                $('#htmlMain').attr('lang','ar');
+                //RTL Stylesheet
+                $('<link/>', {
+                   rel: 'stylesheet',
+                   type: 'text/css',
+                   href: 'css/bootstrap.rtl.min.css'
+                }).appendTo('head');              
+            }else{
+                //Normal Stylesheet (if you did comment out the normal Bootstrap stylesheet - activate this section for non-arabic languages
+                /*
+                $('<link/>', {
+                   rel: 'stylesheet',
+                   type: 'text/css',
+                   href: 'css/bootstrap.min.css'
+                }).appendTo('head'); 
+                */              
+            }
                
              $.getScript( "js/rd_i18n/"+i18n+".js").done(function( script, textStatus ) {
                 //Load the rest - The phrases are in                
