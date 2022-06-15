@@ -324,9 +324,36 @@ class ApHelperComponent extends Component {
             $ss['gw_auto_reboot']           = $default_data['gw_auto_reboot'];
             $ss['gw_auto_reboot_time']      = $default_data['gw_auto_reboot_time'];
         }
+        
+        //Advanced Reporting
+        if($ap_profile->ap_profile->ap_profile_setting->report_adv_proto !== null){     
+            $ss['report_adv_enable']    = $ap_profile->ap_profile->ap_profile_setting->report_adv_enable;
+            $ss['report_adv_proto']     = $ap_profile->ap_profile->ap_profile_setting->report_adv_proto;
+            $ss['report_adv_light']     = $ap_profile->ap_profile->ap_profile_setting->report_adv_light;
+            $ss['report_adv_full']      = $ap_profile->ap_profile->ap_profile_setting->report_adv_full;
+            $ss['report_adv_sampling']  = $ap_profile->ap_profile->ap_profile_setting->report_adv_sampling;
+        }else{
+            $ss['report_adv_enable']    = $default_data['report_adv_enable'];
+            $ss['report_adv_proto']     = $default_data['report_adv_proto'];
+            $ss['report_adv_light']     = $default_data['report_adv_light'];
+            $ss['report_adv_full']      = $default_data['report_adv_full'];
+            $ss['report_adv_sampling']  = $default_data['report_adv_sampling'];
+        }
 
         $ss['hostname'] = $ap_profile->name;
-
+        
+        //System Specific Settings
+		$want_these = ['mqtt_user','mqtt_password', 'mqtt_server_url', 'mqtt_command_topic'];
+		$ent_us     = $this->UserSettings->find()->where(['UserSettings.user_id' => -1])->all();
+	
+		foreach($ent_us as $s){
+		    $s_name     = $s->name;
+		    $s_value    = $s->value;
+		    if(in_array($s_name,$want_these)){
+		        $ss["$s_name"] = $s_value;
+		    }
+		}
+        
 		return $ss;
 	}
 	
