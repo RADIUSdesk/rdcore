@@ -72,6 +72,7 @@ class ApHelperComponent extends Component {
 				
 				$this->MetaData             = [];
 		        $this->MetaData['mode']     = 'ap';
+		        $this->MetaData['mac']      = $mac;
 		        $this->MetaData['ap_id']    = $this->ApId;
 		        $this->MetaData['node_id']  = $this->ApId; //Add this to keep the firmware simple and backward compatible
 		        
