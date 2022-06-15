@@ -174,8 +174,7 @@ class ApActionsController extends AppController {
                     $payload = [
                         'mode'      => 'mesh',
                         'ap_id'     => $formData['ap_id'],
-                        'mac'       => strtoupper($data['mac']),
-                        'mesh_id'   => strtoupper($data['ssid']),
+                        'mac'       => $mac,
                         'cmd_id'    => $entity->id,
                         'cmd'       => $formData['command'],
                         'action'    => $formData['action'],
