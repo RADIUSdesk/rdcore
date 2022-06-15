@@ -167,12 +167,12 @@ class ApActionsController extends AppController {
             		
 			$entity = $this->{$this->main_model}->newEntity($formData);
 			if ($this->{$this->main_model}->save($entity)) {
-			
+			    $mac = $this->_get_ap_mac($formData['ap_id']);
 			    if ($cfg['enable_realtime']){
                     // Talk to MQTT Broker
                     $mac = $this->_get_ap_mac($formData['ap_id']);
                     $payload = [
-                        'mode'      => 'mesh',
+                        'mode'      => 'ap',
                         'ap_id'     => $formData['ap_id'],
                         'mac'       => $mac,
                         'cmd_id'    => $entity->id,
