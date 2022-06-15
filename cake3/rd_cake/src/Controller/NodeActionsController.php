@@ -349,12 +349,17 @@ class NodeActionsController extends AppController {
 
         if($this->request->is('put')){
             $data = $this->request->data;
-            if(!empty($data['node_id'])){
+            if((!empty($data['node_id']))||(!empty($data['ap_id']))){
                 // update command status to fetched
-                $entity  = $this->{$this->main_model}->find()->where(['id' => $data['cmd_id']])->first();
+                $model = 'NodeActions';
+                if($data['mode'] == 'ap'){
+                    $model = 'ApActions';
+                }
+                
+                $entity  = $this->{$model}->find()->where(['id' => $data['cmd_id']])->first();
                 if($entity){
                     $entity->status = 'fetched';
-                    $this->{$this->main_model}->save($entity);
+                    $this->{$model}->save($entity);
                 }
 
                 $this->set(array(
@@ -384,13 +389,17 @@ class NodeActionsController extends AppController {
 
         if($this->request->is('put')){
             $data = $this->request->data;
-            if(!empty($data['node_id'])){
+            if((!empty($data['node_id']))||(!empty($data['ap_id']))){
                 // update command status to fetched
-                $entity  = $this->{$this->main_model}->find()->where(['id' => $data['cmd_id']])->first();
+                $model = 'NodeActions';
+                if($data['mode'] == 'ap'){
+                    $model = 'ApActions';
+                }
+                $entity  = $this->{$model}->find()->where(['id' => $data['cmd_id']])->first();
                 if($entity){
                     $entity->status = 'replied';
                     $entity->reply  = $data['reply'];
-                    $this->{$this->main_model}->save($entity);
+                    $this->{$model}->save($entity);
                 }
                 $this->set(array(
                     'data'          => $data,
