@@ -117,12 +117,13 @@ class NodeActionsController extends AppController {
                 }
                 $formData['node_id']    = $this->request->data[$key];
                 $entity                 = $this->{$this->main_model}->newEntity($formData);
-                 if ($this->{$this->main_model}->save($entity)) {
+                if ($this->{$this->main_model}->save($entity)) {
 
                      if ($cfg['enable_realtime']){
                         //Talk to MQTT Broker
                          $data = $this->_get_node_mac_mesh_id($formData['node_id']);
                          $payload = [
+                             'mode'     => 'mesh',
                              'node_id'  => $formData['node_id'],
                              'mac'      => strtoupper($data['mac']),
                              'mesh_id'  => strtoupper($data['ssid']),
@@ -133,7 +134,7 @@ class NodeActionsController extends AppController {
 
                          if($this->_check_server($client, $cfg['api_gateway_url'], 5)){
                              try {
-                                 $client->request('POST', $cfg['api_gateway_url'] . '/mesh/node/command', ['json' => ['message' => $payload]]);
+                                 $client->request('POST', $cfg['api_gateway_url'] . '/rd/mesh/command', ['json' => ['message' => $payload]]);
                              } catch (\Exception $e) {
                                  // Do Nothing
                              }
@@ -170,6 +171,7 @@ class NodeActionsController extends AppController {
                     // Talk to MQTT Broker
                     $data = $this->_get_node_mac_mesh_id($formData['node_id']);
                     $payload = [
+                        'mode'      => 'mesh',
                         'node_id'   => $formData['node_id'],
                         'mac'       => strtoupper($data['mac']),
                         'mesh_id'   => strtoupper($data['ssid']),
@@ -179,7 +181,7 @@ class NodeActionsController extends AppController {
                     ];
 
                     if($this->_check_server($client, $cfg['api_gateway_url'], 20)){
-                        $client->request('POST', $cfg['api_gateway_url'] . '/mesh/node/command', ['json' => ['message' => $payload]]);
+                        $client->request('POST', $cfg['api_gateway_url'] . '/rd/mesh/command', ['json' => ['message' => $payload]]);
                     }
                 }
 

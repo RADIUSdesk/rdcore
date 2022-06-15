@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Cake\Core\Configure;
 use MethodNotAllowedException;
+use GuzzleHttp\Client;
 
 class ApActionsController extends AppController {
 
@@ -98,6 +99,11 @@ class ApActionsController extends AppController {
         if(!$user){
             return;
         }
+        
+        // Load Config
+        Configure::load('MESHdesk');
+        $cfg = Configure::read('mqtt_settings');
+        $client = new Client();
 
         foreach(array_keys($this->request->data) as $key){
             if(preg_match('/^\d+/',$key)){
@@ -114,6 +120,28 @@ class ApActionsController extends AppController {
                 $formData['ap_id']  = $this->request->data[$key];
                 $entity             = $this->{$this->main_model}->newEntity($formData);
                  if ($this->{$this->main_model}->save($entity)) {
+                 
+                    if ($cfg['enable_realtime']){
+                        //Talk to MQTT Broker
+                         $mac = $this->_get_ap_mac($formData['ap_id']);
+                         $payload = [
+                             'mode'     => 'ap',
+                             'ap_id'    => $formData['ap_id'],
+                             'mac'      => $mac,
+                             'cmd_id'   => $entity->id,
+                             'cmd'      => $formData['command'],
+                             'action'   => $formData['action'],
+                         ];
+
+                         if($this->_check_server($client, $cfg['api_gateway_url'], 5)){
+                             try {
+                                 $client->request('POST', $cfg['api_gateway_url'] . '/rd/ap/command', ['json' => ['message' => $payload]]);
+                             } catch (\Exception $e) {
+                                 // Do Nothing
+                             }
+                         }
+                     }              
+                 
                      $this->set(array(
                          'success' => true,
                          '_serialize' => array('success')
@@ -139,6 +167,24 @@ class ApActionsController extends AppController {
             		
 			$entity = $this->{$this->main_model}->newEntity($formData);
 			if ($this->{$this->main_model}->save($entity)) {
+			
+			    if ($cfg['enable_realtime']){
+                    // Talk to MQTT Broker
+                    $mac = $this->_get_ap_mac($formData['ap_id']);
+                    $payload = [
+                        'mode'      => 'mesh',
+                        'ap_id'     => $formData['ap_id'],
+                        'mac'       => strtoupper($data['mac']),
+                        'mesh_id'   => strtoupper($data['ssid']),
+                        'cmd_id'    => $entity->id,
+                        'cmd'       => $formData['command'],
+                        'action'    => $formData['action'],
+                    ];
+
+                    if($this->_check_server($client, $cfg['api_gateway_url'], 20)){
+                        $client->request('POST', $cfg['api_gateway_url'] . '/rd/ap/command', ['json' => ['message' => $payload]]);
+                    }
+                }
             
                 $this->set(array(
 				    'success' => true,
@@ -272,6 +318,29 @@ class ApActionsController extends AppController {
             '_serialize' => ['items','success']
         ]);
 	}
+	
+	private function _get_ap_mac($ap_id){
+        $this->loadModel('Aps');
+
+        $q_r = $this->{'Aps'}->find()->where(['Aps.id' => $ap_id])->first();
+        if($q_r){
+            return $q_r->mac;
+        }else{
+            return false;
+        }
+    }
+    
+    private function _check_server($client, $url, $timeout = 30){
+
+        try {
+            $client->request('GET', $url, ['timeout' => $timeout]);
+            return true;
+
+        } catch (\Exception $e) {
+            // Fail silently
+            return false;
+        }
+    }
 
 
     //----- Menus ------------------------
