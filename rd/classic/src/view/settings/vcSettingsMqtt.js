@@ -12,6 +12,9 @@ Ext.define('Rd.view.settings.vcSettingsMqtt', {
         },
         '#chkMqttEnabled' : {
             change : 'onChkMqttEnabledChange'
+        },
+        '#chkApiMqttEnabled' : {
+            change : 'onChkApiMqttEnabledChange'
         }
     },
     onChkMqttEnabledChange: function(chk){
@@ -28,6 +31,17 @@ Ext.define('Rd.view.settings.vcSettingsMqtt', {
             form.down('#txtMqttPassword').disable();  
             form.down('#txtMqttServerUrl').disable();
             form.down('#txtMqttCommandTopic').disable();  
+        }
+    },
+    onChkApiMqttEnabledChange: function(chk){
+        var me      = this;
+        var form    = chk.up('form');
+        if(chk.getValue()){
+            form.down('#txtApiMqttGatewayUrl').enable();
+            form.down('#btnApiTest').enable();            
+        }else{
+            form.down('#txtApiMqttGatewayUrl').disable();
+            form.down('#btnApiTest').disable();  
         }
     },
     save: function(button){
@@ -56,5 +70,13 @@ Ext.define('Rd.view.settings.vcSettingsMqtt', {
 		        me.getView().setLoading(false);
             }
 		});       
+    },
+    onApiTestClick : function(){
+        var me = this;
+        if(!Ext.WindowManager.get('winSettingsApiMqttTestId')){
+            var w = Ext.widget('winSettingsApiMqttTest',{id:'winSettingsApiMqttTestId'});
+            me.getView().add(w); 
+            w.show();                 
+        }     
     }  
 });

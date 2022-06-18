@@ -32,6 +32,15 @@ class DashboardController extends AppController{
         $this->loadComponent('WhiteLabel');      
     }
     
+    public function tokenForId(){
+
+        $this->set([
+            'data'          => ['token'=> 'b4c6ac81-8c7c-4802-b50a-0a6380555b50'],
+            'success'       => true,
+            '_serialize'    => ['data','success']
+        ]);     
+    }
+    
     public function getToken(){
     
         //Sample call from CURL

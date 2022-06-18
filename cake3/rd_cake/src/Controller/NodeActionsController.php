@@ -22,6 +22,7 @@ class NodeActionsController extends AppController {
         $this->loadModel('ApActions');
         $this->loadModel('PredefinedCommands');
         $this->loadModel('Users');
+        $this->loadModel('UserSettings');
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
             'model'     => $this->main_model,
             'sort_by'   => $this->main_model.'.created'
@@ -98,9 +99,22 @@ class NodeActionsController extends AppController {
             return;
         }
 
-        // Load Config
-        Configure::load('MESHdesk');
-        $cfg = Configure::read('mqtt_settings');
+        //Some default values
+        $cfg['api_mqtt_enabled'] = false;
+        $cfg['api_gateway_url'] = 'http://127.0.0.1:8001';
+        
+        $want_these = ['api_mqtt_enabled','api_gateway_url'];
+		$ent_us     = $this->UserSettings->find()->where(['UserSettings.user_id' => -1])->all();
+	
+		foreach($ent_us as $s){
+		    $s_name     = $s->name;
+		    $s_value    = $s->value;
+		    if(in_array($s_name,$want_these)){
+		        $cfg["$s_name"] = $s_value;
+		    }
+		}
+        
+        
         $client = new Client();
 
         foreach(array_keys($this->request->data) as $key){
@@ -119,7 +133,7 @@ class NodeActionsController extends AppController {
                 $entity                 = $this->{$this->main_model}->newEntity($formData);
                 if ($this->{$this->main_model}->save($entity)) {
 
-                     if ($cfg['enable_realtime']){
+                     if ($cfg['api_mqtt_enabled'] == "1"){
                         //Talk to MQTT Broker
                          $data = $this->_get_node_mac_mesh_id($formData['node_id']);
                          $payload = [
@@ -167,7 +181,7 @@ class NodeActionsController extends AppController {
 			$entity = $this->{$this->main_model}->newEntity($formData);
 			if ($this->{$this->main_model}->save($entity)) {
 
-                if ($cfg['enable_realtime']){
+                if ($cfg['api_mqtt_enabled'] == "1"){
                     // Talk to MQTT Broker
                     $data = $this->_get_node_mac_mesh_id($formData['node_id']);
                     $payload = [

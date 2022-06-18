@@ -2321,12 +2321,7 @@ class MeshesController extends AppController{
         }
 
         if ($this->request->is('post')) {
-            // Load Config
-            Configure::load('MESHdesk');
-            $cfg = Configure::read('mqtt_settings');
-
-            $client = new Client();
-            
+      
             $this->loadModel('NodeMeshEntries');
             $this->loadModel('NodeMeshExits');
             $this->loadModel('Nodes');
@@ -2621,25 +2616,6 @@ class MeshesController extends AppController{
                         $ent_s = $this->{'NodeWifiSettings'}->newEntity($d_setting);  
                         $this->{'NodeWifiSettings'}->save($ent_s);
                     }      
-                }
-
-                if ($cfg['enable_realtime']){
-                    // Talk to MQTT Broker
-                    $mesh_ssid  = $this->_get_mesh_ssid($this->request->data['mesh_id']);
-                    $ssid       = $mesh_ssid->ssid;
-                    $ent_node   = $this->{'Nodes'}->find()->where(['Nodes.id' => $this->request->data['id']])->first();
-
-                    $payload = [
-                        'node_id' => $ent_node->id,
-                        'mac'  => strtoupper($ent_node->mac),
-                        'mesh_id' => strtoupper(str_replace('_','-',$ssid)),
-                        'cmd' => 'fetch_config',
-                    ];
-
-                    if($this->_check_server($client, $cfg['api_gateway_url'], 5)){
-                        $client->request('POST', $cfg['api_gateway_url'] . '/mesh/config', ['form_params' => ['message' => json_encode($payload)]]);
-                    }
-
                 }
                 //------- END Add settings for this node ---
 
@@ -3336,18 +3312,6 @@ class MeshesController extends AppController{
         return $entity;
     }
 
-    private function _check_server($client, $url, $timeout = 30){
-
-        try {
-            $client->request('GET', $url, ['timeout' => $timeout]);
-            return true;
-
-        } catch (\Exception $e) {
-            // Fail silently
-            return false;
-        }
-    }
-    
     private function _get_radio_for($hardware,$frequency){
         $q_e = $this->{'Hardwares'}->find()->where(['Hardwares.fw_id' => $hardware])->contain(['HardwareRadios'])->first();         
         if($q_e){

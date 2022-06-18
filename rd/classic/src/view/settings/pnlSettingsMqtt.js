@@ -39,7 +39,7 @@ Ext.define('Rd.view.settings.pnlSettingsMqtt', {
     initComponent: function(){
         var me      = this;
         var w_prim  = 550;
-           
+             
         var cntMqtt  = {
             xtype       : 'container',
             width       : w_prim,
@@ -93,11 +93,54 @@ Ext.define('Rd.view.settings.pnlSettingsMqtt', {
                 }
             ]
         }
+         
+        var cntApi  = {
+            xtype       : 'container',
+            width       : w_prim,
+            layout      : 'anchor',
+            defaults    : {
+                anchor  : '100%'
+            },
+            items       : [
+                 { 
+                    fieldLabel      : 'Enable', 
+                    name            : 'api_mqtt_enabled', 
+                    inputValue      : '1',
+                    itemId          : 'chkApiMqttEnabled',
+                    labelClsExtra   : 'lblRdReq',
+                    checked         : false, 
+                    xtype           : 'checkbox'
+                },
+                {
+                    xtype           : 'textfield',
+                    fieldLabel      : 'API Gateway URL',
+                    name            : 'api_mqtt_gateway_url',
+                    itemId          : 'txtApiMqttGatewayUrl',
+                    allowBlank      : false,
+                    blankText       : i18n('sSupply_a_value'),
+                    labelClsExtra   : 'lblRdReq',
+                    disabled        : true
+                },
+                {
+                    xtype           : 'button',
+                    text            : 'Test API Gateway',
+                    ui              : 'button-teal',
+                    itemId          : 'btnApiTest',
+                    scale           : 'large',
+                    padding         : 5,
+                    margin          : 5,
+                    disabled        : true,
+                    listeners   : {
+                        click     : 'onApiTestClick'
+                    }    
+                }        
+            ]
+        }    
                       
         me.items = [
             {
                 xtype       : 'panel',
-                title       : "MQTT",
+                title       : "MQTT Setting (MESHdesk & APdesk)",
                 glyph       : Rd.config.icnGears, 
                 ui          : 'panel-blue',
                 layout      : {
@@ -107,6 +150,19 @@ Ext.define('Rd.view.settings.pnlSettingsMqtt', {
                 },
                 bodyPadding : 10,
                 items       : cntMqtt				
+            },
+            {
+                xtype       : 'panel',
+                title       : 'MQTT API Gateway',
+                glyph       : Rd.config.icnGlobe, 
+                ui          : 'panel-green',
+                layout      : {
+                  type  : 'vbox',
+                  align : 'start',
+                  pack  : 'start'
+                },
+                bodyPadding : 10,
+                items       : cntApi				
             }
         ];    
         me.callParent(arguments);

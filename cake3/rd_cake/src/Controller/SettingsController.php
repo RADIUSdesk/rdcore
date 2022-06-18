@@ -304,7 +304,8 @@ class SettingsController extends AppController{
             $items = [];  
             $data  = $this->request->getData();       
             $check_items = [
-			    'mqtt_enabled'  
+			    'mqtt_enabled',
+			    'api_mqtt_enabled' 
 		    ];		
             foreach($check_items as $i){
                 if(isset($data[$i])){

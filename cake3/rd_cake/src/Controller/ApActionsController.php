@@ -20,6 +20,7 @@ class ApActionsController extends AppController {
         $this->loadModel('Aps');
         $this->loadModel('PredefinedCommands');
         $this->loadModel('Users');
+        $this->loadModel('UserSettings');
         $this->loadComponent('Aa');
         $this->loadComponent('Formatter');
         $this->loadComponent('GridFilter');
@@ -100,9 +101,23 @@ class ApActionsController extends AppController {
             return;
         }
         
-        // Load Config
-        Configure::load('MESHdesk');
-        $cfg = Configure::read('mqtt_settings');
+        //Some default values
+        $cfg['api_mqtt_enabled'] = false;
+        $cfg['api_gateway_url'] = 'http://127.0.0.1:8001';
+        
+        $want_these = ['api_mqtt_enabled','api_gateway_url'];
+		$ent_us     = $this->UserSettings->find()->where(['UserSettings.user_id' => -1])->all();
+	
+		foreach($ent_us as $s){
+		    $s_name     = $s->name;
+		    $s_value    = $s->value;
+		    if(in_array($s_name,$want_these)){
+		        $cfg["$s_name"] = $s_value;
+		    }
+		}
+        
+        
+        
         $client = new Client();
 
         foreach(array_keys($this->request->data) as $key){
@@ -121,7 +136,7 @@ class ApActionsController extends AppController {
                 $entity             = $this->{$this->main_model}->newEntity($formData);
                  if ($this->{$this->main_model}->save($entity)) {
                  
-                    if ($cfg['enable_realtime']){
+                    if ($cfg['api_mqtt_enabled'] == '1'){
                         //Talk to MQTT Broker
                          $mac = $this->_get_ap_mac($formData['ap_id']);
                          $payload = [
@@ -168,7 +183,7 @@ class ApActionsController extends AppController {
 			$entity = $this->{$this->main_model}->newEntity($formData);
 			if ($this->{$this->main_model}->save($entity)) {
 			    $mac = $this->_get_ap_mac($formData['ap_id']);
-			    if ($cfg['enable_realtime']){
+			    if ($cfg['api_mqtt_enabled'] == '1'){
                     // Talk to MQTT Broker
                     $mac = $this->_get_ap_mac($formData['ap_id']);
                     $payload = [
@@ -276,11 +291,6 @@ class ApActionsController extends AppController {
             return;
         }
         
-		// Load Config -FIXME Still have to enable for APdesk
-        //Configure::load('MESHdesk');
-        //$cfg    = Configure::read('mqtt_settings');
-        //$client = new Client();
-
         //Loop through the nodes and make sure there is not already one pending before adding one
         foreach ($this->request->getData('aps') as $a) {
             $ap_id    = $a['id'];
@@ -288,24 +298,7 @@ class ApActionsController extends AppController {
             if($ent_ap){  
                 $ent_ap->reboot_flag = !$ent_ap->reboot_flag;
                 if($this->{'Aps'}->save($ent_ap)){
-                    if ($cfg['enable_realtime']){
-                        //Talk to MQTT Broker -FIXME Still have to enable for APdesk
-                        /*
-                        $data = $this->_get_node_mac_mesh_id($node_id);
-
-                        $payload = [
-                            'node_id' => $node_id,
-                            'mac'  => strtoupper($data['mac']),
-                            'mesh_id' => strtoupper($data['ssid']),
-                            'cmd_id' => $nodeActionEntity->id,
-                            'cmd' => 'reboot',
-                        ];
-
-                        if($this->_check_server($client, $cfg['api_gateway_url'], 5)){
-                            $client->request('POST', $cfg['api_gateway_url'] . '/mesh/node/command', ['form_params' => ['message' => json_encode($payload)]]);
-                        }
-                        */
-                    }
+                    
                 }
             }
         }
