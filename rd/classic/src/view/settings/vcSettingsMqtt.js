@@ -4,7 +4,7 @@ Ext.define('Rd.view.settings.vcSettingsMqtt', {
     config: {
         urlView  : '/cake3/rd_cake/settings/view.json',
         urlSave  : '/cake3/rd_cake/settings/save-mqtt.json',
-        UrlEmail : '/cake3/rd_cake/settings/test-email.json'
+        UrlMqtt  : '/cake3/rd_cake/settings/test-mqtt.json'
     }, 
     control: {
         'pnlSettingsMqtt #save'    : {
@@ -78,5 +78,25 @@ Ext.define('Rd.view.settings.vcSettingsMqtt', {
             me.getView().add(w); 
             w.show();                 
         }     
+    },
+    onSettingsApiMqttTestShow: function(win){
+        var me = this;
+        win.setLoading(true);
+        Ext.Ajax.request({
+            url     : me.getUrlMqtt(),
+            method  : 'GET',
+            success : function(response){                
+                win.setLoading(false);
+                var jsonData    = Ext.JSON.decode(response.responseText);
+                win.setHtml(jsonData.data.reply);
+            },
+            failure: function(response, opts) {
+                win.setLoading(false);
+                var reply       = "<h1>"+response.status+" Error Code</h1>";
+                var jsonData    = Ext.JSON.decode(response.responseText);
+                reply = reply+'<p><b>'+jsonData.message+'</b></p>';
+                win.setHtml(reply);
+            }
+        });             
     }  
 });

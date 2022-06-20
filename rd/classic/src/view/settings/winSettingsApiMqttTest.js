@@ -10,16 +10,17 @@ Ext.define('Rd.view.settings.winSettingsApiMqttTest', {
     plain       : true,
     border      : false,
     layout      : 'fit',
+    padding     : 10,
     glyph       : Rd.config.icnGlobe,
     autoShow    : false,
     defaults    : {
             border: false
     },
     initComponent: function() {
-        var me = this;   
-        me.items = {
-            xtype : 'panel'       
-        };
+        var me = this;
         me.callParent(arguments);
-    }
+    },
+    listeners   : {
+        show     : 'onSettingsApiMqttTestShow'
+    }   
 });

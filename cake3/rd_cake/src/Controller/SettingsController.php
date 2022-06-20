@@ -343,6 +343,27 @@ class SettingsController extends AppController{
         }
     }
     
+    public function testMqtt(){
+    
+        $q_r        = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name' => 'api_mqtt_gateway_url' ])->first();
+        if($q_r){       
+            $url        = $q_r->value;
+            $http       = new Client();
+            $response   = $http->get($url);       
+            $data['url']= $url; 
+            $reply      = $response->getStringBody();
+            preg_match("/<body[^>]*>(.*?)<\/body>/is", $reply, $matches);
+            $data['reply']  = $matches[1];                        
+        }else{      
+            $data['reply'] = "<h1>API Gateway URL Not Found</h1><p><b>Please check your settings -> save and test again</b></p>";       
+        }    
+        $this->set([
+            'data' => $data,
+            'success' => true,
+            '_serialize' => ['data','success']
+        ]);  
+    }
+    
     public function testEmail(){
     
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
