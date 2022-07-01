@@ -711,13 +711,13 @@ class CloudsController extends AppController {
             $down_flag = $this->_isSomethingDown($tree_level,$id);
             $cls = "txtGreen";
             if($down_flag){
-                $cls = "txtOrange txtBold";  
+                $cls = "txtOrange";  
             }
 
             if(isset($this->request->query['location'])){
                 if($this->request->query['location'] == 'map'){
                     if(($lat == null)||($lng == null)){
-                        $cls = "txtPurple txtBold";
+                        $cls = "txtPurple";
                     }
                 }
             }
@@ -885,7 +885,7 @@ class CloudsController extends AppController {
             
             $cls = 'txtGreen';
             if(($lat == null)||($lng == null)){
-                $cls = 'txtPurple txtBold';
+                $cls = 'txtPurple';
             }          
             array_push($items,[
                 'id'        => $tree_level.'_'.$id, 

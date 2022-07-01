@@ -291,6 +291,23 @@ class ApActionsController extends AppController {
             return;
         }
         
+        //Some default values
+        $cfg['api_mqtt_enabled'] = false;
+        $cfg['api_gateway_url'] = 'http://127.0.0.1:8001';
+        
+        $want_these = ['api_mqtt_enabled','api_gateway_url'];
+		$ent_us     = $this->UserSettings->find()->where(['UserSettings.user_id' => -1])->all();
+	
+		foreach($ent_us as $s){
+		    $s_name     = $s->name;
+		    $s_value    = $s->value;
+		    if(in_array($s_name,$want_these)){
+		        $cfg["$s_name"] = $s_value;
+		    }
+		}
+        
+        
+        
         //Loop through the nodes and make sure there is not already one pending before adding one
         foreach ($this->request->getData('aps') as $a) {
             $ap_id    = $a['id'];
@@ -298,6 +315,9 @@ class ApActionsController extends AppController {
             if($ent_ap){  
                 $ent_ap->reboot_flag = !$ent_ap->reboot_flag;
                 if($this->{'Aps'}->save($ent_ap)){
+                    //ADD Support for MQTT
+                
+                
                     
                 }
             }
