@@ -446,7 +446,9 @@ class ProfilesController extends AppController
             'speed_limit_enabled',
             'time_limit_enabled',
             'data_limit_enabled',
-            'session_limit_enabled'
+            'session_limit_enabled',
+            'adv_data_limit_enabled',
+            'adv_time_limit_enabled'
         ];
         
         foreach($t_f_settings as $i){
@@ -524,7 +526,9 @@ class ProfilesController extends AppController
             'speed_limit_enabled',
             'time_limit_enabled',
             'data_limit_enabled',
-            'session_limit_enabled'
+            'session_limit_enabled',
+            'adv_data_limit_enabled',
+            'adv_time_limit_enabled',
         ];
         
         foreach($t_f_settings as $i){
@@ -628,7 +632,14 @@ class ProfilesController extends AppController
             return;
         }
         //Turn everything off by default
-        $data = ['speed_limit_enabled' =>false,'time_limit_enabled' =>false,'data_limit_enabled' => false,'session_limit_enabled'=> false];
+        $data = [
+            'speed_limit_enabled'   => false,
+            'time_limit_enabled'    => false,
+            'data_limit_enabled'    => false,
+            'session_limit_enabled' => false,
+            'adv_data_limit_enabled'=> false,
+            'adv_time_limit_enabled'=> false,
+        ];
         
         if(isset($this->request->query['profile_id'])){
             $profile_id = $this->request->query['profile_id'];
@@ -951,7 +962,93 @@ class ProfilesController extends AppController
             $e_session = $this->{'Radgroupchecks'}->newEntity($d_session);
             $this->{'Radgroupchecks'}->save($e_session);               
         }
-        //===END Session Limit===      
+        //===END Session Limit=== 
+        
+        //===Adv Data Limit=== (basic data limit should NOT be enabled if this one is on)
+        if($this->request->data['adv_data_limit_enabled']){ //IF it is there
+        
+            //Data Amount
+            $data_amount    = $this->request->data['adv_data_amount'];
+            $data_unit      = $this->request->data['adv_data_unit'];
+            $data           = $data_amount * 1024 * 1024; //(Mega by default)
+            if($data_unit == 'gb'){
+                $data = $data * 1024; //Giga
+            }
+            $d_amount = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Adv-Data',
+                'op'        => ':=',
+                'value'     => $data,
+                'comment'   => 'SimpleProfile'
+            ];
+            $e_data_amount = $this->{'Radgroupchecks'}->newEntity($d_amount);
+            $this->{'Radgroupchecks'}->save($e_data_amount);
+                    
+            $data_day_sessions =  $this->request->data['adv_data_per_day'];            
+            $d_d_day = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Adv-Data-Per-Day',
+                'op'        => ':=',
+                'value'     => $data_day_sessions,
+                'comment'   => 'SimpleProfile'
+            ];
+            $e_d_day = $this->{'Radgroupchecks'}->newEntity($d_d_day);
+            $this->{'Radgroupchecks'}->save($e_d_day);
+            
+            $data_month_sessions =  $this->request->data['adv_data_per_month'];            
+            $d_d_month = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Adv-Data-Per-Month',
+                'op'        => ':=',
+                'value'     => $data_month_sessions,
+                'comment'   => 'SimpleProfile'
+            ];
+            $e_d_month = $this->{'Radgroupchecks'}->newEntity($d_d_month);
+            $this->{'Radgroupchecks'}->save($e_d_month);  
+        }
+        
+        //===Adv Time Limit=== (basic time limit should NOT be enabled if this one is on)
+        if($this->request->data['adv_time_limit_enabled']){ //IF it is there
+        
+            //Time Amount
+            $time_amount    = $this->request->data['adv_time_amount'];
+            $time_unit      = $this->request->data['adv_time_unit'];
+            $time           = $time_amount * 60; //(Seconds by default)
+            if($time_unit == 'hour'){
+                $time = $time * 60; //60 Minutes in an hour
+            }
+            $t_amount = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Adv-Time',
+                'op'        => ':=',
+                'value'     => $time,
+                'comment'   => 'SimpleProfile'
+            ];
+            $e_time_amount = $this->{'Radgroupchecks'}->newEntity($t_amount);
+            $this->{'Radgroupchecks'}->save($e_time_amount);       
+        
+            $time_day_sessions =  $this->request->data['adv_time_per_day'];            
+            $d_t_day = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Adv-Time-Per-Day',
+                'op'        => ':=',
+                'value'     => $time_day_sessions,
+                'comment'   => 'SimpleProfile'
+            ];
+            $e_t_day = $this->{'Radgroupchecks'}->newEntity($d_t_day);
+            $this->{'Radgroupchecks'}->save($e_t_day);
+            
+            $time_month_sessions =  $this->request->data['adv_time_per_month'];            
+            $d_t_month = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Adv-Time-Per-Month',
+                'op'        => ':=',
+                'value'     => $time_month_sessions,
+                'comment'   => 'SimpleProfile'
+            ];
+            $e_t_month = $this->{'Radgroupchecks'}->newEntity($d_t_month);
+            $this->{'Radgroupchecks'}->save($e_t_month);        
+        }
         
         //Fall Through      
         $d_fall_through = [
@@ -974,6 +1071,8 @@ class ProfilesController extends AppController
             'time_limit_enabled'    => false,
             'data_limit_enabled'    => false,
             'session_limit_enabled' => false,
+            'adv_data_limit_enabled'=> false,
+            'adv_time_limit_enabled'=> false,
             'logintime_1_span'      => 'disabled',
             'logintime_2_span'      => 'disabled',
             'logintime_3_span'      => 'disabled',
@@ -1071,8 +1170,7 @@ class ProfilesController extends AppController
             if($e->attribute == 'Simultaneous-Use'){
                 unset($data['session_limit_enabled']);
                 $data['session_limit'] = $e->value;  
-            }   
-                    
+            }                       
         }
         
         //Logintime  

@@ -8,21 +8,25 @@ Ext.define('Rd.view.profiles.vcTimeLimit', {
 		var me 		    = this;
 		var pnl    	    = sldr.up('panel');
 		var cnt         = pnl.down('#cntDetail');
-
-		
+	    var main        = sldr.up('pnlAddEditProfile')
+		var timeLimit   = main.down('#pnlAdvTimeLimit');	
         var value       = sldr.getValue();     
 		if(value == 0){
 		    cnt.hide();
-      
 		}else{
 		    cnt.show();
+		    adv_state = timeLimit.down('#adv_time_limit_enabled');
+		    if(adv_state.getValue() == true){
+		        adv_state.setValue(0,0); //Disable the advanced Data limit
+		        Ext.ux.Toaster.msg(
+                    'DISABLING ADVANCED TIME LIMIT',
+                    'DISABLING ADVANCED TIME LIMIT',
+                    Ext.ux.Constants.clsWarn,
+                    Ext.ux.Constants.msgWarn
+                );
+		    }
 		}
 	},
-	sldrTimeAmountChange: function(sldr){
-        var me 		= this;
-		var fc    	= sldr.up('container');
-        fc.down('displayfield').setValue(sldr.getValue());
-    },
     rgrpTimeResetChange: function(rgrp,valObj){
 		var me 		    = this;
 		var pnl    	    = rgrp.up('panel');

@@ -27,7 +27,10 @@ Ext.define('Rd.view.profiles.pnlAddEditProfile', {
         'Rd.view.profiles.pnlDataLimit',
         'Rd.view.profiles.pnlTimeLimit',
         'Rd.view.profiles.pnlLogintime',
-        'Rd.view.profiles.pnlSessionLimit'
+        'Rd.view.profiles.pnlSessionLimit',
+        'Rd.view.profiles.pnlPppoe',
+        'Rd.view.profiles.pnlAdvDataLimit',
+        'Rd.view.profiles.pnlAdvTimeLimit'
     ],
     controller  : 'vcProfileGeneric',
     listeners       : {
@@ -64,8 +67,122 @@ Ext.define('Rd.view.profiles.pnlAddEditProfile', {
                 ui      : 'button-teal'
             }
         ];
-		
-		              
+        
+        var pnlGenItems =  [{
+                xtype       : 'container',
+                layout      : {
+                    type    : 'hbox',
+                    pack    : 'center',
+                    align   : 'stretchmax'
+                },
+                items       : [
+                    {
+                        itemId      : 'pnlDataLimit',
+                        hidden      : false,
+                        flex        : 1,
+                        ui          : 'panel-green',
+                        xtype       : 'pnlDataLimit'
+                    },
+                    {
+                        itemId      : 'pnlTimeLimit',
+                        hidden      : false,
+                        flex        : 1,
+                        ui          : 'panel-blue',
+                        xtype       : 'pnlTimeLimit'
+                    }
+                ]
+            },
+            {
+                xtype       : 'container',
+                layout      : 'hbox',
+                items       : [
+                    {
+                        itemId      : 'pnlSpeedLimit',
+                        hidden      : false,
+                        flex        : 1,
+                        ui          : 'panel-green',
+                        xtype       : 'pnlSpeedLimit'
+                    }
+                ]
+            },
+            {
+                xtype       : 'container',
+                layout      : {
+                    type    : 'hbox',
+                    pack    : 'center',
+                    align   : 'stretchmax'
+                },
+                items       : [
+                    {
+                        itemId      : 'pnlLogintime',
+                        hidden      : false,
+                        flex        : 1,
+                        ui          : 'panel-blue',
+                        xtype       : 'pnlLogintime'
+                    },
+                    {
+                        itemId      : 'pnlSessionLimit',
+                        hidden      : false,
+                        flex        : 1,
+                        ui          : 'panel-blue',
+                        xtype       : 'pnlSessionLimit'
+                    }
+                ]
+            }
+        ];
+        
+        var pnlPppoe =  [{
+                xtype       : 'container',
+                layout      : {
+                    type    : 'hbox',
+                    pack    : 'center',
+                    align   : 'stretchmax'
+                },
+                items       : [
+                    {
+                        itemId      : 'pnlPppoe',
+                        hidden      : false,
+                        flex        : 1,
+                        ui          : 'panel-green',
+                        xtype       : 'pnlPppoe'
+                    },
+                    {
+                        itemId      : 'pnlFup',
+                        hidden      : false,
+                        flex        : 1,
+                        ui          : 'panel-blue',
+                        xtype       : 'pnlFup'
+                    }
+                ]
+            }
+        ];
+        
+        var pnlAdv =  [{
+                xtype       : 'container',
+                layout      : {
+                    type    : 'hbox',
+                    pack    : 'center',
+                    align   : 'stretchmax'
+                },
+                items       : [
+                    {
+                        itemId      : 'pnlAdvDataLimit',
+                        hidden      : false,
+                        flex        : 1,
+                        ui          : 'panel-green',
+                        xtype       : 'pnlAdvDataLimit'
+                    },
+                    {
+                        itemId      : 'pnlAdvTimeLimit',
+                        hidden      : false,
+                        flex        : 1,
+                        ui          : 'panel-blue',
+                        xtype       : 'pnlAdvTimeLimit'
+                    }
+                ]
+            }
+        ];
+			              
 		me.items = [
             {
                 xtype       : 'panel',
@@ -147,82 +264,47 @@ Ext.define('Rd.view.profiles.pnlAddEditProfile', {
             },         
             {
                 xtype       : 'panel',
-                bodyStyle   : 'background:#f6f6ee',
-                layout      : {
-                        type    : 'vbox',
-                        pack    : 'start',
-                        align   : 'middle'
+                width       : '100%',
+                layout: {
+                    type            : 'accordion',
+                    titleCollapse   : false,
+                    animate         : true,
+                    activeOnTop     : false
                 },
-                bodyPadding : 10,
-                items       : [
-                     {
-                        xtype       : 'container',
-                        html        : '<h1><span style="color:grey;font-weight:700; font-size: smaller;">PROFILE LIMITS</span><h1>'
-                    },
-                    
+                items: [
                     {
-                        xtype       : 'container',
-                        layout      : {
-                            type    : 'hbox',
-                            pack    : 'center',
-                            align   : 'stretchmax'
+                        title   : 'BASIC',
+                        bodyStyle   : 'background:#f6f6ee',
+                        layout  : {
+                                type    : 'vbox',
+                                pack    : 'start',
+                                align   : 'middle'
                         },
-                        items       : [
-                            {
-                                itemId      : 'pnlDataLimit',
-                                hidden      : false,
-                                flex        : 1,
-                                ui          : 'panel-green',
-                                xtype       : 'pnlDataLimit'
-                            },
-                            {
-                                itemId      : 'pnlTimeLimit',
-                                hidden      : false,
-                                flex        : 1,
-                                ui          : 'panel-blue',
-                                xtype       : 'pnlTimeLimit'
-                            }
-                        ]
-                    },
-                    {
-                        xtype       : 'container',
-                        layout      : 'hbox',
-                        items       : [
-                            {
-                                itemId      : 'pnlSpeedLimit',
-                                hidden      : false,
-                                flex        : 1,
-                                ui          : 'panel-green',
-                                xtype       : 'pnlSpeedLimit'
-                            }
-                        ]
-                    },
-                    {
-                        xtype       : 'container',
-                        layout      : {
-                            type    : 'hbox',
-                            pack    : 'center',
-                            align   : 'stretchmax'
+                        bodyPadding : 10,
+                        items   : pnlGenItems
+                    },{
+                        title       : 'PPPoE AND FUP',
+                        bodyStyle   : 'background:#f6f6ee',
+                        layout  : {
+                                type    : 'vbox',
+                                pack    : 'start',
+                                align   : 'middle'
                         },
-                        items       : [
-                            {
-                                itemId      : 'pnlLogintime',
-                                hidden      : false,
-                                flex        : 1,
-                                ui          : 'panel-blue',
-                                xtype       : 'pnlLogintime'
-                            },
-                            {
-                                itemId      : 'pnlSessionLimit',
-                                hidden      : false,
-                                flex        : 1,
-                                ui          : 'panel-blue',
-                                xtype       : 'pnlSessionLimit'
-                            }
-                        ]
-                    },
-                ]
-            }  
+                        bodyPadding : 10,
+                        items   : pnlPppoe
+                    },{
+                        title   : 'ADVANCED',
+                        bodyStyle   : 'background:#f6f6ee',
+                        layout  : {
+                                type    : 'vbox',
+                                pack    : 'start',
+                                align   : 'middle'
+                        },
+                        bodyPadding : 10,
+                        items   : pnlAdv
+                    }
+                ]                                      
+            }
         ];
      
         me.callParent(arguments);
