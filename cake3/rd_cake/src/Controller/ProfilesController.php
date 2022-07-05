@@ -1170,7 +1170,53 @@ class ProfilesController extends AppController
             if($e->attribute == 'Simultaneous-Use'){
                 unset($data['session_limit_enabled']);
                 $data['session_limit'] = $e->value;  
-            }                       
+            }
+            
+            //Advanced Data
+            if($e->attribute == 'Rd-Adv-Data'){
+                $adv_data_limit_enabled = $e->value;
+                unset($data['adv_data_limit_enabled']);
+                $d_adv_data = $e->value;
+                if(($d_adv_data/1024) >= 1048576){
+                    $data['adv_data_amount'] = ($d_adv_data/1048576)/1024;
+                    $data['adv_data_unit'] = 'gb';
+                }else{
+                    $data['adv_data_amount'] = $d_adv_data/1048576;
+                    $data['adv_data_unit'] = 'mb';
+                }
+            }
+            
+            if($e->attribute == 'Rd-Adv-Data-Per-Day'){
+                $data['adv_data_per_day'] = $e->value;  
+            }
+            if($e->attribute == 'Rd-Adv-Data-Per-Month'){
+                $data['adv_data_per_month'] = $e->value;  
+            }
+            
+            //Advanced Time
+            if($e->attribute == 'Rd-Adv-Time'){
+                $adv_time_limit_enabled = $e->value;
+                unset($data['adv_time_limit_enabled']);
+                $adv_time = $e->value;
+                if(($adv_time/24/60/60) > 1){
+                    $data['adv_time_amount'] = $adv_time/24/60/60;
+                    $data['adv_time_unit'] = 'day';
+                }elseif(($adv_time/60/60) > 1){
+                    $data['adv_time_amount'] = $adv_time/60/60;
+                    $data['adv_time_unit'] = 'hour';
+                }else{
+                    $data['adv_time_amount'] = $adv_time/60;
+                    $data['adv_time_unit'] = 'min';
+                }
+            }
+            
+            if($e->attribute == 'Rd-Adv-Time-Per-Day'){
+                $data['adv_time_per_day'] = $e->value;  
+            }
+            if($e->attribute == 'Rd-Adv-Time-Per-Month'){
+                $data['adv_time_per_month'] = $e->value;  
+            }
+                                              
         }
         
         //Logintime  
