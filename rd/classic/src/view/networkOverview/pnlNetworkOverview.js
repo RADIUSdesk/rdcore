@@ -98,13 +98,13 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverview', {
             xtype       : 'container',
             dock        : 'top',
             style       : { 
-               background  : '#adc2eb'    
+                background  : '#adc2eb'            
             },
             height      : 70,
             tpl         : new Ext.XTemplate(            
                 "<div class='info_bnr' style='font-size:110%;font-stretch:ultra-expanded;font-family:Arial,Helvetica, sans-serif;'>",
                     "<div class='info_bnr_row'>",     
-                      "<div class=\"info_bnr_column\">",      
+                      '<div class="info_bnr_column">',      
                         "<div class=\"info_bnr_container\" style='height:70px;float:left; width:50%;'>",
                           "<div class=\"info_bnr_vertical-center\" style='padding-left:10px;'>",
                             "<div class=\"info_bnr_place\">",
@@ -120,7 +120,7 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverview', {
                             '</ul>',
                         '</div>',      
                       "</div>",
-                      '<div class="info_bnr_column style="text-align:center;">',     
+                      '<div class="info_bnr_column">',     
                         '<div style="font-size:larger;">',
                             '<ul class="fa-ul">',
                               '<li style="padding:2px;"><span class="fa-li" style="font-family:FontAwesome;">&#xf20e</span> MESHES {total_networks} <span style="color:green;">({total_networks_online} ONLINE)</span></li>',
