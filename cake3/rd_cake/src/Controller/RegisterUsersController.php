@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use Cake\Core\Configure;
 use Cake\Mailer\Email;
+use Cake\Http\Client;
 
 class RegisterUsersController extends AppController {
 
@@ -14,6 +15,7 @@ class RegisterUsersController extends AppController {
         $this->loadModel('Realms');
         $this->loadModel('PermanentUsers');
         $this->loadModel('DynamicDetails');
+        $this->loadModel('UserSettings');
         $this->loadComponent('CommonQuery');
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtons');
@@ -262,12 +264,132 @@ class RegisterUsersController extends AppController {
 	            }
 	        }        
 	    }
+	    
+	    if(array_key_exists('phone',$this->request->getData())){
+	    
+	        $phone      = $this->request->getData('phone');	         	     
+	        $query      = $this->PermanentUsers->find()->contain(['Radchecks']);
+	        $q_r        = $query->where(['PermanentUsers.phone' => $phone])->first();	       
+	        $password   = false;
+
+	        if($q_r){
+	            foreach($q_r->radchecks as $rc){
+                    if($rc->attribute == 'Cleartext-Password'){
+                        $un         = $rc->username;
+                        $password   = $rc->value;
+                        $message    = "Username: $un\nPassword: $password";
+                        $success    = $this->_sms_lost_password($phone,$message);
+                        break;
+                    }
+	            }
+	        }        
+	    }
 
 		$this->set([
-            'success'   => $success,
-			'message'   => 'User Not Found',
-		        '_serialize' => ['success','message']
-		    ]);
+        'success'   => $success,
+		'message'   => 'User Not Found',
+	        '_serialize' => ['success','message']
+	    ]);
+	}
+	
+	public function wipSms(){	
+	    $success = true;
+	    //$this->_sms_lost_password('27725963050',"Ussername: dirkvanderwalt@gmail.com@vt\nPassword: 12345678");	    
+	    $this->set([
+        'success'   => $success,
+		'message'   => 'User Not Found',
+	        '_serialize' => ['success','message']
+	    ]);
+	}
+	
+	private function _sms_lost_password($phone,$message){
+	
+	    $success    = false; 	       
+	    $config_1   = [];
+	    $config_2   = [];  
+	    $q_r_1      = $this->{'UserSettings'}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_1_%'])->all();
+	    foreach($q_r_1 as $ent){
+            $config_1[$ent->name] = $ent->value; 
+        }
+              
+        $q_r_2      = $this->{'UserSettings'}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_2_%'])->all();
+	    foreach($q_r_2 as $ent){
+            $config_2[$ent->name] = $ent->value; 
+        } 
+        
+        $active_config  = 0;
+        $config         = [];  
+        
+        if(isset($config_1['sms_1_enabled'])){
+            if($config_1['sms_1_enabled'] == 1){          
+                $active_config = 1;
+                $config = $config_1;
+            }     
+        }
+        
+        if(isset($config_2['sms_2_enabled'])){
+            if($config_2['sms_2_enabled'] == 1){          
+                $active_config = 2;
+                $config = $config_2;
+            }     
+        }
+     
+           
+        if(($active_config == 1)||($active_config == 2)){
+        
+            $nr         = $active_config;      
+            $url        = $config['sms_'.$nr.'_url'];
+            $sender_p   = $config['sms_'.$nr.'_sender_parameter'];
+            $sender_v   = $config['sms_'.$nr.'_sender_value'];
+            if($sender_p !== ''){
+                $query_items[$sender_p] = $sender_v;
+            }
+            
+            $message_p  = $config['sms_'.$nr.'_message_parameter'];
+            $query_items[$message_p] = $message;
+            
+            $key_p   = $config['sms_'.$nr.'_key_parameter'];
+            $key_v   = $config['sms_'.$nr.'_key_value'];
+            if($key_p !== ''){
+                $query_items[$key_p] = $key_v;
+            }
+            
+            $rec_p  = $config['sms_'.$nr.'_receiver_parameter'];
+            $query_items[$rec_p] = $phone;
+            
+            //==Client Options==
+            $options = [];
+            $v_peer = $config['sms_'.$nr.'_ssl_verify_peer'];
+            $v_host = $config['sms_'.$nr.'_ssl_verify_host'];
+            if($v_peer == '0'){ //Default is true
+                $options['ssl_verify_peer'] = false;
+            }
+            if($v_host == '0'){ //Default is true
+                $options['ssl_verify_host'] = false;
+            }
+            
+            if($config['sms_'.$nr.'_header_content_type'] !== ''){
+                $options['type'] = $config['sms_'.$nr.'_header_content_type'];
+            }
+            
+            if($config['sms_'.$nr.'_header_authorization'] !== ''){
+                $basic_pwd = $config['sms_'.$nr.'_header_authorization'];
+                $options['auth'] = ['type' => 'basic','username' => 'SMS Placeholder', 'password' => $basic_pwd];
+            }
+            
+            $http           = new Client();
+            
+            // Simple get
+            $response       = $http->get($url,$query_items,$options);        
+            $data['url']    = $url;
+            $data['query']  = http_build_query($query_items);
+            
+            $reply          = $response->getStringBody();
+            $data['reply']  = $reply;
+            $success        = true;      
+        
+        }	     
+	    return $success;	
 	}
 		
 	private function _email_lost_password($username,$password){	
