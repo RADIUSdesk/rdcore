@@ -159,8 +159,8 @@ class VoucherGeneratorComponent extends Component {
         }  
     }
     
-    public function generatePassword(){
-        return $this->_random_alpha_numeric();
+    public function generatePassword($length = 6){
+        return $this->_random_alpha_numeric($length);
     }
     
     public function generateUsernameForVoucher($prefix, $suffix){

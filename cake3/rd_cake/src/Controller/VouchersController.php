@@ -446,7 +446,9 @@ class VouchersController extends AppController{
                     $s = $suffix;
                 }      
                 $un     = $this->VoucherGenerator->generateUsernameForVoucher($p,$s);
-                $pwd    = $this->VoucherGenerator->generatePassword();
+                $pwd    = array_key_exists('pwd_length',$this->request->data)
+                        ? $this->VoucherGenerator->generatePassword($this->request->data['pwd_length'])
+                        : $this->VoucherGenerator->generatePassword();
                 $this->request->data['name']      = $un; 
                 $this->request->data['password']  = $pwd;
                 
