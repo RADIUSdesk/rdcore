@@ -47,6 +47,24 @@ class CommonQueryComponent extends Component {
     public function get_filter_conditions(){
         return $this->_common_filter();
     }
+    
+    public function build_cloud_query($query,$cloud_id,$contain_array = ['Users'], $model = null, $allowOverride = true, $sort = null){
+    
+    	$query->where(['cloud_id' => $cloud_id]);
+    	$query->contain($contain_array);
+
+        if(!is_null($sort)){
+            $this->sort_by = $sort;
+        }
+
+        if(is_null($model)){
+            $this->_common_sort($query, $this->sort_by, null, $allowOverride);
+        } else {
+            $this->_common_sort($query, $this->sort_by, $model, $allowOverride);
+        }
+
+        $where_clause = $this->_common_filter($model);   
+    }
 
     public function build_common_query($query,$user,$contain_array = ['Users'], $model = null, $allowOverride = true, $sort = null){
         $query->contain($contain_array);

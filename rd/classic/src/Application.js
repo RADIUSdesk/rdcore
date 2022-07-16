@@ -36,7 +36,11 @@ Ext.define('Rd.Application', {
 
     dashboardData : null,  //Data on how the dashboard will look like which will be returned after login
     languages   : null,
-    selLanguage : null,
+    selLanguage : null,  
+    config		: {
+        cloudId		: null,
+    	cloudName	: null
+    },
     autoCreateViewport: true,
     init: function() {
         var me = this;

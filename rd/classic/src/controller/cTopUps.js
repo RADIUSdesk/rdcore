@@ -6,8 +6,7 @@ Ext.define('Rd.controller.cTopUps', {
         
         if (me.populated) {
             return; 
-        }  
-        
+        }         
         pnl.add({
             xtype   : 'tabpanel',
             border  : false,
@@ -33,16 +32,15 @@ Ext.define('Rd.controller.cTopUps', {
     },
 
     views:  [
-        'topUps.gridTopUps',            'topUps.winTopUpAddWizard',
+        'topUps.gridTopUps',            'topUps.winTopUpAdd',
         'components.cmbPermanentUser',  'topUps.winTopUpEdit',
         'components.winCsvColumnSelect',
         'topUps.gridTopUpTransactions' 
     ],
-    stores: ['sTopUps', 'sAccessProvidersTree', 'sPermanentUsers', 'sTopUpTransactions'],
-    models: ['mTopUp',  'mAccessProviderTree',  'mPermanentUser',  'mTopUpTransaction' ],
+    stores: ['sTopUps','sPermanentUsers', 'sTopUpTransactions'],
+    models: ['mTopUp', 'mPermanentUser',  'mTopUpTransaction' ],
     selectedRecord: null,
     config: {
-        urlApChildCheck : '/cake3/rd_cake/access-providers/child-check.json',
         urlExportCsv    : '/cake3/rd_cake/top-ups/export_csv',
         urlAdd          : '/cake3/rd_cake/top-ups/add.json',
         urlExportCsv    : '/cake3/rd_cake/top-ups/export_csv', 
@@ -84,16 +82,10 @@ Ext.define('Rd.controller.cTopUps', {
             'gridTopUps'   : {
                 select:      me.select
             },
-            'winTopUpAddWizard #btnTreeNext' : {
-                click:  me.btnTreeNext
+            'winTopUpAdd #btnSave' : {
+                click:  me.btnSave
             },
-            'winTopUpAddWizard #btnDataPrev' : {
-                click:  me.btnDataPrev
-            },
-            'winTopUpAddWizard #btnDataNext' : {
-                click:  me.btnDataNext
-            },
-            'winTopUpAddWizard #cmbType' : {
+            'winTopUpAdd #cmbType' : {
                 change:  me.cmbTopUpTypeChanged
             },
             '#winCsvColumnSelectTopUps #save': {
@@ -164,62 +156,15 @@ Ext.define('Rd.controller.cTopUps', {
         me.getGrid().down('#count').update({count: count});
     },
     add: function(button){   
-        var me = this;
-        Ext.Ajax.request({
-            url: me.getUrlApChildCheck(),
-            method: 'GET',
-            success: function(response){
-                var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){
-                        
-                    if(jsonData.items.tree == true){
-                        if(!Ext.WindowManager.get('winTopUpAddWizardId')){
-                            var w = Ext.widget('winTopUpAddWizard',{id:'winTopUpAddWizardId'});
-                            w.show();         
-                        }
-                    }else{
-                        if(!Ext.WindowManager.get('winTopUpAddWizardId')){
-                            var w = Ext.widget('winTopUpAddWizard',
-                                {id:'winTopUpAddWizardId',startScreen: 'scrnData',user_id:'0',owner: i18n('sLogged_in_user'), no_tree: true}
-                            );
-                            w.show();         
-                        }
-                    }
-                }   
-            },
-            scope: me
-        });
-    },
-    btnTreeNext: function(button){
-        var me = this;
-        var tree = button.up('treepanel');
-        //Get selection:
-        var sr = tree.getSelectionModel().getLastSelected();
-        if(sr){    
-            var win = button.up('winTopUpAddWizard');
-            win.down('#owner').setValue(sr.get('username'));
-            win.down('#user_id').setValue(sr.getId());
-            
-            //We need to update the Store of the Realms and Profile select list to reflect the specific Access Provider
-            win.down('#permanent_user_id').getStore().getProxy().setExtraParam('ap_id',sr.getId());
-            win.down('#permanent_user_id').getStore().load();
-            
-            win.getLayout().setActiveItem('scrnData');
-        }else{
-            Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_owner'),
-                        i18n('sFirst_select_an_Access_Provider_who_will_be_the_owner'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
+        var me 		= this;
+        var c_name 	= me.application.getCloudName();
+        var c_id	= me.application.getCloudId()
+        if(!Ext.WindowManager.get('winTopUpAddId')){
+            var w = Ext.widget('winTopUpAdd',{id:'winTopUpAddId',cloudId: c_id, cloudName: c_name});
+            w.show();         
         }
     },
-    btnDataPrev:  function(button){
-        var me      = this;
-        var win     = button.up('winTopUpAddWizard');
-        win.getLayout().setActiveItem('scrnApTree');
-    },
-    btnDataNext:  function(button){
+    btnSave:  function(button){
         var me      = this;
         var win     = button.up('window');
         var form    = win.down('form');

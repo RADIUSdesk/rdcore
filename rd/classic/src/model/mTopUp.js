@@ -2,8 +2,8 @@ Ext.define('Rd.model.mTopUp', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'id',                type: 'int'     },
-        {name: 'user_id',           type: 'int'     },
-        {name: 'user',              type: 'string'  },
+        {name: 'cloud_id',          type: 'int'     },
+        {name: 'cloud',              type: 'string'  },
         {name: 'permanent_user_id', type: 'int'     },
         {name: 'permanent_user',    type: 'string'  },
         {name: 'data',              type: 'int'     },

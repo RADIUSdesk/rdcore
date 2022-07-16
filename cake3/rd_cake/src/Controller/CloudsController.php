@@ -77,6 +77,21 @@ class CloudsController extends AppController {
         $this->loadComponent('Formatter');
     }
     
+    public function indexCmb(){
+    
+    	$q = $this->{$this->main_model}->find()->all();
+        $items = [];
+        foreach($q as $i){
+            array_push($items, $i);
+        }
+        $this->set(array(
+            'items' => $items,
+            'success' => true,
+            '_serialize' => array('items','success')
+        ));
+    	   
+    }
+    
     public function indexNetworkOverview(){
      
         $user = $this->Aa->user_for_token($this);

@@ -1,0 +1,290 @@
+@include extjs-button-small-ui(
+   $ui: 'button-green',
+   $border-color: #3CB64C,
+   $background-color:#3CB64C,
+   $background-color-over:#00916C,
+   $background-color-pressed:#008691
+);
+
+@include extjs-button-medium-ui(
+	$ui: 'button-teal',
+    $border-color: #00A4A4,
+    $background-color:#00CDCD,
+    $background-color-over:#00A4A4,
+    $background-color-pressed:#006262,
+    $background-color-disabled: #C2C3C2,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled:#C2C3C2
+);
+
+@include extjs-button-large-ui(
+	$ui: 'button-teal',
+    $border-color: #00A4A4,
+    $background-color-over:#00A4A4,
+    $background-color-pressed:#006262,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2
+);
+
+@include extjs-button-toolbar-large-ui(
+	$ui: 'button-teal',
+    $border-color: #00CDCD,
+    $background-color:#00CDCD,
+    $background-color-over:#00A4A4,
+    $background-color-pressed:#006262,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #009999
+);
+
+
+@include extjs-button-toolbar-large-ui(
+	$ui: 'button-green',
+    $border-color: #76cf15,
+    $background-color-over:#76cf15,
+    $background-color-pressed:#69ba12,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #4f8b0e
+);
+
+@include extjs-button-small-ui(
+	$ui: 'button-orange',
+    $border-color: #fda435,
+    $background-color:#fee8cd,
+    $background-color-over:#fda435,
+    $background-color-focus: #fdae4e, 
+    $background-color-pressed:#fd971c,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #e37e02,
+    $color: #e37e02
+);
+
+
+@include extjs-button-toolbar-large-ui(
+	$ui: 'button-orange',
+    $border-color: #fda435,
+    $background-color-over:#fda435,
+    $background-color-pressed:#fd971c,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #e37e02
+);
+
+@include extjs-button-toolbar-large-ui(
+	$ui: 'button-blue',
+    $border-color: #09c5ee,
+    $background-color-over:#09c5ee,
+    $background-color-pressed:#08b6dd,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #07a2c5
+);
+
+@include extjs-button-toolbar-large-ui(
+	$ui: 'button-red',
+    $border-color: #dc6d35,
+    $background-color-over:#dc6d35,
+    $background-color-pressed:#d96226,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #c35822
+);
+
+@include extjs-button-small-ui(
+	$ui: 'button-pink',
+    $border-color: #c77baa,
+    $background-color:#f0dbe8, 
+    $background-color-over:#c77baa,
+    $background-color-focus: #c08cac, 
+    $background-color-pressed:#bd2683,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #99547f,
+    $color: #99547f
+);
+
+@include extjs-button-toolbar-large-ui(
+	$ui: 'button-pink',
+    $border-color: #c77baa,
+    $background-color-over:#c77baa, 
+    $background-color-pressed:#bd2683,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #99547f
+);
+
+@include extjs-button-small-ui(
+	$ui: 'button-purple',
+    $border-color: #c77baa,
+    $background-color:#efdce8,
+    $background-color-over:#a14a80,
+    $background-color-focus: #b279d2,
+    $background-color-pressed:#8a3d6c,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #4b2163,
+    $color: #4b2163
+);
+
+
+@include extjs-button-toolbar-small-ui(
+	$ui: 'button-purple',
+    $border-color: #c77baa,
+    $background-color-over:#a14a80,
+    $background-color-pressed:#8a3d6c,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #4b2163
+);
+
+@include extjs-button-toolbar-medium-ui(
+	$ui: 'button-purple',
+    $border-color: #c77baa,
+    $background-color-over:#a14a80,
+    $background-color-pressed:#8a3d6c,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #4b2163
+);
+
+@include extjs-button-toolbar-large-ui(
+	$ui: 'button-purple',
+    $border-color: #c77baa,
+    $background-color-over:#a14a80,
+    $background-color-pressed:#8a3d6c,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #871e5f
+);
+
+@include extjs-button-small-ui(
+	$ui: 'button-brown',
+    $border-color: #ba8f64,
+    $background-color:#efe6dc,
+    $background-color-over:#ba8f64, 
+    $background-color-focus: #995715,
+    $background-color-pressed:#c09972,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #7b5937,
+    $color: #7b5937
+);
+
+@include extjs-button-toolbar-small-ui(
+	$ui: 'button-brown',
+    $border-color: #ba8f64,
+    $background-color-over:#ba8f64, 
+    $background-color-pressed:#c09972,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #7b5937
+);
+
+@include extjs-button-toolbar-medium-ui(
+	$ui: 'button-brown',
+    $border-color: #ba8f64,
+    $background-color-over:#ba8f64, 
+    $background-color-pressed:#c09972,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #7b5937
+);
+
+@include extjs-button-toolbar-large-ui(
+	$ui: 'button-brown',
+    $border-color: #ba8f64,
+    $background-color-over:#ba8f64, 
+    $background-color-pressed:#c09972,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #7b5937
+);
+
+@include extjs-button-small-ui(
+	$ui: 'button-metal',
+    $border-color: #4786a6,
+    $background-color:#dbe9f0,
+    $background-color-over:#4786a6,
+    $background-color-focus: #4ec3fd, 
+    $background-color-pressed:#53aedb,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #015178,
+    $color: #015178
+);
+
+@include extjs-button-toolbar-small-ui(
+	$ui: 'button-metal',
+    $border-color: #4786a6,
+    $background-color-over:#4786a6, 
+    $background-color-pressed:#53aedb,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #015178
+);
+
+@include extjs-button-toolbar-medium-ui(
+	$ui: 'button-metal',
+    $border-color: #4786a6,
+    $background-color-over:#4786a6, 
+    $background-color-pressed:#53aedb,b,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #015178
+);
+
+@include extjs-button-toolbar-large-ui(
+	$ui: 'button-metal',
+    $border-color: #4786a6,
+    $background-color-over:#4786a6, 
+    $background-color-pressed:#53aedb,
+    $background-color-disabled: #E3E5E4,
+    $opacity-disabled: 0.9,
+    $inner-opacity-disabled: 0.9,
+    $border-color-disabled: #C2C3C2,
+    $glyph-color: #015178
+);
+

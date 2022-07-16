@@ -93,14 +93,17 @@ class TopUpsController extends AppController{
     public function index(){
 
         //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
+        //$user = $this->_ap_right_check();
+        //if(!$user){
+        //    return;
+        //}
+        
+        $cloud_id = $this->request->query['cloud_id'];
                 
         $query = $this->{$this->main_model}->find();
+        
 
-        $this->CommonQuery->build_common_query($query,$user,['PermanentUsers','Users']);
+        $this->CommonQuery->build_cloud_query($query,$cloud_id,['PermanentUsers']);
  
         $limit  = 50;
         $page   = 1;
@@ -117,20 +120,11 @@ class TopUpsController extends AppController{
 
         $total  = $query->count();       
         $q_r    = $query->all();
-        $items  = array();
+        $items  = [];
 
         foreach($q_r as $i){
-              
-            $owner_id   = $i->user_id;
-            if(!array_key_exists($owner_id,$this->owner_tree)){
-                $owner_tree     = $this->Users->find_parents($owner_id);
-            }else{
-                $owner_tree = $this->owner_tree[$owner_id];
-            }
-            
-            $action_flags   = $this->Aa->get_action_flags($owner_id,$user); 
-            
-            $row        = array();
+                       
+            $row       = [];
             $fields    = $this->{$this->main_model}->schema()->columns();
             foreach($fields as $field){
                 $row["$field"]= $i->{"$field"};
@@ -141,14 +135,9 @@ class TopUpsController extends AppController{
                 if($field == 'modified'){
                     $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
                 }
-            } 
-            
-            $row['user']	        = $i->user->username;
-            $row['permanent_user']	= $i->permanent_user->username;
-            
-            $row['owner']   = $owner_tree;
-			$row['update']	= $action_flags['update'];
-			$row['delete']	= $action_flags['delete']; 
+            }        
+			$row['update']	= true;
+			$row['delete']	= true; 
             array_push($items,$row);      
         }
        
@@ -162,46 +151,22 @@ class TopUpsController extends AppController{
    
     public function add(){
     
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        
-        //Set the permanent_user_id if the permanent_user is sent
-        if((isset($this->request->data['permanent_user']))&&(!isset($this->request->data['permanent_user_id']))){
-            $pu_name = $this->request->data['permanent_user'];
-            $pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.username' => $pu_name])->first();
-            if($pu){        
-                $this->request->data['permanent_user_id'] = $pu->id;
-            }else{
-                $this->set([
-                    'success'   => false,
-                    'message'   => ['message' => __("Permanent Usser $pu_name NOT found")],
-                    '_serialize' => ['success','message']
-                ]);
-                return;
-            }        
-        }        
-        $this->_addOrEdit($user,'add');      
+    	$this->set([
+            'success'       => true,
+            '_serialize'    => ['success']
+        ]);
+        $this->_addOrEdit('add');          
     }
     
     public function edit(){ 
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $this->_addOrEdit($user,'edit'); 
+        //$user = $this->_ap_right_check();
+        //if(!$user){
+        //    return;
+        //}
+        $this->_addOrEdit('edit'); 
     }
      
-    private function _addOrEdit($user,$type= 'add') {      
-        $user_id    = $user['id'];
-
-        //Get the creator's id
-        if(isset($this->request->data['user_id'])){
-            if($this->request->data['user_id'] == '0'){ //This is the holder of the token - override '0'
-                $this->request->data['user_id'] = $user_id;
-            }
-        }
+    private function _addOrEdit($type= 'add') {      
 
         //====Check what type it is====
         //---Data---

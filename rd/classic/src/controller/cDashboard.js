@@ -203,7 +203,10 @@ Ext.define('Rd.controller.cDashboard', {
 				    activate	: function(pnl){
 				        me.application.runAction('cRegistrationRequests','Index',pnl);
 				    }
-			    },  
+			    }, 
+			    'pnlDashboard cmbClouds' : {
+			    	select: me.onCloudSelect
+			    }, 
 			    'pnlDashboard  #btnSetupWizard' : {
 			        click   : function(btn){
                         me.application.runAction('cSetupWizard','Index')
@@ -451,5 +454,15 @@ Ext.define('Rd.controller.cDashboard', {
         //We have to first get the current data to prevent other items from vanishing 
         var new_data = Ext.Object.merge(pnlDashboard.down('#tbtHeader').getData(),{fa_value:'&#'+glyph+';', value :title});
         pnlDashboard.down('#tbtHeader').update(new_data);
+    },
+    onCloudSelect: function(cmb,record){
+    	var me = this;
+    	me.application.setCloudId(cmb.getValue());
+    	me.application.setCloudName(record.get('name'));
+    	console.log(me.application.getCloudId());
+    	console.log(me.application.getCloudName());
+    	var extra_p 	 = Ext.Ajax.getExtraParams();
+    	extra_p.cloud_id = me.application.getCloudId()
+    	Ext.Ajax.setExtraParams(extra_p);    
     }
 });

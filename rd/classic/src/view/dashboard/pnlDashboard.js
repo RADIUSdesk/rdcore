@@ -3,6 +3,9 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
     alias   : 'widget.pnlDashboard',
     layout  : 'fit',
     dashboard_data  : undefined,
+    requires: [
+    	'Rd.view.components.cmbClouds'
+  	],
     initComponent: function () {
         var me = this;
       
@@ -68,9 +71,13 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             ] 
         };
         
+        var cmbCloud = {
+        	xtype	: 'cmbClouds'
+        }
+        
         var h_items = [ h1,'->',h3 ];
         if(me.dashboard_data.show_wizard){
-            h_items = [ h1,'->',h2,'|',h3 ];
+            h_items = [ h1,'->',cmbCloud,'|',h2,'|',h3 ];
         }
            
         me.dockedItems = [

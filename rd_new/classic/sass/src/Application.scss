@@ -1,0 +1,804 @@
+
+p {
+  font-family: 'Poppins', sans-serif;
+  color: #3366cc;
+}
+
+.sldrDark .x-slider-thumb {
+    background: #9b9696;
+    border: 2px solid #424242;
+}
+
+.sldrDark .x-slider-thumb-over {
+    background: #5b5757;
+    border: 2px solid #1a1a1a;
+}
+
+/*-- Toaster --*/
+/* The toaster div has different colours depending on the message type */
+#msg-div {
+    position:absolute;
+    left:35%;
+    top:10px;
+    width:300px;
+    z-index:2147483647;
+}
+
+#msg-div .msg {
+    background: #F6F6F6;
+    border: 2px solid #ccc;
+    margin-top: 2px;
+    padding: 10px 15px;
+    color: #555;
+}
+
+#msg-div .msg h3 {
+    margin: 0 0 8px;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+#msg-div .msg p {
+    margin: 0;
+}
+
+#msg-div .warn {
+    border: 2px solid #fba601;
+    background: #ffe4af;
+}
+
+#msg-div .info {
+    border: 2px solid #0ca630;
+    background: #d0f8da;
+}
+
+#msg-div .error {
+    border: 2px solid #d91717;
+    background: #ffe3e3;
+}
+/*-- End Toaster--*/
+
+/*-- Message Windows --*/
+.x-window-text {
+	font-family: 'Poppins', sans-serif;
+	color: #000000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	font-size: 15px;
+	line-height: 19px;
+}
+/*-- End Message Windows --*/
+
+/*-- Label experiment --*/
+.lblRdCheck {
+    color: #044395; 
+    font-size:16px;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+
+.lblRdReq {
+    color: #29465B; 
+    font-size:16px;
+    font-weight:600;
+    letter-spacing: .75px;
+}
+
+.lblRdReq-after {
+    margin-left: 10px;
+}
+
+.lblRd {
+    color:#29465B; 
+    font-size:16px;
+    font-weight:100;
+    letter-spacing: .75px;
+}
+
+.x-toolbar .lblRd {
+    font-size:14px;
+}
+
+.x-toolbar .lblWizard {
+    color: #044395; 
+    font-size:16px;
+    padding: 5px;
+}
+
+
+/*Wallpaper selection */
+.thumb-wrap {
+    text-align: center;
+    margin: 5px;
+    padding: 5px;
+    border: 2px solid #86a5e5;
+    background: #f3f5f9;
+    cursor: move;
+}
+
+.thumb-wrap:hover{
+    border: 2px solid #526b9d;
+    background: #c4cbd7;
+}
+
+
+.thumb-wrap.x-item-selected {
+    border: 1px solid #fd6473;
+    background: #e1c8d4;
+}
+
+.thumb-wrap h1{
+    padding: 10px;
+    color: #526b9d;
+    font-size:20px;
+}
+
+.thumb-wrap .description{
+    padding: 10px;
+    color: #526b9d;
+    font-size:14px;
+    font-style:oblique;
+}
+
+.thumb-info {
+    text-align: left;
+}
+
+/* Windows needs a banner */
+.banner {
+    width: 100%;
+    height: 100%;
+    background-color: #dbdbdb;
+}
+
+.banner h1{
+    margin-left: 52px;
+    padding: 18px;
+    margin: 0px;
+    color: #00359a;
+    font-size:25px;
+}
+
+/* Grid styles */
+.gridTree .x-grid-cell-inner {
+    color: #676d76;
+    font-size:16px;
+/* May have to play around with the bottom items */
+    line-height: 16px;
+    padding: 2px !important;
+    margin: 2px !important;
+}
+
+.gridMain .x-grid-cell-inner {
+    color: #0b42b3;
+    font-size:16px;
+}
+
+.gridRealm.availAll {
+    background: black;
+    border: 1px solid #ccc;
+    margin-top: 2px;
+    padding: 2px 2px 2px 10px;
+    color: white;
+    font-size:12px;
+}
+
+.gridTag {
+    background: #e7edf6;
+    border: 1px solid #616b77;
+    margin-top: 1px;
+    padding: 1px 1px 1px 5px;
+    color: #727982;
+    font-size:10px;
+}
+
+.gridComment .x-grid-cell-inner {
+    color: #676d76;
+    font-size:12px;
+}
+
+/* EXP for check column */
+.x-grid-cell-checkcolumn .x-grid-cell-inner {
+    padding-top: 4px;
+    padding-bottom: 2px;
+    line-height: 14px;
+}
+.x-grid-with-row-lines .x-grid-cell-checkcolumn .x-grid-cell-inner {
+    padding-top: 3px;
+}
+
+.x-grid-checkheader {
+    width: 17px;
+    height: 17px;
+    background-image: url('images/16x16/no.png');
+    background-repeat: no-repeat;
+    background-color: transparent;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    display: block;
+    margin: auto;
+
+}
+
+.x-grid-checkheader-checked {
+   /* background-position: 0 -13px;*/
+    background-image:url(images/16x16/yes.png);
+}
+
+.x-grid-checkheader-disabled {
+    background-position: -39px 0;
+}
+
+.x-grid-checkheader-checked-disabled {
+    background-position: -39px -13px;
+}
+
+.x-grid-checkheader-editor .x-form-cb-wrap {
+    text-align: center;
+}
+/* space around action column icons */
+.x-action-col-icon {
+	margin-right: 3px;
+}
+
+/* EXP column display yes/no */
+.noRight {
+    background: #f6cecf;
+    border: 1px solid #ccc;
+    margin-top: 2px;
+    padding: 2px 2px 2px 10px;
+    color: #6b032f;
+    font-size:12px;
+}
+
+.hasRight {
+    background: #d4e0ce;
+    border: 1px solid #ccc;
+    margin-top: 2px;
+    padding: 2px 2px 2px 10px;
+    color: #1e5304;
+    font-size:12px;
+}
+
+/* Note rather replace the .hasRight and .noRight with a more generic class eg. red or green */
+
+.fieldRed {
+    background: #f6cecf;
+    margin: 1px 0px 1px 0px;
+    padding: 2px 0px 2px 0px;
+    color: #6b032f;
+    font-size:14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.fieldGreen {
+    background: #d4e0ce;
+    margin: 1px 0px 1px 0px;
+    padding: 2px 0px 2px 0px;
+    color: #1e5304;
+    font-size:14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.fieldBlue {
+    background: #c5f5fd;
+    margin: 1px 0px 1px 0px;
+    padding: 2px 0px 2px 0px;
+    color: #4d4d4d;
+    font-size:14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.fieldOrange {
+    background: #ffd9b3;
+    margin: 1px 0px 1px 0px;
+    padding: 2px 0px 2px 0px;
+    color: #994d00;
+    font-size:14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.fieldGrey {
+    background: #e6e6e6;
+    margin: 1px 0px 1px 0px;
+    padding: 2px 0px 2px 0px;
+    color: #4d4d4d;
+    font-size:14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.fieldYellow {
+    background: #ffffb3;
+    margin: 1px 0px 1px 0px;
+    padding: 2px 0px 2px 0px;
+    color: #737373;
+    font-size:14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.fieldRedWhite {
+    background: #e00404;
+    margin: 1px 0px 1px 0px;
+    padding: 2px 0px 2px 0px;
+    color: #ffffff;
+    font-size:14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.fieldGreenWhite {
+    background: #1a9406;
+    margin: 1px 0px 1px 0px;
+    padding: 2px 0px 2px 0px;
+    color: #ffffff;
+    font-size:14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.fieldTealWhite {
+    background: #008080;
+    margin: 1px 0px 1px 0px;
+    padding: 2px 0px 2px 0px;
+    color: #ffffff;
+    font-size:14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.fieldGreyWhite {
+    background: #767575;
+    color: #ffffff;
+    font-size:14px;
+    font-weight: bold;
+    text-align: center;
+    margin: 1px 0px 1px 0px;
+    padding: 2px 0px 2px 0px;
+}
+
+
+.fieldBlueWhite {
+    background: #1e66d2;
+    margin: 1px 0px 1px 0px;
+    padding: 2px 0px 2px 0px;
+    color: #ffffff;
+    font-size:14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.fieldPurpleWhite {
+    background: #9999ff;
+    margin: 1px 0px 1px 0px;
+    padding: 2px 0px 2px 0px;
+    color: #ffffff;
+    font-size:14px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* https://www.w3schools.com/colors/colors_monochromatic.asp */
+.txtM5 {
+    color: #E1ECF9;
+}
+.txtM4 {
+    color: #609CE1;
+}
+.txtM3 {
+    color: #236AB9;
+}
+.txtM2 {
+    color: #133863;
+}
+.txtM1 {
+    color: #091D34;
+}
+
+.txtPurple {
+    color: #735ce0;
+}
+
+.txtOrange {
+    color: #ce7708;
+}
+
+.txtGrey {
+    color: #98989b;
+}
+
+.txtGreen {
+    color: #2c7607;
+}
+
+.txtRed {
+    color: #d92435;
+}
+
+.txtBlue {
+    color: #5c88e0;
+}
+
+.txtBold {
+    font-weight: bold;
+}
+
+.green_round {
+    margin: 5px;
+    padding: 5px;
+    border: 2px solid #0ca630;
+    background: #d0f8da;
+}
+
+.blue_round {
+    margin: 5px;
+    padding: 5px;
+    border: 2px solid #4a709b;
+    background: #d3dfec;
+}
+
+.red_round {
+    margin: 5px;
+    padding: 5px;
+    border: 2px solid #d92435;
+    background: #f1e2e2;
+}
+
+.fileViewer {
+    padding: 10px;
+    margin: 2px;
+    background: black;
+    color: white;
+    opacity:0.9;
+    filter:alpha(opacity=90); /* For IE8 and earlier */
+}
+
+.ux-filtered-column .x-column-header-inner {
+    background-image:url(images/16x16/filter.png) !important;
+    background-repeat:no-repeat;
+    padding-left: 16px;
+}
+
+/* Treeview does not support Glyphs yet */
+.x-grid-cell-inner-treecolumn .admin {
+    background-image:url(images/16x16/list.png) !important;
+}
+
+.x-grid-cell-inner-treecolumn .users {
+    background-image:url(images/16x16/users.png) !important;
+}
+
+.x-grid-cell-inner-treecolumn .user {
+    background-image:url(images/16x16/user.png) !important;
+}
+
+.list {
+    background-image:url(images/16x16/list.png) !important;
+}
+
+/*----------------------------------------------------
+    FIN: Desktop DataView
+*/
+
+
+.mapInfoDiv {
+    height: 250px;
+    width:  350px;
+    margin: 0px;
+}
+
+.mapEditDiv {
+    height: 190px;
+    width:  350px;
+    margin: 0px;
+}
+
+.divMapAction {
+    margin: 5px;
+    padding: 5px;
+}
+
+.lblMap {
+    width: 120px;
+    float: left;
+    text-align: left;
+    color: #676d76;
+    font-size:14px;
+    margin: 1px;
+}
+
+.lblValue {
+    text-align: left;
+    font-size:14px;
+    margin: 1px;
+}
+
+.subTab {
+    background: #ebebeb;
+}
+
+.subSubTab {
+    background: #bfbfbf;
+}
+
+
+.bodyCls {
+    background-color: white;
+}
+
+.new {
+    background-color: #12f6f9;
+    font-style:italic;
+    font-size:12px;
+}
+
+
+.combo-wrapper {
+    border	: 1px solid #ccc;
+    padding	: 1px;
+	margin	: 2px;	
+}
+
+.combo-wrapper img{
+    float: right;
+}
+
+.combo-country {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.combo-language {
+    font-size: 12px;
+    color: #666666;
+}
+
+.combo-main {
+    font-weight: bold;
+    font-size:14px;
+}
+
+.combo-detail {
+    color: #392bef;
+    font-size:12px;
+}
+
+
+.x-grid-row-summary .x-grid-cell-inner {
+    font-weight: bold;
+    font-size:12px;
+    color: #0652c3;
+}
+
+/*Red progressbar */
+.x-progress.wifired .x-progress-bar {
+    background-color: #e00404;
+}
+
+/*Yello progressbar */
+.x-progress.wifiyellow .x-progress-bar {
+    background-color: #ff9900;
+}
+
+/*Green progressbar*/ 
+.x-progress.wifigreen .x-progress-bar {
+    background-color: #1a9406;
+}
+
+/*Grey progressbar*/ 
+.x-progress.wifigrey .x-progress-bar {
+    background-color: #555353;
+}
+
+
+.conn {
+    height: 250px;
+    width:  350px;
+    margin: 0px;
+}
+
+.grpInfo {
+    color:grey;
+    font-size:10px;
+    font-style:italic;
+    font-weight:lighter;
+}
+
+.grpNever {
+    color: #1383bd;
+    font-size:14px;  
+}
+
+.grpUp {
+    color: green;
+    font-size:14px;  
+}
+
+.grpDown {
+    color: red;
+    font-size:14px;  
+}
+
+
+.divTip {
+    background: #595959;
+    margin-top: 2px;
+    padding: 5px 10px;
+    color: #ffffff;
+}
+
+.divInfo {
+    color: #0273b1;
+    text-align:center;
+    padding: 10px;
+}
+
+
+.node {
+  background-color:transparent;
+  font-weight:bold;
+  overflow:hidden;
+  text-decoration:none;
+  position:absolute;
+  text-align:center;
+  padding:40px 10px 10px 10px;
+}
+
+.node:hover {
+  color:#393434;
+}
+
+.hidden{
+  display:none;
+}
+
+.lightGreen {
+background-color:#eaffea;
+}
+
+.lightBlue {
+background-color:#e9fdff;
+}
+
+.lightGrey {
+background-color:#dcdcdc;
+}
+
+.lightRed {
+background-color:#ffecec;
+}
+
+.sectionHeader {
+    color:white;  
+    background-color:grey; 
+    padding:1px;
+}
+
+.sectionHeader h2 {
+    margin:2px; 
+    padding:2px;
+}
+
+.twoColumnContainer {
+    width:700px;
+    overflow:hidden;
+    display:inline-block;
+}
+
+.twoColumnItem {
+    position:relative;
+    float:left;
+    width:40%;
+    height:200px;
+    margin-left:4%;
+    margin-top:10px;
+    background-color:#d7d7d4;
+}
+
+.lblTipItem {
+    width: 120px;
+    float: left;
+    text-align: left;
+    color: #33ccff;
+    font-size:14px;
+    margin: 1px;
+    font-weight: bold;
+}
+
+.lblTipValue {
+    text-align: left;
+    font-size:14px;
+    margin: 1px;
+    color: #ffffff;
+}
+
+.custom-color-picker-swatch {
+    z-index: 10 !important;
+}
+
+.pnlInfo {
+    background: #edf3f5;
+}
+
+
+.box {
+  border: 2px solid #000;
+  margin: 0 auto 5px;
+  padding: 5px;
+  font-size:14px;
+}
+
+.even {
+  background-color: #ddd;
+  border-color: #aaa; 
+  color: #5e5e5e;
+}
+
+.odd {
+  background-color: #e8cdcc;
+  border-color: #828282; 
+  color: #5e5e5e;
+}
+
+.x-togglefield-on .x-slider:before {
+    background-color: green;
+}
+
+
+/* Filter On Grids 
+----------------------*/
+
+.x-grid-filters-filtered-column .x-column-header-text-inner:before {
+    margin-right: 3px;
+    font: 14px/1 FontAwesome;
+    content: "\f0b0";
+    display: inline-block;
+}
+        
+.x-grid-filters-filtered-column .x-column-header-text-inner {
+    color: #588ce0;
+}
+
+.x-form-cb-default {
+    margin-top: 7px;
+    padding-top: 1px;
+}
+
+/* 30/62020 MAPS */
+.info_bnr_column {
+  float: left;
+  width: 33.33%;
+}
+
+/* Clear floats after the columns */
+.info_bnr_row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+.info_bnr_container {
+  position: relative;
+}
+
+.info_bnr_vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.info_bnr_place {
+  font-size:20px;
+}
+

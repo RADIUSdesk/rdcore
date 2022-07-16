@@ -1,0 +1,24 @@
+.leaflet-fa-markers {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  text-align: center;
+  margin-left: -15px;
+  margin-top: -50px;
+  width: 30px;
+  height: 50px;
+}
+
+.leaflet-fa-markers .marker-icon-svg {
+  position: absolute;
+}
+
+.leaflet-fa-markers .feature-icon {
+  position: absolute;
+  font-size: 20px;
+  line-height: 0px;
+  left: 6px;
+  top: 16px;
+  display: inline-block;
+}
