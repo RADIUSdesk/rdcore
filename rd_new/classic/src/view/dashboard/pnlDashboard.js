@@ -62,9 +62,17 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
 							{
 								text: 'TOP-UPS',
 								leaf: true,
-								id	: 5,
+								controller: 'cTopUps',
+								id	: 'tabTopUps',
 								iconCls: 'x-fa  fa-coffee'
 							},
+                            {
+								text: 'HARDWARES',
+								leaf: true,
+								controller: 'cHardwares',
+								id	: 'gridHardwares',
+								iconCls: 'x-fa  fa-user'
+							}
 						]
 					},
 					{
@@ -103,8 +111,14 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             itemId	: 'btnExpand',
             glyph   : Rd.config.icnMenu,
             scale   : 'medium'
-        };   
-      	var h_items = [ h1,'->' ];
+        };
+        var h2 = {
+            xtype   : 'button',
+            itemId	: 'btnClear',
+            glyph   : Rd.config.icnUser,
+            scale   : 'medium'
+        };      
+      	var h_items = [ h1,'|',h2,'|','->' ];
                
      	me.items 	= [
 			{

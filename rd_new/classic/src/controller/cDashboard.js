@@ -28,6 +28,9 @@ Ext.define('Rd.controller.cDashboard', {
             'pnlDashboard #btnExpand': {
                 click: me.btnExpandClick
             },
+            'pnlDashboard #btnClear': {
+                click: me.btnClearClick
+            },
             'pnlDashboard #tlNav' : {
             	selectionchange: me.treeNodeSelect
             }
@@ -201,23 +204,44 @@ Ext.define('Rd.controller.cDashboard', {
     	if(record.isLeaf()){
     		var name = record.get('text');
     		var id   = record.get('id');
-    		var item = me.getViewP().down('#pnlCenter').down('#tp_'+id);
+    		var c	 = record.get('controller');
+            var pnl  = me.getViewP().down('#pnlCenter')
+    		var item = pnl.down('#'+id);
     		if(!item){
-    			var tp = Ext.create('Ext.tab.Panel',
+    			var added = me.application.runAction(c,'Index',pnl,id);
+                if(!added){
+                    pnl.setActiveItem(item);
+                    pnl.getEl().slideIn('r'); //Slide it in if **not** added
+                }else{
+                    pnl.setActiveItem(id);
+                }
+    			/*var tp = Ext.create('Ext.tab.Panel',
                     {
                         plain : false,
-						itemId: 'tp_'+id,
+						itemId: id,
 						items: [{
 							title	: name
 						}]
                     }
                 );   		
 		    	me.getViewP().down('#pnlCenter').add(tp);
-		    	me.getViewP().down('#pnlCenter').setActiveItem(tp);
+		    	me.getViewP().down('#pnlCenter').setActiveItem(tp);*/
 		   	}else{
-		   		me.getViewP().down('#pnlCenter').setActiveItem(item);
+		   		pnl.setActiveItem(item);
+                pnl.getEl().slideIn('r'); //Slide it in if **not** added
 		   	}
-        	me.getViewP().down('#pnlCenter').getEl().slideIn('r');
+        	
     	} 
+    },
+    btnClearClick: function(btn){
+        var me = this;
+   		console.log("Button Clear Clicked");
+   		var pnlDashboard = btn.up('pnlDashboard');
+        var pnl          = me.getViewP().down('#pnlCenter');
+        pnl.removeAll(true);
+   		var pnlWest      = pnlDashboard.down('#pnlWest');
+   		var treelist     = pnlWest.down('treelist');
+
+
     }
 });
