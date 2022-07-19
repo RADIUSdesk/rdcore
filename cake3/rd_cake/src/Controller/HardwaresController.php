@@ -38,15 +38,10 @@ class HardwaresController extends AppController{
      //____ BASIC CRUD Manager ________
     public function index(){
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
-        $query      = $this->{$this->main_model}->find();
+		$cloud_id = $this->request->query['cloud_id'];
+        $query 	  = $this->{$this->main_model}->find();
 
-        $this->CommonQuery->build_common_query($query,$user,['Users','HardwareRadios']);
+        $this->CommonQuery->build_cloud_query($query,$cloud_id,['HardwareRadios']);
  
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -75,17 +70,8 @@ class HardwaresController extends AppController{
         ];
         
         foreach ($q_r as $i) {
-
-            $owner_id = $i->user_id;
-            if (!array_key_exists($owner_id, $this->owner_tree)) {
-                $owner_tree = $this->Users->find_parents($owner_id);
-            } else {
-                $owner_tree = $this->owner_tree[$owner_id];
-            }
-            
-            $action_flags = $this->Aa->get_action_flags($owner_id, $user);
-              
-            $row        = array();
+           
+            $row        = [];
             $fields     = $this->{$this->main_model}->schema()->columns();
             foreach($fields as $field){
                 $row["$field"]= $i->{"$field"};
@@ -110,9 +96,8 @@ class HardwaresController extends AppController{
                 }
             } 
                  
-            $row['owner']		= $owner_tree;
-			$row['update']		= $action_flags['update'];
-			$row['delete']		= $action_flags['delete'];
+			$row['update']		= true;
+			$row['delete']		= true;
             array_push($items, $row);
         }
        
@@ -127,131 +112,34 @@ class HardwaresController extends AppController{
     
     public function apProfilesList(){
     
-         //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
-        $this->_commonList($user,'ap');
+      	$cloud_id = $this->request->query['cloud_id'];
+        $this->_commonList($cloud_id,'ap');
     }
     
     public function meshesList(){
-
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
+        $cloud_id = $this->request->query['cloud_id'];
         if(isset($this->request->query['id'])){
             $id = $this->request->query['id'];
-            $this->_commonList($user,'mesh',$id);
+            $this->_commonList($cloud_id,'mesh',$id);
         }else{
-            $this->_commonList($user,'mesh');
+            $this->_commonList($cloud_id,'mesh');
         }       
     }
-    
-    public function advancedSettingsForModel(){
-    
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        
-        $radio_fields = [
-            'disabled','hwmode','htmode','txpower','include_beacon_int',
-            'beacon_int','include_distance','distance','ht_capab','mesh','ap','config'
-        ];
-        
-        $data   = [];
-        
-        if(isset($this->request->query['model'])){
-            $model = $this->request->query['model'];
-            $q_e = $this->{$this->main_model}->find()->where(['Hardwares.fw_id' => $model])->contain(['HardwareRadios'])->first();
-            if($q_e){
-                foreach($q_e->hardware_radios as $hr){    
-                    $radio_number   = $hr->radio_number;
-                    foreach($radio_fields as $fr){
-                    
-                        if($fr == 'ap'){
-                            $data['radio'.$radio_number.'_entry'] = $hr[$fr];
-                               
-                        }elseif($fr == 'mesh'){
-                            $data['radio'.$radio_number.'_mesh'] = $hr[$fr]; 
-                              
-                        }elseif($fr == 'config'){
-                            $data['radio'.$radio_number.'_config'] = $hr[$fr]; 
-                              
-                        }elseif($fr == 'hwmode'){
-                            
-                            if($hr[$fr] == '11g'){
-                                $data['radio'.$radio_number.'_band'] = '24';
-                            }
-                            
-                            if($hr[$fr] == '11a'){
-                                $data['radio'.$radio_number.'_band'] = '5';
-                            } 
-                            if($hr[$fr] == '11a_ac'){
-                                $data['radio'.$radio_number.'_band']   = '5';
-                                $data['device_type']                    = 'ac';
-                            } 
-                              
-                        }elseif($fr == 'disabled'){
-                            $data['radio'.$radio_number.'_enabled'] = !$hr[$fr];
-                        }else{
-                            $data['radio'.$radio_number.'_'.$fr] = $hr[$fr];
-                        }
-                    }  
-                }
-            } 
-        }
-           
-        $this->set(array(
-            'data'          => $data,
-            'success'       => true,
-            '_serialize'    => array('data','success')
-        ));
-    }
-    
-    public function add(){
-    
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        
-        $this->_addOrEdit($user,'add');
-        
+     
+    public function add(){     
+        $this->_addOrEdit('add');    
     }
     
     public function edit(){
-    
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $this->_addOrEdit($user,'edit');
-        
+        $this->_addOrEdit('edit');    
     }
     
-    private function _addOrEdit($user,$type= 'add') {
-
-        //__ Authentication + Authorization __
-        
-        $user_id    = $user['id'];
-
-        //Get the creator's id
-        if(isset($this->request->data['user_id'])){
-            if($this->request->data['user_id'] == '0'){ //This is the holder of the token - override '0'
-                $this->request->data['user_id'] = $user_id;
-            }
-        }
-
-        $check_items = array(
-			'available_to_siblings',
+    private function _addOrEdit($type= 'add') {
+  
+        $check_items = [
 			'for_mesh',
 			'for_ap',
-		);
+		];
         foreach($check_items as $i){
             if(isset($this->request->data[$i])){
                 $this->request->data[$i] = 1;
@@ -262,23 +150,20 @@ class HardwaresController extends AppController{
        
         if($type == 'add'){ 
            $entity = $this->{$this->main_model}->newEntity($this->request->data());
-        }
-       
+        }      
         if($type == 'edit'){
             $entity = $this->{$this->main_model}->get($this->request->data['id']);
             $this->{$this->main_model}->patchEntity($entity, $this->request->data());
         }
               
-        if ($this->{$this->main_model}->save($entity)) {
-        
+        if ($this->{$this->main_model}->save($entity)) {       
             if($type == 'edit'){
                 $this->_processRadios(); //Do the radios
-            }
-            
-            $this->set(array(
+            }         
+            $this->set([
                 'success' => true,
-                '_serialize' => array('success')
-            ));
+                '_serialize' => ['success']
+            ]);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -290,82 +175,37 @@ class HardwaresController extends AppController{
 			throw new MethodNotAllowedException();
 		}
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
-        $user_id   = $user['id'];
-        $fail_flag = false;
-
-	    if(isset($this->request->data['id'])){   //Single item delete
-            $message = "Single item ".$this->request->data['id'];
-
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:         
+	    if(isset($this->request->data['id'])){   
             $entity     = $this->{$this->main_model}->get($this->request->data['id']);   
-            $owner_id   = $entity->user_id;
-            
-            if($owner_id != $user_id){
-                if($this->Users->is_sibling_of($user_id,$owner_id)== true){
-                    $this->{$this->main_model}->delete($entity);
-                }else{
-                    $fail_flag = true;
-                }
-            }else{
+            $this->{$this->main_model}->delete($entity);
+
+        }else{ 
+            foreach($this->request->data as $d){
+                $entity     = $this->{$this->main_model}->get($d['id']);    
                 $this->{$this->main_model}->delete($entity);
             }
-   
-        }else{                          //Assume multiple item delete
-            foreach($this->request->data as $d){
-                $entity     = $this->{$this->main_model}->get($d['id']);  
-                $owner_id   = $entity->user_id;
-                if($owner_id != $user_id){
-                    if($this->Users->is_sibling_of($user_id,$owner_id) == true){
-                        $this->{$this->main_model}->delete($entity);
-                    }else{
-                        $fail_flag = true;
-                    }
-                }else{
-                    $this->{$this->main_model}->delete($entity);
-                }
-            }
         }
-
-        if($fail_flag == true){
-            $this->set(array(
-                'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
-            ));
-        }else{
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
-        }
+ 
+        $this->set([
+            'success' => true,
+            '_serialize' => ['success']
+        ]);
 	}
 	
 	public function view(){
-	    //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        
-        $data =[];
-        
+       
+        $data 		= [];     
         if(isset($this->request->query['hardware_id'])){
-            $id = $this->request->query['hardware_id'];
-            $ent = $this->{'Hardwares'}->find()->where(['Hardwares.id' => $id])->first();
-            $data = $ent;
+            $id 	= $this->request->query['hardware_id'];
+            $ent 	= $this->{'Hardwares'}->find()->where(['Hardwares.id' => $id])->first();
+            $data 	= $ent;
         }
                
-        $this->set(array(
+        $this->set([
             'data'          => $data,
             'success'       => true,
-            '_serialize'    => array('data','success')
-        ));
+            '_serialize'    => ['data','success']
+        ]);
 	}
 	
 	public function uploadPhoto($id = null){
@@ -457,8 +297,7 @@ class HardwaresController extends AppController{
             $this->{'HardwareRadios'}->save($entity);  
         }    
 	}
-
-  
+ 
     public function menuForGrid(){
         $user = $this->Aa->user_for_token($this);
         if (!$user) {   //If not a valid user
@@ -473,12 +312,12 @@ class HardwaresController extends AppController{
         ));
     }
     
-    private function _commonList($user,$item = 'mesh',$id = 'fw_id'){
+    private function _commonList($cloud_id,$item = 'mesh',$id = 'fw_id'){
     
         $user_id    = $user['id'];
         $query      = $this->{$this->main_model}->find();
 
-        $this->CommonQuery->build_common_query($query,$user,['Users','HardwareRadios']);
+        $this->CommonQuery->build_cloud_query($query,$cloud_id,['HardwareRadios']);
         
         if($item == 'ap'){
             $query->where(['Hardwares.for_ap' => true]); 
@@ -529,13 +368,12 @@ class HardwaresController extends AppController{
         }
        
         //___ FINAL PART ___
-        $this->set(array(
+        $this->set([
             'items' => $items,
             'success' => true,
             'totalCount' => $total,
-            '_serialize' => array('items','success','totalCount')
-        ));  
+            '_serialize' => ['items','success','totalCount']
+        ]);  
     }
-    
-    
+       
 }

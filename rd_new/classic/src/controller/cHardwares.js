@@ -29,7 +29,7 @@ Ext.define('Rd.controller.cHardwares', {
     },
     views:  [
         'hardwares.gridHardwares',           
-        'hardwares.winHardwareAddWizard',
+        'hardwares.winHardwareAdd',
         'hardwares.pnlHardwareAddEdit',        
         'hardwares.pnlRadioDetail',
         'hardwares.pnlHardwarePhoto'
@@ -74,14 +74,11 @@ Ext.define('Rd.controller.cHardwares', {
             'gridHardwares'   		: {
                 select:      me.select
             },
-			'winHardwareAddWizard #btnTreeNext' : {
-                click:  me.btnTreeNext
+            'gridHardwares actioncolumn': { 
+                 itemClick  : me.onActionColumnItemClick
             },
-            'winHardwareAddWizard #btnDataPrev' : {
-                click:  me.btnDataPrev
-            },
-            'winHardwareAddWizard #btnDataNext' : {
-                click:  me.btnDataNext
+            'winHardwareAdd #btnSave' : {
+                click:  me.btnSave
             },
 			'pnlHardwareAddEdit #save': {
                 click: me.btnEditSave
@@ -108,64 +105,16 @@ Ext.define('Rd.controller.cHardwares', {
         me.getGrid().getSelectionModel().deselectAll(true);
         me.getGrid().getStore().load();
     },
-    add: function(button){
-        
-        var me = this;
-        //We need to do a check to determine if this user (be it admin or acess provider has the ability to add to children)
-        //admin/root will always have, an AP must be checked if it is the parent to some sub-providers. If not we will 
-        //simply show the nas connection typer selection 
-        //if it does have, we will show the tree to select an access provider.
-        Ext.Ajax.request({
-            url: me.getUrlApChildCheck(),
-            method: 'GET',
-            success: function(response){
-                var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){
-                        
-                    if(jsonData.items.tree == true){
-                        if(!Ext.WindowManager.get('winHardwareAddWizardId')){
-                            var w = Ext.widget('winHardwareAddWizard',{id:'winHardwareAddWizardId'});
-                            w.show();        
-                        }
-                    }else{
-                        if(!Ext.WindowManager.get('winHardwareAddWizardId')){
-                            var w = Ext.widget('winHardwareAddWizard',
-                                {id:'winHardwareAddWizardId',startScreen: 'scrnData',user_id:'0',owner: i18n('sLogged_in_user'), no_tree: true}
-                            );
-                            w.show();         
-                        }
-                    }
-                }   
-            },
-            scope: me
-        });
-
+    add: function(button){   
+    	var me 		= this;
+        var c_name 	= me.application.getCloudName();
+        var c_id	= me.application.getCloudId()
+        if(!Ext.WindowManager.get('winHardwareAddId')){
+            var w = Ext.widget('winHardwareAdd',{id:'winHardwareAddId',cloudId: c_id, cloudName: c_name});
+            w.show();         
+        }   
     },
-    btnTreeNext: function(button){
-        var me = this;
-        var tree = button.up('treepanel');
-        //Get selection:
-        var sr = tree.getSelectionModel().getLastSelected();
-        if(sr){    
-            var win = button.up('winHardwareAddWizard');
-            win.down('#owner').setValue(sr.get('username'));
-            win.down('#user_id').setValue(sr.getId());
-            win.getLayout().setActiveItem('scrnData');
-        }else{
-            Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_owner'),
-                        i18n('sFirst_select_an_Access_Provider_who_will_be_the_owner'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }
-    },
-    btnDataPrev:  function(button){
-        var me      = this;
-        var win     = button.up('winHardwareAddWizard');
-        win.getLayout().setActiveItem('scrnApTree');
-    },
-    btnDataNext:  function(button){
+    btnSave:  function(button){
         var me      = this;
         var win     = button.up('window');
         var form    = win.down('form');
@@ -407,5 +356,17 @@ Ext.define('Rd.controller.cHardwares', {
         var me      = this;
         var form    = button.up('form');
         form.getForm().reset();
+    },
+    onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
+        //console.log("Action Item "+action+" Clicked");
+        var me = this;
+        var grid = view.up('grid');
+        grid.setSelection(record);
+        if(action == 'update'){
+            me.edit()
+        }
+        if(action == 'delete'){
+            me.del();
+        }     
     }
 });

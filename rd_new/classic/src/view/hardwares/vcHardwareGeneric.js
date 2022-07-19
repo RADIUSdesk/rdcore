@@ -2,7 +2,6 @@ Ext.define('Rd.view.hardwares.vcHardwareGeneric', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcHardwareGeneric',
     config : {
-        urlAdvancedSettingsForModel : '/cake3/rd_cake/ap-profiles/advanced_settings_for_model.json',
         urlViewAp                   : '/cake3/rd_cake/ap-profiles/ap_profile_ap_view.json'
     },
     init: function() {

@@ -9,8 +9,7 @@ Ext.define('Rd.model.mHardware', {
          {name: 'owner',        type: 'string'  },
 		 {name: 'for_mesh',     type: 'bool'},
 		 {name: 'for_ap',       type: 'bool'},
-         {name: 'available_to_siblings',  type: 'bool'},
-         
+      
          {name: 'radio_count',  type: 'int'},
          
          {name: 'radio_0_disabled', type: 'bool', default : true},

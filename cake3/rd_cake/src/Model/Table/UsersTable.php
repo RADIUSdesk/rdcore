@@ -36,7 +36,6 @@ class UsersTable extends Table
         $this->hasMany('TopUps',['dependent' => true,'cascadeCallbacks' =>true]);
         $this->hasMany('TopUpTransactions',['dependent' => true,'cascadeCallbacks' =>true]); 
         
-        $this->hasMany('FirmwareKeys');    
     }
       
     public function find_access_provider_children($id){

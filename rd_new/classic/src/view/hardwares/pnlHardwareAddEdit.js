@@ -40,7 +40,7 @@ Ext.define('Rd.view.hardwares.pnlHardwareAddEdit', {
         var w_prim         = 550;
         var w_sec          = 350;
         var hide_multiple  = true;
-        var gen_height     = 550; 
+        var gen_height     = 500; 
         
         me.buttons = [
             {
@@ -119,13 +119,6 @@ Ext.define('Rd.view.hardwares.pnlHardwareAddEdit', {
                         fieldLabel  : 'For AP',
                         name        : 'for_ap',
                         inputValue  : 'for_ap'
-                    },
-                    {
-                        xtype       : 'checkbox',      
-                        fieldLabel  : 'For Sub-Providers',
-                        name        : 'available_to_siblings',
-                        inputValue  : 'available_to_siblings',
-                        itemId      : 'a_to_s'
                     },
                     {
 					    xtype       : 'container',

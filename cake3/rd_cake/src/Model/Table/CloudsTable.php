@@ -10,6 +10,14 @@ class CloudsTable extends Table {
     public function initialize(array $config){  
         $this->addBehavior('Timestamp');
         $this->belongsTo('Users');
+        
+       	$this->hasMany('TopUps',[
+            'dependent' => true
+        ]);
+        $this->hasMany('Hardwares',[
+            'dependent' => true
+        ]);
+        
         $this->hasMany('Sites',[
             'dependent' => true
         ]);

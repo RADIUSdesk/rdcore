@@ -230,14 +230,13 @@ class TopUpsController extends AppController{
         }
 	}
 	
-	
     public function menuForGrid(){
         $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
             return;
         }
          
-        $menu = $this->GridButtons->returnButtons($user,true,'top_ups'); 
+        $menu = $this->GridButtons->returnButtons($user,false,'top_ups'); 
         $this->set(array(
             'items'         => $menu,
             'success'       => true,

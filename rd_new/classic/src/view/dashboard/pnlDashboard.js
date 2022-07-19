@@ -4,26 +4,66 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
     layout  : 'border',
     dashboard_data  : undefined,
     requires: [
-    	//'Rd.view.components.cmbClouds'
+    	'Rd.view.components.cmbClouds'
   	],
     initComponent: function () {
         var me 		= this;
         
+        var username =  me.dashboard_data.user.username;
+        
+        //Some initial values
+        var header  = Rd.config.headerName;
         var lA      = Rd.config.levelAColor; 
+        var stA     = 'color:'+lA+';font-weight:200; font-size: smaller;';
+        var tpl     = new Ext.XTemplate('<h1>'+header+'<span style="'+stA+'"> | <span style="font-family:FontAwesome;">{fa_value}</span> {value}</span><h1>');
+        
+        var style   = {}; //Empty Style
+        var imgActive = false; //No Image
+        var imgFile   = '';
+        var fg      = false;
+        if(me.dashboard_data.white_label.active == true){
+            header  = me.dashboard_data.white_label.hName;
+            footer  = me.dashboard_data.white_label.fName;
+            
+            var bg  = me.dashboard_data.white_label.hBg;
+            style   = {
+                'background' : bg
+            };
+            
+            fg              = me.dashboard_data.white_label.hFg;
+            var img         = me.dashboard_data.white_label.imgFile;
+            if(me.dashboard_data.white_label.imgActive == true){
+                imgActive = true;
+            }
+            var tpl = new Ext.XTemplate(
+            '<tpl if="imgActive == true">',
+                '<img src="{imgFile}" alt="Logo" style="float:left; padding-right: 10px; padding-left: 10px;padding: 10px;">',
+            '</tpl>',
+            '<h1 style="color:{hFg};font-weight:100;">{hName}<span style="'+stA+'"> | <span style="font-family:FontAwesome;">{fa_value}</span> {value}</span><h1>');           
+        }
+        
+        var txtH = {
+            xtype   : 'tbtext',
+            itemId  : 'tbtHeader', 
+            tpl     : tpl,
+            data    : { hName:header,imgFile:img,hFg:fg,imgActive: imgActive,value: 'Hardwares'}
+        };
+        
+        /*var lA      = Rd.config.levelAColor; 
         var stA     = 'color:'+lA+';font-weight:200; font-size: smaller;';
         var header  = me.dashboard_data.white_label.hName;
         var img  	= me.dashboard_data.white_label.imgFile;
         var fg      = me.dashboard_data.white_label.hFg;     
         var tpl = new Ext.XTemplate(
-            '<img src="resources/images/logo.png" alt="Logo" style="float:left; padding-right: 20px;">',
-            '<h3 style="color:{hFg};font-weight:800;">{hName}<span style="'+stA+'"></h3>');
+            '<img src="resources/images/logo.png" alt="Logo" style="float:left; padding-right: 10px; padding-left: 10px;padding-top: 10px;">',
+            '<p style="color:{hFg};font-weight:200;font-size: 22px;">{hName}<span style="'+stA+'"></p>');
         
         var hNav = {
             xtype   : 'tbtext',
             itemId  : 'tbtHeader', 
             tpl     : tpl,
             data    : { hName:header,imgFile:img,hFg:fg}
-        };
+        };*/
         
         var tl = {
     		xtype: 'treelist',
@@ -117,8 +157,17 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             itemId	: 'btnClear',
             glyph   : Rd.config.icnUser,
             scale   : 'medium'
-        };      
-      	var h_items = [ h1,'|',h2,'|','->' ];
+        };
+      	
+      	var cmbCloud = {
+        	xtype	: 'cmbClouds'
+        }
+        
+        var h_items = [ txtH,'->',cmbCloud];
+        
+        if(me.dashboard_data.show_wizard){
+            h_items = [ txtH,'->',cmbCloud,'|',h2];
+        }
                
      	me.items 	= [
 			{
@@ -138,7 +187,7 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
 				        height	: 70,
 				        ui      : 'default',
 				        items   : [
-				        	hNav
+				        	h1
 				        ]
 				    },
 				],
@@ -165,6 +214,7 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
 				        height	: 70,
 				        dock    : 'top',
 				        ui      : 'default',
+				        style   : style,
 				        items   : h_items
 				    }
 				]

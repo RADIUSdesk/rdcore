@@ -33,7 +33,10 @@ Ext.define('Rd.controller.cDashboard', {
             },
             'pnlDashboard #tlNav' : {
             	selectionchange: me.treeNodeSelect
-            }
+            },
+            'pnlDashboard cmbClouds' : {
+		    	select: me.onCloudSelect
+		    } 
         });
       
     },
@@ -215,22 +218,10 @@ Ext.define('Rd.controller.cDashboard', {
                 }else{
                     pnl.setActiveItem(id);
                 }
-    			/*var tp = Ext.create('Ext.tab.Panel',
-                    {
-                        plain : false,
-						itemId: id,
-						items: [{
-							title	: name
-						}]
-                    }
-                );   		
-		    	me.getViewP().down('#pnlCenter').add(tp);
-		    	me.getViewP().down('#pnlCenter').setActiveItem(tp);*/
 		   	}else{
 		   		pnl.setActiveItem(item);
                 pnl.getEl().slideIn('r'); //Slide it in if **not** added
-		   	}
-        	
+		   	}      	
     	} 
     },
     btnClearClick: function(btn){
