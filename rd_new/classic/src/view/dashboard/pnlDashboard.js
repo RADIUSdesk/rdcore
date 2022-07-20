@@ -72,14 +72,14 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
     		expanderFirst: false,
     		margin: '0 0 0 5',
     		micro: false,
-			store: {
+			store: 'sNavTree'/*{
 				root: {
-				expanded: true,
+				expanded: false,
 					children: [{
 						text: 'OVERVIEW',
 						id	: 1,
 						leaf: true,
-						iconCls: 'x-fa  fa-th-large'
+						iconCls: 'x-fa fa-th-large'
 					}, 
 					{
 						text: 'RADIUS USERS',
@@ -110,8 +110,15 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
 								text: 'HARDWARES',
 								leaf: true,
 								controller: 'cHardwares',
-								id	: 'gridHardwares',
+								id	: 'tabHardwares',
 								iconCls: 'x-fa  fa-user'
+							},
+							{
+								text: 'ADMINS',
+								leaf: true,
+								controller: 'cAccessProviders',
+								id	: 'tabAccessProviders',
+								iconCls: 'x-fa  fa-tag'
 							}
 						]
 					},
@@ -143,7 +150,7 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
 					]
 
 				}
-			}
+			}*/
    		};
         
         var h1 = {

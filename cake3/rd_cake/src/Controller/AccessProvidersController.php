@@ -45,16 +45,11 @@ class AccessProvidersController extends AppController{
 		$this->loadModel('UserSettings');
           
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
+        $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
             'model' => $this->main_model
         ]);
-        
-        $this->loadComponent('Notes', [
-            'model'     => 'UserNotes',
-            'condition' => 'user_id'
-        ]);
-        
+                
         $this->loadComponent('WhiteLabel'); 
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('JsonErrors');     
@@ -78,12 +73,7 @@ class AccessProvidersController extends AppController{
     
     
     public function exportCsv(){
-
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
+   
         $query = $this->{$this->main_model}->find(); 
         $this->CommonQuery->build_ap_query($query,$user); //AP QUERY is sort of different in a way
         
@@ -145,20 +135,7 @@ class AccessProvidersController extends AppController{
             return;
         }
         $user_id    = $user['id'];
-        
-        //Check if the AP has any children, if not retrun immediately with an empty list
-        if($user['group_name'] == Configure::read('group.ap')){  //AP
-            $entity = $this->Users->get($user_id); 
-            if($this->Users->childCount($entity) == 0){
-                $this->set(array(
-                    'items'         => array(),
-                    'success'       => true,
-                    '_serialize'    => array('items','success')
-                ));
-                return;
-            }
-        }
- 
+       
         $query = $this->{$this->main_model}->find();
         
         $this->CommonQuery->build_ap_query($query,$user); //AP QUERY is sort of different in a way
@@ -179,254 +156,30 @@ class AccessProvidersController extends AppController{
 
         $total  = $query->count();       
         $q_r    = $query->all();
-        $items  = array();
+        $items  = [];
         
-        foreach($q_r as $i){
-        
-            $owner_id   = $i->parent_id;
-            if($owner_id == ''){ //The root user does not have a parent and is thus empty. We assume then it is owned by itself
-                $owner_id = $i->id;
-            }
-            
-            if(!array_key_exists($owner_id,$this->owner_tree)){
-                $owner_tree     = $this->Users->find_parents($owner_id);
-            }else{
-                $owner_tree = $this->owner_tree[$owner_id];
-            }
-            
-            
-            
-            $action_flags   = $this->Aa->get_action_flags($owner_id,$user); 
-            $notes_flag     = false;
-            foreach($i->user_notes as $un){
-                if(!$this->Aa->test_for_private_parent($un->note,$user)){
-                    $notes_flag = true;
-                    break;
-                }
-            } 
-            
-            $row        = array();
-            $fields     = $this->{$this->main_model}->schema()->columns();
-            foreach($fields as $field){
-                $row["$field"]= $i->{"$field"};
-                
-                if($field == 'created'){
-                    $row['created_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }
-                if($field == 'modified'){
-                    $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }   
-            } 
-            
-            //Unset password and token fields
-            unset($row["password"]);
-            unset($row["token"]);
-            
-            $row['owner']		= $owner_tree;
-			$row['notes']		= $notes_flag;
-			$row['update']		= $action_flags['update'];
-			$row['delete']		= $action_flags['delete'];
-            
-            array_push($items,$row);
-        }
-       
-        //___ FINAL PART ___
-        $this->set(array(
-            'items' => $items,
-            'success' => true,
-            'totalCount' => $total,
-            '_serialize' => array('items','success','totalCount')
-        ));
-    }
-    
-    public function indexTreeGrid(){
-        $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
-            return;
-        }
-             
-        $user_id    = $user['id'];
-        $items      = [];
-    
-        if(isset($this->request->query['node'])){
-            if($this->request->query['node'] == 0){ //This is the root node.
-                $id = $user_id;
-            }else{
-                $id = $this->request->query['node'];
-            }
-        }
-               
-        //We only will list the first level of nodes
-        $ap_name    = Configure::read('group.ap');
-        $query      = $this->{$this->main_model}->find()->contain(['UserNotes']);
-        $q_r        = $query->where([$this->main_model.'.parent_id' => $id])->all();  
-        $total      = $query->where([$this->main_model.'.parent_id' => $id])->count();       
-        
-        foreach($q_r as $i){
-        
-            $owner_id   = $i->parent_id;
-            if($owner_id == ''){ //The root user does not have a parent and is thus empty. We assume then it is owned by itself
-                $owner_id = $i->id;
-            }
-            
-            $id         = $i->id;
-            $parent_id  = $i->parent_id;
-            $username   = $i->username;
-            $leaf       = false;
-            $level      = $this->{$this->main_model}->getLevel($i);
-            $icon       = 'x-fa fa-warehouse';
-            
-            $entity = $this->Users->get($id); 
-            if($this->Users->childCount($entity) == 0){
-                $leaf = true;
-                $icon = 'x-fa fa-user';
-            }
-            
-            $iconText  = 'txtM2';
-            $color     = '#133863';
-            
-            if($level == 2){
-                $iconText = 'txtM3';
-                $color    = '#236AB9';
-            }
-            
-            if($level == 3){
-                $iconText = 'txtM4';
-                $color    = '#609CE1';
-            }
-            
-            if($level == 4){
-                $iconText = 'txtM5';
-                $color    = '#E1ECF9';
-            }
-            
-            $icon           = $icon." ".$iconText;                
-            $action_flags   = $this->Aa->get_action_flags($owner_id,$user); 
-            $notes_flag     = false;
-            foreach($i->user_notes as $un){
-                if(!$this->Aa->test_for_private_parent($un->note,$user)){
-                    $notes_flag = true;
-                    break;
-                }
-            } 
-            
+        foreach($q_r as $i){            
             $row        = [];
             $fields     = $this->{$this->main_model}->schema()->columns();
             foreach($fields as $field){
-                $row["$field"]= $i->{"$field"};
-                
+                $row["$field"]= $i->{"$field"};             
                 if($field == 'created'){
                     $row['created_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
                 }
                 if($field == 'modified'){
                     $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
                 }   
-            } 
-            
-            //Unset password and token fields
-            unset($row["password"]);
-            unset($row["token"]);
-			$row['notes']		= $notes_flag;
-			$row['update']		= $action_flags['update'];
-			$row['delete']		= $action_flags['delete'];
-			
-			$row['leaf']        = $leaf;
-			$row['level']       = $level;
-			$row['iconCls']     = $icon;
-			$row['style']       = "color:$color; font-size:large;";
-                               
-            array_push($items, $row); 
+            }
+            array_push($items,$row);
         }
-             
-        $this->set(array(
-            'items' => $items,
-            'success' => true,
-            'totalCount' => $total,
-            '_serialize' => ['items','success','totalCount']
-        ));
+        $this->set([
+            'items' 		=> $items,
+            'success' 		=> true,
+            'totalCount' 	=> $total,
+            '_serialize' 	=> ['items','success','totalCount']
+        ]);
     }
-    
-    public function changeParent(){
-        $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
-            return;
-        } 
-        $user_id    = $user['id'];  
-        
-        if(isset($this->request->data['dst_id'])){
-            if($this->request->data['dst_id'] == 0){ //This is the root node.
-                $this->request->data['dst_id'] = $user_id;
-            }
-        }
-            
-        $dst_id = $this->request->data['dst_id'];
-        $src_id = $this->request->data['src_id']; 
-        $items  = $this->request->getData();
-        $node   = $this->{$this->main_model}->find()->where(['Users.id' => $src_id])->first();   
-        if($node){   
-            $this->{$this->main_model}->patchEntity($node,['parent_id' => $dst_id]);
-            if($this->{$this->main_model}->save($node)){
-                 $this->set([
-                'items' => $items,
-                'success' => true,
-                '_serialize' => ['items','success']
-            ]);
-            
-            }else{
-                $message = __('Could not change parent');
-                $this->JsonErrors->entityErros($node,$message);
-            }
-        };    
-    }
-    
-    public function indexTree(){
-        $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
-            return;
-        }
-             
-        $user_id    = $user['id'];
-        $items      = array();
-    
-        if(isset($this->request->query['node'])){
-            if($this->request->query['node'] == 0){ //This is the root node.
-                $id = $user_id;
-            }else{
-                $id = $this->request->query['node'];
-            }
-        }
-               
-        //We only will list the first level of nodes
-        $ap_name    = Configure::read('group.ap');
-        $query      = $this->{$this->main_model}->find();
-        $q_r        = $query->where([$this->main_model.'.parent_id' => $id])->all();
-        
-        foreach($q_r as $i){
-            $id         = $i->id;
-            $parent_id  = $i->parent_id;
-            $username   = $i->username;
-            $leaf       = false;
-            $icon       = 'x-fa fa-warehouse txtGreen';
-            
-            $entity = $this->Users->get($id); 
-            if($this->Users->childCount($entity) == 0){
-                $leaf = true;
-                $icon = 'x-fa fa-user txtM2'; //FIXME FOR LATER
-            }
-
-            array_push($items,
-                array('id' => $id, 'username' => $username,'leaf' => $leaf,'iconCls' => $icon,'style' => "color:green; font-size:large;")
-            ); 
-        }
-             
-        $this->set(array(
-            'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
-        ));
-
-    }
-     
+   
     public function add(){
 
         $user = $this->_ap_right_check();
@@ -435,9 +188,7 @@ class AccessProvidersController extends AppController{
         }
   
         $check_items = [
-			'active',
-			'notif_activate',
-			'monitor'
+			'active'
 		];
         foreach($check_items as $i){
             if(isset($this->request->data[$i])){
@@ -446,10 +197,6 @@ class AccessProvidersController extends AppController{
                 $this->request->data[$i] = 0;
             }
         }    
-
-        if($this->request->data['parent_id'] == '0'){ //This is the holder of the token
-            $this->request->data['parent_id'] = $user['id'];
-        }
 
         //Get the language and country
         $country_language   = explode( '_', $this->request->data['language'] );
@@ -471,21 +218,10 @@ class AccessProvidersController extends AppController{
         //The rest of the attributes should be same as the form..
         $entity = $this->{$this->main_model}->newEntity($this->request->data()); 
         if($this->{$this->main_model}->save($entity)){
-			$new_id = $entity->id; // The new id
-			$us_entity = $this->UserSettings->newEntity();
-			$us_entity->user_id    = $new_id;
-			$us_entity->name       = 'alert_activate';
-			$us_entity->value      = 0;
-			$this->UserSettings->save($us_entity);
-			$us_entity = $this->UserSettings->newEntity();
-			$us_entity->user_id    = $new_id;
-			$us_entity->name       = 'alert_frequency';
-			$us_entity->value      = 1;
-			$this->UserSettings->save($us_entity);
-            $this->set(array(
+            $this->set([
                 'success' => true,
-                '_serialize' => array('success')
-            ));
+                '_serialize' => ['success']
+            ]);
         }else{
             $message = 'Error';
             $errors = $entity->errors();
@@ -498,12 +234,12 @@ class AccessProvidersController extends AppController{
                 }
                 $a[$field] = $detail_string;
             }   
-            $this->set(array(
+            $this->set([
                 'errors'    => $a,
                 'success'   => false,
-                'message'   => array('message' => __('Could not create item')),
-                '_serialize' => array('errors','success','message')
-            ));
+                'message'   => ['message' => __('Could not create item')],
+                '_serialize' => ['errors','success','message']
+            ]);
         }   
     }
     
@@ -730,127 +466,38 @@ class AccessProvidersController extends AppController{
         }
         
     }
+   
     
-    public function apChangeTag(){
-    
-        $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
-            return;
-        }
-        
-        $ap_id        = false;
-        $tree_tag_id  = false;
-        
-        if(isset($this->request->query['ap_id'])){
-            $ap_id = $this->request->query['ap_id'];
-        }
-        
-        if(isset($this->request->query['tree_tag_id'])){
-            $tree_tag_id = $this->request->query['tree_tag_id'];
-        }
-        
-        if(($ap_id)&&($tree_tag_id)){
-            $entity = $this->{$this->main_model}->get($ap_id);
-            if($entity){
-                $entity->tree_tag_id = $tree_tag_id;
-                $this->{$this->main_model}->save($entity);
-            }
-        }
-    
-        $this->set(array(
-            'success'   => true,
-            '_serialize'=> array('success')
-        ));
-    
-    }
-     
-    public function menuForGrid(){
-        $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
-            return;
-        }
-        
-        $menu = $this->GridButtons->returnButtons($user,false,'access_providers');
-        $this->set(array(
+    public function menuForGrid(){   
+        $menu = $this->GridButtonsFlat->returnButtons(false,'access_providers');
+        $this->set([
             'items'         => $menu,
             'success'       => true,
-            '_serialize'    => array('items','success')
-        ));
+            '_serialize'    => ['items','success']
+        ]);
     }
     
     public function delete($id = null) {
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
-
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
-        $user_id    = $user['id'];
-        $fail_flag = false;
-
-	    if(isset($this->request->data['id'])){   //Single item delete
-            $message = "Single item ".$this->request->data['id'];
-
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:         
-            $entity     = $this->{$this->main_model}->get($this->request->data['id']);   
-            $owner_id   = $entity->parent_id;
-            
-            if($owner_id != $user_id){
-                if($this->{$this->main_model}->is_sibling_of($user_id,$owner_id)== true){
-                    $this->{$this->main_model}->delete($entity);
-                    $this->Users->recover();
-                }else{
-                    $fail_flag = true;
-                }
-            }else{
-                $this->{$this->main_model}->delete($entity);
-                $this->Users->recover();
-            }
-   
+	    if(isset($this->request->data['id'])){   //Single item delete      
+            $entity     = $this->{$this->main_model}->get($this->request->data['id']);
+            $this->{$this->main_model}->delete($entity);  
         }else{                          //Assume multiple item delete
             foreach($this->request->data as $d){
-                $entity     = $this->{$this->main_model}->get($d['id']);  
-                $owner_id   = $entity->parent_id;
-                if($owner_id != $user_id){
-                    if($this->{$this->main_model}->is_sibling_of($user_id,$owner_id) == true){
-                        $this->{$this->main_model}->delete($entity);
-                    }else{
-                        $fail_flag = true;
-                    }
-                }else{
-                    $this->{$this->main_model}->delete($entity);
-                    $this->Users->recover();
-                }
+                $entity     = $this->{$this->main_model}->get($d['id']);               
+               	$this->{$this->main_model}->delete($entity);
             }
         }
-
-        if($fail_flag == true){
-            $this->set(array(
-                'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
-            ));
-        }else{
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
-        }
+        $this->set(array(
+            'success' => true,
+            '_serialize' => array('success')
+        ));
 	}
 	
 	public function changePassword(){
 
-        //__ Authentication + Authorization __
-        //$user = $this->_ap_right_check(); -- FIXME Add right to ACO
-        $user = $this->Aa->user_for_token($this);
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
         $success = false;
         if(isset($this->request->data['user_id'])){
             $entity = $this->{$this->main_model}->get($this->request->data['user_id']); 
@@ -863,20 +510,15 @@ class AccessProvidersController extends AppController{
             $success               = true;  
         }
 
-        $this->set(array(
+        $this->set([
             'success' => $success,
-            '_serialize' => array('success',)
-        ));
+            '_serialize' => ['success']
+        ]);
     }
     
-    public function enableDisable(){     
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
-        $rb         = $this->request->data['rb'];
+    public function enableDisable(){       
+
+        $rb  	= $this->request->data['rb'];
         if($rb == 'enable'){
             $active = 1;
         }else{
@@ -889,168 +531,10 @@ class AccessProvidersController extends AppController{
                 $this->{$this->main_model}->save($entity);  
             }
         }
-        $this->set(array(
+        $this->set([
             'success' => true,
-            '_serialize' => array('success',)
-        ));
-    }
-	
-	public function childCheck(){
-        $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
-            return;
-        }
-        $user_id  = $user['id'];
-        $tree     = false;     
-        $entity = $this->Users->get($user_id); 
-        if($this->Users->childCount($entity) > 0){
-            $tree = true;
-        }
-        $items['tree'] = $tree;
-        
-        //We add this though its only used now for meshdesk add mesh
-        Configure::load('MESHdesk');
-        $enable_grouping = Configure::read('MEHSdesk.enable_grouping');    
-        $items['enable_grouping'] = $enable_grouping;
-        
-        $this->set(array(
-            'items'         => $items,
-            'success'       => true,
-            '_serialize'    => array('items','success')
-        ));
-    }
-    
-    public function noteIndex(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $items = $this->Notes->index($user); 
-    }
-    
-    public function noteAdd(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }   
-        $this->Notes->add($user);
-    }
-    
-    public function noteDel(){  
-        if (!$this->request->is('post')) {
-			throw new MethodNotAllowedException();
-		}
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $this->Notes->del($user);
-    }
-    
-    private function _tree_tags($entity){
-        $tag_path = 'not_tagged'; 
-        if($entity->tree_tag_id !== null){             
-            //Make sure the TreeTag exists
-            $tt_check = $this->{'TreeTags'}->find()->where(['TreeTags.id' => $entity->tree_tag_id])->first();
-            if($tt_check){
-                $tag_path = ''; 
-                $crumbs = $this->{'TreeTags'}->find('path', ['for' => $entity->tree_tag_id]);     
-                foreach ($crumbs as $crumb) {
-                    if($crumb->id == $entity->tree_tag_id){
-                        $tag_path = $tag_path.$crumb->name;
-                    }else{
-                        $tag_path = $tag_path.$crumb->name . ' > ';
-                    }
-                }
-            }else{
-                $tag_path = "orphaned";
-            }
-            
-            if($entity->tree_tag_id == 0){ //Zero is not orphaned
-                $tag_path = "(ALL BRANCHES - ROOT)";
-            }    
-        }  
-        return $tag_path;
-    }
-    
-    private function _setSelectedComponents($id){
-    
-       foreach(array_keys($this->rights) as $key){
-            if(isset($this->request->data["$key"])){
-                 $this->Acl->allow(['model' => 'Users', 'foreign_key' => $id],$this->acl_base.$this->rights[$key]);
-            }else{
-                $this->Acl->deny(['model' => 'Users', 'foreign_key' => $id],$this->acl_base.$this->rights[$key]);
-            }
-        }
-        
-        $this->children   = $this->Users->find_access_provider_children($id);
-        if($this->children){   //Only if the AP has any children... it has to ripple through to the children
-            foreach($this->children as $i){
-                $c_id = $i['id'];
-                foreach(array_keys($this->rights) as $key){
-                    if(isset($this->request->data["$key"])){
-                         $this->Acl->allow(['model' => 'Users', 'foreign_key' => $c_id],$this->acl_base.$this->rights[$key]);
-                    }else{
-                        $this->Acl->deny(['model' => 'Users', 'foreign_key' => $c_id],$this->acl_base.$this->rights[$key]);
-                    }
-                }   
-            }
-        }       
-    }
-    
-    private function _getSelectedComponents($id){
-        $base   = "Access Providers/Controllers/";
-        $ret    = [];
-        
-        foreach(array_keys($this->rights) as $key){
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $this->acl_base.$this->rights[$key])){
-                $ret[$key] = true;
-            }else{
-                $ret[$key] = false;
-            }
-        } 
-        return $ret;   
-    }
-    
-    private function _getAllowedComponentsFor($user){
-        $allowed = [];
-        $user_id = $user;
-        $this->parents = $this->Users->find('path', ['for' => $user_id, 'fields' => ['Users.id','Users.group_id']]); //Get all the parents up to the root
-        foreach($this->parents as $i){
-          //  print_r($i['id']);
-            if($i['group_id'] !== 8){
-                if($user_id != $i['id']){
-                    foreach(array_keys($this->rights) as $key){
-                        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $i['id']), $this->acl_base.$this->rights[$key])){
-                            $allowed[$key] = true;
-                        }else{
-                            $allowed[$key] = false;
-                        }
-                    }
-                }      
-            }else{ //This is if they are root first
-                foreach(array_keys($this->rights) as $key){
-                    $allowed[$key] = true; 
-                }           
-            }         
-        } 
-        return $allowed;   
-    }
-    
-     private function _return_aco_path($id){
-    
-        $parents        = $this->Acl->Aco->find('path', ['for' => $id]); 
-        $path_string    = '';
-        foreach($parents as $line_num => $i){
-            if($line_num == 0){
-                $path_string = $i->alias;
-            }else{
-                $path_string = $path_string."/".$i->alias;
-            }
-        }
-        return $path_string;
+            '_serialize' => ['success']
+        ]);
     }
 	
 }

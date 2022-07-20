@@ -2,7 +2,7 @@
 /**
  * Created by G-edit.
  * User: dirkvanderwalt
- * Date: 12/03/2019
+ * Date: 20/JUL/2022
  * Time: 00:00
  */
 
@@ -24,13 +24,11 @@ class HardwaresController extends AppController{
         parent::initialize();
         $this->loadModel('Hardwares'); 
         $this->loadModel('HardwareRadios');      
-        $this->loadModel('Users');   
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
+        $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
             'model' => 'Hardwares'
-        ]); 
-        
+        ]);      
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');    
     }
@@ -299,24 +297,17 @@ class HardwaresController extends AppController{
 	}
  
     public function menuForGrid(){
-        $user = $this->Aa->user_for_token($this);
-        if (!$user) {   //If not a valid user
-            return;
-        }
-
-        $menu = $this->GridButtons->returnButtons($user, false, 'Hardwares'); 
-        $this->set(array(
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'Hardwares'); 
+        $this->set([
             'items' => $menu,
             'success' => true,
-            '_serialize' => array('items', 'success')
-        ));
+            '_serialize' => ['items', 'success']
+        ]);
     }
     
     private function _commonList($cloud_id,$item = 'mesh',$id = 'fw_id'){
     
-        $user_id    = $user['id'];
         $query      = $this->{$this->main_model}->find();
-
         $this->CommonQuery->build_cloud_query($query,$cloud_id,['HardwareRadios']);
         
         if($item == 'ap'){

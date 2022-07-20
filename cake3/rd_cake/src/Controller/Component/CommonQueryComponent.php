@@ -91,11 +91,9 @@ class CommonQueryComponent extends Component {
     }
 
     public function build_ap_query($query,$user){
-        $contain_array   = array(
-            'UserNotes' => ['Notes'],
-            'Owners',
+        $contain_array   = [
             'Groups'        
-        );
+        ];
         $query->contain($contain_array);
         $this->_common_sort($query,'username');
         $where_clause = $this->_common_filter();

@@ -17,11 +17,10 @@ class TopUpsController extends AppController{
     public function initialize(){  
         parent::initialize();
         $this->loadModel('TopUps'); 
-        $this->loadModel('Users');
         $this->loadModel('PermanentUsers');
           
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
+        $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
             'model'                     => 'TopUps',
             'no_available_to_siblings'  => true,
@@ -29,19 +28,14 @@ class TopUpsController extends AppController{
         ]); 
              
         $this->loadComponent('JsonErrors'); 
-        $this->loadComponent('TimeCalculations'); 
-          
+        $this->loadComponent('TimeCalculations');          
     }
     
     public function exportCsv(){
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $query = $this->{$this->main_model}->find(); 
-        $this->CommonQuery->build_common_query($query,$user,['PermanentUsers','Users']);
+		$cloud_id 	= $this->request->query['cloud_id'];
+        $query 		= $this->{$this->main_model}->find(); 
+        $this->CommonQuery->build_cloud_query($query,$cloud_id,['PermanentUsers']);
         
         $q_r  = $query->all();
 
@@ -63,22 +57,9 @@ class TopUpsController extends AppController{
             if(isset($this->request->query['columns'])){
                 $columns = json_decode($this->request->query['columns']);
                 foreach($columns as $c){
-                    $column_name = $c->name;
-                    if($column_name == 'notes'){
-                        $notes   = '';
-                        foreach($i->na_notes as $un){
-                            if(!$this->Aa->test_for_private_parent($un->note,$user)){
-                                $notes = $notes.'['.$un->note->note.']';    
-                            }
-                        }
-                        array_push($csv_line,$notes);
-                    }elseif($column_name =='owner'){
-                        $owner_id       = $i->user_id;
-                        $owner_tree     = $this->Users->find_parents($owner_id);
-                        array_push($csv_line,$owner_tree); 
-                    }else{
-                        array_push($csv_line,$i->{$column_name});  
-                    }
+                    $column_name = $c->name;                   
+                   	array_push($csv_line,$i->{$column_name});  
+
                 }
                 array_push($data,$csv_line);
             }
@@ -92,17 +73,9 @@ class TopUpsController extends AppController{
     
     public function index(){
 
-        //__ Authentication + Authorization __
-        //$user = $this->_ap_right_check();
-        //if(!$user){
-        //    return;
-        //}
+        $cloud_id 	= $this->request->query['cloud_id'];              
+        $query 		= $this->{$this->main_model}->find();
         
-        $cloud_id = $this->request->query['cloud_id'];
-                
-        $query = $this->{$this->main_model}->find();
-        
-
         $this->CommonQuery->build_cloud_query($query,$cloud_id,['PermanentUsers']);
  
         $limit  = 50;
@@ -159,10 +132,6 @@ class TopUpsController extends AppController{
     }
     
     public function edit(){ 
-        //$user = $this->_ap_right_check();
-        //if(!$user){
-        //    return;
-        //}
         $this->_addOrEdit('edit'); 
     }
      
@@ -231,12 +200,8 @@ class TopUpsController extends AppController{
 	}
 	
     public function menuForGrid(){
-        $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
-            return;
-        }
-         
-        $menu = $this->GridButtons->returnButtons($user,false,'top_ups'); 
+      
+        $menu = $this->GridButtonsFlat->returnButtons(false,'top_ups'); 
         $this->set(array(
             'items'         => $menu,
             'success'       => true,

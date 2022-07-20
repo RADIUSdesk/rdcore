@@ -32,6 +32,25 @@ class DashboardController extends AppController{
         $this->loadComponent('WhiteLabel');      
     }
     
+    
+    public function navTree(){
+    
+    	$items = [
+			[
+				'text' => 'OVERVIEW',
+				'id'   => 1,
+				'leaf' => true,
+				'iconCls' => 'x-fa fa-th-large'
+			]
+    	];
+    
+    	$this->set([
+            'items'          => $items,
+            'success'       => true,
+            '_serialize'    => ['items','success']
+        ]);      
+    }
+    
     public function tokenForId(){
 
         $this->set([
@@ -126,33 +145,23 @@ class DashboardController extends AppController{
                     }
                 }
                 
-                $data = [];
-                   
+                $data = []; 
                 $data = $this->_get_user_detail($u,$auto_compact);
-                
-                // added for rolling token; enhanced security
-                //FIXME Bring it back later with Config option -> Makes it hard to colaborate and troubleshoot
-                // --- BEGIN ---
-               // $u->set('token',''); //Setting it ti '' will trigger a new token generation
-              //  $this->Users->save($u);
-              //  $data['token']  = $u->get('token');
-                // --- END ---
-                          
-                $this->set(array(
+                                  
+                $this->set([
                     'data'          => $data,
                     'success'       => true,
-                    '_serialize' => array('data','success')
-                ));
+                    '_serialize' => ['data','success']
+                ]);
                 
             }else{
             
-                $this->set(array(
-                    'errors'        => array('username' => __('Confirm this name'),'password'=> __('Type the password again')),
+                $this->set([
+                    'errors'        => ['username' => __('Confirm this name'),'password'=> __('Type the password again')],
                     'success'       => false,
                     'message'       => __('Authentication failed'),
-                    '_serialize' => array('errors','success','message')
-                ));
-                
+                    '_serialize' => ['errors','success','message']
+                ]);               
             }
         }
     }
@@ -569,19 +578,9 @@ class DashboardController extends AppController{
         $id         = $user->id;
         
         $cls        = 'user';
-        $menu       = array();
+        $menu       = [];
         
         $isRootUser = false;
-        $extensions = false;
-        if(Configure::read('extensions.active') == true){
-            $extensions = true;
-        }
-        
-        $display = 'take_setting'; //Default is to take the settings value 
-   
-        if($auto_compact){
-            $display = 'compact'; //Override setting due to screen size to small
-        }
         
         //White Label
         $white_label            = [];
@@ -605,6 +604,7 @@ class DashboardController extends AppController{
         $show_wizard        = false;
         $show_unknown_nodes = false;
         
+        /*
         if( $group == Configure::read('group.admin')){  //Admin
             $cls = 'admin';
             $tabs= $this->_build_admin_tabs($id,$display);  //We do not care for rights here;
@@ -624,6 +624,7 @@ class DashboardController extends AppController{
                 $show_unknown_nodes = true;
             }  
         }
+        */
         
         $data_usage = [];
         if(isset($this->realm_id)){
@@ -632,9 +633,7 @@ class DashboardController extends AppController{
             
         return [
             'token'         =>  $token,
-            'extensions'    =>  $extensions,
             'isRootUser'    =>  $isRootUser,
-            'tabs'          =>  $tabs,
             'data_usage'    =>  $data_usage,
             'user'          =>  ['id' => $id, 'username' => $username,'group' => $group,'cls' => $cls,'timezone_id' => $user->timezone_id],
             'white_label'   =>  $white_label,

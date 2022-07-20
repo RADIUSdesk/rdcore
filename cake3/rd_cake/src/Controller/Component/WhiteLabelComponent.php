@@ -4,7 +4,7 @@
 //---- Author: Dirk van der Walt
 //---- License: GPL v3
 //---- Description: 
-//---- Date: 02-01-2017
+//---- Date: 20-JUL-2022
 //------------------------------------------------------------
 
 namespace App\Controller\Component;
@@ -15,8 +15,9 @@ use Cake\Core\Configure\Engine\PhpConfig;
 
 use Cake\ORM\TableRegistry;
 
+class WhiteLabelComponent extends Component {
 
-class WhiteLabelComponent extends Component { 
+	protected $root_user_id    = 44; 
 
     public function detail($user_id){
     
@@ -37,29 +38,21 @@ class WhiteLabelComponent extends Component {
             $wl['wl_img']       = Configure::read('paths.ap_logo_path').Configure::read('whitelabel.imgFile');
             $wl['wl_img_file']  = Configure::read('whitelabel.imgFile');
             
-            //After we have the site settings lets see if the Access Provider or one of its parents has an override
+            //After we have the site settings lets see if the Access Provider has white label settings / IF NOT use root user's as reference
             $wl_for_ap          = $this->lookForUserSettings($user_id);  
-            if (empty($wl_for_ap)) {       
-                $users      = TableRegistry::get('Users');                  
-                $parents    = $users->find('path',['for' => $user_id]);
-                foreach($parents as $i){
-                    $wl_for_parent   = $this->lookForUserSettings($i->id);
-                    if(!empty($wl_for_parent)){
-                        if($wl_for_parent['wl_active'] == 'wl_active'){ //Only if it is active!
-                            $wl = $wl_for_parent;
-                        }    
-                    }   
-                } 
+            if (empty($wl_for_ap)) {                     
+                $wl_for_root   = $this->lookForUserSettings($this->root_user_id);
+                if(!empty($wl_for_root)){
+                    if($wl_for_root['wl_active'] == 'wl_active'){ //Only if it is active!
+                        $wl = $wl_for_root;
+                    }    
+                }
             }else{
                 $wl = $wl_for_ap;
             }  
         }else{ 
             $wl['wl_active'] = false;
-        } 
-        
-        //FIXME
-        //$wl['wl_img_file']  = Configure::read('whitelabel.imgFile');
-        //$wl['wl_img']       = Configure::read('paths.ap_logo_path').Configure::read('whitelabel.imgFile');       
+        }
         return $wl;
     }
     

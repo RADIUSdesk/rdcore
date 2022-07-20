@@ -12,8 +12,11 @@ Ext.define('Rd.controller.cDashboard', {
  
     ],
     stores: [
-    
-    ], 
+        'sNavTree'
+    ],
+    models: [
+        'mNavTree'
+    ],  
     refs: [
         {   ref: 'viewP',   	selector: 'viewP',          xtype: 'viewP',    autoCreate: true},
         {   ref: 'pnlC',       	selector: '#pnlCenter',     xtype: 'panel',    autoCreate: true}

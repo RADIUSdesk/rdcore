@@ -51,7 +51,6 @@ Ext.define('Rd.view.hardwares.winHardwareAdd', {
             defaultType: 'textfield',
             items:[
                 {
-                    itemId      : 'owner',
                     xtype       : 'displayfield',
                     fieldLabel  : 'Cloud',
                     value       : me.cloudName,

@@ -24,20 +24,4 @@ class User extends Entity
         }
     }
     
-    public function parentNode(){
-        if (!$this->id) {
-            return null;
-        }
-        if (isset($this->group_id)) {
-            $groupId = $this->group_id;
-        } else {
-            $Users = TableRegistry::get('Users');
-            $user = $Users->find('all', ['fields' => ['group_id']])->where(['id' => $this->id])->first();
-            $groupId = $user->group_id;
-        }
-        if (!$groupId) {
-            return null;
-        }
-        return ['Groups' => ['id' => $groupId]]; //Change to 'Group'
-    }     
 }
