@@ -72,7 +72,8 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
     		expanderFirst: false,
     		margin: '0 0 0 5',
     		micro: false,
-			store: 'sNavTree'/*{
+           // width	: 400,
+			store: {root:{'id':0}}/*'sNavTree' /*{
 				root: {
 				expanded: false,
 					children: [{
@@ -165,15 +166,22 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             glyph   : Rd.config.icnUser,
             scale   : 'medium'
         };
+
+        var h3 = {
+            xtype   : 'button',
+            itemId	: 'btnTreeLoad',
+            glyph   : Rd.config.icnWifi,
+            scale   : 'medium'
+        };
       	
       	var cmbCloud = {
         	xtype	: 'cmbClouds'
         }
         
-        var h_items = [ txtH,'->',cmbCloud];
+        var h_items = [ txtH,'->',cmbCloud,'|',h2,h3];
         
         if(me.dashboard_data.show_wizard){
-            h_items = [ txtH,'->',cmbCloud,'|',h2];
+            h_items = [ txtH,'->',cmbCloud,'|',h2,h3];
         }
                
      	me.items 	= [
@@ -198,8 +206,10 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
 				        ]
 				    },
 				],
-				items : [
-					tl
+				items : [{
+                    xtype: 'container',
+                    items:	tl
+                    }
 				]	
 			},
 			{

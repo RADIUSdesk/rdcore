@@ -5,25 +5,18 @@ Ext.define('Rd.store.sNavTree', {
         'Rd.model.mNavTree'
     ],
     proxy: {
-            type    : 'ajax',
-            url     : '/cake3/rd_cake/dashboard/nav-tree.json',
-            reader: {
-                type            : 'json',
-                rootProperty    : 'items',
-                messageProperty : 'message'
-            }
+        type: 'memory',
+        reader: {
+            type        : 'json',
+            rootProperty: 'items'
+        }
     },
     root: {
-        username: i18n('sLogged_in_user'),
-        leaf: false, 
-        id:'0', 
-        iconCls: 'admin', 
-        expanded: false,
-        monitor: 'na', 
-        active: 'na'
+        id:'0'
     },
     listeners: {
         load: function( store, records, a,successful,b) {
+            console.log("GOOOOOO");
             if(!successful){
                 Ext.ux.Toaster.msg(
                         i18n('sError_encountered'),
@@ -43,5 +36,5 @@ Ext.define('Rd.store.sNavTree', {
         },
         scope: this
     },
-    autoLoad: true
+    autoLoad: false
 });

@@ -34,8 +34,14 @@ Ext.define('Rd.controller.cDashboard', {
             'pnlDashboard #btnClear': {
                 click: me.btnClearClick
             },
+            'pnlDashboard #btnTreeLoad': {
+                click: me.btnTreeLoadClick
+            },
             'pnlDashboard #tlNav' : {
-            	selectionchange: me.treeNodeSelect
+            	selectionchange : me.treeNodeSelect
+            },
+            'pnlDashboard #pnlWest' : {
+                afterrender     : me.pnlWestRendered
             },
             'pnlDashboard cmbClouds' : {
 		    	select: me.onCloudSelect
@@ -235,7 +241,91 @@ Ext.define('Rd.controller.cDashboard', {
         pnl.removeAll(true);
    		var pnlWest      = pnlDashboard.down('#pnlWest');
    		var treelist     = pnlWest.down('treelist');
+    },
+    btnTreeLoadClick: function(btn){
+        var me = this;
+        console.log("Reload treeview remotely");
+        var pnl = btn.up('pnlDashboard');
+        tl = pnl.down('#tlNav');
+        var myStore = tl.getStore();
 
+        Ext.Ajax.request({
+            url: '/cake3/rd_cake/dashboard/nav-tree.json',
+            success: function(resp) {
+                var result = Ext.decode(resp.responseText);
+                myStore.getRoot().removeAll();
+                myStore.getRoot().appendChild(result.items);
+            }
+        });
+    },
+    pnlWestRendered: function(pnl){
+        var me = this;
+        console.log("Pnl West Rendered");
+        tl = pnl.down('#tlNav');
+        var myStore = tl.getStore();
+        //myStore.removeAll();
+        //myStore.loadData({});
+        var wip = {
+            "children": [
+                {
+                    "text": "OVERVIEW",
+                    "id": 1,
+                    "leaf": true,
+                    "iconCls": "x-fa fa-th-large"
+                },
+                {
+					text: 'RADIUS USERS',
+					id	: 2,
+					expanded: false,
+					iconCls: 'x-fa fa-user',
+					children: [
+						{
+							text: 'USERS',
+							leaf: true,
+							id	: 3,
+							iconCls: 'x-fa fa-user'
+						},
+						{
+							text: 'VOUCHERS',
+							leaf: true,
+							id	: 4,
+							iconCls: 'x-fa fa-tag'
+						},
+						{
+							text: 'TOP-UPS',
+							leaf: true,
+							controller: 'cTopUps',
+							id	: 'tabTopUps',
+							iconCls: 'x-fa  fa-coffee'
+						},
+                        {
+							text: 'HARDWARES',
+							leaf: true,
+							controller: 'cHardwares',
+							id	: 'tabHardwares',
+							iconCls: 'x-fa  fa-user'
+						},
+						{
+							text: 'ADMINS',
+							leaf: true,
+							controller: 'cAccessProviders',
+							id	: 'tabAccessProviders',
+							iconCls: 'x-fa  fa-tag'
+						}
+					]
+				}
+            ]
+        };
+        Ext.Ajax.request({
+            url: '/cake3/rd_cake/dashboard/nav-tree.json',
+            success: function(resp) {
+                var result = Ext.decode(resp.responseText);
+                console.log(result.items);
+                myStore.getRoot().appendChild(result.items);
+            },
+        });
+        myStore.getRoot().appendChild(wip.children);
+        myStore.getRoot().removeAll();
 
     }
 });

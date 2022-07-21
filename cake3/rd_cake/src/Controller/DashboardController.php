@@ -31,9 +31,46 @@ class DashboardController extends AppController{
         $this->loadComponent('Aa');
         $this->loadComponent('WhiteLabel');      
     }
-    
-    
+      
     public function navTree(){
+    
+    	$trRadius =	[
+			[
+				'text'	=> 'USERS',
+				'leaf'	=> true,
+				'id'		=> 3,
+				'iconCls'	=> 'x-fa fa-user'
+			],
+			[
+				'text'	=> 'VOUCHERS',
+				'leaf'	=> true,
+				'id'	=> 4,
+				'iconCls'	=> 'x-fa fa-tag'
+			],
+			[
+				'text'	=> 'TOP-UPS',
+				'leaf'	=> true,
+				'controller'	=> 'cTopUps',
+				'id'		=> 'tabTopUps',
+				'iconCls'	=> 'x-fa  fa-coffee'
+			],
+            [
+				'text'	=> 'HARDWARES',
+				'leaf'	=> true,
+				'controller'=> 'cHardwares',
+				'id'		=> 'tabHardwares',
+				'iconCls'	=> 'x-fa  fa-user'
+			],
+			[
+				'text'	=> 'ADMINS',
+				'leaf'	=> true,
+				'controller'	=> 'cAccessProviders',
+				'id'		=> 'tabAccessProviders',
+				'iconCls'	=> 'x-fa  fa-tag'
+			]
+		];
+    	
+    	
     
     	$items = [
 			[
@@ -41,6 +78,13 @@ class DashboardController extends AppController{
 				'id'   => 1,
 				'leaf' => true,
 				'iconCls' => 'x-fa fa-th-large'
+			],
+			[
+				'text'	=> 'RADIUS USERS',
+				'id'		=> 2,
+				'expanded'	=> false,
+				'iconCls'		=> 'x-fa fa-user',
+				'children'	=> $trRadius
 			]
     	];
     
