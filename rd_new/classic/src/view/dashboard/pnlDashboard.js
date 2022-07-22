@@ -194,6 +194,7 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
 				itemId	: 'pnlWest',
 				layout	: 'fit',
 				border	: false,
+                autoScroll	: true,
 				componentCls: 'border-right',
 				dockedItems : [
 				    {

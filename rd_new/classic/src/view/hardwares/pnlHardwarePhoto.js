@@ -1,90 +1,95 @@
 Ext.define('Rd.view.hardwares.pnlHardwarePhoto', {
-    extend  : 'Ext.panel.Panel',
-    alias   : 'widget.pnlHardwarePhoto',
-    border  : false,
-    nas_id  : null,
-    url     : Ext.BLANK_IMAGE_URL,
-    layout  : 'hbox',
-    bodyStyle: {backgroundColor : Rd.config.panelGrey },
+    extend      : 'Ext.form.Panel',
+    alias       : 'widget.pnlHardwarePhoto',
+    realm_id    : null,
+    autoScroll	: true,
+    plain       : true,
+    frame       : false,
+    layout      : 'fit',
+    margin      : 5,  
+    hardware_id : null,
+    url         : Ext.BLANK_IMAGE_URL,
+    fieldDefaults: {
+        msgTarget       : 'under',
+        labelAlign      : 'left',
+        labelSeparator  : '',
+        labelWidth      : Rd.config.labelWidth+20,
+        margin          : Rd.config.fieldMargin,
+        labelClsExtra   : 'lblRdReq'
+    },
+    buttons: [
+        {
+            itemId: 'cancel',
+            text: i18n('sCancel'),
+            scale: 'large',
+            iconCls: 'b-close',
+            glyph:      Rd.config.icnClose,
+            margin: Rd.config.buttonMargin
+        },
+        {
+            itemId  : 'save',
+            text    : 'SAVE',
+            scale   : 'large',
+            formBind: true,
+            glyph   : Rd.config.icnYes,
+            margin  : Rd.config.buttonMargin,
+            ui      : 'button-teal'
+        }       
+    ],
     initComponent: function(){
-        var me = this;
+        var me      = this;
+        var w_prim  = 550;
 
         var tplImg = new Ext.Template([
-                    "<div class='divMapAction'>",
-                        "<img src='{image}' alt='Hardware Photo'>",
-                    "</div>"
-                ]);
+            "<div class='divMapAction'>",
+                "<img src='{image}' alt='Realm logo'>",
+            "</div>"
+        ]);
 
-        me.items =  {
-                xtype   : 'panel',
-                frame   : false,
-                padding : 5,
-                height  : '100%', 
-                width   :  450,
-                layout: {
-                    type: 'vbox',
-                    align: 'stretch'
+        var cntRequired  = {
+            xtype       : 'container',
+            width       : w_prim,
+            layout      : {
+                type    : 'vbox',
+                pack    : 'start',
+                align   : 'stretchmax'
+            },
+            items       : [
+                {
+                    xtype: 'panel',
+                    flex: 1,
+                    border: false,
+                    itemId: 'pnlImg',
+                    tpl: tplImg,
+                    data: {img : me.url}
                 },
-                items   : [
-                    {
-                        xtype   : 'panel',
-                        title   : "Current Photo",
-                        flex    : 1,
-                        border  : false,
-                        itemId  : 'pnlImg',
-                        tpl     : tplImg,
-                        data    : {img : me.url}
-                    },
-                    { 
-                    xtype   :  'form', 
-                    layout  : 'anchor',
-                    autoScroll:true,
-                    frame   : false,
-                    defaults    : {
-                        anchor: '100%'
-                    },
-                    fieldDefaults: {
-                        msgTarget: 'under',
-                        labelClsExtra: 'lblRd',
-                        labelAlign: 'left',
-                        labelSeparator: '',
-                        margin: Rd.config.fieldMargin,
-                        labelWidth: Rd.config.labelWidth
-                    },
-                    items       : [
-                        {
-                            xtype       : 'filefield',
-                            itemId      : 'form-file',
-                            emptyText   : i18n('sSelect_an_image'),
-                            fieldLabel  : 'New Photo',
-                            allowBlank  : false,
-                            name        : 'photo',
-                            buttonText  : '',
-                            buttonConfig: {
-                                glyph   :  Rd.config.icnFolder
-                            }
-                        }          
-                    ],
-                    buttons: [
-                        {
-                            itemId      : 'save',
-                            formBind    : true,
-                            text        : i18n('sSave'),
-                            scale       : 'large',
-                            glyph       : Rd.config.icnYes,
-                            margin      : Rd.config.buttonMargin
-                        },
-                        {
-                            itemId  : 'cancel',
-                            text    : i18n('sCancel'),
-                            scale   : 'large',
-                            glyph   : Rd.config.icnClose,
-                            margin  : Rd.config.buttonMargin
-                        }
-                    ]
+                {
+                    xtype: 'filefield',
+                    width: w_prim-20,
+                    itemId: 'form-file',
+                    emptyText: i18n('sSelect_an_image'),
+                    fieldLabel: 'New Photo',
+                    allowBlank  : false,
+                    name: 'photo',
+                    buttonText: '',
+                    buttonConfig: {
+                        iconCls: 'upload-icon',
+                        glyph:      Rd.config.icnFolder
+                    }
                 }
+            ]
+        };
 
-                ]};
+       me.items = [
+            {
+                xtype       : 'panel',
+                title       : "Current Photo",
+                ui          : 'panel-blue',
+                layout      : 'fit',
+                bodyPadding : 10,
+                items       : cntRequired				
+            }          
+        ];      
 
         me.callParent(arguments);
     }

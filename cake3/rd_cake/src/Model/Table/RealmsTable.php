@@ -9,16 +9,13 @@ class RealmsTable extends Table
 {
     public function initialize(array $config){
         $this->addBehavior('Timestamp');  
-        $this->belongsTo('Users');   
-        $this->hasMany('RealmNotes',['dependent' => true]);
+        $this->belongsTo('Clouds');   
         $this->hasMany('NaRealms',['dependent' => true]);
         $this->hasMany('DynamicClientRealms',['dependent' => true]);
-        $this->hasMany('DynamicDetailSocialLogins',['dependent' => true]);
-        
-        
-        $this->addBehavior('Acl.Acl',['type' => 'controlled']);
-    
+        $this->hasMany('DynamicDetailSocialLogins',['dependent' => true]);      
         $this->hasMany('PermanentUsers',['dependent' => true]);
+        $this->hasMany('Vouchers',['dependent' => true]);
+        $this->hasMany('Devices',['dependent' => true]);
     }
     
     public function validationDefault(Validator $validator){

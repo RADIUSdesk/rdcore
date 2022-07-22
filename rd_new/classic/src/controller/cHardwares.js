@@ -327,14 +327,12 @@ Ext.define('Rd.controller.cHardwares', {
     photoSave: function(button){
         var me      = this;
         var form    = button.up('form');
-        var pnl_r   = form.up('pnlHardwarePhoto');
-        var p_form  = form.up('panel');
-        var p_img   = p_form.down('#pnlImg');
+        var p_img   = form.down('#pnlImg');
         form.submit({
             clientValidation: true,
             waitMsg: 'Uploading your photo...',
             url: me.getUrlUploadPhoto(),
-            params: {'id' : pnl_r.hardware_id },
+            params: {'id' : form.hardware_id },
             success: function(form, action) {              
                 if(action.result.success){ 
                     var new_img = action.result.photo_file_name;    

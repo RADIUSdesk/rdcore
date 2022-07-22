@@ -10,22 +10,14 @@ use Cake\Utility\Inflector;
 
 class RealmsController extends AppController{
 
-
-    public function register() {
-        $html = new HtmlHelper(new \Cake\View\View());
-        $homeLink = $html->link('Home', ['controller' => 'Pages', 'action' => 'home', '_full' => true]);
-    }
-  
     public $base  = "Access Providers/Controllers/Realms/";
     
-    protected $owner_tree = array();
     protected $main_model = 'Realms';
   
     public function initialize(){  
         parent::initialize();
         $this->loadModel('Realms');     
-        $this->loadModel('Users');
-        
+        $this->loadModel('Users');     
         $this->loadModel('NaRealms');
         $this->loadModel('DynamicClientRealms');
            
@@ -33,15 +25,8 @@ class RealmsController extends AppController{
         $this->loadComponent('GridButtons');
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
             'model' => 'Realms'
-        ]);
-        
-        $this->loadComponent('Notes', [
-            'model'     => 'RealmNotes',
-            'condition' => 'realm_id'
-        ]);
-        $this->loadComponent('TimeCalculations');  
-        
-        $this->loadComponent('RealmAcl');        
+        ]);    
+        $this->loadComponent('TimeCalculations');     
     }
     
     public function indexApCreate(){
@@ -217,21 +202,7 @@ class RealmsController extends AppController{
                 $columns = json_decode($this->request->query['columns']);
                 foreach($columns as $c){
                     $column_name = $c->name;
-                    if($column_name == 'notes'){
-                        $notes   = '';
-                        foreach($i->realm_notes as $un){
-                            if(!$this->Aa->test_for_private_parent($un->note,$user)){
-                                $notes = $notes.'['.$un->note->note.']';    
-                            }
-                        }
-                        array_push($csv_line,$notes);
-                    }elseif($column_name =='owner'){
-                        $owner_id       = $i->user_id;
-                        $owner_tree     = $this->Users->find_parents($owner_id);
-                        array_push($csv_line,$owner_tree); 
-                    }else{
-                        array_push($csv_line,$i->{$column_name});  
-                    }
+                    array_push($csv_line,$i->{$column_name});  
                 }
                 array_push($data,$csv_line);
             }
@@ -248,24 +219,10 @@ class RealmsController extends AppController{
      //____ BASIC CRUD Manager ________
     public function index(){
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
-        $query = $this->{$this->main_model}->find();
-
-        $this->CommonQuery->build_common_query($query,$user,['Users','RealmNotes' => ['Notes']]);
+        $cloud_id = $this->request->query['cloud_id'];
+        $query 	  = $this->{$this->main_model}->find();      
+        $this->CommonQuery->build_cloud_query($query,$cloud_id,[]);
         
-        $proto = 'http://';
-        if($this->request->is('ssl')){
-            $proto = 'https://';
-        }
-        $host = $this->request->host();
-
- 
-        //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
         $page   = 1;
         $offset = 0;
@@ -281,39 +238,10 @@ class RealmsController extends AppController{
 
         $total  = $query->count();       
         $q_r    = $query->all();
+        $items  = [];
 
-        $items      = array();
-
-        foreach($q_r as $i){
-         
-            //------------------------
-            //We only list realms which the Access Provider has read rights to at least    
-            $id         = $i->{"id"};
-            $owner_id   = $i->{"user_id"};
-            if($owner_id !== $user_id){     
-                if(!$this->RealmAcl->can_manage_realm($user_id,$owner_id, $id)){
-                    continue;
-                }
-            }
-            //-----------------------
-            if(!array_key_exists($owner_id,$this->owner_tree)){
-                $owner_tree     = $this->Users->find_parents($owner_id);
-            }else{
-                $owner_tree = $this->owner_tree[$owner_id];
-            }
-            
-            $action_flags   = $this->Aa->get_action_flags($owner_id,$user);   
-            
-            $notes_flag     = false;
-            foreach($i->realm_notes as $un){
-                if(!$this->Aa->test_for_private_parent($un->note,$user)){
-                    $notes_flag = true;
-                    break;
-                }
-            }
-           
-            
-            $row        = array();
+        foreach($q_r as $i){               
+            $row        = [];
             $fields     = $this->{$this->main_model}->schema()->columns();
             foreach($fields as $field){
                 $row["$field"]= $i->{"$field"};
@@ -325,22 +253,17 @@ class RealmsController extends AppController{
                     $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
                 }   
             } 
-                 
-            $row['owner']		= $owner_tree;
-			$row['notes']		= $notes_flag;
-			$row['update']		= $action_flags['update'];
-			$row['delete']		= $action_flags['delete'];
-			$row['client_usage_url'] = $proto.$host.'/usage/index.html?realm_id='.$row['id'];
+			$row['update']		= true;
+			$row['delete']		= true;
             array_push($items,$row);
         }
-       
-        //___ FINAL PART ___
-        $this->set(array(
+        
+        $this->set([
             'items' => $items,
             'success' => true,
             'totalCount' => $total,
-            '_serialize' => array('items','success','totalCount')
-        ));
+            '_serialize' => ['items','success','totalCount']
+        ]);
     }
     
     public function indexForFilter(){
@@ -369,44 +292,21 @@ class RealmsController extends AppController{
     }
     
     public function add(){
-    
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $this->_addOrEdit($user,'add');
-        
+        $this->_addOrEdit('add');   
     }
     
     public function edit(){
-    
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $this->_addOrEdit($user,'edit');
-        
+        $this->_addOrEdit('edit');      
     }
      
-    private function _addOrEdit($user,$type= 'add') {
+    private function _addOrEdit($type= 'add') {
 
-        //__ Authentication + Authorization __
-        
-        $user_id    = $user['id'];
-
-        //Get the creator's id
-        if(isset($this->request->data['user_id'])){
-            if($this->request->data['user_id'] == '0'){ //This is the holder of the token - override '0'
-                $this->request->data['user_id'] = $user_id;
-            }
-        }
-
-        $check_items = array(
+        $check_items = [
 			'available_to_siblings',
 			'suffix_permanent_users',
 			'suffix_vouchers',
             'suffix_devices'
-		);
+		];
 		
         foreach($check_items as $i){
             if(isset($this->request->data[$i])){
@@ -431,8 +331,7 @@ class RealmsController extends AppController{
                 '_serialize' => array('success')
             ));
         } else {
-            $message = 'Error';
-            
+            $message = 'Error';           
             $errors = $entity->errors();
             $a = [];
             foreach(array_keys($errors) as $field){
@@ -453,53 +352,22 @@ class RealmsController extends AppController{
         }
 	}
 	
-	public function view(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
-        $data = [];
-        
-        $user_id  = $user['id'];
-        $tree     = false;     
-        $entity = $this->Users->get($user_id); 
-        if($this->Users->childCount($entity) > 0){
-            $tree = true;
-        }  
-               
-        //Fields
-		$fields = $this->{$this->main_model}->schema()->columns();
-             
+	public function view(){      
+        $data	= [];     
         if(isset($this->request->query['realm_id'])){
-            $q_r = $this->{$this->main_model}->find()
-                ->where([$this->main_model.'.id' => $this->request->query['realm_id']])
-                ->contain(['Users'=> ['fields' => ['Users.username']]])
-                ->first();
-            if($q_r){    
-                $owner_tree         = $this->Users->find_parents($q_r->user_id);
-                $data['owner']     = $owner_tree;      
-                foreach($fields as $field){
-	                $data["$field"]= $q_r->{"$field"};
-		        }  
+       		$id  = $this->request->query['realm_id'];
+            $ent = $this->{$this->main_model}->find()->where([$this->main_model.'.id' => $id])->first();
+            if($ent){      
+                $data = $ent; 
             }
-            
-            if($q_r->user !== null){
-                $data['username']  = "<div class=\"fieldBlue\"> <b>".$q_r->user->username."</b></div>";
-            }else{
-                $data['username']  = "<div class=\"fieldRed\"><i class='fa fa-exclamation'></i> <b>(ORPHANED)</b></div>";
-            }
-            $data['show_owner']  = $tree;
         }      
-        $this->set(array(
+        $this->set([
             'data'      => $data,
             'success'   => true,
-            '_serialize'=> array('success', 'data')
-        ));
+            '_serialize'=> ['success', 'data']
+        ]);
     }
-	
-	
+		
     public function menuForGrid(){
         $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
@@ -518,61 +386,20 @@ class RealmsController extends AppController{
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
-
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
-        $user_id    = $user['id'];
-        $fail_flag = false;
-
-	    if(isset($this->request->data['id'])){   //Single item delete
-            $message = "Single item ".$this->request->data['id'];
-
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:         
+	    if(isset($this->request->data['id'])){   //Single item delete       
             $entity     = $this->{$this->main_model}->get($this->request->data['id']);   
-            $owner_id   = $entity->user_id;
-            
-            if($owner_id != $user_id){
-                if($this->Users->is_sibling_of($user_id,$owner_id)== true){
-                    $this->{$this->main_model}->delete($entity);
-                }else{
-                    $fail_flag = true;
-                }
-            }else{
-                $this->{$this->main_model}->delete($entity);
-            }
-   
-        }else{                          //Assume multiple item delete
+            $this->{$this->main_model}->delete($entity);
+
+        }else{
             foreach($this->request->data as $d){
                 $entity     = $this->{$this->main_model}->get($d['id']);  
-                $owner_id   = $entity->user_id;
-                if($owner_id != $user_id){
-                    if($this->Users->is_sibling_of($user_id,$owner_id) == true){
-                        $this->{$this->main_model}->delete($entity);
-                    }else{
-                        $fail_flag = true;
-                    }
-                }else{
-                    $this->{$this->main_model}->delete($entity);
-                }
+                $this->{$this->main_model}->delete($entity);
             }
-        }
-
-        if($fail_flag == true){
-            $this->set(array(
-                'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
-            ));
-        }else{
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
-        }
+        }         
+        $this->set([
+            'success' => true,
+            '_serialize' => ['success']
+        ]);
 	}
 	
 	public function uploadLogo($id = null){
@@ -621,37 +448,8 @@ class RealmsController extends AppController{
         }
         $this->set('json_return',$json_return);
     }
-	
-	
-	public function noteIndex(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $items = $this->Notes->index($user); 
-    }
-    
-    public function noteAdd(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }   
-        $this->Notes->add($user);
-    }
-    
-    public function noteDel(){  
-        if (!$this->request->is('post')) {
-			throw new MethodNotAllowedException();
-		}
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $this->Notes->del($user);
-    }
-    
+
+ 
     public function listRealmsForNasOwner(){
 
         $user = $this->Aa->user_for_token($this);
@@ -863,8 +661,7 @@ class RealmsController extends AppController{
             '_serialize' => array('success')
         ));
     }
-    
-    
+       
     public function listRealmsForDynamicClientOwner(){
 
         $user = $this->Aa->user_for_token($this);

@@ -22,7 +22,6 @@ Ext.define('Rd.controller.cAccessProviders', {
 	                ]
 	            });      
             pnl.add(tp);
-            pnl.on({activate : me.gridActivate,scope: me});
             added = true;
         }
         return added;      
@@ -64,7 +63,6 @@ Ext.define('Rd.controller.cAccessProviders', {
         urlChangeParent : '/cake3/rd_cake/access-providers/change-parent.json'
     },
     refs: [
-        { ref:  'winAccessProviders',   selector:   '#accessProvidersWin'},
         { ref:  'grid',                 selector:   'gridAccessProviders'}
     ],
     init: function() {
@@ -73,7 +71,6 @@ Ext.define('Rd.controller.cAccessProviders', {
             return;
         }
         me.inited = true;
-        
         me.control({
             'gridAccessProviders #reload': {
                 click:      me.reload
@@ -137,7 +134,7 @@ Ext.define('Rd.controller.cAccessProviders', {
             '#winEnableDisableUser #save': {
                 click: me.enableDisableSubmit
             }
-        });;
+        });
     },
     reload: function(){
         var me = this;

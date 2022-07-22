@@ -213,6 +213,7 @@ Ext.define('Rd.controller.cDashboard', {
    		}   
     },
     treeNodeSelect: function(tree,record,ndx,opts){
+        var me = this;
     	if(record.isLeaf()){
     		var name = record.get('text');
     		var id   = record.get('id');
@@ -320,12 +321,8 @@ Ext.define('Rd.controller.cDashboard', {
             url: '/cake3/rd_cake/dashboard/nav-tree.json',
             success: function(resp) {
                 var result = Ext.decode(resp.responseText);
-                console.log(result.items);
                 myStore.getRoot().appendChild(result.items);
             },
         });
-        myStore.getRoot().appendChild(wip.children);
-        myStore.getRoot().removeAll();
-
     }
 });

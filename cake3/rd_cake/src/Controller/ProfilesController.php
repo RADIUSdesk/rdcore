@@ -46,12 +46,7 @@ class ProfilesController extends AppController
         ]);
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtons');
-        $this->loadComponent('Notes', [
-            'model' => 'ProfileNotes',
-            'condition' => 'profile_id'
-        ]);
-        
-              
+             
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');  
     }
@@ -118,16 +113,11 @@ class ProfilesController extends AppController
     }
 
     public function index(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if (!$user) {
-            return;
-        }
-        $user_id    = $user['id'];
-        $query      = $this->{$this->main_model}->find();
-
-        $this->CommonQuery->build_common_query($query, $user, ['Users', 'ProfileNotes' => ['Notes'],'Radusergroups'=> ['Radgroupchecks']]); //AP QUERY is sort of different in a way
-
+       
+       	$cloud_id = $this->request->query['cloud_id'];
+        $query 	  = $this->{$this->main_model}->find();      
+        $this->CommonQuery->build_cloud_query($query,$cloud_id,['Radusergroups'=> ['Radgroupchecks']]);
+       
         //===== PAGING (MUST BE LAST) ======
         $limit = 50;   //Defaults
         $page = 1;
@@ -142,19 +132,11 @@ class ProfilesController extends AppController
         $query->limit($limit);
         $query->offset($offset);
 
-        $total = $query->count();
-        $q_r = $query->all();
-
-        $items = array();
+        $total 	= $query->count();
+        $q_r 	= $query->all();
+        $items 	= [];
 
         foreach ($q_r as $i) {
-
-            $owner_id = $i->user_id;
-            if (!array_key_exists($owner_id, $this->owner_tree)) {
-                $owner_tree = $this->Users->find_parents($owner_id);
-            } else {
-                $owner_tree = $this->owner_tree[$owner_id];
-            }
 
             //Add the components (already from the highest priority
             $components = [];
@@ -175,26 +157,14 @@ class ProfilesController extends AppController
                 array_push($components,$a);     
             }
             
-            $action_flags = $this->Aa->get_action_flags($owner_id, $user);
-            $notes_flag = false;
-            foreach ($i->profile_notes as $un) {
-                if (!$this->Aa->test_for_private_parent($un->note, $user)) {
-                    $notes_flag = true;
-                    break;
-                }
-            }
-            
             array_push($items, array(
                 'id'                    => $i->id,
                 'name'                  => $i->name,
-                'owner'                 => $owner_tree,
-                'available_to_siblings' => $i->available_to_siblings,
                 'profile_components'    => $components,
                 'data_cap_in_profile'   => $data_cap_in_profile,
                 'time_cap_in_profile'   => $time_cap_in_profile,
-                'notes'                 => $notes_flag,
-                'update'                => $action_flags['update'],
-                'delete'                => $action_flags['delete']
+                'update'                => true,
+                'delete'                => true
             ));
         }
 
@@ -330,36 +300,11 @@ class ProfilesController extends AppController
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
-
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
-        $user_id   = $user['id'];
-        $fail_flag = false;
-
-	    if(isset($this->request->data['id'])){   //Single item delete
-            $message = "Single item ".$this->request->data['id'];
-
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:         
+	    if(isset($this->request->data['id'])){   //Single item delete      
             $entity         = $this->{$this->main_model}->get($this->request->data['id']);
-            $profile_name   = $entity->name;   
-            $owner_id       = $entity->user_id;
-            
-            if($owner_id != $user_id){
-                if($this->Users->is_sibling_of($user_id,$owner_id)== true){
-                    $this->{$this->main_model}->delete($entity);
-                    $this->Radusergroups->deleteAll(['Radusergroups.username' => $profile_name]);
-                }else{
-                    $fail_flag = true;
-                }
-            }else{
-                $this->{$this->main_model}->delete($entity);
-                $this->Radusergroups->deleteAll(['Radusergroups.username' => $profile_name]);
-            }
-            
+            $profile_name   = $entity->name;         
+          	$this->{$this->main_model}->delete($entity);
+           	$this->Radusergroups->deleteAll(['Radusergroups.username' => $profile_name]);           
             //There might be an associated ProfileComponent also (if we used the simplified profiles)
             $simple_pc_name = $this->profCompPrefix.$this->request->data['id'];
             $this->{'ProfileComponents'}->deleteAll(['ProfileComponents.name' =>$simple_pc_name]);
@@ -372,40 +317,18 @@ class ProfilesController extends AppController
                 $profile_id     = $entity->id;   
                 $owner_id       = $entity->user_id;
                 
-                if($owner_id != $user_id){
-                    if($this->Users->is_sibling_of($user_id,$owner_id) == true){
-                        $this->{$this->main_model}->delete($entity);
-                        $this->Radusergroups->deleteAll(['Radusergroups.username' => $profile_name]);
-                        //There might be an associated ProfileComponent also (if we used the simplified profiles)
-                        $simple_pc_name = $this->profCompPrefix.$profile_id;
-                        $this->{'ProfileComponents'}->deleteAll(['ProfileComponents.name' =>$simple_pc_name]);
-                        $this->_removeRadius($simple_pc_name); 
-                    }else{
-                        $fail_flag = true;
-                    }
-                }else{
-                    $this->{$this->main_model}->delete($entity);
-                    $this->Radusergroups->deleteAll(['Radusergroups.username' => $profile_name]);
-                    //There might be an associated ProfileComponent also (if we used the simplified profiles)
-                    $simple_pc_name = $this->profCompPrefix.$profile_id;
-                    $this->{'ProfileComponents'}->deleteAll(['ProfileComponents.name' =>$simple_pc_name]);
-                    $this->_removeRadius($simple_pc_name);                   
-                }
+                $this->{$this->main_model}->delete($entity);
+                $this->Radusergroups->deleteAll(['Radusergroups.username' => $profile_name]);
+                //There might be an associated ProfileComponent also (if we used the simplified profiles)
+                $simple_pc_name = $this->profCompPrefix.$profile_id;
+                $this->{'ProfileComponents'}->deleteAll(['ProfileComponents.name' =>$simple_pc_name]);
+                $this->_removeRadius($simple_pc_name); 
             }
         }
-
-        if($fail_flag == true){
-            $this->set(array(
-                'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
-            ));
-        }else{
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
-        }
+		$this->set([
+            'success' 		=> true,
+            '_serialize' 	=> ['success']
+        ]);
 	}
 	
 	public function simpleAdd(){
@@ -414,23 +337,7 @@ class ProfilesController extends AppController
 			throw new MethodNotAllowedException();
 		}
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        
-        $user_id    = $user['id'];
-
-        //Get the creator's id
-        if(isset($this->request->data['user_id'])){
-            if($this->request->data['user_id'] == '0'){ //This is the holder of the token - override '0'
-                $this->request->data['user_id'] = $user_id;
-            }
-        }
-
         $check_items = [
-			'available_to_siblings',
 			'data_limit_mac',
 			'time_limit_mac'	
 		];
@@ -465,7 +372,7 @@ class ProfilesController extends AppController
         
             //Also add a profile component (Our Convention will have it contain 'SimpleAdd_'+<profile_ID>)
             $pc_name    = $this->profCompPrefix.$entity->id;
-            $e_pc       = $this->{'ProfileComponents'}->newEntity(['name' => $pc_name,'user_id' => $entity->user_id,'available_to_siblings' => 0]);
+            $e_pc       = $this->{'ProfileComponents'}->newEntity(['name' => $pc_name,'cloud_id' => $entity->cloud_id]);
             $this->{'ProfileComponents'}->save($e_pc);
             //Now attach this to the Profile
             $ne = $this->{'Radusergroups'}->newEntity(
@@ -495,25 +402,10 @@ class ProfilesController extends AppController
 			throw new MethodNotAllowedException();
 		}
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
-        
-        //Get the creator's id
-        if(isset($this->request->data['user_id'])){
-            if($this->request->data['user_id'] == '0'){ //This is the holder of the token - override '0'
-                $this->request->data['user_id'] = $user_id;
-            }
-        }
-
-        $check_items = array(
-			'available_to_siblings',
+        $check_items = [
 			'data_limit_mac',
 			'time_limit_mac'	
-		);
+		];
         foreach($check_items as $i){
             if(isset($this->request->data[$i])){
                 $this->request->data[$i] = 1;
@@ -609,8 +501,7 @@ class ProfilesController extends AppController
             );
             $this->{'Radusergroups'}->save($ne);    
         }
-        
-          
+              
         $this->{$this->main_model}->patchEntity($entity, $this->request->data());      
         if ($this->{$this->main_model}->save($entity)) {
             $this->_doRadius($pc_name);     
@@ -645,65 +536,23 @@ class ProfilesController extends AppController
             $profile_id = $this->request->query['profile_id'];
             
             $ent = $this->{$this->main_model}->find()
-                ->contain(['Users'=> ['fields' => ['Users.username']]])
                 ->where(['Profiles.id' => $profile_id])
                 ->first();
             if($ent){ 
                 $pc_name        = $this->profCompPrefix.$ent->id;
-                $data           = $this->_getRadius($pc_name);
-                             
+                $data           = $this->_getRadius($pc_name);                          
                 $data['id']     = $ent->id;
-                $data['name']   = $ent->name;
-                $data['available_to_siblings'] = $ent->available_to_siblings;
-                $data['user_id']= $ent->user_id;
-                if($ent->user !== null){
-                    $data['username'] = "<div class=\"fieldBlue\"> <b>".$ent->user->username."</b></div>";
-                }else{
-                    $data['username'] = "<div class=\"fieldRed\"><i class='fa fa-exclamation'></i> <b>(ORPHANED)</b></div>";
-                }                
+                $data['name']   = $ent->name;            
             }    
         } 
 	
-	    $this->set(array(
+	    $this->set([
             'success' => true,
             'data' => $data,
-            '_serialize' => array('success','data')
-        ));
+            '_serialize' => ['success','data']
+        ]);
 	}
 	
-
-    public function noteIndex()
-    {
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if (!$user) {
-            return;
-        }
-        $items = $this->Notes->index($user);
-    }
-
-    public function noteAdd()
-    {
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if (!$user) {
-            return;
-        }
-        $this->Notes->add($user);
-    }
-
-    public function noteDel()
-    {
-        if (!$this->request->is('post')) {
-            throw new MethodNotAllowedException();
-        }
-        $user = $this->_ap_right_check();
-        if (!$user) {
-            return;
-        }
-        $this->Notes->del($user);
-    }
-
     public function menuForGrid()
     {
         $user = $this->Aa->user_for_token($this);

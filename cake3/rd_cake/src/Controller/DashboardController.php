@@ -38,13 +38,15 @@ class DashboardController extends AppController{
 			[
 				'text'	=> 'USERS',
 				'leaf'	=> true,
-				'id'		=> 3,
+				'controller'	=> 'cPermanentUsers',
+				'id'		=> 'tabPermanentUsers',
 				'iconCls'	=> 'x-fa fa-user'
 			],
 			[
 				'text'	=> 'VOUCHERS',
 				'leaf'	=> true,
-				'id'	=> 4,
+				'controller'	=> 'cVouchers',
+				'id'		=> 'tabVouchers',
 				'iconCls'	=> 'x-fa fa-tag'
 			],
 			[
@@ -53,25 +55,53 @@ class DashboardController extends AppController{
 				'controller'	=> 'cTopUps',
 				'id'		=> 'tabTopUps',
 				'iconCls'	=> 'x-fa  fa-coffee'
+			]			
+		];
+		
+		$thRadiusComponents = [
+			[
+				'text'	=> 'REALMS',
+				'leaf'	=> true,
+				'controller'	=> 'cRealms',
+				'id'		=> 'tabRealms',
+				'iconCls'	=> 'x-fa fa-globe'
+			],		
+			[
+				'text'	=> 'PROFILES',
+				'leaf'	=> true,
+				'controller'	=> 'cProfiles',
+				'id'		=> 'tabProfiles',
+				'iconCls'	=> 'x-fa fa-cubes'
 			],
-            [
+			[
+				'text'	=> 'CLIENTS',
+				'leaf'	=> true,
+				'controller'	=> 'cDynamicClients',
+				'id'		=> 'tabDynamicClients',
+				'iconCls'	=> 'x-fa fa-dot-circle-o'
+			]		
+		];
+		
+		$thNetworks = [
+			[
 				'text'	=> 'HARDWARES',
 				'leaf'	=> true,
 				'controller'=> 'cHardwares',
 				'id'		=> 'tabHardwares',
-				'iconCls'	=> 'x-fa  fa-user'
-			],
+				'iconCls'	=> 'x-fa fa-cog'
+			]	
+		];
+		
+		$thOther = [
 			[
 				'text'	=> 'ADMINS',
 				'leaf'	=> true,
 				'controller'	=> 'cAccessProviders',
 				'id'		=> 'tabAccessProviders',
-				'iconCls'	=> 'x-fa  fa-tag'
+				'iconCls'	=> 'x-fa fa-graduation-cap'
 			]
 		];
-    	
-    	
-    
+    	   
     	$items = [
 			[
 				'text' => 'OVERVIEW',
@@ -83,9 +113,37 @@ class DashboardController extends AppController{
 				'text'	=> 'RADIUS USERS',
 				'id'		=> 2,
 				'expanded'	=> false,
-				'iconCls'		=> 'x-fa fa-user',
+				'iconCls'   => 'x-fa fa-user',
 				'children'	=> $trRadius
-			]
+			],
+			[
+				'text'	=> 'RADIUS COMPONENTS',
+				'id'		=> 3,
+				'expanded'	=> false,
+				'iconCls'		=> 'x-fa  fa-dot-circle-o',
+				'children'	=> $thRadiusComponents
+			],
+			[
+				'text' => 'LOGIN PAGES',
+				'leaf'	=> true,
+				'controller'	=> 'cDynamicDetails',
+				'id'		=> 'tabDynamicCDetails',
+				'iconCls'	=> 'x-fa fa-arrow-circle-right'
+			],
+			[
+				'text' 		=> 'NETWORKS',
+				'controller'=> 'cMeshes',
+				'id'		=> 'tabMeshes',
+				'iconCls'	=> 'x-fa fa-sitemap',
+				'children'	=> $thNetworks		
+			],
+			[
+				'text' 		=> 'OTHER',
+				'id'		=> 5,
+				'controller'=> 'cMeshes',
+				'iconCls'	=> 'x-fa fa-gears',
+				'children'	=> $thOther		
+			]  
     	];
     
     	$this->set([
