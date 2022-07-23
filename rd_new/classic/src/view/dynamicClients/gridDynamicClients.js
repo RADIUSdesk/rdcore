@@ -29,17 +29,12 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClients' ,{
         }];
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 
-        me.columns  = [
-       //     {xtype: 'rownumberer',stateId: 'StateGridDc1'},
-            { text: i18n('sOwner'),        dataIndex: 'owner', tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridDc2',
-                hidden: true
-            },
+        me.columns  = [       
             { text: i18n('sName'),         dataIndex: 'name',  tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridDc3'},
             { text: i18n('sNAS-Identifier'),dataIndex: 'nasidentifier',tdCls: 'gridMain', flex: 1, filter: {type: 'string'},stateId: 'StateGridDc4'},
             { text: i18n('sCalled-Station-Id'),dataIndex: 'calledstationid',tdCls: 'gridTree', flex: 1, filter: {type: 'string'},stateId: 'StateGridDc5',
                 hidden: true
-            },
-            
+            },   
             { 
                 text        : i18n('sActive'), 
                 width       : 130,
@@ -58,24 +53,7 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClients' ,{
                         noText  : 'No'
                 },stateId: 'StateGridDc6'
             },
-            { 
-                text:   'To Sub-Providers',
-                width:  130,
-                hidden  : true,
-                tdCls   : 'gridTree',
-                xtype:  'templatecolumn', 
-                tpl:    new Ext.XTemplate(
-                            "<tpl if='available_to_siblings == true'><div class=\"fieldGreen\">"+i18n("sYes")+"</div></tpl>",
-                            "<tpl if='available_to_siblings == false'><div class=\"fieldRed\">"+i18n("sNo")+"</div></tpl>"
-                        ),
-                dataIndex: 'available_to_siblings',
-                filter      : {
-                        type    : 'boolean',
-                        defaultValue   : false,
-                        yesText : 'Yes',
-                        noText  : 'No'
-                },stateId: 'StateGridDc7'
-            },
+          
             { 
                 text    :   i18n('sRealms'),
                 sortable: false,
@@ -85,8 +63,7 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClients' ,{
                 tpl:    new Ext.XTemplate(
                             '<tpl if="Ext.isEmpty(realms)"><div class=\"fieldBlueWhite\">Available to all!</div></tpl>', //Warn them when available     to all
                             '<tpl for="realms">',     // interrogate the realms property within the data
-                                "<tpl if='available_to_siblings == true'><div class=\"fieldGreen\">{name}</div></tpl>",
-                                "<tpl if='available_to_siblings == false'><div class=\"fieldRed\">{name}</div></tpl>",
+                                "<div class=\"fieldGreen\">{name}</div>",
                             '</tpl>'
                         ),
                 dataIndex: 'realms',
@@ -468,17 +445,6 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClients' ,{
                         return "N/A";
                     }
                 }
-            },
-            { 
-                text    : i18n('sNotes'),
-                sortable: false,
-                width   : 130,
-                hidden  : true,
-                xtype   : 'templatecolumn', 
-                tpl     : new Ext.XTemplate(
-                                "<tpl if='notes == true'><span class=\"fa fa-thumb-tack fa-lg txtGreen\"></tpl>"
-                ),
-                dataIndex: 'notes',stateId: 'StateGridDc14'
             },
             {
                 xtype       : 'actioncolumn',

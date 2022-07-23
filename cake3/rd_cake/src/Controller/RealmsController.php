@@ -827,17 +827,62 @@ class RealmsController extends AppController{
         ));
     }
     
+    
+    public function listRealmsForDynamicClientCloud(){
+    
+    	$cloud_id 	= $this->request->query['cloud_id'];
+        $query 	  	= $this->{$this->main_model}->find();      
+        $this->CommonQuery->build_cloud_query($query,$cloud_id,['DynamicClientRealms']);
+        $q_r 		= $query->all();       
+        $items 		= [];
+        
+        $dynamic_client_id = false;
+        if(isset($this->request->query['dynamic_client_id'])){
+        	$dynamic_client_id = $this->request->query['dynamic_client_id'];
+        }
+        
+        //========== CLEAR FIRST CHECK =======
+        //By default clear_flag is not included
+        $clear_flag = false;
+        if(isset($this->request->query['clear_flag'])){
+            if($this->request->query['clear_flag'] == 'true'){
+                $clear_flag = true;
+            }
+        }
+
+        if($clear_flag){    //If we first need to remove previous associations! 
+            $this->DynamicClientRealms->deleteAll(['DynamicClientRealms.dynamic_client_id' => $dynamic_client_id]);
+        }
+        //========== END CLEAR FIRST CHECK =======
+        
+        
+        foreach ($q_r as $i) {
+        	$selected = false;
+            if($dynamic_client_id){
+                foreach($i->dynamic_client_realms as $nr){
+                    if($nr->dynamic_client_id == $dynamic_client_id){
+                        $selected = true;
+                    }
+                }
+            }   
+                       
+        	$item = [ 'id' => $i->id, 'name' => $i->name,'selected' => $selected];          
+        	array_push($items,$item);    
+        }
+        
+        $this->set([
+            'items'     	=> $items,
+            'success'   	=> true,
+            '_serialize' 	=> ['items','success']
+        ]);  
+    }
+    
+    
     public function updateDynamicClientRealm(){
-    
-    
+     
         if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
-
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
 
         if(isset($this->request->query['dynamic_client_id'])){
             $dynamic_client_id     = $this->request->query['dynamic_client_id'];
@@ -871,11 +916,11 @@ class RealmsController extends AppController{
                 }
             }
         }
-
-        $this->set(array(
+        
+        $this->set([
             'success' => true,
-            '_serialize' => array('success')
-        ));
+            '_serialize' => ['success']
+        ]);
     }
      
     public function editAp(){

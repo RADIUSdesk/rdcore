@@ -334,7 +334,7 @@ Ext.define('Rd.view.dynamicClients.winDynamicClientAdd', {
                             ]
                         },
                         { 
-                            'title' : i18n('sRealms'),
+                            title   : i18n('sRealms'),
                             itemId  : 'tabRealms',
                             tbar: [{
                                 xtype       : 'checkboxfield',
@@ -345,7 +345,7 @@ Ext.define('Rd.view.dynamicClients.winDynamicClientAdd', {
                                 inputValue  : true
                             }],
                             layout: 'fit',
-                            items: { xtype: 'gridRealmsForDynamicClientOwner', realFlag: true}
+                            items: { xtype: 'gridRealmsForDynamicClientCloud', realFlag: true}
                         }
                     ]
                 }    

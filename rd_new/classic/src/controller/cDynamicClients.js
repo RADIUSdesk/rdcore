@@ -30,27 +30,20 @@ Ext.define('Rd.controller.cDynamicClients', {
     views:  [
         'dynamicClients.gridDynamicClients',
         'dynamicClients.winDynamicClientAdd',
-        'dynamicClients.pnlDynamicClientDynamicClient',/*
+        'dynamicClients.pnlDynamicClientDynamicClient',
         'dynamicClients.gridUnknownDynamicClients',
         'dynamicClients.winAttachUnknownDynamicClient',
         'components.cmbTimezones',
         'dynamicClients.pnlDynamicClient',
         'dynamicClients.pnlDynamicClientDynamicClient',
-        'dynamicClients.pnlRealmsForDynamicClientOwner',
-        'dynamicClients.gridRealmsForDynamicClientOwner',
+        'dynamicClients.pnlRealmsForDynamicClientCloud',
+        'dynamicClients.gridRealmsForDynamicClientCloud',
         'dynamicClients.pnlDynamicClientPhoto',
-        'dynamicClients.gridDynamicClientsAvailability',
         'components.pnlUsageGraph',
-        'dynamicClients.pnlDynamicClientGraphs',
-        'components.pnlGMap',
-        'dynamicClients.winMapDynamicClientAdd',
-        'nas.winMapPreferences',
-        'dynamicClients.cmbDynamicClientsAddMap',
-        'dynamicClients.pnlDynamicClientAvailable',
-        'dynamicClients.gridDynamicClientsAvailableRaw'*/
+        'dynamicClients.pnlDynamicClientGraphs'
     ],
     stores: ['sDynamicClients', 'sUnknownDynamicClients',],
-    models: [ 'mDynamicClient'],
+    models: [ 'mDynamicClient','mRealmForDynamicClientCloud', 'mUnknownDynamicClient','mDynamicClientState','mUserStat'],
     selectedRecord: null,
     config: {
         urlApChildCheck : '/cake3/rd_cake/access-providers/child-check.json',
@@ -58,24 +51,13 @@ Ext.define('Rd.controller.cDynamicClients', {
         urlAdd          : '/cake3/rd_cake/dynamic-clients/add.json',
         urlDelete       : '/cake3/rd_cake/dynamic-clients/delete.json',
 		urlEdit         : '/cake3/rd_cake/dynamic-clients/edit.json',
-		urlNoteAdd      : '/cake3/rd_cake/dynamic-clients/note-add.json',
 		urlView         : '/cake3/rd_cake/dynamic-clients/view.json',
 		urlViewPhoto    : '/cake3/rd_cake/dynamic-clients/view_photo.json',
         urlPhotoBase    : '/cake3/rd_cake/webroot/img/nas/',
-        urlUploadPhoto  : '/cake3/rd_cake/dynamic-clients/upload_photo/',
-        
-        urlMapDelete    : '/cake3/rd_cake/dynamic-clients/delete_map.json',
-        urlMapSave      : '/cake3/rd_cake/dynamic-clients/edit_map.json',
-        urlGreenMark    : 'resources/images/map_markers/green-dot.png',
-        urlRedMark      : 'resources/images/map_markers/red-dot.png', 
-        urlBlueMark     : 'resources/images/map_markers/blue-dot.png', 
-        urlYellowMark   : 'resources/images/map_markers/yellow-dot.png',
-        urlViewMapPref  : '/cake3/rd_cake/dynamic-clients/view_map_pref.json',
-        urlEditMapPref  : '/cake3/rd_cake/dynamic-clients/edit_map_pref.json'
+        urlUploadPhoto  : '/cake3/rd_cake/dynamic-clients/upload_photo/'
     },
     refs: [
-        {  ref: 'grid',     selector: 'gridDynamicClients'  },
-        {  ref: 'pnlGMap',  selector: 'pnlGMap'             }      
+        {  ref: 'grid',     selector: 'gridDynamicClients'  }  
     ],
     autoReloadUnknownDynamicClients: undefined,
     autoReload: undefined,
@@ -110,24 +92,17 @@ Ext.define('Rd.controller.cDynamicClients', {
             'pnlDynamicClient #tabDynamicClient #chkSessionAutoClose': {
                 change:     me.chkSessionAutoCloseChange
             },
-            'pnlDynamicClient #tabDynamicClient #btnPickOwner': {
-                click:  me.btnPickOwner
-            },      
             'pnlDynamicClient #tabDynamicClient #save' : {
                 click: me.saveDynamicClient
-            },
-            
-            'pnlRealmsForDynamicClientOwner #chkAvailForAll' :{
+            },            
+            'pnlRealmsForDynamicClientCloud #chkAvailForAll' :{
                 change:     me.chkAvailForAllChangeTab
             },
-            'pnlRealmsForDynamicClientOwner gridRealmsForDynamicClientOwner #reload' :{
-                click:      me.gridRealmsForDynamicClientOwnerReload
+            'pnlRealmsForDynamicClientCloud gridRealmsForDynamicClientCloud #reload' :{
+                click:      me.gridRealmsForDynamicClientCloudReload
             },
-            'pnlRealmsForDynamicClientOwner #chkAvailSub':{
-                change:     me.gridRealmsForDynamicClientOwnerChkAvailSub
-            }, 
-            'pnlDynamicClient #tabRealms': {
-                activate:   me.tabRealmsActivate
+            'pnlDynamicClient #tabRealmsDc': {
+                activate:   me.tabRealmsActivateDc
             },
             'pnlDynamicClient #tabPhoto': {
                 activate:       me.tabPhotoActivate
@@ -155,30 +130,8 @@ Ext.define('Rd.controller.cDynamicClients', {
             },
             //END Availability
             
-            //RAW GRID
-            'gridDynamicClientsAvailableRaw' :{
-                activate:       me.tabRawActivate
-            },
-            'gridDynamicClientsAvailableRaw #reload' :{
-                click:          me.gridRawReload
-            },
-            'gridDynamicClientsAvailableRaw #delete' :{
-                click:          me.gridRawDelete
-            },
-            'gridDynamicClientsAvailableRaw cmbTimezones' :{
-                afterrender : me.gridRawReload,
-                change      : me.gridRawReload
-            },
-            //END RAW GRID
-            
-            'gridDynamicClients #note' : {
-                click:      me.note
-            },
             'gridDynamicClients #graph'   : {
                 click:      me.graph
-            },
-            'gridDynamicClients #map'   : {
-                click:      me.mapLoadApi
             },
             'gridDynamicClients #available'   : {
                 click:      me.available
@@ -202,17 +155,14 @@ Ext.define('Rd.controller.cDynamicClients', {
             'winDynamicClientAdd #chkSessionAutoClose': {
                 change:     me.chkSessionAutoCloseChange
             },
-            'winDynamicClientAdd gridRealmsForDynamicClientOwner #reload': {
-                click:      me.gridRealmsForDynamicClientOwnerReload
+            'winDynamicClientAdd gridRealmsForDynamicClientCloud #reload': {
+                click:      me.gridRealmsForDynamicClientCloudReload
             },
             'winDynamicClientAdd #tabRealms': {
-                activate:      me.gridRealmsForDynamicClientOwnerActivate
+                activate:      me.gridRealmsForDynamicClientCloudActivate
             }, 
             'winDynamicClientAdd #tabRealms #chkAvailForAll': {
                 change:     me.chkAvailForAllChange
-            },
-            'winDynamicClientAdd gridRealmsForDynamicClientOwner #chkAvailSub':     {
-                change:     me.gridRealmsForDynamicClientOwnerChkAvailSub
             },
             'gridUnknownDynamicClients #reload': {
                 click:      me.gridUnknownDynamicClientsReload
@@ -238,82 +188,17 @@ Ext.define('Rd.controller.cDynamicClients', {
             'winAttachUnknownDynamicClient #chkSessionAutoClose': {
                 change:     me.chkSessionAutoCloseChange
             },
-            'winAttachUnknownDynamicClient gridRealmsForDynamicClientOwner #reload': {
-                click:      me.gridRealmsForDynamicClientOwnerReload
+            'winAttachUnknownDynamicClient gridRealmsForDynamicClientCloud #reload': {
+                click:      me.gridRealmsForDynamicClientCloudReload
             },
             'winAttachUnknownDynamicClient #tabRealms': {
-                activate:      me.gridRealmsForDynamicClientOwnerActivate
+                activate:      me.gridRealmsForDynamicClientCloudActivate
             }, 
             'winAttachUnknownDynamicClient #tabRealms #chkAvailForAll': {
                 change:     me.chkAvailForAllChange
             },
-            'winAttachUnknownDynamicClient gridRealmsForDynamicClientOwner #chkAvailSub':     {
-                change:     me.gridRealmsForDynamicClientOwnerChkAvailSub
-            },
 			'gridUnknownDynamicClients #delete': {
                 click: me.delUnknownDynamicClient
-            } ,
-            'gridNote[noteForGrid=dynamicClients] #reload' : {
-                click:  me.noteReload
-            },
-            'gridNote[noteForGrid=dynamicClients] #add' : {
-                click:  me.noteAdd
-            },
-            'gridNote[noteForGrid=dynamicClients] #delete' : {
-                click:  me.noteDelete
-            },
-            'gridNote[noteForGrid=dynamicClients]' : {
-                itemclick: me.gridNoteClick
-            },
-            'winNoteAdd[noteForGrid=dynamicClients] #btnTreeNext' : {
-                click:  me.btnNoteTreeNext
-            },
-            'winNoteAdd[noteForGrid=dynamicClients] #btnNoteAddPrev'  : {   
-                click: me.btnNoteAddPrev
-            },
-            'winNoteAdd[noteForGrid=dynamicClients] #btnNoteAddNext'  : {   
-                click: me.btnNoteAddNext
-            },
-            //---- MAPS ----
-            'pnlGMap #preferences': {
-                click: me.mapPreferences
-            },
-            'winMapPreferences #snapshot': {
-                click:      me.mapPreferencesSnapshot
-            },
-            'winMapPreferences #save': {
-                click:      me.mapPreferencesSave
-            },//Availability
-            'pnlGMap #add': {
-                click: me.mapDynamicClientAdd
-            },
-            'winMapDynamicClientAdd #save': {
-                click: me.mapDynamicClientAddSubmit
-            },
-            'pnlGMap #edit': {
-                click:  function(){
-                    Ext.Msg.alert(
-                        i18n('sEdit_a_marker'), 
-                        i18n('sSimply_drag_a_marker_to_a_different_postition_and_click_the_save_button_in_the_info_window')
-                    );
-                }
-            },
-            'pnlGMap #delete': {
-                click:  function(){
-                    Ext.Msg.alert(
-                        i18n('sDelete_a_marker'), 
-                        i18n('sSimply_drag_a_marker_to_a_different_postition_and_click_the_delete_button_in_the_info_window')
-                    );
-                }
-            },
-            '#pnlMapsEdit #cancel': {
-                click: me.btnMapCancel
-            },
-            '#pnlMapsEdit #delete': {
-                click: me.btnMapDelete
-            },
-            '#pnlMapsEdit #save': {
-                click: me.btnMapSave
             },
             '#tabDataLimit #chkDataLimitActive' : {
                 change:     me.chkDataLimitActiveChange
@@ -390,7 +275,7 @@ Ext.define('Rd.controller.cDynamicClients', {
         var win     = button.up('window');
         var form    = button.up('form');
         var tp      = form.down('tabpanel');
-        var grid    = form.down('gridRealmsForDynamicClientOwner');
+        var grid    = form.down('gridRealmsForDynamicClientCloud');
         var extra_params ={};   //Get the extra params to submit with form
         var select_flag  = false;
 
@@ -475,7 +360,7 @@ Ext.define('Rd.controller.cDynamicClients', {
     chkAvailForAllChange: function(chk){
         var me      = this;
         var pnl     = chk.up('panel');
-        var grid    = pnl.down("gridRealmsForDynamicClientOwner");
+        var grid    = pnl.down("gridRealmsForDynamicClientCloud");
         if(chk.getValue() == true){
             grid.hide();
         }else{
@@ -485,39 +370,27 @@ Ext.define('Rd.controller.cDynamicClients', {
     chkAvailForAllChangeTab: function(chk){
         var me      = this;
         var pnl     = chk.up('panel');
-        var grid    = pnl.down("gridRealmsForDynamicClientOwner");
+        var grid    = pnl.down("gridRealmsForDynamicClientCloud");
         if(chk.getValue() == true){
             grid.hide();
+            grid.getStore().getProxy().setExtraParam('clear_flag',true);
             
         }else{
             grid.show();
+            grid.getStore().getProxy().setExtraParam('clear_flag',false);
         }
-        //Clear the grid:
-        grid.getStore().getProxy().setExtraParam('clear_flag',true);
-        grid.getStore().load();
-        grid.getStore().getProxy().setExtraParam('clear_flag',false);
-    },
-    gridRealmsForDynamicClientOwnerReload: function(button){
-        var me      = this;
-        var grid    = button.up('gridRealmsForDynamicClientOwner');
         grid.getStore().load();
     },
-    gridRealmsForDynamicClientOwnerActivate: function(tab){
+    gridRealmsForDynamicClientCloudReload: function(button){
         var me      = this;
-        var a_to_s  = tab.down('#chkAvailSub').getValue();
-        var grid    = tab.down('gridRealmsForDynamicClientOwner');
-        grid.getStore().getProxy().setExtraParam('owner_id',me.owner_id);
-        grid.getStore().getProxy().setExtraParam('available_to_siblings',a_to_s);
+        var grid    = button.up('gridRealmsForDynamicClientCloud');
         grid.getStore().load();
     },
-    gridRealmsForDynamicClientOwnerChkAvailSub: function(chk){
+    gridRealmsForDynamicClientCloudActivate: function(tab){
         var me      = this;
-        var a_to_s  = chk.getValue();
-        var grid    = chk.up('gridRealmsForDynamicClientOwner');
-        grid.getStore().getProxy().setExtraParam('owner_id',me.owner_id);
-        grid.getStore().getProxy().setExtraParam('available_to_siblings',a_to_s);
+        var grid    = tab.down('gridRealmsForDynamicClientCloud');
         grid.getStore().load();
-    }, 
+    },
     select: function(grid,record){
         var me = this;
         //Adjust the Edit and Delete buttons accordingly...
@@ -597,31 +470,16 @@ Ext.define('Rd.controller.cDynamicClients', {
         var me      = this;
         var form    = t.down('form');
         //get the dynamic_client_id's id
-        var dynamic_client_id = t.up('pnlDynamicClient').dynamic_client_id;
-        
+        var dynamic_client_id = t.up('pnlDynamicClient').dynamic_client_id;     
         form.load({
             url     : me.getUrlView(), 
             method  : 'GET',
             params  : {dynamic_client_id:dynamic_client_id},
             success : function(a,b){
-                if(b.result.data.show_owner == true){
-                    form.down('#fcPickOwner').show();
-                }else{
-                    form.down('#fcPickOwner').hide();
-                }
+                
             }
         });
-    },    
-    btnPickOwner: function(button){
-        var me             = this;
-        var form           = button.up('form');
-        var updateDisplay  = form.down('#displUser');
-        var updateValue    = form.down('#hiddenUser'); 
-		if(!Ext.WindowManager.get('winSelectOwnerId')){
-            var w = Ext.widget('winSelectOwner',{id:'winSelectOwnerId',updateDisplay:updateDisplay,updateValue:updateValue});
-            w.show();       
-        }  
-    },   
+    },     
     saveDynamicClient : function(button){
 
         var me              = this;
@@ -647,9 +505,9 @@ Ext.define('Rd.controller.cDynamicClients', {
         });
     },
     
-    tabRealmsActivate : function(tab){
+    tabRealmsActivateDc : function(tab){
         var me      = this;
-        var gridR   = tab.down('gridRealmsForDynamicClientOwner');
+        var gridR   = tab.down('gridRealmsForDynamicClientCloud');
         gridR.getStore().load();
     },
     
@@ -755,63 +613,7 @@ Ext.define('Rd.controller.cDynamicClients', {
                 }
             });
         }
-    },
-    
-    //RAW
-    tabRawActivate : function(tab){
-        var me      = this;
-        tab.getStore().load();
-    },
-    gridRawReload: function(button){
-        var me      = this;
-        var grid    = button.up('gridDynamicClientsAvailableRaw');
-        var tz      = grid.down('cmbTimezones'); 
-        if(tz){   //Only if this component already exists    
-            grid.getStore().getProxy().setExtraParam('timezone_id',tz.getValue());
-            grid.getStore().load();
-        }
-    },
-    gridRawDelete:   function(button){
-        var me      = this;  
-        var grid    = button.up('gridDynamicClientsAvailableRaw');   
-        //Find out if there was something selected
-        if(grid.getSelectionModel().getCount() == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item_to_delete'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
-                if(val== 'yes'){
-                    grid.getStore().remove(grid.getSelectionModel().getSelection());
-                    grid.getStore().sync({
-                        success: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sItem_deleted'),
-                                i18n('sItem_deleted_fine'),
-                                Ext.ux.Constants.clsInfo,
-                                Ext.ux.Constants.msgInfo
-                            );
-                            grid.getStore().load(); //Reload from server since the sync was not good  
-                        },
-                        failure: function(batch,options,c,d){
-                            Ext.ux.Toaster.msg(
-                                i18n('sProblems_deleting_item'),
-                                batch.proxy.getReader().rawData.message.message,
-                                Ext.ux.Constants.clsWarn,
-                                Ext.ux.Constants.msgWarn
-                            );
-                            grid.getStore().load(); //Reload from server since the sync was not good
-                        }
-                    });
-                }
-            });
-        }
-    },
-    //END RAW
-       
+    },     
     del:   function(){
         var me      = this;     
         //Find out if there was something selected
@@ -1003,281 +805,6 @@ Ext.define('Rd.controller.cDynamicClients', {
             tp.setActiveTab(tab_id); //Set focus on Add Tab 
         }
     },
-    //____ MAP ____
-    mapLoadApi:   function(button){
-        var me          = this;
-        Ext.ux.Toaster.msg(
-	        'Loading Google Maps API',
-	        'Please be patient....',
-	        Ext.ux.Constants.clsInfo,
-	        Ext.ux.Constants.msgInfo
-	    );
-        
-        Ext.Loader.loadScript({
-            url: 'https://www.google.com/jsapi',                    // URL of script
-            scope: this,                   // scope of callbacks
-            onLoad: function() {           // callback fn when script is loaded
-                google.load("maps", "3", {
-                    other_params:"sensor=false",
-                    callback : function(){
-                    // Google Maps are loaded. Place your code here
-                        me.mapCreatePanel(button);
-                }
-            });
-            },
-            onError: function() {          // callback fn if load fails 
-                console.log("Error loading Google script");
-            } 
-        });
-        
-    },
-
-    mapCreatePanel : function(button){
-
-        var me = this
-        var grid        = button.up('gridDynamicClients');
-        //Check if the node is not already open; else open the node:
-        var tp          = grid.up('tabpanel');
-        var map_tab_id  = 'mapTab';
-        var nt          = tp.down('#'+map_tab_id);
-        if(nt){
-            tp.setActiveTab(map_tab_id); //Set focus on  Tab
-            return;
-        }
-
-        var map_tab_name = i18n("sGoogle_Maps");
-
-        //We need to fetch the Preferences for this user's Google Maps map
-        Ext.Ajax.request({
-            url: me.getUrlViewMapPref(),
-            method: 'GET',
-            success: function(response){
-                var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){     
-                  // console.log(jsonData);
-                    //___Build this tab based on the preferences returned___
-                    tp.add({ 
-                        title   : map_tab_name,
-                        itemId  : map_tab_id,
-                        closable: true,
-                        iconCls : 'map',
-                        glyph   : Rd.config.icnMap, 
-                        layout  : 'fit',
-                        tabConfig : {
-                            ui : me.ui
-                        }, 
-                        items   : {
-                                xtype: 'pnlGMap',
-                                store:  me.getStore('sDynamicClients'),
-                                mapOptions: {zoom: jsonData.data.zoom, mapTypeId: google.maps.MapTypeId[jsonData.data.type] },
-                                centerLatLng: {lat:jsonData.data.lat,lng:jsonData.data.lng},
-                                markers: []
-                            }
-                    });
-                    tp.setActiveTab(map_tab_id); //Set focus on Add Tab
-                    //____________________________________________________
-                }   
-            },
-            scope: me
-        });
-    },
-    mapPreferences: function(button){
-        var me = this;
-        if(!Ext.WindowManager.get('winMapPreferencesId')){
-            var w = Ext.widget('winMapPreferences',{id:'winMapPreferencesId'});
-            w.show();
-            //We need to load this widget's form with the latest data:
-            w.down('form').load({url:me.getUrlViewMapPref(), method:'GET'});
-       }   
-    },
-    mapPreferencesSnapshot: function(button){
-
-        var me      = this;
-        var form    = button.up('form');
-        var pnl     = me.getPnlGMap();
-        var zoom    = pnl.gmap.getZoom();
-        var type    = pnl.gmap.getMapTypeId();
-        var ll      = pnl.gmap.getCenter();
-        var lat     = ll.lat();
-        var lng     = ll.lng();
-
-        form.down('#lat').setValue(lat);
-        form.down('#lng').setValue(lng);
-        form.down('#zoom').setValue(zoom);
-        form.down('#type').setValue(type.toUpperCase());
-        
-        //console.log(" zoom "+zoom+" type "+type+ " lat "+lat+" lng "+lng);
-    },
-    mapPreferencesSave: function(button){
-
-        var me      = this;
-        var form    = button.up('form');
-        var win     = button.up('window');
-       
-        form.submit({
-            clientValidation: true,
-            url: me.getUrlEditMapPref(),
-            success: function(form, action) {
-                win.close();
-                Ext.ux.Toaster.msg(
-                    i18n('sItem_updated'),
-                    i18n('sItem_updated_fine'),
-                    Ext.ux.Constants.clsInfo,
-                    Ext.ux.Constants.msgInfo
-                );
-            },
-            failure: Ext.ux.formFail
-        });
-    }, 
-    mapDynamicClientAdd: function(button){
-        var me = this;
-        if(!Ext.WindowManager.get('winMapDynamicClientAddId')){
-            var w = Ext.widget('winMapDynamicClientAdd',{id:'winMapDynamicClientAddId'});
-            w.show();       
-       }   
-    },
-    mapDynamicClientAddSubmit: function(button){
-        var me      = this;
-        var win     = button.up('window');
-        var dc      = win.down('cmbDynamicClientsAddMap');
-        var id      = dc.getValue();
-        var record  = dc.getStore().getById(id);
-        win.close();
-
-        var tab_panel = me.getGrid().up('tabpanel');
-        var map_tab   = tab_panel.down('#mapTab');
-        if(map_tab != null){
-            var map_panel = map_tab.down('gmappanel');
-            //We need to get the center of the map:
-            var m_center = map_panel.gmap.getCenter();
-            var sel_marker = map_panel.addMarker({
-                lat         : m_center.lat(), 
-                lng         : m_center.lng(),
-                icon        : "resources/images/map_markers/yellow-dot.png",
-                draggable   : true, 
-                title       : "New Marker",
-                listeners   : {
-                    dragend: function(){
-                        me.dragEnd(record,map_panel,sel_marker);
-                    },
-                    dragstart: function(){
-                        map_panel.addwindow.close();
-                        me.dragStart(record,map_panel,sel_marker);
-                    }
-                }
-            });
-            map_panel.addwindow.open(map_panel.gmap, sel_marker);
-        }
-    },
-    
-    markerClick: function(record,map_panel,sel_marker){
-        var me = this;
-        var ip = record.get('nasname');
-        var n  = record.get('shortname');
-        map_panel.marker_record = record;
-
-        //See if the pnlMapsInfo exists
-        //We have to do it here in order to prevent the domready event to fire twice
-        var qr =Ext.ComponentQuery.query('#pnlMapsInfo');
-        if(qr[0]){
-           // qr[0].down('#tabMapInfo').update(record.data);
-
-            //Status
-            var t_i_s = "N/A";
-            if(record.get('status') != 'unknown'){
-                if(record.get('status') == 'up'){
-                    var s = i18n("sUp");
-                }
-                if(record.get('status') == 'down'){
-                    var s = i18n("sDown");
-                }
-
-                t_i_s           = s+" "+Ext.ux.secondsToHuman(record.get('status_time'));;
-            }
-
-            var d  = Ext.apply({
-                time_in_state   : t_i_s
-            }, record.data);
-
-            qr[0].down('#tabMapInfo').update(d);
-
-            var url_path = me.getUrlPhotoBase()+record.get('photo_file_name');
-            qr[0].down('#tabMapPhoto').update({image:url_path});
-           // qr[0].doLayout();
-        }
-        map_panel.infowindow.open(map_panel.gmap,sel_marker); 
-    },
-    dragStart: function(record,map_panel,sel_marker){
-        var me = this;
-        me.lastMovedMarker  = sel_marker;
-        me.lastOrigPosition = sel_marker.getPosition();
-        me.editWindow 		= map_panel.editwindow;
-    },
-    dragEnd: function(record,map_panel,sel_marker){
-        var me = this;
-        var l_l = sel_marker.getPosition();
-        map_panel.new_lng = l_l.lng();
-        map_panel.new_lat = l_l.lat();
-        map_panel.editwindow.open(map_panel.gmap, sel_marker);
-        me.lastLng    = l_l.lng();
-        me.lastLat    = l_l.lat();
-        me.lastDragId = record.getId();
-    },
-    btnMapCancel: function(button){
-        var me = this;
-        me.editWindow.close();
-        me.lastMovedMarker.setPosition(me.lastOrigPosition);
-    },
-    btnMapDelete: function(button){
-        var me = this;
-        Ext.Ajax.request({
-            url: me.getUrlMapDelete(),
-            method: 'GET',
-            params: {
-                id: me.lastDragId
-            },
-            success: function(response){
-                var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){     
-                    me.editWindow.close();
-                    me.reload();
-                    Ext.ux.Toaster.msg(
-                        i18n('sItem_deleted'),
-                        i18n('sItem_deleted_fine'),
-                        Ext.ux.Constants.clsInfo,
-                        Ext.ux.Constants.msgInfo
-                    );
-                }   
-            },
-            scope: me
-        });
-    },
-    btnMapSave: function(button){
-        var me = this;
-        Ext.Ajax.request({
-            url: me.getUrlMapSave(),
-            method: 'GET',
-            params: {
-                id: me.lastDragId,
-                lat: me.lastLat,
-                lon: me.lastLng
-            },
-            success: function(response){
-                var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){     
-                    me.editWindow.close();
-                    me.reload();
-                    Ext.ux.Toaster.msg(
-                        i18n('sItem_updated'),
-                        i18n('sItem_updated_fine'),
-                        Ext.ux.Constants.clsInfo,
-                        Ext.ux.Constants.msgInfo
-                    );
-                }   
-            },
-            scope: me
-        });
-    },  
     available: function(b){
         var me = this;  
         //Find out if there was something selected

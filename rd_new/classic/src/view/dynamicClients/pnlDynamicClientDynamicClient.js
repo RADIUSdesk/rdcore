@@ -159,50 +159,6 @@ Ext.define('Rd.view.dynamicClients.pnlDynamicClientDynamicClient', {
                                 anchor  : '100%'
                             },
                             items:[
-                                 {
-                                    xtype       : 'fieldcontainer',
-                                    itemId      : 'fcPickOwner',
-                                    hidden      : true,  
-                                    layout      : {
-                                        type    : 'hbox',
-                                        align   : 'begin',
-                                        pack    : 'start'
-                                    },
-                                    items:[
-                                        {
-                                            itemId      : 'owner',
-                                            xtype       : 'displayfield',
-                                            fieldLabel  : i18n('sOwner'),
-                                            name        : 'username',
-                                            itemId      : 'displUser',
-                                            margin      : 0,
-                                            padding     : 0,
-                                            width       : 360
-                                        },
-                                        {
-                                            xtype       : 'button',
-                                            text        : 'Pick Owner',
-                                            margin      : 5,
-                                            padding     : 5,
-                                            ui          : 'button-green',
-                                            itemId      : 'btnPickOwner',
-                                            width       : 100
-                                        },
-                                        {
-                                            xtype       : 'textfield',
-                                            name        : "user_id",
-                                            itemId      : 'hiddenUser',
-                                            hidden      : true
-                                        }
-                                    ]
-                                },
-                                {
-                                    itemId  : 'user_id',
-                                    xtype   : 'textfield',
-                                    name    : 'dynamic_client_id',
-                                    hidden  : true,
-                                    value   : me.dynamic_client_id
-                                },
                                 {
                                     xtype       : 'textfield',
                                     fieldLabel  : i18n('sName'),

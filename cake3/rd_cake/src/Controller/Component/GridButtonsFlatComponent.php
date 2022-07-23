@@ -538,8 +538,8 @@ class GridButtonsFlatComponent extends Component {
         }       
         $m_items = [
             $this->btnGraph,
-            $this->btnMap,
-            $this->btnAvailable
+            //$this->btnMap,
+            //$this->btnAvailable
         ];      
       	array_push($m_items,$this->btnUnknownClients);      
         $menu = ['xtype' => 'buttongroup','title' => $t, 'items' => $m_items ];    

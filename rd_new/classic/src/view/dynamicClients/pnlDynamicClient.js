@@ -16,13 +16,13 @@ Ext.define('Rd.view.dynamicClients.pnlDynamicClient', {
                 dynamic_client_id   : me.dynamic_client_id
             },
             {
-                title               : "Realms",
-                itemId              : "tabRealms",
+                title               : 'Realms',
+                itemId              : 'tabRealmsDc',
                 layout              : "fit",
-                border              : false,
-                xtype               : 'pnlRealmsForDynamicClientOwner',
+                xtype               : 'pnlRealmsForDynamicClientCloud',
                 record              : me.record,
-                dynamic_client_id   : me.dynamic_client_id
+                dynamic_client_id   : me.dynamic_client_id,
+                margin              : 5
             },
             {
                 title               : "Photo",

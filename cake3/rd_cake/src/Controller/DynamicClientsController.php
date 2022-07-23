@@ -35,7 +35,7 @@ class DynamicClientsController extends AppController{
         $cquery     = $this->request->getQuery();  
         $cloud_id 	= $this->request->query['cloud_id'];
         $query 	  	= $this->{$this->main_model}->find();
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,['DynamicClientRealms']);
+        $this->CommonQuery->build_cloud_query($query,$cloud_id,['DynamicClientRealms.Realms']);
         
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -84,12 +84,13 @@ class DynamicClientsController extends AppController{
             }
 
             $realms     = [];
-            foreach($i->dynamic_client_realms as $dcr){               
+            foreach($i->dynamic_client_realms as $dcr){ 
+            	$r_id= $dcr->realm->id;
+              	$r_n = $dcr->realm->name;       
                 array_push($realms,
                     [
                         'id'                    => $r_id,
-                        'name'                  => $r_n,
-                        'available_to_siblings' => $r_s
+                        'name'                  => $r_n
                     ]);
             }
 
@@ -158,7 +159,7 @@ class DynamicClientsController extends AppController{
 
         $query = $this->{$this->main_model}->find();
 
-        $this->_build_common_query($query, $user);
+        //--FIXME$this->_build_common_query($query, $user);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -201,19 +202,7 @@ class DynamicClientsController extends AppController{
 
         $cdata = $this->request->getData();
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
-
-        //Get the creator's id
-        if($cdata['user_id'] == '0'){ //This is the holder of the token - override '0'
-            $cdata['user_id'] = $user_id;
-        }
-
-        $check_items = ['active', 'available_to_siblings', 'on_public_maps', 'session_auto_close','data_limit_active'];
+        $check_items = ['active', 'on_public_maps', 'session_auto_close','data_limit_active'];
         foreach($check_items as $ci){
             if(isset($cdata[$ci])){
                 $cdata[$ci] = 1;
@@ -236,7 +225,6 @@ class DynamicClientsController extends AppController{
                 $cdata['calledstationid'] = $called;
             }
         }
-
 
         $modelEntity = $this->{$this->main_model}->newEntity($cdata);
 
@@ -277,45 +265,21 @@ class DynamicClientsController extends AppController{
     public function delete($id = null) {
         if (!$this->request->is('post')) {
             throw new MethodNotAllowedException();
-        }
-
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
+        }  
         $cdata = $this->request->getData();
-
-        $user_id    = $user['id'];
-        $fail_flag  = false;
-
-        if(isset($cdata['id'])){   //Single item delete
-            $message = "Single item ".$cdata['id'];
-
+        if(isset($cdata['id'])){ 
             $deleteEntity = $this->{$this->main_model}->get($cdata['id']);
-
             $this->{$this->main_model}->delete($deleteEntity);
         }else{                          //Assume multiple item delete
             foreach($this->request->getData() as $d){
                 $deleteEntity = $this->{$this->main_model}->get($d['id']);
-
                 $this->{$this->main_model}->delete($deleteEntity);
             }
         }
-
-        if($fail_flag == true){
-            $this->set([
-                'success'   => false,
-                'message'   => ['message' => __('Could not delete some items')],
-                '_serialize' => ['success','message']
-            ]);
-        }else{
-            $this->set([
-                'success' => true,
-                '_serialize' => ['success']
-            ]);
-        }
+        $this->set([
+            'success' => true,
+            '_serialize' => ['success']
+        ]);
     }
 
     public function edit(){
@@ -358,49 +322,22 @@ class DynamicClientsController extends AppController{
 
 
     public function view(){
-
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
-        
-        $tree     = false;     
-        $entity = $this->Users->get($user_id); 
-        if($this->Users->childCount($entity) > 0){
-            $tree = true;
-        }
-        
         $data = [];
-
         if(null !== $this->request->getQuery('dynamic_client_id')){
 
             $q_r = $this->{$this->main_model}->find()
                 ->where(['DynamicClients.id' => $this->request->getQuery('dynamic_client_id')])
-                ->contain(['Users'=> ['fields' => ['Users.username']]])
                 ->first();
-            // print_r($q_r);
             if($q_r){
                 $data = $q_r;
-            }
-            
-            if($q_r->user !== null){
-                $data['username']  = "<div class=\"fieldBlue\"> <b>".$q_r->user->username."</b></div>";
-            }else{
-                $data['username']  = "<div class=\"fieldRed\"><i class='fa fa-exclamation'></i> <b>(ORPHANED)</b></div>";
-            }
-            $data['show_owner']  = $tree;
-            
+            }         
         }
-
         $this->set([
-            'data'   => $data, //For the form to load we use data instead of the standard items as for grids
+            'data'   => $data,
             'success' => true,
             '_serialize' => ['success','data']
         ]);
     }
-
 
     public function viewPhoto(){
         //__ Authentication + Authorization __
@@ -456,158 +393,7 @@ class DynamicClientsController extends AppController{
         $this->set('json_return',$json_return);
     }
 
-    public function noteIndex(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $items = $this->Notes->index($user);
-    }
-
-    public function noteAdd(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $this->Notes->add($user);
-    }
-
-    public function noteDel(){
-        if (!$this->request->is('post')) {
-			throw new MethodNotAllowedException();
-		}
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $this->Notes->del($user);
-    }
-    //----- Menus ------------------------
-    function _build_common_query($query, $user){
-
-        $where = [];
-
-        $query->contain([
-            'Users',
-            'DynamicClientRealms.Realms',
-            'DynamicClientNotes.Notes',
-           // 'AliveCurrents'
-        ]);
-
-        //===== SORT =====
-        //Default values for sort and dir
-        $sort   = $this->main_model.'.last_contact';
-        $dir    = 'DESC';
-
-        if(null !== $this->request->getQuery('sort')){
-            if($this->request->getQuery('sort') == 'username'){
-                $sort = 'Users.username';
-            }else{
-                $sort = $this->main_model.'.'.$this->request->getQuery('sort');
-            }
-            $dir  = $this->request->getQuery('dir');
-        }
-
-        $query->order([$sort => $dir]);
-        //==== END SORT ===
-
-
-        //====== REQUEST FILTER =====
-        if(null !== $this->request->getQuery('filter')){
-            $filter = json_decode($this->request->getQuery('filter'));
-            foreach($filter as $f){
-
-                $f = $this->GridFilter->xformFilter($f);
-
-                //Strings
-                if($f->type == 'string'){
-                    if($f->field == 'owner'){
-                        array_push($where, ["Users.username LIKE" => '%'.$f->value.'%']);
-                    }else{
-                        $col = $this->main_model.'.'.$f->field;
-                        array_push($where, ["$col LIKE" => '%'.$f->value.'%']);
-                    }
-                }
-                //Bools
-                if($f->type == 'boolean'){
-                    $col = $this->main_model.'.'.$f->field;
-                    array_push($where, ["$col" => $f->value]);
-                }
-            }
-        }
-        
-       //=== Combo Filter if present ====
-        if(isset($this->request->query['query'])){
-            $q = $this->request->query['query'];
-            if($q !== '[null]'){            
-                array_push($where,["DynamicClients.name LIKE" => '%'.$q.'%']);
-            } 
-        } 
-          
-        //====== END REQUEST FILTER =====
-
-        //====== AP FILTER =====
-        //If the user is an AP; we need to add an extra clause to only show the LicensedDevices which he is allowed to see.
-        if($user['group_name'] == Configure::read('group.ap')){  //AP
-            $tree_array = [];
-            $user_id    = $user['id'];
-
-            //**AP and upward in the tree**
-            $this->parents = $this->Users->find('path', ['for' => $user_id, 'fields' => 'Users.id']);
-            //So we loop this results asking for the parent nodes who have available_to_siblings = true
-            foreach($this->parents as $i){
-                $i_id = $i->id;
-                if($i_id != $user_id){ //upstream
-                    array_push($tree_array,[$this->main_model.'.user_id' => $i_id,$this->main_model.'.available_to_siblings' => true]);
-                }else{
-                    array_push($tree_array,[$this->main_model.'.user_id' => $i_id]);
-                }
-            }
-            //** ALL the AP's children
-            $this->children    = $this->Users->find_access_provider_children($user['id']);
-            if($this->children){   //Only if the AP has any children...
-                foreach($this->children as $i){
-                    $id = $i['id'];
-                    array_push($tree_array,[$this->main_model.'.user_id' => $id]);
-                }
-            }
-            //Add it as an OR clause
-            array_push($where, ['OR' => $tree_array]);
-        }
-        //====== END AP FILTER =====
-        return $query->where($where);
-    }
-
-    private function _get_action_flags($owner_id,$user){
-        if($user['group_name'] == Configure::read('group.admin')){  //Admin
-            return ['update' => true, 'delete' => true];
-        }
-
-        if($user['group_name'] == Configure::read('group.ap')){  //AP
-            $user_id = $user['id'];
-
-            //test for self
-            if($owner_id == $user_id){
-                return ['update' => true, 'delete' => true ];
-            }
-            //Test for Parents
-            foreach($this->parents as $i){
-                if($i->id == $owner_id){
-                    return ['update' => false, 'delete' => false ];
-                }
-            }
-
-            //Test for Children
-            foreach($this->children as $i){
-                if($i['id'] == $owner_id){
-                    return ['update' => true, 'delete' => true];
-                }
-            }
-        }
-    }
-
+ 
     private function _add_dynamic_client_realm($dynamic_client_id,$realm_id){
 
         $d                                              = [];
@@ -638,8 +424,7 @@ class DynamicClientsController extends AppController{
         return $total_data;
     }
     
-    public function menuForGrid(){
-        
+    public function menuForGrid(){     
         $menu = $this->GridButtonsFlat->returnButtons(false, 'DynamicClients'); 
         $this->set(array(
             'items' => $menu,
