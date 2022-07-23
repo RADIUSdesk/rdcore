@@ -15,42 +15,28 @@ class DynamicClientsController extends AppController{
     public function initialize(){  
         parent::initialize();
         $this->loadModel('DynamicClients'); 
-        $this->loadModel('Users');
-                 
+        $this->loadModel('Users');              
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
+        $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('GridFilter');
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
             'model' => 'DynamicClients'
         ]);
                 
         $this->loadComponent('JsonErrors'); 
-        $this->loadComponent('TimeCalculations'); 
-        
-        $this->loadComponent('Notes', [
-            'model'     => 'DynamicClientNotes',
-            'condition' => 'dynamic_client_id'
-        ]);        
+        $this->loadComponent('TimeCalculations');       
     }
 
     //____ BASIC CRUD Manager ________
     public function index(){
 
         $geo_data   = Configure::read('paths.geo_data');
-        $reader     = new Reader($geo_data);
-        $cquery     = $this->request->getQuery();
-
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
-
-        $query = $this->{$this->main_model}->find();
-
-        $this->_build_common_query($query, $user);
-
+        $reader     = new Reader($geo_data);     
+        $cquery     = $this->request->getQuery();  
+        $cloud_id 	= $this->request->query['cloud_id'];
+        $query 	  	= $this->{$this->main_model}->find();
+        $this->CommonQuery->build_cloud_query($query,$cloud_id,['DynamicClientRealms']);
+        
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
         $page   = 1;
@@ -98,32 +84,14 @@ class DynamicClientsController extends AppController{
             }
 
             $realms     = [];
-            //Realms
-            foreach($i->dynamic_client_realms as $dcr){
-                if(! $this->Aa->test_for_private_parent($dcr->realm, $user)){
-                    if(! isset($dcr->realm->id)){
-                        $r_id = "undefined";
-                        $r_n = "undefined";
-                        $r_s =  false;
-                    }else{
-                        $r_id= $dcr->realm->id;
-                        $r_n = $dcr->realm->name;
-                        $r_s = $dcr->realm->available_to_siblings;
-                    }
-                    array_push($realms,
-                        [
-                            'id'                    => $r_id,
-                            'name'                  => $r_n,
-                            'available_to_siblings' => $r_s
-                        ]);
-                }
+            foreach($i->dynamic_client_realms as $dcr){               
+                array_push($realms,
+                    [
+                        'id'                    => $r_id,
+                        'name'                  => $r_n,
+                        'available_to_siblings' => $r_s
+                    ]);
             }
-
-            $owner_id       = $i->user_id;
-
-            $owner_tree     = $this->{'Users'}->find_parents($owner_id);
-            $action_flags   = $this->_get_action_flags($owner_id,$user);
-
 
             $i->country_code = $country_code;
             $i->country_name = $country_name;
@@ -133,30 +101,9 @@ class DynamicClientsController extends AppController{
                 $i->last_contact_human    = $this->TimeCalculations->time_elapsed_string($i->last_contact);
             }
 
-            //Create notes flag
-            $notes_flag  = false;
-            foreach($i->dynamic_client_notes as $dcn){
-                if(! $this->Aa->test_for_private_parent($dcn->note,$user)){
-                    $notes_flag = true;
-                    break;
-                }
-            }
-            
-            /*
-            if(isset($i->alive_current)){
-                $i->alive_current->time_human = $this->TimeCalculations->time_elapsed_string($i->alive_current->time);
-                 $i->alive_current->sig  = intval($i->alive_current->sig);
-                 $i->alive_current->pb   = $i->alive_current->sig /31;
-                 //$i->alive_current->pb   = bcdiv($i->alive_current->pb, 1, 2); 
-            }
-            */
-
-            $i->notes  = $notes_flag;
-
-            $i->owner  = $owner_tree;
             $i->realms = $realms;
-            $i->update = $action_flags['update'];
-            $i->delete = $action_flags['delete'];
+            $i->update = true;
+            $i->delete = true;
             
             //Check if there is data cap on unit
             if($i->data_limit_active){
@@ -692,13 +639,8 @@ class DynamicClientsController extends AppController{
     }
     
     public function menuForGrid(){
-    
-        $user = $this->Aa->user_for_token($this);
-        if (!$user) {   //If not a valid user
-            return;
-        }
-
-        $menu = $this->GridButtons->returnButtons($user, false, 'DynamicClients'); 
+        
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'DynamicClients'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,

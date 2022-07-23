@@ -394,7 +394,42 @@ class GridButtonsFlatComponent extends Component {
                     'ui'        => $this->btnUiEdit
                 ]);
             $menu = [$b];
-        }        
+        }
+        
+         if($type == 'profiles'){
+            $b  = $this->_fetchBasic();
+            $a  = $this->_fetchProfilesExtras();
+            $menu = array($b,$a);
+        }
+        
+        if($type == 'DynamicClients'){      
+            $shared_secret = "(Please specify one)";
+            if(Configure::read('DynamicClients.shared_secret')){
+                $shared_secret = Configure::read('DynamicClients.shared_secret');
+            }
+                  
+            $b = $this->_fetchBasic('disabled',true,$type);
+            $a  = $this->_fetchDynamicClientsExtras();
+            $n = [
+                'xtype'     => 'buttongroup',
+                'width'     => 180,
+               // 'title'     => '<span class="txtBlue"><i class="fa  fa-lightbulb-o"></i> Site Wide Shared Secret</span>',
+                'items'     => [
+                    [
+                    'xtype'     => 'tbtext', 
+                    'html'      => [
+                        '<div style="padding:2px;">',
+                        '<div class="txtBlue" style="text-align: center;"><i class="fa  fa-lightbulb-o"></i> Site Wide Shared Secret</div>',
+                        '<div style="margin:3px; text-align: center;"><font size="4"><b>'.$shared_secret.'</b></font></div>',
+                        '</div>'
+                    ]
+                ]
+                ]];
+            $menu = [$b,$a,$n];
+            
+        }
+        
+                
         return $menu;
     }
    
@@ -471,6 +506,44 @@ class GridButtonsFlatComponent extends Component {
         ];                    
         return $menu;
     }
- 
+    
+       private function _fetchProfilesExtras(){
+       
+        $menu = [];      
+        if($this->title){
+            $t = __('Extra Actions');
+            $w = 150;
+        }else{
+            $t = null;
+            $w = 110;
+        }    
+	     $menu = [
+	        'xtype' => 'buttongroup',
+	        'title' => $t,
+	        'width' => $w,
+	        'items' => [
+	            $this->btnProfComp,
+	            $this->btnAdvancedEdit
+	        ]
+        ];    
+        return $menu;
+    }
+    
+    function _fetchDynamicClientsExtras(){  
+        $menu = [];        
+        if($this->title){
+            $t = __('Extra Actions');
+        }else{
+            $t = null;
+        }       
+        $m_items = [
+            $this->btnGraph,
+            $this->btnMap,
+            $this->btnAvailable
+        ];      
+      	array_push($m_items,$this->btnUnknownClients);      
+        $menu = ['xtype' => 'buttongroup','title' => $t, 'items' => $m_items ];    
+        return $menu;  
+    }
  
 }

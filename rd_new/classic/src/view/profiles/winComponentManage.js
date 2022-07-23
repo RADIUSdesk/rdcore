@@ -1,13 +1,12 @@
 Ext.define('Rd.view.profiles.winComponentManage', {
-    extend: 'Ext.window.Window',
-    alias : 'widget.winComponentManage',
-    title : i18n('sEdit_profile'),
-    layout: 'fit',
+    extend  : 'Ext.window.Window',
+    alias   : 'widget.winComponentManage',
+    title   : i18n('sEdit_profile'),
+    layout  : 'fit',
     autoShow: false,
-    width:    450,
-    height:   410,
-    iconCls: 'edit',
-    glyph: Rd.config.icnEdit,
+    width   : 450,
+    height  : 400,
+    glyph   : Rd.config.icnEdit,
     initComponent: function() {
         var me = this;
         this.items = [
@@ -32,15 +31,11 @@ Ext.define('Rd.view.profiles.winComponentManage', {
                 items: [
                     {
                         xtype       : 'radiogroup',
-                      //  fieldLabel  : i18n('sAction'),
-                     //   labelWidth  : 50,
-                        columns: 2,
-                        vertical: false,
+                        columns     : 2,
+                        vertical    : false,
                         items: [
                             { boxLabel: i18n('sAdd_component'),                     name: 'rb',     inputValue: 'add', checked: true },
-                            { boxLabel: i18n('sRemove_component'),                  name: 'rb',     inputValue: 'remove'},
-                            { boxLabel: i18n('sAvailable_to_sub_providers'),   name: 'rb',     inputValue: 'sub'},
-                            { boxLabel: i18n('sPrivate'),                      name: 'rb',     inputValue: 'no_sub'}
+                            { boxLabel: i18n('sRemove_component'),                  name: 'rb',     inputValue: 'remove'}
                         ]
                     },
                     {
@@ -73,7 +68,6 @@ Ext.define('Rd.view.profiles.winComponentManage', {
                         scale: 'large',
                         iconCls: 'b-next',
                         glyph: Rd.config.icnNext,
-                       // formBind: true,
                         margin: '0 20 40 0'
                     }
                 ]

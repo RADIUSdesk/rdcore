@@ -17,9 +17,9 @@ use Cake\Utility\Inflector;
 
 class ProfilesController extends AppController
 {
-    public $base = "Access Providers/Controllers/Profiles/";
-    protected $owner_tree = array();
-    protected $main_model = 'Profiles';
+    public $base 			= "Access Providers/Controllers/Profiles/";
+    protected $owner_tree 	= [];
+    protected $main_model 	= 'Profiles';
     protected $profCompPrefix = 'SimpleAdd_';
 
     public function initialize()
@@ -45,7 +45,7 @@ class ProfilesController extends AppController
             'model' => 'Profiles'
         ]);
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
+        $this->loadComponent('GridButtonsFlat');
              
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');  
@@ -560,7 +560,7 @@ class ProfilesController extends AppController
             return;
         }
 
-        $menu = $this->GridButtons->returnButtons($user, false, 'profiles'); 
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'profiles'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,

@@ -29,9 +29,8 @@ Ext.define('Rd.controller.cProfiles', {
     },
     
     views:  [
-        'profiles.gridProfiles',  /*  
-        'components.winCsvColumnSelect',
-        'profiles.winComponentManage'*/
+        'profiles.gridProfiles',  
+        'profiles.winComponentManage'
     ],
     stores: ['sProfiles','sProfileComponents'],
     models: ['mProfile'],
@@ -284,80 +283,6 @@ Ext.define('Rd.controller.cProfiles', {
             },
             failure: Ext.ux.formFail
         });
-    },
-    csvExport: function(button,format) {
-        var me          = this;
-        var columns     = me.getGrid().columnManager.columns;
-        var col_list    = [];
-        Ext.Array.each(columns, function(item,index){
-            if(item.dataIndex != ''){
-                var chk = {boxLabel: item.text, name: item.dataIndex, checked: true};
-                col_list[index] = chk;
-            }
-        }); 
-
-        if(!Ext.WindowManager.get('winCsvColumnSelectProfiles')){
-            var w = Ext.widget('winCsvColumnSelect',{id:'winCsvColumnSelectProfiles',columns: col_list});
-            w.show();         
-        }
-    },
-    csvExportSubmit: function(button){
-
-        var me      = this;
-        var win     = button.up('window');
-        var form    = win.down('form');
-
-        var chkList = form.query('checkbox');
-        var c_found = false;
-        var columns = [];
-        var c_count = 0;
-        Ext.Array.each(chkList,function(item){
-            if(item.getValue()){ //Only selected items
-                c_found = true;
-                columns[c_count] = {'name': item.getName()};
-                c_count = c_count +1; //For next one
-            }
-        },me);
-
-        if(!c_found){
-            Ext.ux.Toaster.msg(
-                        i18n('sSelect_one_or_more'),
-                        i18n('sSelect_one_or_more_columns_please'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{     
-            //next we need to find the filter values:
-            var filters     = [];
-            var f_count     = 0;
-            var f_found     = false;
-            var filter_json ='';
-            
-            var filter_collection = me.getGrid().getStore().getFilters();     
-            if(filter_collection.count() > 0){
-                var i = 0;
-                while (f_count < filter_collection.count()) { 
-
-                  //  console.log(filter_collection.getAt(f_count).serialize( ));
-                    f_found         = true;
-                    var ser_item    = filter_collection.getAt(f_count).serialize( );
-                    ser_item.field  = ser_item.property;
-                    filters[f_count]= ser_item;
-                    f_count         = f_count + 1;
-                    
-                }     
-            }
-            
-            var col_json        = "columns="+encodeURIComponent(Ext.JSON.encode(columns));
-            var extra_params    = Ext.Object.toQueryString(Ext.Ajax.getExtraParams());
-            var append_url      = "?"+extra_params+'&'+col_json;
-            if(f_found){
-                filter_json = "filter="+encodeURIComponent(Ext.JSON.encode(filters));
-                append_url  = append_url+'&'+filter_json;
-            }
-            window.open(me.getUrlExportCsv()+append_url);
-            win.close();
-        }
     },
     profileComponents: function(b){
         var me = this;

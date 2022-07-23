@@ -365,10 +365,8 @@ class GridButtonsComponent extends Component {
 
     public function returnButtons($user,$title = true,$type='basic'){
         //First we will ensure there is a token in the request
-        $this->controller = $this->_registry->getController();
-        
-        $this->title = $title;
-        
+        $this->controller 	= $this->_registry->getController();       
+        $this->title 		= $title;        
         if($title){
             $this->t = __('Action');
         }else{
