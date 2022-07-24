@@ -1,12 +1,12 @@
-Ext.define('Rd.view.permanentUsers.gridUserPrivate' ,{
+Ext.define('Rd.view.devices.gridDevicePrivate' ,{
     extend      :'Ext.grid.Panel',
-    alias       : 'widget.gridUserPrivate',
+    alias       : 'widget.gridDevicePrivate',
     multiSelect : true,
     stateful    : true,
-    stateId     : 'StateGridUserPrivate',
+    stateId     : 'StateGridDevicePrivate',
     stateEvents :['groupclick','columnhide'],
     border      : false,
-    requires: [
+    requires    : [
         'Ext.toolbar.Paging',
         'Ext.ux.ProgressBarPager'
     ],
@@ -14,14 +14,14 @@ Ext.define('Rd.view.permanentUsers.gridUserPrivate' ,{
         loadMask    :true
     },
     tbar        : [
-        { xtype: 'buttongroup', title: null,items : [ 
-            {   glyph: Rd.config.icnReload,   scale: 'large',   itemId: 'reload',    tooltip:    i18n('sReload'),ui:'button-orange'},
-            {   glyph: Rd.config.icnDelete,   scale: 'large',   itemId: 'delete',    disabled: true,    tooltip:    i18n('sDelete'),ui:'button-red'}
+        { xtype: 'buttongroup', title: i18n('sAction'),items : [ 
+            {   glyph: Rd.config.icnReload,   scale: 'large',   itemId: 'reload',    tooltip:    i18n('sReload')},
+            {   glyph: Rd.config.icnDelete,   scale: 'large',   itemId: 'delete',    disabled: true,    tooltip:    i18n('sDelete')}
         ]}, 
-        { xtype: 'buttongroup', title: null,items : [
-            {   xtype: 'cmbVendor'     , itemId:'cmbVendor',    emptyText: i18n('sSelect_a_vendor'), padding: '5 0 0 0' },{ xtype: 'tbseparator'},
-            {   xtype: 'cmbAttribute'  , itemId:'cmbAttribute', emptyText: i18n('sSelect_an_attribute'), padding: '5 0 0 0'},
-            {   glyph: Rd.config.icnAdd, scale: 'large',        itemId: 'add',       tooltip:    i18n('sAdd'),ui:'button-green'}
+        { xtype: 'buttongroup', title: i18n('sSelection'),items : [
+            {   xtype: 'cmbVendor'     , itemId:'cmbVendor',    emptyText: i18n('sSelect_a_vendor') },
+            {   xtype: 'cmbAttribute'  , itemId:'cmbAttribute', emptyText: i18n('sSelect_an_attribute') },
+            {   glyph: Rd.config.icnAdd, scale: 'large',        itemId: 'add',       tooltip:    i18n('sAdd')}
         ]}        
     ],
     username    : 'nobody', //dummy value
@@ -32,7 +32,7 @@ Ext.define('Rd.view.permanentUsers.gridUserPrivate' ,{
         })];
 
         me.columns = [
-          //  {xtype: 'rownumberer',stateId: 'StateGridUserPrivate1'},          
+            {xtype: 'rownumberer',stateId: 'StateGridDevicePrivate1'},          
             {
                 header      : i18n('sType'),
                 dataIndex   : 'type',
@@ -56,14 +56,14 @@ Ext.define('Rd.view.permanentUsers.gridUserPrivate' ,{
                         return i18n('sReply');
                     }
                 },
-                stateId     : 'StateGridUserPrivate2'
+                stateId     : 'StateGridDevicePrivate2'
             },  
             {
                 header      : i18n('sAttribute'),
                 xtype       : 'templatecolumn',
                 tdCls       : 'gridTree',
                 flex        : 1,
-                stateId     : 'StateGridUserPrivate3', 
+                stateId     : 'StateGridDevicePrivate3', 
                 tpl         : new Ext.XTemplate(
                     "<tpl if='edit == true'><div class=\"fieldBlue\"><i class=\"fa fa-edit\"></i> {attribute}</div></tpl>",
                     "<tpl if='edit == false'><div class=\"fieldGreyWhite\"><i class=\"fa fa-ban\"></i> {attribute}</div></tpl>"
@@ -74,7 +74,7 @@ Ext.define('Rd.view.permanentUsers.gridUserPrivate' ,{
                 header      : i18n('sOperator'),
                 dataIndex   : 'op',
                 width       : 100,
-                stateId     : 'StateGridUserPrivate4',
+                stateId     : 'StateGridDevicePrivate4',
                 editor      : {
                     allowBlank  : false,
                     xtype       : 'combobox',
@@ -103,7 +103,7 @@ Ext.define('Rd.view.permanentUsers.gridUserPrivate' ,{
                     xtype       : 'textfield',    
                     allowBlank  : false
                },
-               stateId: 'StateGridUserPrivate5'
+               stateId: 'StateGridDevicePrivate5'
             }
         ];
 
@@ -126,10 +126,10 @@ Ext.define('Rd.view.permanentUsers.gridUserPrivate' ,{
                     writeAllFields: true 
                 },
                 api         : {
-                    create      : '/cake3/rd_cake/permanent-users/private-attr-add.json',
-                    read        : '/cake3/rd_cake/permanent-users/private-attr-index.json',
-                    update      : '/cake3/rd_cake/permanent-users/private-attr-edit.json',
-                    destroy     : '/cake3/rd_cake/permanent-users/private-attr-delete.json'
+                    create      : '/cake3/rd_cake/devices/private-attr-add.json',
+                    read        : '/cake3/rd_cake/devices/private-attr-index.json',
+                    update      : '/cake3/rd_cake/devices/private-attr-edit.json',
+                    destroy     : '/cake3/rd_cake/devices/private-attr-delete.json'
                 }
             },
             listeners: {
@@ -173,7 +173,6 @@ Ext.define('Rd.view.permanentUsers.gridUserPrivate' ,{
                 }
             }  
         ];
-        
         me.callParent(arguments);
     }
 });

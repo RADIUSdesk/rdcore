@@ -39,21 +39,21 @@ class DashboardController extends AppController{
 				'text'	=> 'USERS',
 				'leaf'	=> true,
 				'controller'	=> 'cPermanentUsers',
-				'id'		=> 'tabPermanentUsers',
+				'id'		=> 'tabMainPermanentUsers',
 				'iconCls'	=> 'x-fa fa-user'
 			],
 			[
 				'text'	=> 'VOUCHERS',
 				'leaf'	=> true,
 				'controller'	=> 'cVouchers',
-				'id'		=> 'tabVouchers',
+				'id'		=> 'tabMainVouchers',
 				'iconCls'	=> 'x-fa fa-tag'
 			],
 			[
 				'text'	=> 'TOP-UPS',
 				'leaf'	=> true,
 				'controller'	=> 'cTopUps',
-				'id'		=> 'tabTopUps',
+				'id'		=> 'tabMainTopUps',
 				'iconCls'	=> 'x-fa  fa-coffee'
 			]			
 		];
@@ -63,21 +63,21 @@ class DashboardController extends AppController{
 				'text'	=> 'REALMS',
 				'leaf'	=> true,
 				'controller'	=> 'cRealms',
-				'id'		=> 'tabRealms',
+				'id'		=> 'tabMainRealms',
 				'iconCls'	=> 'x-fa fa-globe'
 			],		
 			[
 				'text'	=> 'PROFILES',
 				'leaf'	=> true,
 				'controller'	=> 'cProfiles',
-				'id'		=> 'tabProfiles',
+				'id'		=> 'tabMainProfiles',
 				'iconCls'	=> 'x-fa fa-cubes'
 			],
 			[
 				'text'	=> 'CLIENTS',
 				'leaf'	=> true,
 				'controller'	=> 'cDynamicClients',
-				'id'		=> 'tabDynamicClients',
+				'id'		=> 'tabMainDynamicClients',
 				'iconCls'	=> 'x-fa fa-dot-circle-o'
 			]		
 		];
@@ -87,7 +87,7 @@ class DashboardController extends AppController{
 				'text'	=> 'HARDWARES',
 				'leaf'	=> true,
 				'controller'=> 'cHardwares',
-				'id'		=> 'tabHardwares',
+				'id'		=> 'tabMainHardwares',
 				'iconCls'	=> 'x-fa fa-cog'
 			]	
 		];
@@ -97,7 +97,7 @@ class DashboardController extends AppController{
 				'text'	=> 'ADMINS',
 				'leaf'	=> true,
 				'controller'	=> 'cAccessProviders',
-				'id'		=> 'tabAccessProviders',
+				'id'		=> 'tabMainAccessProviders',
 				'iconCls'	=> 'x-fa fa-graduation-cap'
 			]
 		];

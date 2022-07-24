@@ -15,15 +15,12 @@ class PermanentUsersTable extends Table
             ]
         );
           
-        $this->belongsTo('Users');      
+        $this->belongsTo('Clouds');      
         $this->belongsTo('Countries');
         $this->belongsTo('Languages');
         $this->belongsTo('Profiles',['propertyName'  => 'real_profile']);
         $this->belongsTo('Realms',['propertyName'  => 'real_realm']);
-      
-        $this->hasMany('PermanentUserNotes',['dependent' => true,'cascadeCallbacks' =>true]);
-     //   $this->hasMany('PermanentUserSettings');
-     
+           
         //It is very impartant that we specify 'cascadeCallbacks' in order for the devices to also be taken for the system
         $this->hasMany('Devices',['dependent' => true,'cascadeCallbacks' =>true]);
         
@@ -40,8 +37,7 @@ class PermanentUsersTable extends Table
             'cascadeCallbacks' =>true,
             'foreignKey' => 'username',
             'bindingKey' => 'username'
-        ]);
-        
+        ]);        
     }
     
     public function validationDefault(Validator $validator){

@@ -429,6 +429,25 @@ class GridButtonsFlatComponent extends Component {
             
         }
         
+        if($type == 'vouchers'){
+            $b  = $this->_fetchBasicVoucher();
+            $d  = $this->_fetchDocumentVoucher();
+            $a  = $this->_fetchVoucherExtras();
+            $menu = array($b,$d,$a);
+        }
+        
+        if($type == 'fr_acct_and_auth'){
+            $b  = $this->_fetchFrAcctAuthBasic();
+            $menu = [$b];
+        }
+        
+         if($type == 'permanent_users'){
+            $b  = $this->_fetchBasic(true);
+            $d  = $this->_fetchDocument();
+            $a  = $this->_fetchPermanentUserExtras();
+            $menu = [$b,$d,$a];
+        }
+        
                 
         return $menu;
     }
@@ -545,5 +564,128 @@ class GridButtonsFlatComponent extends Component {
         $menu = ['xtype' => 'buttongroup','title' => $t, 'items' => $m_items ];    
         return $menu;  
     }
+    
+   	private function _fetchBasicVoucher(){
+    
+        $disabled   = false;   
+        $menu       = [];
+    
+        $add = [
+            'xtype' 	=> 'splitbutton',   
+            'glyph' 	=> Configure::read('icnAdd'),    
+            'scale' 	=> $this->scale, 
+            'itemId' 	=> 'add',      
+            'tooltip'	=> __('Add'),
+            'disabled'  => $disabled,
+            'ui'        => $this->btnUiAdd,
+            'menu'      => [
+                    'items' => [
+                        array( 'text'  => __('Single field'),      		'itemId'    => 'addSingle', 'group' => 'add', 'checked' => true ),
+                        array( 'text'  => __('Username and Password'),   'itemId'    => 'addDouble', 'group' => 'add' ,'checked' => false), 
+                        array( 'text'  => __('Import CSV List'),         'itemId'    => 'addCsvList','group' => 'add' ,'checked' => false),  
+                    ]
+            ]
+        ];
+
+        $delete = [
+            'xtype' 	=> 'splitbutton',   
+            'glyph' 	=> Configure::read('icnDelete'),    
+            'scale' 	=> $this->scale, 
+            'itemId' 	=> 'delete',      
+            'tooltip'	=> __('Delete'),
+            'disabled'  => $disabled,
+            'ui'        => $this->btnUiDelete,
+            'menu'      => [
+                    'items' => [
+                        array( 'text'  => __('Simple Delete'), 'itemId'    => 'deleteSimple', 'group' => 'delete', 'checked' => true ),
+                        array( 'text'  => __('Bulk Delete'),   'itemId'    => 'deleteBulk', 'group' => 'delete' ,'checked' => false),  
+                    ]
+            ]
+        ];
+
+
+        $menu = array('xtype' => 'buttongroup','title' => $this->t, 'items' => array(
+                $this->btnReloadTimer,
+                $add,
+                $delete,
+                $this->btnEdit
+            )
+        );
+      
+        return $menu;
+    }
+    
+    private function _fetchDocumentVoucher(){
+        $menu = [];        
+        if($this->title){
+            $t = __('Document');
+        }else{
+            $t = null;
+        }               
+        $menu = [
+            'xtype' => 'buttongroup',
+            'title' => $t, 
+            'items' => [
+                $this->btnPdf,
+                $this->btnCSV,
+                $this->btnMail
+            ]
+        ];
+        return $menu;
+    }
+    
+     private function _fetchVoucherExtras(){  
+        $menu = [];   
+        if($this->title){
+            $t = __('Extra Actions');
+        }else{
+            $t = null;
+        } 
+		$menu = [
+			'xtype' => 'buttongroup',
+			'title' => $t, 
+			'items' => [
+			   $this->btnPassword,
+			   $this->btnRadius,
+			   $this->btnGraph
+			]
+		];    
+        return $menu;
+    }
+    
+        
+   	private function _fetchFrAcctAuthBasic(){
+        $menu = [];
+        $menu = [
+                ['xtype' => 'buttongroup','title' => null, 'items' => [
+                    $this->btnReload,
+                   $this->btnDelete, 
+            ]] 
+        ];
+        return $menu;
+    }
+    
+     private function _fetchPermanentUserExtras(){
+        $menu = []; 
+        if($this->title){
+            $t = __('Extra Actions');
+        }else{
+            $t = null;
+        } 
+
+         $menu = [
+            'xtype' => 'buttongroup',
+            'title' => $t, 
+            'items' => [
+               $this->btnPassword,
+               $this->btnEnable,
+               $this->btnRadius,
+               $this->btnGraph,
+               $this->btnByod
+            ]
+        ];                   
+        return $menu;
+    }
+
  
 }

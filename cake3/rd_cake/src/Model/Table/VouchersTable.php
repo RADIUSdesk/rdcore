@@ -14,7 +14,7 @@ class VouchersTable extends Table
                 'for_model' => 'Vouchers'
             ]
         );
-        $this->belongsTo('Users');      
+        $this->belongsTo('Clouds');      
         $this->belongsTo('Profiles',['propertyName'  => 'real_profile']);
         $this->belongsTo('Realms',['propertyName'  => 'real_realm']);
         $this->hasMany('Radchecks',[

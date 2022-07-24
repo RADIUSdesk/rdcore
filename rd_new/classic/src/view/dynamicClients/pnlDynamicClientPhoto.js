@@ -83,7 +83,7 @@ Ext.define('Rd.view.dynamicClients.pnlDynamicClientPhoto', {
        me.items = [
             {
                 xtype       : 'panel',
-                title       : i18n('sCurrent_photo'),
+                title       : 'Current Photo',
                 ui          : 'panel-blue',
                 layout      : 'fit',
                 bodyPadding : 10,

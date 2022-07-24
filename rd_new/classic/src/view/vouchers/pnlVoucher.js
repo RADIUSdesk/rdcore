@@ -24,13 +24,7 @@ Ext.define('Rd.view.vouchers.pnlVoucher', {
                 layout  : 'fit',
                 xtype   : 'gridVoucherPrivate',  
                 username: me.v_name
-            }, 
-		    { 
-                title   : i18n('sDevices'),
-                layout  : 'fit',
-                xtype   : 'gridVoucherDevices',  
-                username: me.v_name
-            }, 
+            },
             { 
                 title   : i18n('sAccounting_data'), 
                 layout  : 'fit',

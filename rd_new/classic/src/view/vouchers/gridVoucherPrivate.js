@@ -14,14 +14,14 @@ Ext.define('Rd.view.vouchers.gridVoucherPrivate' ,{
         loadMask    :true
     },
     tbar        : [
-        { xtype: 'buttongroup', title: i18n('sAction'),items : [ 
-            {   glyph: Rd.config.icnReload,   scale: 'large',   itemId: 'reload',    tooltip:    i18n('sReload')},
-            {   glyph: Rd.config.icnDelete,   scale: 'large',   itemId: 'delete',    disabled: true,    tooltip:    i18n('sDelete')}
+        { xtype: 'buttongroup', title: null,items : [ 
+            {   glyph: Rd.config.icnReload,   scale: 'large',   itemId: 'reload',    tooltip:    i18n('sReload'),ui:'button-orange'},
+            {   glyph: Rd.config.icnDelete,   scale: 'large',   itemId: 'delete',    disabled: true,    tooltip:    i18n('sDelete'),ui:'button-red'}
         ]}, 
-        { xtype: 'buttongroup', title: i18n('sSelection'),items : [
-            {   xtype: 'cmbVendor'     , itemId:'cmbVendor',    emptyText: i18n('sSelect_a_vendor') },
-            {   xtype: 'cmbAttribute'  , itemId:'cmbAttribute', emptyText: i18n('sSelect_an_attribute') },
-            {   glyph: Rd.config.icnAdd, scale: 'large',        itemId: 'add',       tooltip:    i18n('sAdd')}
+        { xtype: 'buttongroup', title: null,items : [
+            {   xtype: 'cmbVendor'     , itemId:'cmbVendor',    emptyText: i18n('sSelect_a_vendor'), padding: '5 0 0 0' },{ xtype: 'tbseparator'},
+            {   xtype: 'cmbAttribute'  , itemId:'cmbAttribute', emptyText: i18n('sSelect_an_attribute'), padding: '5 0 0 0'},
+            {   glyph: Rd.config.icnAdd, scale: 'large',        itemId: 'add',       tooltip:    i18n('sAdd'),ui:'button-green'}
         ]}        
     ],
     username    : 'nobody', //dummy value

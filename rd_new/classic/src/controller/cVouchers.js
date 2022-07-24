@@ -29,22 +29,21 @@ Ext.define('Rd.controller.cVouchers', {
     },
 
     views:  [
-        'vouchers.gridVouchers',/*    'vouchers.winVoucherAddWizard',
-        'components.cmbRealm',      	'components.cmbProfile',    'vouchers.pnlVoucher',  'vouchers.gridVoucherPrivate',
+        'vouchers.gridVouchers',    'vouchers.winVoucherAdd',
+        'components.cmbRealm',      	'components.cmbProfile',
+        'vouchers.pnlVoucher',  'vouchers.gridVoucherPrivate',
         'components.cmbVendor',     	'components.cmbAttribute',  'vouchers.gridVoucherRadaccts',
         'vouchers.winVoucherPassword', 	'components.winPdf',     'vouchers.winVoucherPdf',
         'vouchers.cmbPdfFormats',   	'components.vCmbLanguages', 'components.winCsvColumnSelect', 
         'components.pnlUsageGraph', 	'vouchers.winVoucherEmailDetail',
-		'vouchers.gridVoucherDevices',	'vouchers.winVoucherAddDevice',
-		'components.cmbSsid',
         'vouchers.pnlVoucherGraphs',
-        'vouchers.winVoucherCsvImport'*/
+       // 'vouchers.winVoucherCsvImport'
     ],
-    stores: ['sVouchers',/* 'sRealms', 'sProfiles', 'sAttributes', 'sVendors',    'sPdfFormats', 'sLanguages'*/],
+    stores: ['sVouchers', 'sRealms', 'sProfiles', 'sAttributes', 'sVendors',    'sPdfFormats', 'sLanguages'],
     models: [
-		'mVoucher', /*			'mRealm',       
+		'mVoucher', 			'mRealm',       
 		'mProfile', 			'mPrivateAttribute', 	'mRadacct', 
-		'mPdfFormat', 			'mUserStat',	*/		'mVoucherDevice'
+		'mPdfFormat', 			'mUserStat',
 	],
     selectedRecord: null,
     config: {
@@ -59,8 +58,6 @@ Ext.define('Rd.controller.cVouchers', {
         urlChangePassword   : '/cake3/rd_cake/vouchers/change-password.json',
         urlPdfBase          : '/cake3/rd_cake/vouchers/export-pdf',
         urlEmailSend        : '/cake3/rd_cake/vouchers/email-voucher-details.json',
-        
-		urlAddDevice        : '/cake3/rd_cake/vouchers/voucher_device_add.json',
 		urlAddCsv           : '/cake3/rd_cake/vouchers/add_csv/',
 		
 		urlDeleteRadaccts:  '/cake3/rd_cake/radaccts/delete.json',
@@ -131,27 +128,17 @@ Ext.define('Rd.controller.cVouchers', {
             'gridVouchers actioncolumn': { 
                  itemClick  : me.onActionColumnItemClick
             },
-            //Add WiZard 
-
-            'winVoucherAddWizard #btnTreeNext' : {
-                click:  me.btnTreeNext
-            },
-            'winVoucherAddWizard #quantity' : {
+            //Add 
+            'winVoucherAdd #quantity' : {
                 change:  me.quantityChange
             },
-            'winVoucherAddWizard #activate_on_login' : {
+            'winVoucherAdd #activate_on_login' : {
                 change:  me.chkActivateOnLoginChange
             },
-            'winVoucherAddWizard #never_expire' : {
+            'winVoucherAdd #never_expire' : {
                 change:  me.chkNeverExpireChange
             },
-			'winVoucherAddWizard #ssid_only' : {
-                change:  me.chkSsidOnlyChange
-            },
-            'winVoucherAddWizard #btnDataPrev' : {
-                click:  me.btnDataPrev
-            },
-            'winVoucherAddWizard #btnDataNext' : {
+            'winVoucherAdd #btnDataNext' : {
                 click:  me.btnDataNext
             },
             
@@ -187,9 +174,6 @@ Ext.define('Rd.controller.cVouchers', {
             'pnlVoucher #never_expire' : {
                 change:  me.chkNeverExpireChange
             },
-			'pnlVoucher #ssid_only' : {
-                change:  me.chkSsidOnlyChange
-            },
             'pnlVoucher #tabBasicInfo #save' : {
                 click: me.saveBasicInfo
             },
@@ -211,21 +195,6 @@ Ext.define('Rd.controller.cVouchers', {
             },
             'gridVoucherPrivate  #delete': {
                 click:      me.attrDelete
-            },
-			'pnlVoucher gridVoucherDevices' : {
-                activate:      me.gridActivate
-            },
-			'winVoucherAddDevice #save' : {
-                click:  me.btnDeviceAddSave
-            },
-			'gridVoucherDevices  #add': {
-                click:      me.deviceAdd
-            },
-            'gridVoucherDevices  #reload': {
-                click:      me.deviceReload
-            },
-            'gridVoucherDevices  #delete': {
-                click:      me.deviceDelete
             },
             '#winCsvColumnSelectVouchers #save': {
                 click:  me.csvExportSubmit
@@ -316,73 +285,16 @@ Ext.define('Rd.controller.cVouchers', {
         if(me.addCsvList){
             me.addCsvImport();    
         }else{
-            Ext.Ajax.request({
-                url: me.getUrlApChildCheck(),
-                method: 'GET',
-                success: function(response){
-                    var jsonData    = Ext.JSON.decode(response.responseText);
-                    if(jsonData.success){
-                            
-                        if(jsonData.items.tree == true){
-                            if(!Ext.WindowManager.get('winVoucherAddWizardId')){
-                                var w = Ext.widget('winVoucherAddWizard',{id:'winVoucherAddWizardId',singleField: me.singleField});
-                                w.show();         
-                            }
-                        }else{
-                            if(!Ext.WindowManager.get('winVoucherAddWizardId')){
-                                var w = Ext.widget('winVoucherAddWizard',
-                                    {
-									    id			: 'winVoucherAddWizardId',
-									    startScreen	: 'scrnData',
-									    user_id		:'0',
-									    owner		: i18n('sLogged_in_user'), 
-									    no_tree		: true,
-									    apId		:'0',
-									    singleField : me.singleField
-								    }
-                                );
-                                w.show();         
-                            }
-                        }
-                    }   
-                },
-                scope: me
-            });
+            var me 		= this;
+            var c_name 	= me.application.getCloudName();
+            var c_id	= me.application.getCloudId()
+            if(!Ext.WindowManager.get('winVoucherAddId')){
+                var w = Ext.widget('winVoucherAdd',{id:'winVoucherAddId',cloudId: c_id, cloudName: c_name,singleField: me.singleField});
+                w.show();         
+            }
         }
     },
-    
-    btnTreeNext: function(button){
-        var me = this;
-        var tree = button.up('treepanel');
-        //Get selection:
-        var sr = tree.getSelectionModel().getLastSelected();
-        if(sr){    
-            var win = button.up('window');
-            win.down('#owner').setValue(sr.get('username'));
-            win.down('#user_id').setValue(sr.getId());
 
-            //We need to update the Store of the Realms and Profile select list to reflect the specific Access Provider
-            win.down('#realm').getStore().getProxy().setExtraParam('ap_id',sr.getId());
-            win.down('#realm').getStore().load();
-
-            win.down('#profile').getStore().getProxy().setExtraParam('ap_id',sr.getId());
-            win.down('#profile').getStore().load();    
-            
-            win.getLayout().setActiveItem('scrnData');
-        }else{
-            Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_owner'),
-                        i18n('sFirst_select_an_Access_Provider_who_will_be_the_owner'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }
-    },
-    btnDataPrev:  function(button){
-        var me      = this;
-        var win     = button.up('window');
-        win.getLayout().setActiveItem('scrnApTree');
-    },
     btnDataNext:  function(button){
         var me      = this;
         var win     = button.up('window');
@@ -665,20 +577,7 @@ Ext.define('Rd.controller.cVouchers', {
         var voucher_id = t.up('pnlVoucher').v_id;
         form.load({url:me.getUrlViewBasic(), method:'GET',params:{voucher_id:voucher_id},
 			success : function(a,b){  
-				//If the SSID must be restricted specify which SSIDs
-				if(b.result.data.ssid_list != undefined){
-					var cmbSsid	= form.down('#ssid_list');
-					var iValues = [];  
-					cmbSsid.getStore().loadData([],false); //Wipe it
-					Ext.Array.forEach(b.result.data.ssid_list,function(item){
-                    	//console.log(item);
-						var id = item.id;
-						iValues.push ( id );
-						cmbSsid.getStore().loadData([item],true); //Append it
-                    });
-					//console.log(iValues);
-					cmbSsid.setValue( iValues );	
-				}
+				
             }
 		});
     },
@@ -976,19 +875,6 @@ Ext.define('Rd.controller.cVouchers', {
             e.setDisabled(false);
         }
     },
-	chkSsidOnlyChange: function(chk){
-        var me      = this;
-        var form    = chk.up('form');
-        var list    = form.down('#ssid_list');
-        var value   = chk.getValue();
-        if(value){
-            list.setVisible(true);
-            list.setDisabled(false);
-        }else{
-            list.setVisible(false);
-            list.setDisabled(true);
-        }
-    },
     selectVoucherPrivate:  function(grid, record, item, index, event){
         var me = this;
         //Adjust the Edit and Delete buttons accordingly...
@@ -1094,88 +980,6 @@ Ext.define('Rd.controller.cVouchers', {
                             );
                            // grid.getStore().load();   //Update the count
                             me.reload();   
-                        },
-                        failure: function(batch,options,c,d){
-                            Ext.ux.Toaster.msg(
-                                i18n('sProblems_deleting_item'),
-                                batch.proxy.getReader().rawData.message.message,
-                                Ext.ux.Constants.clsWarn,
-                                Ext.ux.Constants.msgWarn
-                            );
-                            grid.getStore().load(); //Reload from server since the sync was not good
-                        }
-                    });
-                }
-            });
-        }
-    },
-	deviceAdd: function(button){
-        var me      = this;
-        var pnl     = button.up("pnlVoucher");
-        
-        //Entry points present; continue 
-        var store   	= pnl.down("gridVoucherDevices").getStore();
-
-        if(!Ext.WindowManager.get('winVoucherAddDeviceId')){
-            var w = Ext.widget('winVoucherAddDevice',
-            {
-                id          :'winVoucherAddDeviceId',
-                store       : store,
-                username    : pnl.v_name	
-            });
-            w.show();         
-        }
-    },
-    btnDeviceAddSave: function(button){
-        var me      = this;
-        var win     = button.up("winVoucherAddDevice");
-        var form    = win.down('form');
-        form.submit({
-            clientValidation: true,
-            url: me.getUrlAddDevice(),
-            success: function(form, action) {
-                win.close();
-                win.store.load();
-                Ext.ux.Toaster.msg(
-                    i18n('sItem_added'),
-                    i18n('sItem_added_fine'),
-                    Ext.ux.Constants.clsInfo,
-                    Ext.ux.Constants.msgInfo
-                );
-            },
-            failure: Ext.ux.formFail
-        });
-    },
-	deviceReload: function(b){
-		var me = this;
-        var grid = b.up('gridVoucherDevices');
-        grid.getStore().load();
-	},
-	deviceDelete:   function(btn){
-        var me      = this;
-        var pnl     = btn.up("pnlVoucher");
-        var grid    = pnl.down("gridVoucherDevices");
-    
-        //Find out if there was something selected
-        if(grid.getSelectionModel().getCount() == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item_to_delete'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
-                if(val== 'yes'){
-                    grid.getStore().remove(grid.getSelectionModel().getSelection());
-                    grid.getStore().sync({
-                        success: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sItem_deleted'),
-                                i18n('sItem_deleted_fine'),
-                                Ext.ux.Constants.clsInfo,
-                                Ext.ux.Constants.msgInfo
-                            );  
                         },
                         failure: function(batch,options,c,d){
                             Ext.ux.Toaster.msg(

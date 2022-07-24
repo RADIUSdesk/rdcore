@@ -1,69 +1,62 @@
-Ext.define('Rd.controller.cPermanentUsers', {
+Ext.define('Rd.controller.cDevices', {
     extend: 'Ext.app.Controller',
-    actionIndex: function(pnl,itemId){
+    actionIndex: function(tp){
         var me      = this;
-        var item    = pnl.down('#'+itemId);
-        var added   = false;
-        if(!item){
-            var tp = Ext.create('Ext.tab.Panel',
-            	{          
-	            	border  : false,
-	                itemId  : itemId,
-	                plain	: true,
-	                cls     : 'subSubTab', //Make darker -> Maybe grey
-	                items   : [
-	                    { 
-	                         title  : 'Permanent Users', 
-	                         xtype  : 'gridPermanentUsers',
-	                         border : false,
-	                         plain  : true,
-	                         glyph  : Rd.config.icnUser,
-                             padding : '0 3 0 3'
-	                    }
-	                ]
-	            });      
-            pnl.add(tp);
-            pnl.on({activate : me.gridActivate,scope: me});
-            added = true;
-        }
-        return added;      
+        me.ui       = Rd.config.tabDevices; //This is set in the config file      
+        var me      = this;  
+        var tab     = tp.items.findBy(function (tab){
+            return tab.getXType() === 'gridDevices';
+        });
+        
+        if (!tab){
+            tab = tp.insert(1,{
+                xtype   : 'gridDevices',
+                padding : Rd.config.gridPadding,
+                border  : false,
+                itemId  : 'tabDevices',
+                glyph   : Rd.config.icnDevice,
+                title   : 'BYOD',
+                plain	: true,
+                closable: true, 
+                tabConfig: {
+                    ui: me.ui
+                }
+            });
+        }      
+        tp.setActiveTab(tab);
+        me.populated = true;
     },
 
     views:  [
-       	'permanentUsers.gridPermanentUsers',   'permanentUsers.winPermanentUserAdd',
-       	'components.cmbRealm',   'components.cmbProfile',  'components.cmbCap',
-        'components.winCsvColumnSelect',
-       	'permanentUsers.pnlPermanentUser', 'permanentUsers.gridUserRadaccts', 'permanentUsers.gridUserRadpostauths',
-        'components.winEnableDisable', 'permanentUsers.gridUserPrivate',
-       	'components.cmbVendor',   'components.cmbAttribute', 'permanentUsers.gridUserDevices', 'components.pnlUsageGraph',
-        'permanentUsers.pnlPermanentUserGraphs'
+       'devices.gridDevices',    'devices.winDeviceAdd',
+       'components.cmbPermanentUser',   'components.cmbProfile',  'components.cmbCap',
+       'components.winCsvColumnSelect',
+       'components.winEnableDisable',   'devices.pnlDevice',      'devices.gridDeviceRadaccts', 
+       'devices.gridDeviceRadpostauths','devices.gridDevicePrivate', 'components.pnlUsageGraph',
+       'components.cmbVendor',          'components.cmbAttribute',
+       'devices.pnlDeviceGraphs'
     ],
-    stores: ['sLanguages', 'sPermanentUsers', 'sRealms', 'sProfiles', 'sAttributes', 'sVendors'],
-    models: [
-        'mPermanentUser',    'mRealm',       'mProfile', 'mUserStat',
-        'mRadacct',                 'mRadpostauth',     'mAttribute',   'mVendor',  'mPrivateAttribute', 'mDevice' ],
+    stores: [ 'sPermanentUsers', 'sRealms',   'sProfiles',    'sDevices', 'sAttributes', 'sVendors'  ],
+    models: [ 'mPermanentUser',  'mRealm',    'mProfile',     'mDevice',   'mUserStat',
+             'mRadacct',                'mRadpostauth',    'mAttribute','mVendor',      'mPrivateAttribute'
+    ],
     selectedRecord: null,
-    config: {
-        urlAdd              : '/cake3/rd_cake/permanent-users/add.json',
-        urlApChildCheck     : '/cake3/rd_cake/access-providers/child-check.json',  
-        urlExportCsv        : '/cake3/rd_cake/permanent-users/export-csv',
-        urlNoteAdd          : '/cake3/rd_cake/permanent-users/note-add.json',
-        urlViewBasic        : '/cake3/rd_cake/permanent-users/view-basic-info.json',
-        urlEditBasic        : '/cake3/rd_cake/permanent-users/edit-basic-info.json',
-        urlViewPersonal     : '/cake3/rd_cake/permanent-users/view-personal-info.json',
-        urlEditPersonal     : '/cake3/rd_cake/permanent-users/edit-personal-info.json',
-        urlEnableDisable    : '/cake3/rd_cake/permanent-users/enable-disable.json',
-        urlChangePassword   : '/cake3/rd_cake/permanent-users/change-password.json',
-        urlDelete           : '/cake3/rd_cake/permanent-users/delete.json', 
-        urlDevicesListedOnly: '/cake3/rd_cake/permanent-users/restrict-list-of-devices.json',
-        urlAutoAddMac       : '/cake3/rd_cake/permanent-users/auto-mac-on-off.json',  
+     config: {
+        urlAdd              : '/cake3/rd_cake/devices/add.json',
+        urlApChildCheck     : '/cake3/rd_cake/access-providers/child-check.json',
+        urlExportCsv        : '/cake3/rd_cake/devices/export-csv',
+        urlViewBasic        : '/cake3/rd_cake/devices/view-basic-info.json',
+        urlEditBasic        : '/cake3/rd_cake/devices/edit-basic-info.json',
+        urlEnableDisable    : '/cake3/rd_cake/devices/enable-disable.json',
+        urlDelete           : '/cake3/rd_cake/devices/delete.json',
         
-        urlDeleteRadaccts   :  '/cake3/rd_cake/radaccts/delete.json',
-        urlDeletePostAuths  : '/cake3/rd_cake/radpostauths/delete.json'
+        urlDeleteRadaccts:  '/cake3/rd_cake/radaccts/delete.json',
+        urlDeletePostAuths: '/cake3/rd_cake/radpostauths/delete.json'
     },
     refs: [
-        {  ref: 'grid',         selector:   'gridPermanentUsers'},
-        {  ref: 'privateGrid',  selector:   'gridUserPrivate'}        
+        {  ref: 'grid',         selector:   'gridDevices'},
+        {  ref: 'privateGrid',  selector:   'gridDevicePrivate'},
+        {  ref: 'tabUsers',     selector: '#tabUsers'     }      
     ],
     init: function() {
         var me = this;
@@ -71,209 +64,165 @@ Ext.define('Rd.controller.cPermanentUsers', {
             return;
         }
         me.inited = true;
-
-      //  me.getStore('sPermanentUsers').addListener('load',me.onStorePermanentUsersLoaded, me);
+        
         me.control({
-            'gridPermanentUsers #reload': {
-                click:      me.reload
+            '#tabDevices' : {
+                destroy   :      me.appClose   
             },
-            'gridPermanentUsers #reload menuitem[group=refresh]'   : {
-                click:      me.reloadOptionClick
+           'gridDevices #reload': {
+                click:      me.reload
             }, 
-            'gridPermanentUsers #add'   : {
+            'gridDevices #add'   : {
                 click:      me.add
             },
-            'gridPermanentUsers #delete'   : {
+            'gridDevices #delete'   : {
                 click:      me.del
             },
-            'gridPermanentUsers #edit'   : {
+            'gridDevices #edit'   : {
                 click:      me.edit
             },
-            'gridPermanentUsers #note'   : {
-                click:      me.note
-            },
-            'gridPermanentUsers #csv'  : {
+            'gridDevices #csv'  : {
                 click:      me.csvExport
             },
-            'gridPermanentUsers #password'  : {
-                click:      me.changePassword
-            },
-            'gridPermanentUsers #enable_disable' : {
+            'gridDevices #enable_disable' : {
                 click:      me.enableDisable
             },
-            'gridPermanentUsers #test_radius' : {
+            'gridDevices #test_radius' : {
                 click:      me.testRadius
             },
-            'gridPermanentUsers #graph'   : {
+            'gridDevices #graph'   : {
                 click:      me.graph
             },
-            'gridPermanentUsers #byod'   : {
-                click:      me.byod
-            },
-            'gridPermanentUsers'   : {
+            'gridDevices'   : {
                 select          : me.select,
-                menuItemClick   : me.onActionColumnMenuItemClick
+                activate        : me.gridActivate,
+                menuItemClick   : me.onActionColumnMenuItemClick 
             },
-            'gridPermanentUsers actioncolumn': {
+            'gridDevices actioncolumn': { 
                  itemClick  : me.onActionColumnItemClick
             },
-            'winPermanentUserAdd #btnDataNext' : {
+            'winDeviceAdd #btnDataNext' : {
                 click:  me.btnDataNext
             },
-            'winPermanentUserAdd #profile' : {
+            'winDeviceAdd #profile' : {
                 change:  me.cmbProfileChange
             },
-            'winPermanentUserAdd #always_active' : {
+			'winDeviceAdd #owner' : {
+                change:  me.cmbOwnerChange
+            },
+            'winDeviceAdd #always_active' : {
                 change:  me.chkAlwaysActiveChange
             },
-            'winPermanentUserAdd #to_date' : {
+            'winDeviceAdd #to_date' : {
                 change:  me.toDateChange
             },
-            'winPermanentUserAdd #from_date' : {
+            'winDeviceAdd #from_date' : {
                 change:  me.fromDateChange
             },
-            '#winCsvColumnSelectPermanentUsers #save': {
+            '#winCsvColumnSelectDevices #save': {
                 click:  me.csvExportSubmit
             },
-            'gridNote[noteForGrid=permanentUsers] #reload' : {
-                click:  me.noteReload
+            '#winEnableDisableDevice #save': {
+                click: me.enableDisableSubmit
             },
-            'gridNote[noteForGrid=permanentUsers] #add' : {
-                click:  me.noteAdd
+            'pnlDevice gridUserRadpostauths #reload' :{
+                click:      me.gridDeviceRadpostauthsReload
             },
-            'gridNote[noteForGrid=permanentUsers] #delete' : {
-                click:  me.noteDelete
-            },
-            'gridNote[noteForGrid=permanentUsers]' : {
-                itemclick: me.gridNoteClick
-            },
-            'winNoteAdd[noteForGrid=permanentUsers] #btnTreeNext' : {
-                click:  me.btnNoteTreeNext
-            },
-            'winNoteAdd[noteForGrid=permanentUsers] #btnNoteAddPrev'  : {   
-                click: me.btnNoteAddPrev
-            },
-            'winNoteAdd[noteForGrid=permanentUsers] #btnNoteAddNext'  : {   
-                click: me.btnNoteAddNext
-            },
-            'pnlPermanentUser gridUserRadpostauths #reload' :{
-                click:      me.gridUserRadpostauthsReload
-            },
-            'pnlPermanentUser gridUserRadpostauths #delete' :{
+            'pnlDevice gridDeviceRadpostauths #delete' :{
                 click:      me.deletePostAuths
             },
-            'pnlPermanentUser gridUserRadpostauths' : {
-                activate:      me.gridActivate
+            'pnlDevice gridDevicePrivate' : {
+                select:        me.selectDevicePrivate,
+                activate:      me.onDeviceActivate
             },
-            'pnlPermanentUser gridUserRadaccts #reload' :{
-                click:      me.gridUserRadacctsReload
+            'pnlDevice gridDeviceRadpostauths' : {
+                activate:      me.onDeviceRadpostauthsActivate
             },
-            'pnlPermanentUser gridUserRadaccts #delete' :{
+            'pnlDevice gridDeviceRadaccts #reload' :{
+                click:      me.gridDeviceRadacctsReload
+            },
+            'pnlDevice gridDeviceRadaccts #delete' :{
                 click:      me.deleteRadaccts
             },
-            'pnlPermanentUser gridUserRadaccts' : {
-                activate:      me.gridActivate
+            'pnlDevice gridDeviceRadaccts' : {
+                activate:      me.onDeviceRadacctsActivate
             },
-            'pnlPermanentUser gridUserDevices' : {
-                activate:      me.gridActivate
-            },
-            'pnlPermanentUser gridUserDevices #reload' :{
-                click:      me.gridUserDevicesReload
-            },
-            'pnlPermanentUser gridUserDevices #chkListedOnly' :{
-                change:      me.gridUserDevicesListedOnly
-            },
-            'pnlPermanentUser gridUserDevices #chkAutoAddMac' :{
-                change:      me.gridUserDevicesAutoAddMac
-            },
-            'pnlPermanentUser gridUserPrivate' : {
-                select:        me.selectUserPrivate,
-                activate:      me.gridActivate
-            },
-            'pnlPermanentUser #profile' : {
+            'pnlDevice #profile' : {
                 change:  me.cmbProfileChange,
                 render:  me.renderEventProfile
             },
-            'pnlPermanentUser #realm' : {
-                render:      me.renderEventRealm
+            'pnlDevice #owner' : {
+                render:  me.renderEventOwner,
+                change:  me.cmbOwnerChange
             },
-            'pnlPermanentUser #always_active' : {
+            'pnlDevice #always_active' : {
                 change:  me.chkAlwaysActiveChange
             },
-            'pnlPermanentUser #to_date' : {
+            'pnlDevice #to_date' : {
                 change:  me.toDateChange
             },
-            'pnlPermanentUser #from_date' : {
+            'pnlDevice #from_date' : {
                 change:  me.fromDateChange
             },
-            'pnlPermanentUser #tabBasicInfo' : {
+            'pnlDevice #tabBasicInfo' : {
                 activate: me.onTabBasicInfoActive
             },
-            'pnlPermanentUser #tabBasicInfo #save' : {
+            'pnlDevice #tabBasicInfo #save' : {
                 click: me.saveBasicInfo
             },
-            'pnlPermanentUser #tabPersonalInfo' : {
-                activate: me.onTabPersonalInfoActive
+            'gridDevicePrivate' : {
+                beforeedit:     me.onBeforeEditDevicePrivate
             },
-            'pnlPermanentUser #tabPersonalInfo #save' : {
-                click: me.savePersonalInfo
-            },
-            '#winEnableDisablePermanentUser #save': {
-                click: me.enableDisableSubmit
-            },
-            'gridUserPrivate' : {
-                beforeedit:     me.onBeforeEditUserPrivate
-            },
-            'gridUserPrivate  #cmbVendor': {
+            'gridDevicePrivate  #cmbVendor': {
                 change:      me.cmbVendorChange
             },
-            'gridUserPrivate  #add': {
+            'gridDevicePrivate  #add': {
                 click:      me.attrAdd
             },
-            'gridUserPrivate  #reload': {
+            'gridDevicePrivate  #reload': {
                 click:      me.attrReload
             },
-            'gridUserPrivate  #delete': {
+            'gridDevicePrivate  #delete': {
                 click:      me.attrDelete
             }
         });
+
+    },
+    appClose:   function(){
+        var me          = this;
+        me.populated    = false;
+        if(me.autoReload != undefined){
+            clearInterval(me.autoReload);   //Always clear
+        }
     },
     reload: function(){
         var me =this;
         me.getGrid().getSelectionModel().deselectAll(true);
-        me.getGrid().getStore().load();
+        me.getStore('sDevices').load();
     },
     gridActivate: function(g){
-        var me = this;
-        var grid = g.down('grid');
-        if(grid){
-            grid.getStore().load();
-        }else{
-            g.getStore().load();
-        }        
+        var me = this;  
+        g.getStore().load();
     },
-    add: function(button){  
-        var me      = this;
-        var c_name 	= me.application.getCloudName();
-        var c_id	= me.application.getCloudId()
-        if(!Ext.WindowManager.get('winPermanentUserAddId')){
-            var w = Ext.widget('winPermanentUserAdd',{id:'winPermanentUserAddId',cloudId: c_id, cloudName: c_name,selLanguage : me.application.getSelLanguage()});
-            w.show();         
+    add: function(button){
+        var me = this;
+        if(!Ext.WindowManager.get('winDeviceAddId')){
+            var w = Ext.widget('winDeviceAdd',{
+                id:'winDeviceAddId', selLanguage : me.application.getSelLanguage()
+            });
+            w.show();
         }
     },
     btnDataNext:  function(button){
         var me      = this;
         var win     = button.up('window');
         var form    = win.down('form');
-        var multi   = win.down('#multiple').getValue();
         form.submit({
             clientValidation: true,
             url: me.getUrlAdd(),
             success: function(form, action) {
-                if(multi != true){
-                    win.close(); //Multi keep open for next user
-                }
-                me.getStore('sPermanentUsers').load();
+                win.close();
+                me.getStore('sDevices').load();
                 Ext.ux.Toaster.msg(
                     i18n('sNew_item_created'),
                     i18n('sItem_created_fine'),
@@ -281,15 +230,18 @@ Ext.define('Rd.controller.cPermanentUsers', {
                     Ext.ux.Constants.msgInfo
                 );
             },
-            //Focus on the first tab as this is the most likely cause of error 
-            failure: function(form,action){
-                var tp = win.down('tabpanel');
-                tp.setActiveTab(0);
-                Ext.ux.formFail(form,action)
-            }
+            failure: Ext.ux.formFail
         });
     },
-
+	cmbOwnerChange: function(cmb){
+		var me      = this;
+		var value   = cmb.getValue();
+		var rec 	= cmb.getStore().getById(value);
+		var ap_id	= rec.get('owner_id');
+		var form    = cmb.up('form');
+		form.down('cmbProfile').getStore().getProxy().setExtraParam('ap_id',ap_id);
+		form.down('cmbProfile').getStore().load();
+	},
     cmbProfileChange:   function(cmb){
         var me      = this;
         var form    = cmb.up('form');
@@ -298,7 +250,6 @@ Ext.define('Rd.controller.cPermanentUsers', {
         var value   = cmb.getValue();
         var s = cmb.getStore();
         var r = s.getById(value);
-        //console.log("Profile changed");
         if(r != null){
             var data_cap = r.get('data_cap_in_profile');
             if(data_cap){
@@ -318,7 +269,6 @@ Ext.define('Rd.controller.cPermanentUsers', {
             }
         }
     },
-
     chkAlwaysActiveChange: function(chk){
         var me      = this;
         var form    = chk.up('form');
@@ -337,7 +287,6 @@ Ext.define('Rd.controller.cPermanentUsers', {
             from.setDisabled(false);
         }
     },
-
     toDateChange: function(d,newValue,oldValue){
         var me = this;
         var form = d.up('form');   
@@ -351,7 +300,6 @@ Ext.define('Rd.controller.cPermanentUsers', {
             );
         }
     },
-
     fromDateChange: function(d,newValue, oldValue){
         var me = this;
         var form = d.up('form');
@@ -365,9 +313,10 @@ Ext.define('Rd.controller.cPermanentUsers', {
             );
         }
     },
-    select:  function(grid, record, item, index, event){
+    select: function(grid,record){
         var me = this;
         //Adjust the Edit and Delete buttons accordingly...
+
         //Dynamically update the top toolbar
         tb = me.getGrid().down('toolbar[dock=top]');
 
@@ -375,12 +324,10 @@ Ext.define('Rd.controller.cPermanentUsers', {
         if(edit == true){
             if(tb.down('#edit') != null){
                 tb.down('#edit').setDisabled(false);
-                tb.down('#password').setDisabled(false);
             }
         }else{
             if(tb.down('#edit') != null){
                 tb.down('#edit').setDisabled(true);
-                tb.down('#password').setDisabled(true);
             }
         }
 
@@ -393,51 +340,6 @@ Ext.define('Rd.controller.cPermanentUsers', {
             if(tb.down('#delete') != null){
                 tb.down('#delete').setDisabled(true);
             }
-        }
-    },
-    edit:   function(){
-       // console.log("Edit node");  
-        var me = this;
-        //See if there are anything selected... if not, inform the user
-        var sel_count = me.getGrid().getSelectionModel().getCount();
-        if(sel_count == 0){
-            Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-
-            var selected    =  me.getGrid().getSelectionModel().getSelection();
-            var count       = selected.length;         
-            Ext.each(me.getGrid().getSelectionModel().getSelection(), function(sr,index){
-
-                //Check if the node is not already open; else open the node:
-                var tp          = me.getGrid().up('tabpanel');
-                var pu_id       = sr.getId();
-                var pu_tab_id   = 'puTab_'+pu_id;
-                var nt          = tp.down('#'+pu_tab_id);
-                if(nt){
-                    tp.setActiveTab(pu_tab_id); //Set focus on  Tab
-                    return;
-                }
-
-                var pu_tab_name = sr.get('username');
-                //Tab not there - add one
-                tp.add({ 
-                    title :     pu_tab_name,
-                    itemId:     pu_tab_id,
-                    closable:   true,
-                    glyph: Rd.config.icnEdit,
-                    layout:     'fit', 
-                    items:      {'xtype' : 'pnlPermanentUser',pu_id: pu_id, pu_name: pu_tab_name, record: sr},
-                    tabConfig : {
-                        ui : Rd.config.tabPermUsers
-                    }
-                });
-                tp.setActiveTab(pu_tab_id); //Set focus on Add Tab
-            });
         }
     },
 
@@ -454,6 +356,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
         }else{
             Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
                 if(val== 'yes'){
+
                     var selected    = me.getGrid().getSelectionModel().getSelection();
                     var list        = [];
                     Ext.Array.forEach(selected,function(item){
@@ -487,7 +390,57 @@ Ext.define('Rd.controller.cPermanentUsers', {
             });
         }
     },
-    
+    onStoreDevicesLoaded: function() {
+        var me      = this;
+        var count   = me.getStore('sDevices').getTotalCount();
+        me.getGrid().down('#count').update({count: count});
+    },
+    edit:   function(){
+      //  console.log("Edit device");  
+        var me = this;
+        //See if there are anything selected... if not, inform the user
+        var sel_count = me.getGrid().getSelectionModel().getCount();
+        if(sel_count == 0){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{
+
+            var selected    =  me.getGrid().getSelectionModel().getSelection();
+            var count       = selected.length;         
+            Ext.each(me.getGrid().getSelectionModel().getSelection(), function(sr,index){
+
+                //Check if the node is not already open; else open the node:
+                var tp          = me.getGrid().up('tabpanel');
+                var d_id        = sr.getId();
+                var d_tab_id    = 'dTab_'+d_id;
+                var nt          = tp.down('#'+d_tab_id);
+                if(nt){
+                    tp.setActiveTab(d_tab_id); //Set focus on  Tab
+                    return;
+                }
+
+                var d_tab_name = sr.get('name');
+                //Tab not there - add one
+                tp.add({ 
+                    title :     d_tab_name,
+                    itemId:     d_tab_id,
+                    closable:   true,
+                    iconCls:    'edit', 
+                    glyph: Rd.config.icnEdit,
+                    tabConfig: {
+                         ui: me.ui
+                    },
+                    layout:     'fit', 
+                    items:      {'xtype' : 'pnlDevice',d_id: d_id, d_name: d_tab_name,record:sr}
+                });
+                tp.setActiveTab(d_tab_id); //Set focus on Add Tab             
+            });
+        }
+    },
     csvExport: function(button,format) {
         var me          = this;
         var columns     = me.getGrid().down('headercontainer').getGridColumns();
@@ -497,11 +450,10 @@ Ext.define('Rd.controller.cPermanentUsers', {
                 var chk = {boxLabel: item.text, name: item.dataIndex, checked: true};
                 col_list.push(chk);
             }
-        });
-        col_list.push({boxLabel: 'Cleartext Password', name: 'cleartext_password', checked: false});
-          
-        if(!Ext.WindowManager.get('winCsvColumnSelectPermanentUsers')){
-            var w = Ext.widget('winCsvColumnSelect',{id:'winCsvColumnSelectPermanentUsers',columns: col_list});
+        }); 
+
+        if(!Ext.WindowManager.get('winCsvColumnSelectDevices')){
+            var w = Ext.widget('winCsvColumnSelect',{id:'winCsvColumnSelectDevices',columns: col_list});
             w.show();         
         }
     },
@@ -551,7 +503,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
                     
                 }     
             }
-               
+            
             var col_json        = "columns="+encodeURIComponent(Ext.JSON.encode(columns));
             var extra_params    = Ext.Object.toQueryString(Ext.Ajax.getExtraParams());
             var append_url      = "?"+extra_params+'&'+col_json;
@@ -562,55 +514,26 @@ Ext.define('Rd.controller.cPermanentUsers', {
             window.open(me.getUrlExportCsv()+append_url);
             win.close();
         }
-    }, 
-    changePassword: function(){
-        var me = this;
-     //   console.log("Changing password");
-         //Find out if there was something selected
-        var sel_count = me.getGrid().getSelectionModel().getCount();
-        if(sel_count == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            if(sel_count > 1){
-                Ext.ux.Toaster.msg(
-                        i18n('sLimit_the_selection'),
-                        i18n('sSelection_limited_to_one'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-                );
-            }else{
-                var sr          = me.getGrid().getSelectionModel().getLastSelected();
-                var item_id     = sr.getId();
-                var username    = sr.get('username');
-                me.application.runAction('cPassword','Index',{id:item_id, username : username});                  
-            }    
-        }
     },
     enableDisable: function(){
         var me      = this;
         var grid    = me.getGrid();
         //Find out if there was something selected
-        if(grid.getSelectionModel().getCount() == 0){ 
+        if(grid.getSelectionModel().getCount() == 0){
              Ext.ux.Toaster.msg(
                         i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item_to_edit'),
+                        i18n('sFirst_select_an_item_to_modify'),
                         Ext.ux.Constants.clsWarn,
                         Ext.ux.Constants.msgWarn
             );
         }else{
-            if(!Ext.WindowManager.get('winEnableDisablePermanentUser')){
-                var w = Ext.widget('winEnableDisable',{id:'winEnableDisablePermanentUser'});
-                w.show();       
+            if(!Ext.WindowManager.get('winEnableDisableDevice')){
+                var w = Ext.widget('winEnableDisable',{id:'winEnableDisableDevice'});
+                w.show();      
             }    
         }
     },
     enableDisableSubmit:function(button){
-
         var me      = this;
         var win     = button.up('window');
         var form    = win.down('form');
@@ -641,8 +564,8 @@ Ext.define('Rd.controller.cPermanentUsers', {
         });
     },
     testRadius: function(){
-        var me = this;
-        var grid = me.getGrid();
+        var me      = this;
+        var grid    = me.getGrid();       
         //Find out if there was something selected
         if(grid.getSelectionModel().getCount() == 0){ 
              Ext.ux.Toaster.msg(
@@ -653,93 +576,85 @@ Ext.define('Rd.controller.cPermanentUsers', {
             );
         }else{
             var sr = grid.getSelectionModel().getLastSelected();
-            me.application.runAction('cRadiusClient','TestPermanent',sr);        
+            me.application.runAction('cRadiusClient','TestDevice',sr);        
         }
     },  
-    gridUserRadpostauthsReload: function(button){
-        var me  = this;
-        var g = button.up('gridUserRadpostauths');
-        g.getStore().load();
-    },
-    gridUserDevicesReload: function(button){
-        var me  = this;
-        var g = button.up('gridUserDevices');
-        g.getStore().load();
-    },
-    gridUserRadacctsReload: function(button){
-        var me  = this;
-        var g   = button.up('gridUserRadaccts');
-        g.getStore().load();
-    },
-    gridUserDevicesListedOnly : function(chk){
-        var me          = this;
-        var username    = chk.up('gridUserDevices').username;
-        var g_devices   = chk.up('gridUserDevices');
-        var chk_auto    = g_devices.down('#chkAutoAddMac');
+    onTabBasicInfoActive: function(t){
+        var me      = this;
+        var form    = t.down('form');
+        //get the user's id
+        var device_id = t.up('pnlDevice').d_id;
+        form.load({url:me.getUrlViewBasic(), method:'GET',params:{device_id:device_id}, 
+            success : function(a,b){
+                //Set the CAP's of the permanent user
+                if(b.result.data.data_cap_type != undefined){
+                    var cmbDataCap  = form.down('#cmbDataCap');
+                    cmbDataCap.setVisible(true);
+                    cmbDataCap.setDisabled(false);
+                    cmbDataCap.setValue(b.result.data.data_cap_type);
+                }
 
-        //We have to uncheck the auto add check if this is checked
-        var chk_listed  = chk.getValue();
-        if(chk_listed){   
-            if(chk_auto.getValue()){
-                console.log("Disable auto add check");
-                chk_auto.setValue(false);
-            }            
-        }
-
-        Ext.Ajax.request({
-            url: me.getUrlDevicesListedOnly(),
-            method: 'GET',
-            params: {username : username, restrict : chk.getValue() },
-            success: function(response){
-                var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){
-                    Ext.ux.Toaster.msg(
-                                i18n('sItem_updated'),
-                                i18n('sItem_updated_fine'),
-                                Ext.ux.Constants.clsInfo,
-                                Ext.ux.Constants.msgInfo
-                    );    
-                }   
-            },
-            scope: me
+                if(b.result.data.time_cap_type != undefined){
+                    var cmbTimeCap  = form.down('#cmbTimeCap');
+                    cmbTimeCap.setVisible(true);
+                    cmbTimeCap.setDisabled(false);
+                    cmbTimeCap.setValue(b.result.data.time_cap_type);
+                }
+            } 
         });
     },
-    gridUserDevicesAutoAddMac : function(chk){
-        var me          = this;
-        var username    = chk.up('gridUserDevices').username;
-        var g_devices   = chk.up('gridUserDevices');
-        var chk_listed  = g_devices.down('#chkListedOnly');
+    saveBasicInfo:function(button){
 
-       //We have to uncheck the only from this devices check if this is checked
-        var auto_m = chk.getValue();
-        if(auto_m){   
-            if(chk_listed.getValue()){
-                console.log("Disable only listed check");
-                chk_listed.setValue(false);
-            }            
-        }
-
-        Ext.Ajax.request({
-            url: me.getUrlAutoAddMac(),
-            method: 'GET',
-            params: {username : username, auto_mac : chk.getValue() },
-            success: function(response){
-                var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){
-                    Ext.ux.Toaster.msg(
-                                i18n('sItem_updated'),
-                                i18n('sItem_updated_fine'),
-                                Ext.ux.Constants.clsInfo,
-                                Ext.ux.Constants.msgInfo
-                    );    
-                }   
+        var me      = this;
+        var form    = button.up('form');
+        var device_id = button.up('pnlDevice').d_id;
+        //Checks passed fine...      
+        form.submit({
+            clientValidation    : true,
+            url                 : me.getUrlEditBasic(),
+            params              : {id: device_id},
+            success             : function(form, action) {
+                me.reload();
+                Ext.ux.Toaster.msg(
+                    i18n('sItems_modified'),
+                    i18n('sItems_modified_fine'),
+                    Ext.ux.Constants.clsInfo,
+                    Ext.ux.Constants.msgInfo
+                );
             },
-            scope: me
+            failure             : Ext.ux.formFail
         });
+    },
+    onDeviceActivate: function(g){
+        var me = this;
+        g.getStore().load();
+    },
+    onDeviceRadpostauthsActivate: function(g){
+        var me = this;
+        g.getStore().load();
+    },
+    gridDeviceRadpostauthsReload: function(button){
+        var me  = this;
+        var g = button.up('gridDeviceRadpostauths');
+        g.getStore().load();
+    },
+    onDeviceRadacctsActivate: function(g){
+        var me = this;
+        g.getStore().load();
+    },
+    onDevicePrivateActivate: function(g){
+        var me = this;
+        g.getStore().load();
+    },
+    gridDeviceRadacctsReload: function(button){
+        var me  = this;
+        var g = button.up('gridDeviceRadaccts');
+        g.getStore().load();
     },
     deletePostAuths:   function(button){
         var me      = this;
-        var grid    = button.up('grid');   
+        var grid    = button.up('grid');
+     //   console.log("Generic delete clicked...");    
         //Find out if there was something selected
         if(grid.getSelectionModel().getCount() == 0){
              Ext.ux.Toaster.msg(
@@ -835,113 +750,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
             });
         }
     },
-    reloadOptionClick: function(menu_item){
-        var me      = this;
-        var n       = menu_item.getItemId();
-        var b       = menu_item.up('button'); 
-        var interval= 30000; //default
-        clearInterval(me.autoReload);   //Always clear
-        b.setGlyph(Rd.config.icnTime);
-
-        if(n == 'mnuRefreshCancel'){
-            b.setGlyph(Rd.config.icnReload);
-            return;
-        }
-        
-        if(n == 'mnuRefresh1m'){
-           interval = 60000
-        }
-
-        if(n == 'mnuRefresh5m'){
-           interval = 360000
-        }
-        me.autoReload = setInterval(function(){        
-            me.reload();
-        },  interval);  
-    },
-    onTabBasicInfoActive: function(t){
-        var me      = this;
-        var form    = t;
-        //get the user's id
-        var user_id = t.up('pnlPermanentUser').pu_id;
-        form.load({url:me.getUrlViewBasic(), method:'GET',params:{user_id:user_id}, 
-            success : function(a,b){
-                //Set the CAP's of the permanent user
-                if(b.result.data.data_cap_type != undefined){
-                    var cmbDataCap  = form.down('#cmbDataCap');
-                    cmbDataCap.setVisible(true);
-                    cmbDataCap.setDisabled(false);
-                    cmbDataCap.setValue(b.result.data.data_cap_type);
-                }
-
-                if(b.result.data.time_cap_type != undefined){
-                    var cmbTimeCap  = form.down('#cmbTimeCap');
-                    cmbTimeCap.setVisible(true);
-                    cmbTimeCap.setDisabled(false);
-                    cmbTimeCap.setValue(b.result.data.time_cap_type);
-                }
-            } 
-        });
-    },
-    saveBasicInfo:function(button){
-
-        var me      = this;
-        var form    = button.up('form');
-        var user_id = button.up('pnlPermanentUser').pu_id;
-        //Checks passed fine...      
-        form.submit({
-            clientValidation    : true,
-            url                 : me.getUrlEditBasic(),
-            params              : {id: user_id},
-            success             : function(form, action) {
-                me.reload();
-                Ext.ux.Toaster.msg(
-                    i18n('sItems_modified'),
-                    i18n('sItems_modified_fine'),
-                    Ext.ux.Constants.clsInfo,
-                    Ext.ux.Constants.msgInfo
-                );
-            },
-            failure             : Ext.ux.formFail
-        });
-    },
-    onTabPersonalInfoActive: function(t){
-        var me      = this;
-        var form    = t;
-        //get the user's id
-        var user_id = t.up('pnlPermanentUser').pu_id;
-        form.load({url:me.getUrlViewPersonal(), method:'GET',params:{user_id:user_id}});
-    },
-    savePersonalInfo:function(button){
-
-        var me      = this;
-        var form    = button.up('form');
-        var user_id = button.up('pnlPermanentUser').pu_id;
-        //Checks passed fine...      
-        form.submit({
-            clientValidation    : true,
-            url                 : me.getUrlEditPersonal(),
-            params              : {id: user_id},
-            success             : function(form, action) {
-                me.reload();
-                Ext.ux.Toaster.msg(
-                    i18n('sItems_modified'),
-                    i18n('sItems_modified_fine'),
-                    Ext.ux.Constants.clsInfo,
-                    Ext.ux.Constants.msgInfo
-                );
-            },
-            failure             : Ext.ux.formFail
-        });
-    },
-    appClose:   function(){
-        var me          = this;
-        me.populated    = false;
-        if(me.autoReload != undefined){
-            clearInterval(me.autoReload);   //Always clear
-        }
-    },
-    selectUserPrivate:  function(grid, record, item, index, event){
+    selectDevicePrivate:  function(grid, record, item, index, event){
         var me = this;
         //Adjust the Edit and Delete buttons accordingly...
         //Dynamically update the top toolbar
@@ -957,14 +766,15 @@ Ext.define('Rd.controller.cPermanentUsers', {
             }
         }
     },
-    onBeforeEditUserPrivate: function(g,e){
+    onBeforeEditDevicePrivate: function(g,e){
         var me = this;
         return e.record.get('edit');
     },
     cmbVendorChange: function(cmb){
         var me = this;
+       // console.log("Combo thing changed");
         var value   = cmb.getValue();
-        var grid    = cmb.up('gridUserPrivate');
+        var grid    = cmb.up('gridDevicePrivate');
         var attr    = grid.down('cmbAttribute');
         //Cause this to result in a reload of the Attribute combo
         attr.getStore().getProxy().setExtraParam('vendor',value);
@@ -972,7 +782,8 @@ Ext.define('Rd.controller.cPermanentUsers', {
     },
     attrAdd: function(b){
         var me = this;
-        var grid    = b.up('gridUserPrivate');
+      //  console.log("Add to specific template");
+        var grid    = b.up('gridDevicePrivate');
         var attr    = grid.down('cmbAttribute');
         var a_val   = attr.getValue();
         if(a_val == null){
@@ -984,7 +795,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
             );
         }else{
 
-            //We do double's since it is standard for FreeRADIUS
+            //We do double's
             var f = grid.getStore().find('attribute',a_val);
             if(f == -1){
                 grid.getStore().add(Ext.create('Rd.model.mPrivateAttribute',
@@ -1014,16 +825,15 @@ Ext.define('Rd.controller.cPermanentUsers', {
             }
         }
     },
-
     attrReload: function(b){
         var me = this;
-        var grid = b.up('gridUserPrivate');
+        var grid = b.up('gridDevicePrivate');
         grid.getStore().load();
     },
     attrDelete: function(button){
 
         var me      = this;
-        var grid    = button.up('gridUserPrivate');
+        var grid    = button.up('gridDevicePrivate');
         //Find out if there was something selected
         if(grid.getSelectionModel().getCount() == 0){
              Ext.ux.Toaster.msg(
@@ -1061,29 +871,29 @@ Ext.define('Rd.controller.cPermanentUsers', {
             });
         }
     },
-    renderEventRealm: function(cmb){
+    renderEventOwner: function(cmb){
         var me                      = this;
-        var pnlPu               = cmb.up('pnlPermanentUser');
-        pnlPu.cmbRealmRendered  = true;
-        if(pnlPu.record != undefined){
-            var rn      = pnlPu.record.get('realm');
-            var r_id    = pnlPu.record.get('realm_id');
-            var rec     = Ext.create('Rd.model.mRealm', {name: rn, id: r_id});
+        var pnlDevice               = cmb.up('pnlDevice');
+        pnlDevice.cmbOwnerRendered  = true;
+        if(pnlDevice.record != undefined){
+            var un      = pnlDevice.record.get('permanent_user');
+            var u_id    = pnlDevice.record.get('permanent_user_id');
+            var rec     = Ext.create('Rd.model.mPermanentUser', {username: un, id: u_id});
             cmb.getStore().loadData([rec],false);
         }
     },
     renderEventProfile: function(cmb){
         var me          = this;
-        var pnlPu       = cmb.up('pnlPermanentUser');
-        pnlPu.cmbProfileRendered  = true;
-        if(pnlPu.record != undefined){
-            var pn      = pnlPu.record.get('profile');
-            var p_id    = pnlPu.record.get('profile_id');
+        var pnlDevice   = cmb.up('pnlDevice');
+        pnlDevice.cmbProfileRendered  = true;
+        if(pnlDevice.record != undefined){
+            var pn      = pnlDevice.record.get('profile');
+            var p_id    = pnlDevice.record.get('profile_id');
             var rec     = Ext.create('Rd.model.mProfile', {name: pn, id: p_id});
             cmb.getStore().loadData([rec],false);
         }
     },
-    graph: function(button){
+    graph: function(){
         var me = this;  
         //Find out if there was something selected
         if(me.getGrid().getSelectionModel().getCount() == 0){
@@ -1098,7 +908,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
             var tp      = me.getGrid().up('tabpanel');
             var sr      = me.getGrid().getSelectionModel().getLastSelected();
             var id      = sr.getId();
-            var tab_id  = 'permanentUserTabGraph_'+id;
+            var tab_id  = 'deviceTabGraph_'+id;
             var nt      = tp.down('#'+tab_id);
             if(nt){
                 tp.setActiveTab(tab_id); //Set focus on  Tab
@@ -1107,46 +917,37 @@ Ext.define('Rd.controller.cPermanentUsers', {
             var dd              = me.application.getDashboardData();
             var timezone_id     = dd.user.timezone_id;
 
-            var tab_name = sr.get('username');
+            var tab_name = sr.get('name');
             //Tab not there - add one
             tp.add({ 
-                title       : tab_name,
-                itemId      : tab_id,
-                closable    : true,
-                glyph       : Rd.config.icnGraph, 
-                xtype       : 'pnlPermanentUserGraphs',
+                title   : tab_name,
+                itemId  : tab_id,
+                closable: true,
+                glyph   : Rd.config.icnGraph, 
+                xtype   : 'pnlDeviceGraphs',
                 timezone_id : timezone_id,
-                pu_name     : tab_name,
-                tabConfig : {
-                    ui : Rd.config.tabPermUsers
+                d_name  : tab_name,
+                tabConfig: {
+                     ui: me.ui
                 }
             });
             tp.setActiveTab(tab_id); //Set focus on Add Tab 
         }
     },
-    byod: function(b){
-        var me = this;
-        tp = b.up('tabpanel');
-        me.application.runAction('cDevices','Index',tp);
-    },
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
-        //console.log("Action Item "+action+" Clicked");
         var me = this;
         var grid = view.up('grid');
         grid.setSelection(record);
         if(action == 'update'){
-            me.edit()
+            me.edit(); 
         }
         if(action == 'delete'){
-            me.del();
+            me.del(); 
         }
     },
     onActionColumnMenuItemClick: function(grid,action){
         var me = this;
         grid.setSelection(grid.selRecord);
-        if(action == 'password'){
-            me.changePassword();
-        }
         if(action == 'disable'){
             me.enableDisable();
         }
@@ -1157,5 +958,4 @@ Ext.define('Rd.controller.cPermanentUsers', {
             me.graph();
         }
     }
-    
 });

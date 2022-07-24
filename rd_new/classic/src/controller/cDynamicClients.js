@@ -35,7 +35,6 @@ Ext.define('Rd.controller.cDynamicClients', {
         'dynamicClients.winAttachUnknownDynamicClient',
         'components.cmbTimezones',
         'dynamicClients.pnlDynamicClient',
-        'dynamicClients.pnlDynamicClientDynamicClient',
         'dynamicClients.pnlRealmsForDynamicClientCloud',
         'dynamicClients.gridRealmsForDynamicClientCloud',
         'dynamicClients.pnlDynamicClientPhoto',
@@ -200,10 +199,10 @@ Ext.define('Rd.controller.cDynamicClients', {
 			'gridUnknownDynamicClients #delete': {
                 click: me.delUnknownDynamicClient
             },
-            '#tabDataLimit #chkDataLimitActive' : {
+            'pnlDynamicClient #tabDynamicClient #chkDataLimitActive' : {
                 change:     me.chkDataLimitActiveChange
             },
-            '#tabDataLimit #chkDailyDataLimitActive' : {
+            'pnlDynamicClient #tabDynamicClient #chkDailyDataLimitActive' : {
                 change:     me.chkDailyDataLimitActiveChange
             }
             
@@ -468,7 +467,7 @@ Ext.define('Rd.controller.cDynamicClients', {
     },   
     onTabDynamicClientActive: function(t){
         var me      = this;
-        var form    = t.down('form');
+        var form    = t;
         //get the dynamic_client_id's id
         var dynamic_client_id = t.up('pnlDynamicClient').dynamic_client_id;     
         form.load({
@@ -512,18 +511,19 @@ Ext.define('Rd.controller.cDynamicClients', {
     },
     
     tabPhotoActivate: function(tab){
-        var me      = this;
-        var pnl_n   = tab.up('pnlDynamicClient');
+    	var me      = this;
+    	var pnl_n   = tab.up('pnlDynamicClient');   	
+        var id      = pnl_n.dynamic_client_id 
+        var p_img   = tab.down('#pnlImg');
         Ext.Ajax.request({
             url: me.getUrlViewPhoto(),
             method: 'GET',
-            params: {'id' : pnl_n.dynamic_client_id },
+            params: {id : id },
             success: function(response){
                 var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){     
-                    var img = tab.down("cmpImg");
+                if(jsonData.success){
                     var img_url = me.getUrlPhotoBase()+jsonData.data.photo_file_name;
-                    img.setImage(img_url);
+                    p_img.update({image:img_url});
                 }   
             },
             scope: me
@@ -542,9 +542,9 @@ Ext.define('Rd.controller.cDynamicClients', {
             success: function(form, action) {              
                 if(action.result.success){ 
                     var new_img = action.result.photo_file_name;    
-                    var img = pnlNphoto.down("cmpImg");
+                    var p_img 	= pnlNphoto.down("#pnlImg");
                     var img_url = me.getUrlPhotoBase()+new_img;
-                    img.setImage(img_url);
+                    p_img.update({image:img_url});
                 } 
                 Ext.ux.Toaster.msg(
                     i18n('sItem_updated'),

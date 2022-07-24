@@ -44,43 +44,6 @@ Ext.define('Rd.view.realms.pnlRealmDetail', {
             },
             items       : [
                 {
-                    xtype       : 'fieldcontainer',
-                    itemId      : 'fcPickOwner',
-                    hidden      : true,  
-                    layout      : {
-                        type    : 'hbox',
-                        align   : 'begin',
-                        pack    : 'start'
-                    },
-                    items:[
-                        {
-                            itemId      : 'owner',
-                            xtype       : 'displayfield',
-                            fieldLabel  : i18n('sOwner'),
-                            name        : 'username',
-                            itemId      : 'displUser',
-                            margin      : 0,
-                            padding     : 0,
-                            width       : 410
-                        },
-                        {
-                            xtype       : 'button',
-                            text        : 'Pick Owner',
-                            margin      : 5,
-                            padding     : 5,
-                            ui          : 'button-green',
-                            itemId      : 'btnPickOwner',
-                            width       : 100
-                        },
-                        {
-                            xtype       : 'textfield',
-                            name        : "user_id",
-                            itemId      : 'hiddenUser',
-                            hidden      : true
-                        }
-                    ]
-                },
-                {
                     xtype: 'textfield',
                     name : "id",
                     hidden: true
@@ -309,7 +272,7 @@ Ext.define('Rd.view.realms.pnlRealmDetail', {
             ]
         } 
         
-         me.items = [
+      	me.items = [
             {
                 xtype       : 'panel',
                 title       : "General",

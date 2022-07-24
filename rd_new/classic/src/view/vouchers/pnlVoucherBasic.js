@@ -138,24 +138,7 @@ Ext.define('Rd.view.vouchers.pnlVoucherBasic', {
                     fieldLabel  : 'Extra field value',
                     allowBlank  : true,
                     labelClsExtra: 'lblRd'
-                },
-				{
-                    xtype       : 'checkbox',      
-                    boxLabel    : 'Connect only from selected SSIDs',
-                    name        : 'ssid_only',
-                    inputValue  : 'ssid_only',
-					itemId  	: 'ssid_only',
-                    checked     : false,
-                    cls         : 'lblRd'
-                },
-                {
-                    xtype       : 'cmbSsid',
-                    labelClsExtra: 'lblRdReq',
-					itemId		: 'ssid_list',
-					hidden		: true,
-					disabled	: true,
-					extraParam  : me.ap_id
-                }  
+                }
             ]
         }
               

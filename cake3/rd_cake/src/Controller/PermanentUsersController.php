@@ -21,17 +21,12 @@ class PermanentUsersController extends AppController{
         $this->loadModel('Realms');
         $this->loadModel('Profiles');      
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
+        $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
             'model'     => 'PermanentUsers',
             'sort_by'   => 'PermanentUsers.username'
         ]); 
         
-        $this->loadComponent('Notes', [
-            'model'     => 'PermanentUserNotes',
-            'condition' => 'permanent_user_id'
-        ]); 
-
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('Formatter');       
@@ -104,29 +99,11 @@ class PermanentUsersController extends AppController{
     } 
 
     public function index(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
+
+      	$cloud_id = $this->request->query['cloud_id'];
+        $query 	  = $this->{$this->main_model}->find();      
+        $this->CommonQuery->build_cloud_query($query,$cloud_id,[]);
         
-        //This might be in the request if we want to list the avaialble Permanent Users visible for another Access Provider - Like TopUps
-        if(isset($this->request->query['ap_id'])){
-            $e_ap = $this->{'Users'}->find()->where(['Users.id' => $this->request->query['ap_id']])->contain(['Groups'])->first();
-            if($e_ap){
-                $user['id']         = $e_ap->id;
-                $user['group_name'] = $e_ap->group->name;
-                $user['group_id']   = $e_ap->group_id;
-            }    
-        }
-                
-        $query = $this->{$this->main_model}->find();
-        
-        //If this return false it means we sit with a non-admin user having no rights to any realm
-        if($this->CommonQuery->build_with_realm_query($query,$user,['Users','PermanentUserNotes' => ['Notes'],'Realms']) == false){
-            return;
-        }
-        
- 
         $limit  = 50;
         $page   = 1;
         $offset = 0;
@@ -142,27 +119,11 @@ class PermanentUsersController extends AppController{
 
         $total  = $query->count();       
         $q_r    = $query->all();
-        $items  = array();
-        
-        
+        $items  = [];
+                
         foreach($q_r as $i){
         
-            //print_r($i);
-            
-            $owner_id   = $i->user_id;
-            
-            if(!array_key_exists($owner_id,$this->owner_tree)){
-                $owner_tree     = $this->Users->find_parents($owner_id);
-            }else{
-                $owner_tree = $this->owner_tree[$owner_id];
-            }
-            
-
-            #FIXME We need to determine the rights of the user in terms of the REALM not its position wrt the Owner tree
-            #For the action flags
-            
-            $action_flags   = $this->Aa->get_action_flags($owner_id,$user);          
-            $row            = array();
+            $row            = [];
             $fields         = $this->{$this->main_model}->schema()->columns();
             foreach($fields as $field){
                 $row["$field"]= $i->{"$field"};   
@@ -191,20 +152,9 @@ class PermanentUsersController extends AppController{
             //Unset password and token fields
             unset($row["password"]);
             unset($row["token"]);
-            
-            $notes_flag     = false;
-            foreach($i->permanent_user_notes as $pun){
-                if(!$this->Aa->test_for_private_parent($pun->note,$user)){
-                    $notes_flag = true;
-                    break;
-                }
-            }
                  
-            $row['owner']   = $owner_tree;
-            $row['owner_id']= $owner_id;
-            $row['notes']   = $notes_flag;
-			$row['update']	= $action_flags['update'];
-			$row['delete']	= $action_flags['delete']; 
+			$row['update']	= true;
+			$row['delete']	= true; 
             array_push($items,$row); 
                  
         }
@@ -219,15 +169,7 @@ class PermanentUsersController extends AppController{
     }
     
     public function add(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        
-        /*__ To incorporate __
-            -> Check if the owner of the new PermanentUser and the Realm we want it to belong to has sufficient rights  
-       */
-        
+          
         //---Get the language and country---
         $country_language                   = Configure::read('language.default');
         if($this->request->getData('language')){
@@ -268,11 +210,6 @@ class PermanentUsersController extends AppController{
         
         //Zero the token to generate a new one for this user:
         $this->request->data['token'] = '';
-
-        //Set the owner
-        if(($this->request->data['user_id'] == '0')||($this->request->data['user_id'] == '')){ //This is the holder of the token
-            $this->request->data['user_id'] = $user['id'];
-        }
 
         //Set the date and time
         $extDateSelects = [
@@ -324,65 +261,24 @@ class PermanentUsersController extends AppController{
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
-        $user_id   = $user['id'];
-        $fail_flag = false;
-
-	    if(isset($this->request->data['id'])){   //Single item delete
-            $message = "Single item ".$this->request->data['id'];
-
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:         
+       
+	    if(isset($this->request->data['id'])){   //Single item delete      
             $entity     = $this->{$this->main_model}->get($this->request->data['id']);   
-            $owner_id   = $entity->user_id;
-            
-            if($owner_id != $user_id){
-                if($this->Users->is_sibling_of($user_id,$owner_id)== true){
-                    $this->{$this->main_model}->delete($entity);
-                }else{
-                    $fail_flag = true;
-                }
-            }else{
-                $this->{$this->main_model}->delete($entity);
-            }
-   
+            $this->{$this->main_model}->delete($entity);       
         }else{                          //Assume multiple item delete
             foreach($this->request->data as $d){
-                $entity     = $this->{$this->main_model}->get($d['id']);  
-                $owner_id   = $entity->user_id;
-                if($owner_id != $user_id){
-                    if($this->Users->is_sibling_of($user_id,$owner_id) == true){
-                        $this->{$this->main_model}->delete($entity);
-                    }else{
-                        $fail_flag = true;
-                    }
-                }else{
-                    $this->{$this->main_model}->delete($entity);
-                }
+                $entity     = $this->{$this->main_model}->get($d['id']);               
+              	$this->{$this->main_model}->delete($entity);
             }
         }
-
-        if($fail_flag == true){
-            $message = __('Could not delete some items');
-            $this->JsonErrors->errorMessage($message);
-        }else{
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
-        }
+        $this->set([
+            'success' => true,
+            '_serialize' => ['success']
+        ]);
 	}
 
     public function viewBasicInfo(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
-        $user_id    = $user['id'];
+       
         $entity     = $this->{$this->main_model}->get( $this->request->query['user_id']);
         $username   = $entity->username;
         $items      = [];
@@ -437,19 +333,15 @@ class PermanentUsersController extends AppController{
             $items['ssid_list'] = $this->{$this->main_model}->listRestrictedSsids($username);
         }
 
-        $this->set(array(
+        $this->set([
             'data'   => $items, //For the form to load we use data instead of the standard items as for grids
             'success' => true,
-            '_serialize' => array('success','data')
-        ));
+            '_serialize' => ['success','data']
+        ]);
     }
 
     public function editBasicInfo(){ 
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
+       
         //---Set Realm related things--- 
         $realm_entity           = $this->Realms->entityBasedOnPost($this->request->data);
         if($realm_entity){
@@ -504,12 +396,7 @@ class PermanentUsersController extends AppController{
     }
 
     public function viewPersonalInfo(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
-
+       
         $items      = [];
         //TODO Check if the owner of this user is in the chain of the APs
         if(isset($this->request->query['user_id'])){
@@ -528,17 +415,11 @@ class PermanentUsersController extends AppController{
     }
 
     public function editPersonalInfo(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
-
+       
         //TODO Check if the owner of this user is in the chain of the APs
         unset($this->request->data['token']);
         //Get the language and country
         $country_language   = explode( '_', $this->request->data['language'] );
-
         $country            = $country_language[0];
         $language           = $country_language[1];
 
@@ -560,12 +441,7 @@ class PermanentUsersController extends AppController{
     }
 
     public function privateAttrIndex(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
-        $user_id    = $user['id'];
+        
         $username   = $this->request->query['username'];
         $items      =  $this->{$this->main_model}->privateAttrIndex($username);
 
@@ -577,10 +453,7 @@ class PermanentUsersController extends AppController{
     }
 
     public function privateAttrAdd(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
+       
         $entity =  $this->{$this->main_model}->privateAttrAdd($this->request);
         $errors = $entity->errors();
         if($errors){
@@ -597,11 +470,7 @@ class PermanentUsersController extends AppController{
     }
 
     public function privateAttrEdit(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
+        
         $entity =  $this->{$this->main_model}->privateAttrEdit($this->request);    
         $errors = $entity->errors();
         if($errors){
@@ -618,10 +487,6 @@ class PermanentUsersController extends AppController{
     }
 
     public function privateAttrDelete(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
         if($this->{$this->main_model}->privateAttrDelete($this->request)){
             $message = __('Could not delete some items');
             $this->JsonErrors->errorMessage($message);  
@@ -656,7 +521,6 @@ class PermanentUsersController extends AppController{
     }
 
     public function autoMacOnOff(){
-
         $user = $this->_ap_right_check();
         if(!$user){
             return;
@@ -677,17 +541,9 @@ class PermanentUsersController extends AppController{
             '_serialize' => array('success')
         ));
     }
-
-
+    
     public function enableDisable(){
         
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
-        $user_id    = $user['id'];
         $rb         = $this->request->data['rb'];
         $d          = array();
 
@@ -712,13 +568,6 @@ class PermanentUsersController extends AppController{
     }
 
     public function viewPassword(){
-
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
 
         $success    = false;
         $value      = false;
@@ -756,13 +605,6 @@ class PermanentUsersController extends AppController{
 
     public function changePassword(){
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
-
         unset($this->request->data['token']);
 
         //Set the date and time
@@ -794,12 +636,8 @@ class PermanentUsersController extends AppController{
     }
    
     public function menuForGrid(){
-        $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
-            return;
-        }
-        
-        $menu = $this->GridButtons->returnButtons($user,false,'permanent_users');
+             
+        $menu = $this->GridButtonsFlat->returnButtons(false,'permanent_users');
         $this->set(array(
             'items'         => $menu,
             'success'       => true,
@@ -808,12 +646,7 @@ class PermanentUsersController extends AppController{
     }
 
     function menuForUserDevices(){
-
-        $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
-            return;
-        }
-
+    
         $settings = ['listed_only' => false,'add_mac' => false];
 
         if(isset($this->request->query['username'])){
@@ -823,15 +656,15 @@ class PermanentUsersController extends AppController{
 
         //Empty by default
         $menu = array(
-                array('xtype' => 'buttongroup','title' => __('Action'), 'items' => array(
-                    array( 'xtype'=>  'button', 'glyph'   => Configure::read('icnReload'), 'scale' => 'large', 'itemId' => 'reload',   'tooltip'   => __('Reload')),
+                array('xtype' => 'buttongroup','title' => false, 'items' => array(
+                    array( 'xtype'=>  'button', 'glyph'   => Configure::read('icnReload'), 'scale' => 'large', 'itemId' => 'reload',   'tooltip'   => __('Reload'),'ui' => 'button-orange'),
                     array( 
                         'xtype'         => 'checkbox', 
                         'boxLabel'      => 'Connect only from listed devices', 
                         'itemId'        => 'chkListedOnly',
                         'checked'       => $settings['listed_only'], 
                         'cls'           => 'lblRd',
-                        'margin'        => 5
+                        'margin'        => 0
                     ),
                     array( 
                         'xtype'         => 'checkbox', 
@@ -839,7 +672,7 @@ class PermanentUsersController extends AppController{
                         'itemId'        => 'chkAutoAddMac',
                         'checked'       => $settings['add_mac'], 
                         'cls'           => 'lblRd',
-                        'margin'        => 5
+                        'margin'        => 0
                     )
             )) 
         );
@@ -853,12 +686,7 @@ class PermanentUsersController extends AppController{
 
     function menuForAccountingData(){
 
-       $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
-            return;
-        }
-        
-        $menu = $this->GridButtons->returnButtons($user,false,'fr_acct_and_auth');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'fr_acct_and_auth');
         $this->set(array(
             'items'         => $menu,
             'success'       => true,
@@ -867,49 +695,14 @@ class PermanentUsersController extends AppController{
     }
 
     function menuForAuthenticationData(){
-
-       $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
-            return;
-        }
-        
-        $menu = $this->GridButtons->returnButtons($user,true,'fr_acct_and_auth');
+      
+        $menu = $this->GridButtonsFlat->returnButtons(true,'fr_acct_and_auth');
         $this->set(array(
             'items'         => $menu,
             'success'       => true,
             '_serialize'    => array('items','success')
         ));
     }
-
-
-    public function noteIndex(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $items = $this->Notes->index($user); 
-    }
-    
-    public function noteAdd(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }   
-        $this->Notes->add($user);
-    }
-    
-    public function noteDel(){  
-        if (!$this->request->is('post')) {
-			throw new MethodNotAllowedException();
-		}
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $this->Notes->del($user);
-    }  
 }
 
 ?>

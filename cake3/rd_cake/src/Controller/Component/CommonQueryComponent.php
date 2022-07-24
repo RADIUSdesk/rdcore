@@ -63,7 +63,9 @@ class CommonQueryComponent extends Component {
             $this->_common_sort($query, $this->sort_by, $model, $allowOverride);
         }
 
-        $where_clause = $this->_common_filter($model);   
+        $where_clause = $this->_common_filter($model);
+        
+        $query->where($where_clause);   
     }
 
     public function build_common_query($query,$user,$contain_array = ['Users'], $model = null, $allowOverride = true, $sort = null){
@@ -211,7 +213,7 @@ class CommonQueryComponent extends Component {
 
         if(isset($this->request->query['filter'])){
             $filter = json_decode($this->request->query['filter']); 
-            
+                  
             foreach($filter as $f){ 
             
                 //Strings (like)
