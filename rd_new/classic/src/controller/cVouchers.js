@@ -17,7 +17,7 @@ Ext.define('Rd.controller.cVouchers', {
 	                         xtype  : 'gridVouchers',
 	                         border : false,
 	                         plain  : true,
-	                         glyph  : 'xf145@FontAwesome'
+	                         glyph  : 'xf02b@FontAwesome'
 	                    }
 	                ]
 	            });      

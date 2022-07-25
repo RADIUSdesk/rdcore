@@ -448,7 +448,26 @@ class GridButtonsFlatComponent extends Component {
             $menu = [$b,$d,$a];
         }
         
-                
+         if($type == 'devices'){
+            $b  = $this->_fetchBasic(true);
+            $d  = $this->_fetchDocument();
+            $a  = $this->_fetchDeviceExtras();
+            $menu = array($b,$d,$a);
+        }
+        
+        if($type == 'dynamic_details'){
+            $b  = $this->_fetchBasic(true);
+            $d  = $this->_fetchDocument();
+            $a  = $this->_fetchDynamicDetailExtras();
+            $dc = $this->_fetchDynamicDetailDataCollection();
+            $menu = [$b,$d,$a,$dc];
+        }
+        
+       	if($type == 'dynamic_translations'){
+            $b = $this->_fetchDynamicTranslations();
+            $menu = $b; 
+        }
+                       
         return $menu;
     }
    
@@ -686,6 +705,120 @@ class GridButtonsFlatComponent extends Component {
         ];                   
         return $menu;
     }
-
- 
+    
+    private function _fetchDeviceExtras(){  
+        $menu = [];    
+        if($this->title){
+            $t = __('Extra Actions');
+        }else{
+            $t = null;
+        } 
+		$menu = [
+			'xtype' => 'buttongroup',
+			'title' => $t, 
+			'items' => [
+				$this->btnEnable,
+				$this->btnRadius,
+				$this->btnGraph
+			]
+		];    
+        return $menu;
+    }
+    
+    private function _fetchDynamicDetailExtras(){
+      
+        if($this->title){
+            $t = __('Preview');
+        }else{
+            $t = null;
+        } 
+        $menu = array(
+            'xtype' => 'buttongroup',
+            'title' => $t, 
+            'items' => array(
+                array(
+                    'xtype'     => 'button',  
+                    'glyph'     => Configure::read('icnMobile'),  
+                    'scale'     => $this->scale, 
+                    'itemId'    => 'mobile',    
+                    'tooltip'   => __('Preview')
+                )
+            )
+        );             
+        return $menu;
+    }
+    
+     private function _fetchDynamicDetailDataCollection(){
+    
+        if($this->title){
+            $t = __('Data Collection');
+        }else{
+            $t = null;
+        } 
+    
+        $menu = array(
+            'xtype' => 'buttongroup',
+            'title' => $t,
+           // 'width' => 150, 
+            'items' => [
+                [
+                    'xtype'     => 'button',  
+                    'glyph'     => Configure::read('icnEmail'),  
+                    'scale'     => $this->scale, 
+                    'itemId'    => 'dcEmail',    
+                    'tooltip'   => __('Email Addresses')
+                ],
+                [
+                    'xtype'     => 'button',  
+                    'glyph'     => Configure::read('icnGlobe'),  
+                    'scale'     => $this->scale, 
+                    'itemId'    => 'translate',    
+                    'tooltip'   => __('Translated Phrases')
+                ]
+            ]
+        );             
+        return $menu;
+    }
+    
+  	private function _fetchDynamicTranslations(){       
+        $cmb_options = [
+            'xtype'     => 'cmbDynamicDetailTransOptions',
+            'margin'    => '5 0 5 0',
+            'isRoot'    => true,
+            'itemId'    => 'cmbDynamicDetailTransOptions'  
+        ];  
+        
+        $a = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+            [
+                'xtype'         => 'cmbDynamicDetailTransPages',
+                'width'         => 350,
+                'margin'   => '5 0 5 0',
+                'labelWidth'    => 80,
+                'itemId'        => 'tbCmbDynamicDetailTransPages'
+            ],
+            $this->btnReload
+        ]];
+        $b = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+            $cmb_options,         
+            $this->btnAdd,
+            $this->btnDelete,
+            $this->btnEdit
+            ]
+	    ];
+	    $c = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+            [
+                'xtype'     => 'button', 
+                'glyph'     => Configure::read('icnGears'), 
+                'scale'     => $this->scale,
+                'itemId'    => 'preview',
+                'tooltip'   =>  __('API Reply Preview'),
+                'ui'        => $this->btnUiProfComp
+            ]                   
+        ]];
+     
+        $menu = [$a,$b,$c];
+        return $menu; 
+    }
+    
+    
 }

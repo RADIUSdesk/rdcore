@@ -38,7 +38,6 @@ class DynamicDetailsController extends AppController{
           
         $this->loadModel('DynamicDetails');
         $this->loadModel('DynamicPairs'); 
-        $this->loadModel('Users');
         $this->loadModel('DynamicPhotos');
         $this->loadModel('DynamicPages');
         $this->loadModel('DynamicDetailSocialLogins');
@@ -47,17 +46,13 @@ class DynamicDetailsController extends AppController{
         $this->loadModel('DynamicDetailCtcs');
         
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
+        $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
             'model' => $this->main_model
         ]);
 
         $this->loadComponent('JsonErrors');
 
-        $this->loadComponent('Notes', [
-            'model'     => 'DynamicDetailNotes',
-            'condition' => 'dynamic_detail_id'
-        ]);
     }
     
     public function wipPrelogin(){
@@ -472,13 +467,8 @@ class DynamicDetailsController extends AppController{
        
     public function exportCsv(){
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
         $query = $this->{$this->main_model}->find(); 
-        $this->CommonQuery->build_common_query($query,$user,['Users','DynamicDetailNotes' => ['Notes']]);  
+        $this->CommonQuery->build_common_query($query,$user,[]);  
         $q_r    = $query->all();
         //Headings
         $heading_line   = array();
@@ -499,21 +489,7 @@ class DynamicDetailsController extends AppController{
                 $columns = json_decode($this->request->query['columns']);
                 foreach($columns as $c){
                     $column_name = $c->name;
-                    if($column_name == 'notes'){
-                        $notes   = '';
-                        foreach($i->dynamic_detail_notes as $un){
-                            if(!$this->Aa->test_for_private_parent($un->note,$user)){
-                                $notes = $notes.'['.$un->note->note.']';    
-                            }
-                        }
-                        array_push($csv_line,$notes);
-                    }elseif($column_name =='owner'){
-                        $owner_id       = $i->user_id;
-                        $owner_tree     = $this->Users->find_parents($owner_id);
-                        array_push($csv_line,$owner_tree); 
-                    }else{
-                        array_push($csv_line,$i->{$column_name});  
-                    }
+                     array_push($csv_line,$i->{$column_name});  
                 }
                 array_push($data,$csv_line);
             }
@@ -530,25 +506,18 @@ class DynamicDetailsController extends AppController{
     //____ BASIC CRUD Manager ________
     public function index(){
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
-        
         //Fields
 		$fields  	= [
-			'id',		'name',			'user_id',		'available_to_siblings',
+			'id',		'name',			'user_id',
 			'phone',    'fax',			'cell',		    'email',
 			'url',		'street_no',	'street',		'town_suburb',	'city',		'country',
 			'lat',		'lon',			't_c_check',	't_c_url',		'theme',	'register_users',
 			'lost_password', 'lost_password_method'
 		];
 		
-        $query = $this->{$this->main_model}->find();
-
-        $this->CommonQuery->build_common_query($query,$user,['Users','DynamicDetailNotes' => ['Notes']]);
+        $cloud_id = $this->request->query['cloud_id'];
+        $query 	  = $this->{$this->main_model}->find();      
+        $this->CommonQuery->build_cloud_query($query,$cloud_id,[]);
  
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -567,45 +536,24 @@ class DynamicDetailsController extends AppController{
         $total  = $query->count();       
         $q_r    = $query->all();
 
-        $items      = array();
+        $items      = [];
 
-        foreach($q_r as $i){    
-            $owner_id   = $i->user_id;
-            if(!array_key_exists($owner_id,$this->owner_tree)){
-                $owner_tree     = $this->Users->find_parents($owner_id);
-            }else{
-                $owner_tree = $this->owner_tree[$owner_id];
-            }
-            
-            $action_flags   = $this->Aa->get_action_flags($owner_id,$user);
-            
-            $notes_flag     = false;
-            foreach($i->dynamic_detail_notes as $un){
-                if(!$this->Aa->test_for_private_parent($un->note,$user)){
-                    $notes_flag = true;
-                    break;
-                }
-            }
-            
-            $row = array();
+        foreach($q_r as $i){              
+            $row = [];
             foreach($fields as $field){
                 $row["$field"]= $i->{"$field"};
-            }
-            
-            $row['owner']		= $owner_tree;
-			$row['notes']		= $notes_flag;
-			$row['update']		= $action_flags['update'];
-			$row['delete']		= $action_flags['delete'];
+            }            
+			$row['update']		= true;
+			$row['delete']		= true;
             array_push($items,$row);
         }
-       
-        //___ FINAL PART ___
-        $this->set(array(
+
+        $this->set([
             'items' => $items,
             'success' => true,
             'totalCount' => $total,
-            '_serialize' => array('items','success','totalCount')
-        ));
+            '_serialize' => ['items','success','totalCount']
+        ]);
     }
      
     public function indexForFilter(){
@@ -634,20 +582,8 @@ class DynamicDetailsController extends AppController{
     }
       
     public function add() {
-
-        if(!$this->_ap_right_check()){
-            return;
-        }
-
-        $user       = $this->Aa->user_for_token($this);
-        $user_id    = $user['id'];
-
-        //Get the owner's id
-         if($this->request->data['user_id'] == '0'){ //This is the holder of the token - override '0'
-            $this->request->data['user_id'] = $user_id;
-        }
-        
-        $check_items = ['available_to_siblings', 't_c_check', 'register_users', 'lost_password'];
+          
+        $check_items = [ 't_c_check', 'register_users', 'lost_password'];
         foreach($check_items as $ci){
             if(isset($this->request->data[$ci])){
                 $this->request->data[$ci] = 1;
@@ -686,20 +622,6 @@ class DynamicDetailsController extends AppController{
       
     public function edit() {
 
-        if(!$this->_ap_right_check()){
-            return;
-        }
-
-        //We will not modify user_id
-        //unset($this->request->data['user_id']);
-
-        //Make available to siblings check
-        if(isset($this->request->data['available_to_siblings'])){
-            $this->request->data['available_to_siblings'] = 1;
-        }else{
-            $this->request->data['available_to_siblings'] = 0;
-        }
-
 		$entity = $this->{$this->main_model}->get($this->request->data['id']);
         $this->{$this->main_model}->patchEntity($entity, $this->request->data());
 
@@ -734,12 +656,6 @@ class DynamicDetailsController extends AppController{
 	
     public function editSettings(){
 
-        if(!$this->_ap_right_check()){
-            return;
-        }
-            
-        //We will not modify user_id
-        unset($this->request->data['user_id']);
         $check_items = [
             'reg_email',
             'reg_auto_add',
@@ -817,17 +733,6 @@ class DynamicDetailsController extends AppController{
     
     public function viewClickToConnect(){
 
-        //FIXME ADD THIS RIGHT IN A PATC LATER (21May2022)
-        //if(!$this->_ap_right_check()){
-        //    return;
-        //}
-        
-        $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
-            return;
-        }
-        
-        
         $data = [];
         $entity = $this->{'DynamicDetailCtcs'}->find()->where(['dynamic_detail_id' =>$this->request->query['dynamic_detail_id']])->first();
         if($entity){
@@ -842,13 +747,7 @@ class DynamicDetailsController extends AppController{
     }
       
     public function editClickToConnect(){
-
-        if(!$this->_ap_right_check()){
-            return;
-        }
-        //We will not modify user_id
-        unset($this->request->data['user_id']);
-        
+     
         $check_items = [
 			'connect_check',
 			'connect_only',
@@ -930,10 +829,6 @@ class DynamicDetailsController extends AppController{
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
-
-        if(!$this->_ap_right_check()){
-            return;
-        }
            
 	    if(isset($this->request->data['id'])){   //Single item delete
 
@@ -985,38 +880,18 @@ class DynamicDetailsController extends AppController{
 
     public function view(){
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        
-        $user_id    = $user['id'];
-        $tree       = false;     
-        $entity = $this->Users->get($user_id); 
-        if($this->Users->childCount($entity) > 0){
-            $tree = true;
-        }
-             
-        $items      = [];
-        
+        $items      = [];    
         if(isset($this->request->query['dynamic_detail_id'])){
 
             $q_r = $this->{$this->main_model}->find()
-                ->contain(['Users'=> ['fields' => ['Users.username']]])
                 ->where(['DynamicDetails.id' => $this->request->query['dynamic_detail_id'] ])
                 ->first();
             if($q_r){
             
-                $fields = $this->{$this->main_model}->schema()->columns();
+            	$fields = $this->{$this->main_model}->schema()->columns();
+            	
                 $realm  = '';
-                
-                if($q_r->user !== null){
-                    $items['username']  = "<div class=\"fieldBlue\"> <b>".$q_r->user->username."</b></div>";
-                }else{
-                    $items['username']  = "<div class=\"fieldRed\"><i class='fa fa-exclamation'></i> <b>(ORPHANED)</b></div>";
-                }
-            
+                       
                 if($q_r->realm_id != null){
                     $this->loadModel('Realms'); 
                     $q_realm    = $this->Realms->find()->where(['Realms.id' =>$q_r->realm_id])->first();
@@ -1024,6 +899,7 @@ class DynamicDetailsController extends AppController{
                         $realm = $q_realm->name;
                     }
                 }
+                
                 $profile = '';
                 
                 if($q_r->profile_id != null){
@@ -1033,9 +909,7 @@ class DynamicDetailsController extends AppController{
                         $profile = $q_profile->name;
                     }
                 }
-                
-                $owner_tree     = $this->Users->find_parents($q_r->user_id);
-                
+                                
                 foreach($fields as $field){
 	                $items["$field"]= $q_r->{"$field"};
 		        } 
@@ -1048,8 +922,6 @@ class DynamicDetailsController extends AppController{
 		            $items['available_languages[]'] = explode(',',$items['available_languages']);
 		        }
 		        
-		        $items['show_owner'] = $tree; 
-                $items['owner']     = $owner_tree; 
                 $items['realm']     = $realm;
                 $items['profile']   = $profile;               
             }
@@ -1117,12 +989,7 @@ class DynamicDetailsController extends AppController{
     }
     
     public function indexPhoto(){   
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
+
         $this->_genericIndex("DynamicPhotos");
     }
     
@@ -1300,11 +1167,7 @@ class DynamicDetailsController extends AppController{
     
     
     public function indexPage(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
+
         $this->_genericIndex("DynamicPages");  
     }
 
@@ -1343,45 +1206,21 @@ class DynamicDetailsController extends AppController{
 	
 	public function indexPair(){
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
         $this->_genericIndex("DynamicPairs");   
     }
     
     public function addPair(){
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
         $this->_genericAdd("DynamicPairs");   
     }
     
     public function editPair(){
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
         $this->_genericEdit("DynamicPairs");   
     }
     
     public function deletePair(){
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
         $this->_genericDelete("DynamicPairs");   
     }
     
@@ -1572,13 +1411,6 @@ class DynamicDetailsController extends AppController{
     
     
     public function viewSocialLogin(){
-
-		 //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
 
         $items = [];
         if(isset($this->request->query['dynamic_detail_id'])){
@@ -1800,7 +1632,7 @@ class DynamicDetailsController extends AppController{
             return;
         }
         
-        $menu = $this->GridButtons->returnButtons($user,false,'dynamic_details');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'dynamic_details');
         $this->set(array(
             'items'         => $menu,
             'success'       => true,
@@ -1814,7 +1646,7 @@ class DynamicDetailsController extends AppController{
             return;
         }
         
-        $menu = $this->GridButtons->returnButtons($user,false,'basic_no_disabled');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'basic');
         
         array_push($menu[0]['items'],[
              'xtype'     => 'button',  
@@ -1837,7 +1669,7 @@ class DynamicDetailsController extends AppController{
             return;
         }
         
-        $menu = $this->GridButtons->returnButtons($user,false,'basic_no_disabled');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'basic');
         $this->set(array(
             'items'         => $menu,
             'success'       => true,
@@ -1851,7 +1683,7 @@ class DynamicDetailsController extends AppController{
             return;
         }
         
-        $menu = $this->GridButtons->returnButtons($user,false,'basic_no_disabled');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'basic');
         $this->set(array(
             'items'         => $menu,
             'success'       => true,
@@ -1865,7 +1697,7 @@ class DynamicDetailsController extends AppController{
             return;
         }
         
-        $menu = $this->GridButtons->returnButtons($user,false,'basic_no_disabled');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'basic');
         array_push($menu[0]['items'],[
             'xtype'     => 'button',     
             'glyph'     => Configure::read('icnCsv'), 
@@ -1885,7 +1717,7 @@ class DynamicDetailsController extends AppController{
         if(!$user){   //If not a valid user
             return;
         }  
-        $menu = $this->GridButtons->returnButtons($user,false,'dynamic_translations');
+        $menu = $this->GridButtons->returnButtons(false,'dynamic_translations');
         $this->set(array(
             'items'         => $menu,
             'success'       => true,

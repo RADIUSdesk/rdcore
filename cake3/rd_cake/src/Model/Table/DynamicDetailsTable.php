@@ -21,7 +21,6 @@ class DynamicDetailsTable extends Table
         $this->hasMany('DynamicPairs',['dependent' => true]);
         $this->hasMany('DynamicPages',['dependent' => true]); 
         $this->hasMany('DataCollectors',['dependent' => true]); 
-        $this->hasMany('DynamicDetailNotes',['dependent' => true]);
         $this->hasMany('DynamicDetailSocialLogins',['dependent' => true]);
         $this->hasMany('DynamicDetailPrelogins',['dependent' => true]); 
         $this->hasOne('DynamicDetailMobiles',['dependent' => true]); 

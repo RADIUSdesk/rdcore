@@ -32,9 +32,6 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetails' ,{
             { text: 'Item ID',    dataIndex: 'id',     tdCls: 'gridTree', width: 80, filter: {type: 'string'},stateId: 'StateGridDynamicDetails1',
                 hidden: true
             },
-            { text: i18n('sOwner'),    dataIndex: 'owner',     tdCls: 'gridTree', flex: 1, filter: {type: 'string'},stateId: 'StateGridDynamicDetails2',
-                hidden: true
-            },
             { text: i18n('sName'),     dataIndex: 'name',      tdCls: 'gridMain', flex: 1, filter: {type: 'string'},stateId: 'StateGridDynamicDetails3'},
             { text: i18n('sPhone'),    dataIndex: 'phone',     tdCls: 'gridTree', flex: 1, filter: {type: 'string'},   hidden: true,stateId: 'StateGridDynamicDetails4'},
             { text: i18n('sFax'),      dataIndex: 'fax',       tdCls: 'gridTree', flex: 1, filter: {type: 'string'},   hidden: true,stateId: 'StateGridDynamicDetails5'},
@@ -42,22 +39,6 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetails' ,{
             { text: i18n('s_email'),   dataIndex: 'email',     tdCls: 'gridTree', flex: 1, filter: {type: 'string'},   hidden: true,stateId: 'StateGridDynamicDetails7'},
             { text: i18n('sURL'),      dataIndex: 'url',       tdCls: 'gridTree', flex: 1, filter: {type: 'string'},   hidden: true,stateId: 'StateGridDynamicDetails8'},
 			{ text: 'Theme',           dataIndex: 'theme',     tdCls: 'gridTree', flex: 1, filter: {type: 'string'},stateId: 'StateGridDynamicDetails8a'},
-            { 
-                text:   i18n('sAvailable_to_sub_providers'),
-                flex: 1,  
-                xtype:  'templatecolumn', 
-                tpl:    new Ext.XTemplate(
-                            "<tpl if='available_to_siblings == true'><div class=\"fieldGreen\">"+i18n('sYes')+"</div></tpl>",
-                            "<tpl if='available_to_siblings == false'><div class=\"fieldRed\">"+i18n('sNo')+"</div></tpl>"
-                        ),
-                dataIndex: 'available_to_siblings',
-                    filter      : {
-                        type    : 'boolean',
-                        defaultValue   : false,
-                        yesText : 'Yes',
-                        noText  : 'No'
-                },stateId: 'StateGridDynamicDetails9'
-            },
             { 
                 text    : i18n('sNotes'),
                 sortable: false,

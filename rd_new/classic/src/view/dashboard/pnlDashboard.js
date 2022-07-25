@@ -39,14 +39,14 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             '<tpl if="imgActive == true">',
                 '<img src="{imgFile}" alt="Logo" style="float:left; padding-right: 10px; padding-left: 10px;padding: 10px;">',
             '</tpl>',
-            '<h1 style="color:{hFg};font-weight:100;">{hName}<span style="'+stA+'"> | <span style="font-family:FontAwesome;">{fa_value}</span> {value}</span><h1>');           
+            '<h1 style="color:{hFg};font-weight:100;padding-top: 10px;">{hName}<span style="'+stA+'"> | <span style="font-family:FontAwesome;">{fa_value}</span> {value}</span><h1>');           
         }
         
         var txtH = {
             xtype   : 'tbtext',
             itemId  : 'tbtHeader', 
             tpl     : tpl,
-            data    : { hName:header,imgFile:img,hFg:fg,imgActive: imgActive,value: 'Hardwares'}
+            data    : { hName:header,imgFile:img,hFg:fg,imgActive: imgActive,value: 'Hard',fa_value: '&#xf023;'}
         };
         
         /*var lA      = Rd.config.levelAColor; 
@@ -73,85 +73,7 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
     		margin: '0 0 0 5',
     		micro: false,
            // width	: 400,
-			store: {root:{'id':0}}/*'sNavTree' /*{
-				root: {
-				expanded: false,
-					children: [{
-						text: 'OVERVIEW',
-						id	: 1,
-						leaf: true,
-						iconCls: 'x-fa fa-th-large'
-					}, 
-					{
-						text: 'RADIUS USERS',
-						id	: 2,
-						expanded: false,
-						iconCls: 'x-fa fa-user',
-						children: [
-							{
-								text: 'USERS',
-								leaf: true,
-								id	: 3,
-								iconCls: 'x-fa fa-user'
-							},
-							{
-								text: 'VOUCHERS',
-								leaf: true,
-								id	: 4,
-								iconCls: 'x-fa fa-tag'
-							},
-							{
-								text: 'TOP-UPS',
-								leaf: true,
-								controller: 'cTopUps',
-								id	: 'tabTopUps',
-								iconCls: 'x-fa  fa-coffee'
-							},
-                            {
-								text: 'HARDWARES',
-								leaf: true,
-								controller: 'cHardwares',
-								id	: 'tabHardwares',
-								iconCls: 'x-fa  fa-user'
-							},
-							{
-								text: 'ADMINS',
-								leaf: true,
-								controller: 'cAccessProviders',
-								id	: 'tabAccessProviders',
-								iconCls: 'x-fa  fa-tag'
-							}
-						]
-					},
-					{
-						text: 'RADIUS COMPONENTS',
-						expanded: false,
-						id	: 6,
-						iconCls: 'x-fa fa-dot-circle-o',
-						children: [{
-							text: 'PROFILES',
-							leaf: true,
-							id	: 7,
-							iconCls: 'x-fa  fa-cubes'
-						}, {
-						    text: 'REALMS',
-						    leaf: true,
-						    id	: 8,
-						    iconCls: 'x-fa fa-group'
-						}]
-					},
-					{
-						text: 'NETWORKS',
-						id	: 8,
-						expanded: false,
-						leaf: true,
-						iconCls: 'x-fa fa-wifi',						
-					}
-					 
-					]
-
-				}
-			}*/
+			store: {root:{'id':0}}
    		};
         
         var h1 = {
@@ -160,17 +82,18 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             glyph   : Rd.config.icnMenu,
             scale   : 'medium'
         };
-        var h2 = {
+        var h3 = {
             xtype   : 'button',
             itemId	: 'btnClear',
             glyph   : Rd.config.icnUser,
             scale   : 'medium'
         };
 
-        var h3 = {
+        var h2 = {
             xtype   : 'button',
             itemId	: 'btnTreeLoad',
-            glyph   : Rd.config.icnWifi,
+            glyph   : Rd.config.icnWizard,
+            //ui      : 'button-green',
             scale   : 'medium'
         };
       	

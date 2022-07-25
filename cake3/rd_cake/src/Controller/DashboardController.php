@@ -40,21 +40,24 @@ class DashboardController extends AppController{
 				'leaf'	=> true,
 				'controller'	=> 'cPermanentUsers',
 				'id'		=> 'tabMainPermanentUsers',
-				'iconCls'	=> 'x-fa fa-user'
+				'iconCls'	=> 'x-fa fa-user',
+				'glyph'		=> 'xf007'
 			],
 			[
 				'text'	=> 'VOUCHERS',
 				'leaf'	=> true,
 				'controller'	=> 'cVouchers',
 				'id'		=> 'tabMainVouchers',
-				'iconCls'	=> 'x-fa fa-tag'
+				'iconCls'	=> 'x-fa fa-tag',
+				'glyph'		=> 'xf02b'
 			],
 			[
 				'text'	=> 'TOP-UPS',
 				'leaf'	=> true,
 				'controller'	=> 'cTopUps',
 				'id'		=> 'tabMainTopUps',
-				'iconCls'	=> 'x-fa  fa-coffee'
+				'iconCls'	=> 'x-fa  fa-coffee',
+				'glyph'		=> 'xf0f4'
 			]			
 		];
 		
@@ -64,31 +67,43 @@ class DashboardController extends AppController{
 				'leaf'	=> true,
 				'controller'	=> 'cRealms',
 				'id'		=> 'tabMainRealms',
-				'iconCls'	=> 'x-fa fa-globe'
+				'iconCls'	=> 'x-fa fa-globe',
+				'glyph'		=> 'xf0ac'
 			],		
 			[
 				'text'	=> 'PROFILES',
 				'leaf'	=> true,
 				'controller'	=> 'cProfiles',
 				'id'		=> 'tabMainProfiles',
-				'iconCls'	=> 'x-fa fa-cubes'
+				'iconCls'	=> 'x-fa fa-cubes',
+				'glyph'		=> 'xf1b3'
 			],
 			[
 				'text'	=> 'CLIENTS',
 				'leaf'	=> true,
 				'controller'	=> 'cDynamicClients',
 				'id'		=> 'tabMainDynamicClients',
-				'iconCls'	=> 'x-fa fa-dot-circle-o'
+				'iconCls'	=> 'x-fa fa-dot-circle-o',
+				'glyph'		=> 'xf192'
 			]		
 		];
 		
 		$thNetworks = [
 			[
+				'text'	=> 'MESHdesk',
+				'leaf'	=> true,
+				'controller'=> 'cMeshes',
+				'id'		=> 'tabMainMeshes',
+				'iconCls'	=> 'x-fa fa-wifi',
+				'glyph'		=> 'xf1eb'
+			],	
+			[
 				'text'	=> 'HARDWARES',
 				'leaf'	=> true,
 				'controller'=> 'cHardwares',
 				'id'		=> 'tabMainHardwares',
-				'iconCls'	=> 'x-fa fa-cog'
+				'iconCls'	=> 'x-fa fa-cog',
+				'glyph'		=> 'xf013'
 			]	
 		];
 		
@@ -128,11 +143,12 @@ class DashboardController extends AppController{
 				'leaf'	=> true,
 				'controller'	=> 'cDynamicDetails',
 				'id'		=> 'tabDynamicCDetails',
-				'iconCls'	=> 'x-fa fa-arrow-circle-right'
+				'iconCls'	=> 'x-fa fa-arrow-circle-right',
+				'glyph'		=> 'xf090'
 			],
 			[
 				'text' 		=> 'NETWORKS',
-				'controller'=> 'cMeshes',
+				'controller'=> '4',
 				'id'		=> 'tabMeshes',
 				'iconCls'	=> 'x-fa fa-sitemap',
 				'children'	=> $thNetworks		
@@ -140,7 +156,7 @@ class DashboardController extends AppController{
 			[
 				'text' 		=> 'OTHER',
 				'id'		=> 5,
-				'controller'=> 'cMeshes',
+				'controller'=> '5',
 				'iconCls'	=> 'x-fa fa-gears',
 				'children'	=> $thOther		
 			]  

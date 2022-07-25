@@ -24,31 +24,21 @@ class DevicesController extends AppController{
         $this->loadModel('Profiles');
         
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
+        $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
             'model'     => 'Devices',
             'sort_by'   => 'Devices.name'
         ]); 
         
-        $this->loadComponent('Notes', [
-            'model'     => 'DeviceNotes',
-            'condition' => 'device_id'
-        ]);
-
          $this->loadComponent('JsonErrors'); 
          $this->loadComponent('TimeCalculations');          
     }
 
     public function exportCsv(){
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
         $query = $this->{$this->main_model}->find();
         
-        if($this->CommonQuery->build_with_realm_query($query,$user,['PermanentUsers','DeviceNotes' => ['Notes']]) == false){
+        if($this->CommonQuery->build_with_realm_query($query,$user,['PermanentUsers']) == false){
             //FIXME Later we can redirect to an error page for CSV
             return;
         }
@@ -74,15 +64,7 @@ class DevicesController extends AppController{
                 $columns = json_decode($this->request->query['columns']);
                 foreach($columns as $c){
                     $column_name = $c->name;
-                    if($column_name == 'notes'){
-                        $notes   = '';
-                        foreach($i->device_notes as $un){
-                            if(!$this->Aa->test_for_private_parent($un->note,$user)){
-                                $notes = $notes.'['.$un->note->note.']';    
-                            }
-                        }
-                        array_push($csv_line,$notes);
-                    }elseif($column_name =='permanent_user'){
+                    if($column_name =='permanent_user'){
                         $permanent_user= $i->permanent_user->username;
                         array_push($csv_line,$permanent_user); 
                     }else{
@@ -100,18 +82,11 @@ class DevicesController extends AppController{
     } 
 
     public function index(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-                
+       
         $query = $this->{$this->main_model}->find();   
-        if($this->CommonQuery->build_with_realm_query($query,$user,['PermanentUsers','DeviceNotes' => ['Notes']],'name','Devices') == false){
+        if($this->CommonQuery->build_with_realm_query($query,$user,['PermanentUsers'],'name','Devices') == false){
             return;
         }
-        
-
         //This is to list devices owned by a specific permanent user
         if(isset($this->request->query['permanent_user_id'])){
             $query->where(['permanent_user_id' => $this->request->query['permanent_user_id']]);
@@ -162,24 +137,11 @@ class DevicesController extends AppController{
                 }        
                 
             }
-            
-            $action_flags           = $this->Aa->get_action_flags($i->permanent_user->user_id,$user);  
-            
-
-            $notes_flag     = false;
-            foreach($i->device_notes as $pun){
-                if(!$this->Aa->test_for_private_parent($pun->note,$user)){
-                    $notes_flag = true;
-                    break;
-                }
-            }
-
+                        
             $row["permanent_user"]  = $i->permanent_user->username;               
-            $row['notes']           = $notes_flag;
-            $row['update']	        = $action_flags['update'];
-			$row['delete']	        = $action_flags['delete']; 
+            $row['update']	        = true;
+			$row['delete']	        = true; 
             
-
             array_push($items,$row);      
         }
        
@@ -193,11 +155,7 @@ class DevicesController extends AppController{
 
 
      public function add(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-             
+         
         //---Set Realm related things---
          //Get the device's owner's username
         if(isset($this->request->data['permanent_user_id'])){
@@ -276,78 +234,37 @@ class DevicesController extends AppController{
         }      
     }
 
-     public function delete() {
+   	public function delete() {
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
-        $user_id   = $user['id'];
-        $fail_flag = false;
-
 	    if(isset($this->request->data['id'])){   //Single item delete
-            $message = "Single item ".$this->request->data['id'];
-
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:         
+	           
             $entity     = $this->{$this->main_model}->get($this->request->data['id'], [
                 'contain' => ['PermanentUsers']
             ]);   
-            $owner_id   = $entity->permanent_user->user_id;
-            
-            if($owner_id != $user_id){
-                if($this->Users->is_sibling_of($user_id,$owner_id)== true){
-                    $this->{$this->main_model}->delete($entity);
-                }else{
-                    $fail_flag = true;
-                }
-            }else{
-                $this->{$this->main_model}->delete($entity);
-            }
+            $cloud_id   = $entity->permanent_user->cloud_id; //FIXME FOR CLOUD PERMISSION           
+            $this->{$this->main_model}->delete($entity);
    
         }else{                          //Assume multiple item delete
             foreach($this->request->data as $d){
                 $entity     = $this->{$this->main_model}->get($d['id'],[
                     'contain' => ['PermanentUsers']
                 ]);  
-                $owner_id   = $entity->permanent_user->user_id;
-                if($owner_id != $user_id){
-                    if($this->Users->is_sibling_of($user_id,$owner_id) == true){
-                        $this->{$this->main_model}->delete($entity);
-                    }else{
-                        $fail_flag = true;
-                    }
-                }else{
-                    $this->{$this->main_model}->delete($entity);
-                }
+                $cloud_id   = $entity->permanent_user->cloud_id; //FIXME FOR CLOUD PERMISSION                  
+              	$this->{$this->main_model}->delete($entity);
             }
         }
-
-        if($fail_flag == true){
-            $message = __('Could not delete some items');
-            $this->JsonErrors->errorMessage($message);
-        }else{
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
-        }
+        $this->set([
+            'success' => true,
+            '_serialize' => ['success']
+        ]);
 	}
 
-
     public function enableDisable(){
-        
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
 
-        $user_id    = $user['id'];
         $rb         = $this->request->data['rb'];
-        $d          = array();
+        $d          = [];
 
         if($rb == 'enable'){
             $d['active'] = 1;
@@ -362,7 +279,6 @@ class DevicesController extends AppController{
                 $this->{$this->main_model}->save($entity);
             }
         }
-
         $this->set(array(
             'success' => true,
             '_serialize' => array('success',)
@@ -370,12 +286,7 @@ class DevicesController extends AppController{
     }
 
      public function privateAttrIndex(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
-        $user_id    = $user['id'];
+       
         $username   = $this->request->query['username'];
         $items      =  $this->{$this->main_model}->privateAttrIndex($username);
 
@@ -387,12 +298,7 @@ class DevicesController extends AppController{
     }
 
      public function viewBasicInfo(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
 
-        $user_id    = $user['id'];
         $entity     = $this->{$this->main_model}->get( $this->request->query['device_id']);
         $username   = $entity->username;
 
@@ -429,10 +335,6 @@ class DevicesController extends AppController{
     }
 
     public function editBasicInfo(){ 
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
         
         //---Set profile related things---
         $profile_entity = $this->Profiles->entityBasedOnPost($this->request->data);
@@ -472,11 +374,7 @@ class DevicesController extends AppController{
     }
 
     public function privateAttrAdd(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
+      
         $entity =  $this->{$this->main_model}->privateAttrAdd($this->request);
         $errors = $entity->errors();
         if($errors){
@@ -493,10 +391,6 @@ class DevicesController extends AppController{
     }
 
     public function privateAttrEdit(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
 
         $entity =  $this->{$this->main_model}->privateAttrEdit($this->request);    
         $errors = $entity->errors();
@@ -514,10 +408,7 @@ class DevicesController extends AppController{
     }
 
     public function privateAttrDelete(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
+
         if($this->{$this->main_model}->privateAttrDelete($this->request)){
             $message = __('Could not delete some items');
             $this->JsonErrors->errorMessage($message);  
@@ -529,15 +420,13 @@ class DevicesController extends AppController{
         }
     }
 
-
-
     public function menuForGrid(){
         $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
             return;
         }
         
-        $menu = $this->GridButtons->returnButtons($user,false,'devices');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'devices');
         $this->set(array(
             'items'         => $menu,
             'success'       => true,
@@ -546,13 +435,12 @@ class DevicesController extends AppController{
     }
 
     function menuForAccountingData(){
-
        $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
             return;
         }
         
-        $menu = $this->GridButtons->returnButtons($user,false,'fr_acct_and_auth');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'fr_acct_and_auth');
         $this->set(array(
             'items'         => $menu,
             'success'       => true,
@@ -561,49 +449,18 @@ class DevicesController extends AppController{
     }
 
     function menuForAuthenticationData(){
-
        $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
             return;
         }
         
-        $menu = $this->GridButtons->returnButtons($user,false,'fr_acct_and_auth');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'fr_acct_and_auth');
         $this->set(array(
             'items'         => $menu,
             'success'       => true,
             '_serialize'    => array('items','success')
         ));
     }
-
-     	
-    public function noteIndex(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $items = $this->Notes->index($user); 
-    }
-    
-    public function noteAdd(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }   
-        $this->Notes->add($user);
-    }
-    
-    public function noteDel(){  
-        if (!$this->request->is('post')) {
-			throw new MethodNotAllowedException();
-		}
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $this->Notes->del($user);
-    }  
 }
 
 ?>

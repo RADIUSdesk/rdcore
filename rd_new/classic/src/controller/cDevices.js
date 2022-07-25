@@ -28,13 +28,16 @@ Ext.define('Rd.controller.cDevices', {
     },
 
     views:  [
-       'devices.gridDevices',    'devices.winDeviceAdd',
-       'components.cmbPermanentUser',   'components.cmbProfile',  'components.cmbCap',
-       'components.winCsvColumnSelect',
-       'components.winEnableDisable',   'devices.pnlDevice',      'devices.gridDeviceRadaccts', 
-       'devices.gridDeviceRadpostauths','devices.gridDevicePrivate', 'components.pnlUsageGraph',
-       'components.cmbVendor',          'components.cmbAttribute',
-       'devices.pnlDeviceGraphs'
+        'devices.gridDevices',    'devices.winDeviceAdd',
+        'components.cmbPermanentUser',   'components.cmbProfile',  'components.cmbCap',
+        'components.winCsvColumnSelect',
+        'components.winEnableDisable',   
+        'devices.pnlDevice', 
+        'devices.pnlDeviceBasic',      
+        'devices.gridDeviceRadaccts', 
+        'devices.gridDeviceRadpostauths','devices.gridDevicePrivate', 'components.pnlUsageGraph',
+        'components.cmbVendor',          'components.cmbAttribute',
+        'devices.pnlDeviceGraphs'
     ],
     stores: [ 'sPermanentUsers', 'sRealms',   'sProfiles',    'sDevices', 'sAttributes', 'sVendors'  ],
     models: [ 'mPermanentUser',  'mRealm',    'mProfile',     'mDevice',   'mUserStat',
@@ -581,7 +584,7 @@ Ext.define('Rd.controller.cDevices', {
     },  
     onTabBasicInfoActive: function(t){
         var me      = this;
-        var form    = t.down('form');
+        var form    = t;
         //get the user's id
         var device_id = t.up('pnlDevice').d_id;
         form.load({url:me.getUrlViewBasic(), method:'GET',params:{device_id:device_id}, 

@@ -28,7 +28,7 @@ Ext.define('Rd.controller.cDynamicDetails', {
         return added;      
     },
     views:  [
-        'dynamicDetails.gridDynamicDetails',  /*              'dynamicDetails.winDynamicDetailAddWizard', 'dynamicDetails.pnlDynamicDetail',
+        'dynamicDetails.gridDynamicDetails', 'dynamicDetails.winDynamicDetailAdd', 'dynamicDetails.pnlDynamicDetail',
         'components.winCsvColumnSelect',    'components.winNote',       'components.winNoteAdd','dynamicDetails.pnlDynamicDetailDetail',
         'dynamicDetails.pnlDynamicDetailLogo',  'dynamicDetails.pnlDynamicDetailPhoto', 'dynamicDetails.winPhotoAdd',
         'dynamicDetails.winPhotoEdit',      'dynamicDetails.gridDynamicDetailPages',    'dynamicDetails.winPageAdd',
@@ -38,15 +38,14 @@ Ext.define('Rd.controller.cDynamicDetails', {
 		'components.cmbProfile',			'dynamicDetails.pnlDynamicDetailSocialLogin'  ,
 		'dynamicDetails.cmbDynamicDetailLanguages',
 		'dynamicDetails.pnlDynamicDetailEmails', 'dynamicDetails.winEmailAdd',
-		'components.winSelectOwner',
 		'dynamicDetails.gridDynamicDetailTranslations',
-		'dynamicDetails.winPhotoTranslate'     */
+		'dynamicDetails.winPhotoTranslate'     
     ],
-    stores: ['sDynamicDetails'/*,'sAccessProvidersTree', 'sPermanentUsers','sProfiles','sRealms'*/],
+    stores: ['sDynamicDetails', 'sPermanentUsers','sProfiles','sRealms'],
     models: [
-		'mDynamicDetail'/*,'mAccessProviderTree','mDynamicPhoto', 
+		'mDynamicDetail','mDynamicPhoto', 
 		'mDynamicPage', 'mDynamicPair', 'mPermanentUser',
-		'mProfile',		'mRealm',       'mDataCollector'*/
+		'mProfile',		'mRealm',       'mDataCollector'
 	],
     selectedRecord: null,
     config: {
@@ -57,7 +56,6 @@ Ext.define('Rd.controller.cDynamicDetails', {
         urlDelete:          '/cake3/rd_cake/dynamic-details/delete.json',
         urlApChildCheck:    '/cake3/rd_cake/access-providers/child-check.json',
         urlExportCsv:       '/cake3/rd_cake/dynamic-details/export-csv',
-        urlNoteAdd:         '/cake3/rd_cake/dynamic-details/note-add.json',
         urlViewDynamicDetail: '/cake3/rd_cake/dynamic-details/view.json',
         urlLogoBase:        '/cake3/rd_cake/img/dynamic_details/',
         urlUploadLogo:      '/cake3/rd_cake/dynamic-details/upload_logo/',
@@ -96,9 +94,6 @@ Ext.define('Rd.controller.cDynamicDetails', {
             'gridDynamicDetails #edit': {
                 click:      me.edit
             },
-            'gridDynamicDetails #note'   : {
-                click:      me.note
-            },
             'gridDynamicDetails #csv'  : {
                 click:      me.csvExport
             },
@@ -120,16 +115,10 @@ Ext.define('Rd.controller.cDynamicDetails', {
             'gridDynamicDetails actioncolumn': { 
                  itemClick  : me.onActionColumnItemClick
             },
-            'winDynamicDetailAddWizard #btnTreeNext' : {
-                click:  me.btnTreeNext
-            },
-            'winDynamicDetailAddWizard #btnDataPrev' : {
-                click:  me.btnDynamicDetailDetailPrev
-            },
-            'winDynamicDetailAddWizard #chkTc' : {
+            'winDynamicDetailAdd #chkTc' : {
                 change:  me.chkTcChange
             },
-            'winDynamicDetailAddWizard #btnDataNext' : {
+            'winDynamicDetailAdd #btnDataNext' : {
                 click:  me.addSubmit
             },
             'pnlDynamicDetail pnlDynamicDetailDetail #save' : {
@@ -138,32 +127,8 @@ Ext.define('Rd.controller.cDynamicDetails', {
                     me.editSubmit(b,me.getUrlEdit());
                 }
             },
-            'pnlDynamicDetail pnlDynamicDetailDetail #btnPickOwner': {
-                click:  me.btnDynamicDetailDetailPickOwner
-            },
             '#winCsvColumnSelectDynamicDetails #save': {
                 click:  me.csvExportSubmit
-            },
-            'gridNote[noteForGrid=dynamicDetails] #reload' : {
-                click:  me.noteReload
-            },
-            'gridNote[noteForGrid=dynamicDetails] #add' : {
-                click:  me.noteAdd
-            },
-            'gridNote[noteForGrid=dynamicDetails] #delete' : {
-                click:  me.noteDelete
-            },
-            'gridNote[noteForGrid=dynamicDetails]' : {
-                itemclick: me.gridNoteClick
-            },
-            'winNoteAdd[noteForGrid=dynamicDetails] #btnTreeNext' : {
-                click:  me.btnNoteTreeNext
-            },
-            'winNoteAdd[noteForGrid=dynamicDetails] #btnNoteAddPrev'  : {   
-                click: me.btnNoteAddPrev
-            },
-            'winNoteAdd[noteForGrid=dynamicDetails] #btnNoteAddNext'  : {   
-                click: me.btnNoteAddNext
             },
             'pnlDynamicDetail #tabDetail': {
                 beforerender:   me.tabDetailActivate,
@@ -358,67 +323,13 @@ Ext.define('Rd.controller.cDynamicDetails', {
         }
     },
     add: function(button){
-        var me = this;
-        //We need to do a check to determine if this user (be it admin or acess provider has the ability to add to children)
-        //admin/root will always have, an AP must be checked if it is the parent to some sub-providers. If not we will simply show the add window
-        //if it does have, we will show the add wizard.
-
-        Ext.Ajax.request({
-            url: me.getUrlApChildCheck(),
-            method: 'GET',
-            success: function(response){
-                var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){
-                    if(jsonData.items.tree == true){
-                    
-                        if(!Ext.WindowManager.get('winDynamicDetailAddWizardId')){
-                            var w = Ext.widget('winDynamicDetailAddWizard',
-                            {
-                                id          :'winDynamicDetailAddWizardId'
-                            });
-                            w.show();         
-                        }
-                    }else{
-                        if(!Ext.WindowManager.get('winDynamicDetailAddWizardId')){
-                            var w   = Ext.widget('winDynamicDetailAddWizard',
-                            {
-                                id          : 'winDynamicDetailAddWizardId',
-                                startScreen : 'scrnData',
-                                user_id     : '0',
-                                owner       : i18n('sLogged_in_user'),
-                                no_tree     : true
-                            });
-                            w.show();       
-                        }
-                    }
-                }   
-            },
-            scope: me
-        });
-    },
-    btnTreeNext: function(button){
-        var me = this;
-        var tree = button.up('treepanel');
-        //Get selection:
-        var sr = tree.getSelectionModel().getLastSelected();
-        if(sr){    
-            var win = button.up('winDynamicDetailAddWizard');
-            win.down('#owner').setValue(sr.get('username'));
-            win.down('#user_id').setValue(sr.getId());
-            win.getLayout().setActiveItem('scrnData');
-        }else{
-            Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_owner'),
-                        i18n('sFirst_select_an_Access_Provider_who_will_be_the_owner'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
+        var me 		= this;
+        var c_name 	= me.application.getCloudName();
+        var c_id	= me.application.getCloudId()
+        if(!Ext.WindowManager.get('winDynamicDetailAddId')){
+            var w = Ext.widget('winDynamicDetailAdd',{id:'winDynamicDetailAddId',cloudId: c_id, cloudName: c_name});
+            w.show();         
         }
-    },
-    btnDynamicDetailDetailPrev: function(button){
-        var me = this;
-        var win = button.up('winDynamicDetailAddWizard');
-        win.getLayout().setActiveItem('scrnApTree');
     },
     addSubmit: function(button){
         var me      = this;
@@ -568,16 +479,6 @@ Ext.define('Rd.controller.cDynamicDetails', {
             tp.setActiveTab(tab_id); //Set focus on Add Tab
         }
     },
-    btnDynamicDetailDetailPickOwner: function(button){
-        var me             = this;
-        var form           = button.up('form');
-        var updateDisplay  = form.down('#displUser');
-        var updateValue    = form.down('#hiddenUser'); 
-		if(!Ext.WindowManager.get('winSelectOwnerId')){
-            var w = Ext.widget('winSelectOwner',{id:'winSelectOwnerId',updateDisplay:updateDisplay,updateValue:updateValue});
-            w.show();       
-        }  
-    },
     editSubmit: function(button,url){
         var me      = this;
         var form    = button.up('form');  
@@ -674,195 +575,6 @@ Ext.define('Rd.controller.cDynamicDetails', {
             win.close();
         }
     },
-
-    note: function(button,format) {
-        var me      = this;    
-        //Find out if there was something selected
-        var sel_count = me.getGrid().getSelectionModel().getCount();
-        if(sel_count == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            if(sel_count > 1){
-                Ext.ux.Toaster.msg(
-                        i18n('sLimit_the_selection'),
-                        i18n('sSelection_limited_to_one'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-                );
-            }else{
-
-                //Determine the selected record:
-                var sr = me.getGrid().getSelectionModel().getLastSelected();
-                
-                if(!Ext.WindowManager.get('winNoteDynamicDetails'+sr.getId())){
-                    var w = Ext.widget('winNote',
-                        {
-                            id          : 'winNoteDynamicDetails'+sr.getId(),
-                            noteForId   : sr.getId(),
-                            noteForGrid : 'dynamic-details',
-                            noteForName : sr.get('name')
-                        });
-                    w.show();       
-                }
-            }    
-        }
-    },
-    noteReload: function(button){
-        var me      = this;
-        var grid    = button.up('gridNote');
-        grid.getStore().load();
-    },
-    noteAdd: function(button){
-        var me      = this;
-        var grid    = button.up('gridNote');
-
-        //See how the wizard should be displayed:
-        Ext.Ajax.request({
-            url: me.getUrlApChildCheck(),
-            method: 'GET',
-            success: function(response){
-                var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){                      
-                    if(jsonData.items.tree == true){
-                        if(!Ext.WindowManager.get('winNoteDynamicDetailsAdd'+grid.noteForId)){
-                            var w   = Ext.widget('winNoteAdd',
-                            {
-                                id          : 'winNoteDynamicDetailsAdd'+grid.noteForId,
-                                noteForId   : grid.noteForId,
-                                noteForGrid : grid.noteForGrid,
-                                refreshGrid : grid
-                            });
-                            w.show();       
-                        }
-                    }else{
-                        if(!Ext.WindowManager.get('winNoteDynamicDetailsAdd'+grid.noteForId)){
-                            var w   = Ext.widget('winNoteAdd',
-                            {
-                                id          : 'winNoteDynamicDetailsAdd'+grid.noteForId,
-                                noteForId   : grid.noteForId,
-                                noteForGrid : grid.noteForGrid,
-                                refreshGrid : grid,
-                                startScreen : 'scrnNote',
-                                user_id     : '0',
-                                owner       : i18n('sLogged_in_user'),
-                                no_tree     : true
-                            });
-                            w.show();      
-                        }
-                    }
-                }   
-            },
-            scope: me
-        });
-    },
-    gridNoteClick: function(item,record){
-        var me = this;
-        //Dynamically update the top toolbar
-        grid    = item.up('gridNote');
-        tb      = grid.down('toolbar[dock=top]');
-        var del = record.get('delete');
-        if(del == true){
-            if(tb.down('#delete') != null){
-                tb.down('#delete').setDisabled(false);
-            }
-        }else{
-            if(tb.down('#delete') != null){
-                tb.down('#delete').setDisabled(true);
-            }
-        }
-    },
-    btnNoteTreeNext: function(button){
-        var me = this;
-        var tree = button.up('treepanel');
-        //Get selection:
-        var sr = tree.getSelectionModel().getLastSelected();
-        if(sr){    
-            var win = button.up('winNoteAdd');
-            win.down('#owner').setValue(sr.get('username'));
-            win.down('#user_id').setValue(sr.getId());
-            win.getLayout().setActiveItem('scrnNote');
-        }else{
-            Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_owner'),
-                        i18n('sFirst_select_an_Access_Provider_who_will_be_the_owner'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }
-    },
-    btnNoteAddPrev: function(button){
-        var me = this;
-        var win = button.up('winNoteAdd');
-        win.getLayout().setActiveItem('scrnApTree');
-    },
-    btnNoteAddNext: function(button){
-        var me      = this;
-        var win     = button.up('winNoteAdd');
-        win.refreshGrid.getStore().load();
-        var form    = win.down('form');
-        form.submit({
-            clientValidation: true,
-            url: me.getUrlNoteAdd(),
-            params: {for_id : win.noteForId},
-            success: function(form, action) {
-                win.close();
-                win.refreshGrid.getStore().load();
-                me.reload();
-                Ext.ux.Toaster.msg(
-                    i18n('sNew_item_created'),
-                    i18n('sItem_created_fine'),
-                    Ext.ux.Constants.clsInfo,
-                    Ext.ux.Constants.msgInfo
-                );
-            },
-            failure: Ext.ux.formFail
-        });
-    },
-    noteDelete: function(button){
-        var me      = this;
-        var grid    = button.up('gridNote');
-        //Find out if there was something selected
-        if(grid.getSelectionModel().getCount() == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
-                if(val== 'yes'){
-                    grid.getStore().remove(grid.getSelectionModel().getSelection());
-                    grid.getStore().sync({
-                        success: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sItem_deleted'),
-                                i18n('sItem_deleted_fine'),
-                                Ext.ux.Constants.clsInfo,
-                                Ext.ux.Constants.msgInfo
-                            );
-                            grid.getStore().load();   //Update the count
-                            me.reload();   
-                        },
-                        failure: function(batch,options,c,d){
-                            Ext.ux.Toaster.msg(
-                                i18n('sProblems_deleting_item'),
-                                batch.proxy.getReader().rawData.message.message,
-                                Ext.ux.Constants.clsWarn,
-                                Ext.ux.Constants.msgWarn
-                            );
-                            grid.getStore().load(); //Reload from server since the sync was not good
-                        }
-                    });
-                }
-            });
-        }
-    },
     tabDetailActivate : function(tab){
         var me      = this;
         var form    = tab;
@@ -872,15 +584,7 @@ Ext.define('Rd.controller.cDynamicDetails', {
             method  : 'GET',
             params  : {dynamic_detail_id:dynamic_detail_id},
             success : function(a,b,c){
-                if(b.result.data.show_owner == true){
-                    if(form.down('#fcPickOwner')){
-                        form.down('#fcPickOwner').show();
-                    }
-                }else{
-                    if(form.down('#fcPickOwner')){
-                        form.down('#fcPickOwner').hide();
-                    }
-                }
+               
             }
         });
     },

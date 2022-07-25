@@ -13,7 +13,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
 	                cls     : 'subSubTab', //Make darker -> Maybe grey
 	                items   : [
 	                    { 
-	                         title  : 'Permanent Users', 
+	                         title  : 'USERS', 
 	                         xtype  : 'gridPermanentUsers',
 	                         border : false,
 	                         plain  : true,

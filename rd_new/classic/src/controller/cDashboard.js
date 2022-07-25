@@ -218,8 +218,15 @@ Ext.define('Rd.controller.cDashboard', {
     		var name = record.get('text');
     		var id   = record.get('id');
     		var c	 = record.get('controller');
-            var pnl  = me.getViewP().down('#pnlCenter')
+            var pnl  = me.getViewP().down('#pnlCenter');
     		var item = pnl.down('#'+id);
+            glyph    = record.get('glyph');
+
+            var pnlDashboard = me.getViewP().down('pnlDashboard');
+
+            var new_data = Ext.Object.merge(pnlDashboard.down('#tbtHeader').getData(),{fa_value:'&#'+glyph+';', value :name});
+            pnlDashboard.down('#tbtHeader').update(new_data);
+
     		if(!item){
     			var added = me.application.runAction(c,'Index',pnl,id);
                 if(!added){
@@ -249,7 +256,6 @@ Ext.define('Rd.controller.cDashboard', {
         var pnl = btn.up('pnlDashboard');
         tl = pnl.down('#tlNav');
         var myStore = tl.getStore();
-
         Ext.Ajax.request({
             url: '/cake3/rd_cake/dashboard/nav-tree.json',
             success: function(resp) {
@@ -264,59 +270,6 @@ Ext.define('Rd.controller.cDashboard', {
         console.log("Pnl West Rendered");
         tl = pnl.down('#tlNav');
         var myStore = tl.getStore();
-        //myStore.removeAll();
-        //myStore.loadData({});
-        var wip = {
-            "children": [
-                {
-                    "text": "OVERVIEW",
-                    "id": 1,
-                    "leaf": true,
-                    "iconCls": "x-fa fa-th-large"
-                },
-                {
-					text: 'RADIUS USERS',
-					id	: 2,
-					expanded: false,
-					iconCls: 'x-fa fa-user',
-					children: [
-						{
-							text: 'USERS',
-							leaf: true,
-							id	: 3,
-							iconCls: 'x-fa fa-user'
-						},
-						{
-							text: 'VOUCHERS',
-							leaf: true,
-							id	: 4,
-							iconCls: 'x-fa fa-tag'
-						},
-						{
-							text: 'TOP-UPS',
-							leaf: true,
-							controller: 'cTopUps',
-							id	: 'tabTopUps',
-							iconCls: 'x-fa  fa-coffee'
-						},
-                        {
-							text: 'HARDWARES',
-							leaf: true,
-							controller: 'cHardwares',
-							id	: 'tabHardwares',
-							iconCls: 'x-fa  fa-user'
-						},
-						{
-							text: 'ADMINS',
-							leaf: true,
-							controller: 'cAccessProviders',
-							id	: 'tabAccessProviders',
-							iconCls: 'x-fa  fa-tag'
-						}
-					]
-				}
-            ]
-        };
         Ext.Ajax.request({
             url: '/cake3/rd_cake/dashboard/nav-tree.json',
             success: function(resp) {

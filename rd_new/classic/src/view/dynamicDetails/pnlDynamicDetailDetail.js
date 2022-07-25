@@ -40,44 +40,7 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailDetail', {
             defaults    : {
                 anchor  : '100%'
             },
-            items       : [
-                {
-                    xtype       : 'fieldcontainer',
-                    itemId      : 'fcPickOwner',
-                    hidden      : true,  
-                    layout      : {
-                        type    : 'hbox',
-                        align   : 'begin',
-                        pack    : 'start'
-                    },
-                    items:[
-                        {
-                            itemId      : 'owner',
-                            xtype       : 'displayfield',
-                            fieldLabel  : i18n('sOwner'),
-                            name        : 'username',
-                            itemId      : 'displUser',
-                            margin      : 0,
-                            padding     : 0,
-                            width       : 410
-                        },
-                        {
-                            xtype       : 'button',
-                            text        : 'Pick Owner',
-                            margin      : 5,
-                            padding     : 5,
-                            ui          : 'button-green',
-                            itemId      : 'btnPickOwner',
-                            width       : 100
-                        },
-                        {
-                            xtype       : 'textfield',
-                            name        : "user_id",
-                            itemId      : 'hiddenUser',
-                            hidden      : true
-                        }
-                    ]
-                },
+            items       : [               
                 {
                     xtype: 'textfield',
                     name : "id",
@@ -89,15 +52,7 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailDetail', {
                     name        : "name",
                     allowBlank  : false,
                     blankText   : i18n("sSupply_a_value")
-                },
-                {
-                    xtype       : 'checkbox',      
-                    //fieldLabel  : i18n('sMake_available_to_sub_providers'),
-                    boxLabel    : 'Available To Sub-Providers',
-                    name        : 'available_to_siblings',
-                    inputValue  : 'available_to_siblings',
-                    checked     : false
-                }  
+                }
             ]
         };
         

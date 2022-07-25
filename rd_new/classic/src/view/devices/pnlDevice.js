@@ -16,7 +16,7 @@ Ext.define('Rd.view.devices.pnlDevice', {
         dtTo.setYear(dtTo.getFullYear() + 1);
 
         me.items = [
-        {   
+        /*{   
             title:  i18n('sBasic_info'),
             itemId : 'tabBasicInfo',
             layout: 'hbox',
@@ -121,6 +121,13 @@ Ext.define('Rd.view.devices.pnlDevice', {
                     }
                 ]
             }  
+        },*/
+        {   
+            title   : i18n('sBasic_info'),
+            itemId  : 'tabBasicInfo',
+            xtype   : 'pnlDeviceBasic',
+            record  : me.record,
+            username: me.d_name  
         },
         { 
             title   : i18n('sPrivate_attributes'),
