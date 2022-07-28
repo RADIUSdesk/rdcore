@@ -21,5 +21,7 @@ class CloudsTable extends Table {
         $this->hasMany('Sites',[
             'dependent' => true
         ]);
+        
+        $this->hasMany('CloudAdmins',['dependent' => true]);
     }
 }

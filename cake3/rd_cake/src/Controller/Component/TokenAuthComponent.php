@@ -2,10 +2,10 @@
 //----------------------------------------------------------
 //---- Author: Dirk van der Walt
 //---- License: GPL v3
-//---- Description: A component that is intended to be called by the Aa component  to determine the owner of the token
+//---- Description: A component that is intended to be called by the Aa component to determine the owner of the token
 //---- should be passed along with the request. If the token is not valid, an error will be reported through the controller.
 //---- this component is suppose to work hand-in-hand with the TokenAcl and Aa component which will determine the rights of the user
-//---- Date: 24-12-2016
+//---- Date: 27-JUL-2022
 //------------------------------------------------------------
 
 namespace App\Controller\Component;

@@ -34,133 +34,7 @@ class DashboardController extends AppController{
       
     public function navTree(){
     
-    	$trRadius =	[
-			[
-				'text'	=> 'USERS',
-				'leaf'	=> true,
-				'controller'	=> 'cPermanentUsers',
-				'id'		=> 'tabMainPermanentUsers',
-				'iconCls'	=> 'x-fa fa-user',
-				'glyph'		=> 'xf007'
-			],
-			[
-				'text'	=> 'VOUCHERS',
-				'leaf'	=> true,
-				'controller'	=> 'cVouchers',
-				'id'		=> 'tabMainVouchers',
-				'iconCls'	=> 'x-fa fa-tag',
-				'glyph'		=> 'xf02b'
-			],
-			[
-				'text'	=> 'TOP-UPS',
-				'leaf'	=> true,
-				'controller'	=> 'cTopUps',
-				'id'		=> 'tabMainTopUps',
-				'iconCls'	=> 'x-fa  fa-coffee',
-				'glyph'		=> 'xf0f4'
-			]			
-		];
-		
-		$thRadiusComponents = [
-			[
-				'text'	=> 'REALMS',
-				'leaf'	=> true,
-				'controller'	=> 'cRealms',
-				'id'		=> 'tabMainRealms',
-				'iconCls'	=> 'x-fa fa-globe',
-				'glyph'		=> 'xf0ac'
-			],		
-			[
-				'text'	=> 'PROFILES',
-				'leaf'	=> true,
-				'controller'	=> 'cProfiles',
-				'id'		=> 'tabMainProfiles',
-				'iconCls'	=> 'x-fa fa-cubes',
-				'glyph'		=> 'xf1b3'
-			],
-			[
-				'text'	=> 'CLIENTS',
-				'leaf'	=> true,
-				'controller'	=> 'cDynamicClients',
-				'id'		=> 'tabMainDynamicClients',
-				'iconCls'	=> 'x-fa fa-dot-circle-o',
-				'glyph'		=> 'xf192'
-			]		
-		];
-		
-		$thNetworks = [
-			[
-				'text'	=> 'MESHdesk',
-				'leaf'	=> true,
-				'controller'=> 'cMeshes',
-				'id'		=> 'tabMainMeshes',
-				'iconCls'	=> 'x-fa fa-wifi',
-				'glyph'		=> 'xf1eb'
-			],	
-			[
-				'text'	=> 'HARDWARES',
-				'leaf'	=> true,
-				'controller'=> 'cHardwares',
-				'id'		=> 'tabMainHardwares',
-				'iconCls'	=> 'x-fa fa-cog',
-				'glyph'		=> 'xf013'
-			]	
-		];
-		
-		$thOther = [
-			[
-				'text'	=> 'ADMINS',
-				'leaf'	=> true,
-				'controller'	=> 'cAccessProviders',
-				'id'		=> 'tabMainAccessProviders',
-				'iconCls'	=> 'x-fa fa-graduation-cap'
-			]
-		];
-    	   
-    	$items = [
-			[
-				'text' => 'OVERVIEW',
-				'id'   => 1,
-				'leaf' => true,
-				'iconCls' => 'x-fa fa-th-large'
-			],
-			[
-				'text'	=> 'RADIUS USERS',
-				'id'		=> 2,
-				'expanded'	=> false,
-				'iconCls'   => 'x-fa fa-user',
-				'children'	=> $trRadius
-			],
-			[
-				'text'	=> 'RADIUS COMPONENTS',
-				'id'		=> 3,
-				'expanded'	=> false,
-				'iconCls'		=> 'x-fa  fa-dot-circle-o',
-				'children'	=> $thRadiusComponents
-			],
-			[
-				'text' => 'LOGIN PAGES',
-				'leaf'	=> true,
-				'controller'	=> 'cDynamicDetails',
-				'id'		=> 'tabDynamicCDetails',
-				'iconCls'	=> 'x-fa fa-arrow-circle-right',
-				'glyph'		=> 'xf090'
-			],
-			[
-				'text' 		=> 'NETWORKS',
-				'controller'=> '4',
-				'id'		=> 'tabMeshes',
-				'iconCls'	=> 'x-fa fa-sitemap',
-				'children'	=> $thNetworks		
-			],
-			[
-				'text' 		=> 'OTHER',
-				'id'		=> 5,
-				'controller'=> '5',
-				'iconCls'	=> 'x-fa fa-gears',
-				'children'	=> $thOther		
-			]  
-    	];
+    	$items = $this->_nav_tree();
     
     	$this->set([
             'items'          => $items,
@@ -342,52 +216,7 @@ class DashboardController extends AppController{
             '_serialize' => array('items','success')
         ));
     }
-    
-     public function utilitiesItems(){
      
-        $ta     = 'left';        
-        $data   = [
-            [
-                'xtype'   => 'button',
-                'text'    => 'Mesh Networks Overview',
-                'glyph'   => Configure::read('icnMesh'),
-                'scale'   => 'large',
-                'itemId'  => 'btnMeshOverview',
-                'textAlign' => $ta 
-            ],
-            [
-                'xtype'   => 'button',
-                'text'    => 'Users Overview',
-                'glyph'   => Configure::read('icnUser'),
-                'scale'   => 'large',
-                'itemId'  => 'btnDataUsage',
-                'textAlign' => $ta 
-            ],
-            [
-                'xtype'   => 'button',
-                'text'    => 'Alerts',
-                'glyph'   => Configure::read('icnBell'),
-                'scale'   => 'large',
-                'itemId'  => 'btnAlerts',
-                'textAlign' => $ta 
-            ],
-            [
-                'xtype'   => 'button',
-                'text'    => 'Flows',
-                'glyph'   => Configure::read('icnSkyatlas'),
-                'scale'   => 'large',
-                'itemId'  => 'btnFlows',
-                'textAlign' => $ta 
-            ]             
-        ];      
-        $this->set([
-            'data'          => $data,
-            'success'       => true,
-            '_serialize'    => ['success','data']
-        ]);
-    
-    }
-    
      public function settingsView(){
         $user = $this->Aa->user_for_token($this);
         if(!$user){
@@ -439,6 +268,8 @@ class DashboardController extends AppController{
                     $val_rc = "$i";
                 }
                 $data["$i"] = $val_rc;
+            }else{
+            	$data["$i"] = 0;
             }   
         }
         if(isset($data['alert_activate'])){
@@ -687,18 +518,20 @@ class DashboardController extends AppController{
     }
     
     private function _get_user_detail($user,$auto_compact=false){
-    
-        //print_r($user);
-         
+           
         $group      = $user->group->name;
         $username   = $user->username;
         $token      = $user->token;
-        $id         = $user->id;
-        
+        $id         = $user->id;      
         $cls        = 'user';
-        $menu       = [];
-        
+        $menu       = [];   
         $isRootUser = false;
+        
+        if($auto_compact){
+        	$compact	= true;
+       	}else{
+       		$compact	= false;
+       	}
         
         //White Label
         $white_label            = [];
@@ -722,27 +555,25 @@ class DashboardController extends AppController{
         $show_wizard        = false;
         $show_unknown_nodes = false;
         
-        /*
+        $q_rc = $this->UserSettings->find()->where(['user_id' => $id,'name' => "compact_view"])->first();
+        if($q_rc){
+            if($q_rc->value == 1){
+                $compact = true;
+            }
+        }   
+        
+        
         if( $group == Configure::read('group.admin')){  //Admin
-            $cls = 'admin';
-            $tabs= $this->_build_admin_tabs($id,$display);  //We do not care for rights here;
+
             $isRootUser = true; 
             $show_wizard = true;
-            $show_unknown_nodes = true;    
         }
         
         if( $group == Configure::read('group.ap')){  //Or AP
-            $cls = 'access_provider';
-            $tabs= $this->_build_ap_tabs($id,$display);  //We DO care for rights here! 
-            if($this->Acl->check(['model' => 'Users', 'foreign_key' => $id],$this->acl_base.'Wizards/index')){
-                $show_wizard = true;
-            }
-            
-            if($this->Acl->check(['model' => 'Users', 'foreign_key' => $id],$this->acl_base.'UnknownNodes/index')){
-                $show_unknown_nodes = true;
-            }  
+          	$show_wizard = true;
+            $show_unknown_nodes = true; 
         }
-        */
+        
         
         $data_usage = [];
         if(isset($this->realm_id)){
@@ -757,1131 +588,11 @@ class DashboardController extends AppController{
             'white_label'   =>  $white_label,
             'show_wizard'   =>  $show_wizard,
             'show_unknown_nodes' => $show_unknown_nodes,
+            'compact'		=> $compact,
+            'tree_nav' 		=> $this->_nav_tree()
         ];        
     }
-    
-     private function _build_admin_tabs($user_id,$style = 'take_setting'){
-        $show = 'title'; //Default is not compact
-        if($style == 'take_setting'){
-            $q_rc = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => "compact_view"])->first();
-            if($q_rc){
-                if($q_rc->value == 1){
-                    $show = 'tooltip';
-                }
-            }   
-        }
-        
-        if($style == 'compact'){ //override due to screen size
-            $show = 'tooltip'; 
-        }
-        
-        
-        $tabs = [];
-        
-        //Admin
-        array_push($tabs, array(
-                "$show"   => __('Admin'),
-                'glyph'   => Configure::read('icnAdmin'),
-                'plain'   => false,
-                'ui'      => $this->ui,
-                'xtype'   => 'tabpanel',
-                'itemId'  => 'tabAdmin',
-                'layout'  => 'fit',
-                'items'   => array(
-                    array(
-                        'title'   => __('Admins'),
-                        'glyph'   => Configure::read('icnAdmin'),
-                        'id'      => 'cAccessProviders',
-                        'layout'  => 'fit',
-                        'tabConfig'=> [
-                            'ui' => $this->tabUIOne
-                        ]
-                    ),
-                    array(
-                        'title'   => __('Realms (Groups)'),
-                        'glyph'   => Configure::read('icnRealm'),
-                        'id'      => 'cRealms',
-                        'layout'  => 'fit',
-                        'tabConfig'=> [
-                            'ui' => $this->tabUITwo
-                        ]
-                    )
-                )
-
-            )
-        );
-        
-        //Users
-        array_push($tabs, [
-                "$show"   => __('Users'),
-                'xtype'   => 'tabpanel',
-                'glyph'   => Configure::read('icnUser'),
-                'plain'   => false,
-                'ui'      => $this->ui,
-                'layout'  => 'fit',
-                'itemId'  => 'tabUsers',
-                'items'   => [
-                    [
-                        'title'     => __('Permanent Users'),
-                        'glyph'     => Configure::read('icnUser'),
-                        'id'        => 'cPermanentUsers',
-                        'layout'    => 'fit',
-                        'tabConfig'=> [
-                            'ui' => $this->tabUIOne
-                        ]
-                    ],
-                    [
-                        'title'     => __('Vouchers'),
-                        'glyph'     => Configure::read('icnVoucher'),
-                        'id'        => 'cVouchers',
-                        'layout'    => 'fit',
-                        'tabConfig'=> [
-                            'ui' => $this->tabUITwo
-                        ]
-                    ],
-                    [
-                        'title'     => __('Activity Monitor'),
-                        'glyph'     => Configure::read('icnActivity'),
-                        'id'        => 'cActivityMonitor',
-                        'layout'    => 'fit',
-                        'tabConfig'=> [
-                            'ui' => $this->tabUIThree
-                        ]
-                    ],
-                    /*
-                    array(
-                        'title'     => __('BYOD'),
-                        'glyph'     => Configure::read('icnDevice'),
-                        'id'        => 'cDevices',
-                        'layout'    => 'fit'
-                    ),
-                    */
-                    [
-                        'title'     => __('Top-Ups'),
-                        'glyph'     => Configure::read('icnTopUp'),
-                        'id'        => 'cTopUps',
-                        'layout'    => 'fit',
-                        'tabConfig'=> [
-                            'ui' => $this->tabUIThree
-                        ]
-                    ],                  
-                ]
-            ]
-        );
-        
-        //Users
-        array_push($tabs, array(
-                "$show"   => __('Profiles'),
-                'glyph'   => Configure::read('icnProfile'),
-                'plain'   => false,
-                'ui'      => $this->ui,
-                'xtype'   => 'tabpanel',
-                'layout'  => 'fit',
-                'items'   => [
-                 /*   array(
-                        'title'   => __('Profile Components'),
-                        'glyph'   => Configure::read('icnComponent'),
-                        'id'      => 'cProfileComponents',
-                        'layout'  => 'fit',
-                        'tabConfig'=> [
-                            'ui' => 'tab-brown'
-                        ]
-                    ),*/
-                    [
-                        'title'   => __('Profiles'),
-                        'glyph'   => Configure::read('icnProfile'),
-                        'id'      => 'cProfiles',
-                        'layout'  => 'fit',
-                        'tabConfig'=> [
-                            'ui' => $this->tabUIOne
-                        ]
-                    ]   
-                ]
-            )
-        );
-        
-        //RADIUS
-        array_push($tabs, array(
-                "$show"   => __('RADIUS'),
-                'glyph'   => Configure::read('icnRadius'),
-                'plain'   => $this->plain,
-                'ui'      => $this->ui,
-                'xtype'   => 'tabpanel',
-                'layout'  => 'fit',
-                'items'   => array(
-                    array(
-                        'title'   => __('RADIUS Clients'),
-                        'glyph'   => Configure::read('icnNas'),
-                        'id'      => 'cDynamicClients',
-                        'layout'  => 'fit',
-                        'tabConfig'=> [
-                            'ui' => $this->tabUIOne
-                        ]
-                    ),
-                 /*   array(
-                        'title'   => __('NAS Devices'),
-                        'glyph'   => Configure::read('icnNas'),
-                        'id'      => 'cNas',
-                        'layout'  => 'fit'
-                    ),
-                    array(
-                        'title'   => __('NAS Device Tags'),
-                        'glyph'   => Configure::read('icnTag'),
-                        'id'      => 'cTags',
-                        'layout'  => 'fit'
-                    ),
-                    array(
-                        'title'   => __('SSIDs'),
-                        'glyph'   => Configure::read('icnSsid'),
-                        'id'      => 'cSsids',
-                        'layout'  => 'fit'
-                    )  */
-                )
-            )
-        );
        
-        //Analytics
-        /*
-        array_push($tabs, array(
-                "$show"   => __('Analytics'),
-                'glyph'   =>  Configure::read('icnSignal'),
-                'id'      => 'cAnalytics',
-                'layout'  => 'fit'
-            )
-        );
-        */
-        
-        
-        //MESHdesk
-        array_push($tabs, array(
-                "$show"   => __('MESHdesk'),
-                'glyph'   => Configure::read('icnMesh'),
-                'id'      => 'cMeshes',
-                'layout'  => 'fit'
-            )
-        );
-        
-        //APdesk    
-        array_push($tabs, array(
-                "$show"   => __('APdesk'),
-                'glyph'   => Configure::read('icnWifi2'),
-                'id'      => 'cAccessPoints',
-                'layout'  => 'fit'
-            )
-        );
-              
-        //Experi-mental 
-        if(Configure::read('experimental.active')){
-        
-            $dns_desk = [
-                "$show"   => __('DNSdesk'),
-                'glyph'   => Configure::read('icnShield'),
-                'xtype'   => "tabpanel",
-                'layout'  => 'fit',
-                'plain'   => $this->plain,
-                'ui'      => $this->ui,
-                'items'   => array(
-                    array(
-                        'title'   => 'Black Lists',
-                        'glyph'   => Configure::read('icnBan'),
-                        'id'      => 'cBlackLists',
-                        'layout'  => 'fit'
-                    ),
-                    array(
-                        'title'   => 'White Lists',
-                        'glyph'   => Configure::read('icnCheckC'),
-                        'id'      => 'cWhiteLists',
-                        'layout'  => 'fit'
-                    ),  
-                    array(
-                        'title'   => 'Schedules',
-                        'glyph'   => Configure::read('icnWatch'),
-                        'id'      => 'cSchedules',
-                        'layout'  => 'fit'
-                    ), 
-                    array(
-                        'title'   => 'Filters',
-                        'glyph'   => Configure::read('icnFilter'),
-                        'id'      => 'cFilters',
-                        'layout'  => 'fit'
-                    ), 
-                    array(
-                        'title'   => 'Operators',
-                        'glyph'   => Configure::read('icnAdmin'),
-                        'id'      => 'cDnsDeskOperators',
-                        'layout'  => 'fit'
-                    ),    
-                ) 
-            ];
-            array_push($tabs, $dns_desk);   
-        }
-        
-         //Login Pages
-        array_push($tabs, array(
-                "$show"   => __('Login Pages'),
-                'glyph'   => Configure::read('icnSignIn'),
-                'xtype'   => 'tabpanel',
-                'plain'   => $this->plain,
-                'ui'      => $this->ui,
-                'layout'  => 'fit',
-                'items'   => array(
-                    array(
-                        'title'   => __('Login Pages'),
-                        'glyph'   => Configure::read('icnSignIn'),
-                        'id'      => 'cDynamicDetails',
-                        'layout'  => 'fit',
-                        'tabConfig'=> [
-                            'ui' => $this->tabUIOne
-                        ]
-                    )         
-                )
-            )
-        );
-        
-        //Other
-        array_push($tabs, array(
-                "$show"   => __('Other'),
-                'glyph'   => Configure::read('icnGears'),
-                'xtype'   => 'tabpanel',
-                'plain'   => $this->plain,
-                'ui'      => $this->ui,
-                'itemId'  => 'tpOther',
-                'layout'  => 'fit',
-                'items'   => array(
-                /*    array(
-                        'title'   => __('Firmware Keys'),
-                        'glyph'   => Configure::read('icnKey'),
-                        'id'      => 'cFirmwareKeys',
-                        'layout'  => 'fit'
-                    ),
-                    
-                    array(
-                        'title'   => __('IP Pools'),
-                        'glyph'   => Configure::read('icnIP'),
-                        'id'      => 'cIpPools',
-                        'layout'  => 'fit'
-                    ),*/
-                     [
-                        'title'   => __('Wireguard Servers'),
-                        'glyph'   => Configure::read('icnVPN'),
-                        'id'      => 'cWireguardServers',
-                        'layout'  => 'fit'
-                    ],
-                    [
-                        'title'   => __('OpenVPN Servers'),
-                        'glyph'   => Configure::read('icnVPN'),
-                        'id'      => 'cOpenvpnServers',
-                        'layout'  => 'fit'
-                    ],
-              /*      [
-                        'title'   => __('Traffic Class Sets'),
-                        'glyph'   => Configure::read('icnTaxi'),
-                        'id'      => 'cTrafficClasses',
-                        'layout'  => 'fit'
-                    ],
-                    [
-                        'title'   => __('RADIUS Proxies'),
-                        'glyph'   => Configure::read('icnDotCircleO'),
-                        'id'      => 'cHomeServerPools',
-                        'layout'  => 'fit'
-                    ],*/
-                    [
-                        'title'   => __('Clouds'),
-                        'glyph'   => Configure::read('icnCloud'),
-                        'id'      => 'cClouds',
-                        'layout'  => 'fit'
-                    ],
-                    [
-                        'title'   => __('Rights Manager'),
-                        'glyph'   => Configure::read('icnKey'),
-                        'id'      => 'cAcos',
-                        'layout'  => 'fit'
-                    ],  
-                  /*  [
-                        'title'   => __('Logfile Viewer'),
-                        'glyph'   => Configure::read('icnLog'),
-                        'id'      => 'cLogViewer',
-                        'layout'  => 'fit'
-                    ],
-                 /*   array(
-                        'title'   => __('Debug Output'),
-                        'glyph'   => Configure::read('icnBug'),
-                        'id'      => 'cDebug',
-                        'layout'  => 'fit'
-                    ),*/
-                    array(
-                        'title'   => __('Settings'),
-                        'glyph'   => Configure::read('icnGears'),
-                        'id'      => 'cSettings',
-                        'layout'  => 'fit'
-                    ),
-                  /*  array(
-                        'title'   => __('Tree Tags'),
-                        'glyph'   => Configure::read('icnTree'),
-                        'id'      => 'cTreeTags',
-                        'layout'  => 'fit'
-                    ), */ 
-                    
-                   [
-                        'title'   => __('Schedules'),
-                        'glyph'   => Configure::read('icnCalendarO'),
-                        'id'      => 'cSchedules',
-                        'layout'  => 'fit'
-                    ],
-                                        
-                   [
-                        'title'   => __('Hardwares'),
-                        'glyph'   => Configure::read('icnHdd'),
-                        'id'      => 'cHardwares',
-                        'layout'  => 'fit'
-                    ],  
-                  /*  array(
-                        'title'   => __('Registration Requests'),
-                        'glyph'   => Configure::read('icnEdit'),
-                        'id'      => 'cRegistrationRequests',
-                        'layout'  => 'fit'
-                    )  */
-                )
-            )
-        );       
-              
-        //____ Overview Tab ___
-        //This one is a bit different :-)
-        $overview_items = [];
-        
-        //Find out if there is a dafault setting for the realm.
-        $radius_overview        = false;
-        $realm_blank            = false;
-        
-                
-        //Find if there is a realm specified in the settings        
-        $q_rr =  $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'realm_id'])->first();
-        
-        if($q_rr){
-            //Get the name of the realm
-            $q_r = $this->Realms->find()->where(['id' => $q_rr->value])->first();
-            
-            if($q_r){
-                $realm_name         = $q_r->name;
-                $data['realm_name'] = $realm_name;
-                $data['realm_id']   = $q_rr->value;
-                
-                $this->realm_name   = $realm_name;
-                $this->realm_id     = $q_rr->value;
-               
-                //Get the settings of whether to show the two tabs
-                $q_rdu = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'radius_overview'])->first();
-                
-                if($q_rdu){
-                    if($q_rdu->value == 1){
-                        $radius_overview = true;
-                    }
-                }
-                
-            }else{            
-                $realm_blank = true;
-            }       
-        //No realm specified in settings; get a default one (if there might be one )    
-        }else{ 
-            $q_r = $this->Realms->find()->first();
-            if($q_r){
-                $realm_name         = $q_r->name;
-                $data['realm_name'] = $realm_name;
-                $data['realm_id']   = $q_r->id;
-                
-                $this->realm_name   = $realm_name;
-                $this->realm_id     = $q_r->id;
-            }else{
-                $realm_blank = true;
-            }
-        }
-        
-        //We found a realm and should display it
-        if(($realm_blank == false)&&($radius_overview == true)){
-            array_push($overview_items, array(
-                    'title'   => __('Users'),
-                    'glyph'   => Configure::read('icnUser'),
-                    'id'      => 'cDataUsage',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUIOne
-                    ]
-                )
-            );      
-            
-        }else{
-        
-            //We could not find a realm and should display a welcome message
-            if($realm_blank == true){
-                array_push($overview_items, array(
-                        'title'   => __('Welcome Message'),
-                        'glyph'   => Configure::read('icnNote'),
-                        'margin'  => 10,
-                        'padding' => 10,
-                        'id'      => 'cWelcome',
-                        'layout'  => 'fit',
-                        'tabConfig'=> [
-                            'ui' => $this->tabUIOne
-                        ]
-                    )
-                );
-            }
-        }
-     
-        //MESHdesk   
-        $meshdesk_overview = false;     
-        $q_md_overview = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'meshdesk_overview'])->first();
-        if($q_md_overview){
-            if($q_md_overview->value == 1){
-                $meshdesk_overview = true;
-            }
-        }
-        
-        if($meshdesk_overview){                
-            array_push($overview_items, array(
-                    'title'   => __('Clouds'),
-                    'glyph'   => Configure::read('icnCloud'),
-                    //'id'      => 'cMeshOverview',
-                    'id'      => 'cNetworkOverview',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUIOne
-                    ]
-                )
-            );
-        }
-        
-        //APdesk
-        $apdesk_overview = false;
-        $q_ap_overview = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'apdesk_overview'])->first();
-        if($q_ap_overview){
-            if($q_ap_overview->value == 1){
-                $apdesk_overview = true;
-            }
-        }
-        
-        if($apdesk_overview){                
-             array_push($overview_items, array(
-                    'title'   => __('Access Points'),
-                    'glyph'   => Configure::read('icnCloud'),
-                    'id'      => 'cApOverview',
-                    'layout'  => 'fit'
-                )
-            );
-        }
-        
-        array_push($overview_items, array(
-                'title'   => __('Utilities'),
-                'glyph'   => Configure::read('icnGears'),
-                'id'      => 'cUtilities',
-                'layout'  => 'fit',
-                'tabConfig'=> [
-                    'ui' => $this->tabUIThree
-                ]
-            )
-        );
-               
-        array_unshift($tabs,array(
-            "$show"     => __('Overview'),
-            'xtype'     => 'tabpanel',
-            'glyph'     => Configure::read('icnView'),
-            'plain'     => $this->plain,
-            'ui'        => $this->ui,
-            'itemId'    => 'tpOverview',
-            'layout'    => 'fit',
-            'items'     => $overview_items
-        ));
-                
-        return $tabs;
-    }
-    
-    private function _build_ap_tabs($id,$style = 'take_setting'){
-        $tabs   = array();
-        $user_id = $id;
-        
-        $show = 'title'; //Default is not compact
-        if($style == 'take_setting'){
-            $q_rc = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => "compact_view"])->first();
-            if($q_rc){
-                if($q_rc->value == 1){
-                    $show = 'tooltip';
-                }
-            }   
-        }
-        
-        if($style == 'compact'){ //override due to screen size
-            $show = 'tooltip'; 
-        }
-          
-        //Base to start looking from.
-        $base   = "Access Providers/Controllers/"; 
-           
-        
-        //____ Overview Tab ___
-        //This one is a bit different :-)
-        $overview_items = array();
-        
-        //Find out if there is a dafault setting for the realm.
-        $radius_overview        = false;
-        $realm_blank            = false;
-        
-        //Find if there is a realm specified in the settings        
-        $q_rr =  $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'realm_id'])->first();
-        
-        if($q_rr){
-            //Get the name of the realm
-            $q_r = $this->Realms->find()->where(['id' => $q_rr->value])->first();
-            $realm_name         = $q_r->name;
-            $data['realm_name'] = $realm_name;
-            $data['realm_id']   = $q_rr->value;
-            
-            $this->realm_name   = $realm_name;
-            $this->realm_id     = $q_rr->value;
-           
-            //Get the settings of whether to show the two tabs
-            $q_rdu = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'radius_overview'])->first();
-             
-            if($q_rdu){
-                if($q_rdu->value == 1){
-                    $radius_overview = true;
-                }
-            }
-              
-         
-        //No realm specified in settings; get a default one (if there might be one )    
-        }else{            
-            $realm_detail = $this->_ap_default_realm($user_id);
-            if(array_key_exists('realm_id',$realm_detail)){
-                $data['realm_name'] = $realm_detail['realm_name'];
-                $data['realm_id']   = $realm_detail['realm_id'];
-                
-                $this->realm_name   = $realm_detail['realm_name'];
-                $this->realm_id     = $realm_detail['realm_id'];
-            }else{ // Could not find a default realm
-                $realm_blank = true;
-            }      
-        }    
-        
-         //We found a realm and should display it
-        if(($realm_blank == false)&&($radius_overview == true)){
-            array_push($overview_items, array(
-                    'title'   => __('Users'),
-                    'glyph'   => Configure::read('icnData'),
-                    'id'      => 'cDataUsage',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUIOne
-                    ]
-                )
-            );
-        }else{
-        
-            //We could not find a realm and should display a welcome message
-            if($realm_blank == true){
-                array_push($overview_items, array(
-                        'title'   => __('Welcome Message'),
-                        'glyph'   => Configure::read('icnNote'),
-                        'margin'  => 10,
-                        'padding' => 10,
-                        'id'      => 'cWelcome',
-                        'layout'  => 'fit',
-                        'tabConfig'=> [
-                            'ui' => $this->tabUIOne
-                        ]
-                    )
-                );
-            }
-        }
-        
-        
-        //MESHdesk   
-        $meshdesk_overview = false;     
-        $q_md_overview = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'meshdesk_overview'])->first();
-        if($q_md_overview){
-            if($q_md_overview->value == 1){
-                $meshdesk_overview = true;
-            }
-        }
-        
-        if($meshdesk_overview){                
-            array_push($overview_items, array(
-                    'title'   => __('Clouds'),
-                    'glyph'   => Configure::read('icnCloud'),
-                    //'id'      => 'cMeshOverview',
-                    'id'      => 'cNetworkOverview',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUIOne
-                    ]
-                )
-            );
-        }
-      
-        //APdesk
-        $apdesk_overview = false;
-        $q_ap_overview = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'apdesk_overview'])->first();
-        if($q_ap_overview){
-            if($q_ap_overview->value == 1){
-                $apdesk_overview = true;
-            }
-        }
-        
-        if($apdesk_overview){                
-             array_push($overview_items, array(
-                    'title'   => __('Access Points'),
-                    'glyph'   => Configure::read('icnCloud'),
-                    'id'      => 'cApOverview',
-                    'layout'  => 'fit'
-                )
-            );
-        }          
-       
-        array_push($overview_items, array(
-                'title'   => __('Utilities'),
-                'glyph'   => Configure::read('icnGears'),
-                'id'      => 'cUtilities',
-                'layout'  => 'fit',
-                'tabConfig'=> [
-                    'ui' => $this->tabUIThree
-                ]
-            )
-        );
-            
-        array_push($tabs, array(
-                "$show"     => __('Overview'),
-                'xtype'     => 'tabpanel',
-                'plain'     => $this->plain,
-                'ui'        => $this->ui,
-                'glyph'     => Configure::read('icnView'),
-                'itemId'    => 'tpOverview',
-                'layout'    => 'fit',
-                'items'   => $overview_items
-            )
-        );
-        
-         //____ Admin Tab ____
-        $admin_items = array();
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."AccessProviders/index")){
-        
-            array_push($admin_items, array(
-                    'title'   => __('Admins'),
-                    'glyph'   => Configure::read('icnAdmin'),
-                    'id'      => 'cAccessProviders',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUIOne
-                    ]
-                )
-            );
-        }
-        
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."Realms/index")){
-            array_push($admin_items, array(
-                    'title'   => __('Realms (Groups)'),
-                    'glyph'   => Configure::read('icnRealm'),
-                    'id'      => 'cRealms',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUITwo
-                    ]
-                )
-            );
-        }
-
-        if(count($admin_items) > 0){
-            array_push($tabs, array(
-                    "$show"   => __('Admin'),
-                    'plain'   => $this->plain,
-                    'ui'      => $this->ui,
-                    'glyph'   => Configure::read('icnAdmin'),
-                    'xtype'   => 'tabpanel',
-                    'itemId'  => 'tabAdmin',
-                    'layout'  => 'fit',
-                    'items'   => $admin_items
-                )
-            );
-        }
-       
-        //____ Users Tab ____   
-        $users_items = [];
-        
-        
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."PermanentUsers/index")){
-            array_push($users_items, array(
-                    'title'     => __('Permanent Users'),
-                    'glyph'     => Configure::read('icnUser'),
-                    'id'        => 'cPermanentUsers',
-                    'layout'    => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUIOne
-                    ]                  
-                )
-            );
-        
-        }
-        
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."Vouchers/index")){
-            array_push($users_items, array(
-                    'title'     => __('Vouchers'),
-                    'glyph'     => Configure::read('icnVoucher'),
-                    'id'        => 'cVouchers',
-                    'layout'    => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUITwo
-                    ]         
-                )
-            );
-        }
-        
-        if(count($users_items)>0){
-            array_push($users_items, [
-                    'title'     => __('Activity Monitor'),
-                    'glyph'     => Configure::read('icnActivity'),
-                    'id'        => 'cActivityMonitor',
-                    'layout'    => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUIThree
-                    ]
-                ]
-            );
-        }
-        
-        /*
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."Devices/index")){
-            array_push($users_items, array(
-                    'title'     => __('BYOD'),
-                    'glyph'     => Configure::read('icnDevice'),
-                    'id'        => 'cDevices',
-                    'layout'    => 'fit'       
-                )
-            );
-        }
-        
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."TopUps/index")){
-            array_push($users_items, array(
-                    'title'     => __('Top-Ups'),
-                    'glyph'     => Configure::read('icnTopUp'),
-                    'id'        => 'cTopUps',
-                    'layout'    => 'fit'
-                )
-            ); 
-        }
-        */
-        
-        if(count($admin_items) > 0){
-            array_push($tabs, array(
-                    "$show"   => __('Users'),
-                    'plain'   => $this->plain,
-                    'ui'      => $this->ui,
-                    'xtype'   => 'tabpanel',
-                    'glyph'   => Configure::read('icnUser'),
-                    'layout'  => 'fit',
-                    'itemId'  => 'tabUsers',
-                    'items'   => $users_items
-                )
-            );
-        }
-        
-        //____ Profiles Tab ____   
-        $profile_items = array();
-        
-      /*  if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."ProfileComponents/index")){
-            array_push($profile_items, array(
-                    'title'   => __('Profile Components'),
-                    'glyph'   => Configure::read('icnComponent'),
-                    'id'      => 'cProfileComponents',
-                    'layout'  => 'fit'          
-                )
-            );
-        }*/
-        
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."Profiles/index")){
-            array_push($profile_items, array(
-                    'title'   => __('Profiles'),
-                    'glyph'   => Configure::read('icnProfile'),
-                    'id'      => 'cProfiles',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUIOne
-                    ]           
-                )
-            );
-        }
-        
-        if(count($profile_items) > 0){
-            array_push($tabs, array(
-                "$show"   => __('Profiles'),
-                'plain'   => $this->plain,
-                'ui'      => $this->ui,
-                'glyph'   => Configure::read('icnProfile'),
-                'xtype'   => 'tabpanel',
-                'layout'  => 'fit',
-                'items'   => $profile_items
-                )
-            );
-        }
-        
-        //____ RADIUS Tab ____  
-        $radius_items = array();
-        
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."DynamicClients/index")){
-            array_push($radius_items, array(
-                    'title'   => __('RADIUS Clients'),
-                    'glyph'   => Configure::read('icnNas'),
-                    'id'      => 'cDynamicClients',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUIOne
-                    ]             
-                )
-            );
-        }
-/*        
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."Nas/index")){
-            array_push($radius_items, array(
-                    'title'   => __('NAS Devices'),
-                    'glyph'   => Configure::read('icnNas'),
-                    'id'      => 'cNas',
-                    'layout'  => 'fit'           
-                )
-            );
-        }
-        
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."Tags/index")){
-            array_push($radius_items, array(
-                    'title'   => __('NAS Device Tags'),
-                    'glyph'   => Configure::read('icnTag'),
-                    'id'      => 'cTags',
-                    'layout'  => 'fit'
-                              
-                )
-            );
-        }
-        
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."Ssids/index")){
-            array_push($radius_items, array(
-                    'title'   => __('SSIDs'),
-                    'glyph'   => Configure::read('icnSsid'),
-                    'id'      => 'cSsids',
-                    'layout'  => 'fit'             
-                )
-            );
-        }
-*/        
-        if(count($radius_items) > 0){
-            array_push($tabs, array(
-                "$show"   => __('RADIUS'),
-                'glyph'   => Configure::read('icnRadius'),
-                'plain'   => $this->plain,
-                'ui'      => $this->ui,
-                'xtype'   => 'tabpanel',
-                'layout'  => 'fit',
-                'items'   => $radius_items
-                )
-            );
-        }
-        
-        
-        //___ Analytics tab ___
-    /*    if($this->Acl->check(array('model' => 'User', 'foreign_key' => $id), $base."Analytics/index")){
-             array_push($tabs, array(
-                    "$show"   => __('Analytics'),
-                    'glyph'   => Configure::read('icnSignal'),
-                    'id'      => 'cAnalytics',
-                    'layout'  => 'fit'
-                )
-            );
-        }*/
-        
-        
-        //___ MESHdesk tab ___
-        
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."Meshes/index")){
-             array_push($tabs, array(
-                    "$show"   => __('MESHdesk'),
-                    'glyph'   => Configure::read('icnMesh'),
-                    'id'      => 'cMeshes',
-                    'layout'  => 'fit'
-                )
-            );
-        }
-        
-        //___ APdesk tab ___
-  
-        //Leave out for now    
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."ApProfiles/index")){
-             array_push($tabs, array(
-                    "$show"   => __('APdesk'),
-                    'glyph'   => Configure::read('icnWifi2'),
-                    'id'      => 'cAccessPoints',
-                    'layout'  => 'fit' 
-                )
-            );
-        }
-        
-        //___ DNSdesk tab ___
-       //Experi-mental 
-        if(Configure::read('experimental.active')){
-            //FIXME Also do rights check on this for Access Providers
-            $dns_desk = [
-                "$show"   => __('DNSdesk'),
-                'glyph'   => Configure::read('icnShield'),
-                'xtype'   => "tabpanel",
-                'layout'  => 'fit',
-                'items'   => array(
-                    
-                    array(
-                        'title'   => 'Black Lists',
-                        'glyph'   => Configure::read('icnBan'),
-                        'id'      => 'cBlackLists',
-                        'layout'  => 'fit'
-                    ),
-                    array(
-                        'title'   => 'White Lists',
-                        'glyph'   => Configure::read('icnCheckC'),
-                        'id'      => 'cWhiteLists',
-                        'layout'  => 'fit'
-                    ),   
-                    array(
-                        'title'   => 'Schedules',
-                        'glyph'   => Configure::read('icnWatch'),
-                        'id'      => 'cSchedules',
-                        'layout'  => 'fit'
-                    ), 
-                    array(
-                        'title'   => 'Policies',
-                        'glyph'   => Configure::read('icnScale'),
-                        'id'      => 'cPolicies',
-                        'layout'  => 'fit'
-                    ), 
-                    array(
-                        'title'   => 'Operators',
-                        'glyph'   => Configure::read('icnAdmin'),
-                        'id'      => 'cDnsDeskOperators',
-                        'layout'  => 'fit'
-                    ),   
-                ) 
-            ];
-            array_push($tabs, $dns_desk);   
-        }
-            
-        // ____ Login Pages Tab ____
-        
-        $login_pages_items = [];
-           
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."DynamicDetails/index")){
-            array_push($login_pages_items, [
-                    'title'   => __('Login Pages'),
-                    'glyph'   => Configure::read('icnSignIn'),
-                    'id'      => 'cDynamicDetails',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUIOne
-                    ]         
-                ]
-            );
-        }
-             
-        if(count($login_pages_items) > 0){
-            array_push($tabs, [
-            
-                "$show"   => __('Login Pages'),
-                'glyph'   => Configure::read('icnSignIn'),
-                'xtype'   => 'tabpanel',
-                'plain'   => $this->plain,
-                'ui'      => $this->ui,
-                'layout'  => 'fit',
-                'items'   => $login_pages_items
-                ]
-            );
-        }
-             
-        //Other
-        
-        $other_items = [];
-        
-       
-      /*         
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."TrafficClasses/index")){
-            array_push($other_items, [
-                    'title'   => __('Traffic Class Sets'),
-                    'glyph'   => Configure::read('icnTaxi'),
-                    'id'      => 'cTrafficClasses',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUIOne
-                    ]                       
-                ]
-            );            
-            array_push($other_items, [
-                    'title'   => __('RADIUS Proxies'),
-                    'glyph'   => Configure::read('icnDotCircleO'),
-                    'id'      => 'cHomeServerPools',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUIOne
-                    ]                       
-                ]
-            );           
-        }
-        
-        */
-        
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."Clouds/index")){
-            array_push($other_items, [
-                    'title'   => __('Clouds'),
-                    'glyph'   => Configure::read('icnCloud'),
-                    'id'      => 'cClouds',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUITwo
-                    ]                       
-                ]
-            );
-        }
-        
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."Schedules/index")){
-            array_push($other_items, [
-                    'title'   => __('Schedules'),
-                    'glyph'   => Configure::read('icnCalendarO'),
-                    'id'      => 'cSchedules',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUITwo
-                    ]                       
-                ]
-            );
-        }
-        
-           
-        if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $id), $base."Hardwares/index")){
-            array_push($other_items, [
-                    'title'   => __('Hardwares'),
-                    'glyph'   => Configure::read('icnHdd'),
-                    'id'      => 'cHardwares',
-                    'layout'  => 'fit',
-                    'tabConfig'=> [
-                        'ui' => $this->tabUIThree
-                    ]                       
-                ]
-            );
-        }
-        
-        if(count($other_items) > 0){
-            array_push($tabs, [         
-                "$show"   => __('Other'),
-                'plain'   => $this->plain,
-                'ui'      => $this->ui,
-                'glyph'   => Configure::read('icnGears'),
-                'xtype'   => 'tabpanel',
-                'itemId'  => 'tpOther',
-                'layout'  => 'fit',
-                'items'   => $other_items               
-                ]
-            );
-        }             
-        return $tabs;
-    }
     
     private function _ap_default_realm($ap_id){
     
@@ -1933,6 +644,148 @@ class DashboardController extends AppController{
             }              
         }
         return $realm;
+    }
+    
+    private function _nav_tree(){
+    
+    	$trRadius =	[
+			[
+				'text'	=> 'USERS',
+				'leaf'	=> true,
+				'controller'	=> 'cPermanentUsers',
+				'id'		=> 'tabMainPermanentUsers',
+				'iconCls'	=> 'x-fa fa-user',
+				'glyph'		=> 'xf007'
+			],
+			[
+				'text'	=> 'VOUCHERS',
+				'leaf'	=> true,
+				'controller'	=> 'cVouchers',
+				'id'		=> 'tabMainVouchers',
+				'iconCls'	=> 'x-fa fa-tag',
+				'glyph'		=> 'xf02b'
+			],
+			[
+				'text'	=> 'TOP-UPS',
+				'leaf'	=> true,
+				'controller'	=> 'cTopUps',
+				'id'		=> 'tabMainTopUps',
+				'iconCls'	=> 'x-fa  fa-coffee',
+				'glyph'		=> 'xf0f4'
+			]			
+		];
+		
+		$thRadiusComponents = [
+			[
+				'text'	=> 'REALMS',
+				'leaf'	=> true,
+				'controller'	=> 'cRealms',
+				'id'		=> 'tabMainRealms',
+				'iconCls'	=> 'x-fa fa-globe',
+				'glyph'		=> 'xf0ac'
+			],		
+			[
+				'text'	=> 'PROFILES',
+				'leaf'	=> true,
+				'controller'	=> 'cProfiles',
+				'id'		=> 'tabMainProfiles',
+				'iconCls'	=> 'x-fa fa-cubes',
+				'glyph'		=> 'xf1b3'
+			],
+			[
+				'text'	=> 'CLIENTS',
+				'leaf'	=> true,
+				'controller'	=> 'cDynamicClients',
+				'id'		=> 'tabMainDynamicClients',
+				'iconCls'	=> 'x-fa fa-dot-circle-o',
+				'glyph'		=> 'xf192'
+			]		
+		];
+		
+		$thNetworks = [
+			[
+				'text'	=> 'MESHdesk',
+				'leaf'	=> true,
+				'controller'=> 'cMeshes',
+				'id'		=> 'tabMainMeshes',
+				'iconCls'	=> 'x-fa fa-wifi',
+				'glyph'		=> 'xf1eb'
+			],	
+			[
+				'text'	=> 'HARDWARES',
+				'leaf'	=> true,
+				'controller'=> 'cHardwares',
+				'id'		=> 'tabMainHardwares',
+				'iconCls'	=> 'x-fa fa-cog',
+				'glyph'		=> 'xf013'
+			]	
+		];
+		
+		$thOther = [
+			[
+				'text'	=> 'ADMINS',
+				'leaf'	=> true,
+				'controller'	=> 'cAccessProviders',
+				'id'		=> 'tabMainAccessProviders',
+				'iconCls'	=> 'x-fa fa-graduation-cap'
+			],
+			[
+				'text'	=> 'CLOUDS',
+				'leaf'	=> true,
+				'controller'	=> 'cClouds',
+				'id'		=> 'tabMainClouds',
+				'iconCls'	=> 'x-fa fa-cloud',
+				'glyph'		=> 'xf0c2'
+			],
+		];
+    	   
+    	$items = [
+			[
+				'text' => 'OVERVIEW',
+				'id'   => 1,
+				'leaf' => true,
+				'iconCls' => 'x-fa fa-th-large'
+			],
+			[
+				'text'	=> 'RADIUS USERS',
+				'id'		=> 2,
+				'expanded'	=> false,
+				'iconCls'   => 'x-fa fa-user',
+				'children'	=> $trRadius
+			],
+			[
+				'text'	=> 'RADIUS COMPONENTS',
+				'id'		=> 3,
+				'expanded'	=> false,
+				'iconCls'		=> 'x-fa  fa-dot-circle-o',
+				'children'	=> $thRadiusComponents
+			],
+			[
+				'text' => 'LOGIN PAGES',
+				'leaf'	=> true,
+				'controller'	=> 'cDynamicDetails',
+				'id'		=> 'tabDynamicCDetails',
+				'iconCls'	=> 'x-fa fa-arrow-circle-right',
+				'glyph'		=> 'xf090'
+			],
+			[
+				'text' 		=> 'NETWORKS',
+				'controller'=> '4',
+				'id'		=> 'tabMeshes',
+				'iconCls'	=> 'x-fa fa-sitemap',
+				'children'	=> $thNetworks		
+			],
+			[
+				'text' 		=> 'OTHER',
+				'id'		=> 5,
+				'controller'=> '5',
+				'iconCls'	=> 'x-fa fa-gears',
+				'children'	=> $thOther		
+			]  
+    	];
+    	
+    	return $items;
+     
     }
 }
 

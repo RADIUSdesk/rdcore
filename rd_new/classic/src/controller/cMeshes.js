@@ -102,7 +102,7 @@ Ext.define('Rd.controller.cMeshes', {
     },
 
     views:  [
-        'meshes.gridMeshes',/*        'meshes.winMeshAddWizard',
+        'meshes.gridMeshes',        'meshes.winMeshAdd'/*,
 		'meshes.gridNodeLists',	    'meshes.gridUnknownNodes',
         'meshes.winMeshUnknownRedirect',
         'meshes.winMeshUnknownModeChange',
@@ -126,7 +126,7 @@ Ext.define('Rd.controller.cMeshes', {
         urlDelete       : '/cake3/rd_cake/meshes/delete.json',
         urlMapPrefView  : '/cake3/rd_cake/meshes/map_pref_view.json',
         urlApChildCheck : '/cake3/rd_cake/access-providers/child-check.json',
-        urlNoteAdd      : '/cake3/rd_cake/meshes/note-add.json',
+
         urlAddNode      : '/cake3/rd_cake/meshes/mesh_node_add.json',
         urlViewNode     : '/cake3/rd_cake/meshes/mesh_node_view.json',
         urlEditNode     : '/cake3/rd_cake/meshes/mesh_node_edit.json',
@@ -186,9 +186,6 @@ Ext.define('Rd.controller.cMeshes', {
             'gridMeshes #xwf_filter': {
                 change : me.xwfFilterToggle
             },
-            'gridMeshes #note'   : {
-                click:      me.note
-            },
             'gridMeshes'   		: {
                 select:      me.select,
                 rowclick    : me.rowclick
@@ -196,41 +193,7 @@ Ext.define('Rd.controller.cMeshes', {
             'gridMeshes actioncolumn': { 
                  itemClick  : me.onActionColumnItemClick
             },
-            'gridNote[noteForGrid=meshes] #reload' : {
-                click:  me.noteReload
-            },
-            'gridNote[noteForGrid=meshes] #add' : {
-                click:  me.noteAdd
-            },
-            'gridNote[noteForGrid=meshes] #delete' : {
-                click:  me.noteDelete
-            },
-            'gridNote[noteForGrid=meshes]' : {
-                itemclick: me.gridNoteClick
-            },
-            'winNoteAdd[noteForGrid=meshes] #btnTreeNext' : {
-                click:  me.btnNoteTreeNext
-            },
-            'winNoteAdd[noteForGrid=meshes] #btnNoteAddPrev'  : {   
-                click: me.btnNoteAddPrev
-            },
-            'winNoteAdd[noteForGrid=meshes] #btnNoteAddNext'  : {   
-                click: me.btnNoteAddNext
-            },
-            //Add WiZard 
-            'winMeshAddWizard #btnTreeNext' : {
-                click:  me.btnTreeNext
-            },
-            'winMeshAddWizard #btnCloudPrev' : {
-                click:  me.btnCloudPrev
-            },
-            'winMeshAddWizard #btnCloudNext' : {
-                click:  me.btnCloudNext
-            },
-            'winMeshAddWizard #btnDataPrev' : {
-                click:  me.btnDataPrev
-            },
-            'winMeshAddWizard #btnDataNext' : {
+            'winMeshAdd #btnDataNext' : {
                 click:  me.btnDataNext
             },
 
@@ -346,114 +309,12 @@ Ext.define('Rd.controller.cMeshes', {
         },  interval);  
     },
     add: function(button){
-        
-        var me = this;
-        //We need to do a check to determine if this user (be it admin or acess provider has the ability to add to children)
-        //admin/root will always have, an AP must be checked if it is the parent to some sub-providers. If not we will 
-        //simply show the nas connection typer selection 
-        //if it does have, we will show the tree to select an access provider.
-        Ext.Ajax.request({
-            url: me.getUrlApChildCheck(),
-            method: 'GET',
-            success: function(response){
-                var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){
-                        
-                    if(jsonData.items.tree == true){
-                        if(!Ext.WindowManager.get('winMeshAddWizardId')){
-                            var w = Ext.widget('winMeshAddWizard',{id:'winMeshAddWizardId',enable_grouping: jsonData.items.enable_grouping});
-                            w.show();         
-                        }
-                    }else{
-                        if(!Ext.WindowManager.get('winMeshAddWizardId')){
-                            var w = Ext.widget('winMeshAddWizard',
-                                {
-                                    id          :'winMeshAddWizardId',
-                                    startScreen : 'scrnData',
-                                    user_id     :'0',
-                                    owner       : i18n('sLogged_in_user'),
-                                    no_tree     : true,
-                                    enable_grouping: jsonData.items.enable_grouping
-                                }
-                            );
-                            w.show();         
-                        }
-                    }
-                }   
-            },
-            scope: me
-        });
-
-    },
-    btnTreeNext: function(button){
-        var me = this;
-        var tree = button.up('treepanel');
-        //Get selection:
-        var sr = tree.getSelectionModel().getLastSelected();
-        if(sr){    
-            var win = button.up('winMeshAddWizard');
-            var owner = "<div class=\"fieldGrey\"><b>"+sr.get('username')+"</b></div>"
-            win.down('#owner').setValue(owner);
-            win.down('#user_id').setValue(sr.getId());
-            if(win.enable_grouping){
-                win.getLayout().setActiveItem('scrnClouds');
-            }else{
-                win.getLayout().setActiveItem('scrnData');
-            }
-        }else{
-            Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_owner'),
-                        i18n('sFirst_select_an_Access_Provider_who_will_be_the_owner'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }
-    },
-    btnCloudNext: function(button){
-        var me      = this;
-        var win     = button.up('winMeshAddWizard');  
-        var tree    = button.up('treepanel');
-        //Get selection:
-        var sr = tree.getSelectionModel().getLastSelected();
-        var tree_level = sr.get('tree_level');
-        if(sr){  
-            var tree_level = sr.get('tree_level');
-            if(tree_level == 'Networks'){
-                var network_string = sr.getPath('name', ">");
-                network_string     = network_string.replace(">Grouping>", "");
-                network_string     = "<div class=\"fieldBlue\"><b>"+network_string+"</b></div>";
-                win.down('#network_string').setValue(network_string);
-                win.down('#network_id').setValue(sr.getId());
-                win.getLayout().setActiveItem('scrnData');
-            }else{
-                 Ext.ux.Toaster.msg(
-                    'Select Network',
-                    'Select A Network (Not Site or Cloud)',
-                    Ext.ux.Constants.clsWarn,
-                    Ext.ux.Constants.msgWarn
-                );
-            } 
-        }else{
-            Ext.ux.Toaster.msg(
-                'Select an item',
-                'Select a grouping end point',
-                Ext.ux.Constants.clsWarn,
-                Ext.ux.Constants.msgWarn
-            );
-        }
-    },
-    btnCloudPrev: function(button){
-        var me      = this;
-        var win     = button.up('winMeshAddWizard');
-        win.getLayout().setActiveItem('scrnApTree');
-    },   
-    btnDataPrev:  function(button){
-        var me      = this;
-        var win     = button.up('winMeshAddWizard');
-        if(win.enable_grouping){
-            win.getLayout().setActiveItem('scrnClouds');
-        }else{
-            win.getLayout().setActiveItem('scrnApTree');
+        var me 		= this;
+        var c_name 	= me.application.getCloudName();
+        var c_id	= me.application.getCloudId()
+        if(!Ext.WindowManager.get('winMeshAddId')){
+            var w = Ext.widget('winMeshAdd',{id:'winMeshAddId',cloudId: c_id, cloudName: c_name});
+            w.show();         
         }
     },
     btnDataNext:  function(button){
@@ -579,8 +440,9 @@ Ext.define('Rd.controller.cMeshes', {
             }else{
                 var sr      = me.getGrid().getSelectionModel().getLastSelected();
                 var id      = sr.getId();
-                var name    = sr.get('name');  
-				me.application.runAction('cMeshEdits','Index',id,name); 
+                var name    = sr.get('name');
+                var tabPanel= me.getGrid().up('tabpanel')
+				me.application.runAction('cMeshEdits','Index',tabPanel,{name:name,id:id}); 
             }
         }
     },
@@ -626,195 +488,6 @@ Ext.define('Rd.controller.cMeshes', {
                                 Ext.ux.Constants.msgWarn
                             );
                             me.reload(); //Reload from server
-                        }
-                    });
-                }
-            });
-        }
-    },
-    //Notes for MESHes
-    note: function(button,format) {
-        var me      = this;    
-        //Find out if there was something selected
-        var sel_count = me.getGrid().getSelectionModel().getCount();
-        if(sel_count == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            if(sel_count > 1){
-                Ext.ux.Toaster.msg(
-                        i18n('sLimit_the_selection'),
-                        i18n('sSelection_limited_to_one'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-                );
-            }else{
-
-                //Determine the selected record:
-                var sr = me.getGrid().getSelectionModel().getLastSelected();
-                
-                if(!Ext.WindowManager.get('winNoteMeshes'+sr.getId())){
-                    var w = Ext.widget('winNote',
-                        {
-                            id          : 'winNoteMeshes'+sr.getId(),
-                            noteForId   : sr.getId(),
-                            noteForGrid : 'meshes',
-                            noteForName : sr.get('name')
-                        });
-                    w.show();       
-                }
-            }    
-        }
-    },
-    noteReload: function(button){
-        var me      = this;
-        var grid    = button.up('gridNote');
-        grid.getStore().load();
-    },
-    noteAdd: function(button){
-        var me      = this;
-        var grid    = button.up('gridNote');
-
-        //See how the wizard should be displayed:
-        Ext.Ajax.request({
-            url: me.getUrlApChildCheck(),
-            method: 'GET',
-            success: function(response){
-                var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){                      
-                    if(jsonData.items.tree == true){
-                        if(!Ext.WindowManager.get('winNoteMeshesAdd'+grid.noteForId)){
-                            var w   = Ext.widget('winNoteAdd',
-                            {
-                                id          : 'winNoteMeshesAdd'+grid.noteForId,
-                                noteForId   : grid.noteForId,
-                                noteForGrid : grid.noteForGrid,
-                                refreshGrid : grid
-                            });
-                            w.show();       
-                        }
-                    }else{
-                        if(!Ext.WindowManager.get('winNoteMeshesAdd'+grid.noteForId)){
-                            var w   = Ext.widget('winNoteAdd',
-                            {
-                                id          : 'winNoteMeshesAdd'+grid.noteForId,
-                                noteForId   : grid.noteForId,
-                                noteForGrid : grid.noteForGrid,
-                                refreshGrid : grid,
-                                startScreen : 'scrnNote',
-                                user_id     : '0',
-                                owner       : i18n('sLogged_in_user'),
-                                no_tree     : true
-                            });
-                            w.show()       
-                        }
-                    }
-                }   
-            },
-            scope: me
-        });
-    },
-    gridNoteClick: function(item,record){
-        var me = this;
-        //Dynamically update the top toolbar
-        grid    = item.up('gridNote');
-        tb      = grid.down('toolbar[dock=top]');
-        var del = record.get('delete');
-        if(del == true){
-            if(tb.down('#delete') != null){
-                tb.down('#delete').setDisabled(false);
-            }
-        }else{
-            if(tb.down('#delete') != null){
-                tb.down('#delete').setDisabled(true);
-            }
-        }
-    },
-    btnNoteTreeNext: function(button){
-        var me = this;
-        var tree = button.up('treepanel');
-        //Get selection:
-        var sr = tree.getSelectionModel().getLastSelected();
-        if(sr){    
-            var win = button.up('winNoteAdd');
-            win.down('#owner').setValue(sr.get('username'));
-            win.down('#user_id').setValue(sr.getId());
-            win.getLayout().setActiveItem('scrnNote');
-        }else{
-            Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_owner'),
-                        i18n('sFirst_select_an_Access_Provider_who_will_be_the_owner'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }
-    },
-    btnNoteAddPrev: function(button){
-        var me = this;
-        var win = button.up('winNoteAdd');
-        win.getLayout().setActiveItem('scrnApTree');
-    },
-    btnNoteAddNext: function(button){
-        var me      = this;
-        var win     = button.up('winNoteAdd');
-        win.refreshGrid.getStore().load();
-        var form    = win.down('form');
-        form.submit({
-            clientValidation: true,
-            url: me.getUrlNoteAdd(),
-            params: {for_id : win.noteForId},
-            success: function(form, action) {
-                win.close();
-                win.refreshGrid.getStore().load();
-                me.reload();
-                Ext.ux.Toaster.msg(
-                    i18n('sNew_item_created'),
-                    i18n('sItem_created_fine'),
-                    Ext.ux.Constants.clsInfo,
-                    Ext.ux.Constants.msgInfo
-                );
-            },
-            failure: Ext.ux.formFail
-        });
-    },
-    noteDelete: function(button){
-        var me      = this;
-        var grid    = button.up('gridNote');
-        //Find out if there was something selected
-        if(grid.getSelectionModel().getCount() == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
-                if(val== 'yes'){
-                    grid.getStore().remove(grid.getSelectionModel().getSelection());
-                    grid.getStore().sync({
-                        success: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sItem_deleted'),
-                                i18n('sItem_deleted_fine'),
-                                Ext.ux.Constants.clsInfo,
-                                Ext.ux.Constants.msgInfo
-                            );
-                            grid.getStore().load();   //Update the count
-                            me.reload();   
-                        },
-                        failure: function(batch,options,c,d){
-                            Ext.ux.Toaster.msg(
-                                i18n('sProblems_deleting_item'),
-                                batch.proxy.getReader().rawData.message.message,
-                                Ext.ux.Constants.clsWarn,
-                                Ext.ux.Constants.msgWarn
-                            );
-                            grid.getStore().load(); //Reload from server since the sync was not good
                         }
                     });
                 }

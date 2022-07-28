@@ -39,66 +39,20 @@ class MeshesController extends AppController{
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
             'model' => 'Meshes'
         ]);
-        
-        $this->loadComponent('Notes', [
-            'model'     => 'MeshNotes',
-            'condition' => 'mesh_id'
-        ]); 
-        
+               
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');        
     }
     
-    public function index(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if (!$user) {
-            return;
-        }
-        $user_id    = $user['id'];
+    public function index(){     
         //Get the default dead_after
         $this->dead_after       = $this->_getDefaultDeadAfter();
         $this->node_dead_after  = $this->_getDefaultDeadAfter();
         
-        $query      = $this->{$this->main_model}->find();
-        
-        
-        //==XWF FILTER ADD ON==
-        if (($this->request->getQuery('xwf_filter'))&&($this->request->getQuery('xwf_filter') == 'true')) {
-
-            //First get a list of captive portals with the xwf_enable = true;
-            $ents_cp        = $this->{'MeshExitCaptivePortals'}->find()->where(['MeshExitCaptivePortals.xwf_enable' =>true])->all();
-            $mesh_exit_list = [];
-               
-            foreach($ents_cp as $e){
-                if(!in_array($e->mesh_exit_id,$mesh_exit_list)){
-                    array_push($mesh_exit_list,$e->mesh_exit_id);
-                }
-            }
-            
-            //Now get a list of mesh exists that these captive portals belong to  
-            $query_m = $this->{'MeshExits'}->find();
-            $ents_exits = $query_m->where(function (QueryExpression $exp, Query $q)use($mesh_exit_list) {
-                    return $exp->in('id',$mesh_exit_list);
-                })->all();
-                   
-            //Now build a list of meshes that these exit points belong to
-            $mesh_id_list = [];
-            
-            foreach($ents_exits as $e_exit){
-                if(!in_array($e_exit->mesh_id,$mesh_id_list)){
-                    array_push($mesh_id_list,$e_exit->mesh_id);
-                }
-            }
-            
-            $query->where(function (QueryExpression $exp, Query $q)use($mesh_id_list) {
-                return $exp->in('Meshes.id',$mesh_id_list);
-            });            
-        }
-        //==END XWF FILTER ADD ON==
-        
-        $this->CommonQuery->build_common_query($query, $user, ['Users','MeshNotes' => ['Notes'],'Nodes']); //AP QUERY is sort of different in a way
-        
+        $cloud_id = $this->request->query['cloud_id'];
+        $query 	  = $this->{$this->main_model}->find();      
+        $this->CommonQuery->build_cloud_query($query,$cloud_id,['Nodes']);
+                
         $q_no_lomits = $query;
 
         //===== PAGING (MUST BE LAST) ======
@@ -142,23 +96,6 @@ class MeshesController extends AppController{
 	            }
 				$node_count++;
 			}
-
-            $owner_id = $i->user_id;
-            if (!array_key_exists($owner_id, $this->owner_tree)) {
-                $owner_tree = $this->Users->find_parents($owner_id);
-            } else {
-                $owner_tree = $this->owner_tree[$owner_id];
-            }
-            
-            $action_flags = $this->Aa->get_action_flags($owner_id, $user);
-              
-            $notes_flag   = false;
-            foreach($i->mesh_notes as $mn){
-                if(!$this->Aa->test_for_private_parent($mn->note,$user)){
-                    $notes_flag = true;
-                    break;
-                }
-            }
                    
             $row        = [];
             $fields     = $this->{$this->main_model}->schema()->columns();
@@ -183,18 +120,15 @@ class MeshesController extends AppController{
                     }
                 }   
             }
-            $tree_tag           = $this->_tree_tags($i);
-            $row['tree_tag']    = $tree_tag['value'];
+
             $row['node_count']  = $node_count;
 			$row['nodes_up']    = $nodes_up;
 			$row['nodes_down']  = $nodes_down;
 			$row['node_list']   = $node_list;
-			
-			$row['notes']       = $notes_flag;           
-            $row['owner']		= $owner_tree;
-			$row['update']		= $action_flags['update'];
-			$row['view']		= $action_flags['view'];
-			$row['delete']		= $action_flags['delete'];
+			       
+			$row['update']		= true;
+			$row['view']		= true;
+			$row['delete']		= true;
             
             array_push($items, $row);
         }
@@ -226,62 +160,23 @@ class MeshesController extends AppController{
     }
 
     
-    public function add(){
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }    
-        $this->_addOrEdit($user,'add');        
+    public function add(){    
+        $this->_addOrEdit('add');        
     }
     
-    public function edit(){
-    
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $this->_addOrEdit($user,'edit');
-        
+    public function edit(){    
+        $this->_addOrEdit('edit');       
     }
     
-    private function _addOrEdit($user,$type= 'add') {
-    
-        $user_id    = $user['id'];
-        
-        //TreeTag we now use network_id
-        if(isset($this->request->data['network_id'])){
-            $network_id     = $this->request->data['network_id']; //Will be in format Network_<id>
-            $tree_tag_id    =  preg_replace('/^(\w+)_/', '', $network_id);//Then we use that value to populate the tree tag
-            $this->request->data['tree_tag_id'] = $tree_tag_id;
-        }
-        
-        $cdata = $this->request->getdata();
-
-        if(isset($cdata['user_id'])){
-            if($cdata['user_id'] == '0'){ //This is the holder of the token - override '0'
-                $cdata['user_id'] = $user_id;
-            }
-        }         
-        $check_items = [
-			'available_to_siblings'
-		];		
-        foreach($check_items as $i){
-            if(isset($cdata[$i])){
-                $cdata[$i] = 1;
-            }else{
-                $cdata[$i] = 0;
-            }
-        }
-
+    private function _addOrEdit($type= 'add') {       
+        $cdata 		= $this->request->getdata();
         if($type == 'add'){ 
             $entity = $this->{$this->main_model}->newEntity($cdata);
-        }
-       
+        }       
         if($type == 'edit'){
             $entity = $this->{$this->main_model}->get($cdata['id']);
             $this->{$this->main_model}->patchEntity($entity, $cdata);
-        }
-              
+        }            
         if ($this->{$this->main_model}->save($entity)) {
             $this->set(array(
                 'success' => true,
@@ -297,67 +192,27 @@ class MeshesController extends AppController{
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
-
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-
-        $user_id   = $user['id'];
-        $fail_flag = false;
-
-	    if(isset($this->request->data['id'])){   //Single item delete
-            $message = "Single item ".$this->request->data['id'];
-
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:         
-            $entity     = $this->{$this->main_model}->get($this->request->data['id']);   
-            $owner_id   = $entity->user_id;
-            
-            if($owner_id != $user_id){
-                if($this->Users->is_sibling_of($user_id,$owner_id)== true){
-                    $this->{$this->main_model}->delete($entity);
-                }else{
-                    $fail_flag = true;
-                }
-            }else{
+	    if(isset($this->request->data['id'])){ 
+            $message 	= "Single item ".$this->request->data['id'];
+            $entity     = $this->{$this->main_model}->get($this->request->data['id']); 
+            $this->{$this->main_model}->delete($entity);  
+    
+        }else{  
+            foreach($this->request->data as $d){
+                $entity 	= $this->{$this->main_model}->get($d['id']);              
                 $this->{$this->main_model}->delete($entity);
             }
-   
-        }else{                          //Assume multiple item delete
-            foreach($this->request->data as $d){
-                $entity     = $this->{$this->main_model}->get($d['id']);  
-                $owner_id   = $entity->user_id;
-                if($owner_id != $user_id){
-                    if($this->Users->is_sibling_of($user_id,$owner_id) == true){
-                        $this->{$this->main_model}->delete($entity);
-                    }else{
-                        $fail_flag = true;
-                    }
-                }else{
-                    $this->{$this->main_model}->delete($entity);
-                }
-            }
-        }
-
-        if($fail_flag == true){
-            $this->set(array(
-                'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
-            ));
-        }else{
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
-        }
+        }  
+        $this->set([
+            'success' => true,
+            '_serialize' => ['success']
+        ]);
 	}
 	
 	public function view(){
-	   
+		   
         $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
+        if(!$user){   
             return;
         }
 
@@ -374,43 +229,13 @@ class MeshesController extends AppController{
             '_serialize'=> array('success', 'data')
         ));
 	}
-	
-	public function noteIndex(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $items = $this->Notes->index($user); 
-    }
-    
-    public function noteAdd(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }   
-        $this->Notes->add($user);
-    }
-    
-    public function noteDel(){  
-        if (!$this->request->is('post')) {
-			throw new MethodNotAllowedException();
-		}
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $this->Notes->del($user);
-    }
-    
-    
+	 
     //======= MESH entries ============
     public function meshEntriesIndex(){
         $this->loadModel('MeshEntries');
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -451,8 +276,9 @@ class MeshesController extends AppController{
     }
 
     public function meshEntryAdd(){
-        $user = $this->_ap_right_check();
-        if(!$user){
+    
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
         
@@ -488,8 +314,8 @@ class MeshesController extends AppController{
     
      public function meshEntryEdit(){
 
-		$user = $this->_ap_right_check();
-        if(!$user){
+		$user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -530,8 +356,8 @@ class MeshesController extends AppController{
      
     public function meshSsidsView(){
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
         
@@ -557,8 +383,8 @@ class MeshesController extends AppController{
     
     public function meshNodesView(){
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
         
@@ -585,8 +411,8 @@ class MeshesController extends AppController{
     
     public function meshEntryView(){
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -617,13 +443,11 @@ class MeshesController extends AppController{
 			throw new MethodNotAllowedException();
 		}
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
-        $user_id    = $user['id'];
         $fail_flag  = false;
         $this->loadModel('MeshEntries');
 
@@ -644,28 +468,15 @@ class MeshesController extends AppController{
 
     //======= MESH settings =======
 	public function meshSettingsView(){
-		/*$user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }*/
+	
         $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
+        if(!$user){   
             return;
-        }
-        
-        $user_id  = $user['id'];
-        $tree     = false;     
-        $entity = $this->Users->get($user_id); 
-        if($this->Users->childCount($entity) > 0){
-            $tree = true;
         }
 
         $id         = $this->request->query['mesh_id'];    
 		Configure::load('MESHdesk'); 
-        $data       = Configure::read('mesh_settings'); //Read the defaults
-        
-        $enable_grouping = Configure::read('MEHSdesk.enable_grouping');
-        
+        $data       = Configure::read('mesh_settings'); //Read the defaults    
         $this->loadModel('MeshSettings');
         
         $q_r = $this->{'MeshSettings'}->find()->where(['MeshSettings.mesh_id' => $id])->first(); 
@@ -674,32 +485,11 @@ class MeshesController extends AppController{
             $data = $q_r->toArray();
         }
         
-        $q_m =  $this->{'Meshes'}->find()->where(['Meshes.id' => $id ])->contain(['Users'=> ['fields' => ['Users.username']]])->first();
+        $q_m =  $this->{'Meshes'}->find()->where(['Meshes.id' => $id ])->first();
         if($q_m){
-            $data['name']                   = $q_m->name;
-            $data['user_id']                = $q_m->user_id;
-            $data['show_owner']             = $tree;
-            $data['enable_grouping']        = $enable_grouping;
-            
-            if($q_m->user !== null){
-                $data['username']  = "<div class=\"fieldBlue\"> <b>".$q_m->user->username."</b></div>";
-            }else{
-                $data['username']  = "<div class=\"fieldRed\"><i class='fa fa-exclamation'></i> <b>(ORPHANED)</b></div>";
-            }
-            $data['available_to_siblings']  = $q_m->available_to_siblings;
+            $data['name']          			= $q_m->name;
             $data['enable_alerts']          = $q_m->enable_alerts;
-            $data['enable_overviews']       = $q_m->enable_overviews;        
-            
-            $data['tree_tag_id']            = $q_m->tree_tag_id;
-            $tree_tag                       = $this->_tree_tags($q_m);
-            if($tree_tag['value'] == 'not_tagged'){
-                $data['tag_path']          = "<div class=\"fieldGrey\"><i class='fa fa-check-circle'></i> <b>(NOT IN GROUP)</b></div>";
-            }elseif($tree_tag['value'] == 'orphaned'){
-                $data['tag_path']          = "<div class=\"fieldRed\"><i class='fa fa-exclamation'></i> <b>(ORPHANED)</b></div>";
-            }else{     
-                $data['tag_path']   = "<div class=\"fieldBlue\" style=\"text-align:left;\"> <b>".$tree_tag['value']."</b></div>";
-            }
-            $data['network_id'] = $tree_tag['network_id'];
+            $data['enable_overviews']       = $q_m->enable_overviews;
         }
         
         $this->set([
@@ -712,7 +502,7 @@ class MeshesController extends AppController{
     public function meshChangeTag(){
     
         $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
+        if(!$user){   
             return;
         }
         
@@ -744,14 +534,9 @@ class MeshesController extends AppController{
     }
     
     public function meshSettingsEdit(){
-        /*
-		$user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }*/
-        
+             
         $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
+        if(!$user){   
             return;
         }
 
@@ -768,8 +553,7 @@ class MeshesController extends AppController{
 				'fragmentation',
 				'bridge_loop_avoidance',
 				'distributed_arp_table',
-				'encryption',
-				'available_to_siblings'
+				'encryption'
 			);
             foreach($check_items as $i){
                 if(isset($cdata[$i])){
@@ -803,38 +587,14 @@ class MeshesController extends AppController{
     
     public function meshGeneralEdit(){
     
-        /*
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        */
-        
-
         $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
+        if(!$user){   
             return;
         }
-        $user_id    = $user['id'];
-         
-        if(isset($this->request->data['user_id'])){
-            if($this->request->data['user_id'] == '0'){ //This is the holder of the token - override '0'
-                $this->request->data['user_id'] = $user_id;
-            }
-        }
-        
-        //TreeTag we now use network_id
-        if(isset($this->request->data['network_id'])){
-            $network_id     = $this->request->data['network_id']; //Will be in format Network_<id>
-            $tree_tag_id    =  preg_replace('/^(\w+)_/', '', $network_id);//Then we use that value to populate the tree tag
-            $this->request->data['tree_tag_id'] = $tree_tag_id;
-        }
-        
-        
+             
         $cdata = $this->request->getData();
         
         $check_items = [
-			'available_to_siblings',
 			'enable_overviews',
 			'enable_alerts'		
 		];
@@ -868,8 +628,8 @@ class MeshesController extends AppController{
     public function meshExitsIndex(){
         $this->loadModel('MeshExits');
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -914,7 +674,7 @@ class MeshesController extends AppController{
     public function meshExitXwfCheck(){
     
         $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
+        if(!$user){   
             return;
         }
         
@@ -940,8 +700,8 @@ class MeshesController extends AppController{
     }
     
     public function meshExitAdd(){
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -1013,13 +773,11 @@ class MeshesController extends AppController{
                     $mesh_id    = $this->request->data['mesh_id']; 
                     $mesh       = $this->{'Meshes'}->find()->where(['Meshes.id' => $mesh_id])->first();
                     $user_id    = $mesh->user_id;
-                    $a_to_s     = $mesh->available_to_siblings;
                     $mesh_name  = $mesh->name;
                     $mesh_name  = preg_replace('/\s+/', '_', $mesh_name);
                                       
                     $dc_data                            = array();       	            
 	                $dc_data['user_id']                 = $user_id;
-	                $dc_data['available_to_siblings']   = $a_to_s;
 	                $dc_data['nasidentifier']           = $mesh_name.'_mcp_'.$new_id;
 	                
 	                //Get a list of realms if the person selected a list - If it is empty that's fine
@@ -1160,8 +918,8 @@ class MeshesController extends AppController{
     
      public function meshExitView(){
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
         
@@ -1230,9 +988,8 @@ class MeshesController extends AppController{
 			throw new MethodNotAllowedException();
 		}
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -1258,8 +1015,8 @@ class MeshesController extends AppController{
     
     public function meshExitEdit(){
 
-		$user = $this->_ap_right_check();
-        if(!$user){
+		$user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -1457,8 +1214,9 @@ class MeshesController extends AppController{
     } 
     
     public function meshExitUpstreamList(){
+    
         $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
+        if(!$user){   
             return;
         }
         
@@ -1488,10 +1246,10 @@ class MeshesController extends AppController{
     }
     
     public function meshExitAddDefaults(){
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
-        }    
+        }
         $data = [];
         $this->loadModel('UserSettings');   
         $q_r = $this->{'UserSettings'}->find()->where(['user_id' => -1])->all();
@@ -1514,8 +1272,8 @@ class MeshesController extends AppController{
     //===== Mesh nodes ======
     
     public function meshEntryPoints(){
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -1609,8 +1367,8 @@ class MeshesController extends AppController{
 //================PORT MAPS=============
 	public function mapPrefView(){
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -1707,8 +1465,8 @@ class MeshesController extends AppController{
     }
 
 	public function mapPrefEdit(){
-		$user = $this->_ap_right_check();
-        if(!$user){
+		$user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
         $this->loadModel('MeshSpecifics');
@@ -1734,8 +1492,8 @@ class MeshesController extends AppController{
 
 	public function mapNodeSave(){
 
-		$user = $this->_ap_right_check();
-        if(!$user){
+		$user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
         $user_id    = $user['id'];
@@ -1759,11 +1517,10 @@ class MeshesController extends AppController{
 	}
 
 	public function mapNodeDelete(){	
-		$user = $this->_ap_right_check();
-        if(!$user){
+		$user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
-        $user_id    = $user['id']; 
 		if(isset($this->request->query['id'])){
 		    $this->loadModel('Nodes');
 		    $ent = $this->{'Nodes'}->find()->where(['Nodes.id' => $this->request->query['id']])->first();
@@ -1779,13 +1536,10 @@ class MeshesController extends AppController{
 	}
 
 	public function nodesAvailForMap(){
-		//List all the nodes that has not yet been assigned a lat (and lon) value for a mesh
-		$user = $this->_ap_right_check();
-        if(!$user){
+		$user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
-
-        $user_id    = $user['id'];
         $items		= [];
 
 		if(!isset($this->request->query['mesh_id'])){
@@ -1822,11 +1576,10 @@ class MeshesController extends AppController{
         $this->loadModel('Nodes');
         $this->loadModel('NodeSettings');
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
-
         $items      = [];
         $total      = 0;
 
@@ -1927,8 +1680,8 @@ class MeshesController extends AppController{
     public function meshExitViewEthBr(){
         $this->loadModel('MeshExits');
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -1959,8 +1712,8 @@ class MeshesController extends AppController{
     public function nodeCommonSettingsView(){
         $this->loadModel('NodeSettings');
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -1991,8 +1744,8 @@ class MeshesController extends AppController{
     
      public function nodeCommonSettingsEdit(){
 
-		$user = $this->_ap_right_check();
-        if(!$user){
+		$user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -2043,8 +1796,8 @@ class MeshesController extends AppController{
     
     public function meshNodeAdd(){
     
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
         
@@ -2315,8 +2068,8 @@ class MeshesController extends AppController{
     
     public function meshNodeEdit(){
 
-		$user = $this->_ap_right_check();
-        if(!$user){
+		$user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -2636,9 +2389,8 @@ class MeshesController extends AppController{
 			throw new MethodNotAllowedException();
 		}
 
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -2671,8 +2423,8 @@ class MeshesController extends AppController{
     public function meshNodeView(){
         $this->loadModel('Nodes');
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -2934,8 +2686,8 @@ class MeshesController extends AppController{
     public function staticEntryOptions(){
         $this->loadModel('MeshEntries');
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -2965,8 +2717,8 @@ class MeshesController extends AppController{
     public function staticExitOptions(){
         $this->loadModel('MeshExits');
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -3051,7 +2803,7 @@ class MeshesController extends AppController{
     public function menuForGrid(){
     
         $user = $this->Aa->user_for_token($this);
-        if (!$user) {   //If not a valid user
+        if(!$user){   
             return;
         }
 
@@ -3066,7 +2818,7 @@ class MeshesController extends AppController{
     public function menuForEntriesGrid(){
     
         $user = $this->Aa->user_for_token($this);
-        if (!$user) {   //If not a valid user
+        if(!$user){   
             return;
         }
 
@@ -3080,8 +2832,8 @@ class MeshesController extends AppController{
     
      public function menuForExitsGrid(){
     
-        $user = $this->Aa->user_for_token($this);
-        if (!$user) {   //If not a valid user
+        $$user = $this->Aa->user_for_token($this);
+        if(!$user){   
             return;
         }
 
@@ -3096,7 +2848,7 @@ class MeshesController extends AppController{
     public function menuForNodesGrid(){
     
         $user = $this->Aa->user_for_token($this);
-        if (!$user) {   //If not a valid user
+        if(!$user){   
             return;
         }
 
@@ -3111,7 +2863,7 @@ class MeshesController extends AppController{
     public function menuForNodeDetailsGrid(){
     
         $user = $this->Aa->user_for_token($this);
-        if (!$user) {   //If not a valid user
+        if(!$user){   
             return;
         }
 

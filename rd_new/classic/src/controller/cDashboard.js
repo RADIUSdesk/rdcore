@@ -1,7 +1,9 @@
 Ext.define('Rd.controller.cDashboard', {
     extend: 'Ext.app.Controller',
     views: [
-        'dashboard.pnlDashboard'
+        'dashboard.pnlDashboard',
+        'dashboard.winPasswordChanger',
+        'dashboard.winDashboardSettings'
     ],
     config: {
         urlChangePassword           : '/cake3/rd_cake/dashboard/change_password.json',
@@ -45,7 +47,25 @@ Ext.define('Rd.controller.cDashboard', {
             },
             'pnlDashboard cmbClouds' : {
 		    	select: me.onCloudSelect
-		    } 
+		    },
+            'pnlDashboard  #mnuLogout' : {
+		        click   : me.onLogout
+		    },
+		    'pnlDashboard  #mnuSettings' : {
+		        click   : me.onSettings
+		    },
+		    'winDashboardSettings #save': {
+                'click' : me.onSettingsSubmit
+            },
+            'winDashboardSettings': {
+                beforeshow:      me.loadSettings
+            },
+		    'pnlDashboard  #mnuPassword' : {
+		        click   : me.onPassword
+		    },
+		    'winPasswordChanger #save': {
+                'click' : me.onChangePassword
+            } 
         });
       
     },
@@ -99,7 +119,6 @@ Ext.define('Rd.controller.cDashboard', {
             url: me.getUrlSettingsSubmit(),
             success: function(a,b,c) {
                 win.close();
-                console.log(b.result);
                 var new_data = Ext.Object.merge(me.getPnlDashboard().down('#tbtHeader').getData(),b.result.data);
                 me.getPnlDashboard().down('#tbtHeader').update(new_data);
                 
@@ -188,7 +207,6 @@ Ext.define('Rd.controller.cDashboard', {
     },
     btnExpandClick: function(btn){
     	var me = this;
-   		console.log("Expand Button Clicked");
    		var pnlDashboard = btn.up('pnlDashboard');
    		var pnlWest = pnlDashboard.down('#pnlWest');
    		var treelist = pnlWest.down('treelist');
@@ -243,7 +261,6 @@ Ext.define('Rd.controller.cDashboard', {
     },
     btnClearClick: function(btn){
         var me = this;
-   		console.log("Button Clear Clicked");
    		var pnlDashboard = btn.up('pnlDashboard');
         var pnl          = me.getViewP().down('#pnlCenter');
         pnl.removeAll(true);
@@ -252,7 +269,6 @@ Ext.define('Rd.controller.cDashboard', {
     },
     btnTreeLoadClick: function(btn){
         var me = this;
-        console.log("Reload treeview remotely");
         var pnl = btn.up('pnlDashboard');
         tl = pnl.down('#tlNav');
         var myStore = tl.getStore();
@@ -266,16 +282,17 @@ Ext.define('Rd.controller.cDashboard', {
         });
     },
     pnlWestRendered: function(pnl){
-        var me = this;
-        console.log("Pnl West Rendered");
-        tl = pnl.down('#tlNav');
+        var me  = this;
+        var dd  = me.application.getDashboardData();
+        tl      = pnl.down('#tlNav');
         var myStore = tl.getStore();
-        Ext.Ajax.request({
+        myStore.getRoot().appendChild(dd.tree_nav);
+        /*Ext.Ajax.request({
             url: '/cake3/rd_cake/dashboard/nav-tree.json',
             success: function(resp) {
                 var result = Ext.decode(resp.responseText);
                 myStore.getRoot().appendChild(result.items);
             },
-        });
+        });*/
     }
 });

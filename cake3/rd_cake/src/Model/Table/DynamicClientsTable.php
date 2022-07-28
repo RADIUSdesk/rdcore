@@ -10,7 +10,6 @@ class DynamicClientsTable extends Table
     {
         $this->addBehavior('Timestamp');  
         $this->belongsTo('Users');
-        $this->hasMany('DynamicClientNotes',['dependent' => true]);
         $this->hasMany('DynamicClientRealms',['dependent' => true]);
        
         //Limits does not work in cakephp3 so we can actually leave this out and just do a manual query

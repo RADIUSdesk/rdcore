@@ -7,10 +7,8 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
     	'Rd.view.components.cmbClouds'
   	],
     initComponent: function () {
-        var me 		= this;
-        
-        var username =  me.dashboard_data.user.username;
-        
+        var me 		 = this;     
+        var username =  me.dashboard_data.user.username;      
         //Some initial values
         var header  = Rd.config.headerName;
         var lA      = Rd.config.levelAColor; 
@@ -48,32 +46,22 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             tpl     : tpl,
             data    : { hName:header,imgFile:img,hFg:fg,imgActive: imgActive,value: 'Hard',fa_value: '&#xf023;'}
         };
-        
-        /*var lA      = Rd.config.levelAColor; 
-        var stA     = 'color:'+lA+';font-weight:200; font-size: smaller;';
-        var header  = me.dashboard_data.white_label.hName;
-        var img  	= me.dashboard_data.white_label.imgFile;
-        var fg      = me.dashboard_data.white_label.hFg;     
-        var tpl = new Ext.XTemplate(
-            '<img src="resources/images/logo.png" alt="Logo" style="float:left; padding-right: 10px; padding-left: 10px;padding-top: 10px;">',
-            '<p style="color:{hFg};font-weight:200;font-size: 22px;">{hName}<span style="'+stA+'"></p>');
-        
-        var hNav = {
-            xtype   : 'tbtext',
-            itemId  : 'tbtHeader', 
-            tpl     : tpl,
-            data    : { hName:header,imgFile:img,hFg:fg}
-        };*/
-        
+
+        var micro = false
+        var west_width = 220;
+        if(me.dashboard_data.compact){
+            micro = true;
+            west_width = 55;
+        }
+               
         var tl = {
-    		xtype: 'treelist',
-    		ui	: 'nav2',
-    		itemId : 'tlNav',
-    		expanderFirst: false,
-    		margin: '0 0 0 5',
-    		micro: false,
-           // width	: 400,
-			store: {root:{'id':0}}
+    		xtype   : 'treelist',
+    		ui	    : 'nav2',
+    		itemId  : 'tlNav',
+    		margin  : '0 0 0 5',
+			store   : {root:{'id':0}},
+            micro   : micro,
+            expanderFirst: false
    		};
         
         var h1 = {
@@ -82,18 +70,27 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             glyph   : Rd.config.icnMenu,
             scale   : 'medium'
         };
-        var h3 = {
+       /* var h3 = {
             xtype   : 'button',
             itemId	: 'btnClear',
             glyph   : Rd.config.icnUser,
             scale   : 'medium'
+        };*/
+        var h3 = {
+            xtype   : 'button',
+            glyph   : Rd.config.icnUser,
+            scale   : 'medium',
+            menu    : [
+                {   text:i18n('sLogout'),      glyph : Rd.config.icnPower,  itemId: 'mnuLogout'},'-',
+                {   text:i18n('sSettings'),    glyph : Rd.config.icnSpanner,itemId: 'mnuSettings'},
+                {   text:i18n('sPassword'),    glyph : Rd.config.icnLock,   itemId: 'mnuPassword'    }
+            ] 
         };
 
         var h2 = {
             xtype   : 'button',
             itemId	: 'btnTreeLoad',
             glyph   : Rd.config.icnWizard,
-            //ui      : 'button-green',
             scale   : 'medium'
         };
       	
@@ -111,9 +108,8 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
 			{
 				region	:'west',
 				xtype	: 'panel',
-				//width	: 55,
 				dynamic  : true,
-				width	: 220,
+				width	: west_width,
 				itemId	: 'pnlWest',
 				layout	: 'fit',
 				border	: false,

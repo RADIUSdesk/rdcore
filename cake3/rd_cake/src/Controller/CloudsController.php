@@ -65,10 +65,17 @@ class CloudsController extends AppController {
         $this->loadModel('Timezones');
         $this->loadModel('NodeStations');
         $this->loadModel('ApStations');
+        $this->loadModel('CloudAdmins');
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
             'model'     => 'Clouds',
             'sort_by'   => 'Clouds.id'
         ]);
+        
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
+            'model'     => 'Clouds',
+            'sort_by'   => 'Clouds.id'
+        ]);
+        
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtons');
         
@@ -732,7 +739,7 @@ class CloudsController extends AppController {
             if(isset($this->request->query['location'])){
                 if($this->request->query['location'] == 'map'){
                     if(($lat == null)||($lng == null)){
-                        $cls = "txtPurple";
+                        $cls = "txtOrange";
                     }
                 }
             }
@@ -756,13 +763,59 @@ class CloudsController extends AppController {
             '_serialize' => array('items','success','total')
         ));
     }
+    
+    public function wip(){
+    
+    	$user = $this->Aa->user_for_token($this);
+		if(!$user){   //If not a valid user
+			return;
+		}
+		
+		$user_id 			= $user['id'];		
+		$clouds_or_list		= [['Clouds.user_id' => $user_id]];
+		
+		if($user['group_name'] == Configure::read('group.ap')){
+			$q_ca = $this->{'CloudAdmins'}->find()->where(['CloudAdmins.user_id'=>$user_id])->all();
+			foreach($q_ca as $e_ca){
+				array_push($clouds_or_list,['Clouds.id' => $e_ca->cloud_id]);
+			}
+		}
+    
+    	$query  = $this->{'Clouds'}->find();
+    	$query->where(['OR' => $clouds_or_list]);
+    	$query->contain(['Users','CloudAdmins.Users']);
+    	$q_r 	= $query->all();
+    	$items 	= [];
+    	foreach($q_r as $e){
+    		array_push($items,$e);
+    	}
+    	
+    	 $this->set(array(
+    	 	'items'		=> $items,
+            'success' 	=> true,
+            '_serialize'=> array('success','items')
+        ));    
+    }
       
     public function index(){
 
-        $user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
-            return;
-        }
+		$user = $this->Aa->user_for_token($this);
+		if(!$user){   //If not a valid user
+			return;
+		}
+		
+		$user_id = $user['id'];
+        
+        //Only ap's or admins
+        $fail_flag = true; 
+		if(($user['group_name'] == Configure::read('group.admin'))||($user['group_name'] == Configure::read('group.ap'))){				
+			$fail_flag = false;	
+		}
+		
+		if($fail_flag){
+			return;
+		}
+		
         
         $tree_level = $this->tree_level_0;     
         $l_model    = $this->main_model;
@@ -798,14 +851,26 @@ class CloudsController extends AppController {
         $query  = $this->{$l_model }->find();
         
         if($level == 'root'){
-            $this->CommonQuery->build_common_query($query, $user, ['Users']); //AP QUERY is sort of different in a way
+        	
+        	//ap group filter on user_id / admin group no filter
+        	if($user['group_name'] == Configure::read('group.ap')){
+        		
+				$clouds_OR_list		= [['Clouds.user_id' => $user_id]]; //This is the basic search item
+				$q_ca = $this->{'CloudAdmins'}->find()->where(['CloudAdmins.user_id'=>$user_id])->all();//The access provider (ap) might also be admin to other clouds
+				foreach($q_ca as $e_ca){
+					array_push($clouds_OR_list,['Clouds.id' => $e_ca->cloud_id]);
+				}      	
+        		$query  = $this->{'Clouds'}->find();
+    			$query->where(['OR' => $clouds_OR_list]);
+        	}        	      	
+        	$query->contain(['Users','CloudAdmins.Users']); //Pull in the Users and Cloud Admins for clouds (root level) 	     	       	     	
+       
         }else{
             $query->where($conditions);
         }
          
         $q_r    = $query->all();
         $total  = $query->count();
-        
         
         if($tt_level ==0){
             $icon_cls = $this->cls_level_0;
@@ -821,18 +886,33 @@ class CloudsController extends AppController {
 
         $items = [];
         foreach($q_r as $i){
-
+        
             $id         = $i->id;
             $parent_id  = $node;
             $alias      = $i->name;
             $lat        = $i->lat;
-            $lng        = $i->lng;
-            $a_to_s     = $i->available_to_siblings;
-            
+            $lng        = $i->lng;          
             $owner_id   = false;
+            $owner      = null;
+            $admins		= null;
               
             if($level == 'root'){         
-                $owner_id = $i->user_id;
+                $owner_id 	= $i->user_id;
+                if($owner_id == $user_id){
+               		$owner 		= $i->user->username." (me)";
+                }else{
+                	$owner 		= $i->user->username;
+                }
+                
+                $admins	= [];
+                foreach($i->cloud_admins as $ca){
+                	if($user_id == $ca->user->id){
+		           		$admin 		= $ca->user->username." (me)";
+		            }else{
+		            	$admin 		= $ca->user->username;
+		            }                
+                	array_push($admins,['username' => $admin, 'id' => $ca->user->id]);
+                }
             }
             
             if($level == 'Clouds'){
@@ -855,20 +935,13 @@ class CloudsController extends AppController {
                 }           
             }
             
-            if($owner_id){
-                if (!array_key_exists($owner_id, $this->owner_tree)) {
-                    $owner_tree = $this->Users->find_parents($owner_id);
-                } else {
-                    $owner_tree = $this->owner_tree[$owner_id];
-                }           
-                $action_flags = $this->Aa->get_action_flags($owner_id, $user);
-            }else{
-                $action_flags = [];
-                $action_flags['update'] = false;
-			    $action_flags['delete'] = false;
-            }          
+
+            $action_flags = [];
+            $action_flags['update'] = true;
+		    $action_flags['delete'] = true;
+         
             
-            $action_flags = $this->Aa->get_action_flags($owner_id, $user);
+            //$action_flags = $this->Aa->get_action_flags($owner_id, $user);
             
             $created_in_words   = $this->TimeCalculations->time_elapsed_string($i->{'created'});
             $modified_in_words  = $this->TimeCalculations->time_elapsed_string($i->{'modified'});
@@ -887,20 +960,14 @@ class CloudsController extends AppController {
                 }
             }
             
-            $owner = null;
+            
             if($tree_level == 'Clouds'){    
                 $owner_id = $i->user_id;
-                if (!array_key_exists($owner_id, $this->owner_tree)) {
-                    $owner_tree = $this->Users->find_parents($owner_id);
-                } else {
-                    $owner_tree = $this->owner_tree[$owner_id];
-                }
-                $owner		= $owner_tree;      
             }
             
             $cls = 'txtGreen';
             if(($lat == null)||($lng == null)){
-                $cls = 'txtPurple';
+                //$cls = 'txtOrange';
             }          
             array_push($items,[
                 'id'        => $tree_level.'_'.$id, 
@@ -908,6 +975,7 @@ class CloudsController extends AppController {
                 'text'      => $alias, 
                 'cls'       => $cls,
                 'owner'     => $owner,
+                'admins'	=> $admins,
                 'parent_id' => $parent_id,
                 'leaf'      => $leaf,
                 'lat'       => $lat,
@@ -918,9 +986,8 @@ class CloudsController extends AppController {
                 'modified'  => $i->{'modified'},
                 'created_in_words'   => $created_in_words,
                 'modified_in_words'  => $modified_in_words,
-                'available_to_siblings' => $a_to_s,
-                'update'    => $action_flags['update'],
-			    'delete'    => $action_flags['delete']
+                'update'    => true,
+			    'delete'    => true
             ]); 
         }
             
@@ -933,10 +1000,7 @@ class CloudsController extends AppController {
     }
     
     public function add(){
-    /*
-        if(!$this->Aa->admin_check($this)){   //Only for admin users!
-            return;
-        } */
+ 
         $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
             return;
@@ -946,28 +1010,25 @@ class CloudsController extends AppController {
     
         if ($this->request->is('post')) {
         
-            if(isset($this->request->data['user_id'])){
-                if($this->request->data['user_id'] == '0'){ //This is the holder of the token - override '0'
-                    $this->request->data['user_id'] = $user_id;
-                }
-            }
-      
+        	$data 				= $this->request->getData(); 
+        	$data['user_id'] 	= $user_id;
+        	  
             $l_model    = $this->main_model;   
-            $node       = $this->request->data['parent_id'];
-            $node_id    =  preg_replace('/^(\w+)_/', '', $node);
-            $level      =  preg_replace('/_(\d+)/', '', $node);        
+            $node       = $data['parent_id'];
+            $node_id    = preg_replace('/^(\w+)_/', '', $node);
+            $level      = preg_replace('/_(\d+)/', '', $node);        
             
             if($level == 'Clouds'){
-                $l_model =  $this->tree_level_1; //Sites
-                $this->request->data['cloud_id'] = $node_id;
+                $l_model 			=  $this->tree_level_1; //Sites
+                $data['cloud_id'] 	= $node_id;
             }
             
             if($level == 'Sites'){
-                $l_model =  $this->tree_level_2; //Networks 
-                $this->request->data['site_id'] = $node_id; 
+                $l_model 			=  $this->tree_level_2; //Networks 
+                $data['site_id'] 	= $node_id; 
             } 
             
-            $entity = $this->{$l_model}->newEntity($this->request->data()); 
+            $entity = $this->{$l_model}->newEntity($data); 
             if ($this->{$l_model}->save($entity)) {
                 $this->set(array(
                     'success' => true,
@@ -981,10 +1042,7 @@ class CloudsController extends AppController {
     }
     
     public function edit(){
-/*
-        if(!$this->Aa->admin_check($this)){   //Only for admin users!
-            return;
-        }*/
+
         $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
             return;
@@ -994,17 +1052,6 @@ class CloudsController extends AppController {
             $node       = $this->request->data['id'];
             $node_id    = preg_replace('/^(\w+)_/', '', $node);
             $level      = preg_replace('/_(\d+)/', '', $node);
-            
-            $check_items = array(
-			    'available_to_siblings'
-		    );
-            foreach($check_items as $i){
-                if(isset($this->request->data[$i])){
-                    $this->request->data[$i] = 1;
-                }else{
-                    $this->request->data[$i] = 0;
-                }
-            }
             
             $this->request->data['id'] = $node_id;           
             $entity = $this->{$level}->find()->where(['id' =>$node_id])->first();

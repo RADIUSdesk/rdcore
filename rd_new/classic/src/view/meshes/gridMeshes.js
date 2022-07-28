@@ -51,23 +51,6 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
             
             },
             { text: i18n('sName'),      dataIndex: 'name',          tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridMeshes3',sortable: true},
-			{ 
-                text:   i18n('sAvailable_to_sub_providers'),
-                flex: 1,
-				hidden: true,  
-                xtype:  'templatecolumn', 
-                tpl:    new Ext.XTemplate(
-                            "<tpl if='available_to_siblings == true'><div class=\"fieldGreen\">"+i18n("sYes")+"</div></tpl>",
-                            "<tpl if='available_to_siblings == false'><div class=\"fieldRed\">"+i18n("sNo")+"</div></tpl>"
-                        ),
-                dataIndex: 'available_to_siblings',
-                filter      : {
-                        type    : 'boolean',
-                        defaultValue   : false,
-                        yesText : 'Yes',
-                        noText  : 'No'
-                },stateId: 'StateGridSsids4'
-            },
             { text: i18n('sSSID'),      dataIndex: 'ssid',          tdCls: 'gridTree', flex: 1,filter: {type: 'string'},hidden: true,stateId: 'StateGridMeshes5'},
             { text: i18n('sBSSID'),    dataIndex: 'bssid',         tdCls: 'gridTree', flex: 1,filter: {type: 'string'},hidden: true,stateId: 'StateGridMeshes6'},
             { 
