@@ -95,9 +95,8 @@ Ext.define('Rd.view.clouds.treeClouds' ,{
         }
     ],
     initComponent: function(){
-        var me = this;
-        //Create a mask and assign is as a property to the window
-        me.mask = new Ext.LoadMask(me, {msg: i18n('sConnecting')+" ...."});     
+        var me = this;     
+        //Create a mask and assign is as a property to the window 
         var store = Ext.create('Ext.data.TreeStore', {
             autoLoad    : false,
             root        : {
@@ -106,11 +105,12 @@ Ext.define('Rd.view.clouds.treeClouds' ,{
                 name        : "My Clouds",
                 owner       : null
                // iconCls: "x-fa fa-cloud txtGreen"
+
             },
             proxy       : {
                 type    : 'ajax',
                 url     : '/cake3/rd_cake/clouds/index.json',
-                reader: {
+                reader  : {
                     type        : 'json',
                     rootProperty: 'items',
                     successProperty: 'success',
@@ -120,10 +120,11 @@ Ext.define('Rd.view.clouds.treeClouds' ,{
                     read    : '/cake3/rd_cake/clouds/index.json',
                     destroy : '/cake3/rd_cake/clouds/delete.json'
                 }
-            },          
+            },         
             rootProperty: 'items'
         });       
         me.store = store;
         this.callParent(arguments);
+        
     }
 });

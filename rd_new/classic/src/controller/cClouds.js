@@ -14,7 +14,7 @@ Ext.define('Rd.controller.cClouds', {
 	                items   : [
 	                    { 
 	                         title  : 'Clouds', 
-	                         xtype  : 'pnlCloudAndMap',
+	                       //  xtype  : 'pnlCloudAndMap',
                              xtype   : 'treeClouds',
 	                         border : false,
 	                         plain  : true,
@@ -44,10 +44,9 @@ Ext.define('Rd.controller.cClouds', {
         me.populated = true;
     },
     views:  [
-        'clouds.treeClouds',        'clouds.winCloudAddWizard',          
-        'clouds.winCloudEdit', 		'clouds.winCloudAdd',
-        'clouds.pnlCloudAndMap',
-        'clouds.treeClouds'
+        'clouds.treeClouds',         
+        'clouds.winCloudEdit',
+        'clouds.winCloudAdd'
     ],
     stores: [],
     models: [],
@@ -60,9 +59,7 @@ Ext.define('Rd.controller.cClouds', {
 		urlMapPrefView  : '/cake3/rd_cake/meshes/map_pref_view.json'
     },
     refs: [
-         {  ref:    'treeClouds',selector:   'treeClouds'},
-         {  ref:    'pnlMap',    selector:   '#pnlMap'},
-         {  ref:    'pnlCloudAndMap', selector: 'pnlCloudAndMap'}
+         {  ref:    'treeClouds',selector:   'treeClouds'}
     ],
     init: function() {
         var me = this;
@@ -95,9 +92,6 @@ Ext.define('Rd.controller.cClouds', {
             'treeClouds #map_clear': {
                 click:      me.mapClear
             },         
-            'winCloudAdd #btnDataNext' : {
-                click:  me.btnDataNext
-            },
             'winCloudAdd #save':{
                 click:      me.addSubmit
             },
@@ -152,51 +146,6 @@ Ext.define('Rd.controller.cClouds', {
     },
     addSubmit: function(button){
         var me       = this;
-        var win     = button.up('window');
-        var form    = win.down('form');
-        form.submit({
-            clientValidation: true,
-            url: me.getUrlAdd(),
-            success: function(form, action) {
-                win.close();
-                me.getTreeClouds().getStore().load();
-                Ext.ux.Toaster.msg(
-                    i18n('sNew_item_created'),
-                    i18n('sItem_created_fine'),
-                    Ext.ux.Constants.clsInfo,
-                    Ext.ux.Constants.msgInfo
-                );
-            },
-            failure: Ext.ux.formFail
-        });
-    },
-    
-    btnTreeNext: function(button){
-        var me = this;
-        var tree = button.up('treepanel');
-        //Get selection:
-        var sr = tree.getSelectionModel().getLastSelected();
-        if(sr){    
-            var win = button.up('winCloudAddWizard');
-            win.down('#owner').setValue(sr.get('username'));
-            win.down('#user_id').setValue(sr.getId());
-            win.getLayout().setActiveItem('scrnData');
-        }else{
-            Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_owner'),
-                        i18n('sFirst_select_an_Access_Provider_who_will_be_the_owner'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }
-    },
-    btnDataPrev:  function(button){
-        var me      = this;
-        var win     = button.up('winCloudAddWizard');
-        win.getLayout().setActiveItem('scrnApTree');
-    },
-    btnDataNext:  function(button){
-        var me      = this;
         var win     = button.up('window');
         var form    = win.down('form');
         form.submit({
@@ -372,120 +321,5 @@ Ext.define('Rd.controller.cClouds', {
         }else{
             me.getTreeClouds().expandNode(me.selectedRecord,true); 
         }
-    },
-    pnlMapAfterrender: function(panel){
-        var me = this;
-        console.log("Panel Map after renderer");
-        me.mapGetPref();
-    },
-    //===MAPS START HERE===  
-    mapLoadGoogleApi: function (key,callback) {
-        var me = this;
-        Ext.Loader.loadScript({
-            url: 'https://www.google.com/jsapi',                    // URL of script
-            scope: this,                   // scope of callbacks
-            onLoad: function () {           // callback fn when script is loaded
-                google.load("maps", "3", {
-                    other_params: "key=" + key,
-                    callback: function () {
-                        // Google Maps are loaded. Place your code here
-                        callback();
-                    }
-                });
-            },
-            onError: function () {          // callback fn if load fails 
-                console.log("Error loading Google script");
-            }
-        });
-    },
-    mapGetPref  : function() {
-        var me = this;
-        Ext.ux.Toaster.msg(
-            'Loading  Map API',
-            'Please be patient....',
-            Ext.ux.Constants.clsInfo,
-            Ext.ux.Constants.msgInfo
-        );    
-        //We need to fetch the Preferences for this user's Google Maps API key
-        Ext.Ajax.request({
-            url     : me.getUrlMapPrefView(),
-            method  : 'GET',
-            success : function (response) {
-                var jsonData = Ext.JSON.decode(response.responseText);
-                if (jsonData.success) {
-                    if (jsonData.data.map_to_use == "google") {
-                        me.mapLoadGoogleApi(jsonData.data.google_map_api_key, function () {
-                            me.addMeshViewMapGoogle(jsonData);
-                        })
-                    }
-                }
-            },
-            failure: function (batch, options) {
-                Ext.ux.Toaster.msg(
-                    'Problems getting the map preferences',
-                    'Map preferences could not be fetched',
-                    Ext.ux.Constants.clsWarn,
-                    Ext.ux.Constants.msgWarn
-                );
-            },
-            scope: me
-        });
-    },
-    addMeshViewMapGoogle: function(jsonData){
-        var me      = this;
-        var data    = jsonData.data;  
-        me.getPnlMap().add({          
-           // xtype   : 'pnlMeshViewMapGoogle',
-            xtype : 'pnlCloudMap'/*,
-            layout  : 'fit',
-            center  : {
-                lat     : data.lat,
-                lng     : data.lng
-            },
-            mapOptions: {
-                zoom        : data.zoom,
-                mapTypeId   : google.maps.MapTypeId[data.type]                  
-            }*/
-        });
-    },
-    mapAddTag: function(){
-        var me = this;
-        var sel_count = me.getTreeClouds().getSelectionModel().getCount();
-        if(sel_count == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-             if(sel_count > 1){
-                Ext.ux.Toaster.msg(
-                        i18n('sLimit_the_selection'),
-                        i18n('sSelection_limited_to_one'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-                );
-            }else{
-                //We are not suppose to edit the root node
-                if(me.selectedRecord.getId() == 0){
-                    Ext.ux.Toaster.msg(
-                        i18n('sRoot_node_selected'),
-                        i18n('sYou_can_not_edit_the_root_node'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-                    );
-
-                }else{
-                    console.log(me.selectedRecord.get('name'));
-                    me.getPnlCloudAndMap().getController().placeMarker(me.selectedRecord);
-                }  
-            }
-        }
-    },
-    mapClear: function(){
-        var me = this;
-        me.getPnlCloudAndMap().getController().clearLayers();  
-    }    
-    //===MAPS END HERE===  
+    }
 });

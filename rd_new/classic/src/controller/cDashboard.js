@@ -6,9 +6,10 @@ Ext.define('Rd.controller.cDashboard', {
         'dashboard.winDashboardSettings'
     ],
     config: {
-        urlChangePassword           : '/cake3/rd_cake/dashboard/change_password.json',
-        urlSettingsSubmit           : '/cake3/rd_cake/dashboard/settings_submit.json',
-        urlViewSettings             : '/cake3/rd_cake/dashboard/settings_view.json'
+        urlChangePassword   : '/cake3/rd_cake/dashboard/change_password.json',
+        urlSettingsSubmit   : '/cake3/rd_cake/dashboard/settings_submit.json',
+        urlViewSettings     : '/cake3/rd_cake/dashboard/settings_view.json',
+        defaultScreen       : 'tabMainNetworkOverview'      
     },
     requires: [
  
@@ -21,7 +22,8 @@ Ext.define('Rd.controller.cDashboard', {
     ],  
     refs: [
         {   ref: 'viewP',   	selector: 'viewP',          xtype: 'viewP',    autoCreate: true},
-        {   ref: 'pnlC',       	selector: '#pnlCenter',     xtype: 'panel',    autoCreate: true}
+        {   ref: 'pnlCenter',   selector: '#pnlCenter',     xtype: 'panel',    autoCreate: true},
+        {   ref: 'pnlDashboard',selector: 'pnlDashboard',   xtype: 'panel',    autoCreate: true} 
     ],
     init: function() {
         var me  = this;
@@ -32,9 +34,6 @@ Ext.define('Rd.controller.cDashboard', {
         me.control({
             'pnlDashboard #btnExpand': {
                 click: me.btnExpandClick
-            },
-            'pnlDashboard #btnClear': {
-                click: me.btnClearClick
             },
             'pnlDashboard #btnTreeLoad': {
                 click: me.btnTreeLoadClick
@@ -201,9 +200,51 @@ Ext.define('Rd.controller.cDashboard', {
     	me.application.setCloudName(record.get('name'));
     	console.log(me.application.getCloudId());
     	console.log(me.application.getCloudName());
+        //1.) We set the extra parameters
     	var extra_p 	 = Ext.Ajax.getExtraParams();
     	extra_p.cloud_id = me.application.getCloudId()
-    	Ext.Ajax.setExtraParams(extra_p);    
+    	Ext.Ajax.setExtraParams(extra_p);
+
+        //2.) Set the default screen as active first
+        var children = me.getPnlCenter().query('> panel');
+        Ext.each(children, function(child){
+            if(child.getItemId() == me.getDefaultScreen()){
+                console.log("Set hom active");
+                me.getPnlCenter().setActiveItem(child);
+            }
+        });
+
+        //3.) We clear the workspace (pnlCenter)
+        var pnl = me.getPnlCenter();
+        if(pnl){
+            var children = pnl.query('> panel'); //Select only the direct children          
+            Ext.each(children, function(child){
+                if(child.getItemId()!== me.getDefaultScreen()){ //Remove everyone except the Overview
+                    child.destroy();
+                }
+            })
+        }
+        //4.) Reload the treeview for the selected cloud 
+        var pnl = me.getPnlDashboard();
+        tl = pnl.down('#tlNav');
+        var myStore = tl.getStore();
+        Ext.Ajax.request({
+            url     : '/cake3/rd_cake/dashboard/nav-tree.json',
+            method  :'GET',
+            success: function(resp) {
+                var result = Ext.decode(resp.responseText);
+                myStore.getRoot().removeAll();
+                myStore.getRoot().appendChild(result.items);
+
+                //--Set the detault selected item--
+                var rootNode = me.getPnlDashboard().down('#tlNav').getStore().getRootNode();
+                rootNode.eachChild(function(n) {
+                    if(n.get('id') == me.getDefaultScreen()){
+                        me.getPnlDashboard().down('#tlNav').setSelection(n);
+                    }
+                });
+            }
+        }); 
     },
     btnExpandClick: function(btn){
     	var me = this;
@@ -259,40 +300,25 @@ Ext.define('Rd.controller.cDashboard', {
 		   	}      	
     	} 
     },
-    btnClearClick: function(btn){
-        var me = this;
-   		var pnlDashboard = btn.up('pnlDashboard');
-        var pnl          = me.getViewP().down('#pnlCenter');
-        pnl.removeAll(true);
-   		var pnlWest      = pnlDashboard.down('#pnlWest');
-   		var treelist     = pnlWest.down('treelist');
-    },
-    btnTreeLoadClick: function(btn){
-        var me = this;
-        var pnl = btn.up('pnlDashboard');
-        tl = pnl.down('#tlNav');
-        var myStore = tl.getStore();
-        Ext.Ajax.request({
-            url: '/cake3/rd_cake/dashboard/nav-tree.json',
-            success: function(resp) {
-                var result = Ext.decode(resp.responseText);
-                myStore.getRoot().removeAll();
-                myStore.getRoot().appendChild(result.items);
-            }
-        });
-    },
     pnlWestRendered: function(pnl){
         var me  = this;
         var dd  = me.application.getDashboardData();
         tl      = pnl.down('#tlNav');
         var myStore = tl.getStore();
+        //Initial loading
         myStore.getRoot().appendChild(dd.tree_nav);
-        /*Ext.Ajax.request({
-            url: '/cake3/rd_cake/dashboard/nav-tree.json',
-            success: function(resp) {
-                var result = Ext.decode(resp.responseText);
-                myStore.getRoot().appendChild(result.items);
-            },
-        });*/
+        //Select the Overview by default
+        pnl.down('#tlNav').getStore().each(function(record){
+            console.log(record.get('id'));
+        });
+
+        //--Set the detault selected item--
+        var rootNode = pnl.down('#tlNav').getStore().getRootNode();
+        rootNode.eachChild(function(n) {
+            if(n.get('id') == me.getDefaultScreen()){
+                pnl.down('#tlNav').setSelection(n);
+            }
+        });           
+
     }
 });

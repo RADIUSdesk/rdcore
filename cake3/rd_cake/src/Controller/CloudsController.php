@@ -85,18 +85,36 @@ class CloudsController extends AppController {
     }
     
     public function indexCmb(){
-    
-    	$q = $this->{$this->main_model}->find()->all();
-        $items = [];
-        foreach($q as $i){
-            array_push($items, $i);
+       
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
         }
-        $this->set(array(
+        $user_id = $user['id'];		                     
+        $query   = $this->{$this->main_model}->find();
+            
+		//---Access Providers- Special where clause--
+    	if($user['group_name'] == Configure::read('group.ap')){ 
+    		      		
+			$clouds_OR_list		= [['Clouds.user_id' => $user_id]]; //This is the basic search item
+			$q_ca = $this->{'CloudAdmins'}->find()->where(['CloudAdmins.user_id'=>$user_id])->all();//The access provider (ap) might also be admin to other clouds
+			foreach($q_ca as $e_ca){
+				array_push($clouds_OR_list,['Clouds.id' => $e_ca->cloud_id]);
+			}      	
+			$query->where(['OR' => $clouds_OR_list]);
+    	}
+    	//---END---        	   
+    	
+    	$q_r 	= $query->all();
+    	$items 	= [];
+    	foreach($q_r as $e){
+    		array_push($items,$e);
+    	}
+        $this->set([
             'items' => $items,
             'success' => true,
-            '_serialize' => array('items','success')
-        ));
-    	   
+            '_serialize' => ['items','success']
+        ]);   	   
     }
     
     public function indexNetworkOverview(){
@@ -157,14 +175,16 @@ class CloudsController extends AppController {
         $query  = $this->{$l_model }->find();
                 
         if($level == '0'){ //Level 0 == 'root' = includes all belonging to Access Provider
-            $this->CommonQuery->build_common_query($query, $user, ['Users']); //AP QUERY is sort of different in a way
+            $this->CommonQueryFlat->build_simple_cloud_query($query, $user);
         }else{
             $query->where($conditions);
         } 
+           
         $this->meta_data['level_stats'] = $this->_fetchLevelStats($user,$level,$node_id);    //This will prime the $this->network_ids array for subsequent queries     
         $this->_infoBuilding();
         $data = [];
-
+          
+          
         //MESHdesk
         $nodes          = $this->meta_data['total_nodes'];
         $nodes_online   = $this->meta_data['total_nodes_online']; 
@@ -506,7 +526,7 @@ class CloudsController extends AppController {
         //=== ITEMS FOR MAP====
         $query  = $this->{$l_model }->find();            
         if($level == '0'){ //Level 0 == 'root' = includes all belonging to Access Provider
-            $this->CommonQuery->build_common_query($query, $user, ['Users']); //AP QUERY is sort of different in a way
+            $this->CommonQueryFlat->build_simple_cloud_query($query); //AP QUERY is sort of different in a way
         }else{
             if(($level == 'Clouds')||($level == 'Sites')){
                 $query->where($conditions);
@@ -686,7 +706,7 @@ class CloudsController extends AppController {
         $query  = $this->{$l_model }->find();
         
         if($level == 'root'){
-            $this->CommonQuery->build_common_query($query, $user, ['Users']); //AP QUERY is sort of different in a way
+            $this->CommonQueryFlat->build_simple_cloud_query($query, $user); //AP QUERY is sort of different in a way
         }else{
             $query->where($conditions);
         }
@@ -853,8 +873,7 @@ class CloudsController extends AppController {
         if($level == 'root'){
         	
         	//ap group filter on user_id / admin group no filter
-        	if($user['group_name'] == Configure::read('group.ap')){
-        		
+        	if($user['group_name'] == Configure::read('group.ap')){       		
 				$clouds_OR_list		= [['Clouds.user_id' => $user_id]]; //This is the basic search item
 				$q_ca = $this->{'CloudAdmins'}->find()->where(['CloudAdmins.user_id'=>$user_id])->all();//The access provider (ap) might also be admin to other clouds
 				foreach($q_ca as $e_ca){
@@ -1280,7 +1299,7 @@ class CloudsController extends AppController {
         
         if($level == "0"){ //Root level
             $query  = $this->{'Clouds'}->find();
-            $this->CommonQuery->build_common_query($query, $user, ['Users']); //AP QUERY is sort of different in a way
+            $this->CommonQueryFlat->build_simple_cloud_query($query, $user); //AP QUERY is sort of different in a way
             
             //Clouds
             $clouds     = $query->all();

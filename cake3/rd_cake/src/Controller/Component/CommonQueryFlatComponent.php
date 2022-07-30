@@ -34,6 +34,21 @@ class CommonQueryFlatComponent extends Component {
     
     }
     
+    public function build_simple_cloud_query($query,$user){   
+    	$user_id = $user['id'];  	
+    	//---Access Providers- Special where clause--
+    	if($user['group_name'] == Configure::read('group.ap')){    		      		
+			$clouds_OR_list		= [['Clouds.user_id' => $user_id]]; //This is the basic search item
+			$ca   = TableRegistry::get('CloudAdmins');
+			$q_ca = $ca->find()->where(['CloudAdmins.user_id'=>$user_id])->all();//The access provider (ap) might also be admin to other clouds
+			foreach($q_ca as $e_ca){
+				array_push($clouds_OR_list,['Clouds.id' => $e_ca->cloud_id]);
+			}      	
+			$query->where(['OR' => $clouds_OR_list]);
+    	}
+    	//---END--- 
+    }
+    
     public function build_cloud_query($query,$cloud_id,$contain_array = ['Users'], $model = null, $allowOverride = true, $sort = null){
     
     	$query->where(['cloud_id' => $cloud_id]);

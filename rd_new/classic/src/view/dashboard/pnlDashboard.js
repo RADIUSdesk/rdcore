@@ -44,7 +44,7 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             xtype   : 'tbtext',
             itemId  : 'tbtHeader', 
             tpl     : tpl,
-            data    : { hName:header,imgFile:img,hFg:fg,imgActive: imgActive,value: 'Hard',fa_value: '&#xf023;'}
+            data    : { hName:header,imgFile:img,hFg:fg,imgActive: imgActive}
         };
 
         var micro = false
@@ -70,22 +70,22 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             glyph   : Rd.config.icnMenu,
             scale   : 'medium'
         };
-       /* var h3 = {
-            xtype   : 'button',
-            itemId	: 'btnClear',
-            glyph   : Rd.config.icnUser,
-            scale   : 'medium'
-        };*/
         var h3 = {
             xtype   : 'button',
             glyph   : Rd.config.icnUser,
+            text    : username,
             scale   : 'medium',
             menu    : [
-                {   text:i18n('sLogout'),      glyph : Rd.config.icnPower,  itemId: 'mnuLogout'},'-',
                 {   text:i18n('sSettings'),    glyph : Rd.config.icnSpanner,itemId: 'mnuSettings'},
-                {   text:i18n('sPassword'),    glyph : Rd.config.icnLock,   itemId: 'mnuPassword'    }
+                {   text:i18n('sPassword'),    glyph : Rd.config.icnLock,   itemId: 'mnuPassword'},'-',
+                {   text:i18n('sLogout'),      glyph : Rd.config.icnPower,  itemId: 'mnuLogout'}
             ] 
         };
+
+        //Only set the width of the button on long usernames
+        if(username.length > 10){
+            h3.width = 150;
+        }
 
         var h2 = {
             xtype   : 'button',
@@ -95,13 +95,14 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
         };
       	
       	var cmbCloud = {
-        	xtype	: 'cmbClouds'
+        	xtype	: 'cmbClouds',
+            labelWidth: 70
         }
         
-        var h_items = [ txtH,'->',cmbCloud,'|',h2,h3];
+        var h_items = [ txtH,'->',cmbCloud,'|',h2,'|',h3];
         
         if(me.dashboard_data.show_wizard){
-            h_items = [ txtH,'->',cmbCloud,'|',h2,h3];
+            h_items = [ txtH,'->',cmbCloud,'|',h2,'|',h3];
         }
                
      	me.items 	= [

@@ -223,12 +223,9 @@ class DashboardController extends AppController{
             return;
         }
         $user_id    = $user['id']; 
-        
-
         $wl         = $this->WhiteLabel->detail($user_id);  
-        $data       = $wl; 
-        
-        $e_user     = $this->{'Users'}->find()->where(['Users.id' => $user['id']])->first();
+        $data       = $wl;         
+        $e_user     = $this->{'Users'}->find()->where(['Users.id' => $user_id])->first();
 
         $timezone_id = 316; //London by default
         if($e_user->timezone_id){
@@ -301,19 +298,19 @@ class DashboardController extends AppController{
             }
             
             if($user['group_name'] == 'Access Providers'){
-                $realm_detail = $this->_ap_default_realm($user_id);
+                /*$realm_detail = $this->_ap_default_realm($user_id); FIXME 2022 Replace with default Cloud
                 if(array_key_exists('realm_id',$realm_detail)){
                     $data['realm_name'] = $realm_detail['realm_name'];
                     $data['realm_id']   = $realm_detail['realm_id'];
-                }
+                }*/
             }    
         }
-       
-        $this->set(array(
+     
+        $this->set([
             'data'   => $data,
             'success' => true,
-            '_serialize' => array('success','data')
-        ));
+            '_serialize' => ['success','data']
+        ]);
     }
      
      public function settingsSubmit(){
@@ -589,7 +586,7 @@ class DashboardController extends AppController{
             'show_wizard'   =>  $show_wizard,
             'show_unknown_nodes' => $show_unknown_nodes,
             'compact'		=> $compact,
-            'tree_nav' 		=> $this->_nav_tree()
+            'tree_nav' 		=> $this->_nav_tree_blank()
         ];        
     }
        
@@ -741,10 +738,13 @@ class DashboardController extends AppController{
     	   
     	$items = [
 			[
-				'text' => 'OVERVIEW',
-				'id'   => 1,
-				'leaf' => true,
-				'iconCls' => 'x-fa fa-th-large'
+				'text' 		=> 'OVERVIEW',
+				'id'   		=> 1,
+				'leaf' 		=> true,
+				'iconCls' 	=> 'x-fa fa-th-large',
+				'glyph'		=> 'xf009',
+				'controller'	=> 'cNetworkOverview',
+				'id'		=> 'tabMainNetworkOverview'
 			],
 			[
 				'text'	=> 'RADIUS USERS',
@@ -784,8 +784,51 @@ class DashboardController extends AppController{
 			]  
     	];
     	
-    	return $items;
-     
+    	return $items;  
     }
+    
+    private function _nav_tree_blank(){
+    
+    	$thOther = [
+			[
+				'text'	=> 'ADMINS',
+				'leaf'	=> true,
+				'controller'	=> 'cAccessProviders',
+				'id'		=> 'tabMainAccessProviders',
+				'iconCls'	=> 'x-fa fa-graduation-cap'
+			],
+			[
+				'text'	=> 'CLOUDS',
+				'leaf'	=> true,
+				'controller'	=> 'cClouds',
+				'id'		=> 'tabMainClouds',
+				'iconCls'	=> 'x-fa fa-cloud',
+				'glyph'		=> 'xf0c2'
+			],
+		];
+    
+    	$items = [
+			[
+				'text' 		=> 'OVERVIEW',
+				'id'   		=> 1,
+				'leaf' 		=> true,
+				'iconCls' 	=> 'x-fa fa-th-large',
+				'glyph'		=> 'xf009',
+				'controller'	=> 'cNetworkOverview',
+				'id'		=> 'tabMainNetworkOverview'
+			],
+			[
+				'text' 		=> 'OTHER',
+				'id'		=> 5,
+				'controller'=> '5',
+				'iconCls'	=> 'x-fa fa-gears',
+				'children'	=> $thOther		
+			]  
+    	];
+    	
+    	return $items;      
+    }
+    
+    
 }
 
