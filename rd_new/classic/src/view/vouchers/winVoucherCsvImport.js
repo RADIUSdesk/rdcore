@@ -9,7 +9,7 @@ Ext.define('Rd.view.vouchers.winVoucherCsvImport', {
     height		: 500,
     plain		: true,
     border		: false,
-    layout		: 'card',
+    layout		: 'fit',
     iconCls		: 'add',
     glyph   	: Rd.config.icnAdd,
     autoShow	: false,
@@ -25,12 +25,10 @@ Ext.define('Rd.view.vouchers.winVoucherCsvImport', {
     requires	: [
         'Ext.layout.container.Card',
         'Ext.form.Panel',
-        'Ext.form.field.Text',
-        'Rd.view.components.pnlAccessProvidersTree'
+        'Ext.form.field.Text'
     ],
     initComponent: function() {
         var me = this;
-        var scrnApTree      = me.mkScrnApTree();
         var scrnData        = me.mkScrnData();
         me.items = [
             scrnApTree,
@@ -38,16 +36,7 @@ Ext.define('Rd.view.vouchers.winVoucherCsvImport', {
         ];
         me.callParent(arguments);
         me.getLayout().setActiveItem(me.startScreen);  
-    },
-
-    //____ AccessProviders tree SCREEN ____
-    mkScrnApTree: function(){
-        //A form which allows the user to select
-        var pnlTree = Ext.create('Rd.view.components.pnlAccessProvidersTree',{
-            itemId: 'scrnApTree'
-        });
-        return pnlTree;
-    },
+    }, 
 
     //_______ Data for voucher  _______
     mkScrnData: function(){
