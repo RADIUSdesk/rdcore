@@ -14,7 +14,7 @@ Ext.define('Rd.view.dashboard.winDashboardSettings', {
     border  : false,
     layout  : 'fit',
     requires: [
-        'Rd.view.components.cmbRealm',
+      //  'Rd.view.components.cmbRealm',
         'Rd.view.components.cmbTimezones',
         'Rd.view.dashboard.vcWinDashboardSettings',
         'Ext.tab.Panel',
@@ -89,12 +89,12 @@ Ext.define('Rd.view.dashboard.winDashboardSettings', {
                                             ]
                                         }    
                                     },
-                                    {
+                                   /* {
                                         xtype       : 'cmbRealm',
                                         fieldLabel  : 'Default Realm',
                                         hidden      : true,
                                         disabled    : true
-                                    },
+                                    },*/
                                     {
                                         xtype       : 'cmbTimezones',
                                         name        : 'timezone_id'

@@ -17,8 +17,7 @@ Ext.define('Rd.view.profileComponents.winProfileComponentAdd', {
             border: false
     },
     requires: [
-        'Ext.form.Panel',
-        'Ext.form.field.Text'
+        'Rd.view.components.btnDataNext'
     ],
     initComponent: function() {
         var me = this;

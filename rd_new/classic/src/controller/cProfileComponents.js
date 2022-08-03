@@ -33,11 +33,9 @@ Ext.define('Rd.controller.cProfileComponents', {
     models: ['mProfileComponent',  'mAttribute',   'mVendor',  'mProfileComponentEdit' ],
     selectedRecord: null,
     config: {
-        urlAdd:             '/cake3/rd_cake/profile-components/add.json',
-        urlDelete:          '/cake3/rd_cake/profile-components/delete.json',
-        urlApChildCheck:    '/cake3/rd_cake/access-providers/child-check.json',
-        urlExportCsv:       '/cake3/rd_cake/profile-components/export-csv',
-        urlNoteAdd:         '/cake3/rd_cake/profile-components/note-add.json'
+        urlAdd:             '/cake4/rd_cake/profile-components/add.json',
+        urlDelete:          '/cake4/rd_cake/profile-components/delete.json',
+        urlExportCsv:       '/cake4/rd_cake/profile-components/export-csv'
     },
     refs: [
         {  ref: 'grid',  selector:   'gridProfileComponents'}       
@@ -64,9 +62,6 @@ Ext.define('Rd.controller.cProfileComponents', {
             },
             'gridProfileComponents #edit'   : {
                 click:      me.edit
-            },
-            'gridProfileComponents #note'   : {
-                click:      me.note
             },
             'gridProfileComponents #csv'  : {
                 click:      me.csvExport
@@ -339,196 +334,6 @@ Ext.define('Rd.controller.cProfileComponents', {
             }
             window.open(me.getUrlExportCsv()+append_url);
             win.close();
-        }
-    },
-
-    note: function(button,format) {
-        var me      = this;    
-        //Find out if there was something selected
-        var sel_count = me.getGrid().getSelectionModel().getCount();
-        if(sel_count == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            if(sel_count > 1){
-                Ext.ux.Toaster.msg(
-                        i18n('sLimit_the_selection'),
-                        i18n('sSelection_limited_to_one'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-                );
-            }else{
-
-                //Determine the selected record:
-                var sr = me.getGrid().getSelectionModel().getLastSelected();
-                
-                if(!Ext.WindowManager.get('winNoteProfileComponents'+sr.getId())){
-                    var w = Ext.widget('winNote',
-                        {
-                            id          : 'winNoteProfileComponents'+sr.getId(),
-                            noteForId   : sr.getId(),
-                            noteForGrid : 'profile-components',
-                            noteForName : sr.get('name')
-                        });
-                    w.show();      
-                }
-            }    
-        }
-    },
-    noteReload: function(button){
-        var me      = this;
-        var grid    = button.up('gridNote');
-        grid.getStore().load();
-    },
-    noteAdd: function(button){
-        var me      = this;
-        var grid    = button.up('gridNote');
-        //See how the wizard should be displayed:
-        Ext.Ajax.request({
-            url: me.getUrlApChildCheck(),
-            method: 'GET',
-            success: function(response){
-                var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){                      
-                    if(jsonData.items.tree == true){
-                        if(!Ext.WindowManager.get('winNoteProfileComponentsAdd'+grid.noteForId)){
-                            var w   = Ext.widget('winNoteAdd',
-                            {
-                                id          : 'winNoteProfileComponentsAdd'+grid.noteForId,
-                                noteForId   : grid.noteForId,
-                                noteForGrid : grid.noteForGrid,
-                                refreshGrid : grid
-                            });
-                            w.show();       
-                        }
-                    }else{
-                        if(!Ext.WindowManager.get('winNoteProfileComponentsAdd'+grid.noteForId)){
-                            var w   = Ext.widget('winNoteAdd',
-                            {
-                                id          : 'winNoteProfileComponentsAdd'+grid.noteForId,
-                                noteForId   : grid.noteForId,
-                                noteForGrid : grid.noteForGrid,
-                                refreshGrid : grid,
-                                startScreen : 'scrnNote',
-                                user_id     : '0',
-                                owner       : i18n('sLogged_in_user'),
-                                no_tree     : true
-                            });
-                            w.show();       
-                        }
-                    }
-                }   
-            },
-            scope: me
-        });
-    },
-    gridNoteClick: function(item,record){
-        var me = this;
-        //Dynamically update the top toolbar
-        grid    = item.up('gridNote');
-        tb      = grid.down('toolbar[dock=top]');
-        var del = record.get('delete');
-        if(del == true){
-            if(tb.down('#delete') != null){
-                tb.down('#delete').setDisabled(false);
-            }
-        }else{
-            if(tb.down('#delete') != null){
-                tb.down('#delete').setDisabled(true);
-            }
-        }
-    },
-    btnNoteTreeNext: function(button){
-        var me = this;
-        var tree = button.up('treepanel');
-        //Get selection:
-        var sr = tree.getSelectionModel().getLastSelected();
-        if(sr){    
-            var win = button.up('winNoteAdd');
-            win.down('#owner').setValue(sr.get('username'));
-            win.down('#user_id').setValue(sr.getId());
-            win.getLayout().setActiveItem('scrnNote');
-        }else{
-            Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_owner'),
-                        i18n('sFirst_select_an_Access_Provider_who_will_be_the_owner'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }
-    },
-    btnNoteAddPrev: function(button){
-        var me = this;
-        var win = button.up('winNoteAdd');
-        win.getLayout().setActiveItem('scrnApTree');
-    },
-    btnNoteAddNext: function(button){
-        var me      = this;
-        var win     = button.up('winNoteAdd');
-        console.log(win.noteForId);
-        console.log(win.noteForGrid);
-        win.refreshGrid.getStore().load();
-        var form    = win.down('form');
-        form.submit({
-            clientValidation: true,
-            url: me.getUrlNoteAdd(),
-            params: {for_id : win.noteForId},
-            success: function(form, action) {
-                win.close();
-                win.refreshGrid.getStore().load();
-                me.reload();
-                Ext.ux.Toaster.msg(
-                    i18n('sNew_item_created'),
-                    i18n('sItem_created_fine'),
-                    Ext.ux.Constants.clsInfo,
-                    Ext.ux.Constants.msgInfo
-                );
-            },
-            failure: Ext.ux.formFail
-        });
-    },
-    noteDelete: function(button){
-        var me      = this;
-        var grid    = button.up('gridNote');
-        //Find out if there was something selected
-        if(grid.getSelectionModel().getCount() == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
-                if(val== 'yes'){
-                    grid.getStore().remove(grid.getSelectionModel().getSelection());
-                    grid.getStore().sync({
-                        success: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sItem_deleted'),
-                                i18n('sItem_deleted_fine'),
-                                Ext.ux.Constants.clsInfo,
-                                Ext.ux.Constants.msgInfo
-                            );
-                            grid.getStore().load();   //Update the count
-                            me.reload();   
-                        },
-                        failure: function(batch,options,c,d){
-                            Ext.ux.Toaster.msg(
-                                i18n('sProblems_deleting_item'),
-                                batch.proxy.getReader().rawData.message.message,
-                                Ext.ux.Constants.clsWarn,
-                                Ext.ux.Constants.msgWarn
-                            );
-                            grid.getStore().load(); //Reload from server since the sync was not good
-                        }
-                    });
-                }
-            });
         }
     },
     cmbVendorChange: function(cmb){

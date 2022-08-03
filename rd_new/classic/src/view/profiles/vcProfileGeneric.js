@@ -2,7 +2,7 @@ Ext.define('Rd.view.profiles.vcProfileGeneric', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcProfileGeneric',
     config : {
-        urlViewProfile   : '/cake3/rd_cake/profiles/simple_view.json',
+        urlViewProfile   : '/cake4/rd_cake/profiles/simple_view.json',
     },
     init: function() {
         var me = this;

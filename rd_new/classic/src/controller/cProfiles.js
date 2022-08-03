@@ -36,9 +36,9 @@ Ext.define('Rd.controller.cProfiles', {
     models: ['mProfile'],
     selectedRecord: null,
     config: {
-        urlDelete:          '/cake3/rd_cake/profiles/delete.json',
-        urlExportCsv:       '/cake3/rd_cake/profiles/export-csv',
-        urlManageComponents:'/cake3/rd_cake/profiles/manage-components.json'
+        urlDelete:          '/cake4/rd_cake/profiles/delete.json',
+        urlExportCsv:       '/cake4/rd_cake/profiles/export-csv',
+        urlManageComponents:'/cake4/rd_cake/profiles/manage-components.json'
     },
     refs: [
         {  ref: 'grid',  selector:   'gridProfiles'}       

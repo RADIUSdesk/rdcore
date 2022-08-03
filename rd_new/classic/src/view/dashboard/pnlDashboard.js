@@ -53,7 +53,36 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             micro = true;
             west_width = 55;
         }
-               
+
+        //---Work in progress---
+        Ext.define('Rd.view.dashboard.dashboardTreeList', {
+            extend  : 'Ext.list.Tree',
+            xtype   : 'dashboardTreeList',
+            ui	    : 'nav2',
+            store   : {root:{'id':0}},
+            margin  : '0 0 0 5',
+            micro   : micro,
+            expanderFirst: false,
+            expanderOnly: true,
+            element: {
+                reference: 'element',
+                listeners: {
+                    click: 'onClick',
+                    mouseenter: 'onMouseEnter',
+                     mouseenter: Ext.emptyFn,
+                     mouseover: Ext.emptyFn,
+                    mouseleave: 'onMouseLeave',
+                },
+                children: [{
+                    reference: 'toolsElement',
+                    listeners: {
+                        mouseover: Ext.emptyFn,
+                        mouseover: 'onToolStripMouseOver'
+                    }
+                }]
+            }
+        });
+              
         var tl = {
     		xtype   : 'treelist',
     		ui	    : 'nav2',
@@ -130,6 +159,10 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
 				items : [{
                     xtype: 'container',
                     items:	tl
+                   /* items : {
+                            xtype   : 'dashboardTreeList',
+                            itemId  : 'tlNav'
+                        }*/
                     }
 				]	
 			},

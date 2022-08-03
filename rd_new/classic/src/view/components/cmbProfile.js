@@ -21,7 +21,7 @@ Ext.define('Rd.view.components.cmbProfile', {
                 type    : 'ajax',
                 format  : 'json',
                 batchActions: true, 
-                url     : '/cake3/rd_cake/profiles/index-ap.json',
+                url     : '/cake4/rd_cake/profiles/index-ap.json',
                 reader: {
                     type            : 'json',
                     rootProperty    : 'items',
@@ -30,11 +30,6 @@ Ext.define('Rd.view.components.cmbProfile', {
             },
             autoLoad    : false
         });
-
-        if(me.extraParam){
-        	s.getProxy().setExtraParam('ap_id',me.extraParam);
-        }
-
         me.store = s;
         this.callParent(arguments);
     }

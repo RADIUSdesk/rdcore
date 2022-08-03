@@ -18,14 +18,16 @@ class TokenAuthComponent extends Component {
     public function check_if_valid($controller){
         //First we will ensure there is a token in the request
         $controller = $this->_registry->getController();
-        $request = $controller->request;
+        $request 	= $controller->getRequest();
+        $r_data		= $request->getData();
+        $q_data		= $request->getQuery();
         
         $token = false;
 
-        if(isset($request->data['token'])){
-            $token = $request->data['token'];
-        }elseif(isset($request->query['token'])){ 
-            $token = $request->query['token'];
+        if(isset($r_data['token'])){
+            $token = $r_data['token'];
+        }elseif(isset($q_data['token'])){ 
+            $token = $q_data['token'];
         }
         
         

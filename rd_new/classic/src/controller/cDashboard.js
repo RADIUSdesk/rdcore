@@ -6,9 +6,9 @@ Ext.define('Rd.controller.cDashboard', {
         'dashboard.winDashboardSettings'
     ],
     config: {
-        urlChangePassword   : '/cake3/rd_cake/dashboard/change_password.json',
-        urlSettingsSubmit   : '/cake3/rd_cake/dashboard/settings_submit.json',
-        urlViewSettings     : '/cake3/rd_cake/dashboard/settings_view.json',
+        urlChangePassword   : '/cake4/rd_cake/dashboard/change_password.json',
+        urlSettingsSubmit   : '/cake4/rd_cake/dashboard/settings_submit.json',
+        urlViewSettings     : '/cake4/rd_cake/dashboard/settings_view.json',
         defaultScreen       : 'tabMainNetworkOverview'      
     },
     requires: [
@@ -229,7 +229,7 @@ Ext.define('Rd.controller.cDashboard', {
         tl = pnl.down('#tlNav');
         var myStore = tl.getStore();
         Ext.Ajax.request({
-            url     : '/cake3/rd_cake/dashboard/nav-tree.json',
+            url     : '/cake4/rd_cake/dashboard/nav-tree.json',
             method  :'GET',
             success: function(resp) {
                 var result = Ext.decode(resp.responseText);

@@ -4,8 +4,76 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cf4acc9af81e6ac2fc72dbbb514c2b0d",
+    "content-hash": "e2cf164e593703fd4108458a21bdd711",
     "packages": [
+        {
+            "name": "cakephp/authentication",
+            "version": "2.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cakephp/authentication.git",
+                "reference": "71cfa8ab1b3e34699400528714a3575c5778e27d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cakephp/authentication/zipball/71cfa8ab1b3e34699400528714a3575c5778e27d",
+                "reference": "71cfa8ab1b3e34699400528714a3575c5778e27d",
+                "shasum": ""
+            },
+            "require": {
+                "cakephp/http": "^4.0",
+                "laminas/laminas-diactoros": "^2.2.2",
+                "psr/http-client": "^1.0",
+                "psr/http-message": "^1.0",
+                "psr/http-server-handler": "^1.0",
+                "psr/http-server-middleware": "^1.0"
+            },
+            "require-dev": {
+                "cakephp/cakephp": "^4.0",
+                "cakephp/cakephp-codesniffer": "^4.0",
+                "firebase/php-jwt": "^5.5",
+                "phpunit/phpunit": "^8.5 || ^9.3"
+            },
+            "suggest": {
+                "cakephp/cakephp": "Install full core to use \"CookieAuthenticator\".",
+                "cakephp/orm": "To use \"OrmResolver\" (Not needed separately if using full CakePHP framework).",
+                "cakephp/utility": "Provides CakePHP security methods. Required for the JWT adapter and Legacy password hasher.",
+                "ext-ldap": "Make sure this php extension is installed and enabled on your system if you want to use the built-in LDAP adapter for \"LdapIdentifier\".",
+                "firebase/php-jwt": "If you want to use the JWT adapter add this dependency"
+            },
+            "type": "cakephp-plugin",
+            "autoload": {
+                "psr-4": {
+                    "Authentication\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "CakePHP Community",
+                    "homepage": "https://github.com/cakephp/authentication/graphs/contributors"
+                }
+            ],
+            "description": "Authentication plugin for CakePHP",
+            "homepage": "https://cakephp.org",
+            "keywords": [
+                "Authentication",
+                "auth",
+                "cakephp",
+                "middleware"
+            ],
+            "support": {
+                "docs": "https://book.cakephp.org/authentication/2/en/",
+                "forum": "https://stackoverflow.com/tags/cakephp",
+                "irc": "irc://irc.freenode.org/cakephp",
+                "issues": "https://github.com/cakephp/authentication/issues",
+                "source": "https://github.com/cakephp/authentication"
+            },
+            "time": "2022-01-06T20:01:45+00:00"
+        },
         {
             "name": "cakephp/cakephp",
             "version": "4.4.3",

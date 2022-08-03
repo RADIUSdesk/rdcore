@@ -14,7 +14,7 @@ Ext.define('Rd.view.permanentUsers.gridUserDevices' ,{
     viewConfig: {
         loadMask:true
     },
-    urlMenu: '/cake3/rd_cake/permanent-users/menu-for-user-devices.json',
+    urlMenu: '/cake4/rd_cake/permanent-users/menu-for-user-devices.json',
     plugins: 'gridfilters',  //*We specify this
     columns: [
           //  {xtype: 'rownumberer',stateId: 'gUD1'},

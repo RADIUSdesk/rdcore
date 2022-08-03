@@ -14,7 +14,7 @@ Ext.define('Rd.view.permanentUsers.gridUserRadpostauths' ,{
     viewConfig: {
         loadMask:true
     },
-    urlMenu: '/cake3/rd_cake/permanent-users/menu-for-authentication-data.json',
+    urlMenu: '/cake4/rd_cake/permanent-users/menu-for-authentication-data.json',
     plugins     : 'gridfilters',  //*We specify this
     columns: [
       //  {xtype: 'rownumberer',stateId: 'StateGridUserRadpostauths1'},

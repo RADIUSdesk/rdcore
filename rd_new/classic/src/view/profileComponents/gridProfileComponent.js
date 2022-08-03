@@ -50,10 +50,10 @@ Ext.define('Rd.view.profileComponents.gridProfileComponent' ,{
                     writeAllFields: true 
                 },
                 api         : {
-                    create      : '/cake3/rd_cake/profile-components/add-comp.json',
-                    read        : '/cake3/rd_cake/profile-components/index-comp.json',
-                    update      : '/cake3/rd_cake/profile-components/edit-comp.json',
-                    destroy     : '/cake3/rd_cake/profile-components/delete-comp.json'
+                    create      : '/cake4/rd_cake/profile-components/add-comp.json',
+                    read        : '/cake4/rd_cake/profile-components/index-comp.json',
+                    update      : '/cake4/rd_cake/profile-components/edit-comp.json',
+                    destroy     : '/cake4/rd_cake/profile-components/delete-comp.json'
                 }
             },
             listeners: {

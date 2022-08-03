@@ -4,9 +4,9 @@ Ext.define('Rd.controller.cProfileSimple', {
         'profiles.pnlAddEditProfile' 
     ],
     config      : {  
-        urlAddProfile      : '/cake3/rd_cake/profiles/simple_add.json',
-        urlViewProfile     : '/cake3/rd_cake/profiles/simple_view.json',
-        urlEditProfile     : '/cake3/rd_cake/profiles/simple_edit.json'
+        urlAddProfile      : '/cake4/rd_cake/profiles/simple_add.json',
+        urlViewProfile     : '/cake4/rd_cake/profiles/simple_view.json',
+        urlEditProfile     : '/cake4/rd_cake/profiles/simple_edit.json'
     },
     refs: [
         {  ref: 'tabProfiles',  selector: '#tabProfiles' } 

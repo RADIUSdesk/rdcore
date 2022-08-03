@@ -8,7 +8,7 @@ Ext.define('Rd.store.sPermanentUsers', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake3/rd_cake/permanent-users/index.json',
+            url     : '/cake4/rd_cake/permanent-users/index.json',
             reader: {
                 type            : 'json',
                 rootProperty    : 'items',

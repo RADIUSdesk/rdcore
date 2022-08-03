@@ -50,13 +50,13 @@ $config['nas_types'][5]     = ['name' => 'Telkom',                 'id' => 'Telk
 
 
 $config['paths']['wallpaper_location']  = "/rd/resources/images/wallpapers/";
-$config['paths']['dynamic_photos']      = "/cake3/rd_cake/img/dynamic_photos/";   
-$config['paths']['dynamic_detail_icon'] = "/cake3/rd_cake/img/dynamic_details/";
-$config['paths']['real_photo_path']     = "/cake3/rd_cake/webroot/img/dynamic_photos/";
-$config['paths']['absolute_photo_path'] = "/var/www/html/cake3/rd_cake/webroot/img/dynamic_photos/";
-$config['paths']['ap_logo_path']        = "/cake3/rd_cake/img/access_providers/";
-$config['paths']['real_ap_logo_path']   = "/cake3/rd_cake/webroot/img/access_providers/";
-$config['paths']['geo_data']            = '/var/www/html/cake3/rd_cake/setup/GeoIp/data/GeoLite2-City.mmdb';
+$config['paths']['dynamic_photos']      = "/cake4/rd_cake/img/dynamic_photos/";   
+$config['paths']['dynamic_detail_icon'] = "/cake4/rd_cake/img/dynamic_details/";
+$config['paths']['real_photo_path']     = "/cake4/rd_cake/webroot/img/dynamic_photos/";
+$config['paths']['absolute_photo_path'] = "/var/www/html/cake4/rd_cake/webroot/img/dynamic_photos/";
+$config['paths']['ap_logo_path']        = "/cake4/rd_cake/img/access_providers/";
+$config['paths']['real_ap_logo_path']   = "/cake4/rd_cake/webroot/img/access_providers/";
+$config['paths']['geo_data']            = '/var/www/html/cake4/rd_cake/setup/GeoIp/data/GeoLite2-City.mmdb';
 
 
 //Define default settings for the users:
@@ -214,7 +214,7 @@ $config['Admin']['i18n'][0]     = [
     'language'  => 'English',
     'text'      =>	'United Kingdom -> English',
     'rtl'       => false,
-    'icon_file' => '/cake3/rd_cake/img/flags/GB.png',  
+    'icon_file' => '/cake4/rd_cake/img/flags/GB.png',  
     'active'    => true
 ];
 

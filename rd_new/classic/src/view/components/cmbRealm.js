@@ -17,17 +17,13 @@ Ext.define('Rd.view.components.cmbRealm', {
     extraParam      : false,
     initComponent: function() {
         var me  = this;
-        var url = '/cake3/rd_cake/realms/index-ap-update.json';
-        if(me.type == 'create'){
-            url = '/cake3/rd_cake/realms/index-ap-create.json';  
-        }
-        var s = Ext.create('Ext.data.Store', {
+        var s   = Ext.create('Ext.data.Store', {
             model: 'Rd.model.mRealm',
             proxy: {
                 type            : 'ajax',
                 format          : 'json',
                 batchActions    : true, 
-                url             : url,
+                url             : '/cake4/rd_cake/realms/index-ap.json',
                 reader: {
                     type            : 'json',
                     rootProperty            : 'items',
@@ -36,10 +32,6 @@ Ext.define('Rd.view.components.cmbRealm', {
             },
             autoLoad            : false
         });
-
-        if(me.extraParam){
-            s.getProxy().setExtraParam('ap_id',me.extraParam);
-        }
         me.store = s;
         this.callParent(arguments);
     }

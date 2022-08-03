@@ -41,15 +41,13 @@ Ext.define('Rd.controller.cRealms', {
     models: ['mRealm', 'mUserStat'],
     selectedRecord: null,
     config: {
-        urlAdd:             '/cake3/rd_cake/realms/add.json',
-        urlEdit:            '/cake3/rd_cake/realms/edit.json',
-        urlDelete:          '/cake3/rd_cake/realms/delete.json',
-        urlApChildCheck:    '/cake3/rd_cake/access-providers/child-check.json',
-        urlExportCsv:       '/cake3/rd_cake/realms/export-csv',
-        urlNoteAdd:         '/cake3/rd_cake/realms/note-add.json',
-        urlViewRealmDetail: '/cake3/rd_cake/realms/view.json',
-        urlLogoBase:        '/cake3/rd_cake/img/realms/',
-        urlUploadLogo:      '/cake3/rd_cake/realms/upload-logo/'
+        urlAdd:             '/cake4/rd_cake/realms/add.json',
+        urlEdit:            '/cake4/rd_cake/realms/edit.json',
+        urlDelete:          '/cake4/rd_cake/realms/delete.json',
+        urlExportCsv:       '/cake4/rd_cake/realms/export-csv',
+        urlViewRealmDetail: '/cake4/rd_cake/realms/view.json',
+        urlLogoBase:        '/cake4/rd_cake/img/realms/',
+        urlUploadLogo:      '/cake4/rd_cake/realms/upload_logo.json'
     },
     refs: [
          {  ref:    'gridRealms',           selector:   'gridRealms'},

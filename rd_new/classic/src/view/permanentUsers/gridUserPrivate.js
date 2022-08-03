@@ -126,10 +126,10 @@ Ext.define('Rd.view.permanentUsers.gridUserPrivate' ,{
                     writeAllFields: true 
                 },
                 api         : {
-                    create      : '/cake3/rd_cake/permanent-users/private-attr-add.json',
-                    read        : '/cake3/rd_cake/permanent-users/private-attr-index.json',
-                    update      : '/cake3/rd_cake/permanent-users/private-attr-edit.json',
-                    destroy     : '/cake3/rd_cake/permanent-users/private-attr-delete.json'
+                    create      : '/cake4/rd_cake/permanent-users/private-attr-add.json',
+                    read        : '/cake4/rd_cake/permanent-users/private-attr-index.json',
+                    update      : '/cake4/rd_cake/permanent-users/private-attr-edit.json',
+                    destroy     : '/cake4/rd_cake/permanent-users/private-attr-delete.json'
                 }
             },
             listeners: {

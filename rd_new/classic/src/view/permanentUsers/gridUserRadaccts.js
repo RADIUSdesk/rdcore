@@ -14,7 +14,7 @@ Ext.define('Rd.view.permanentUsers.gridUserRadaccts' ,{
     viewConfig: {
         loadMask:true
     },
-    urlMenu: '/cake3/rd_cake/permanent-users/menu-for-accounting-data.json',
+    urlMenu: '/cake4/rd_cake/permanent-users/menu-for-accounting-data.json',
     plugins     : 'gridfilters',
     columns: [
         {xtype: 'rownumberer',stateId: 'StateGridUserRadaccts1'},

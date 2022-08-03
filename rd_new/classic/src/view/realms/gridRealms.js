@@ -12,7 +12,7 @@ Ext.define('Rd.view.realms.gridRealms' ,{
         'Ext.toolbar.Paging',
         'Ext.ux.ProgressBarPager'
     ],
-    urlMenu     : '/cake3/rd_cake/realms/menu-for-grid.json',
+    urlMenu     : '/cake4/rd_cake/realms/menu-for-grid.json',
     plugins     : 'gridfilters',  //*We specify this
     viewConfig: {
         loadMask:true

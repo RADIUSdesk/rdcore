@@ -123,8 +123,8 @@ class DashboardController extends AppController{
                
                 //Check for auto-compact setting
                 $auto_compact = false;
-                if(isset($this->request->data['auto_compact'])){
-                    if($this->request->data['auto_compact']=='true'){ //Carefull with the query's true and false it is actually a string
+                if($this->request->getData('auto_compact')){
+                    if($this->request->getData('auto_compact')=='true'){ //Carefull with the query's true and false it is actually a string
                         $auto_compact = true;
                     }
                 }
@@ -311,7 +311,7 @@ class DashboardController extends AppController{
      
          //This is a deviation from the standard JSON serialize view since extjs requires a html type reply when files
         //are posted to the server.    
-        $this->viewBuilder()->layout('ext_file_upload');
+        $this->viewBuilder()->setLayout('ext_file_upload');
      
         $user = $this->Aa->user_for_token($this);
         if(!$user){
@@ -337,24 +337,30 @@ class DashboardController extends AppController{
         
         $ap_id = $user_id;
         
-        $check_items = array(
+        $check_items = [
 			'wl_active',
 			'wl_img_active'
-		);
+		];
+		
+		$r_data		= $this->request->getData();
+        $q_data		= $this->request->getQuery();
+		
         foreach($check_items as $i){
-            if(isset($this->request->data[$i])){
-                $this->request->data[$i] = 1;
+            if(isset($r_data[$i])){
+                $r_data[$i] = 1;
             }else{
-                $this->request->data[$i] = 0;
+                $r_data[$i] = 0;
             }
         }    
         
         $looking_for    = ['wl_active','wl_header','wl_h_bg','wl_h_fg','wl_footer','wl_img_active','wl_img_file'];
         
-        if($this->request->data['wl_active'] == 1){
+        if($r_data['wl_active'] == 1){
             
-            $new_logo       = false;
-            
+            $new_logo   = false;
+            $filename 	= '';
+            $dest		= '';
+                               
             //Check if there came some image with it
             if(isset($_FILES['wl_img_file_upload'])){
                 if($_FILES['wl_img_file_upload']['size'] > 0){    
@@ -368,7 +374,7 @@ class DashboardController extends AppController{
                 
                 if($new_logo == true){
                     $this->UserSettings->deleteAll(['user_id' => $ap_id,'name' => 'wl_img_file']);
-                    $entity = $this->UserSettings->newEntity();
+                    $entity = $this->UserSettings->newEmptyEntity();
                     $entity->user_id    = $ap_id;
                     $entity->name       = 'wl_img_file';
                     $entity->value      = $filename;
@@ -384,10 +390,10 @@ class DashboardController extends AppController{
                   
                 $this->UserSettings->deleteAll(['user_id' => $ap_id,'name' => $i]);
                 //Add a New ONE
-                $entity             = $this->UserSettings->newEntity();
+                $entity             = $this->UserSettings->newEmptyEntity();
                 $entity->user_id    = $ap_id;
                 $entity->name       = $i;
-                $entity->value      = $this->request->data["$i"];
+                $entity->value      = $r_data["$i"];
                 $this->UserSettings->save($entity);
             }
         }else{
@@ -397,43 +403,43 @@ class DashboardController extends AppController{
             } 
         }  
                
-        if(isset($this->request->data['realm_id'])){
-		    $s = $this->UserSettings->newEntity();
+        if(isset($r_data['realm_id'])){
+		    $s = $this->UserSettings->newEmptyEntity();
             $s->user_id = $user_id;
             $s->name    = 'realm_id';
-            $s->value   = $this->request->data['realm_id'];
+            $s->value   = $r_data['realm_id'];
             $this->UserSettings->save($s);
         }
        
-        if(isset($this->request->data['compact_view'])){
-		    $s = $this->UserSettings->newEntity();
+        if(isset($r_data['compact_view'])){
+		    $s = $this->UserSettings->newEmptyEntity();
             $s->user_id = $user_id;
             $s->name    = 'compact_view';
             $s->value   = 1;
             $this->UserSettings->save($s);
         }
         
-        if(isset($this->request->data['alert_activate'])){
-		    $s = $this->UserSettings->newEntity();
+        if(isset($r_data['alert_activate'])){
+		    $s = $this->UserSettings->newEmptyEntity();
             $s->user_id = $user_id;
             $s->name    = 'alert_activate';
             $s->value   = 1;
             $this->UserSettings->save($s);
         }
         
-        if(isset($this->request->data['alert_frequency'])){
-		    $s = $this->UserSettings->newEntity();
+        if(isset($r_data['alert_frequency'])){
+		    $s = $this->UserSettings->newEmptyEntity();
             $s->user_id = $user_id;
             $s->name    = 'alert_frequency';
-            $s->value   = $this->request->data['alert_frequency'];
+            $s->value   = $r_data['alert_frequency'];
             $this->UserSettings->save($s);
         }                    
         
-        if (array_key_exists('overviews_to_include', $this->request->data)) {
-            if(!empty($this->request->data['overviews_to_include'])){
-                foreach($this->request->data['overviews_to_include'] as $e){
+        if (array_key_exists('overviews_to_include', $r_data)) {
+            if(!empty($r_data['overviews_to_include'])){
+                foreach($r_data['overviews_to_include'] as $e){
                     if($e != ''){
-                        $s = $this->UserSettings->newEntity();
+                        $s = $this->UserSettings->newEmptyEntity();
                         $s->user_id = $user_id;
                         $s->name    = $e;
                         $s->value   = 1;
@@ -443,22 +449,22 @@ class DashboardController extends AppController{
             }
         }
            
-        if(isset($this->request->data['default_overview'])){
-		    $s = $this->UserSettings->newEntity();
+        if(isset($r_data['default_overview'])){
+		    $s = $this->UserSettings->newEmptyEntity();
             $s->user_id = $user_id;
             $s->name    = 'default_overview';
-            $s->value   = $this->request->data['default_overview'];
+            $s->value   = $r_data['default_overview'];
             $this->UserSettings->save($s);
         }
         $email = '';
         
-        if(isset($this->request->data['timezone_id'])){
+        if(isset($r_data['timezone_id'])){
             $e_user     = $this->{'Users'}->find()->where(['Users.id' => $user['id']])->first();
             if($this->request->getData('email')){
                 $email = $this->request->getData('email');
             }
             if($e_user){
-                $this->{'Users'}->patchEntity($e_user,['timezone_id' => $this->request->data['timezone_id'],'email' =>$email]);
+                $this->{'Users'}->patchEntity($e_user,['timezone_id' => $r_data['timezone_id'],'email' =>$email]);
                 $this->{'Users'}->save($e_user);
             }   
         }
@@ -479,33 +485,33 @@ class DashboardController extends AppController{
         }
         $white_label['imgFile']    = $wl['wl_img']; 
 
-        $this->set(array(
+		//$this->viewBuilder()->setOption('serialize', ['articles', 'comments']);
+        $this->set([
             'success'   => true,
             'data'      => $white_label,
-            '_serialize' => array('success','data')
-        ));
+            '_serialize' => ['success','data']
+        ]);
     }
     
     public function changePassword(){
-        //$user = $this->_ap_right_check();
         $user = $this->Aa->user_for_token($this);
         if(!$user){
             return;
         }
         $user_id    = $user['id'];
-        $data       = array();  
+        $data       = [];  
         $u          = $this->Users->get($user_id);
         
-        $u->set('password',$this->request->data['password']);
+        $u->set('password',$this->request->getData('password'));
         $u->set('token',''); //Setting it ti '' will trigger a new token generation
         $this->Users->save($u); 
         $data['token']  = $u->get('token');
-
-        $this->set(array(
+        
+        $this->set([
             'success' => true,
             'data'    => $data,
-            '_serialize' => array('success','data')
-        ));
+            '_serialize' => ['success','data']
+        ]);
     }
     
     private function _get_user_detail($user,$auto_compact=false){

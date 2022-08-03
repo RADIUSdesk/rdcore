@@ -8,7 +8,7 @@ Ext.define('Rd.store.sRealms', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake3/rd_cake/realms/index.json',
+            url     : '/cake4/rd_cake/realms/index.json',
             reader: {
                 type: 'json',
                 rootProperty: 'items',
@@ -16,7 +16,7 @@ Ext.define('Rd.store.sRealms', {
                 totalProperty: 'totalCount' //Required for dynamic paging
             },
             api: {
-                destroy  : '/cake3/rd_cake/realms/delete.json'
+                destroy  : '/cake4/rd_cake/realms/delete.json'
             },
             simpleSortMode: true //This will only sort on one column (sort) and a direction(dir) value ASC or DESC
     },

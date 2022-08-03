@@ -22,7 +22,7 @@ Ext.define('Rd.controller.cStartup', {
 		'passwordreset'					: 'onPasswordReset'
     },
     config: {
-        urlCheckToken:          '/cake3/rd_cake/dashboard/check_token.json'
+        urlCheckToken:          '/cake4/rd_cake/dashboard/check_token.json'
     },
     refs: [
         { ref: 'viewP',         selector: 'viewP',          xtype: 'viewP',      autoCreate: false }

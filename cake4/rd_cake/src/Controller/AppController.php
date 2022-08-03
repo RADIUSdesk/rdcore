@@ -70,5 +70,16 @@ class AppController extends Controller
     	return [JsonView::class, XmlView::class];
 	}
 	//--END RD TWEAK
+	
+	//---- WIP PLACEHOLDER---
+	protected function _ap_right_check(){
+        //___AA Check Starts ___
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+        return $user;
+        //__ AA Check Ends ___
+    }
     
 }

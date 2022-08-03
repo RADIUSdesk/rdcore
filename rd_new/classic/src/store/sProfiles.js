@@ -8,7 +8,7 @@ Ext.define('Rd.store.sProfiles', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake3/rd_cake/profiles/index.json',
+            url     : '/cake4/rd_cake/profiles/index.json',
             reader: {
                 type: 'json',
                 rootProperty: 'items',
