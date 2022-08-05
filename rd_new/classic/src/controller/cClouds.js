@@ -56,7 +56,7 @@ Ext.define('Rd.controller.cClouds', {
         urlAdd          : '/cake3/rd_cake/clouds/add.json',
         urlDelete       : '/cake3/rd_cake/clouds/delete.json',
 		urlEdit         : '/cake3/rd_cake/clouds/edit.json',
-		urlMapPrefView  : '/cake3/rd_cake/meshes/map_pref_view.json'
+		urlMapPrefView  : '/cake4/rd_cake/meshes/map_pref_view.json'
     },
     refs: [
          {  ref:    'treeClouds',selector:   'treeClouds'}

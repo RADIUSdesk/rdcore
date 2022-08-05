@@ -47,21 +47,20 @@ Ext.define('Rd.controller.cVouchers', {
 	],
     selectedRecord: null,
     config: {
-        urlAdd              : '/cake3/rd_cake/vouchers/add.json',
-        urlDelete           : '/cake3/rd_cake/vouchers/delete.json',
-        urlBulkDelete       : '/cake3/rd_cake/vouchers/bulk-delete.json',
-        urlViewBasic        : '/cake3/rd_cake/vouchers/view-basic-info.json',
-        urlEditBasic        : '/cake3/rd_cake/vouchers/edit_basic_info.json',  
-        urlApChildCheck     : '/cake3/rd_cake/access-providers/child-check.json',
-        urlExportCsv        : '/cake3/rd_cake/vouchers/export_csv',
-        urlPdfExportLoad    : '/cake3/rd_cake/vouchers/pdf-export-settings.json',
-        urlChangePassword   : '/cake3/rd_cake/vouchers/change-password.json',
-        urlPdfBase          : '/cake3/rd_cake/vouchers/export-pdf',
-        urlEmailSend        : '/cake3/rd_cake/vouchers/email-voucher-details.json',
-		urlAddCsv           : '/cake3/rd_cake/vouchers/add_csv/',
+        urlAdd              : '/cake4/rd_cake/vouchers/add.json',
+        urlDelete           : '/cake4/rd_cake/vouchers/delete.json',
+        urlBulkDelete       : '/cake4/rd_cake/vouchers/bulk-delete.json',
+        urlViewBasic        : '/cake4/rd_cake/vouchers/view-basic-info.json',
+        urlEditBasic        : '/cake4/rd_cake/vouchers/edit_basic_info.json',  
+        urlExportCsv        : '/cake4/rd_cake/vouchers/export_csv',
+        urlPdfExportLoad    : '/cake4/rd_cake/vouchers/pdf-export-settings.json',
+        urlChangePassword   : '/cake4/rd_cake/vouchers/change-password.json',
+        urlPdfBase          : '/cake4/rd_cake/vouchers/export-pdf',
+        urlEmailSend        : '/cake4/rd_cake/vouchers/email-voucher-details.json',
+		urlAddCsv           : '/cake4/rd_cake/vouchers/add_csv/',
 		
-		urlDeleteRadaccts:  '/cake3/rd_cake/radaccts/delete.json',
-        urlDeletePostAuths: '/cake3/rd_cake/radpostauths/delete.json'
+		urlDeleteRadaccts   : '/cake3/rd_cake/radaccts/delete.json',
+        urlDeletePostAuths  : '/cake3/rd_cake/radpostauths/delete.json'
     },
     refs: [
         {  ref: 'grid',         selector:   'gridVouchers'} ,
@@ -317,40 +316,13 @@ Ext.define('Rd.controller.cVouchers', {
         });
     },
     
-    addCsvImport : function(){
+    addCsvImport : function(){      
         var me = this;
         console.log("We need to import from CSV");
-        Ext.Ajax.request({
-            url: me.getUrlApChildCheck(),
-            method: 'GET',
-            success: function(response){
-                var jsonData    = Ext.JSON.decode(response.responseText);
-                if(jsonData.success){
-                        
-                    if(jsonData.items.tree == true){
-                        if(!Ext.WindowManager.get('winVoucherCsvImportId')){
-                            var w = Ext.widget('winVoucherCsvImport',{id:'winVoucherCsvImportId'});
-                            w.show();         
-                        }
-                    }else{
-                        if(!Ext.WindowManager.get('winVoucherCsvImportId')){
-                            var w = Ext.widget('winVoucherCsvImport',
-                                {
-						            id			: 'winVoucherCsvImportId',
-						            startScreen	: 'scrnData',
-						            user_id		:'0',
-						            owner		: i18n('sLogged_in_user'), 
-						            no_tree		: true,
-						            apId		:'0'
-					            }
-                            );
-                            w.show();        
-                        }
-                    }
-                }   
-            },
-            scope: me
-        });
+        if(!Ext.WindowManager.get('winVoucherCsvImportId')){
+            var w = Ext.widget('winVoucherCsvImport',{id:'winVoucherCsvImportId'});
+            w.show();         
+        }
     },
     
     btnDataNextCsv:  function(button){

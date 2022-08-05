@@ -474,6 +474,75 @@ class GridButtonsFlatComponent extends Component {
             $a  = $this->_fetchRealmExtras();
             $menu = array($b,$d,$a);
         }
+        
+        if($type == 'Meshes'){
+            $b = $this->_fetchBasicMeshes();
+            $a  = $this->_fetchExtrasMeshes();
+            $s  = '|';
+            $s2 = '->';
+			
+            $fb = [
+                'xtype'   => 'component', 
+                'itemId'  => 'totals',  
+                 'tpl'    => [
+                    "<div style='font-size:larger;width:300px;'>",
+                    "<ul class='fa-ul'>",
+                    "<li style='padding:2px;'>",
+                    "<span class='fa-li' style='font-family:FontAwesome;'>&#xf20e</span> MESHES {meshes_total} <span style='color:green;'>({meshes_up} ONLINE)</span></li>",
+                    "<li style='padding:2px;'><i class='fa-li fa fa-cube'></i> Nodes {nodes_total} <span style='color:green;'>({nodes_up} ONLINE)</span></li>",
+                    "</ul>",
+                    "</div>"                    
+                ],
+                'data'   =>  [],
+                'cls'    => 'lblRd'
+            ];           
+           	$menu = [$b,$a,$s,$fb];          
+        }
+        
+        if($type == 'MeshNodes'){        
+            $b  = $this->_fetchBasicMeshNodes();
+          	$menu = [$b];       
+        }
+        
+        if($type == 'NodeDetails'){
+            $b = $this->_fetchNodeDetails();
+            $menu = [$b]; 
+        }
+        
+        if($type == 'MeshEntries'){
+            $b = $this->_fetchCrud();
+            $menu = [$b]; 
+        }
+        
+        if($type == 'MeshExits'){
+            $b = $this->_fetchCrud();
+            $menu = [$b]; 
+        }
+        
+         if($type == 'ApProfiles'){
+            $b = $this->_fetchBasicApProfiles();
+            $menu = [$b]; 
+        }
+        
+        if($type == 'ApProfileEntries'){
+            $b = $this->_fetchCrud();
+            $menu = [$b]; 
+        }
+        
+        if($type == 'ApProfileExits'){
+            $b = $this->_fetchCrud();
+            $menu = [$b]; 
+        }
+        
+        if($type == 'Aps'){
+            $b = $this->_fetchAps();
+            $menu = [$b]; 
+        }
+        
+        if($type == 'ApProfileDevices'){
+            $b = $this->_fetchCrud();
+            $menu = [$b]; 
+        }
                        
         return $menu;
     }
@@ -851,5 +920,110 @@ class GridButtonsFlatComponent extends Component {
         return $menu;
     }
     
+    private function _fetchBasicMeshes(){
+    
+ 
+      	$menu = [];  
+      	$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+                $this->btnReloadTimer,
+                $this->btnAdd,
+                $this->btnDelete,
+				$this->btnEdit,
+				$this->btnView
+            ]
+        ];
+        
+        return $menu;    
+    }
+    
+    private function _fetchExtrasMeshes(){
+    
+        if($this->title){
+            $t = __('Maps');
+        }else{
+            $t = null;
+        } 
+   
+        $menu = [
+            'xtype' => 'buttongroup',
+            'title' => $t, 
+            'items' => [
+                $this->btnMap
+            ]
+        ];             
+        return $menu;
+    }
+    
+     private function _fetchBasicMeshNodes(){
+     
+       	$menu        = [];
+		$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+				$this->btnReloadTimer,
+				$this->btnAdd,
+				$this->btnDelete,
+				$this->btnEdit,
+				$this->btnRestart
+			]
+		];
+        return $menu;    
+    }
+    
+    private function _fetchNodeDetails(){
+       
+		$menu = [];
+		$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+				$this->btnReload,
+				$this->btnMap,
+				$this->btnExecute,
+				$this->btnHistory,
+				$this->btnRestart,
+				$this->btnRogue
+			]
+		];
+        return $menu;    
+    }
+    
+    private function _fetchBasicApProfiles(){
+  
+       	$menu 	= [];
+		$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+				$this->btnReloadTimer,
+				$this->btnAdd,
+				$this->btnDelete,
+				$this->btnEdit,
+				$this->btnNote
+			]
+		];
+        return $menu;    
+    }
+       
+    private function _fetchAps(){
+
+       	$menu = [];
+		$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+				$this->btnReloadTimer,
+				$this->btnAdd,
+				$this->btnDelete,
+				$this->btnEdit,
+				$this->btnView,
+				$this->btnExecute,
+				$this->btnRestart
+			]
+		];
+        return $menu;    
+    }
+    
+  	private function _fetchCrud(){
+       	$menu = [];
+		$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+				$this->btnReload,
+				$this->btnAdd,
+				$this->btnDelete,
+				$this->btnEdit
+			]
+		];
+        return $menu;    
+    }
+      
     
 }

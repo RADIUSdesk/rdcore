@@ -38,13 +38,12 @@ Ext.define('Rd.controller.cHardwares', {
     models: ['mHardware'],
     selectedRecord: null,
     config: {
-        urlApChildCheck : '/cake3/rd_cake/access-providers/child-check.json',
-        urlAdd          : '/cake3/rd_cake/hardwares/add.json',
-        urlDelete       : '/cake3/rd_cake/hardwares/delete.json',
-		urlEdit         : '/cake3/rd_cake/hardwares/edit.json',
-		urlView         : '/cake3/rd_cake/hardwares/view.json',
-		urlPhotoBase    : '/cake3/rd_cake/img/hardwares/',
-		urlUploadPhoto  : '/cake3/rd_cake/hardwares/upload-photo/'
+        urlAdd          : '/cake4/rd_cake/hardwares/add.json',
+        urlDelete       : '/cake4/rd_cake/hardwares/delete.json',
+		urlEdit         : '/cake4/rd_cake/hardwares/edit.json',
+		urlView         : '/cake4/rd_cake/hardwares/view.json',
+		urlPhotoBase    : '/cake4/rd_cake/img/hardwares/',
+		urlUploadPhoto  : '/cake4/rd_cake/hardwares/upload-photo.json'
     },
     refs: [
         {  ref: 'grid',  selector: 'gridHardwares'}       

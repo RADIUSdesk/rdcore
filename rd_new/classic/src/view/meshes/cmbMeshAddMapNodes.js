@@ -25,7 +25,7 @@ Ext.define('Rd.view.meshes.cmbMeshAddMapNodes', {
 					extraParams : {
 						mesh_id : me.meshId
 					},
-                    url     : '/cake3/rd_cake/meshes/nodes_avail_for_map.json',
+                    url     : '/cake4/rd_cake/meshes/nodes_avail_for_map.json',
                     reader: {
                         type            : 'json',
                         rootProperty            : 'items',

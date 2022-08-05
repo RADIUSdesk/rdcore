@@ -43,10 +43,10 @@ Ext.define('Rd.view.vouchers.gridVoucherDevices' ,{
                     messageProperty: 'message'
                 },
                 api         : {
-                    create      : '/cake3/rd_cake/vouchers/voucher_device_add.json',
-                    read        : '/cake3/rd_cake/vouchers/voucher_device_index.json',
-                    update      : '/cake3/rd_cake/vouchers/voucher_device_edit.json',
-                    destroy     : '/cake3/rd_cake/vouchers/voucher_device_delete.json'
+                    create      : '/cake4/rd_cake/vouchers/voucher_device_add.json',
+                    read        : '/cake4/rd_cake/vouchers/voucher_device_index.json',
+                    update      : '/cake4/rd_cake/vouchers/voucher_device_edit.json',
+                    destroy     : '/cake4/rd_cake/vouchers/voucher_device_delete.json'
                 }
             },
             autoLoad: false    

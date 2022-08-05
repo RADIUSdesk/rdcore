@@ -24,7 +24,7 @@ Ext.define('Rd.view.dynamicDetails.cmbDynamicTransKeys', {
                     format          : 'json',
                     batchActions    : true,
                     extraParams     : { 'dynamic_detail_id' : -1 },
-                    url     : '/cake3/rd_cake/dynamic-detail-translations/keys-list.json',
+                    url     : '/cake4/rd_cake/dynamic-detail-translations/keys-list.json',
                     reader: {
                         type            : 'json',
                         rootProperty    : 'items',

@@ -790,14 +790,16 @@ class DashboardController extends AppController{
     
     	$thOther = [
 			[
-				'text'	=> 'ADMINS',
+			//	'text'	=> 'ADMINS',
+				'text'	=> '.',
 				'leaf'	=> true,
 				'controller'	=> 'cAccessProviders',
 				'id'		=> 'tabMainAccessProviders',
 				'iconCls'	=> 'x-fa fa-graduation-cap'
 			],
 			[
-				'text'	=> 'CLOUDS',
+			//	'text'	=> 'CLOUDS',
+				'text'	=> '.',
 				'leaf'	=> true,
 				'controller'	=> 'cClouds',
 				'id'		=> 'tabMainClouds',
@@ -808,7 +810,8 @@ class DashboardController extends AppController{
     
     	$items = [
 			[
-				'text' 		=> 'OVERVIEW',
+			//	'text' 		=> 'OVERVIEW',
+				'text'	=> '.',
 				'id'   		=> 1,
 				'leaf' 		=> true,
 				'iconCls' 	=> 'x-fa fa-th-large',
@@ -817,7 +820,8 @@ class DashboardController extends AppController{
 				'id'		=> 'tabMainNetworkOverview'
 			],
 			[
-				'text' 		=> 'OTHER',
+			//	'text' 		=> 'OTHER',
+				'text'	=> '.',
 				'id'		=> 5,
 				'controller'=> '5',
 				'iconCls'	=> 'x-fa fa-gears',

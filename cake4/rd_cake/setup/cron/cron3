@@ -1,0 +1,42 @@
+#Every five minutes, run the stored procedure to check for 'down' nodes
+*/5 * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake update_node_downtime >> /dev/null 2>&1
+#Every hour at 10 minutes after, run the stored procedure to update the rolling_last_hour stat table
+10 * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake update_rolling_lasthour >> /dev/null 2>&1
+#Every Hour at 12 minutes after send notification emails
+12 * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake send_notification_email >> /dev/null 2>&1
+#Every hour at 15 minutes after, run the stored procedure to update the rolling_last_day stat table
+15 * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake update_rolling_lastday >> /dev/null 2>&1
+#Every hour at 25 minutes after, run the stored procedure to update the rolling_last_seven_days stat table
+25 * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake update_rolling_lastsevendays >> /dev/null 2>&1
+#Every hour at 35 minutes after, run the stored procedure to update the rolling_last_thirty_days stat table
+35 * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake update_rolling_lastthirtydays >> /dev/null 2>&1
+7 * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake update_rolling_lastsixtydays >> /dev/null 2>&1
+# Twice a day, during the wee hours, run the update rolling ninety_days
+40 1 * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake update_rolling_lastninetydays >> /dev/null 2>&1
+40 4 * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake update_rolling_lastninetydays >> /dev/null 2>&1
+
+#Every Hour, check the macs
+# Once a day, during the wee hours, run the archive stored procedures
+11 2 * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake archive_mesh_dailysummaries >> /dev/null 2>&1
+21 2 * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake archive_node_stations >> /dev/null 2>&1
+31 2 * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake archive_node_ibssconnections >> /dev/null 2>&1
+
+#New additions (ported from CakePHPv2) Sept2019
+* * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake rd mon >> /dev/null 2>&1
+* * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake rd debug_check >> /dev/null 2>&1
+* * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake rd auto_close >> /dev/null 2>&1
+* * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake accounting >> /dev/null 2>&1
+*/15 * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake voucher >> /dev/null 2>&1
+*/10 * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake update_user_stats >> /dev/null 2>&1
+*/10 * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake auto_add_devices >> /dev/null 2>&1
+30 2 * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake auto_clean_mesh_desk >> /dev/null 2>&1
+30 * * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake update_nas_data_usage >> /dev/null 2>&1
+
+#Compacting and daily user_stats
+10 3 * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake compacting >> /dev/null 2>&1
+10 4 * * * www-data cd /var/www/html/cake3/rd_cake && bin/cake update_user_stats_dailies >> /dev/null 2>&1 
+
+#Improved reporting for meshes (also modify the Nginx config file accordingly)
+#Every five minutes, process any reports from the temp_reports table (also check the syslog file there will be a report from this script saying how long it took ... should be under 5 min!!)
+*/5 * * * * www-data php /var/www/html/cake3/rd_cake/setup/scripts/reporting/process_report.php >> /dev/null 2>&1
+

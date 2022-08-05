@@ -13,7 +13,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetails' ,{
         'Ext.ux.ProgressBarPager'
     ],
     plugins     : 'gridfilters',  //*We specify this
-    urlMenu     : '/cake3/rd_cake/dynamic-details/menu-for-grid.json',
+    urlMenu     : '/cake4/rd_cake/dynamic-details/menu-for-grid.json',
    
     initComponent: function(){
         var me  = this;

@@ -2,8 +2,8 @@ Ext.define('Rd.view.meshes.vcMeshNodeGeneric', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcMeshNodeGeneric',
     config : {
-        urlAdvancedSettingsForModel : '/cake3/rd_cake/meshes/advanced_settings_for_model.json',
-        urlViewNode : '/cake3/rd_cake/meshes/mesh-node-view.json'
+        urlAdvancedSettingsForModel : '/cake4/rd_cake/meshes/advanced_settings_for_model.json',
+        urlViewNode : '/cake4/rd_cake/meshes/mesh-node-view.json'
     },
     init: function() {
         var me = this;

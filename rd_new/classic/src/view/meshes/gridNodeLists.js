@@ -18,7 +18,7 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
     viewConfig: {
         loadMask:true
     },
-    urlMenu : '/cake3/rd_cake/meshes/menu_for_nodes_grid.json', //Same restrictions on the nodes will aplly here!
+    urlMenu : '/cake4/rd_cake/meshes/menu_for_nodes_grid.json', //Same restrictions on the nodes will aplly here!
     plugins : 'gridfilters',  //*We specify this
     /*features: [{
         ftype               : 'grouping',

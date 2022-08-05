@@ -2,7 +2,7 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailSocialLogin', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcDynamicDetailSocialLogin',
     config: {
-        urlViewCtoC   : '/cake3/rd_cake/dynamic-details/view-click-to-connect.json'
+        urlViewCtoC   : '/cake4/rd_cake/dynamic-details/view-click-to-connect.json'
     }, 
     control: {
         '#chkEnableSocialLogin' : {

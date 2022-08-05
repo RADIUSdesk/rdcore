@@ -32,7 +32,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailTranslations' ,{
         enableGroupingMenu  : false,
         startCollapsed      : true
     }],
-    urlMenu: '/cake3/rd_cake/dynamic-details/menu-for-dynamic-translations.json',
+    urlMenu: '/cake4/rd_cake/dynamic-details/menu-for-dynamic-translations.json',
     listeners       : {
         afterrender : 'gridAfterrender'
     },
@@ -97,7 +97,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailTranslations' ,{
                 type    : 'ajax',
                 format  : 'json',
                 batchActions: true, 
-                url     : '/cake3/rd_cake/dynamic-detail-translations/index.json',
+                url     : '/cake4/rd_cake/dynamic-detail-translations/index.json',
                 reader  : {
                     type            : 'json',
                     rootProperty    : 'items',
@@ -105,7 +105,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailTranslations' ,{
                     totalProperty   : 'totalCount' //Required for dynamic paging
                 },
                 api: {
-                    destroy  : '/cake3/rd_cake/data-collectors/delete.json'
+                    destroy  : '/cake4/rd_cake/data-collectors/delete.json'
                 },
                 simpleSortMode: true //This will only sort on one column (sort) and a direction(dir) value ASC or DESC
             },

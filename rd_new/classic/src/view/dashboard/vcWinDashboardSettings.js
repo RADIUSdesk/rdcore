@@ -2,7 +2,7 @@ Ext.define('Rd.view.dashboard.vcWinDashboardSettings', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcWinDashboardSettings',
     config : {
-        urlCheckExperimental : '/cake3/rd_cake/meshes/mesh_experimental_check.json',
+        urlCheckExperimental : '/cake4/rd_cake/meshes/mesh_experimental_check.json',
         tagData : {
             'radius'    : 'RADIUS',
             'meshdesk'  : "MESH Networks"

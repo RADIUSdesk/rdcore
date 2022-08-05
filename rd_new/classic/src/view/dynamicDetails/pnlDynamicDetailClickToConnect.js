@@ -32,7 +32,7 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailClickToConnect', {
     listeners   : {
         activate : 'onViewActivate'
     },
-    url: '/cake3/rd_cake/dynamic-detail-translations/get-pnl-content.json',
+    url: '/cake4/rd_cake/dynamic-detail-translations/get-pnl-content.json',
     buttons : [
         {
             itemId  : 'save',

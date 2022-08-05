@@ -14,7 +14,7 @@ Ext.define('Rd.view.vouchers.gridVoucherRadaccts' ,{
     viewConfig: {
         loadMask:true
     },
-    urlMenu: '/cake3/rd_cake/vouchers/menu-for-accounting-data.json',
+    urlMenu: '/cake4/rd_cake/vouchers/menu-for-accounting-data.json',
     plugins     : 'gridfilters',
     columns: [
        // {xtype: 'rownumberer',stateId: 'StGVoucherRadaccts1'},

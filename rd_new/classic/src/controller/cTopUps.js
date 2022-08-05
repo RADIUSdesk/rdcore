@@ -45,11 +45,11 @@ Ext.define('Rd.controller.cTopUps', {
     models: ['mTopUp', 'mPermanentUser',  'mTopUpTransaction' ],
     selectedRecord: null,
     config: {
-        urlExportCsv    : '/cake3/rd_cake/top-ups/export_csv',
-        urlAdd          : '/cake3/rd_cake/top-ups/add.json',
-        urlExportCsv    : '/cake3/rd_cake/top-ups/export_csv', 
-        urlDelete       : '/cake3/rd_cake/top-ups/delete.json',
-        urlEdit         : '/cake3/rd_cake/top-ups/edit.json'
+        urlExportCsv    : '/cake4/rd_cake/top-ups/export_csv',
+        urlAdd          : '/cake4/rd_cake/top-ups/add.json',
+        urlExportCsv    : '/cake4/rd_cake/top-ups/export_csv', 
+        urlDelete       : '/cake4/rd_cake/top-ups/delete.json',
+        urlEdit         : '/cake4/rd_cake/top-ups/edit.json'
     },
     refs: [
         {  ref: 'grid',  selector: 'gridTopUps'}       

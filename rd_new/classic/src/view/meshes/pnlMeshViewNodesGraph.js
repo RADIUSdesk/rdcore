@@ -7,6 +7,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewNodesGraph', {
         align   : 'stretch'
     },
     requires: [
+        'Rd.view.dataUsage.pnlDataUsageGraph'
     ],
     height  : 550,
     initComponent: function(){

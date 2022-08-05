@@ -1,0 +1,15 @@
+#copy the cake-rabbitmq.service file to /etc/systemd/system
+sudo cp /var/www/html/cake3/rd_cake/setup/scripts/cake-rabbitmq.service /etc/systemd/system
+
+#Copy the startup scripts to /opt/cakephp-rabbitmq
+sudo mkdir /opt/cakephp-rabbitmq
+sudo cp /var/www/html/cake3/rd_cake/setup/scripts/start-cakephp-rabbitmq.sh /opt/cakephp-rabbitmq
+sudo cp /var/www/html/cake3/rd_cake/setup/scripts/stop-cakephp-rabbitmq.sh /opt/cakephp-rabbitmq
+
+#The following commands can be used as reference
+sudo systemctl disable cake-rabbitmq.service
+sudo systemctl enable cake-rabbitmq.service
+sudo systemctl stop cake-rabbitmq.service
+sudo systemctl start cake-rabbitmq.service
+sudo systemctl status cake-rabbitmq.service
+

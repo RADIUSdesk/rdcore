@@ -9,11 +9,11 @@ Ext.define('Rd.view.meshes.vcMeshEditLeafletMap', {
         urlGreenNode            : 'resources/css/images/marker-icon-2x-green.png',
         urlGreenGw              : 'resources/css/images/marker-icon-2x-dark-green.png',
         urlViolet               : 'resources/css/images/marker-icon-2x-violet.png',
-        urlMapPrefView		    : '/cake3/rd_cake/meshes/map_pref_view.json',
-		urlMapPrefEdit		    : '/cake3/rd_cake/meshes/map_pref_edit.json',
-		urlMapSave			    : '/cake3/rd_cake/meshes/map_node_save.json',
-		urlMapDelete		    : '/cake3/rd_cake/meshes/map_node_delete.json',
-		urlMeshNodes		    : '/cake3/rd_cake/meshes/mesh_nodes_index.json',
+        urlMapPrefView		    : '/cake4/rd_cake/meshes/map_pref_view.json',
+		urlMapPrefEdit		    : '/cake4/rd_cake/meshes/map_pref_edit.json',
+		urlMapSave			    : '/cake4/rd_cake/meshes/map_node_save.json',
+		urlMapDelete		    : '/cake4/rd_cake/meshes/map_node_delete.json',
+		urlMeshNodes		    : '/cake4/rd_cake/meshes/mesh_nodes_index.json',
 		mapType                 : 'Leaflet', //Default
 		lastMovedMarker         : null,
 		lastOrigPosition        : null		

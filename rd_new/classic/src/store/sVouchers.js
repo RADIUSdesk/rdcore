@@ -8,7 +8,7 @@ Ext.define('Rd.store.sVouchers', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake3/rd_cake/vouchers/index.json',
+            url     : '/cake4/rd_cake/vouchers/index.json',
             reader: {
                 type: 'json',
                 rootProperty: 'items',

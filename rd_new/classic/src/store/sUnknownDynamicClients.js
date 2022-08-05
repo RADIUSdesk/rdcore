@@ -7,7 +7,7 @@ Ext.define('Rd.store.sUnknownDynamicClients', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake3/rd_cake/unknown-dynamic-clients/index.json',
+            url     : '/cake4/rd_cake/unknown-dynamic-clients/index.json',
             reader: {
                 type            : 'json',
                 rootProperty    : 'items',
@@ -15,7 +15,7 @@ Ext.define('Rd.store.sUnknownDynamicClients', {
                 totalProperty   : 'totalCount' //Required for dynamic paging
             },
             api: {
-                destroy  : '/cake3/rd_cake/unknown-dynamic-clients/delete.json'
+                destroy  : '/cake4/rd_cake/unknown-dynamic-clients/delete.json'
             },
             simpleSortMode: true //This will only sort on one column (sort) and a direction(dir) value ASC or DESC
     },

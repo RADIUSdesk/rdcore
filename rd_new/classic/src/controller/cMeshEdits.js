@@ -23,33 +23,33 @@ Ext.define('Rd.controller.cMeshEdits', {
 		'mMeshEntry',  	'mMeshExit', 	'mMeshEntryPoint',  'mNode', 'mRealm','mDynamicDetail', 'mPermanentUser'
     ],
     config      : {  
-        urlAddEntry:        '/cake3/rd_cake/meshes/mesh_entry_add.json',
-        urlViewEntry:       '/cake3/rd_cake/meshes/mesh_entry_view.json',
-        urlEditEntry:       '/cake3/rd_cake/meshes/mesh_entry_edit.json',
-        urlViewMeshSettings:'/cake3/rd_cake/meshes/mesh-settings-view.json',
-        urlEditMeshSettings:'/cake3/rd_cake/meshes/mesh-settings-edit.json',
-        urlEditMeshGeneral:'/cake3/rd_cake/meshes/mesh-general-edit.json',
-        urlExitAddDefaults :'/cake3/rd_cake/meshes/mesh_exit_add_defaults.json',
-        urlXwfCheck         : '/cake3/rd_cake/meshes/mesh-exit-xwf-check.json',
-        urlAddExit:         '/cake3/rd_cake/meshes/mesh_exit_add.json',
-        urlEditExit:        '/cake3/rd_cake/meshes/mesh_exit_edit.json',
-        urlViewNodeCommonSettings:'/cake3/rd_cake/meshes/node_common_settings_view.json',
-        urlEditNodeCommonSettings:'/cake3/rd_cake/meshes/node_common_settings_edit.json',
-        urlAddNode:         '/cake3/rd_cake/meshes/mesh_node_add.json',
-        urlViewNode:        '/cake3/rd_cake/meshes/mesh_node_view.json',
-        urlEditNode:        '/cake3/rd_cake/meshes/mesh_node_edit.json',
-		urlMapPrefView		: '/cake3/rd_cake/meshes/map_pref_view.json',
-		urlMapPrefEdit		: '/cake3/rd_cake/meshes/map_pref_edit.json',
-		urlMapSave			: '/cake3/rd_cake/meshes/map_node_save.json',
-		urlMapDelete		: '/cake3/rd_cake/meshes/map_node_delete.json',
-		urlMeshNodes		: '/cake3/rd_cake/meshes/mesh_nodes_index.json',
+        urlAddEntry:        '/cake4/rd_cake/meshes/mesh_entry_add.json',
+        urlViewEntry:       '/cake4/rd_cake/meshes/mesh_entry_view.json',
+        urlEditEntry:       '/cake4/rd_cake/meshes/mesh_entry_edit.json',
+        urlViewMeshSettings:'/cake4/rd_cake/meshes/mesh-settings-view.json',
+        urlEditMeshSettings:'/cake4/rd_cake/meshes/mesh-settings-edit.json',
+        urlEditMeshGeneral:'/cake4/rd_cake/meshes/mesh-general-edit.json',
+        urlExitAddDefaults :'/cake4/rd_cake/meshes/mesh_exit_add_defaults.json',
+        urlXwfCheck         : '/cake4/rd_cake/meshes/mesh-exit-xwf-check.json',
+        urlAddExit:         '/cake4/rd_cake/meshes/mesh_exit_add.json',
+        urlEditExit:        '/cake4/rd_cake/meshes/mesh_exit_edit.json',
+        urlViewNodeCommonSettings:'/cake4/rd_cake/meshes/node_common_settings_view.json',
+        urlEditNodeCommonSettings:'/cake4/rd_cake/meshes/node_common_settings_edit.json',
+        urlAddNode:         '/cake4/rd_cake/meshes/mesh_node_add.json',
+        urlViewNode:        '/cake4/rd_cake/meshes/mesh_node_view.json',
+        urlEditNode:        '/cake4/rd_cake/meshes/mesh_node_edit.json',
+		urlMapPrefView		: '/cake4/rd_cake/meshes/map_pref_view.json',
+		urlMapPrefEdit		: '/cake4/rd_cake/meshes/map_pref_edit.json',
+		urlMapSave			: '/cake4/rd_cake/meshes/map_node_save.json',
+		urlMapDelete		: '/cake4/rd_cake/meshes/map_node_delete.json',
+		urlMeshNodes		: '/cake4/rd_cake/meshes/mesh_nodes_index.json',
 		urlBlueMark 		: 'resources/images/map_markers/blue-dot.png',
-        urlAdvancedSettingsForModel : '/cake3/rd_cake/meshes/advanced_settings_for_model.json'
+        urlAdvancedSettingsForModel : '/cake4/rd_cake/meshes/advanced_settings_for_model.json'
     },
     refs: [
     	{  ref: 'editEntryWin', 	selector: 'winMeshEditEntry'},
         {  ref: 'editExitWin',  	selector: 'winMeshEditExit'},
-        {  ref: 'tabMeshes',        selector: '#tabMeshes'     }   
+        {  ref: 'tabMeshes',        selector: '#tabMainMeshes' }       
     ],
     init: function() {
         var me = this;
@@ -258,7 +258,8 @@ Ext.define('Rd.controller.cMeshEdits', {
     actionIndex: function(pnl,config){
         var me          = this;
         var id		    = 'tabMeshEdit'+ config.id;
-        var tabMeshes   = pnl;
+        //var tabMeshes   = pnl;
+        var tabMeshes   = me.getTabMeshes();
         var newTab  = tabMeshes.items.findBy(
             function (tab){
                 return tab.getItemId() === id;
@@ -598,17 +599,6 @@ Ext.define('Rd.controller.cMeshEdits', {
             params  : {mesh_id:meshId},
             success : function(a,b,c){
             
-                if(b.result.data.show_owner == true){
-                    form.down('#fcPickOwner').show();
-                }else{
-                    form.down('#fcPickOwner').hide();
-                }
-                        
-                if(b.result.data.enable_grouping == true){
-                    form.down('#fcPickGroup').show();
-                }else{
-                    form.down('#fcPickGroup').hide();
-                }
             }
         });
     },
@@ -1253,7 +1243,6 @@ Ext.define('Rd.controller.cMeshEdits', {
 		var name    = "New Node"; 
 		var meshId  = pnl.meshId;
 		var mesh    = pnl.title;
-		//FIXME : mesh name is empty ... need it /cake3/rd_cake/meshes/mesh_nodes_index.json
         me.application.runAction('cMeshNode','Index',id,{name:name,meshId:meshId,meshName:mesh,store:store});    
         
     },
@@ -1315,7 +1304,6 @@ Ext.define('Rd.controller.cMeshEdits', {
             var name    = sr.get('name'); 
 			var meshId  = sr.get('mesh_id');
 			var mesh    = sr.get('mesh');
-			//FIXME : mesh name is empty ... need it /cake3/rd_cake/meshes/mesh_nodes_index.json
             me.application.runAction('cMeshNode','Index',id,{name:name,meshId:meshId,meshName:mesh,store:store});
         }
     },

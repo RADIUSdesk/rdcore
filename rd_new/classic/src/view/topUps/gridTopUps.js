@@ -13,7 +13,7 @@ Ext.define('Rd.view.topUps.gridTopUps' ,{
     viewConfig: {
         loadMask    :true
     },
-    urlMenu     : '/cake3/rd_cake/top-ups/menu-for-grid.json',
+    urlMenu     : '/cake4/rd_cake/top-ups/menu-for-grid.json',
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
         var me      = this;

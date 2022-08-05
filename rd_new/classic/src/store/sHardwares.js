@@ -9,7 +9,7 @@ Ext.define('Rd.store.sHardwares', {
         type    : 'ajax',
         format  : 'json',
         batchActions: true, 
-        url     : '/cake3/rd_cake/hardwares/index.json',
+        url     : '/cake4/rd_cake/hardwares/index.json',
         reader: {
             type: 'json',
             rootProperty: 'items',

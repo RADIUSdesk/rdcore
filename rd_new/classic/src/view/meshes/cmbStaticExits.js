@@ -24,7 +24,7 @@ Ext.define('Rd.view.meshes.cmbStaticExits', {
                 format  : 'json',
                 batchActions: true, 
                 extraParams: { 'mesh_id' : me.meshId, 'node_id' : me.nodeId }, 
-                url     : '/cake3/rd_cake/meshes/static_exit_options.json',
+                url     : '/cake4/rd_cake/meshes/static_exit_options.json',
                 reader: {
                     type: 'json',
                     rootProperty: 'items',

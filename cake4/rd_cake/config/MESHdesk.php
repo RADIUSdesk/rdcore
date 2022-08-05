@@ -1,6 +1,7 @@
 <?php
 
 //===== MESHdesk ======
+$config = [];
 
 //== Encryption types ==
 //Define the encryption types and if they are active or not
@@ -79,7 +80,7 @@ $config['mqtt_settings']['enable_realtime']	= false;
 $config['mqtt_settings']['api_gateway_url']	= 'http://204.48.30.220:8001';
 
 //== MESHdesk SSID/BSSID
-$config['MEHSdesk']['bssid'] = "02:CA:FE:CA:00:00"; //This will be the first one; subsequent ones will be incremented 
+$config['MESHdesk']['bssid'] = "02:CA:FE:CA:00:00"; //This will be the first one; subsequent ones will be incremented 
 
 //== MESHdesk Defaul MAP settings ==
 $config['mesh_specifics']['map']['type']     = "ROADMAP";
@@ -739,15 +740,17 @@ $config['MESHdesk']['countries'] = array(
 	array( 'id' => 'ZW', 'name' => 'Zimbabwe'),
 );
 
-$config['MEHSdesk']['enforce_naming_convention'] = false;
+$config['MESHdesk']['enforce_naming_convention'] = false;
 
 //This should remain set to true for everything to work as intended as of 11May2021
-$config['MEHSdesk']['enable_grouping'] = true;
+$config['MESHdesk']['enable_grouping'] = true;
 
-$config['MEHSdesk']['xwf_uamhomepage'] = 'https://netvisionqa-standalone-xwf-internet-org.fbtokenizerdogfood.in.expresswifi.com/customer';
-$config['MEHSdesk']['xwf_locationprefix'] = 'XWF-';
+$config['MESHdesk']['xwf_uamhomepage'] = 'https://netvisionqa-standalone-xwf-internet-org.fbtokenizerdogfood.in.expresswifi.com/customer';
+$config['MESHdesk']['xwf_locationprefix'] = 'XWF-';
 
-$config['MEHSdesk']['xwf_extra_walled_garden'] = 'xwf.fyi'; //Create a list of comma separated exta xwf walled garden items (Typically for the landing page if it has extra things where it sources items from
+$config['MESHdesk']['xwf_extra_walled_garden'] = 'xwf.fyi'; //Create a list of comma separated exta xwf walled garden items (Typically for the landing page if it has extra things where it sources items from
+
+return $config;
 
 
 ?>

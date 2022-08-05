@@ -10,7 +10,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntries', {
         'Rd.view.meshes.vcMeshViewEntries',
         'Rd.view.meshes.gridMeshViewEntries',
         'Rd.view.meshes.pnlMeshViewEntriesGraph',
-        'Rd.view.meshes.winMeshEditMacAlias'  
+        'Rd.view.meshes.winMeshEditMacAlias'
     ],
     controller  : 'vcMeshViewEntries',
     initComponent: function() {

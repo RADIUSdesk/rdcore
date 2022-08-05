@@ -22,7 +22,7 @@ class JsonErrorsComponent extends Component {
 
     public function entityErros($entity,$message="An error has occured"){
         
-            $errors     = $entity->errors();  
+            $errors     = $entity->getErrors();  
             $a          = [];
             $m_add      = '';
             foreach(array_keys($errors) as $field){

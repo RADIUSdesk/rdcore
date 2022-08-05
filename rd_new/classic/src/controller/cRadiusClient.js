@@ -12,7 +12,7 @@ Ext.define('Rd.controller.cRadiusClient', {
     stores: [],
     models: ['mPermanentUser','mDevice', 'mVoucher' ],
     config: {
-        urlRequest:         '/cake3/rd_cake/free-radius/test_radius.json'
+        urlRequest:         '/cake4/rd_cake/free-radius/test_radius.json'
     },
     refs: [
         { ref:  'cmbVoucher',       selector: 'cmbVoucher'          },

@@ -45,15 +45,14 @@ Ext.define('Rd.controller.cDynamicClients', {
     models: [ 'mDynamicClient','mRealmForDynamicClientCloud', 'mUnknownDynamicClient','mDynamicClientState','mUserStat'],
     selectedRecord: null,
     config: {
-        urlApChildCheck : '/cake3/rd_cake/access-providers/child-check.json',
-        urlExportCsv    : '/cake3/rd_cake/dynamic-clients/export_csv',
-        urlAdd          : '/cake3/rd_cake/dynamic-clients/add.json',
-        urlDelete       : '/cake3/rd_cake/dynamic-clients/delete.json',
-		urlEdit         : '/cake3/rd_cake/dynamic-clients/edit.json',
-		urlView         : '/cake3/rd_cake/dynamic-clients/view.json',
-		urlViewPhoto    : '/cake3/rd_cake/dynamic-clients/view_photo.json',
-        urlPhotoBase    : '/cake3/rd_cake/webroot/img/nas/',
-        urlUploadPhoto  : '/cake3/rd_cake/dynamic-clients/upload_photo/'
+        urlExportCsv    : '/cake4/rd_cake/dynamic-clients/export_csv',
+        urlAdd          : '/cake4/rd_cake/dynamic-clients/add.json',
+        urlDelete       : '/cake4/rd_cake/dynamic-clients/delete.json',
+		urlEdit         : '/cake4/rd_cake/dynamic-clients/edit.json',
+		urlView         : '/cake4/rd_cake/dynamic-clients/view.json',
+		urlViewPhoto    : '/cake4/rd_cake/dynamic-clients/view_photo.json',
+        urlPhotoBase    : '/cake4/rd_cake/img/nas/',
+        urlUploadPhoto  : '/cake4/rd_cake/dynamic-clients/upload_photo.json'
     },
     refs: [
         {  ref: 'grid',     selector: 'gridDynamicClients'  }  

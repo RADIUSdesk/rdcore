@@ -122,19 +122,17 @@ Ext.define('Rd.controller.cMeshes', {
     ],
     selectedRecord: null,
     config: {
-        urlAdd          : '/cake3/rd_cake/meshes/add.json',
-        urlDelete       : '/cake3/rd_cake/meshes/delete.json',
-        urlMapPrefView  : '/cake3/rd_cake/meshes/map_pref_view.json',
-        urlApChildCheck : '/cake3/rd_cake/access-providers/child-check.json',
-
-        urlAddNode      : '/cake3/rd_cake/meshes/mesh_node_add.json',
-        urlViewNode     : '/cake3/rd_cake/meshes/mesh_node_view.json',
-        urlEditNode     : '/cake3/rd_cake/meshes/mesh_node_edit.json',
-        urlRedirectNode : '/cake3/rd_cake/nodes/redirect_unknown.json',
-        urlRestartNodes : '/cake3/rd_cake/mesh-reports/restart_nodes.json',
-        urlMeshAddNodeAction: '/cake3/rd_cake/node-actions/add.json',
-        urlChangeDeviceMode: '/cake3/rd_cake/nodes/change_node_mode.json',
-        urlAdvancedSettingsForModel: '/cake3/rd_cake/meshes/advanced_settings_for_model.json'
+        urlAdd          : '/cake4/rd_cake/meshes/add.json',
+        urlDelete       : '/cake4/rd_cake/meshes/delete.json',
+        urlMapPrefView  : '/cake4/rd_cake/meshes/map_pref_view.json',
+        urlAddNode      : '/cake4/rd_cake/meshes/mesh_node_add.json',
+        urlViewNode     : '/cake4/rd_cake/meshes/mesh_node_view.json',
+        urlEditNode     : '/cake4/rd_cake/meshes/mesh_node_edit.json',
+        urlRedirectNode : '/cake4/rd_cake/nodes/redirect_unknown.json',
+        urlRestartNodes : '/cake4/rd_cake/mesh-reports/restart_nodes.json',
+        urlMeshAddNodeAction: '/cake4/rd_cake/node-actions/add.json',
+        urlChangeDeviceMode: '/cake4/rd_cake/nodes/change_node_mode.json',
+        urlAdvancedSettingsForModel: '/cake4/rd_cake/meshes/advanced_settings_for_model.json'
     },
     refs: [
         {  ref: 'grid',             selector: 'gridMeshes'},
@@ -990,8 +988,8 @@ Ext.define('Rd.controller.cMeshes', {
     },
     btnEditMeshClicked: function(b){
         var me = this;
-        pnlMeshView = b.up('pnlMeshView');
-        me.application.runAction('cMeshEdits','Index',pnlMeshView.mesh_id,pnlMeshView.getTitle());    
+        pnlMeshView = b.up('pnlMeshView');        
+        me.application.runAction('cMeshEdits','Index',pnlMeshView,{name:pnlMeshView.getTitle(),id:pnlMeshView.mesh_id});   
     },
     btnViewMeshClicked: function(b){
         var me = this;

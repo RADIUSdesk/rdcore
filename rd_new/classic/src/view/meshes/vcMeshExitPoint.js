@@ -2,8 +2,8 @@ Ext.define('Rd.view.meshes.vcMeshExitPoint', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcMeshExitPoint',
     config : {
-        urlCheckExperimental : '/cake3/rd_cake/meshes/mesh_experimental_check.json',
-        urlViewExit:        '/cake3/rd_cake/meshes/mesh_exit_view.json',
+        urlCheckExperimental : '/cake4/rd_cake/meshes/mesh_experimental_check.json',
+        urlViewExit:        '/cake4/rd_cake/meshes/mesh_exit_view.json',
     },
     init: function() {
         var me = this;

@@ -4,7 +4,7 @@ Ext.define('Rd.store.sPdfFormats', {
     proxy   : {
         type    : 'ajax',
         format  : 'json',
-        url     : '/cake3/rd_cake/vouchers/pdfVoucherFormats.json',
+        url     : '/cake4/rd_cake/vouchers/pdfVoucherFormats.json',
         reader: {
             type            : 'json',
             rootProperty    : 'items',

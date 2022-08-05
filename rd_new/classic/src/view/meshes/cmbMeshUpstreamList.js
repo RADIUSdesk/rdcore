@@ -20,7 +20,7 @@ Ext.define('Rd.view.meshes.cmbMeshUpstreamList', {
             proxy: {
                     type    : 'ajax',
                     format  : 'json',
-                    url     : '/cake3/rd_cake/meshes/mesh_exit_upstream_list.json',
+                    url     : '/cake4/rd_cake/meshes/mesh_exit_upstream_list.json',
                     extraParams : {
                         mesh_id : me.mesh_id
                     },

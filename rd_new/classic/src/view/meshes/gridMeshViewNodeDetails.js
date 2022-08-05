@@ -20,13 +20,13 @@ Ext.define('Rd.view.meshes.gridMeshViewNodeDetails' ,{
     viewConfig	: {
         loadMask	:true
     },
-    urlMenu		: '/cake3/rd_cake/meshes/menu_for_node_details_grid.json',
+    urlMenu		: '/cake4/rd_cake/meshes/menu_for_node_details_grid.json',
     plugins     : [
         {
             ptype: 'rowexpander',
             rowBodyTpl : new Ext.XTemplate(
                 '<div style="color:#2255ce;  background-color:#aeaeae; padding:5px;">',
-                '<img src="/cake3/rd_cake/img/hardwares/{hw_photo}" alt="{hw_human}" style="float: left; padding-right: 20px;">',
+                '<img src="/cake4/rd_cake/img/hardwares/{hw_photo}" alt="{hw_human}" style="float: left; padding-right: 20px;">',
                 '<h2>{name}</h2>',
                 '<span>{hw_human}</span>',
                 '</div>',

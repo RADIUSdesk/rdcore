@@ -21,7 +21,7 @@ Ext.define('Rd.view.meshes.cmbEncryptionOptions', {
                     type    : 'ajax',
                     format  : 'json',
                     batchActions: true, 
-                    url     : '/cake3/rd_cake/meshes/encryption_options.json',
+                    url     : '/cake4/rd_cake/meshes/encryption_options.json',
                     reader: {
                         type: 'json',
                         rootProperty: 'items',

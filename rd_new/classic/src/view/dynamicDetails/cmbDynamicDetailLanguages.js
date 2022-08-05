@@ -22,7 +22,7 @@ Ext.define('Rd.view.dynamicDetails.cmbDynamicDetailLanguages', {
                     type    : 'ajax',
                     format  : 'json',
                     batchActions: true, 
-                    url     : '/cake3/rd_cake/dynamic-details/i18n.json',
+                    url     : '/cake4/rd_cake/dynamic-details/i18n.json',
                     reader: {
                         type            : 'json',
                         rootProperty    : 'items',

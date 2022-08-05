@@ -25,7 +25,7 @@ Ext.define('Rd.view.meshes.cmbMeshViewNodes', {
                     format          : 'json',
                     batchActions    : true,
                     extraParams     : {'mesh_id' : me.meshId },
-                    url     : '/cake3/rd_cake/meshes/mesh-nodes-view.json',
+                    url     : '/cake4/rd_cake/meshes/mesh-nodes-view.json',
                     reader: {
                         type            : 'json',
                         rootProperty    : 'items',

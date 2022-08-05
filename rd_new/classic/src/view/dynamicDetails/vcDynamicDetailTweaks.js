@@ -5,9 +5,9 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailTweaks', {
         addAct  : 'addPhrase',
         editAct : 'editPhrase',
         delAct  : 'deletePhrase',
-        urlAddLanguage  : '/cake3/rd_cake/dynamic-detail-translations/add-language.json',
-        urlViewTweaks   : '/cake3/rd_cake/dynamic-detail-translations/view-tweaks.json',
-        urlSaveTweaks   : '/cake3/rd_cake/dynamic-detail-translations/save-tweaks.json'
+        urlAddLanguage  : '/cake4/rd_cake/dynamic-detail-translations/add-language.json',
+        urlViewTweaks   : '/cake4/rd_cake/dynamic-detail-translations/view-tweaks.json',
+        urlSaveTweaks   : '/cake4/rd_cake/dynamic-detail-translations/save-tweaks.json'
     }, 
     control: {
         '#chkFacebookLogin' : {

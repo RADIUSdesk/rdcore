@@ -26,7 +26,7 @@ Ext.define('Rd.view.dynamicDetails.cmbThemes', {
                     extraParams : {
                         exclude_custom : me.excludeCustom
                     }, 
-                    url         : '/cake3/rd_cake/dynamic-details/available-themes.json',
+                    url         : '/cake4/rd_cake/dynamic-details/available-themes.json',
                     reader      : {
                         type            : 'json',
                         rootProperty    : 'items',

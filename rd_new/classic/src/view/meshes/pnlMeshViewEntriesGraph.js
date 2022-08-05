@@ -9,7 +9,8 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
     bodyStyle: {backgroundColor : 'pink' },
     hide_owner  : false,
     requires: [
-        'Rd.view.meshes.pnlMeshViewDeviceDetail'
+        'Rd.view.meshes.pnlMeshViewDeviceDetail',
+        'Rd.view.dataUsage.pnlDataUsageGraph'
     ],
     height  : 550,
     hidePlrNodes : true,

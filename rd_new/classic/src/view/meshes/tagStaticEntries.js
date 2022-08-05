@@ -19,7 +19,7 @@ Ext.define('Rd.view.meshes.tagStaticEntries', {
                 format  : 'json',
                 batchActions: true,
                // extraParams: { 'mesh_id' : me.meshId}, 
-                url     : '/cake3/rd_cake/meshes/static_entry_options.json',
+                url     : '/cake4/rd_cake/meshes/static_entry_options.json',
                 reader: {
                     type: 'json',
                     rootProperty: 'items',

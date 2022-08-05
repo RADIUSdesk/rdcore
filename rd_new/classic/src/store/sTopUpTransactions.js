@@ -8,7 +8,7 @@ Ext.define('Rd.store.sTopUpTransactions', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake3/rd_cake/top-up-transactions/index.json',
+            url     : '/cake4/rd_cake/top-up-transactions/index.json',
             reader: {
                 type            : 'json',
                 rootProperty    : 'items',

@@ -45,7 +45,7 @@ Ext.define('Rd.view.meshes.cmbEthBridgeOptions', {
                     format  	: 'json',
                     batchActions: true, 
 					extraParams	: { 'mesh_id' : me.meshId}, 
-                    url     	: '/cake3/rd_cake/meshes/mesh_exit_view_eth_br.json',
+                    url     	: '/cake4/rd_cake/meshes/mesh_exit_view_eth_br.json',
                     reader: {
                         type	: 'json',
                         rootProperty	: 'items',

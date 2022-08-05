@@ -16,7 +16,7 @@ Ext.define('Rd.view.dynamicClients.gridUnknownDynamicClients' ,{
     viewConfig  : {
         loadMask    :true
     },
-    urlMenu     : '/cake3/rd_cake/unknown-dynamic-clients/menu_for_grid.json',
+    urlMenu     : '/cake4/rd_cake/unknown-dynamic-clients/menu_for_grid.json',
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
         var me  = this;

@@ -18,7 +18,7 @@ Ext.define('Rd.view.meshes.tagMeshEntryPoints', {
                     type    : 'ajax',
                     format  : 'json',
                     batchActions: true, 
-                    url     : '/cake3/rd_cake/meshes/mesh_entry_points.json',
+                    url     : '/cake4/rd_cake/meshes/mesh_entry_points.json',
                     reader: {
                         type            : 'json',
                         rootProperty            : 'items',

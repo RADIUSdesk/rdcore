@@ -2,8 +2,8 @@ Ext.define('Rd.view.dynamicDetails.vcPhotoTranslate', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcPhotoTranslate',
     config: {
-        urlView : '/cake3/rd_cake/dynamic-detail-translations/view-photo-translation.json',
-        urlSave : '/cake3/rd_cake/dynamic-detail-translations/save-photo-translation.json'
+        urlView : '/cake4/rd_cake/dynamic-detail-translations/view-photo-translation.json',
+        urlSave : '/cake4/rd_cake/dynamic-detail-translations/save-photo-translation.json'
     }, 
     control: {
         '#cmbImages' : {

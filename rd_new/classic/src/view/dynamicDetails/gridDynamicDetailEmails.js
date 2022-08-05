@@ -15,7 +15,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailEmails' ,{
     viewConfig: {
         loadMask:true
     },
-    urlMenu: '/cake3/rd_cake/dynamic-details/menu-for-dynamic-emails.json',
+    urlMenu: '/cake4/rd_cake/dynamic-details/menu-for-dynamic-emails.json',
     columns: [
         { text: 'DynamicDetail',  dataIndex: 'dynamic_detail_name',  hidden: true, tdCls: 'gridTree', flex: 1,stateId: 'DD_Email_A'},
         { text: 'MAC Address',    dataIndex: 'mac',      tdCls: 'gridMain', flex: 1,stateId: 'StateGridDynamicDetailEmails1'},

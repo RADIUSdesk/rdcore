@@ -2,8 +2,8 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailMobileApp', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcDynamicDetailMobileApp',
     config: {
-        urlView   : '/cake3/rd_cake/dynamic-detail-mobiles/view.json',
-        urlSave   : '/cake3/rd_cake/dynamic-detail-mobiles/save.json'
+        urlView   : '/cake4/rd_cake/dynamic-detail-mobiles/view.json',
+        urlSave   : '/cake4/rd_cake/dynamic-detail-mobiles/save.json'
     }, 
     control: {
         '#chkAndroidEnable' : {

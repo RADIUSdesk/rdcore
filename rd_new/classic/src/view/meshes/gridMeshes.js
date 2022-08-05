@@ -16,7 +16,7 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
     viewConfig: {
         loadMask:true
     },
-    urlMenu: '/cake3/rd_cake/meshes/menu_for_grid.json',
+    urlMenu: '/cake4/rd_cake/meshes/menu_for_grid.json',
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
         var me      = this;    

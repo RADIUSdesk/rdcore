@@ -20,7 +20,7 @@ Ext.define('Rd.view.dynamicDetails.winPhotoTranslate', {
             model: 'Rd.model.mDynamicPhoto',
             proxy: {
                 type        :'ajax',
-                url         : '/cake3/rd_cake/dynamic-details/index-photo.json',
+                url         : '/cake4/rd_cake/dynamic-details/index-photo.json',
                 extraParams : { 'dynamic_detail_id' : me.dynamic_detail_id,'remove_whitespace' : true},
                 batchActions: true,
                 format      : 'json',

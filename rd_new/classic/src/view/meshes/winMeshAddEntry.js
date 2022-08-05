@@ -23,7 +23,8 @@ Ext.define('Rd.view.meshes.winMeshAddEntry', {
         'Ext.form.field.Text',
         'Ext.form.FieldContainer',
         'Ext.form.field.Radio',
-        'Rd.view.meshes.cmbEncryptionOptions'
+        'Rd.view.meshes.cmbEncryptionOptions',
+        'Rd.view.components.cmbMacFilter'
     ],
      initComponent: function() {
         var me = this; 

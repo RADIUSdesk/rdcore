@@ -13,8 +13,8 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailPhoto', {
     requires: [
         'Rd.view.components.ajaxToolbar'
     ],
-    urlMenu: '/cake3/rd_cake/dynamic-details/menu-for-photos.json',
-    urlShufflePhoto: '/cake3/rd_cake/dynamic-details/shuffle-photo.json',
+    urlMenu: '/cake4/rd_cake/dynamic-details/menu-for-photos.json',
+    urlShufflePhoto: '/cake4/rd_cake/dynamic-details/shuffle-photo.json',
     initComponent: function(){
         var me = this;
 
@@ -123,7 +123,7 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailPhoto', {
             model: 'Rd.model.mDynamicPhoto',
             proxy: {
                 type        :'ajax',
-                url         : '/cake3/rd_cake/dynamic-details/index-photo.json',
+                url         : '/cake4/rd_cake/dynamic-details/index-photo.json',
                 extraParams : { 'dynamic_detail_id' : me.dynamic_detail_id},
                 batchActions: true,
                 format      : 'json',
@@ -133,7 +133,7 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailPhoto', {
                     rootProperty: 'items'
                 },
                 api: {
-                    destroy  : '/cake3/rd_cake/dynamic-details/delete-photo.json'
+                    destroy  : '/cake4/rd_cake/dynamic-details/delete-photo.json'
                 }
             },
             listeners: {

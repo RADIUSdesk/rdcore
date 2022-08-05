@@ -53,7 +53,7 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             micro = true;
             west_width = 55;
         }
-
+/*
         //---Work in progress---
         Ext.define('Rd.view.dashboard.dashboardTreeList', {
             extend  : 'Ext.list.Tree',
@@ -82,7 +82,7 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
                 }]
             }
         });
-              
+ */             
         var tl = {
     		xtype   : 'treelist',
     		ui	    : 'nav2',

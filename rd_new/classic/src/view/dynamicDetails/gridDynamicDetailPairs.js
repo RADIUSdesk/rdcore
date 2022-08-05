@@ -15,7 +15,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailPairs' ,{
     viewConfig: {
         loadMask:true
     },
-    urlMenu: '/cake3/rd_cake/dynamic-details/menu-for-dynamic-pairs.json',
+    urlMenu: '/cake4/rd_cake/dynamic-details/menu-for-dynamic-pairs.json',
     columns: [
         /*    {xtype: 'rownumberer',stateId: 'StateGridDynamicDetailPairs1'},*/
             { text: i18n('sName'),          dataIndex: 'name',      tdCls: 'gridMain', flex: 1,stateId: 'StateGridDynamicDetailPairs2'},
@@ -43,7 +43,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailPairs' ,{
                 type    : 'ajax',
                 format  : 'json',
                 batchActions: true, 
-                url     : '/cake3/rd_cake/dynamic-details/index-pair.json',
+                url     : '/cake4/rd_cake/dynamic-details/index-pair.json',
                 extraParams: { 'dynamic_detail_id' : me.dynamic_detail_id },
                 reader: {
                     type: 'json',
@@ -52,7 +52,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailPairs' ,{
                     totalProperty: 'totalCount' //Required for dynamic paging
                 },
                 api: {
-                    destroy  : '/cake3/rd_cake/dynamic-details/delete-pair.json'
+                    destroy  : '/cake4/rd_cake/dynamic-details/delete-pair.json'
                 },
                 simpleSortMode: true //This will only sort on one column (sort) and a direction(dir) value ASC or DESC
             },

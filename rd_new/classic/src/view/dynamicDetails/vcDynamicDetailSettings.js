@@ -2,7 +2,7 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailSettings', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcDynamicDetailSettings',
     config: {
-        urlViewDynamicDetail: '/cake3/rd_cake/dynamic-details/view.json'
+        urlViewDynamicDetail: '/cake4/rd_cake/dynamic-details/view.json'
     }, 
     onViewActivate: function(){
         var me                  = this;
