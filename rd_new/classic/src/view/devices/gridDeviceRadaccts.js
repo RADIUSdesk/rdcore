@@ -14,7 +14,7 @@ Ext.define('Rd.view.devices.gridDeviceRadaccts' ,{
     viewConfig: {
         loadMask:true
     },
-    urlMenu: '/cake3/rd_cake/devices/menu-for-accounting-data.json',
+    urlMenu: '/cake4/rd_cake/devices/menu-for-accounting-data.json',
     plugins     : 'gridfilters',  //*We specify this
     columns: [
         {xtype: 'rownumberer',stateId: 'StateGridDeviceRadaccts1'},

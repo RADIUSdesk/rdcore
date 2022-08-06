@@ -7,7 +7,7 @@ Ext.define('Rd.store.sMeshViewNodes', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake3/rd_cake/mesh-reports/view_nodes.json',
+            url     : '/cake4/rd_cake/mesh-reports/view_nodes.json',
             reader  : {
                 type            : 'json',
                 rootProperty    : 'items',

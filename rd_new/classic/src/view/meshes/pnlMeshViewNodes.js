@@ -2,7 +2,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewNodes', {
     extend  	: 'Ext.panel.Panel',
     alias   	: 'widget.pnlMeshViewNodes',
     border  	: false,
-	urlOverview	:   '/cake3/rd_cake/mesh-reports/overview.json',
+	urlOverview	:   '/cake4/rd_cake/mesh-reports/overview.json',
 	meshId		: '',
     config: {
        displayBugFix: false

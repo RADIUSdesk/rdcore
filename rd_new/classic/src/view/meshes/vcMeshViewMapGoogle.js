@@ -2,8 +2,8 @@ Ext.define('Rd.view.meshes.vcMeshViewMapGoogle', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcMeshViewMapGoogle',
     config : {
-        urlOverviewGoogleMap    : '/cake3/rd_cake/mesh-reports/overview_google_map.json',
-        urlOverviewMeshes       : '/cake3/rd_cake/mesh-reports/overview_meshes.json',
+        urlOverviewGoogleMap    : '/cake4/rd_cake/mesh-reports/overview_google_map.json',
+        urlOverviewMeshes       : '/cake4/rd_cake/mesh-reports/overview_meshes.json',
         urlBlueMark             : 'resources/images/map_markers/mesh_blue_node.png',
         urlRedNode              : 'resources/images/map_markers/mesh_red_node.png',
         urlRedGw                : 'resources/images/map_markers/mesh_red_gw.png',

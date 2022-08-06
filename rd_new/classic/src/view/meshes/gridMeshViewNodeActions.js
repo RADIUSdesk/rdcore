@@ -16,8 +16,8 @@ Ext.define('Rd.view.meshes.gridMeshViewNodeActions' ,{
         'Ext.toolbar.Paging',
         'Ext.ux.ProgressBarPager'
     ],
-    urlMenu:        '/cake3/rd_cake/node-actions/menu-for-grid.json',
-    urlIndex:       '/cake3/rd_cake/node-actions/index.json',
+    urlMenu:        '/cake4/rd_cake/node-actions/menu-for-grid.json',
+    urlIndex:       '/cake4/rd_cake/node-actions/index.json',
     
     plugins: [{
 		ptype: 'rowwidget',
@@ -120,7 +120,7 @@ Ext.define('Rd.view.meshes.gridMeshViewNodeActions' ,{
                     messageProperty: 'message'
                 },
                 api: {
-                    destroy  : '/cake3/rd_cake/node-actions/delete.json'
+                    destroy  : '/cake4/rd_cake/node-actions/delete.json'
                 },
                 simpleSortMode: true //This will only sort on one column (sort) and a direction(dir) value ASC or DESC
             },

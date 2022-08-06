@@ -6,7 +6,7 @@ Ext.define('Rd.store.sNodeDetails', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake3/rd_cake/mesh-reports/view_node_details.json',
+            url     : '/cake4/rd_cake/mesh-reports/view_node_details.json',
             reader: {
                 type            : 'json',
                 rootProperty    : 'items',

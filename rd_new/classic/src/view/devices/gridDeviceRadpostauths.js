@@ -14,7 +14,7 @@ Ext.define('Rd.view.devices.gridDeviceRadpostauths' ,{
     viewConfig: {
         loadMask:true
     },
-    urlMenu: '/cake3/rd_cake/devices/menu-for-authentication-data.json',
+    urlMenu: '/cake4/rd_cake/devices/menu-for-authentication-data.json',
     bbar: [
         {   xtype: 'component', itemId: 'count',   tpl: i18n('sResult_count_{count}'),   style: 'margin-right:5px', cls: 'lblYfi' }
     ],

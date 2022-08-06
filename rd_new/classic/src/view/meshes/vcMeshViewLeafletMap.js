@@ -9,8 +9,8 @@ Ext.define('Rd.view.meshes.vcMeshViewLeafletMap', {
         urlGreenNode            : 'resources/css/images/marker-icon-2x-green.png',
         urlGreenGw              : 'resources/css/images/marker-icon-2x-dark-green.png',
         urlViolet               : 'resources/css/images/marker-icon-2x-violet.png',
-        urlOverviewGoogleMap    : '/cake3/rd_cake/mesh-reports/overview_google_map.json',
-        urlRestartNodes			: '/cake3/rd_cake/mesh-reports/restart_nodes.json',
+        urlOverviewGoogleMap    : '/cake4/rd_cake/mesh-reports/overview_google_map.json',
+        urlRestartNodes			: '/cake4/rd_cake/mesh-reports/restart_nodes.json',
 		mapType                 : 'Leaflet' //Default	
     },
     control: {

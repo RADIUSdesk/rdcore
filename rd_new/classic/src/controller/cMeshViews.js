@@ -16,12 +16,11 @@ Ext.define('Rd.controller.cMeshViews', {
 
     ],
     config      : {  
-        urlApChildCheck				: '/cake3/rd_cake/access-providers/child-check.json',
-		urlMapPrefView				: '/cake3/rd_cake/meshes/map_pref_view.json',
-		urlOverviewGoogleMap		: '/cake3/rd_cake/mesh-reports/overview_google_map.json',
-		urlOverview                 : '/cake3/rd_cake/mesh-reports/overview.json',
-		urlRestartNodes				: '/cake3/rd_cake/mesh-reports/restart_nodes.json',
-		urlMeshAddNodeAction		: '/cake3/rd_cake/node-actions/add.json',
+		urlMapPrefView				: '/cake4/rd_cake/meshes/map_pref_view.json',
+		urlOverviewGoogleMap		: '/cake4/rd_cake/mesh-reports/overview_google_map.json',
+		urlOverview                 : '/cake4/rd_cake/mesh-reports/overview.json',
+		urlRestartNodes				: '/cake4/rd_cake/mesh-reports/restart_nodes.json',
+		urlMeshAddNodeAction		: '/cake4/rd_cake/node-actions/add.json',
 		urlBlueMark 				: 'resources/images/map_markers/mesh_blue_node.png',
 		urlRedNode 					: 'resources/images/map_markers/mesh_red_node.png',
 		urlRedGw 					: 'resources/images/map_markers/mesh_red_gw.png',

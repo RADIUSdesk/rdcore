@@ -45,13 +45,12 @@ Ext.define('Rd.controller.cDevices', {
     ],
     selectedRecord: null,
      config: {
-        urlAdd              : '/cake3/rd_cake/devices/add.json',
-        urlApChildCheck     : '/cake3/rd_cake/access-providers/child-check.json',
-        urlExportCsv        : '/cake3/rd_cake/devices/export-csv',
-        urlViewBasic        : '/cake3/rd_cake/devices/view-basic-info.json',
-        urlEditBasic        : '/cake3/rd_cake/devices/edit-basic-info.json',
-        urlEnableDisable    : '/cake3/rd_cake/devices/enable-disable.json',
-        urlDelete           : '/cake3/rd_cake/devices/delete.json',
+        urlAdd              : '/cake4/rd_cake/devices/add.json',
+        urlExportCsv        : '/cake4/rd_cake/devices/export-csv',
+        urlViewBasic        : '/cake4/rd_cake/devices/view-basic-info.json',
+        urlEditBasic        : '/cake4/rd_cake/devices/edit-basic-info.json',
+        urlEnableDisable    : '/cake4/rd_cake/devices/enable-disable.json',
+        urlDelete           : '/cake4/rd_cake/devices/delete.json',
         
         urlDeleteRadaccts:  '/cake3/rd_cake/radaccts/delete.json',
         urlDeletePostAuths: '/cake3/rd_cake/radpostauths/delete.json'
