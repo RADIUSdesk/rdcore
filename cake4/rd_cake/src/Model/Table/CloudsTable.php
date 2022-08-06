@@ -22,6 +22,30 @@ class CloudsTable extends Table {
             'dependent' => true
         ]);
         
+        $this->hasMany('Vouchers',[
+            'dependent' => true
+        ]);
+        
+        $this->hasMany('PermanentUsers',[
+            'dependent' => true
+        ]);
+        
+        $this->hasMany('DynamicDetails',[
+            'dependent' => true
+        ]);
+        
+        $this->hasMany('DynamicClients',[
+            'dependent' => true
+        ]);
+        
+        $this->hasMany('PredefinedCommands',[
+            'dependent' => true
+        ]);
+        
+        $this->hasMany('Schedules',[
+            'dependent' => true
+        ]);
+        
         $this->hasMany('CloudAdmins',['dependent' => true]);
     }
 }

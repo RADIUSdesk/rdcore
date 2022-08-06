@@ -107,7 +107,7 @@ Ext.define('Rd.controller.cHardwares', {
     add: function(button){   
     	var me 		= this;
         var c_name 	= me.application.getCloudName();
-        var c_id	= me.application.getCloudId()
+        var c_id	= me.application.getCloudId();
         if(!Ext.WindowManager.get('winHardwareAddId')){
             var w = Ext.widget('winHardwareAdd',{id:'winHardwareAddId',cloudId: c_id, cloudName: c_name});
             w.show();         

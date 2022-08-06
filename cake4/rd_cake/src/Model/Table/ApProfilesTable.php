@@ -9,10 +9,8 @@ class ApProfilesTable extends Table
     public function initialize(array $config):void
     {
         $this->addBehavior('Timestamp');  
-        $this->belongsTo('Users');
-
+        $this->belongsTo('Clouds');
         $this->hasMany('Aps', ['dependent' => true]);
-        $this->hasMany('ApProfileNotes', ['dependent' => true]);
         $this->hasMany('ApProfileEntries', ['dependent' => true]);
 //        $this->hasMany('ApProfileSettings', ['dependent' => true]);
         $this->hasOne('ApProfileSettings', ['dependent' => true]);

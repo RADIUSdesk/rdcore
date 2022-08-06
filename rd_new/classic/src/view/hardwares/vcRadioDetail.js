@@ -2,7 +2,7 @@ Ext.define('Rd.view.hardwares.vcRadioDetail', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcRadioDetail',
     config : {
-        urlViewAp                   : '/cake3/rd_cake/ap-profiles/ap_profile_ap_view.json'
+        urlViewAp                   : '/cake4/rd_cake/ap-profiles/ap_profile_ap_view.json'
     },
     init: function() {
         var me = this;

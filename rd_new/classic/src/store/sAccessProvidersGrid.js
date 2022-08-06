@@ -8,7 +8,7 @@ Ext.define('Rd.store.sAccessProvidersGrid', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake3/rd_cake/access-providers/index.json',
+            url     : '/cake4/rd_cake/access-providers/index.json',
             reader: {
                 type            : 'json',
                 rootProperty    : 'items',

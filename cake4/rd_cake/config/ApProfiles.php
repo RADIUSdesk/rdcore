@@ -874,4 +874,6 @@ $config['ApProfiles']['countries'] = array(
 	array( 'id' => 'ZW', 'name' => 'Zimbabwe'),
 );
 
+return $config;
 
+?>

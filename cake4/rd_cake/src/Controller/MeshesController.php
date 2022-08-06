@@ -799,15 +799,15 @@ class MeshesController extends AppController{
                     ($req_d['auto_login_page'] == 1)
                 ){
                 
-                    //Get the Mesh so we can get the user_id and available_to_siblings for the said mesh
+                    //Get the Mesh so we can get the cloud_id for the said mesh
                     $mesh_id    = $req_d['mesh_id']; 
                     $mesh       = $this->{'Meshes'}->find()->where(['Meshes.id' => $mesh_id])->first();
-                    $user_id    = $mesh->user_id;
+                    $cloud_id   = $mesh->cloud_id;
                     $mesh_name  = $mesh->name;
                     $mesh_name  = preg_replace('/\s+/', '_', $mesh_name);
                                       
                     $dc_data                            = array();       	            
-	                $dc_data['user_id']                 = $user_id;
+	                $dc_data['cloud_id']                = $cloud_id;
 	                $dc_data['nasidentifier']           = $mesh_name.'_mcp_'.$new_id;
 	                
 	                //Get a list of realms if the person selected a list - If it is empty that's fine

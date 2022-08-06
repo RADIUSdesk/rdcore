@@ -706,6 +706,14 @@ class DashboardController extends AppController{
 				'id'		=> 'tabMainMeshes',
 				'iconCls'	=> 'x-fa fa-wifi',
 				'glyph'		=> 'xf1eb'
+			],
+			[
+				'text'	=> 'APdesk',
+				'leaf'	=> true,
+				'controller'=> 'cAccessPoints',
+				'id'		=> 'tabMainAccessPoints',
+				'iconCls'	=> 'x-fa fa-wifi',
+				'glyph'		=> 'xf1eb'
 			],	
 			[
 				'text'	=> 'HARDWARES',
@@ -714,7 +722,15 @@ class DashboardController extends AppController{
 				'id'		=> 'tabMainHardwares',
 				'iconCls'	=> 'x-fa fa-cog',
 				'glyph'		=> 'xf013'
-			]	
+			],
+			[
+				'text'	=> 'SCHEDULES',
+				'leaf'	=> true,
+				'controller'=> 'cSchedules',
+				'id'		=> 'tabMainSchedules',
+				'iconCls'	=> 'x-fa fa-clock',
+				'glyph'		=> 'xf017'
+			]		
 		];
 		
 		$thOther = [

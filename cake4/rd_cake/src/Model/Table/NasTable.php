@@ -29,7 +29,7 @@ class NasTable extends Table
         $this->table('nas');
     }
     
-    public function validationDefault(Validator $validator){
+    public function validationDefault(Validator $validator):Validator{
         $validator = new Validator();
         $validator
             ->notEmpty('nasname', 'A name is required')

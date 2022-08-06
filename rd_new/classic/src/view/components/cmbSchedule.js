@@ -22,7 +22,7 @@ Ext.define('Rd.view.components.cmbSchedule', {
                 type    : 'ajax',
                 format  : 'json',
                 batchActions: true, 
-                url     : '/cake3/rd_cake/schedules/index-combo.json',
+                url     : '/cake4/rd_cake/schedules/index-combo.json',
                 reader: {
                     type            : 'json',
                     rootProperty    : 'items',
