@@ -64,7 +64,12 @@ Ext.define('Rd.controller.cDashboard', {
 		    },
 		    'winPasswordChanger #save': {
                 'click' : me.onChangePassword
-            } 
+            },
+            'pnlDashboard  #btnSetupWizard' : {
+		        click   : function(btn){
+                    me.application.runAction('cSetupWizard','Index')
+                } 
+		    }    
         });
       
     },

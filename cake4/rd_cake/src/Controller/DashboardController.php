@@ -730,7 +730,15 @@ class DashboardController extends AppController{
 				'id'		=> 'tabMainSchedules',
 				'iconCls'	=> 'x-fa fa-clock',
 				'glyph'		=> 'xf017'
-			]		
+			],
+			[
+				'text'	=> 'OPEN VPN',
+				'leaf'	=> true,
+				'controller'=> 'cOpenvpnServers',
+				'id'		=> 'tabMainOpenvpnServers',
+				'iconCls'	=> 'x-fa  fa-quote-left',
+				'glyph'		=> 'xf10d'
+			]			
 		];
 		
 		$thOther = [

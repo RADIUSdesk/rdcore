@@ -120,6 +120,7 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             xtype   : 'button',
             itemId	: 'btnTreeLoad',
             glyph   : Rd.config.icnWizard,
+            itemId  : 'btnSetupWizard',
             scale   : 'medium'
         };
       	

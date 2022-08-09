@@ -11,7 +11,7 @@ Ext.define('Rd.controller.cMeshNodeRogue', {
 		'sMeshNodeRogues'
     ],
     config      : {  
-        urlNodeStartRogueScan        : '/cake3/rd_cake/meshes/mesh-node-start-rogue-scan.json'
+        urlNodeStartRogueScan        : '/cake4/rd_cake/meshes/mesh-node-start-rogue-scan.json'
     },
     refs: [
      //   {  ref: 'winMeshNodeRogue',  selector: 'winMeshNodeRogue' } 

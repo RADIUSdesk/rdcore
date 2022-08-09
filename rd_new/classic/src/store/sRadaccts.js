@@ -8,7 +8,7 @@ Ext.define('Rd.store.sRadaccts', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake3/rd_cake/radaccts/index.json',
+            url     : '/cake4/rd_cake/radaccts/index.json',
             autoLoad: false,
             reader: {
                 keepRawData     : true,

@@ -22,7 +22,6 @@ Ext.define('Rd.model.mDevice', {
          {name: 'to_date'},
          'data_usage',
          'time_usage',
-         {name: 'notes',        type: 'bool'},
          {name: 'created',           type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
          {name: 'modified',          type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
          {name: 'created_in_words',  type: 'string'  },

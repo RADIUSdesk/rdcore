@@ -7,7 +7,6 @@ Ext.define('Rd.model.mMesh', {
          {name: 'bssid',            type: 'string'  },
          {name: 'owner',            type: 'string'  },
          {name: 'node_count',       type: 'int'},
-		 {name: 'available_to_siblings',  type: 'bool'},
          {name: 'nodes_up',         type: 'int'},
          {name: 'nodes_down',       type: 'int'},
          {name: 'connected_users',  type: 'int'},
@@ -17,7 +16,6 @@ Ext.define('Rd.model.mMesh', {
          {name: 'created_in_words', type: 'string'  },
          {name: 'modified_in_words',type: 'string'  },
          {name: 'last_contact_in_words', type: 'string' }, 
-         {name: 'notes',            type: 'bool'},
          {name: 'update',           type: 'bool'},
          {name: 'delete',           type: 'bool'},
          {name: 'view',             type: 'bool'}

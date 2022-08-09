@@ -1251,7 +1251,6 @@ class GridButtonsComponent extends Component {
                 'xtype' => 'buttongroup',
                 'title' => $t, 
                 'items' => array(
-                    $this->btnNote,
                     $this->btnCSV
                 )
             );

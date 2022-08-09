@@ -82,14 +82,6 @@ Ext.define('Rd.view.dynamicDetails.frmDetail', {
             labelClsExtra: 'lblRdReq'
         },
         {
-            xtype       : 'checkbox',      
-            boxLabel    : i18n('sMake_available_to_sub_providers'),
-            name        : 'available_to_siblings',
-            inputValue  : 'available_to_siblings',
-            checked     : false,
-            cls         : 'lblRd'
-        },
-        {
             xtype:'fieldset',
             title: i18n('sOptional_Info'),
             collapsible: true,

@@ -15,6 +15,5 @@ Ext.define('Rd.model.mAp', {
          'country_name',
          'city',
          'postal_code',
-		 {name: 'available_to_siblings',type: 'bool'}
         ]
 });

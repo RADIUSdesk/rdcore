@@ -4,7 +4,7 @@ Ext.define('Rd.store.sClouds', {
     autoLoad    : true,
     proxy   : {
         type    : 'ajax',
-        url     : '/cake3/rd_cake/clouds/index.json',
+        url     : '/cake4/rd_cake/clouds/index.json',
         reader: {
             type        : 'json',
             rootProperty: 'items',
@@ -24,15 +24,15 @@ Ext.define('Rd.store.sTreeTags', {
         type    : 'ajax',
         format  : 'json',
         batchActions: true, 
-        url     : '/cake3/rd_cake/tree-tags/index.json',
+        url     : '/cake4/rd_cake/tree-tags/index.json',
         reader  : {
             type            : 'json',
             rootProperty    : 'items',
             messageProperty : 'message'
         },
         api: {
-            read    : '/cake3/rd_cake/tree-tags/index.json',
-            destroy : '/cake3/rd_cake/tree-tags/delete.json'
+            read    : '/cake4/rd_cake/tree-tags/index.json',
+            destroy : '/cake4/rd_cake/tree-tags/delete.json'
         }
     },
     root: {name : 'Grouping',leaf: false, id:'0', iconCls: 'root', expanded: true},

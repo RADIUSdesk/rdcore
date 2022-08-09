@@ -6,7 +6,7 @@ Ext.define('Rd.store.sApViewEntries', {
     proxy: {
             type    : 'ajax',
             format  : 'json',
-            url     : '/cake3/rd_cake/ap-reports/view_entries.json',
+            url     : '/cake4/rd_cake/ap-reports/view_entries.json',
             reader  : {
                 type            : 'json',
                 rootProperty    : 'items',

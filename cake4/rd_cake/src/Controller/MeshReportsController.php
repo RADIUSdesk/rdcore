@@ -429,7 +429,7 @@ class MeshReportsController extends AppController {
             }
         }
         
-        $this->CommonQuery->build_common_query($query, $user, ['Users','MeshNotes' => ['Notes'],'Nodes']); //AP QUERY is sort of different in a way     
+        $this->CommonQuery->build_common_query($query, $user, ['Users','Nodes']); //AP QUERY is sort of different in a way     
         $q_r    = $query->all();
         
         $coordsAll  = [];

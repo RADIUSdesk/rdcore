@@ -39,17 +39,6 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetails' ,{
             { text: i18n('s_email'),   dataIndex: 'email',     tdCls: 'gridTree', flex: 1, filter: {type: 'string'},   hidden: true,stateId: 'StateGridDynamicDetails7'},
             { text: i18n('sURL'),      dataIndex: 'url',       tdCls: 'gridTree', flex: 1, filter: {type: 'string'},   hidden: true,stateId: 'StateGridDynamicDetails8'},
 			{ text: 'Theme',           dataIndex: 'theme',     tdCls: 'gridTree', flex: 1, filter: {type: 'string'},stateId: 'StateGridDynamicDetails8a'},
-            { 
-                text    : i18n('sNotes'),
-                sortable: false,
-                width   : 130,
-                hidden  : true,
-                xtype   : 'templatecolumn', 
-                tpl     : new Ext.XTemplate(
-                                "<tpl if='notes == true'><span class=\"fa fa-thumb-tack fa-lg txtGreen\"></tpl>"
-                ),
-                dataIndex: 'notes',stateId: 'StateGridDynamicDetails10'
-            },
             {
                 xtype       : 'actioncolumn',
                 text        : 'Actions',

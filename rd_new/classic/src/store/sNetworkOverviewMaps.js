@@ -6,7 +6,7 @@ Ext.define('Rd.store.sNetworkOverviewMaps', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake3/rd_cake/clouds/index_mesh_overview.json', //THIS WE USE WITH STREETVIEW MIGRATION
+            url     : '/cake4/rd_cake/clouds/index_mesh_overview.json', //THIS WE USE WITH STREETVIEW MIGRATION
             extraParams: { 'timespan': 'now','node':0},
             reader: {
                 type            : 'json',

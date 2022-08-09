@@ -59,8 +59,8 @@ Ext.define('Rd.controller.cVouchers', {
         urlEmailSend        : '/cake4/rd_cake/vouchers/email-voucher-details.json',
 		urlAddCsv           : '/cake4/rd_cake/vouchers/add_csv/',
 		
-		urlDeleteRadaccts   : '/cake3/rd_cake/radaccts/delete.json',
-        urlDeletePostAuths  : '/cake3/rd_cake/radpostauths/delete.json'
+		urlDeleteRadaccts   : '/cake4/rd_cake/radaccts/delete.json',
+        urlDeletePostAuths  : '/cake4/rd_cake/radpostauths/delete.json'
     },
     refs: [
         {  ref: 'grid',         selector:   'gridVouchers'} ,

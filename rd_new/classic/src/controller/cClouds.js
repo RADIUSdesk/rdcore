@@ -52,10 +52,9 @@ Ext.define('Rd.controller.cClouds', {
     models: [],
     selectedRecord: null,
     config: {
-        urlApChildCheck : '/cake3/rd_cake/access-providers/child-check.json',
-        urlAdd          : '/cake3/rd_cake/clouds/add.json',
-        urlDelete       : '/cake3/rd_cake/clouds/delete.json',
-		urlEdit         : '/cake3/rd_cake/clouds/edit.json',
+        urlAdd          : '/cake4/rd_cake/clouds/add.json',
+        urlDelete       : '/cake4/rd_cake/clouds/delete.json',
+		urlEdit         : '/cake4/rd_cake/clouds/edit.json',
 		urlMapPrefView  : '/cake4/rd_cake/meshes/map_pref_view.json'
     },
     refs: [

@@ -174,17 +174,6 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
                 sortable    : true,
                 width       : Rd.config.gridNumberCol
             },
-            { 
-                text    : '<i class="fa fa-sticky-note"></i> '+i18n('sNotes'),
-                sortable: false,
-                width   : 130,
-                hidden  : true,
-                xtype   : 'templatecolumn', 
-                tpl     : new Ext.XTemplate(
-                                "<tpl if='notes == true'><span class=\"fa fa-thumb-tack fa-lg txtGreen\"></tpl>"
-                ),
-                dataIndex: 'notes',stateId: 'StateGridMeshes10'
-            },
             {
                 xtype       : 'actioncolumn',
                 text        : 'Actions',

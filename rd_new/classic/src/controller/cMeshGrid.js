@@ -46,9 +46,7 @@ Ext.define('Rd.controller.cMeshGrid', {
     ],
     selectedRecord: null,
     config: {
-        urlUsageForRealm    : '/cake3/rd_cake/data-usages/usage_for_realm.json',
-        username            : false,
-        type                : 'realm' //default is realm
+        username            : false
     },
     refs: [
          {  ref: 'grid',         selector: 'gridMeshOverview'}   

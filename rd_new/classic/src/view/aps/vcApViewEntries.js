@@ -5,8 +5,8 @@ Ext.define('Rd.view.aps.vcApViewEntries', {
         gridPage        : null,
         mac             : false,
         span            : 'hour', //hour, day, week
-        urlApUsageForSsid : '/cake3/rd_cake/wifi-charts/ap-usage-for-ssid.json',
-        urlEditAlias    : '/cake3/rd_cake/wifi-charts/edit-mac-alias.json'
+        urlApUsageForSsid : '/cake4/rd_cake/wifi-charts/ap-usage-for-ssid.json',
+        urlEditAlias    : '/cake4/rd_cake/wifi-charts/edit-mac-alias.json'
     }, 
     control: {
         'pnlApViewEntriesGraph' : {

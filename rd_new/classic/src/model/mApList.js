@@ -10,7 +10,6 @@ Ext.define('Rd.model.mApList', {
          {name: 'mac',                  type: 'string'  },
 		 {name: 'last_contact',    	    type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
 		 {name: 'last_contact_from_ip', type: 'string' },
-		 {name: 'available_to_siblings',type: 'bool'},
          {name: 'update',       	    type: 'bool'},
          {name: 'delete',       	    type: 'bool'},      
          'last_contact_human',

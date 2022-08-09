@@ -151,17 +151,7 @@ Ext.define('Rd.view.permanentUsers.gridUserDevices' ,{
                 flex        : 1,
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
                 stateId		: 'gUD16'
-            },   
-            { 
-                text    : i18n('sNotes'),
-                sortable: false,
-                width   : 130,
-                xtype   : 'templatecolumn', 
-                tpl     : new Ext.XTemplate(
-                                "<tpl if='notes == true'><div class=\"note\">"+i18n("sExisting_Notes")+"</div></tpl>"
-                ),
-                dataIndex: 'notes',stateId: 'StateGridUserRadaccts14'
-            }      
+            }   
     ],
     username: 'nobody', //dummy value
     initComponent: function(){

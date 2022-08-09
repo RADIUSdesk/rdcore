@@ -214,19 +214,6 @@ Ext.define('Rd.view.devices.gridDevices' ,{
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
                 stateId		: 'StateGridDevices16'
             },   
-            { 
-                text    : i18n('sNotes'),
-                sortable: false,
-                hidden  : false,
-                hidden   : true, 
-                width   : 130,
-                xtype   : 'templatecolumn', 
-                tdCls   : 'gridTree',
-                tpl     : new Ext.XTemplate(
-                                "<tpl if='notes == true'><span class=\"fa fa-thumb-tack fa-lg txtGreen\"></tpl>"
-                ),
-                dataIndex: 'notes',stateId: 'StateGridDevices17'
-            },
             {
                 xtype       : 'actioncolumn',
                 text        : 'Actions',

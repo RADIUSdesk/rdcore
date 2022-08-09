@@ -30,7 +30,6 @@ Ext.define('Rd.model.mPermanentUser', {
 		 {name: 'static_ip',    type: 'string'  },
 		 {name: 'extra_name',   type: 'string'  },
 		 {name: 'extra_value',  type: 'string'  },
-         {name: 'notes',        type: 'bool'},
          {name: 'created',           type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
          {name: 'modified',          type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
          {name: 'created_in_words',  type: 'string'  },

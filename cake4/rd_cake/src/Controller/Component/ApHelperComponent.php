@@ -114,8 +114,8 @@ class ApHelperComponent extends Component {
     
     private function _update_wbw_channel(){   
         //Update wbw info if present 
-        if($this->request->getQuery('wbw_active') == '1'){
-            $channel = $this->request->getQuery('wbw_channel');
+        if($this->getController()->getRequest()->getQuery('wbw_active') == '1'){
+            $channel = $this->getController()->getRequest()->getQuery('wbw_channel');
             $ent_channel = $this->ApConnectionSettings->find()
                 ->where([
                     'ApConnectionSettings.ap_id'    => $this->ApId,
@@ -143,7 +143,7 @@ class ApHelperComponent extends Component {
         $data = [];
 		$data['id'] 			        = $this->ApId;
 		$data['config_fetched']         = date("Y-m-d H:i:s", time());
-		$data['last_contact_from_ip']   = $this->request->clientIp();
+		$data['last_contact_from_ip']   = $this->getController()->getRequest()->clientIp();
         $this->{$this->main_model}->patchEntity($ent_ap, $data);
         $this->{$this->main_model}->save($ent_ap);       
     } 
@@ -431,9 +431,9 @@ class ApHelperComponent extends Component {
 
         $br_int     = $this->_wan_for($this->Hardware);
         $wan_if     = $this->_wan_for($this->Hardware);
-        $version    = $this->request->getQuery('version');
+        $version    = $this->getController()->getRequest()->getQuery('version');
         //SMALL HACK START 
-		$m = $this->request->getQuery('mac');
+		$m = $this->getController()->getRequest()->getQuery('mac');
         $m = strtolower($m);
         $m = str_replace('-', ':', $m);
         //SMALL HACK END
@@ -509,7 +509,7 @@ class ApHelperComponent extends Component {
         }
         
 		if($include_lan_dhcp){
-		    if($this->request->getQuery('zzversion') !== null){ //For now we just check for its presence
+		    if($this->getController()->getRequest()->getQuery('zzversion') !== null){ //For now we just check for its presence
 		
 		        array_push( $network,
 		            [

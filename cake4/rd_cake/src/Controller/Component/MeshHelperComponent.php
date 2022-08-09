@@ -30,7 +30,7 @@ class MeshHelperComponent extends Component {
     protected $QmiActive        = false;   
     protected $Schedules        = false;
 
-    public function initialize(array $config){
+    public function initialize(array $config):void{
         //Please Note that we assume the Controller has a JsonErrors Component Included which we can access.
         $this->controller       = $this->_registry->getController();
         $this->Meshes           = TableRegistry::get('Meshes');
@@ -76,7 +76,7 @@ class MeshHelperComponent extends Component {
                         ],
                         'MeshSettings',
                         'MeshExits' => [
-                            'MeshExitCaptivePortals' => ['TrafficClasses'],
+                            'MeshExitCaptivePortals',
                             'OpenvpnServerClients',
                             'MeshExitSettings'
                         ],
@@ -102,10 +102,11 @@ class MeshHelperComponent extends Component {
     
     private function _update_wbw_channel(){
     
-        //Update wbw info if present 
-        if($this->request->getQuery('wbw_active') == '1'){
+        //Update wbw info if present
+        
+        if($this->getController()->getRequest()->getQuery('wbw_active') == '1'){
             $this->WbwActive = true;
-            $channel = $this->request->getQuery('wbw_channel');
+            $channel = $this->getController()->getRequest()->getQuery('wbw_channel');
             $ent_channel = $this->NodeConnectionSettings->find()
                 ->where([
                     'NodeConnectionSettings.node_id'    => $this->NodeId,
@@ -131,7 +132,7 @@ class MeshHelperComponent extends Component {
         $data = [];
 		$data['id'] 			        = $this->NodeId;
 		$data['config_fetched']         = date("Y-m-d H:i:s", time());
-		$data['last_contact_from_ip']   = $this->request->clientIp();
+		$data['last_contact_from_ip']   = $this->getController()->getRequest()->clientIp();
         $this->Nodes->patchEntity($ent_node, $data);
         $this->Nodes->save($ent_node);      
     }
@@ -148,7 +149,7 @@ class MeshHelperComponent extends Component {
 		$json['config_settings']['system']		= [];
 
         //============ Network ================
-        $version    = $this->request->getQuery('version');
+        $version    = $this->getController()->getRequest()->getQuery('version');
         $net_return = $this->_build_network($ent_mesh,$gateway,$version); //version can be 18.06/19.07/21.02
 
               
@@ -242,7 +243,7 @@ class MeshHelperComponent extends Component {
 			$batman_adv = $ent_mesh->mesh_setting;
 		}
 		
-		if($this->request->getQuery('version') == '18.06'){
+		if($this->getController()->getRequest()->getQuery('version') == '18.06'){
             $json['config_settings']['batman_adv'] = $batman_adv;
         }
 	
@@ -468,7 +469,7 @@ class MeshHelperComponent extends Component {
 			}
 			
 			//SMALL HACK START 
-			$m = $this->request->query['mac'];
+			$m = $this->getController()->getRequest()->getQuery('mac');
             $m = strtolower($m);
             $m = str_replace('-', ':', $m);
             //SMALL HACK END
@@ -781,7 +782,7 @@ class MeshHelperComponent extends Component {
                 //=== GATEWAY BRIDGE ===
                 if(($type=='bridge')&&($gateway)){                         
                     //Here we have to override the bridge with a NAT if wbw
-                    if(($this->request->getQuery('wbw_active') == '1')||($this->QmiActive == true)){                 
+                    if(($this->getController()->getRequest()->getQuery('wbw_active') == '1')||($this->QmiActive == true)){                 
                         $this->if_wbw_nat_br = $if_name;
                         array_push($network,
                             [
@@ -1430,7 +1431,7 @@ class MeshHelperComponent extends Component {
                 // -- FIX ON NOV 2021 --               
                 //Add this to fix the single radio mesh / client (sta) driver issue with same MAC
                 if($radio_count == 1){ //Only do on single radio hardware as it broke on dual radio hardware (Meraki-Atheros)
-                    $m = $this->request->query['mac'];
+                    $m = $this->getController()->getRequest()->getQuery('mac');
                     $m = strtoupper($m);
                     $m = str_replace('-', ':', $m);
                     $m = preg_replace('/^([0-9a-f]{2}[\:])/i', 'A'.$x.':', $m);
@@ -1491,7 +1492,7 @@ class MeshHelperComponent extends Component {
                                     $this->MetaData["$if_name"."$y"] = $me->id;
                                     
                                     if( ($epd['network'] == 'lan')&&
-                                        (($this->request->getQuery('wbw_active') == '1')||($this->QmiActive == true))
+                                        (($this->getController()->getRequest()->getQuery('wbw_active') == '1')||($this->QmiActive == true))
                                     ){
                                         $epd['network'] = $this->if_wbw_nat_br;
                                     }
@@ -1588,7 +1589,7 @@ class MeshHelperComponent extends Component {
                                                     $this->MetaData["$if_name"."$y"] = $me->id;
                                                     
                                                     if( ($epd['network'] == 'lan')&&
-                                                        (($this->request->getQuery('wbw_active') == '1')||($this->QmiActive == true))
+                                                        (($this->getController()->getRequest()->getQuery('wbw_active') == '1')||($this->QmiActive == true))
                                                     ){
                                                         $epd['network'] = $this->if_wbw_nat_br;
                                                     }

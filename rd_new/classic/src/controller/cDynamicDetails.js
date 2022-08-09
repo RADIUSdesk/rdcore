@@ -29,7 +29,7 @@ Ext.define('Rd.controller.cDynamicDetails', {
     },
     views:  [
         'dynamicDetails.gridDynamicDetails', 'dynamicDetails.winDynamicDetailAdd', 'dynamicDetails.pnlDynamicDetail',
-        'components.winCsvColumnSelect',    'components.winNote',       'components.winNoteAdd','dynamicDetails.pnlDynamicDetailDetail',
+        'components.winCsvColumnSelect',    'dynamicDetails.pnlDynamicDetailDetail',
         'dynamicDetails.pnlDynamicDetailLogo',  'dynamicDetails.pnlDynamicDetailPhoto', 'dynamicDetails.winPhotoAdd',
         'dynamicDetails.winPhotoEdit',      'dynamicDetails.gridDynamicDetailPages',    'dynamicDetails.winPageAdd',
         'dynamicDetails.winPageEdit',       'dynamicDetails.gridDynamicDetailPairs',    'dynamicDetails.winPairAdd',

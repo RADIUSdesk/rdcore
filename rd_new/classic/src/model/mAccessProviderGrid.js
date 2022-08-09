@@ -9,7 +9,6 @@ Ext.define('Rd.model.mAccessProviderGrid', {
         {name: 'modified',          type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
         {name: 'created_in_words',  type: 'string'  },
         {name: 'modified_in_words', type: 'string'  },
-        {name: 'notes',            type: 'bool'},
         {name: 'update',           type: 'bool'},
         {name: 'delete',           type: 'bool'}
     ]

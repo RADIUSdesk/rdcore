@@ -4,10 +4,10 @@ Ext.define('Rd.controller.cMeshNode', {
         'meshes.pnlMeshAddEditNode' 
     ],
     config      : {  
-        urlAddNode                  : '/cake3/rd_cake/meshes/mesh_node_add.json',
-        urlViewNode                 : '/cake3/rd_cake/meshes/mesh_node_view.json',
-        urlEditNode                 : '/cake3/rd_cake/meshes/mesh_node_edit.json',  
-        urlAdvancedSettingsForModel : '/cake3/rd_cake/meshes/advanced_settings_for_model.json'
+        urlAddNode                  : '/cake4/rd_cake/meshes/mesh_node_add.json',
+        urlViewNode                 : '/cake4/rd_cake/meshes/mesh_node_view.json',
+        urlEditNode                 : '/cake4/rd_cake/meshes/mesh_node_edit.json',  
+        urlAdvancedSettingsForModel : '/cake4/rd_cake/meshes/advanced_settings_for_model.json'
     },
     refs: [
         {  ref: 'tabMeshes',  selector: '#tabMainMeshes' } 

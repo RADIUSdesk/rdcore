@@ -9,7 +9,7 @@ Ext.define('Rd.store.sMeshOverviewLight', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake3/rd_cake/mesh-overviews-light/index.json',
+            url     : '/cake4/rd_cake/mesh-overviews-light/index.json',
             extraParams: { 'timespan': 'hourly'},
             reader: {
                 type            : 'json',

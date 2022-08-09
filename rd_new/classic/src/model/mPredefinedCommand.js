@@ -5,7 +5,6 @@ Ext.define('Rd.model.mPredefinedCommand', {
          {name: 'name',         type: 'string'  },
          {name: 'command',      type: 'string'  },
          {name: 'owner',        type: 'string'  },
-         {name: 'available_to_siblings',  type: 'bool'},
          {name: 'update',       type: 'bool'},
          {name: 'delete',       type: 'bool'},
          {name: 'created',           type: 'date',       dateFormat: 'Y-m-d H:i:s'   },

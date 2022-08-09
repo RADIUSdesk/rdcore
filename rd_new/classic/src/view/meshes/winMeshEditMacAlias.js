@@ -62,16 +62,6 @@ Ext.define('Rd.view.meshes.winMeshEditMacAlias', {
                     itemId      : 'txtAlias',
                     margin      : Rd.config.fieldMargin +5
                 },
-               /* {
-                    xtype       : 'checkbox',      
-                    boxLabel    : i18n('sAlso_show_to_sub_providers'),
-                    name        : 'available_to_siblings',
-                    inputValue  : 'available_to_siblings',
-                    itemId      : 'chkAtoS',
-                    checked     : false,
-                    cls         : 'lblRd',
-                    margin      : Rd.config.fieldMargin +5
-                },*/
                 {
                     xtype       : 'checkbox',      
                     boxLabel    : 'Remove Alias',

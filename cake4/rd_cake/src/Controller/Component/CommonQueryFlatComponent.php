@@ -20,9 +20,9 @@ class CommonQueryFlatComponent extends Component {
     public $sort_by   	= 'name';
     
     public function initialize(array $config):void{       
-        if($this->config('sort_by')){
-            $this->sort_by = $this->config('sort_by');
-        }
+        //if($this->config('sort_by')){
+       //     $this->sort_by = $this->config('sort_by');
+       // }
     }
     
     public function get_filter_conditions(){

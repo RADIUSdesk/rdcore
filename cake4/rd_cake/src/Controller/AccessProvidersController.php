@@ -98,23 +98,8 @@ class AccessProvidersController extends AppController{
             $csv_line   = array();
             if(isset($this->request->query['columns'])){
                 $columns = json_decode($this->request->query['columns']);
-                foreach($columns as $c){
-                    $column_name = $c->name;
-                    if($column_name == 'notes'){
-                        $notes   = '';
-                        foreach($i->user_notes as $un){
-                            if(!$this->Aa->test_for_private_parent($un->note,$user)){
-                                $notes = $notes.'['.$un->note->note.']';    
-                            }
-                        }
-                        array_push($csv_line,$notes);
-                    }elseif($column_name =='owner'){
-                        $owner_id       = $i->parent_id;
-                        $owner_tree     = $this->Users->find_parents($owner_id);
-                        array_push($csv_line,$owner_tree); 
-                    }else{
-                        array_push($csv_line,$i->{$column_name});  
-                    }
+                foreach($columns as $c){                  
+               		array_push($csv_line,$i->{$column_name});  
                 }
                 array_push($data,$csv_line);
             }

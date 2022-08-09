@@ -52,8 +52,8 @@ Ext.define('Rd.controller.cDevices', {
         urlEnableDisable    : '/cake4/rd_cake/devices/enable-disable.json',
         urlDelete           : '/cake4/rd_cake/devices/delete.json',
         
-        urlDeleteRadaccts:  '/cake3/rd_cake/radaccts/delete.json',
-        urlDeletePostAuths: '/cake3/rd_cake/radpostauths/delete.json'
+        urlDeleteRadaccts:  '/cake4/rd_cake/radaccts/delete.json',
+        urlDeletePostAuths: '/cake4/rd_cake/radpostauths/delete.json'
     },
     refs: [
         {  ref: 'grid',         selector:   'gridDevices'},

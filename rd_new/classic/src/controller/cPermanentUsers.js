@@ -55,8 +55,8 @@ Ext.define('Rd.controller.cPermanentUsers', {
         urlDelete           : '/cake4/rd_cake/permanent-users/delete.json', 
         urlDevicesListedOnly: '/cake4/rd_cake/permanent-users/restrict-list-of-devices.json',
         urlAutoAddMac       : '/cake4/rd_cake/permanent-users/auto-mac-on-off.json',        
-        urlDeleteRadaccts   :  '/cake3/rd_cake/radaccts/delete.json',
-        urlDeletePostAuths  : '/cake3/rd_cake/radpostauths/delete.json'
+        urlDeleteRadaccts   : '/cake4/rd_cake/radaccts/delete.json',
+        urlDeletePostAuths  : '/cake4/rd_cake/radpostauths/delete.json'
     },
     refs: [
         {  ref: 'grid',         selector:   'gridPermanentUsers'},
@@ -85,9 +85,6 @@ Ext.define('Rd.controller.cPermanentUsers', {
             },
             'gridPermanentUsers #edit'   : {
                 click:      me.edit
-            },
-            'gridPermanentUsers #note'   : {
-                click:      me.note
             },
             'gridPermanentUsers #csv'  : {
                 click:      me.csvExport
@@ -131,27 +128,6 @@ Ext.define('Rd.controller.cPermanentUsers', {
             },
             '#winCsvColumnSelectPermanentUsers #save': {
                 click:  me.csvExportSubmit
-            },
-            'gridNote[noteForGrid=permanentUsers] #reload' : {
-                click:  me.noteReload
-            },
-            'gridNote[noteForGrid=permanentUsers] #add' : {
-                click:  me.noteAdd
-            },
-            'gridNote[noteForGrid=permanentUsers] #delete' : {
-                click:  me.noteDelete
-            },
-            'gridNote[noteForGrid=permanentUsers]' : {
-                itemclick: me.gridNoteClick
-            },
-            'winNoteAdd[noteForGrid=permanentUsers] #btnTreeNext' : {
-                click:  me.btnNoteTreeNext
-            },
-            'winNoteAdd[noteForGrid=permanentUsers] #btnNoteAddPrev'  : {   
-                click: me.btnNoteAddPrev
-            },
-            'winNoteAdd[noteForGrid=permanentUsers] #btnNoteAddNext'  : {   
-                click: me.btnNoteAddNext
             },
             'pnlPermanentUser gridUserRadpostauths #reload' :{
                 click:      me.gridUserRadpostauthsReload

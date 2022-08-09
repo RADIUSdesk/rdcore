@@ -273,18 +273,6 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
                 stateId		: 'StateGridPermanentUsers24'
             },
-            { 
-                text    : i18n('sNotes'),
-                sortable: false,
-                hidden  : true,
-                width   : 130,
-                xtype   : 'templatecolumn',
-                tdCls   : 'gridTree',
-                tpl     : new Ext.XTemplate(
-                                "<tpl if='notes == true'><span class=\"fa fa-thumb-tack fa-lg txtGreen\"></tpl>"
-                ),
-                dataIndex: 'notes',stateId: 'StateGridPermanentUsers25'
-            },
             {
                 xtype       : 'actioncolumn',
                 text        : 'Actions',

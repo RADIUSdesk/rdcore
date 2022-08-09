@@ -32,16 +32,6 @@ Ext.define('Rd.view.meshes.winMeshAdd', {
         this.callParent(arguments);
     },
 
-    //____ AccessProviders tree SCREEN ____
-    mkScrnApTree: function(){
-        var pnlTree = Ext.create('Rd.view.components.pnlAccessProvidersTree',{
-            itemId  : 'scrnApTree',
-            border  : false
-        });
-        return pnlTree;
-    },
-     
-    //_______ Data for mesh  _______
     mkScrnData: function(){
 
         var me  = this;

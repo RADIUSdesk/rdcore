@@ -4,7 +4,7 @@ Ext.define('Rd.view.meshes.vcMeshViewNode', {
     config: {
         gridPage        : null,
         span            : 'hour', //hour, day, week
-        urlUsageForSsid : '/cake3/rd_cake/wifi-charts/usage-for-ssid.json',
+        urlUsageForSsid : '/cake4/rd_cake/wifi-charts/usage-for-ssid.json',
     }, 
     control: {
         'pnlMeshViewNodesGraph' : {

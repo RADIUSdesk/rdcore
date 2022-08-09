@@ -4,7 +4,6 @@ Ext.define('Rd.model.mSchedule', {
          {name: 'id',           type: 'string'  },
          {name: 'name',         type: 'string'  },
          {name: 'owner',        type: 'string'  },
-         {name: 'available_to_siblings',  type: 'bool'},
          {name: 'update',       type: 'bool'},
          {name: 'delete',       type: 'bool'},
          {name: 'created',           type: 'date',       dateFormat: 'Y-m-d H:i:s'   },

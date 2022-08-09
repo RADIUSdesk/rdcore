@@ -5,8 +5,8 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
         gridPage        : null,
         mac             : false,
         span            : 'hour', //hour, day, week
-        urlUsageForSsid : '/cake3/rd_cake/wifi-charts/usage-for-ssid.json',
-        urlEditAlias    : '/cake3/rd_cake/wifi-charts/edit-mac-alias.json'
+        urlUsageForSsid : '/cake4/rd_cake/wifi-charts/usage-for-ssid.json',
+        urlEditAlias    : '/cake4/rd_cake/wifi-charts/edit-mac-alias.json'
     }, 
     control: {
         'pnlMeshViewEntriesGraph' : {
@@ -270,17 +270,12 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
         var me      = this;
         var form    = chk.up('form');
         var txt_a   = form.down('#txtAlias');
-        //var chkAtoS = form.down('#chkAtoS');
         if(chk.getValue()){
             txt_a.disable();
             txt_a.hide();
-            //chkAtoS.disable();
-            //chkAtoS.hide();
         }else{
             txt_a.enable();
-            txt_a.show();
-            //chkAtoS.enable();
-            //chkAtoS.show();      
+            txt_a.show();     
         }
     },
     aliasEditSave: function(btn){

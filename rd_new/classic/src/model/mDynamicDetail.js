@@ -7,8 +7,6 @@ Ext.define('Rd.model.mDynamicDetail', {
             'user_id',
             'phone','fax', 		'cell', 'email','url', 'street_no', 'street','town_suburb','city','country','lat','lon','theme',
 			'register_users', 	'lost_password',
-         {name: 'available_to_siblings',  type: 'bool'},
-         {name: 'notes',   type: 'bool'},
          {name: 'update',  type: 'bool'},
          {name: 'delete',  type: 'bool'}
         ]

@@ -186,7 +186,7 @@ class SchedulesController extends AppController {
             return;
         }
 
-        $fail_flag = false;
+        $fail_flag 	= false;
         $req_d 		= $this->request->getData();
 
 	    if(isset($req_d['id'])){   //Single item delete

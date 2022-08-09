@@ -57,16 +57,6 @@ Ext.define('Rd.view.clouds.winCloudEdit', {
                         grow        : true,
                         name        : 'lng',
                         fieldLabel  : 'Lng'
-                    },
-                    {
-                        xtype       : 'checkbox',      
-                        boxLabel    : i18n('sAlso_show_to_sub_providers'),
-                        name        : 'available_to_siblings',
-                        inputValue  : 'available_to_siblings',
-                        itemId      : 'a_to_s',
-                        checked     : false,
-                        cls         : 'lblRd',
-                        hidden      : me.hide_a_to_s
                     }
                    ],
                 buttons: [

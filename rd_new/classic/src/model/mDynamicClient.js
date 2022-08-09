@@ -13,7 +13,6 @@ Ext.define('Rd.model.mDynamicClient', {
          {name: 'monitor',  type: 'string'  },
          {name: 'session_auto_close',  type: 'bool'  },
          {name: 'session_dead_time',  type: 'int'  },
-         {name: 'available_to_siblings',  type: 'bool'  },
          {name: 'active',  type: 'bool'  },
          {name: 'on_public_maps',  type: 'bool'  },
          'lat',
@@ -43,8 +42,6 @@ Ext.define('Rd.model.mDynamicClient', {
          {name: 'daily_data_used'},
          {name: 'daily_data_cap'},
          {name: 'daily_data_limit_cap'}, //Hard or Soft
-         
-         {name: 'notes',        type: 'bool'  },
          {name: 'update',       type: 'bool'},
          {name: 'delete',       type: 'bool'}
         ]

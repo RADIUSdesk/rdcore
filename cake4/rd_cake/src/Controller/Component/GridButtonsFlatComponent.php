@@ -990,8 +990,7 @@ class GridButtonsFlatComponent extends Component {
 				$this->btnReloadTimer,
 				$this->btnAdd,
 				$this->btnDelete,
-				$this->btnEdit,
-				$this->btnNote
+				$this->btnEdit
 			]
 		];
         return $menu;    

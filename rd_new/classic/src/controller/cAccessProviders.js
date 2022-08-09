@@ -42,7 +42,7 @@ Ext.define('Rd.controller.cAccessProviders', {
     views:  [
         'accessProviders.pnlAccessProvider',    'accessProviders.pnlAccessProviderDetail', 
         'accessProviders.gridAccessProviders',  'accessProviders.winApAdd',
-        'components.winCsvColumnSelect',        'components.winNote',                   'components.winNoteAdd',
+        'components.winCsvColumnSelect', 
         'accessProviders.winAccessProviderPassword','components.winEnableDisable',      'components.vCmbLanguages'
     ],
     stores: ['sLanguages',   'sAccessProvidersGrid'
@@ -50,17 +50,13 @@ Ext.define('Rd.controller.cAccessProviders', {
     models: ['mAccessProviderGrid'],
     selectedRecord: undefined,
     config: {
-        urlAdd          : '/cake3/rd_cake/access-providers/add.json', //Keep this still the original untill everything is ported for AROs
-        urlEdit         : '/cake3/rd_cake/access-providers/edit.json',
-        urlDelete       : '/cake3/rd_cake/access-providers/delete.json', //Keep this still the original untill everything is ported for AROs
-        urlApChildCheck : '/cake3/rd_cake/access-providers/child-check.json',
-        urlExportCsv    : '/cake3/rd_cake/access-providers/exportCsv',
-        urlNoteAdd      : '/cake3/rd_cake/access-providers/note-add.json',
-        urlViewAPDetail : '/cake3/rd_cake/access-providers/view.json',
-        urlChangeTag    : '/cake3/rd_cake/access-providers/ap-change-tag.json',
-        urlEnableDisable: '/cake3/rd_cake/access-providers/enable-disable.json',
-        urlChangePassword:'/cake3/rd_cake/access-providers/change-password.json',
-        urlChangeParent : '/cake3/rd_cake/access-providers/change-parent.json'
+        urlAdd          : '/cake4/rd_cake/access-providers/add.json', //Keep this still the original untill everything is ported for AROs
+        urlEdit         : '/cake4/rd_cake/access-providers/edit.json',
+        urlDelete       : '/cake4/rd_cake/access-providers/delete.json', //Keep this still the original untill everything is ported for AROs
+        urlExportCsv    : '/cake4/rd_cake/access-providers/exportCsv',
+        urlViewAPDetail : '/cake4/rd_cake/access-providers/view.json',
+        urlEnableDisable: '/cake4/rd_cake/access-providers/enable-disable.json',
+        urlChangePassword:'/cake4/rd_cake/access-providers/change-password.json'
     },
     refs: [
         { ref:  'grid',                 selector:   'gridAccessProviders'}
@@ -105,18 +101,6 @@ Ext.define('Rd.controller.cAccessProviders', {
             },
             '#winCsvColumnSelectAp #save': {
                 click:  me.csvExportSubmit
-            },
-            'gridNote[noteForGrid=access-providers] #reload' : {
-                click:  me.noteReload
-            },
-            'gridNote[noteForGrid=access-providers] #add' : {
-                click:  me.noteAdd
-            },
-            'gridNote[noteForGrid=access-providers] #delete' : {
-                click:  me.noteDelete
-            },
-            'gridNote[noteForGrid=access-providers]' : {
-                itemclick: me.gridNoteClick
             },
             'pnlAccessProvider #tabDetail': {
                 //beforerender:   me.tabDetailActivate,//No need for this one 
