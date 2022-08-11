@@ -10,9 +10,9 @@ Ext.define('Rd.view.hardwares.winHardwareAdd', {
     plain:      true,
     border:     false,
     layout:     'fit',
-    iconCls:    'add',
     glyph: Rd.config.icnAdd,
     autoShow:   false,
+    root : false,
     defaults: {
             border: false
     },
@@ -30,9 +30,14 @@ Ext.define('Rd.view.hardwares.winHardwareAdd', {
         this.callParent(arguments);
     },
     //_______ Data for ssids  _______
-    mkScrnData: function(){
-
+    mkScrnData: function(){        
         var me      = this;
+
+        var hide_system = true;
+        if(me.root){
+            hide_system = false;
+        }
+
         var frmData = Ext.create('Ext.form.Panel',{
             border      : false,
             layout      : 'anchor',
@@ -112,6 +117,15 @@ Ext.define('Rd.view.hardwares.winHardwareAdd', {
                     inputValue  : 'for_ap',
                     checked     : true,
                     cls         : 'lblRd'
+                },
+                {
+                    xtype       : 'checkbox',      
+                    boxLabel    : 'System Wide',
+                    name        : 'for_system',
+                    inputValue  : 'for_system',
+                    cls         : 'lblRd',
+                    hidden      : hide_system,
+                    disabled    : hide_system
                 }
             ],
             buttons: [

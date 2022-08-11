@@ -12,6 +12,7 @@ Ext.define('Rd.view.hardwares.pnlHardwareAddEdit', {
     hw_id       : null,
     hw_name     : null,
     record      : null, //We will supply each instance with a reference to the selected record.
+    root        : false,
     defaults    : {
             border: false
     },
@@ -41,6 +42,11 @@ Ext.define('Rd.view.hardwares.pnlHardwareAddEdit', {
         var w_sec          = 350;
         var hide_multiple  = true;
         var gen_height     = 500; 
+
+        var hide_system = true;
+        if(me.root){
+            hide_system = false;
+        }
         
         me.buttons = [
             {
@@ -119,6 +125,14 @@ Ext.define('Rd.view.hardwares.pnlHardwareAddEdit', {
                         fieldLabel  : 'For AP',
                         name        : 'for_ap',
                         inputValue  : 'for_ap'
+                    },
+                    {
+                        xtype       : 'checkbox',      
+                        fieldLabel  : 'System Wide',
+                        name        : 'for_system',
+                        inputValue  : 'for_system',
+                        hidden      : hide_system,
+                        disabled    : hide_system
                     },
                     {
 					    xtype       : 'container',

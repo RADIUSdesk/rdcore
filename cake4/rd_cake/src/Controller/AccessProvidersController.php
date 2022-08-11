@@ -36,42 +36,22 @@ class AccessProvidersController extends AppController{
     ];
     protected   $acl_base = "Access Providers/Controllers/";
   
-    public function initialize(){  
+    public function initialize():void{  
         parent::initialize();  
           
         $this->loadModel('Users'); 
         $this->loadModel('Groups');
-        $this->loadModel('TreeTags');
-		$this->loadModel('UserSettings');
-          
+		$this->loadModel('UserSettings');  
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('CommonQuery', [ //Very important to specify the Model
             'model' => $this->main_model
-        ]);
-                
+        ]);               
         $this->loadComponent('WhiteLabel'); 
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('JsonErrors');     
     }
-    
-    public function test(){
-    
-        $node = $this->{$this->main_model}->find()->where(['Users.id' => 51])->first(); 
-      
-        if($node){   
-            $this->{$this->main_model}->patchEntity($node,['parent_id' => 50]);
-            $this->{$this->main_model}->save($node);
-        };
-          
-        $this->set([
-            'success'       => true,
-            '_serialize'    => ['success']
-        ]);
-        return;
-    }
-    
-    
+       
     public function exportCsv(){
    
         $query = $this->{$this->main_model}->find(); 
@@ -115,24 +95,21 @@ class AccessProvidersController extends AppController{
     public function index(){
 
         //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
+        if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
         }
-        $user_id    = $user['id'];
-       
-        $query = $this->{$this->main_model}->find();
         
-        $this->CommonQuery->build_ap_query($query,$user); //AP QUERY is sort of different in a way
-        
+        $req_q    	= $this->request->getQuery(); 
+        $ap_name    = Configure::read('group.ap');             
+        $query		= $this->{$this->main_model}->find()->where(['Groups.name' => $ap_name])->contain(['Groups']);     
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50; 
         $page   = 1;
         $offset = 0;
-        if(isset($this->request->query['limit'])){
-            $limit  = $this->request->query['limit'];
-            $page   = $this->request->query['page'];
-            $offset = $this->request->query['start'];
+        if(isset($req_q['limit'])){
+            $limit  = $req_q['limit'];
+            $page   = $req_q['page'];
+            $offset = $req_q['start'];
         }
         
         $query->page($page);
@@ -145,7 +122,7 @@ class AccessProvidersController extends AppController{
         
         foreach($q_r as $i){            
             $row        = [];
-            $fields     = $this->{$this->main_model}->schema()->columns();
+            $fields     = $this->{$this->main_model}->getSchema()->columns();
             foreach($fields as $field){
                 $row["$field"]= $i->{"$field"};             
                 if($field == 'created'){
@@ -171,37 +148,38 @@ class AccessProvidersController extends AppController{
         if(!$user){
             return;
         }
+        $req_d		= $this->request->getData();
   
         $check_items = [
 			'active'
 		];
         foreach($check_items as $i){
-            if(isset($this->request->data[$i])){
-                $this->request->data[$i] = 1;
+            if(isset($req_d[$i])){
+                $req_d[$i] = 1;
             }else{
-                $this->request->data[$i] = 0;
+                $req_d[$i] = 0;
             }
         }    
 
         //Get the language and country
-        $country_language   = explode( '_', $this->request->data['language'] );
+        $country_language   = explode( '_', $req_d['language'] );
         $country            = $country_language[0];
         $language           = $country_language[1];
 
-        $this->request->data['language_id'] = $language;
-        $this->request->data['country_id']  = $country;
+        $req_d['language_id'] = $language;
+        $req_d['country_id']  = $country;
 
         //Get the group ID for AP's
         $ap_name    = Configure::read('group.ap');
         $q_r        = $this->Groups->find()->where(['Groups.name' => $ap_name])->first();
         $group_id   = $q_r->id;
-        $this->request->data['group_id'] = $group_id;
+        $req_d['group_id'] = $group_id;
 
         //Zero the token to generate a new one for this user:
-        $this->request->data['token'] = '';
+        $req_d['token'] = '';
 
         //The rest of the attributes should be same as the form..
-        $entity = $this->{$this->main_model}->newEntity($this->request->data()); 
+        $entity = $this->{$this->main_model}->newEntity($req_d); 
         if($this->{$this->main_model}->save($entity)){
             $this->set([
                 'success' => true,
@@ -235,9 +213,10 @@ class AccessProvidersController extends AppController{
             return;
         }
         $user_id    = $user['id'];
-        $items = array();
-        if(isset($this->request->query['ap_id'])){
-			$ap_id = $this->request->query['ap_id'];
+        $items 		= [];
+        $req_q    = $this->request->getQuery();
+        if(isset($req_q['ap_id'])){
+			$ap_id = $req_q['ap_id'];
             $q_r = $this->{$this->main_model}->find()->where([$this->main_model.'.id' => $ap_id])->first();
             if($q_r){
                 $owner_tree         = $this->Users->find_parents($q_r->parent_id);
@@ -274,10 +253,10 @@ class AccessProvidersController extends AppController{
 					$items['alert_frequency'] = $q_freq->value;
 				}
 				
-				$sel_comp   = $this->_getSelectedComponents($this->request->query['ap_id']);
+				$sel_comp   = $this->_getSelectedComponents($req_q['ap_id']);
 				$items      = array_merge($items, $sel_comp);
 				
-                $wl         = $this->WhiteLabel->detail($this->request->query['ap_id']);   
+                $wl         = $this->WhiteLabel->detail($req_q['ap_id']);   
                 $items      = array_merge($items, $wl);
                 
                 //Get the items that the owner can actually see
@@ -286,12 +265,12 @@ class AccessProvidersController extends AppController{
             }
         }
         
-        $this->set(array(
+        $this->set([
             'data'      => $items,
             'success'   => true,
             'metaData'  => $meta_data,
-            '_serialize'=> array('success', 'data','metaData')
-        ));
+            '_serialize'=> ['success', 'data','metaData']
+        ]);
     }
   
     public function edit(){
@@ -308,11 +287,12 @@ class AccessProvidersController extends AppController{
         $user_id    = $user['id'];
 
         //We need to unset a few of the values submitted:
-        unset($this->request->data['token']);
-        unset($this->request->data['password']);
-        unset($this->request->data['parent_id']);
+        $req_d		= $this->request->getData();
+        unset($req_d['token']);
+        unset($req_d['password']);
+        unset($req_d['parent_id']);
         
-        $ap_id = $this->request->data['id'];
+        $ap_id = $req_d['id'];
 
         $check_items = [
 			'active',
@@ -323,45 +303,45 @@ class AccessProvidersController extends AppController{
 			'can_manage_tree_tags'
 		];
         foreach($check_items as $i){
-            if(isset($this->request->data[$i])){
-                $this->request->data[$i] = 1;
+            if(isset($req_d[$i])){
+                $req_d[$i] = 1;
             }else{
-                $this->request->data[$i] = 0;
+                $req_d[$i] = 0;
             }
         }    
 
         //Get the language and country
-        $country_language   = explode( '_', $this->request->data['language'] );
+        $country_language   = explode( '_', $req_d['language'] );
 
         $country            = $country_language[0];
         $language           = $country_language[1];
 
-        $this->request->data['language_id'] = $language;
-        $this->request->data['country_id']  = $country;
+        $req_d['language_id'] = $language;
+        $req_d['country_id']  = $country;
         
         $e_user = $this->{$this->main_model}->get($ap_id);
-        $this->{$this->main_model}->patchEntity($e_user, $this->request->data());
+        $this->{$this->main_model}->patchEntity($e_user, $req_d);
         
 		$this->loadModel('UserSettings');
 
 		// Set the Alerts email threshold and frequency
-		if(!array_key_exists('alert_activate',$this->request->data)){
-			$this->request->data['alert_activate'] = 0;
+		if(!array_key_exists('alert_activate',$req_d)){
+			$req_d['alert_activate'] = 0;
 		}
-		if(!array_key_exists('alert_frequency', $this->request->data)){
-			$this->request->data['alert_frequency'] = 1;
+		if(!array_key_exists('alert_frequency', $req_d)){
+			$req_d['alert_frequency'] = 1;
 		}
 		$this->UserSettings->deleteAll(['user_id' => $ap_id,'name' => 'alert_activate']);
 		$this->UserSettings->deleteAll(['user_id' => $ap_id,'name' => 'alert_frequency']);
 		$us_entity = $this->UserSettings->newEntity();
 		$us_entity->user_id    = $ap_id;
 		$us_entity->name       = 'alert_activate';
-		$us_entity->value      = $this->request->data['alert_activate'];
+		$us_entity->value      = $req_d['alert_activate'];
 		$this->UserSettings->save($us_entity);
 		$us_entity = $this->UserSettings->newEntity();
 		$us_entity->user_id    = $ap_id;
 		$us_entity->name       = 'alert_frequency';
-		$us_entity->value      = $this->request->data['alert_frequency'];
+		$us_entity->value      = $req_d['alert_frequency'];
 		$this->UserSettings->save($us_entity);
 		
         //The White Label stuff ONLY if it is enabled Site Wide
@@ -370,7 +350,7 @@ class AccessProvidersController extends AppController{
             $looking_for    = ['wl_active','wl_header','wl_h_bg','wl_h_fg','wl_footer','wl_img_active','wl_img_file'];
         
             //Only if it is enabled do we do it
-            if($this->request->data['wl_active'] == 1){
+            if($req_d['wl_active'] == 1){
             
                 $new_logo = false;
             
@@ -406,7 +386,7 @@ class AccessProvidersController extends AppController{
                     $entity             = $this->UserSettings->newEntity();
                     $entity->user_id    = $ap_id;
                     $entity->name       = $i;
-                    $entity->value      = $this->request->data["$i"];
+                    $entity->value      = $req_d["$i"];
                     $this->UserSettings->save($entity);
                 }
             }else{
@@ -466,11 +446,12 @@ class AccessProvidersController extends AppController{
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
-	    if(isset($this->request->data['id'])){   //Single item delete      
-            $entity     = $this->{$this->main_model}->get($this->request->data['id']);
+		$req_d		= $this->request->getData();
+	    if(isset($req_d['id'])){   //Single item delete      
+            $entity     = $this->{$this->main_model}->get($req_d['id']);
             $this->{$this->main_model}->delete($entity);  
         }else{                          //Assume multiple item delete
-            foreach($this->request->data as $d){
+            foreach($req_d as $d){
                 $entity     = $this->{$this->main_model}->get($d['id']);               
                	$this->{$this->main_model}->delete($entity);
             }
@@ -483,11 +464,12 @@ class AccessProvidersController extends AppController{
 	
 	public function changePassword(){
 
-        $success = false;
-        if(isset($this->request->data['user_id'])){
-            $entity = $this->{$this->main_model}->get($this->request->data['user_id']); 
+        $success 	= false;
+        $req_d		= $this->request->getData();
+        if(isset($req_d['user_id'])){
+            $entity = $this->{$this->main_model}->get($req_d['user_id']); 
             $data = [
-                'password'  => $this->request->data['password'],
+                'password'  => $req_d['password'],
                 'token'     => ''
             ];
             $this->{$this->main_model}->patchEntity($entity, $data);
@@ -503,13 +485,14 @@ class AccessProvidersController extends AppController{
     
     public function enableDisable(){       
 
-        $rb  	= $this->request->data['rb'];
+		$req_d	= $this->request->getData();
+        $rb  	= $req_d['rb'];
         if($rb == 'enable'){
             $active = 1;
         }else{
             $active = 0;
         }
-        foreach(array_keys($this->request->data) as $key){
+        foreach(array_keys($req_d) as $key){
             if(preg_match('/^\d+/',$key)){  
                 $entity = $this->{$this->main_model}->get($key);
                 $entity->active = $active;

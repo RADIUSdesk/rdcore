@@ -98,7 +98,7 @@ Ext.define('Rd.view.wizard.pnlWizardNewSite', {
             model: 'Rd.model.mDynamicPhoto',
             proxy: {
                 type    :'ajax',
-                url     : '/cake3/rd_cake/wizards/index-photo.json',
+                url     : '/cake4/rd_cake/wizards/index-photo.json',
                 format  : 'json',
                 reader  : {
                     keepRawData     : true,
@@ -106,7 +106,7 @@ Ext.define('Rd.view.wizard.pnlWizardNewSite', {
                     rootProperty: 'items'
                 },
                 api: {
-                    destroy  : '/cake3/rd_cake/wizards/delete-photo.json'
+                    destroy  : '/cake4/rd_cake/wizards/delete-photo.json'
                 }
             },
             listeners: {

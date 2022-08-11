@@ -2,8 +2,8 @@ Ext.define('Rd.view.clouds.vcCloudAndMap', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcCloudAndMap',
     config: {
-        UrlMapDelete            : '/cake3/rd_cake/clouds/map-delete.json',
-        UrlMapSave              : '/cake3/rd_cake/clouds/map-save.json',   
+        UrlMapDelete            : '/cake4/rd_cake/clouds/map-delete.json',
+        UrlMapSave              : '/cake4/rd_cake/clouds/map-save.json',   
         urlBlue                 : 'resources/css/images/marker-icon-2x-blue.png',
         urlBlack                : 'resources/css/images/marker-icon-2x-black.png',
         urlRedNode              : 'resources/css/images/marker-icon-2x-orange.png',

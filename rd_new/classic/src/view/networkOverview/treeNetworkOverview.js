@@ -11,7 +11,7 @@ Ext.define('Rd.view.networkOverview.treeNetworkOverview' ,{
         me.store  = Ext.create('Ext.data.TreeStore', {
             proxy   : {
                 type    : 'ajax',
-                url     : '/cake3/rd_cake/clouds/index-online.json',
+                url     : '/cake4/rd_cake/clouds/index-online.json',
                 extraParams: {'location': me.location},
                 reader: {
                     type            : 'json',

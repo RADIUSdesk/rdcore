@@ -2,7 +2,7 @@ Ext.define('Rd.view.networkOverview.vcNetworkOverviewMap', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcNetworkOverviewMap',
     config: {
-        urlNetworkMap   : '/cake3/rd_cake/clouds/index_network_map.json',
+        urlNetworkMap   : '/cake4/rd_cake/clouds/index_network_map.json',
         timespan        : 'now',
         nodeId          : 0,
         urlBlue         : 'resources/css/images/marker-icon-2x-blue.png',
@@ -13,8 +13,8 @@ Ext.define('Rd.view.networkOverview.vcNetworkOverviewMap', {
         urlGreenGw      : 'resources/css/images/marker-icon-2x-dark-green.png',
         urlViolet       : 'resources/css/images/marker-icon-2x-violet.png',
         urlOrange       : 'resources/css/images/marker-icon-2x-orange.png',
-        urlMapSave	    : '/cake3/rd_cake/clouds/map_node_save.json',
-        urlMapDelete    : '/cake3/rd_cake/clouds/map_node_delete.json',
+        urlMapSave	    : '/cake4/rd_cake/clouds/map_node_save.json',
+        urlMapDelete    : '/cake4/rd_cake/clouds/map_node_delete.json',
         lastMovedMarker : null,
 		lastOrigPosition: null		
     },

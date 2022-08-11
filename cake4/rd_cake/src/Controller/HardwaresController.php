@@ -26,7 +26,7 @@ class HardwaresController extends AppController{
         $this->loadModel('HardwareRadios');      
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'Hardwares'
         ]);      
         $this->loadComponent('JsonErrors'); 
@@ -35,14 +35,18 @@ class HardwaresController extends AppController{
     
      //____ BASIC CRUD Manager ________
     public function index(){
+    
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        } 
 
 		$req_q    = $this->request->getQuery();    
        	$cloud_id = $req_q['cloud_id'];
-        $query 	  = $this->{$this->main_model}->find();
+        $query 	  = $this->{$this->main_model}->find();//->where(['OR' =>['Hardwares.cloud_id' => -1]])->contain(['HardwareRadios']);
 
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,['HardwareRadios']);
- 
-        //===== PAGING (MUST BE LAST) ======
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,['HardwareRadios']);
+
         $limit  = 50;   //Defaults
         $page   = 1;
         $offset = 0;
@@ -93,6 +97,11 @@ class HardwaresController extends AppController{
                     }
                     $row['radio_'.$radio_number.'_'.$fr] = $hr[$fr];
                 }
+            }
+            
+            $row['for_system'] = false;
+            if($i->cloud_id == -1){
+            	$row['for_system'] = true;
             } 
                  
 			$row['update']		= true;
@@ -111,11 +120,22 @@ class HardwaresController extends AppController{
     
     public function apProfilesList(){
     
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        } 
+          
       	$cloud_id = $this->request->getQuery('cloud_id');
         $this->_commonList($cloud_id,'ap');
     }
     
     public function meshesList(){
+    
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+           
     	$req_q    = $this->request->getQuery();
         $cloud_id = $req_q['cloud_id'];
         if(isset($req_q['id'])){
@@ -126,21 +146,43 @@ class HardwaresController extends AppController{
         }       
     }
      
-    public function add(){     
+    public function add(){  
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }    
         $this->_addOrEdit('add');    
     }
     
     public function edit(){
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+        //If cloud_id = -1 and the user is not root ...reject the action
+        if($user['group_name'] == Configure::read('group.ap')){
+        	$e_check = $this->{$this->main_model}->find()->where(['Hardwares.id' => $this->request->getData('id')])->first();
+        	if($e_check){       
+		    	if($e_check->cloud_id == -1){
+		    		$this->set([
+						'message' 	=> 'Not enough rights for action',
+						'success'	=> false,
+						'_serialize' => ['success','message']
+					]);
+					return;
+		    	}
+		  	}
+        }    
         $this->_addOrEdit('edit');    
     }
     
     private function _addOrEdit($type= 'add') {
-    
-    	$req_d		= $this->request->getData();
-  
+
+    	$req_d	  = $this->request->getData();
         $check_items = [
 			'for_mesh',
 			'for_ap',
+			'for_system'
 		];
         foreach($check_items as $i){
             if(isset($req_d[$i])){
@@ -149,7 +191,13 @@ class HardwaresController extends AppController{
                 $req_d[$i] = 0;
             }
         }
-       
+        
+        if($req_d['for_system'] == 1){
+        	$req_d['cloud_id'] = -1;
+        }else{
+        	$req_d['cloud_id'] = $this->request->getData('cloud_id');
+        }
+             
         if($type == 'add'){ 
            $entity = $this->{$this->main_model}->newEntity($req_d);
         }      
@@ -174,19 +222,44 @@ class HardwaresController extends AppController{
 	
     public function delete(){
     
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+    
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
 		
-		$req_d		= $this->request->getData();
-
+		$req_d		= $this->request->getData();	
+		$ap_flag 	= true;		
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
+        
 	    if(isset($req_d['id'])){   
-            $entity     = $this->{$this->main_model}->get($req_d['id']);   
+            $entity     = $this->{$this->main_model}->get($req_d['id']);          
+            if(($entity->cloud_id == -1)&&($ap_flag == true)){
+	    		$this->set([
+					'message' 	=> 'Not enough rights for action',
+					'success'	=> false,
+					'_serialize' => ['success','message']
+				]);
+				return;
+	    	}          
             $this->{$this->main_model}->delete($entity);
 
         }else{ 
             foreach($req_d as $d){
-                $entity     = $this->{$this->main_model}->get($d['id']);    
+                $entity     = $this->{$this->main_model}->get($d['id']);
+                if(($entity->cloud_id == -1)&&($ap_flag == true)){
+					$this->set([
+							'message' 	=> 'Not enough rights for action',
+							'success'	=> false,
+							'_serialize' => ['success','message']
+						]);
+					return;
+				}      
                 $this->{$this->main_model}->delete($entity);
             }
         }
@@ -198,6 +271,11 @@ class HardwaresController extends AppController{
 	}
 	
 	public function view(){
+	
+		$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        } 
        
         $data 		= []; 
         $req_q		= $this->request->getQuery();    
@@ -215,6 +293,16 @@ class HardwaresController extends AppController{
 	}
 	
 	public function uploadPhoto($id = null){
+	
+		$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        } 
+	
+		$ap_flag 	= true;		
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
 
         //This is a deviation from the standard JSON serialize view since extjs requires a html type reply when files
         //are posted to the server.    
@@ -222,6 +310,18 @@ class HardwaresController extends AppController{
 
         $path_parts         = pathinfo($_FILES['photo']['name']);
         $entity             = $this->{$this->main_model}->get($this->request->getData('id'));
+        
+        //Refuse for system-wide and Access Provider
+        if(($entity->cloud_id == -1)&&($ap_flag == true)){
+			$this->set([
+					'message' 	=> 'Not enough rights for action',
+					'success'	=> false,
+					'_serialize' => ['success','message']
+				]);
+			return;
+		}      
+        
+        
         $photo_file_name    = $entity->id.'_'.$entity->fw_id.'.'.$path_parts['extension'];
         $dest               = WWW_ROOT."/img/hardwares/".$photo_file_name;
         $entity->photo_file_name = $photo_file_name;
@@ -324,7 +424,7 @@ class HardwaresController extends AppController{
     private function _commonList($cloud_id,$item = 'mesh',$id = 'fw_id'){
     
         $query      = $this->{$this->main_model}->find();
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,['HardwareRadios']);
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,['HardwareRadios']);
         $req_q      = $this->request->getQuery();
         
         if($item == 'ap'){

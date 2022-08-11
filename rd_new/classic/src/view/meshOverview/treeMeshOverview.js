@@ -11,8 +11,8 @@ Ext.define('Rd.view.meshOverview.treeMeshOverview' ,{
     store       : Ext.create('Ext.data.TreeStore', {
         proxy   : {
             type    : 'ajax',
-            //url     : '/cake3/rd_cake/tree-tags/index_mesh_overview.json',
-            url     : '/cake3/rd_cake/clouds/index.json',
+            //url     : '/cake4/rd_cake/tree-tags/index_mesh_overview.json',
+            url     : '/cake4/rd_cake/clouds/index.json',
             reader: {
                 type            : 'json',
                 rootProperty    : 'items',

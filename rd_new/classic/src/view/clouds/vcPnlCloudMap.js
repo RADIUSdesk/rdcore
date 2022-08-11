@@ -2,14 +2,14 @@ Ext.define('Rd.view.clouds.vcPnlCloudMap', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcPnlCloudMap',
     config: {
-        urlMapPrefView          : '/cake3/rd_cake/mesh-overviews-light/index-map.json',
+        urlMapPrefView          : '/cake4/rd_cake/mesh-overviews-light/index-map.json',
         urlBlueMark             : 'resources/images/map_markers/mesh_blue_node.png',
         urlRedNode              : 'resources/images/map_markers/mesh_red_node.png',
         urlRedGw                : 'resources/images/map_markers/mesh_red_gw.png',
         urlGreenNode            : 'resources/images/map_markers/mesh_green_node.png',
         urlGreenGw              : 'resources/images/map_markers/mesh_green_gw.png',
-        UrlMapDelete            : '/cake3/rd_cake/clouds/map-delete.json',
-        UrlMapSave              : '/cake3/rd_cake/clouds/map-save.json',
+        UrlMapDelete            : '/cake4/rd_cake/clouds/map-delete.json',
+        UrlMapSave              : '/cake4/rd_cake/clouds/map-save.json',
     }, 
     clearMarkers: function(){
         var me = this;

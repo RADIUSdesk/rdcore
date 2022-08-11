@@ -75,78 +75,77 @@ class WizardsController extends AppController{
       
         $this->new_name = $req_d['name'];
         
-        if(isset($this->request->data['name'])){
+        if(isset($req_d['name'])){
             $this->new_name =  preg_replace('/^\s+/', '', $this->new_name); //Remove laeding spaces
             $this->new_name =  preg_replace('/\s+$/', '', $this->new_name); //Remove trailing spaces
         }   
         
-        $this->user_id  = $this->_return_cloud_id_from_name($this->new_name,$user_id);
+        $this->cloud_id  = $this->_return_cloud_id_from_name($this->new_name,$user_id);
         
-        //Now we have our info, now we can delete
-        $this->Realms->deleteAll(['Realms.name' => $this->new_name,'Realms.user_id'=>$this->user_id]);
-        $this->DynamicDetails->deleteAll(['DynamicDetails.name' => $this->new_name,'DynamicDetails.user_id'=>$this->user_id]);
+        //Now we have our cloud id, now we can delete
+        $this->Realms->deleteAll(['Realms.name' => $this->new_name,'Realms.cloud_id'=> $this->cloud_id]);
+        $this->DynamicDetails->deleteAll(['DynamicDetails.name' => $this->new_name,'DynamicDetails.cloud_id'=> $this->cloud_id]);
         
-        $this->DynamicClients->deleteAll(['DynamicClients.name' => $this->new_name,'DynamicClients.user_id'=>$this->user_id]);
+        $this->DynamicClients->deleteAll(['DynamicClients.name' => $this->new_name,'DynamicClients.cloud_id'=> $this->cloud_id]);
         
         //Delete the profiles and their linked profile components
-        $e_pc_basic = $this->Profiles->find()->where(['Profiles.name' => $this->new_name,'Profiles.user_id'=>$this->user_id])->first();
+        $e_pc_basic = $this->Profiles->find()->where(['Profiles.name' => $this->new_name,'Profiles.cloud_id'=>$this->cloud_id])->first();
         if($e_pc_basic){
             $pc_name = $this->prof_comp_prefix.$e_pc_basic->id;
-            $this->ProfileComponents->deleteAll(['ProfileComponents.name' => $pc_name,'ProfileComponents.user_id'=>$this->user_id]);
-            $this->Profiles->deleteAll(['Profiles.name' => $this->new_name,'Profiles.user_id'=>$this->user_id]);
+            $this->ProfileComponents->deleteAll(['ProfileComponents.name' => $pc_name,'ProfileComponents.cloud_id'=>$this->cloud_id]);
+            $this->Profiles->deleteAll(['Profiles.name' => $this->new_name,'Profiles.cloud_id'=>$this->cloud_id]);
         }
         
-        $e_pc_c_t_c = $this->Profiles->find()->where(['Profiles.name' => $this->new_name.$this->ctc,'Profiles.user_id'=>$this->user_id])->first();
+        $e_pc_c_t_c = $this->Profiles->find()->where(['Profiles.name' => $this->new_name.$this->ctc,'Profiles.cloud_id'=>$this->cloud_id])->first();
         if($e_pc_c_t_c){
             $pc_name = $this->prof_comp_prefix.$e_pc_c_t_c->id;
-            $this->ProfileComponents->deleteAll(['ProfileComponents.name' => $pc_name,'ProfileComponents.user_id'=>$this->user_id]);
-            $this->Profiles->deleteAll(['Profiles.name' => $this->new_name.$this->ctc,'Profiles.user_id'=>$this->user_id]);
+            $this->ProfileComponents->deleteAll(['ProfileComponents.name' => $pc_name,'ProfileComponents.cloud_id'=>$this->cloud_id]);
+            $this->Profiles->deleteAll(['Profiles.name' => $this->new_name.$this->ctc,'Profiles.cloud_id'=>$this->cloud_id]);
             $this->{'Radusergroups'}->deleteAll(['Radusergroups.username' => $this->new_name.$this->ctc, 'Radusergroups.groupname' => $pc_name]);
             $this->{'Radgroupreplies'}->deleteAll(['groupname' => $pc_name]);
             $this->{'Radgroupchecks'}->deleteAll(['groupname' => $pc_name]);
         }
         
-        $e_pc_reg = $this->Profiles->find()->where(['Profiles.name' => $this->new_name.$this->reg,'Profiles.user_id'=>$this->user_id])->first();
+        $e_pc_reg = $this->Profiles->find()->where(['Profiles.name' => $this->new_name.$this->reg,'Profiles.cloud_id'=>$this->cloud_id])->first();
         if($e_pc_reg){
             $pc_name = $this->prof_comp_prefix.$e_pc_reg->id;
-            $this->ProfileComponents->deleteAll(['ProfileComponents.name' => $pc_name,'ProfileComponents.user_id'=>$this->user_id]);
-            $this->Profiles->deleteAll(['Profiles.name' => $this->new_name.$this->reg,'Profiles.user_id'=>$this->user_id]);
+            $this->ProfileComponents->deleteAll(['ProfileComponents.name' => $pc_name,'ProfileComponents.cloud_id'=>$this->cloud_id]);
+            $this->Profiles->deleteAll(['Profiles.name' => $this->new_name.$this->reg,'Profiles.cloud_id'=>$this->cloud_id]);
             $this->{'Radusergroups'}->deleteAll(['Radusergroups.username' => $this->new_name.$this->reg, 'Radusergroups.groupname' => $pc_name]);
             $this->{'Radgroupreplies'}->deleteAll(['groupname' => $pc_name]);
             $this->{'Radgroupchecks'}->deleteAll(['groupname' => $pc_name]);
         }
         
         
-        $this->ApProfiles->deleteAll(['ApProfiles.name' => $this->new_name,'ApProfiles.user_id'=>$this->user_id]);
-        $this->Meshes->deleteAll(['Meshes.name' => $this->new_name,'Meshes.user_id'=>$this->user_id]);
+        $this->ApProfiles->deleteAll(['ApProfiles.name' => $this->new_name,'ApProfiles.cloud_id'=>$this->cloud_id]);
+        $this->Meshes->deleteAll(['Meshes.name' => $this->new_name,'Meshes.cloud_id'=>$this->cloud_id]);
   
         //Access Provder 
-        $ap_name = preg_replace('/\s+/', '_', $this->new_name);
-        $ap_name = strtolower($ap_name);
+        $user_name = preg_replace('/\s+/', '_', $this->new_name);
+        $user_name = strtolower($user_name);
         
         //Delete the sample file
-        $dest  = WWW_ROOT."img/dynamic_photos/".$ap_name.".jpg";
+        $dest  = WWW_ROOT."img/dynamic_photos/".$user_name.".jpg";
         unlink($dest);
         
         $this->DynamicClients->deleteAll(
-            ['DynamicClients.nasidentifier LIKE ' => $ap_name.'_mcp_%','DynamicClients.user_id'=>$this->user_id]);
+            ['DynamicClients.nasidentifier LIKE ' => $user_name.'_mcp_%','DynamicClients.cloud_id'=>$this->cloud_id]);
         
         $this->PermanentUsers->deleteAll(
-            ['PermanentUsers.username' => $ap_name.'@'.$ap_name,'PermanentUsers.user_id'=>$this->user_id]);
+            ['PermanentUsers.username' => $user_name.'@'.$user_name,'PermanentUsers.cloud_id'=>$this->cloud_id]);
         
-        $this->Radchecks->deleteAll(['Radchecks.username' => $ap_name.'@'.$ap_name]);
+        $this->Radchecks->deleteAll(['Radchecks.username' => $user_name.'@'.$user_name]);
         
-        $this->PermanentUsers->deleteAll(['PermanentUsers.username' => 'click_to_connect@'.$ap_name,'PermanentUsers.user_id'=>$this->user_id]);
+        $this->PermanentUsers->deleteAll(['PermanentUsers.username' => 'click_to_connect@'.$user_name,'PermanentUsers.cloud_id'=>$this->cloud_id]);
         
-        $this->Radchecks->deleteAll(['Radchecks.username' => 'click_to_connect@'.$ap_name]);
+        $this->Radchecks->deleteAll(['Radchecks.username' => 'click_to_connect@'.$user_name]);
         
-        $this->Users->deleteAll(['Users.username' => $ap_name,'Users.id'=>$this->user_id]);
       
-        $this->set(array(
-            'items'     => array(),
+        $this->set([
+            'items'     => [],
             'success'   => true,
-            '_serialize' => array('items','success')
-        ));
+            '_serialize' => ['items','success']
+        ]);
     }
     
     public function newSiteStepOne(){
@@ -161,7 +160,7 @@ class WizardsController extends AppController{
         $req_d		    = $this->request->getData();
         $this->new_name = $req_d['name'];
         
-        if(isset($this->request->data['name'])){
+        if(isset($req_d['name'])){
             $this->new_name =  preg_replace('/^\s+/', '', $this->new_name); //Remove leading spaces
             $this->new_name =  preg_replace('/\s+$/', '', $this->new_name); //Remove trailing spaces
         }
@@ -199,27 +198,28 @@ class WizardsController extends AppController{
         if(!$user){   //If not a valid user
             return;
         }
-        $user_id        = $user['id'];
-        $this->new_name = $this->request->data['name'];
+        $user_id 	= $user['id'];
+        $req_d		= $this->request->getData();
+        $this->new_name = $req_d['name'];
         
-        if(isset($this->request->data['name'])){
+        if(isset($req_d['name'])){
             $this->new_name =  preg_replace('/^\s+/', '', $this->new_name); //Remove laeding spaces
             $this->new_name =  preg_replace('/\s+$/', '', $this->new_name); //Remove trailing spaces
         }
         
-        $this->user_id  = $this->_return_cloud_id_from_name($this->new_name,$user_id);
+        $this->cloud_id  = $this->_return_cloud_id_from_name($this->new_name,$user_id);
         
         $e = $this->DynamicDetails->find()
             ->where(
                 [
                     'DynamicDetails.name'        => $this->new_name,
-                    'DynamicDetails.user_id'     => $this->user_id,
+                    'DynamicDetails.cloud_id'    => $this->cloud_id,
                 ]
             )
             ->first();
         
         if($e){
-            $e->theme = $this->request->data['theme'];
+            $e->theme = $req_d['theme'];
             $this->DynamicDetails->save($e);  
         }
     
@@ -288,21 +288,21 @@ class WizardsController extends AppController{
             return;
         }
         
-        $user_id        = $user['id'];
-        //$this->user_id  = $user_id;
-        $this->new_name = $this->request->data['name'];
+        $user_id    = $user['id'];
+        $req_d		= $this->request->getData();
+        $this->new_name = $req_d['name'];
         
-         if(isset($this->request->data['name'])){
+         if(isset($req_d['name'])){
             $this->new_name =  preg_replace('/^\s+/', '', $this->new_name); //Remove laeding spaces
             $this->new_name =  preg_replace('/\s+$/', '', $this->new_name); //Remove trailing spaces
         }      
         
-        $this->user_id  = $this->_return_cloud_id_from_name($this->new_name,$user_id);
+        $this->cloud_id  = $this->_return_cloud_id_from_name($this->new_name,$user_id);
         
         $q_r = $this->DynamicDetails->find()
             ->where([
                 'DynamicDetails.name'        => $this->new_name,
-                'DynamicDetails.user_id'     => $this->user_id,
+                'DynamicDetails.cloud_id'    => $this->cloud_id,
             ])
             ->first();
         if($q_r){
@@ -312,7 +312,7 @@ class WizardsController extends AppController{
             $check_items = ['voucher_login_check','user_login_check','eth_br_for_all'];
           
             foreach($check_items as $i){
-                if(isset($this->request->data[$i])){
+                if(isset($req_d[$i])){
                     $d[$i] = 1;
                 }else{
                     $d[$i] = 0;
@@ -323,7 +323,7 @@ class WizardsController extends AppController{
             
             //Update the DynamcDetailCtcs entry
             $d_ctcs['connect_check'] = 0;
-            if(isset($this->request->data['connect_check'])){
+            if(isset($req_d['connect_check'])){
                 $d_ctcs['connect_check'] = 1;
             }
             $q_ctc = $this->DynamicDetailCtcs->find()
@@ -342,8 +342,8 @@ class WizardsController extends AppController{
         $tz_id  = $this->request->getData('timezone');
         $ent_tz  = $this->{'Timezones'}->find()->where(['Timezones.id' => $tz_id])->first();
         if($ent_tz){
-            $this->request->data['tz_name']     = $ent_tz->name;
-            $this->request->data['tz_value']    = $ent_tz->value;
+            $req_d['tz_name']     = $ent_tz->name;
+            $req_d['tz_value']    = $ent_tz->value;
         }
         
         //$this->request->data['timezone'] is the value you have to use to set on the dynamic_clients
@@ -352,11 +352,11 @@ class WizardsController extends AppController{
         $name_like = 'MESHdesk_'.$mesh_name_underscored.'_mcp_%';
 
         $e_dc = $this->{'DynamicClients'}->find()
-            ->where(['DynamicClients.name LIKE' =>$name_like,'DynamicClients.user_id' => $this->user_id])
+            ->where(['DynamicClients.name LIKE' =>$name_like,'DynamicClients.cloud_id' => $this->cloud_id])
             ->first();
         if($e_dc){ 
    
-            $tz_id = $this->request->data['timezone'];
+            $tz_id = $req_d['timezone'];
             $this->{'DynamicClients'}->patchEntity($e_dc, ['timezone' => $tz_id,'session_auto_close' => 1]);
             $this->{'DynamicClients'}->save($e_dc);
         }
@@ -365,7 +365,7 @@ class WizardsController extends AppController{
         $q_m = $this->Meshes->find()
             ->where([
                 'Meshes.name'        => $this->new_name,
-                'Meshes.user_id'     => $this->user_id,
+                'Meshes.cloud_id'    => $this->cloud_id,
             ])
             ->first();
         
@@ -384,12 +384,12 @@ class WizardsController extends AppController{
             }  
             
             $d_ns['mesh_id']    = $mesh_id;
-            $d_ns['tz_name']    = $this->request->data['tz_name'];
-            $d_ns['tz_value']   = $this->request->data['tz_value'];
-            $d_ns['country']    = $this->request->data['country'];
+            $d_ns['tz_name']    = $req_d['tz_name'];
+            $d_ns['tz_value']   = $req_d['tz_value'];
+            $d_ns['country']    = $req_d['country'];
             
-            $new_pwd            = $this->_make_linux_password($this->request->data['password']);
-            $d_ns['password']   = $this->request->data['password'];
+            $new_pwd            = $this->_make_linux_password($req_d['password']);
+            $d_ns['password']   = $req_d['password'];
             $d_ns['password_hash'] = $new_pwd;
             
             if($q_ns){
@@ -405,7 +405,7 @@ class WizardsController extends AppController{
         $q_ap = $this->ApProfiles->find()
             ->where([
                     'ApProfiles.name'        => $this->new_name,
-                    'ApProfiles.user_id'     => $this->user_id,
+                    'ApProfiles.cloud_id'    => $this->cloud_id,
                 ])
             ->first();
  
@@ -425,12 +425,12 @@ class WizardsController extends AppController{
             }    
             
             $d_ap_s['ap_profile_id']    = $ap_profile_id;
-            $d_ap_s['tz_name']  = $this->request->data['tz_name'];
-            $d_ap_s['tz_value'] = $this->request->data['tz_value'];
-            $d_ap_s['country']  = $this->request->data['country'];
+            $d_ap_s['tz_name']  = $req_d['tz_name'];
+            $d_ap_s['tz_value'] = $req_d['tz_value'];
+            $d_ap_s['country']  = $req_d['country'];
             
-            $new_pwd                    = $this->_make_linux_password($this->request->data['password']);
-            $d_ap_s['password']         = $this->request->data['password'];
+            $new_pwd                    = $this->_make_linux_password($req_d['password']);
+            $d_ap_s['password']         = $req_d['password'];
             $d_ap_s['password_hash']    = $new_pwd;
             
             $this->ApProfileSettings->patchEntity($q_ap, $d_ap_s);
@@ -450,11 +450,11 @@ class WizardsController extends AppController{
             return;
         }   
         $user_id        = $user['id'];
-        //$this->user_id  = $user_id;
-        $this->new_name = $this->request->query['name'];
-        $this->user_id  = $this->_return_cloud_id_from_name($this->new_name,$user_id);
+        $req_q          = $this->request->getQuery();
+        $this->new_name = $req_q['name'];
+        $this->cloud_id = $this->_return_cloud_id_from_name($this->new_name,$user_id);
         $q_r            = $this->DynamicDetails->find()
-            ->where(['DynamicDetails.name' => $this->new_name,'DynamicDetails.user_id' => $this->user_id])
+            ->where(['DynamicDetails.name' => $this->new_name,'DynamicDetails.cloud_id' => $this->cloud_id])
             ->first();
         if($q_r){
             $this->set(array(
@@ -484,23 +484,23 @@ class WizardsController extends AppController{
         $unique         = time();
         $dest           = WWW_ROOT."img/dynamic_details/".$unique.'.'.$path_parts['extension'];
         $dest_realm     = WWW_ROOT."img/realms/".$unique.'.'.$path_parts['extension'];
-        $dest_www       = "/cake3/rd_cake/webroot/img/dynamic_details/".$unique.'.'.$path_parts['extension'];
+        $dest_www       = "/cake4/rd_cake/webroot/img/dynamic_details/".$unique.'.'.$path_parts['extension'];
 
         //Now add....
         $data['photo_file_name']  = $unique.'.'.$path_parts['extension'];
         
-        $user_id        = $user['id'];
-        //$this->user_id  = $user_id;
-        $this->new_name = $this->request->data['name'];
+        $user_id    = $user['id'];
+        $req_d		= $this->request->getData();
+        $this->new_name = $req_d['name'];
         
-        if(isset($this->request->data['name'])){
+        if(isset($req_d['name'])){
             $this->new_name =  preg_replace('/^\s+/', '', $this->new_name); //Remove laeding spaces
             $this->new_name =  preg_replace('/\s+$/', '', $this->new_name); //Remove trailing spaces
         }
         
-        $this->user_id  = $this->_return_cloud_id_from_name($this->new_name,$user_id);
+        $this->cloud_id = $this->_return_cloud_id_from_name($this->new_name,$user_id);
         $q_r            = $this->DynamicDetails->find()
-            ->where(['DynamicDetails.name' => $this->new_name,'DynamicDetails.user_id' => $this->user_id])
+            ->where(['DynamicDetails.name' => $this->new_name,'DynamicDetails.cloud_id' => $this->cloud_id])
             ->first();
               
         if($q_r){ 
@@ -522,16 +522,20 @@ class WizardsController extends AppController{
                 //Also take care of the realm 
                 copy($dest,$dest_realm);
                 $q_realm = $this->Realms->find()
-                    ->where(['Realms.name' => $this->new_name,'Realms.user_id' => $this->user_id])
+                    ->where(['Realms.name' => $this->new_name,'Realms.cloud_id' => $this->cloud_id])
                     ->first();
                 if($q_realm){
                     $q_realm->icon_file_name = $unique.'.'.$path_parts['extension'];
                     $this->Realms->save($q_realm);
                 }
-                //----------------------------            
-                $json_return['id']                  = $q_r->id;
-                $json_return['success']             = true;
-                $json_return['icon_file_name']      = $unique.'.'.$path_parts['extension'];
+                //----------------------------                            
+                $this->set([
+				    'success' 			=> true,
+				    'id'      			=> $q_r->id,
+				    'icon_file_name'	=> $unique.'.'.$path_parts['extension'],
+				    '_serialize' => ['success','id','icon_file_name']
+				]);              
+                
             }else{
                 $errors = $q_r->errors();
                 $a = [];
@@ -543,10 +547,13 @@ class WizardsController extends AppController{
                     }
                     $a[$field] = $detail_string;
                 }
-                      
-                $json_return['errors']      = $a;
-                $json_return['message']     = __('Problem uploading Logo');
-                $json_return['success']     = false;
+                
+                $this->set([
+				    'errors' 	=> $a,
+				    'message' 	=> __('Problem uploading Logo'),
+				    'success'	=> false,
+				    '_serialize' => ['success','message','errors']
+				]);
             }  
         }else{
             $errors = $q_r->errors();
@@ -559,11 +566,13 @@ class WizardsController extends AppController{
                 }
                 $a[$field] = $detail_string;
             }       
-            $json_return['errors']      = $a;
-            $json_return['message']     = __('Problem uploading Logo');
-            $json_return['success']     = false;
+            $this->set([
+			    'errors' 	=> $a,
+			    'message' 	=> __('Problem uploading Logo'),
+			    'success'	=> false,
+			    '_serialize' => ['success','message','errors']
+			]);
         }
-        $this->set('json_return',$json_return);
     }
     
      public function indexPhoto(){
@@ -573,12 +582,12 @@ class WizardsController extends AppController{
             return;
         }   
         $user_id        = $user['id'];
-        //$this->user_id  = $user_id;
-        $this->new_name = $this->request->query['name'];
-        $this->user_id  = $this->_return_cloud_id_from_name($this->new_name,$user_id);
+        $req_q    		= $this->request->getQuery();
+        $this->new_name = $req_q['name'];
+        $this->cloud_id = $this->_return_cloud_id_from_name($this->new_name,$user_id);
         
         $q_r            = $this->DynamicDetails->find()
-            ->where(['DynamicDetails.name' => $this->new_name,'DynamicDetails.user_id' => $this->user_id])
+            ->where(['DynamicDetails.name' => $this->new_name,'DynamicDetails.cloud_id' => $this->cloud_id])
             ->first();
         
         if($q_r){
@@ -590,7 +599,7 @@ class WizardsController extends AppController{
                 ->where(['DynamicPhotos.dynamic_detail_id' => $id])
                 ->all();
                 
-            $fields = $this->{'DynamicPhotos'}->schema()->columns();
+            $fields = $this->{'DynamicPhotos'}->getSchema()->columns();
    
             foreach($q_p as $p){
             
@@ -600,7 +609,7 @@ class WizardsController extends AppController{
                 }
                 
                 $photo = Configure::read('paths.real_photo_path').$p->file_name;
-                $row['img']= "/cake3/rd_cake/webroot/files/image.php?width=400&height=200&image=".$photo;      
+                $row['img']= "/cake4/rd_cake/webroot/files/image.php?width=400&height=200&image=".$photo;      
            	    array_push($items,$row);
             }
        
@@ -629,42 +638,45 @@ class WizardsController extends AppController{
         
         //We find the ID for this name....
         $user_id        = $user['id'];
-        //$this->user_id  = $user_id;
-        $this->new_name = $this->request->data['name'];
+        $req_d		    = $this->request->getData();
+        $this->new_name = $req_d['name'];
         
-        if(isset($this->request->data['name'])){
+        if(isset($req_d['name'])){
             $this->new_name =  preg_replace('/^\s+/', '', $this->new_name); //Remove laeding spaces
             $this->new_name =  preg_replace('/\s+$/', '', $this->new_name); //Remove trailing spaces
         }
         
         
-        $this->user_id  = $this->_return_cloud_id_from_name($this->new_name,$user_id);
+        $this->cloud_id = $this->_return_cloud_id_from_name($this->new_name,$cloud_id);
         $q_r            = $this->DynamicDetails->find()
-            ->where(['DynamicDetails.name' => $this->new_name,'DynamicDetails.user_id' => $this->user_id])
+            ->where(['DynamicDetails.name' => $this->new_name,'DynamicDetails.cloud_id' => $this->cloud_id])
             ->first();
        
         $check_items = array('active','include_title','include_description');
         foreach($check_items as $ci){
-            if(isset($this->request->data[$ci])){
-                $this->request->data[$ci] = 1;
+            if(isset($req_d[$ci])){
+                $req_d[$ci] = 1;
             }else{
-                $this->request->data[$ci] = 0;
+                $req_d[$ci] = 0;
             }
         }
         
         $path_parts     = pathinfo($_FILES['photo']['name']);
         $unique         = time();
         $dest           =  WWW_ROOT."img/dynamic_photos/".$unique.'.'.$path_parts['extension'];
-        $dest_www       = "/cake3/rd_cake/webroot/img/dynamic_photos/".$unique.'.'.$path_parts['extension'];
+        $dest_www       = "/cake4/rd_cake/webroot/img/dynamic_photos/".$unique.'.'.$path_parts['extension'];
 
-        $this->request->data['dynamic_detail_id']   = $q_r->id;
-        $this->request->data['file_name']           = $unique.'.'.$path_parts['extension'];
+        $req_d['dynamic_detail_id']   = $q_r->id;
+        $req_d['file_name']           = $unique.'.'.$path_parts['extension'];
         
-        $entity = $this->DynamicPhotos->newEntity($this->request->data()); 
+        $entity = $this->DynamicPhotos->newEntity($req_d); 
         if($this->DynamicPhotos->save($entity)){
             move_uploaded_file ($_FILES['photo']['tmp_name'] , $dest);
-            $json_return['id']                  = $entity->id;
-            $json_return['success']             = true;
+            $this->set([
+		        'success' 			=> true,
+		        'id'      			=> $entity->id,
+		        '_serialize' => ['success','id']
+		    ]); 
 
         }else{
             $message = 'Error';
@@ -678,12 +690,13 @@ class WizardsController extends AppController{
                 }
                 $a[$field] = $detail_string;
             } 
-            
-            $json_return['errors']      = $a;
-            $json_return['message']     = array("message"   => __('Problem uploading photo'));
-            $json_return['success']     = false;
+            $this->set([
+		        'errors' 	=> $a,
+		        'message' 	=> array("message"   => __('Problem uploading photo')),
+		        'success'	=> false,
+		        '_serialize' => ['success','message','errors']
+		    ]);
         }
-        $this->set('json_return',$json_return);
     }
     
     public function deletePhoto() {
@@ -694,11 +707,12 @@ class WizardsController extends AppController{
         $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
             return;
-        }   
+        }
+        $req_d		= $this->request->getData();   
 
-	    if(isset($this->request->data['id'])){   //Single item delete
+	    if(isset($req_d['id'])){   //Single item delete
             //Get the filename to delete
-            $entity = $this->DynamicPhotos->get($this->request->data['id']);
+            $entity = $this->DynamicPhotos->get($req_d['id']);
             if($entity){
                 $file_to_delete = WWW_ROOT."img/dynamic_photos/".$entity->file_name;
                 if($this->DynamicPhotos->delete($entity)){
@@ -709,7 +723,7 @@ class WizardsController extends AppController{
             }     
             
         }else{                          //Assume multiple item delete
-            foreach($this->request->data as $d){
+            foreach($req_d as $d){
                 //Get the filename to delete
                 $entity = $this->DynamicPhotos->get($d['id']);
                 if($entity){
@@ -723,10 +737,10 @@ class WizardsController extends AppController{
             }
         }
 
-        $this->set(array(
+        $this->set([
             'success' => true,
-            '_serialize' => array('success')
-        ));
+            '_serialize' => ['success']
+        ]);
 	}
     
     private function _add_items($name){
@@ -735,12 +749,9 @@ class WizardsController extends AppController{
         $ap_name        = preg_replace('/\s+/', '_', $this->new_name);
         $ap_name        = strtolower($ap_name);
         $this->ap_name  = $ap_name; //Make it global accessable
-        
-        
+              
         //We start with a Cloud 
-
-        
-        
+      
         //Add A Cloud / Site and Network
         $cloud_name     = $name;
         $site_name      = "Site ".$name;
@@ -901,13 +912,7 @@ class WizardsController extends AppController{
             
         
         //===========
-      
-        //Allow CRUD for this Access Provider for this realm  
-        $this->Acl->allow(
-                array('model' => 'Users', 'foreign_key' => $ap_id), 
-                array('model' => 'Realms','foreign_key' => $realm_id));             
-        //Get the ID for the Sample Permanent User's profile 
-        
+             
         $d_user['profile']    = $e_profile_basic->name;
         $d_user['profile_id'] = $e_profile_basic->id;
         
@@ -916,7 +921,7 @@ class WizardsController extends AppController{
         
         $d_user['country_id'] = 4;
         $d_user['language_id']= 4; 
-        $d_user['user_id']    = $this->ap_id;
+        $d_user['cloud_id']   = $this->cloud_id;
         
         //Make the username so that it has the suffix
         $d_user['username']    = $ap_name.'@'.$ap_name;
@@ -947,7 +952,7 @@ class WizardsController extends AppController{
         $d_c_t_c['language_id'] = '4'; //*SPECIAL
         $d_c_t_c['active']      = 1;
         $d_c_t_c['country_id']  = 4;
-        $d_c_t_c['user_id']     = $this->ap_id; 
+        $d_c_t_c['cloud_id']    = $this->cloud_id; 
         $d_c_t_c['realm']       = $this->new_name;
         $d_c_t_c['realm_id']    = $realm_id;
               
@@ -1076,15 +1081,19 @@ class WizardsController extends AppController{
     }
     
     private function _default_captive_info(){
-        $data = [];
+        $data = [];       
         $this->loadModel('UserSettings');   
         $q_r = $this->{'UserSettings'}->find()->where(['user_id' => -1])->all();
         if($q_r){
             foreach($q_r as $s){
                 //ALL Captive Portal Related default settings will be 'cp_<whatever>'
                 if(preg_match('/^cp_/',$s->name)){
-                    $name           = preg_replace('/^cp_/', '', $s->name);
-                    $data[$name]    = $s->value;     
+                    $name = preg_replace('/^cp_/', '', $s->name);
+                    if(($name == 'mac_auth')||($name == 'swap_octet')){ //Binary flags must be translated to 0 or 1
+                    	$data[$name]    = 1;	
+                    }else{
+                    	$data[$name]    = $s->value;
+                    }                                             
                 } 
             }
         }
@@ -1164,13 +1173,12 @@ class WizardsController extends AppController{
         $d_cp['mesh_exit_id']       = $exit_guest_id;
         $d_cp['radius_nasid']       = $nas_id;
         $d_cp['coova_optional']     = "ssid ".$this->ap_name."\n";
-        
         $e_cp  = $this->MeshExitCaptivePortals->newEntity($d_cp);  
         $this->MeshExitCaptivePortals->save($e_cp);
         
         //Dynamic RADIUS Client
         $d_common = [];
-        $d_common['user_id']                = $this->ap_id;
+        $d_common['cloud_id']               = $this->cloud_id;
         $d_common['name']                   = 'MESHdesk_'.$nas_id;
         $d_common['nasidentifier']          = $nas_id;
         $d_common['available_to_siblings']  = 1;

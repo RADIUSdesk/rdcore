@@ -109,7 +109,7 @@ Ext.define('Rd.view.clouds.treeClouds' ,{
             },
             proxy       : {
                 type    : 'ajax',
-                url     : '/cake3/rd_cake/clouds/index.json',
+                url     : '/cake4/rd_cake/clouds/index.json',
                 reader  : {
                     type        : 'json',
                     rootProperty: 'items',
@@ -117,8 +117,8 @@ Ext.define('Rd.view.clouds.treeClouds' ,{
                     totalProperty: 'total'
                 },
                 api: {
-                    read    : '/cake3/rd_cake/clouds/index.json',
-                    destroy : '/cake3/rd_cake/clouds/delete.json'
+                    read    : '/cake4/rd_cake/clouds/index.json',
+                    destroy : '/cake4/rd_cake/clouds/delete.json'
                 }
             },         
             rootProperty: 'items'

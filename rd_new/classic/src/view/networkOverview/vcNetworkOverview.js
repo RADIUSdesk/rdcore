@@ -2,7 +2,7 @@ Ext.define('Rd.view.networkOverview.vcNetworkOverview', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcNetworkOverview',
     config  : {
-        urlIndexNetworkOverview    : '/cake3/rd_cake/clouds/index_network_overview.json',
+        urlIndexNetworkOverview    : '/cake4/rd_cake/clouds/index_network_overview.json',
         timespan        : 'now',
         nodeId          : 0
     },

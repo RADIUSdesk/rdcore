@@ -105,6 +105,7 @@ class CloudsController extends AppController {
     	}
     	//---END---        	   
     	
+    	$query->order(['name' => 'ASC']);
     	$q_r 	= $query->all();
     	$items 	= [];
     	foreach($q_r as $e){
@@ -138,11 +139,13 @@ class CloudsController extends AppController {
         $node       = null;
         $tt_level   = 0;
         $conditions = [];
+        
+        $req_q      = $this->request->getQuery();
                
-        if(isset($this->request->query['node'])){
-            $node       = $this->request->query['node'];
-            $node_id    =  preg_replace('/^(\w+)_/', '', $node);
-            $level      =  preg_replace('/_(\d+)/', '', $node);        
+        if(isset($req_q['node'])){
+            $node       = $req_q['node'];
+            $node_id    = preg_replace('/^(\w+)_/', '', $node);
+            $level      = preg_replace('/_(\d+)/', '', $node);        
             if($level == 'Clouds'){
                 //For Cloud level we need to find all the SITES containing the CLOUD ID
                 $l_model    = $this->tree_level_1; //Sites
@@ -276,12 +279,13 @@ class CloudsController extends AppController {
         $l_model    = $this->main_model;    //Clouds
         $node       = null;
         $tt_level   = 0;
-        $conditions = [];
+        $conditions = [];       
+        $req_q      = $this->request->getQuery();
                
-        if(isset($this->request->query['node'])){
-            $node       = $this->request->query['node'];
-            $node_id    =  preg_replace('/^(\w+)_/', '', $node);
-            $level      =  preg_replace('/_(\d+)/', '', $node); 
+        if(isset($req_q['node'])){
+            $node       = $req_q['node'];
+            $node_id    = preg_replace('/^(\w+)_/', '', $node);
+            $level      = preg_replace('/_(\d+)/', '', $node); 
             
             //This is a special one ... going past the Network level
             if($level == 'MarkerNetworks'){
@@ -594,15 +598,16 @@ class CloudsController extends AppController {
         if(!$user){   //If not a valid user
             return;
         }
+        $req_q      = $this->request->getQuery();
         
-        if(isset($this->request->query['id'])){
-            $node       = $this->request->query['id'];
+        if(isset($req_q['id'])){
+            $node       = $req_q['id'];
             $node_id    = preg_replace('/^(\w+)_/', '', $node);
             $level      = preg_replace('/_(\d+)/', '', $node);
             
             if($level == 'NodeMarker'){
-                $lat = $this->request->query['lat'];
-                $lng = $this->request->query['lng'];
+                $lat = $req_q['lat'];
+                $lng = $req_q['lng'];
                 $node = $this->{'Nodes'}->find()->where(['Nodes.id' => $node_id])->first();
                 if($node){
                     $this->{'Nodes'}->patchEntity($node,['lat' => $lat, 'lon' => $lng]);
@@ -611,8 +616,8 @@ class CloudsController extends AppController {
             }
             
             if($level == 'ApMarker'){
-                $lat = $this->request->query['lat'];
-                $lng = $this->request->query['lng'];
+                $lat = $req_q['lat'];
+                $lng = $req_q['lng'];
                 $ap = $this->{'Aps'}->find()->where(['Aps.id' => $node_id])->first();
                 if($ap){
                     $this->{'Aps'}->patchEntity($ap,['lat' => $lat, 'lon' => $lng]);
@@ -634,9 +639,10 @@ class CloudsController extends AppController {
         if(!$user){   //If not a valid user
             return;
         }
+        $req_q      = $this->request->getQuery();
         
-        if(isset($this->request->query['id'])){
-            $node       = $this->request->query['id'];
+        if(isset($req_q['id'])){
+            $node       = $req_q['id'];
             $node_id    = preg_replace('/^(\w+)_/', '', $node);
             $level      = preg_replace('/_(\d+)/', '', $node);
             
@@ -679,10 +685,11 @@ class CloudsController extends AppController {
         
         $tt_level   = 0;
         $conditions = [];
+        $req_q      = $this->request->getQuery(); 
         
         
-        if(isset($this->request->query['node'])){
-            $node       = $this->request->query['node'];
+        if(isset($req_q['node'])){
+            $node       = $req_q['node'];
             $node_id    =  preg_replace('/^(\w+)_/', '', $node);
             $level      =  preg_replace('/_(\d+)/', '', $node);         
             if($level == 'Clouds'){
@@ -756,8 +763,8 @@ class CloudsController extends AppController {
                 $cls = "txtOrange";  
             }
 
-            if(isset($this->request->query['location'])){
-                if($this->request->query['location'] == 'map'){
+            if(isset($req_q['location'])){
+                if($req_q['location'] == 'map'){
                     if(($lat == null)||($lng == null)){
                         $cls = "txtOrange";
                     }
@@ -825,6 +832,7 @@ class CloudsController extends AppController {
 		}
 		
 		$user_id = $user['id'];
+		$req_q   = $this->request->getQuery(); 
         
         //Only ap's or admins
         $fail_flag = true; 
@@ -846,8 +854,8 @@ class CloudsController extends AppController {
         $conditions = [];
         
         
-        if(isset($this->request->query['node'])){
-            $node       = $this->request->query['node'];
+        if(isset($req_q['node'])){
+            $node       = $req_q['node'];
             $node_id    =  preg_replace('/^(\w+)_/', '', $node);
             $level      =  preg_replace('/_(\d+)/', '', $node);         
             if($level == 'Clouds'){
@@ -1066,17 +1074,18 @@ class CloudsController extends AppController {
         if(!$user){   //If not a valid user
             return;
         }
+        $req_d		= $this->request->getData();
 
         if ($this->request->is('post')) { 
-            $node       = $this->request->data['id'];
+            $node       = $req_d['id'];
             $node_id    = preg_replace('/^(\w+)_/', '', $node);
             $level      = preg_replace('/_(\d+)/', '', $node);
             
-            $this->request->data['id'] = $node_id;           
+            $req_d['id'] = $node_id;           
             $entity = $this->{$level}->find()->where(['id' =>$node_id])->first();
             
             if($entity){
-                $this->{$level}->patchEntity($entity, $this->request->data()); 
+                $this->{$level}->patchEntity($entity, $req_d); 
                 if ($this->{$level}->save($entity)) {
                     $this->set(array(
                         'success' => true,
@@ -1100,9 +1109,10 @@ class CloudsController extends AppController {
         if(!$user){   //If not a valid user
             return;
         }
+        $req_d		= $this->request->getData();
 
-        if(isset($this->request->data['id'])){   //Single item delete
-            $node       =  $this->request->data['id'];
+        if(isset($req_d['id'])){   //Single item delete
+            $node       =  $req_d['id'];
             $node_id    =  preg_replace('/^(\w+)_/', '', $node);
             $level      =  preg_replace('/_(\d+)/', '', $node);                 
             $entity = $this->{$level}->find()->where(['id' => $node_id])->first(); 
@@ -1121,9 +1131,10 @@ class CloudsController extends AppController {
         if(!$user){   //If not a valid user
             return;
         }
+        $req_q    = $this->request->getQuery();
         
-        if(isset($this->request->query['id'])){    
-            $node       =  $this->request->query['id'];
+        if(isset($req_q['id'])){    
+            $node       =  $req_q['id'];
             $node_id    =  preg_replace('/^(\w+)_/', '', $node);
             $level      =  preg_replace('/_(\d+)/', '', $node);                 
             $entity     = $this->{$level}->get($node_id);
@@ -1145,8 +1156,10 @@ class CloudsController extends AppController {
             return;
         }
         
-        if(isset($this->request->query['id'])){    
-            $node       =  $this->request->query['id'];
+        $req_q    = $this->request->getQuery();
+        
+        if(isset($req_q['id'])){    
+            $node       =  $req_q['id'];
             $node_id    =  preg_replace('/^(\w+)_/', '', $node);
             $level      =  preg_replace('/_(\d+)/', '', $node);                 
             $entity     = $this->{$level}->get($node_id);
@@ -1198,14 +1211,16 @@ class CloudsController extends AppController {
             return;
         }
         
-        if(isset($this->request->query['id'])){
-            if((isset($this->request->query['lat']))&&(isset($this->request->query['lng']))){      
-                $node       =  $this->request->query['id'];
+        $req_q    = $this->request->getQuery();
+        
+        if(isset($req_q['id'])){
+            if((isset($req_q['lat']))&&(isset($req_q['lng']))){      
+                $node       =  $req_q['id'];
                 $node_id    =  preg_replace('/^(\w+)_/', '', $node);
                 $level      =  preg_replace('/_(\d+)/', '', $node);                 
                 $entity     = $this->{$level}->get($node_id);
-                $lat        = $this->request->query['lat'];
-                $lng        = $this->request->query['lng'];
+                $lat        = $req_q['lat'];
+                $lng        = $req_q['lng'];
                 $this->{$level}->patchEntity($entity,['lat' => $lat,'lng' => $lng]);
                 $this->{$level}->save($entity); 
                 
@@ -1256,14 +1271,16 @@ class CloudsController extends AppController {
             return;
         }
         
-        if(isset($this->request->query['id'])){
-            if((isset($this->request->query['lat']))&&(isset($this->request->query['lng']))){      
-                $node       =  $this->request->query['id'];
+        $req_q    = $this->request->getQuery();
+        
+        if(isset($req_q['id'])){
+            if((isset($req_q['lat']))&&(isset($req_q['lng']))){      
+                $node       =  $req_q['id'];
                 $node_id    =  preg_replace('/^(\w+)_/', '', $node);
                 $level      =  preg_replace('/_(\d+)/', '', $node);                 
                 $entity     = $this->{$level}->get($node_id);
-                $lat        = $this->request->query['lat'];
-                $lng        = $this->request->query['lng'];
+                $lat        = $req_q['lat'];
+                $lng        = $req_q['lng'];
                 $this->{$level}->patchEntity($entity,['lat' => $lat,'lng' => $lng]);
                 $this->{$level}->save($entity);      
             } 

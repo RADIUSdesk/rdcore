@@ -28,7 +28,7 @@ Ext.define('Rd.view.components.cmbClouds', {
                     type    : 'ajax',
                     format  : 'json',
                     batchActions: true, 
-                    url     : '/cake3/rd_cake/clouds/index-cmb.json',
+                    url     : '/cake4/rd_cake/clouds/index-cmb.json',
                     reader: {
                         type            : 'json',
                         rootProperty            : 'items',

@@ -108,8 +108,14 @@ Ext.define('Rd.controller.cHardwares', {
     	var me 		= this;
         var c_name 	= me.application.getCloudName();
         var c_id	= me.application.getCloudId();
+        var dd      = me.application.getDashboardData();
+        var root    = false;
+        if(dd.isRootUser){
+            root = true   
+        }
+
         if(!Ext.WindowManager.get('winHardwareAddId')){
-            var w = Ext.widget('winHardwareAdd',{id:'winHardwareAddId',cloudId: c_id, cloudName: c_name});
+            var w = Ext.widget('winHardwareAdd',{id:'winHardwareAddId',cloudId: c_id, cloudName: c_name, root: root});
             w.show();         
         }   
     },
@@ -236,6 +242,11 @@ Ext.define('Rd.controller.cHardwares', {
                 }
 
                 var hw_tab_name = sr.get('name');
+                var dd      = me.application.getDashboardData();
+                var root    = false;
+                if(dd.isRootUser){
+                    root = true   
+                }
                 //Tab not there - add one
                 tp.add({ 
                     title       : hw_tab_name,
@@ -243,7 +254,7 @@ Ext.define('Rd.controller.cHardwares', {
                     closable    : true,
                     glyph       : Rd.config.icnEdit,
                     layout      : 'fit', 
-                    items       : {'xtype' : 'pnlHardwareAddEdit',hw_id: hw_id, hw_name: hw_tab_name, record: sr}
+                    items       : {'xtype' : 'pnlHardwareAddEdit',hw_id: hw_id, hw_name: hw_tab_name, record: sr, root: root}
                 });
                 tp.setActiveTab(hw_tab_id); //Set focus on Add Tab*/
             });

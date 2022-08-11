@@ -2,8 +2,8 @@ Ext.define('Rd.view.networkOverview.vcNetworkOverviewMapLeaflet', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcNetworkOverviewMapLeaflet',
     config: {
-        urlMapSave      : '/cake3/rd_cake/clouds/map-overview-save.json',
-        urlMapDelete    : '/cake3/rd_cake/clouds/map-overview-delete.json',
+        urlMapSave      : '/cake4/rd_cake/clouds/map-overview-save.json',
+        urlMapDelete    : '/cake4/rd_cake/clouds/map-overview-delete.json',
         urlBlue         : 'resources/css/images/marker-icon-2x-blue.png',
         urlBlack        : 'resources/css/images/marker-icon-2x-black.png',
         urlRedNode      : 'resources/css/images/marker-icon-2x-orange.png',
