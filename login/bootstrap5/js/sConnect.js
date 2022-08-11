@@ -1949,13 +1949,14 @@ var sConnect = (function () {
             
             if(ssl != ''){
                 //console.log("The Captive Portal Supports SSL");
-                //console.log(ssl); 
-                uamIp   = ssl.replace(":4990/","");
-                uamIp   = uamIp.replace("https://","");
-                //console.log("uamIP is "+uamIp);
-                uamPort = 4990;
-            }
-            
+                //console.log(ssl);
+                //Only if the page itself is served on http (since we got a fair amount of cert issues it seems)
+                if(location.protocol == 'https:'){ 
+                    uamIp       = ssl.replace(":4990/","");
+                    uamIp       = uamIp.replace("https://","");
+                    uamPort     = 4990;
+                }
+            }          
             return true;        //Is a hotspot
         }
         
