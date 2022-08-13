@@ -54,7 +54,7 @@ Ext.define('Rd.view.devices.gridDeviceRadpostauths' ,{
                 type    : 'ajax',
                 format  : 'json',
                 batchActions: true, 
-                url     : '/cake3/rd_cake/radpostauths/index.json',
+                url     : '/cake4/rd_cake/radpostauths/index.json',
                 extraParams: { 'username' : me.username },
                 reader: {
                     keepRawData     : true,
@@ -64,7 +64,7 @@ Ext.define('Rd.view.devices.gridDeviceRadpostauths' ,{
                     totalProperty: 'totalCount' //Required for dynamic paging
                 },
                 api: {
-                    destroy  : '/cake3/rd_cake/radpostauths/delete.json'
+                    destroy  : '/cake4/rd_cake/radpostauths/delete.json'
                 },
                 simpleSortMode: true //This will only sort on one column (sort) and a direction(dir) value ASC or DESC
             },

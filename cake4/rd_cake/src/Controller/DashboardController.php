@@ -757,6 +757,14 @@ class DashboardController extends AppController{
 				'iconCls'	=> 'x-fa fa-cloud',
 				'glyph'		=> 'xf0c2'
 			],
+			[
+				'text'	=> 'SETTINGS',
+				'leaf'	=> true,
+				'controller'	=> 'cSettings',
+				'id'		=> 'tabMainSettings',
+				'iconCls'	=> 'x-fa fa-cog',
+				'glyph'		=> 'xf013'
+			]
 		];
     	   
     	$items = [

@@ -30,7 +30,6 @@ Ext.define('Rd.controller.cMeshEdits', {
         urlEditMeshSettings:'/cake4/rd_cake/meshes/mesh-settings-edit.json',
         urlEditMeshGeneral:'/cake4/rd_cake/meshes/mesh-general-edit.json',
         urlExitAddDefaults :'/cake4/rd_cake/meshes/mesh_exit_add_defaults.json',
-        urlXwfCheck         : '/cake4/rd_cake/meshes/mesh-exit-xwf-check.json',
         urlAddExit:         '/cake4/rd_cake/meshes/mesh_exit_add.json',
         urlEditExit:        '/cake4/rd_cake/meshes/mesh_exit_edit.json',
         urlViewNodeCommonSettings:'/cake4/rd_cake/meshes/node_common_settings_view.json',
@@ -245,14 +244,7 @@ Ext.define('Rd.controller.cMeshEdits', {
 			}, 
             'winMeshAddExit #chkLoginPage' : {
 				change	: me.chkLoginPageChange
-			},
-			//XWF
-			'#chkXwfEnable' : {
-                change:  me.chkXwfEnableChange
-            },
-            '#chkXwfBwEnable' : {
-                change:  me.chkXwfBwEnableChange
-            }           
+			}      
         });
     },
     actionIndex: function(pnl,config){
@@ -742,44 +734,19 @@ Ext.define('Rd.controller.cMeshEdits', {
                 Ext.ux.Constants.msgWarn
             );
             return;
-        }
-        
+        }    
         //Entry points present; continue 
         var store   = tabEdit.down("gridMeshExits").getStore();
-        
-        //Do an Ajax Call to determine if XWF must be included
-        Ext.Ajax.request({
-            url     : me.getUrlXwfCheck(),
-            method  : 'GET',
-            success: function (response) {
-                var jsonData = Ext.JSON.decode(response.responseText);
-                if (jsonData.success) {
-                
-                    var xwf_enabled = jsonData.data.xwf_enabled;
-                    var xwf_uamhomepage = jsonData.data.xwf_uamhomepage;
-                    if(!Ext.WindowManager.get('winMeshAddExitId')){
-                        var w = Ext.widget('winMeshAddExit',
-                        {
-                            id          :'winMeshAddExitId',
-                            store       : store,
-                            meshId      : tabEdit.meshId,
-                            xwf_enabled : xwf_enabled,
-                            xwf_uamhomepage : xwf_uamhomepage
-                        });
-                        w.show();         
-                    }         
-                }
-            },
-            failure: function (batch, options) {
-                Ext.ux.Toaster.msg(
-                    'Problems detecting the Exit Features',
-                    'Problems detecting the Exit Features',
-                    Ext.ux.Constants.clsWarn,
-                    Ext.ux.Constants.msgWarn
-                );
-            },
-            scope: me
-        });
+
+        if(!Ext.WindowManager.get('winMeshAddExitId')){
+            var w = Ext.widget('winMeshAddExit',
+            {
+                id          :'winMeshAddExitId',
+                store       : store,
+                meshId      : tabEdit.meshId
+            });
+            w.show();         
+        }
     },
     btnExitTypeNext: function(button){
         var me      = this;
@@ -991,40 +958,18 @@ Ext.define('Rd.controller.cMeshEdits', {
             var id      = sr.getId();
             var meshId  = sr.get('mesh_id');
             var type    = sr.get('type');
-            if(!Ext.WindowManager.get('winMeshEditExitId')){         
-                //Do an Ajax Call to determine if XWF must be included
-                Ext.Ajax.request({
-                    url     : me.getUrlXwfCheck(),
-                    method  : 'GET',
-                    success: function (response) {
-                        var jsonData = Ext.JSON.decode(response.responseText);
-                        if (jsonData.success) {
-                        
-                            var xwf_enabled = jsonData.data.xwf_enabled;
-                            var xwf_uamhomepage = jsonData.data.xwf_uamhomepage;
-                            var w = Ext.widget('winMeshEditExit',
-                                {
-                                    id          :'winMeshEditExitId',
-                                    store       : store,
-                                    exitId      : id,
-                                    meshId      : meshId,
-                                    type        : type,
-                                    xwf_enabled : xwf_enabled,
-                                    xwf_uamhomepage : xwf_uamhomepage
-                                });
-                            w.show();       
-                        }
-                    },
-                    failure: function (batch, options) {
-                        Ext.ux.Toaster.msg(
-                            'Problems detecting the Exit Features',
-                            'Problems detecting the Exit Features',
-                            Ext.ux.Constants.clsWarn,
-                            Ext.ux.Constants.msgWarn
-                        );
-                    },
-                    scope: me
-                });
+
+            if(!Ext.WindowManager.get('winMeshEditExitId')){
+
+                var w = Ext.widget('winMeshEditExit',
+                    {
+                        id          :'winMeshEditExitId',
+                        store       : store,
+                        exitId      : id,
+                        meshId      : meshId,
+                        type        : type
+                    });
+                w.show();    
              
             }else{
                 var w       = me.getEditExitWin();
@@ -1077,8 +1022,7 @@ Ext.define('Rd.controller.cMeshEdits', {
                 w.getController().loadExit(w);
             } 
         }     
-    },
-    
+    },    
     btnEditExitSave:  function(button){
         var me      = this;
         var win     = button.up("winMeshEditExit");
@@ -1136,56 +1080,6 @@ Ext.define('Rd.controller.cMeshEdits', {
                  item.setVisible(false);
             });
         }
-    },    
-    chkXwfEnableChange: function(chk){
-        var me      = this;
-        var panel   = chk.up('panel');
-        var items   = Ext.ComponentQuery.query("textfield", panel);
-        var chk_bw  = panel.down('#chkXwfBwEnable');
-        var hbDown  = panel.down('#hbDown');
-        var hbUp    = panel.down('#hbUp');
-        items.push(chk_bw);
-       // items.push(hbDown);
-       // items.push(hbUp);
-        
-        if(chk.getValue()){
-            Ext.Array.each(items, function(item, index, itemsItSelf) {
-                item.setDisabled(false);
-                 item.setVisible(true);
-            });
-            
-            if(chk_bw.getValue()){
-                hbDown.setDisabled(false);
-                hbDown.setVisible(true);        
-                hbUp.setDisabled(false);
-                hbUp.setVisible(true);        
-            }        
-            
-        }else{
-            Ext.Array.each(items, function(item, index, itemsItSelf) {
-                item.setDisabled(true);
-                 item.setVisible(false);
-            });       
-        }
-    },
-    chkXwfBwEnableChange: function(chk){
-        var me      = this;
-        var panel   = chk.up('panel');
-        var chk_bw  = panel.down('#chkXwfBwEnable');
-        var hbDown  = panel.down('#hbDown');
-        var hbUp    = panel.down('#hbUp');
-        
-        if(chk_bw.getValue()){
-            hbDown.setDisabled(false);
-            hbDown.setVisible(true);        
-            hbUp.setDisabled(false);
-            hbUp.setVisible(true);        
-        }else{
-            hbDown.setDisabled(true);
-            hbDown.setVisible(false);        
-            hbUp.setDisabled(true);
-            hbUp.setVisible(false);  
-        }     
     },    
 	chkEthBrChange: function(chk){
 		var me 		= this;

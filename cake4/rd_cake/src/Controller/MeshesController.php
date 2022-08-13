@@ -689,34 +689,7 @@ class MeshesController extends AppController{
             '_serialize' => array('items','success')
         ));
     }
-    
-    public function meshExitXwfCheck(){
-    
-        $user = $this->Aa->user_for_token($this);
-        if(!$user){   
-            return;
-        }
-        
-        $xwf_uamhomepage = Configure::read('MESHdesk.xwf_uamhomepage'); //Read the defaults
-        
-        $xwf_enabled = true;
-        if($user['group_name'] == 'Access Providers'){
-            $xwf_enabled = false;
-            if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $user['id']), "Access Providers/Controllers/TrafficClasses/index")){
-                $xwf_enabled = true;
-            }
-        }
-        
-        $this->set(array(
-            'data' => [
-                'xwf_enabled'       => $xwf_enabled,
-                'xwf_uamhomepage'   => $xwf_uamhomepage
-            ],
-            'success' => true,
-            '_serialize' => array('data','success')
-        ));
-    }
-    
+       
     public function meshExitAdd(){
         $user = $this->Aa->user_for_token($this);
         if(!$user){   
@@ -846,9 +819,7 @@ class MeshesController extends AppController{
                     'dns_manual',
                     'uamanydns',
                     'dnsparanoia',
-                    'dnsdesk',
-                    'xwf_enable',
-                    'xwf_bw_enable'
+                    'dnsdesk'
 				];
 			    foreach($check_items as $i){
 			        if(isset($req_d[$i])){
@@ -863,14 +834,7 @@ class MeshesController extends AppController{
 			        $req_d['dns1'] = '';
 			        $req_d['dns2'] = '';
 			    }
-			    
-			    if(isset($req_d['xwf_radiuslocationname'])){
-			        if($req_d['xwf_radiuslocationname'] !== ''){			    
-                        $xwf_locationprefix = Configure::read('MESHdesk.xwf_locationprefix'); //Read the defaults
-                        $req_d['xwf_radiuslocationname'] = $xwf_locationprefix.$req_d['xwf_radiuslocationname'];
-                    }
-                }		    
-			    
+			        			    
 			    $ent_cp = $this->{'MeshExitCaptivePortals'}->newEntity($req_d);
 			    
                 if(!($this->{'MeshExitCaptivePortals'}->save($ent_cp))){
@@ -978,15 +942,6 @@ class MeshesController extends AppController{
                 $data['MeshExit']['mesh_exit_upstream_id'] = 0;
             }
             
-            if($data['MeshExit']['xwf_uamhomepage'] == ''){
-                $xwf_uamhomepage = Configure::read('MESHdesk.xwf_uamhomepage'); //Read the defaults
-                $data['MeshExit']['xwf_uamhomepage'] = $xwf_uamhomepage;
-            }
-            
-            if($data['MeshExit']['xwf_radiuslocationname'] !== ''){     
-                $xwf_locationprefix = Configure::read('MESHdesk.xwf_locationprefix'); //Read the defaults
-                $data['MeshExit']['xwf_radiuslocationname'] = preg_replace("/^$xwf_locationprefix/",'', $data['xwf_radiuslocationname']);          
-            }       
         }
         
         $fields    = $this->{'MeshExits'}->getSchema()->columns();
@@ -1136,9 +1091,7 @@ class MeshesController extends AppController{
                         'dns_manual',
                         'uamanydns',
                         'dnsparanoia',
-                        'dnsdesk',
-                        'xwf_enable',
-                        'xwf_bw_enable'
+                        'dnsdesk'
 					];
 					foreach($check_items as $i){
 					    if(isset($req_d[$i])){
@@ -1153,13 +1106,6 @@ class MeshesController extends AppController{
 			            $cp_data['dns1'] = '';
 			            $cp_data['dns2'] = '';
 			        }
-					
-				    if(isset($cp_data['xwf_radiuslocationname'])){
-					    if($cp_data['xwf_radiuslocationname'] !== ''){
-                            $xwf_locationprefix = Configure::read('MESHdesk.xwf_locationprefix'); //Read the defaults
-                            $cp_data['xwf_radiuslocationname'] = $xwf_locationprefix.$cp_data['xwf_radiuslocationname'];
-                        }
-                    }
 
                    // print_r($cp_data);
                    $this->{'MeshExitCaptivePortals'}->patchEntity($ent_cp, $cp_data);

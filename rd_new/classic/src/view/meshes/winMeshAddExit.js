@@ -32,8 +32,7 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
         'Rd.view.components.cmbOpenVpnServers',
         'Rd.view.meshes.vcMeshExitPoint',
         'Rd.view.meshes.cmbMeshUpstreamList',
-        'Rd.view.meshes.tagMeshEntryPoints',
-        'Rd.view.meshes.cmbTrafficClasses',
+        'Rd.view.meshes.tagMeshEntryPoints',,
         'Rd.view.components.pnlExitPointNatDhcp'
     ],
     controller  : 'vcMeshExitPoint',
@@ -476,127 +475,6 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
                 ]
             }     
         ];
-        
-        var t_xwf =  {
-            title       : 'Express Wi-Fi',
-            glyph		: Rd.config.icnFacebook,
-            layout      : 'anchor',
-             autoScroll :true,
-            defaults    : {
-                    anchor: '100%'
-            },
-            items       :[
-                 {
-                    itemId      : 'chkXwfEnable',
-                    xtype       : 'checkbox',      
-                    fieldLabel  : 'Enable',
-                    name        : 'xwf_enable',
-                    inputValue  : 'xwf_enable',
-                    checked     : false,
-                    labelClsExtra: 'lblRdReq'
-                },
-                {
-                   xtype            : 'cmbTrafficClasses',
-                   labelClsExtra    : 'lblRdReq', //xwf_traffic_class_id
-                   hidden           : true,
-                   disabled         : true
-                },
-                {
-                    xtype       : 'textfield',
-                    fieldLabel  : 'Landing Page URL',
-                    name        : 'xwf_uamhomepage',
-                    allowBlank  : false,
-                    labelClsExtra: 'lblRdReq',
-                    value       : me.xwf_uamhomepage, //Pre-populate it on ADD
-                    hidden           : true,
-                    disabled         : true
-                },
-                {
-                   xtype            : 'cmbHomeServerPools',
-                   labelClsExtra    : 'lblRdReq', //xwf_traffic_class_id
-                   hidden           : true,
-                   disabled         : true
-                },
-                {
-                    itemId          : 'chkXwfBwEnable',
-                    xtype           : 'checkbox',      
-                    fieldLabel      : 'Limit Bandwidth',
-                    name            : 'xwf_bw_enable',
-                    inputValue      : 'xwf_bw_enable',
-                    hidden          : true,
-                    disabled        : true,
-                    labelClsExtra   : 'lblRdReq'
-                },
-                {
-		            xtype       : 'container',
-                    layout      : 'hbox',
-                    itemId      : 'hbDown',
-                    hidden      : true,
-                    disabled    : true,
-                    items       : [
-                        {
-                            xtype       : 'displayfield',
-                            width       : 180,
-                            margin      : '15 0 0 15',
-                            labelClsExtra   : 'lblRdReq',
-                            padding     : 0,
-                            fieldLabel  : "<i class='fa fa-arrow-down'></i> Down Mb/s",
-                            value       : 1
-                        },
-                        {
-		                    xtype       : 'sliderfield',
-                            name        : 'xwf_bw_down',
-                            userCls     : 'sldrDark',
-                            itemId      : 'sldrSpeedDown',
-                            flex        : 1,
-                            increment   : 1,
-                            minValue    : 1,
-                            maxValue    : 10,
-                            listeners   : {
-				                change      : 'sldrSpeedDownChange',
-				                afterrender : 'sldrSpeedDownChange'
-			                }
-                        }
-                    ]
-                },
-                {
-		            xtype       : 'container',
-                    layout      : 'hbox',
-                    itemId      : 'hbUp',
-                    hidden      : true,
-                    disabled    : true,
-                    items       : [
-                        {
-                            xtype       : 'displayfield',
-                            width       : 180,
-                            margin      : '15 0 0 15',
-                            labelClsExtra   : 'lblRdReq',
-                            padding     : 0,
-                            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up Mb/s",
-                            value       : 1
-                        },
-                        {
-		                    xtype       : 'sliderfield',
-                            name        : 'xwf_bw_up',
-                            userCls     : 'sldrDark',
-                            itemId      : 'sldrSpeedUp',
-                            flex        : 1,
-                            increment   : 1,
-                            minValue    : 1,
-                            maxValue    : 10,
-                            listeners   : {
-				                change      : 'sldrSpeedUpChange',
-				                afterrender : 'sldrSpeedUpChange'
-			                }
-                        }
-                    ]
-                }                 
-            ]
-        };
-        
-        if(me.xwf_enabled){     
-            //cp_tabs.push(t_xwf);
-        }
         
         var frmData = Ext.create('Ext.form.Panel',{
             border:     false,

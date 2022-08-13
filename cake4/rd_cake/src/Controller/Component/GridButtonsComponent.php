@@ -348,18 +348,6 @@ class GridButtonsComponent extends Component {
             'tooltip'   => __('Acknowlege Alert'),
             'ui'        => $this->btnUiEdit
         ]; 
-        
-        $this->sldrXwfFilter = [
-		    'xtype'         => 'sldrToggle',
-		    'fieldLabel'    => "<span style='font-family:FontAwesome;font-size:larger;'>&#xf082</span>  XWF ONLY",
-		    'userCls'       => 'sldrDark',
-		    'value'         => 0,
-		    'labelAlign'    => 'left',
-		    'labelWidth'    => 110,
-		    'itemId'        => 'xwf_filter',
-            'labelSeparator'=> '',
-            'labelClsExtra' => 'lblRdReq'
-		];
                             
     }
 
@@ -558,43 +546,14 @@ class GridButtonsComponent extends Component {
                 'cls'    => 'lblRd'
             ];
             
-            //Extra check for Access Provider for FB XWF toggle
-            $user           = $this->user;
-            $xwf_enabled    = false;//Disable for now
-            if($user['group_name'] == 'Access Providers'){
-                $xwf_enabled = false;
-                if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $user['id']), "Access Providers/Controllers/TrafficClasses/index")){
-                    $xwf_enabled = false;//Disable for now
-                }
-            }
-            
-            if($xwf_enabled == true){
-               $menu = [$b,$a,$s,$fb,$s2,$this->sldrXwfFilter];  
-            }else{
-                $menu = [$b,$a,$s,$fb]; 
-            }           
+            $user = $this->user;        
+            $menu = [$b,$a,$s,$fb]; 
+         
         }
         
-        if($type == 'MeshNodes'){
-        
-            $s2 = '->';
-            $b  = $this->_fetchBasicMeshNodes();
-                   
-            //Extra check for Access Provider for FB XWF toggle
-            $user           = $this->user;
-            $xwf_enabled    = false;//Disable for now
-            if($user['group_name'] == 'Access Providers'){
-                $xwf_enabled = false;
-                if($this->Acl->check(array('model' => 'Users', 'foreign_key' => $user['id']), "Access Providers/Controllers/TrafficClasses/index")){
-                    $xwf_enabled = false; //Disable for now
-                }
-            }
-            
-            if($xwf_enabled == true){
-                $menu = [$b,$s2,$this->sldrXwfFilter];
-            }else{
-                $menu = [$b]; 
-            }        
+        if($type == 'MeshNodes'){        
+            $b  = $this->_fetchBasicMeshNodes();                  
+            $menu = [$b];    
         }
         
         if($type == 'NodeDetails'){

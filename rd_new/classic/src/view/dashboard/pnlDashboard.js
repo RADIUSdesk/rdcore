@@ -152,13 +152,15 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
 				        dock    : 'top',
 				        height	: 70,
 				        ui      : 'default',
+                        style   : { 'background' : '#323d4d' },
 				        items   : [
 				        	h1
 				        ]
 				    },
 				],
 				items : [{
-                    xtype: 'container',
+                    xtype   : 'container',
+                    style   : { 'background' : '#323d4d' },
                     items:	tl
                    /* items : {
                             xtype   : 'dashboardTreeList',
