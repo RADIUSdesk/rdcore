@@ -38,6 +38,14 @@ class CloudsTable extends Table {
             'dependent' => true
         ]);
         
+        $this->hasMany('Profiles',[
+            'dependent' => true
+        ]);
+        
+        $this->hasMany('ProfileComponents',[
+            'dependent' => true
+        ]);
+        
         $this->hasMany('PredefinedCommands',[
             'dependent' => true
         ]);
@@ -46,6 +54,6 @@ class CloudsTable extends Table {
             'dependent' => true
         ]);
         
-        $this->hasMany('CloudAdmins',['dependent' => true]);
+        $this->hasMany('CloudAdmins'); //Not dependent!!!
     }
 }

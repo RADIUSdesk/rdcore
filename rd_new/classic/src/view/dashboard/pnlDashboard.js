@@ -1,6 +1,7 @@
 Ext.define('Rd.view.dashboard.pnlDashboard', {
     extend  : 'Ext.panel.Panel',
-    alias   : 'widget.pnlDashboard',
+    //alias   : 'widget.pnlDashboard',
+    xtype   : 'pnlDashboard',
     layout  : 'border',
     dashboard_data  : undefined,
     requires: [

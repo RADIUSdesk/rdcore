@@ -129,7 +129,7 @@ class WizardsController extends AppController{
         unlink($dest);
         
         $this->DynamicClients->deleteAll(
-            ['DynamicClients.nasidentifier LIKE ' => $user_name.'_mcp_%','DynamicClients.cloud_id'=>$this->cloud_id]);
+            ['DynamicClients.nasidentifier LIKE ' => 'mcp_%','DynamicClients.cloud_id'=>$this->cloud_id]);
         
         $this->PermanentUsers->deleteAll(
             ['PermanentUsers.username' => $user_name.'@'.$user_name,'PermanentUsers.cloud_id'=>$this->cloud_id]);
@@ -1164,6 +1164,7 @@ class WizardsController extends AppController{
         $mesh_name_underscored = preg_replace('/\s+/', '_', $this->new_name);
         $mesh_name_underscored = strtolower($mesh_name_underscored);
         $nas_id = $mesh_name_underscored.'_mcp_'.$exit_guest_id;
+        $nas_id_short = 'mcp_'.$exit_guest_id;
          
         
         //Add an entry for the captive portal
@@ -1171,7 +1172,7 @@ class WizardsController extends AppController{
         $d_cp = $this->_default_captive_info();
         $d_cp['coova_optional']     = '';
         $d_cp['mesh_exit_id']       = $exit_guest_id;
-        $d_cp['radius_nasid']       = $nas_id;
+        $d_cp['radius_nasid']       = $nas_id_short;
         $d_cp['coova_optional']     = "ssid ".$this->ap_name."\n";
         $e_cp  = $this->MeshExitCaptivePortals->newEntity($d_cp);  
         $this->MeshExitCaptivePortals->save($e_cp);
@@ -1180,7 +1181,7 @@ class WizardsController extends AppController{
         $d_common = [];
         $d_common['cloud_id']               = $this->cloud_id;
         $d_common['name']                   = 'MESHdesk_'.$nas_id;
-        $d_common['nasidentifier']          = $nas_id;
+        $d_common['nasidentifier']          = $nas_id_short;
         $d_common['available_to_siblings']  = 1;
              
 
@@ -1196,9 +1197,9 @@ class WizardsController extends AppController{
         $dynamic_client_realm_id = $e_dc_r->id;
         
         //Key Value Pair for Dynamic Login Page
-        $d_p = array();
+        $d_p = [];
         $d_p['name']    = 'nasid';
-        $d_p['value']   = $nas_id;
+        $d_p['value']   = $nas_id_short;
         $d_p['priority']= 1;
         $d_p['dynamic_detail_id'] = $dynamic_detail_id;
         $e_d_p  = $this->DynamicPairs->newEntity($d_p);   

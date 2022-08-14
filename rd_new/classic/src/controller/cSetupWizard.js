@@ -65,8 +65,11 @@ Ext.define('Rd.controller.cSetupWizard', {
     },
     onBeforeClose : function(win){
     
-        var me = this;
-        
+        var me = this; 
+
+        //Update the cloud stores
+        me.reloadCloudStores();
+     
         if(win.step_one_done){
            if(win.closeMe) {
                 win.closeMe = false;
@@ -175,5 +178,10 @@ Ext.define('Rd.controller.cSetupWizard', {
                 }
             });
         }
+    },
+    reloadCloudStores: function(){
+        var me  = this;
+        var pnl = Ext.ComponentQuery.query('pnlDashboard');
+        pnl[0].down('cmbClouds').getStore().reload();
     }     
 });

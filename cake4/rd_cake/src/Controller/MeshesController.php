@@ -20,6 +20,7 @@ class MeshesController extends AppController{
     public function initialize():void{  
         parent::initialize();
         $this->loadModel('DynamicClients'); 
+        $this->loadModel('DynamicPairs'); 
         $this->loadModel('Users');
         $this->loadModel('Nodes');
         
@@ -779,10 +780,11 @@ class MeshesController extends AppController{
                     $mesh_name  = $mesh->name;
                     $mesh_name  = preg_replace('/\s+/', '_', $mesh_name);
                                       
-                    $dc_data                            = array();       	            
-	                $dc_data['cloud_id']                = $cloud_id;
-	                $dc_data['nasidentifier']           = $mesh_name.'_mcp_'.$new_id;
-	                
+                    $dc_data                    = [];       	            
+	                $dc_data['cloud_id']        = $cloud_id;
+	                $dc_data['nasidentifier']	= 'mcp_'.$new_id;
+	                $dc_data['name']         	= 'MESHdesk_'.$mesh_name.'_mcp_'.$new_id;
+	                	                
 	                //Get a list of realms if the person selected a list - If it is empty that's fine
                     $count      = 0;
                     $dc_data['realm_list'] = ""; //Prime it
@@ -981,13 +983,27 @@ class MeshesController extends AppController{
         
         $this->loadModel('MeshExits');
         $req_d		= $this->request->getData();
+        $req_q		= $this->request->getQuery();
+        $cloud_id   = $req_q['cloud_id'];
 
 	    if(isset($req_d['id'])){   //Single item delete
-            $entity     = $this->{'MeshExits'}->get($req_d['id']); 
-            $this->{'MeshExits'}->delete($entity);
+            $entity     = $this->{'MeshExits'}->get($req_d['id']);
+            if($entity){
+            	if($entity->type == 'captive_portal'){
+            		$nasidentifier 	= 'mcp_'.$entity->id;         		
+            		$this->{'DynamicClients'}->deleteAll(['DynamicClients.nasidentifier' => $nasidentifier,'DynamicClients.cloud_id' => $cloud_id]);
+            		$this->{'DynamicPairs'}->deleteAll(['DynamicPairs.name' => 'nasid','DynamicPairs.value' => $nasidentifier]);
+            	}
+            	$this->{'MeshExits'}->delete($entity);
+           	}
         }else{                          //Assume multiple item delete
             foreach($req_d as $d){
-                $entity     = $this->{'MeshExits'}->get($d['id']); 
+                $entity     = $this->{'MeshExits'}->get($d['id']);
+                if($entity->type == 'captive_portal'){
+            		$nasidentifier 	= 'mcp_'.$entity->id;         		
+            		$this->{'DynamicClients'}->deleteAll(['DynamicClients.nasidentifier' => $nasidentifier,'DynamicClients.cloud_id' => $cloud_id]);
+            		$this->{'DynamicPairs'}->deleteAll(['DynamicPairs.name' => 'nasid','DynamicPairs.value' => $nasidentifier]);
+            	} 
                 $this->{'MeshExits'}->delete($entity);
             }
         }  
@@ -2983,11 +2999,7 @@ class MeshesController extends AppController{
 		return $radio_count;
 	}
 	
-	private function _add_dynamic($dc_data){
-    
-        //--Formulate a name
-        $dc_data['name'] = 'MESHdesk_'.$dc_data['nasidentifier'];
-        
+	private function _add_dynamic($dc_data){      
         $this->loadModel('DynamicClients');
         $this->loadModel('DynamicClientRealms');
         
