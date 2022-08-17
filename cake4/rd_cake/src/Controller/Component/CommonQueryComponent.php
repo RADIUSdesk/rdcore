@@ -207,6 +207,26 @@ class CommonQueryComponent extends Component {
         
         return $where_clause;
     }
+    
+    public function build_node_lists_query($query,$cloud_id,$contain_array = ['Users'], $model = null, $allowOverride = true, $sort = null){
+    
+        $query->contain($contain_array);
+        $query->where(['cloud_id' => $cloud_id]);
+
+        if(!is_null($sort)){
+            $this->sort_by = $sort;
+        }
+
+        if(is_null($model)){
+            $this->_common_sort($query, $this->sort_by, null, $allowOverride);
+        } else {
+            $this->_common_sort($query, $this->sort_by, $model, $allowOverride);
+        }
+
+        $where_clause = $this->_common_filter($model);
+        $model = $this->getConfig('model'); // Just a quick Hack 
+        return true;
+    }
 
     
     

@@ -273,7 +273,7 @@ Ext.define('Rd.controller.cDashboard', {
 				}
 			});
    		}else{
-   			pnlWest.setWidth(220).getEl().slideIn('l');
+   			pnlWest.setWidth(180).getEl().slideIn('l');
    		}   
     },
     treeNodeSelect: function(tree,record,ndx,opts){

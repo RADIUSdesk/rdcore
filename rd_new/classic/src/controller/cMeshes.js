@@ -1,11 +1,11 @@
 Ext.define('Rd.controller.cMeshes', {
     extend: 'Ext.app.Controller',
-    actionIndex: function(pnl,itemId){
+    actionIndex: function(pnl){
         var me      = this;
-        var item    = pnl.down('#'+itemId);
-        var added   = false;
-        if(!item){
-            var tp = Ext.create('Ext.tab.Panel',
+//        var item    = pnl.down('#'+itemId);
+//        var added   = false;
+//        if(!item){
+     /*       var tp = Ext.create('Ext.tab.Panel',
             	{          
 	            	border  : false,
 	                itemId  : itemId,
@@ -20,12 +20,33 @@ Ext.define('Rd.controller.cMeshes', {
 	                         glyph  : 'xf1eb@FontAwesome'
 	                    }
 	                ]
-	            });      
-            pnl.add(tp);
-            pnl.on({activate : me.gridActivate,scope: me});
-            added = true;
-        }
-        return added;      
+	            });  */    
+            pnl.add({ 
+                title  : 'Meshes', 
+                xtype  : 'gridMeshes',
+                border : false,
+                plain  : true,
+                glyph  : Rd.config.icnMesh,
+              //  padding: Rd.config.gridPadding,
+                tabConfig   : {
+                    ui : 'tab-blue'
+                }   
+            });
+
+            pnl.add({ 
+                title       : i18n('sKnown_Nodes'), 	
+			    xtype       : 'gridNodeLists',	
+			    glyph       : Rd.config.icnCheck,
+			    padding     : Rd.config.gridPadding,
+			    tabConfig   : {
+                    ui : 'tab-orange'
+                } 
+            });
+
+ //           pnl.on({activate : me.gridActivate,scope: me});
+ //           added = true;
+//        }
+//        return added;      
     },
 
     actionIndexZZ: function(pnl){
@@ -102,24 +123,20 @@ Ext.define('Rd.controller.cMeshes', {
     },
 
     views:  [
-        'meshes.gridMeshes',        'meshes.winMeshAdd'/*,
+        'meshes.gridMeshes',        'meshes.winMeshAdd',
 		'meshes.gridNodeLists',	    'meshes.gridUnknownNodes',
         'meshes.winMeshUnknownRedirect',
         'meshes.winMeshUnknownModeChange',
         'meshes.cmbHardwareOptions', 'meshes.tagStaticEntries', 'meshes.cmbStaticExits',
         'meshes.pnlMeshViewMapGoogle',
-        'hardwareOwners.gridHardwareOwners',
-        'meshes.pnlMeshViewMapLeaflet' */  
+        'meshes.pnlMeshViewMapLeaflet'  
     ],
     stores      : [
-		'sMeshes',   /* 'sNodeLists', 				'sUnknownNodes',
+		'sMeshes',    'sNodeLists', 				'sUnknownNodes',
 		'sMeshEntries', 'sMeshExits', 	'sMeshEntryPoints',
-		'sHardwareOwners',
-		'sClouds'*/
+		'sClouds'
 	],
-    models      : ['mMesh',  /*'mNodeList', 	'mUnknownNode', 
-        'mHardwareOwner'*/
-    ],
+    models : ['mMesh',  'mNodeList', 	'mUnknownNode'],
     selectedRecord: null,
     config: {
         urlAdd          : '/cake4/rd_cake/meshes/add.json',

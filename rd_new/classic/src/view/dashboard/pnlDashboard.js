@@ -49,7 +49,7 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
         };
 
         var micro = false
-        var west_width = 220;
+        var west_width = 180;
         if(me.dashboard_data.compact){
             micro = true;
             west_width = 55;

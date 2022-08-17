@@ -89,7 +89,40 @@ class AccessProvidersController extends AppController{
         $this->setResponse($this->getResponse()->withDownload('export.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
         $this->set(compact('data', '_serialize'));  
-    } 
+    }
+    
+    public function apTagList(){
+    
+    	$user = $this->Aa->user_for_token($this);
+		if(!$user){   //If not a valid user
+			return;
+		}
+		
+		$user_id 	= $user['id'];		
+		$items 		= [];
+		
+		
+		$ap_name    = Configure::read('group.ap');
+		$e_group    = $this->{'Groups'}->find()->where(['Groups.name' => $ap_name])->first();
+		if($e_group){
+			$group_id 	= $e_group->id;
+			$q_r 		= $this->{'Users'}->find()->where(['Users.group_id' => $group_id])->all();
+			foreach($q_r as $e){
+			
+				if($e->id !== $user_id){
+					array_push($items, ['id' => $e->id, 'name' => $e->username]);
+				}
+				
+			}	
+		}
+		
+		$this->set([
+            'items' 		=> $items,
+            'success' 		=> true,
+            '_serialize' 	=> ['items','success']
+        ]);
+   
+    }
     
      //____ BASIC CRUD Manager ________
     public function index(){
@@ -219,7 +252,6 @@ class AccessProvidersController extends AppController{
 			$ap_id = $req_q['ap_id'];
             $q_r = $this->{$this->main_model}->find()->where([$this->main_model.'.id' => $ap_id])->first();
             if($q_r){
-                $owner_tree         = $this->Users->find_parents($q_r->parent_id);
                 $items['id']        = $q_r->id;
                 $items['username']  = $q_r->username;
                 $items['name']      = $q_r->name;
@@ -228,9 +260,6 @@ class AccessProvidersController extends AppController{
                 $items['address']   = $q_r->address;
                 $items['email']     = $q_r->email;
                 $items['active']    = $q_r->active;
-                $items['can_manage_tree_tags']    = $q_r->can_manage_tree_tags;
-                $items['monitor']   = $q_r->monitor;
-                $items['owner']     = $owner_tree;
                 $language           = $q_r->country_id.'_'.$q_r->language_id;
                 $items['language']  = $language;
                 $items['timezone_id']  = $q_r->timezone_id;
@@ -251,16 +280,9 @@ class AccessProvidersController extends AppController{
 				$q_freq = $this->UserSettings->find()->where(['UserSettings.user_id' => $ap_id,"UserSettings.name" => "alert_frequency"])->first();
 				if($q_freq) {
 					$items['alert_frequency'] = $q_freq->value;
-				}
-				
-				$sel_comp   = $this->_getSelectedComponents($req_q['ap_id']);
-				$items      = array_merge($items, $sel_comp);
-				
+				}			
                 $wl         = $this->WhiteLabel->detail($req_q['ap_id']);   
                 $items      = array_merge($items, $wl);
-                
-                //Get the items that the owner can actually see
-                $meta_data  = $this->_getAllowedComponentsFor($ap_id);
                    
             }
         }
@@ -268,8 +290,7 @@ class AccessProvidersController extends AppController{
         $this->set([
             'data'      => $items,
             'success'   => true,
-            'metaData'  => $meta_data,
-            '_serialize'=> ['success', 'data','metaData']
+            '_serialize'=> ['success', 'data']
         ]);
     }
   
@@ -277,7 +298,7 @@ class AccessProvidersController extends AppController{
     
          //This is a deviation from the standard JSON serialize view since extjs requires a html type reply when files
         //are posted to the server.    
-        $this->viewBuilder()->layout('ext_file_upload');
+        $this->viewBuilder()->setLayout('ext_file_upload');
     
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
@@ -290,17 +311,14 @@ class AccessProvidersController extends AppController{
         $req_d		= $this->request->getData();
         unset($req_d['token']);
         unset($req_d['password']);
-        unset($req_d['parent_id']);
         
         $ap_id = $req_d['id'];
 
         $check_items = [
 			'active',
-			'monitor',
 			'wl_active',
 			'wl_img_active',
-			'alert_activate',
-			'can_manage_tree_tags'
+			'alert_activate'
 		];
         foreach($check_items as $i){
             if(isset($req_d[$i])){
@@ -333,12 +351,12 @@ class AccessProvidersController extends AppController{
 		}
 		$this->UserSettings->deleteAll(['user_id' => $ap_id,'name' => 'alert_activate']);
 		$this->UserSettings->deleteAll(['user_id' => $ap_id,'name' => 'alert_frequency']);
-		$us_entity = $this->UserSettings->newEntity();
+		$us_entity = $this->UserSettings->newEmptyEntity();
 		$us_entity->user_id    = $ap_id;
 		$us_entity->name       = 'alert_activate';
 		$us_entity->value      = $req_d['alert_activate'];
 		$this->UserSettings->save($us_entity);
-		$us_entity = $this->UserSettings->newEntity();
+		$us_entity = $this->UserSettings->newEmptyEntity();
 		$us_entity->user_id    = $ap_id;
 		$us_entity->name       = 'alert_frequency';
 		$us_entity->value      = $req_d['alert_frequency'];
@@ -367,7 +385,7 @@ class AccessProvidersController extends AppController{
                     
                     if($new_logo == true){
                         $this->UserSettings->deleteAll(['user_id' => $ap_id,'name' => 'wl_img_file']);
-                        $entity = $this->UserSettings->newEntity();
+                        $entity = $this->UserSettings->newEmptyEntity();
                         $entity->user_id    = $ap_id;
                         $entity->name       = 'wl_img_file';
                         $entity->value      = $filename;
@@ -383,7 +401,7 @@ class AccessProvidersController extends AppController{
                       
                     $this->UserSettings->deleteAll(['user_id' => $ap_id,'name' => $i]);
                     //Add a New ONE
-                    $entity             = $this->UserSettings->newEntity();
+                    $entity             = $this->UserSettings->newEmptyEntity();
                     $entity->user_id    = $ap_id;
                     $entity->name       = $i;
                     $entity->value      = $req_d["$i"];
@@ -392,22 +410,19 @@ class AccessProvidersController extends AppController{
             }else{
                 //Only disable it
                 $this->UserSettings->deleteAll(['user_id' => $ap_id,'name' => 'wl_active']);
-                $entity = $this->UserSettings->newEntity();
+                $entity = $this->UserSettings->newEmptyEntity();
                 $entity->user_id    = $ap_id;
                 $entity->name       = 'wl_active';
                 $entity->value      = 0;
                 $this->UserSettings->save($entity);
             }  
         }
-        
-        //Selected Components
-        $this->_setSelectedComponents($ap_id);
-
+       
         if ($this->{$this->main_model}->save($e_user)) {
-            $this->set(array(
+            $this->set([
                 'success' => true,
-                '_serialize' => array('success')
-            ));
+                '_serialize' => ['success']
+            ]);
         } else {
             $message = 'Error';
             
@@ -422,12 +437,12 @@ class AccessProvidersController extends AppController{
                 $a[$field] = $detail_string;
             }
             
-            $this->set(array(
+            $this->set([
                 'errors'    => $a,
                 'success'   => false,
-                'message'   => array('message' => __('Could not create item')),
-                '_serialize' => array('errors','success','message')
-            ));
+                'message'   => __('Could not create item'),
+                '_serialize' => ['errors','success','message']
+            ]);
         }
         
     }

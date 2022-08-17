@@ -1,8 +1,43 @@
 Ext.define('Rd.controller.cAccessPoints', {
     extend: 'Ext.app.Controller',
 
-    actionIndex: function(pnl,itemId){
+    actionIndex: function(pnl){
         var me      = this;
+
+        pnl.add({ 
+            xtype  : 'gridApProfiles',
+	        title  : 'AP Profiles',
+            border : false,
+            plain  : true,
+            glyph  : Rd.config.icnProfile,
+            padding: Rd.config.gridPadding,
+            tabConfig   : {
+                ui : 'tab-blue'
+            }   
+        });
+
+        pnl.add({  
+            xtype       : 'gridApLists',  
+            title       : i18n('sAttached_Devices'),
+            glyph       : Rd.config.icnChain,
+            padding     : Rd.config.gridPadding,
+            tabConfig : {
+                ui : 'tab-orange'
+            }    
+        });
+
+        pnl.add({  
+            xtype       : 'gridUnknownNodes', 
+            title       : i18n('sDetached_Devices'),
+            glyph       : Rd.config.icnChainBroken,
+            padding     : Rd.config.gridPadding,
+            tabConfig   : {
+                ui : 'tab-brown'
+            } 
+        });	
+
+        return;
+
         var item    = pnl.down('#'+itemId);
         var added   = false;
         if(!item){

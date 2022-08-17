@@ -1087,6 +1087,21 @@ class CloudsController extends AppController {
             if($entity){
                 $this->{$level}->patchEntity($entity, $req_d); 
                 if ($this->{$level}->save($entity)) {
+                
+                	if($level == $this->tree_level_0){
+		            	$this->{'CloudAdmins'}->deleteAll(['CloudAdmins.cloud_id' => $node_id]);
+		            	if (array_key_exists('admins', $req_d)) {
+				            if(!empty($req_d['admins'])){
+				                foreach($req_d['admins'] as $e){
+				                    if($e != ''){
+				                        $e_ca = $this->{'CloudAdmins'}->newEntity(['cloud_id' => $node_id,'user_id' => $e]);
+				        				$this->{'CloudAdmins'}->save($e_ca);
+				                    }    
+				                }
+				            }
+				        }
+		          	}
+		          	                
                     $this->set(array(
                         'success' => true,
                         '_serialize' => array('success')

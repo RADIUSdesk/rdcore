@@ -46,14 +46,7 @@ Ext.define('Rd.view.accessProviders.pnlAccessProviderDetail', {
                 anchor  : '100%'
             },
             items       : [
-                {
-                    itemId      : 'owner',
-                    xtype       : 'displayfield',
-                    fieldLabel  : i18n('sOwner'),
-                    value       : me.owner,
-                    name        : 'owner',
-                    labelClsExtra: 'lblRdReq'
-                },
+                
                 {
                     xtype       : 'displayfield',
                     fieldLabel  : 'API Key',
@@ -89,42 +82,6 @@ Ext.define('Rd.view.accessProviders.pnlAccessProviderDetail', {
                     labelClsExtra: 'lblRdReq',
                     name        : 'timezone_id' 
                 },
-                {
-                    xtype       : 'fieldcontainer',
-                    itemId      : 'fcPickGroup',
-                    hidden      : true,
-                    layout      : {
-                        type    : 'hbox',
-                        align   : 'begin',
-                        pack    : 'start'
-                    },
-                    items:[
-                        {
-                            itemId      : 'displTag',
-                            xtype       : 'displayfield',
-                            fieldLabel  : 'Group Branch',
-                            name        : 'tag_path',
-                            margin      : 0,
-                            padding     : 0,
-                            width       : 360
-                        },
-                        {
-                            xtype       : 'button',
-                            text        : 'Change Group',
-                            margin      : 5,
-                            padding     : 5,
-                            ui          : 'button-green',
-                            itemId      : 'btnPickGroup',
-                            width       : 100
-                        },
-                        {
-                            xtype       : 'textfield',
-                            name        : 'tree_tag_id',
-                            itemId      : 'hiddenTag',
-                            hidden      : true
-                        }
-                    ]
-                }, 
                 {
                     xtype       : 'checkbox',      
                     fieldLabel  : i18n('sActivate'),
@@ -309,41 +266,6 @@ Ext.define('Rd.view.accessProviders.pnlAccessProviderDetail', {
             ]
         }
         
-       var cntComponents  = {
-            xtype       : 'container',
-            width       : w_prim,
-            layout      : 'anchor',
-            defaults    : {
-                anchor  : '100%'
-            },
-            items       : [
-                {
-                    xtype       : 'checkboxgroup',
-                    vertical    : false,
-                    columns     : 2,
-                    vertical    : false,
-                    items: [
-                        { boxLabel: '<i class="fa fa-graduation-cap"></i> Admins',  name: 'cmp_admins', itemId: 'cmp_admins'},
-                        { boxLabel: '<i class="fa fa-globe"></i> Realms',           name: 'cmp_realms', itemId: 'cmp_realms'},
-                        { boxLabel: '<i class="fa fa-user"></i> Permanent Users',   name: 'cmp_permanent_users', itemId: 'cmp_permanent_users'},
-                        { boxLabel: '<i class="fa fa-ticket-alt"></i> Vouchers',    name: 'cmp_vouchers', itemId: 'cmp_vouchers'},
-                        { boxLabel: '<i class="fa fa-cubes"></i> Profiles',         name: 'cmp_profiles', itemId: 'cmp_profiles'},
-                        { boxLabel: '<i class="fa fa-bullseye"></i> RADIUS',        name: 'cmp_radius', itemId: 'cmp_radius'},
-                        { boxLabel: '<i class="fa fa-question"></i> Unknown RADIUS',name: 'cmp_unknown_dynamic_clients', itemId: 'cmp_unknown_dynamic_clients'},
-                        { boxLabel: '<i class="fa fa-code-branch"></i> MESHdesk',   name: 'cmp_mesh_desk', itemId: 'cmp_mesh_desk'},
-                        { boxLabel: '<i class="fa fa-cloud"></i> APdesk',           name: 'cmp_ap_desk', itemId: 'cmp_ap_desk'},
-                        //FIXME ADD ALERTS LATER
-                    //    { boxLabel: 'Alerts',           name: 'cmp_alerts'},
-                        { boxLabel: '<i class="fa fa-sign-in-alt"></i> Login Pages', name: 'cmp_login_pages', itemId: 'cmp_login_pages'},
-                        { boxLabel: '<i class="fa fa-magic"></i> Setup Wizard',name: 'cmp_wizards',      itemId: 'cmp_wizards'},
-                        { boxLabel: '<i class="fa fa-quote-right"></i> OpenVPN Servers',   name: 'cmp_openvpn_servers', itemId: 'cmp_openvpn_servers'},
-                        { boxLabel: '<i class="fa fa-question"></i> Unknown Nodes', name: 'cmp_unknown_nodes', itemId: 'cmp_unknown_nodes'},
-                     //   { boxLabel: '<span style="font-family:FontAwesome;font-size:larger;">&#xf082</span> Facebook XWF',  name: 'cmp_traffic_classes', itemId: 'cmp_traffic_classes'},
-                        
-                    ]
-                } 
-            ]
-        }
         
         me.items = [
             {
@@ -384,19 +306,6 @@ Ext.define('Rd.view.accessProviders.pnlAccessProviderDetail', {
                 },
                 bodyPadding : 10,
                 items       : cntWhiteLabel				
-            },
-            {
-                xtype       : 'panel',
-                title       : "Selected Components",
-                glyph       : Rd.config.icnComponent, 
-                ui          : 'panel-green',
-                layout      : {
-                  type      : 'vbox',
-                  align     : 'start',
-                  pack      : 'start'
-                },
-                bodyPadding : 10,
-                items       : cntComponents				
             }
         ];    
         me.callParent(arguments);

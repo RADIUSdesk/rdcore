@@ -5,23 +5,13 @@ Ext.define('Rd.controller.cDynamicClients', {
         var item    = pnl.down('#'+itemId);
         var added   = false;
         if(!item){
-            var tp = Ext.create('Ext.tab.Panel',
-            	{          
-	            	border  : false,
-	                itemId  : itemId,
-	                plain	: true,
-	                cls     : 'subSubTab', //Make darker -> Maybe grey
-	                items   : [
-	                    { 
-	                         title  : 'RADIUS Clients', 
-	                         xtype  : 'gridDynamicClients',
-	                         border : false,
-	                         plain  : true,
-	                         glyph  : 'xf192@FontAwesome'
-	                    }
-	                ]
-	            });      
-            pnl.add(tp);
+            pnl.add({ 
+                itemId : itemId,
+                xtype  : 'gridDynamicClients',
+                border : false,
+                plain  : true,
+                padding : '0 3 0 3'
+            });
             pnl.on({activate : me.gridActivate,scope: me});
             added = true;
         }

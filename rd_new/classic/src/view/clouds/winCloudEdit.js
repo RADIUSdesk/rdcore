@@ -11,6 +11,9 @@ Ext.define('Rd.view.clouds.winCloudEdit', {
     width       : 450,
     height      : 350,
     glyph       : Rd.config.icnEdit,
+    requires: [
+        'Rd.view.clouds.tagAccessProviders'
+    ],
     initComponent: function() {
         var me = this;
         this.items = [
@@ -45,6 +48,9 @@ Ext.define('Rd.view.clouds.winCloudEdit', {
                         allowBlank  :false,
                         blankText   : i18n('sEnter_a_value'),
                         labelClsExtra: 'lblRdReq'
+                    },
+                    {
+                        xtype       : 'tagAccessProviders'
                     },
                     {
                         xtype       : 'textfield',

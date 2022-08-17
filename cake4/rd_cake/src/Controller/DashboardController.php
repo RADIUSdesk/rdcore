@@ -34,8 +34,7 @@ class DashboardController extends AppController{
       
     public function navTree(){
     
-    	$items = $this->_nav_tree();
-    
+    	$items = $this->_nav_tree();   
     	$this->set([
             'items'          => $items,
             'success'       => true,
@@ -514,6 +513,97 @@ class DashboardController extends AppController{
         ]);
     }
     
+    public function itemsFor(){
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){
+            return;
+        }
+        $user_id    = $user['id'];
+        $req_q    = $this->request->getQuery();
+        
+        $items	= [];
+        
+        if($req_q['item_id'] == 'tabMainUsers'){
+        	$items = [
+        		[
+                    "title" => "Permanent Users",
+                    "glyph" => "xf007@FontAwesome",
+                    "id" => "cPermanentUsers",
+                    "layout" => "fit",
+                    "tabConfig" => [
+                        "ui" => "tab-blue"
+                    ]
+                ],
+                [
+                    "title" => "Vouchers",
+                    "glyph" => "xf145@FontAwesome",
+                    "id" => "cVouchers",
+                    "layout" => "fit",
+                    "tabConfig" => [
+                        "ui" => "tab-orange"
+                    ]
+                ],
+                [
+                    "title" => "Activity Monitor",
+                    "glyph" => "xf0e7@FontAwesome",
+                    "id" => "cActivityMonitor",
+                    "layout" => "fit",
+                    "tabConfig" => [
+                        "ui" => "tab-metal"
+                    ]
+                ],
+                [
+                    "title" => "Top-Ups",
+                    "glyph" => "xf0f4@FontAwesome",
+                    "id" => "cTopUps",
+                    "layout" => "fit",
+                    "tabConfig" => [
+                        "ui" => "tab-metal"
+                    ]
+                ]       	    	       	
+        	];        
+        }
+        
+        if($req_q['item_id'] == 'tabMainRadius'){
+        	$items = [
+        		[
+                    "title" => "RADIUS Clients",
+                    "glyph" => "xf1cb@FontAwesome",
+                    "id"    => "cDynamicClients",
+                    "layout"=> "fit",
+                    "tabConfig"=> [
+                        "ui"=> "tab-blue"
+                    ]
+                ],
+                [
+                    "title" => "Profiles",
+                    "glyph" => "xf1b3@FontAwesome",
+                    "id"    => "cProfiles",
+                    "layout"=> "fit",
+                    "tabConfig"=> [
+                        "ui"=> "tab-blue"
+                    ]
+                ],
+                [
+                    "title" => "Realms (Groups)",
+                    "glyph" => "xf17d@FontAwesome",
+                    "id"    => "cRealms",
+                    "layout"=> "fit",
+                    "tabConfig"=> [
+                        "ui"=> "tab-orange"
+                    ]
+                ]     
+           	];
+        }
+        $this->set([
+            'success' => true,
+            'items'    => $items,
+            '_serialize' => ['success','items']
+        ]);   
+    
+    
+    }
+    
     private function _get_user_detail($user,$auto_compact=false){
            
         $group      = $user->group->name;
@@ -747,7 +837,8 @@ class DashboardController extends AppController{
 				'leaf'	=> true,
 				'controller'	=> 'cAccessProviders',
 				'id'		=> 'tabMainAccessProviders',
-				'iconCls'	=> 'x-fa fa-graduation-cap'
+				'iconCls'	=> 'x-fa fa-graduation-cap',
+				'glyph'		=> 'xf19d'
 			],
 			[
 				'text'	=> 'CLOUDS',
@@ -770,7 +861,6 @@ class DashboardController extends AppController{
     	$items = [
 			[
 				'text' 		=> 'OVERVIEW',
-				'id'   		=> 1,
 				'leaf' 		=> true,
 				'iconCls' 	=> 'x-fa fa-th-large',
 				'glyph'		=> 'xf009',
@@ -778,21 +868,31 @@ class DashboardController extends AppController{
 				'id'		=> 'tabMainNetworkOverview'
 			],
 			[
-				'text'	=> 'RADIUS USERS',
-				'id'		=> 2,
-				'expanded'	=> false,
+				'text'		=> 'USERS',
+				'leaf'		=> true,
 				'iconCls'   => 'x-fa fa-user',
-				'children'	=> $trRadius
+				'controller'=> 'cMainUsers',
+				'id'		=> 'tabMainUsers',
+				'glyph'		=> 'xf007'
 			],
 			[
-				'text'	=> 'RADIUS COMPONENTS',
-				'id'		=> 3,
-				'expanded'	=> false,
-				'iconCls'		=> 'x-fa  fa-dot-circle-o',
-				'children'	=> $thRadiusComponents
+				'text'		=> 'RADIUS',
+				'leaf'		=> true,
+				'iconCls'	=> 'x-fa  fa-dot-circle-o',
+				'controller'=> 'cMainRadius',
+				'id'		=> 'tabMainRadius',
+				'glyph'		=> 'xf0ac'
+			],	
+			[
+				'text' 		=> 'NETWORK',
+				'leaf'	    => true,
+				'controller'=> 'cMainNetworks',
+				'id'		=> 'tabMainNetwork',
+				'iconCls'	=> 'x-fa fa-sitemap',
+				'glyph'		=> 'xf0e8'	
 			],
 			[
-				'text' => 'LOGIN PAGES',
+				'text' => 'LOGIN',
 				'leaf'	=> true,
 				'controller'	=> 'cDynamicDetails',
 				'id'		=> 'tabDynamicCDetails',
@@ -800,18 +900,13 @@ class DashboardController extends AppController{
 				'glyph'		=> 'xf090'
 			],
 			[
-				'text' 		=> 'NETWORKS',
-				'controller'=> '4',
-				'id'		=> 'tabMeshes',
-				'iconCls'	=> 'x-fa fa-sitemap',
-				'children'	=> $thNetworks		
-			],
-			[
 				'text' 		=> 'OTHER',
+				'leaf'	    => true,
 				'id'		=> 5,
 				'controller'=> '5',
 				'iconCls'	=> 'x-fa fa-gears',
-				'children'	=> $thOther		
+			//	'children'	=> [],
+			//	'children'	=> $thOther		
 			]  
     	];
     	
@@ -821,17 +916,16 @@ class DashboardController extends AppController{
     private function _nav_tree_blank(){
     
     	$thOther = [
-			[
-			//	'text'	=> 'ADMINS',
-				'text'	=> '.',
+    		[
+				'text'	=> 'ADMINS',
 				'leaf'	=> true,
 				'controller'	=> 'cAccessProviders',
 				'id'		=> 'tabMainAccessProviders',
-				'iconCls'	=> 'x-fa fa-graduation-cap'
+				'iconCls'	=> 'x-fa fa-graduation-cap',
+				'glyph'		=> 'xf19d'
 			],
 			[
-			//	'text'	=> 'CLOUDS',
-				'text'	=> '.',
+				'text'	=> 'CLOUDS',
 				'leaf'	=> true,
 				'controller'	=> 'cClouds',
 				'id'		=> 'tabMainClouds',
@@ -843,21 +937,20 @@ class DashboardController extends AppController{
     	$items = [
 			[
 			//	'text' 		=> 'OVERVIEW',
-				'text'	=> '.',
 				'id'   		=> 1,
 				'leaf' 		=> true,
 				'iconCls' 	=> 'x-fa fa-th-large',
 				'glyph'		=> 'xf009',
 				'controller'	=> 'cNetworkOverview',
-				'id'		=> 'tabMainNetworkOverview'
+				'id'		=> 'tabMainNetworkOverview',
+				'children'	=> []
 			],
 			[
 			//	'text' 		=> 'OTHER',
-				'text'	=> '.',
 				'id'		=> 5,
 				'controller'=> '5',
 				'iconCls'	=> 'x-fa fa-gears',
-				'children'	=> $thOther		
+				'children'	=> []	
 			]  
     	];
     	

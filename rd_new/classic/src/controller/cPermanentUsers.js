@@ -4,25 +4,14 @@ Ext.define('Rd.controller.cPermanentUsers', {
         var me      = this;
         var item    = pnl.down('#'+itemId);
         var added   = false;
-        if(!item){
-            var tp = Ext.create('Ext.tab.Panel',
-            	{          
-	            	border  : false,
-	                itemId  : itemId,
-	                plain	: true,
-	                cls     : 'subSubTab', //Make darker -> Maybe grey
-	                items   : [
-	                    { 
-	                         title  : 'USERS', 
-	                         xtype  : 'gridPermanentUsers',
-	                         border : false,
-	                         plain  : true,
-	                         glyph  : Rd.config.icnUser,
-                             padding : '0 3 0 3'
-	                    }
-	                ]
-	            });      
-            pnl.add(tp);
+        if(!item){ 
+            pnl.add({ 
+                 itemId : itemId,
+                 xtype  : 'gridPermanentUsers',
+                 border : false,
+                 plain  : true,
+                 padding : '0 3 0 3'
+            });
             pnl.on({activate : me.gridActivate,scope: me});
             added = true;
         }

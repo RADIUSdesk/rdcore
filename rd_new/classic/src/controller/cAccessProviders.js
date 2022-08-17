@@ -2,6 +2,7 @@ Ext.define('Rd.controller.cAccessProviders', {
     extend: 'Ext.app.Controller',
     actionIndex: function(pnl,itemId){
         var me      = this;
+         me.ui      = Rd.config.tabAccPrvdrs; //This is set in the config file    
         var item    = pnl.down('#'+itemId);
         var added   = false;
         if(!item){
@@ -40,7 +41,7 @@ Ext.define('Rd.controller.cAccessProviders', {
         me.populated = true;
     },
     views:  [
-        'accessProviders.pnlAccessProvider',    'accessProviders.pnlAccessProviderDetail', 
+        'accessProviders.pnlAccessProviderDetail', 
         'accessProviders.gridAccessProviders',  'accessProviders.winApAdd',
         'components.winCsvColumnSelect', 
         'accessProviders.winAccessProviderPassword','components.winEnableDisable',      'components.vCmbLanguages'
@@ -92,25 +93,15 @@ Ext.define('Rd.controller.cAccessProviders', {
             'winApAdd #btnDataNext' : {
                 click:  me.btnDataNext
             },
-            'pnlAccessProvider pnlAccessProviderDetail #save': {
-                click:      me.editSubmit
+            'pnlAccessProviderDetail': {
+              //  beforerender:   me.tabDetailActivate,
+                activate:       me.tabDetailActivate
             },
-
-            'pnlAccessProvider gridApRealms #reload': {
-                click:      me.apRealmsReload
+            'pnlAccessProviderDetail #save': {
+                click:      me.editSubmit
             },
             '#winCsvColumnSelectAp #save': {
                 click:  me.csvExportSubmit
-            },
-            'pnlAccessProvider #tabDetail': {
-                //beforerender:   me.tabDetailActivate,//No need for this one 
-                activate:       me.tabDetailActivate
-            },
-            'pnlAccessProvider #tabRealms': {
-                activate:       me.tabRealmsActivate
-            },
-            'pnlAccessProvider #tabRights': {
-                activate:       me.tabRightsActivate
             },
             'winAccessProviderPassword #save': {
                 click: me.changePasswordSubmit
@@ -164,8 +155,7 @@ Ext.define('Rd.controller.cAccessProviders', {
     edit:   function(){ 
         var me = this;
         //See if there are anything selected... if not, inform the user
-        /*
-        var sel_count = me.getTree().getSelectionModel().getCount();
+        var sel_count = me.getGrid().getSelectionModel().getCount();
         if(sel_count == 0){
             Ext.ux.Toaster.msg(
                         i18n('sSelect_an_item'),
@@ -175,12 +165,12 @@ Ext.define('Rd.controller.cAccessProviders', {
             );
         }else{
 
-            var selected    =  me.getTree().getSelectionModel().getSelection();
+            var selected    =  me.getGrid().getSelectionModel().getSelection();
             var count       = selected.length;         
-            Ext.each(me.getTree().getSelectionModel().getSelection(), function(sr,index){
+            Ext.each(me.getGrid().getSelectionModel().getSelection(), function(sr,index){
 
                 //Check if the node is not already open; else open the node:
-                var tp          = me.getTree().up('tabpanel');
+                var tp          = me.getGrid().up('tabpanel');
                 var ap_id       = sr.getId();
                 var ap_tab_id   = 'apTab_'+ap_id;
                 var nt          = tp.down('#'+ap_tab_id);
@@ -192,21 +182,20 @@ Ext.define('Rd.controller.cAccessProviders', {
                var ap_tab_name = sr.get('username');
               
                 tp.add({ 
-                    title :     ap_tab_name,
-                    itemId:     ap_tab_id,
-                    closable:   true,
-                    iconCls:    'edit', 
-                    glyph:      Rd.config.icnEdit,
-                    layout:     'fit', 
-                    items:      {'xtype' : 'pnlAccessProvider',ap_id: ap_id},
-                    tabConfig : {
+                    title       : ap_tab_name,
+                    itemId      : ap_tab_id,
+                    closable    : true,
+                    glyph       : Rd.config.icnEdit,
+                    xtype       : 'pnlAccessProviderDetail',
+                    ap_id       : ap_id,
+                    tabConfig   : {
                         ui : me.ui
                     }
                 });
                 tp.setActiveTab(ap_tab_id); //Set focus on Add Tab
                 
             });
-        }*/
+        }
     },
     editSubmit: function(button){
         var me      = this;
@@ -356,6 +345,22 @@ Ext.define('Rd.controller.cAccessProviders', {
             win.close();
         }
     },
+    tabDetailActivate : function(tab){
+        var me      = this;
+        var form    = tab;
+        var ap_id   = tab.ap_id;
+        form.load({
+            url :me.getUrlViewAPDetail(), 
+            method:'GET',
+            params:{ap_id:ap_id},
+            success    : function(a,b,c){
+                if(b.result.data.wl_img != null){
+                    var img = form.down("#imgWlLogo");
+                    img.setSrc(b.result.data.wl_img);
+                }
+            }
+        });
+    },
     changePassword: function(){
         var me = this;
          //Find out if there was something selected
@@ -484,14 +489,6 @@ Ext.define('Rd.controller.cAccessProviders', {
             failure             : Ext.ux.formFail
         });
     }, 
-    tabRealmsActivate:  function(t){
-        var me = this;
-        t.getStore().load();
-    },
-    tabRightsActivate:  function(t){
-        var me = this;
-        t.getStore().load();
-    },
     //***Add these to the end of the file
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");
