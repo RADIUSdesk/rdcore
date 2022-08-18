@@ -58,7 +58,7 @@ Ext.define('Rd.controller.cAccessPointEdits', {
     refs: [
     	{  ref: 'editEntryWin', 	selector: 'winAccessPointEditEntry'},
         {  ref: 'editExitWin',  	selector: 'winAccessPointEditExit' },
-        {  ref: 'tabAccessPoints',  selector: '#tabMainAccessPoints'      } 
+        {  ref: 'tabAccessPoints',  selector: '#tabMainNetworks'      } 
     ],
     init: function() {
         var me = this;

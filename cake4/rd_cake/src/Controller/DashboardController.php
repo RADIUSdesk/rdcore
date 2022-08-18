@@ -887,7 +887,7 @@ class DashboardController extends AppController{
 				'text' 		=> 'NETWORK',
 				'leaf'	    => true,
 				'controller'=> 'cMainNetworks',
-				'id'		=> 'tabMainNetwork',
+				'id'		=> 'tabMainNetworks',
 				'iconCls'	=> 'x-fa fa-sitemap',
 				'glyph'		=> 'xf0e8'	
 			],

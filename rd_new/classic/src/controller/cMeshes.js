@@ -2,126 +2,27 @@ Ext.define('Rd.controller.cMeshes', {
     extend: 'Ext.app.Controller',
     actionIndex: function(pnl){
         var me      = this;
-//        var item    = pnl.down('#'+itemId);
-//        var added   = false;
-//        if(!item){
-     /*       var tp = Ext.create('Ext.tab.Panel',
-            	{          
-	            	border  : false,
-	                itemId  : itemId,
-	                plain	: true,
-	                cls     : 'subSubTab', //Make darker -> Maybe grey
-	                items   : [
-	                    { 
-	                         title  : 'Meshes', 
-	                         xtype  : 'gridMeshes',
-	                         border : false,
-	                         plain  : true,
-	                         glyph  : 'xf1eb@FontAwesome'
-	                    }
-	                ]
-	            });  */    
-            pnl.add({ 
-                title  : 'Meshes', 
-                xtype  : 'gridMeshes',
-                border : false,
-                plain  : true,
-                glyph  : Rd.config.icnMesh,
-              //  padding: Rd.config.gridPadding,
-                tabConfig   : {
-                    ui : 'tab-blue'
-                }   
-            });
-
-            pnl.add({ 
-                title       : i18n('sKnown_Nodes'), 	
-			    xtype       : 'gridNodeLists',	
-			    glyph       : Rd.config.icnCheck,
-			    padding     : Rd.config.gridPadding,
-			    tabConfig   : {
-                    ui : 'tab-orange'
-                } 
-            });
-
- //           pnl.on({activate : me.gridActivate,scope: me});
- //           added = true;
-//        }
-//        return added;      
-    },
-
-    actionIndexZZ: function(pnl){
-        var me      = this;
-     
-        if (me.populated) {
-            return; 
-        }
-        
-       var items =   [
-            { 
-                title       : i18n('sMeshes'), 	    
-                xtype       : 'gridMeshes',		
-                glyph       : Rd.config.icnMesh,
-                padding     : Rd.config.gridPadding,
-                tabConfig   : {
-                    ui : 'tab-blue'
-                }               
-            },
-			{ 
-			    title       : i18n('sKnown_Nodes'), 	
-			    xtype       : 'gridNodeLists',	
-			    glyph       : Rd.config.icnCheck,
-			    padding     : Rd.config.gridPadding,
-			    tabConfig   : {
-                    ui : 'tab-orange'
-                } 			
-			}
-        ];
-                     
-       if(me.application.getDashboardData().show_unknown_nodes){
-       
-            items = [
-                { 
-                    title       : i18n('sMeshes'), 	    
-                    xtype       : 'gridMeshes',		
-                    glyph       : Rd.config.icnMesh,
-                    padding     : Rd.config.gridPadding,
-                    tabConfig   : {
-                        ui : 'tab-blue'
-                    }    
-                
-                },
-				{ 
-				    title       : i18n('sKnown_Nodes'), 	
-				    xtype       : 'gridNodeLists',	
-				    glyph       : Rd.config.icnCheck,
-				    padding     : Rd.config.gridPadding,
-				    tabConfig   : {
-                        ui : 'tab-orange'
-                    } 
-				
-				},
-				{ 
-				    title       : i18n('sUnknown_Nodes'), 
-				    xtype       :'gridUnknownNodes',
-				    padding     : Rd.config.gridPadding,	
-				    glyph       : Rd.config.icnQuestion,
-				    tabConfig   : {
-                        ui : 'tab-brown'
-                    } 	
-				}
-            ];
-        };
-               
-        pnl.add({
-            xtype   : 'tabpanel',
-            border  : false,
-            itemId  : 'tabMeshes',
-            //plain   : false,
-            items   : items
+        pnl.add({ 
+            title  : 'Meshes', 
+            xtype  : 'gridMeshes',
+            border : false,
+            plain  : true,
+            glyph  : Rd.config.icnMesh,
+            tabConfig   : {
+                ui : 'tab-blue'
+            }   
         });
-        me.populated = true;
-    },
 
+        pnl.add({ 
+            title       : i18n('sKnown_Nodes'), 	
+            xtype       : 'gridNodeLists',	
+            glyph       : Rd.config.icnCheck,
+            padding     : Rd.config.gridPadding,
+            tabConfig   : {
+                ui : 'tab-orange'
+            } 
+        });    
+    },
     views:  [
         'meshes.gridMeshes',        'meshes.winMeshAdd',
 		'meshes.gridNodeLists',	    'meshes.gridUnknownNodes',
@@ -154,7 +55,7 @@ Ext.define('Rd.controller.cMeshes', {
     refs: [
         {  ref: 'grid',             selector: 'gridMeshes'},
         {  ref: 'gridNodeLists',    selector: 'gridNodeLists'},
-        {  ref: 'tabMeshes',        selector: '#tabMeshes'},
+        {  ref: 'tabMeshes',        selector: '#tabMainNetworks'},
         {  ref: 'gridUnknownNodes', selector: '#tabMeshes gridUnknownNodes'}
     ],
     init: function() {
@@ -165,16 +66,16 @@ Ext.define('Rd.controller.cMeshes', {
         me.inited = true;
 
         me.control({
-            '#tabMeshes' : {
+            '#tabMainNetworks' : {
                 destroy   :      me.appClose   
             },
-			'#tabMeshes gridMeshes' : {
+			'#tabMainNetworks gridMeshes' : {
 				activate	: me.gridActivate
 			},
-			'#tabMeshes gridNodeLists' : {
+			'#tabMainNetworks gridNodeLists' : {
 				activate	: me.gridActivate
 			},
-			'#tabMeshes gridUnknownNodes' : {
+			'#tabMainNetworks gridUnknownNodes' : {
 				activate	: me.gridActivate
 			},
             'gridMeshes #reload': {
@@ -542,7 +443,7 @@ Ext.define('Rd.controller.cMeshes', {
     },
     addNode: function(button){
         var me      = this;     
-        var tab     = button.up("#tabMeshes"); 
+        var tab     = me.getTabMeshes();  
         var store   = tab.down("gridNodeLists").getStore();
         var id      = 0; // New Ap
         var name    = "New Node"; 
@@ -861,7 +762,7 @@ Ext.define('Rd.controller.cMeshes', {
     addMeshViewMapLeaflet : function(jsonData){
         var me  = this;
         var data= jsonData.data;
-        var tp  = me.getTabMeshes();  
+        var tp  = me.getTabMehses();  
         var map_tab_id = 'mapTab'; 
         var new_tab = tp.down('#' + map_tab_id);
         if (new_tab) {

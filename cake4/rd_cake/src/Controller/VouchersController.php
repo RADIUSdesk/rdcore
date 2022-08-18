@@ -98,7 +98,9 @@ class VouchersController extends AppController{
      
      	$req_q = $this->request->getQuery();
         $this->viewBuilder()->setLayout('pdf');
-        $this->response->type('pdf');
+        //$this->response->type('pdf');
+        $this->response = $this->response->withType('pdf');
+        
 		//We improve this function by also allowing the user to specify certain values
 		//which in turn will influence the outcome of the PDF
 		Configure::load('Vouchers');
@@ -178,11 +180,12 @@ class VouchersController extends AppController{
         }else{
             //Check if there is a filter applied
             $query = $this->{$this->main_model}->find(); 
+            $query->contain(['Realms']);
             
-            if($this->CommonQuery->build_with_realm_query($query,$user,['Users','Realms']) == false){
+           // if($this->CommonQuery->build_with_realm_query($query,$user,['Users','Realms']) == false){
                 //FIXME Later we can redirect to an error page for CSV
-                return;
-            }
+           //     return;
+           // }
             
             $q_r   = $query->all();
             $voucher_data = array();
@@ -221,13 +224,18 @@ class VouchersController extends AppController{
         }     
     }
 
-    public function pdfView($schedule_id = null){
-        //$this->viewBuilder()->layout('ajax');
-        $this->viewBuilder()->setLayout('pdf');
+    public function pdfView(){
+
+      	//$this->viewBuilder()->setLayout('pdf');//Looks like we can skip this
         $this->set('title', 'My Great Title');
-        $this->set('file_name', '2016-06' . '_June_CLM.pdf');
-        $this->response->setType('pdf');
-    } 
+        $this->set('file_name', '2016-06' . '_June_CLM.pdf');      
+        	
+  		$this->response = $this->response->withType('pdf');
+		//$this->response = $this->response->withHeader( //Looks like we can also skip this
+    	//	'Content-Disposition', 'inline; filename="some.pdf"'
+		//);
+  		
+    }
     
     //____ BASIC CRUD Manager ________
     public function index(){

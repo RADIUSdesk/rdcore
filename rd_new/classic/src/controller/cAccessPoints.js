@@ -1,6 +1,5 @@
 Ext.define('Rd.controller.cAccessPoints', {
     extend: 'Ext.app.Controller',
-
     actionIndex: function(pnl){
         var me      = this;
 
@@ -26,7 +25,7 @@ Ext.define('Rd.controller.cAccessPoints', {
             }    
         });
 
-        pnl.add({  
+      /*  pnl.add({  
             xtype       : 'gridUnknownNodes', 
             title       : i18n('sDetached_Devices'),
             glyph       : Rd.config.icnChainBroken,
@@ -34,116 +33,9 @@ Ext.define('Rd.controller.cAccessPoints', {
             tabConfig   : {
                 ui : 'tab-brown'
             } 
-        });	
+        });	*/
 
-        return;
-
-        var item    = pnl.down('#'+itemId);
-        var added   = false;
-        if(!item){
-            var tp = Ext.create('Ext.tab.Panel',
-            	{          
-	            	border  : false,
-	                itemId  : itemId,
-	                plain	: true,
-	                cls     : 'subSubTab', //Make darker -> Maybe grey
-	                items   : [
-	                    { 
-                            xtype  : 'gridApProfiles',
-	                        title  : i18n('sAccess_Point_Profiles'),
-	                        border : false,
-	                        plain  : true,
-	                        glyph  : Rd.config.icnProfile,
-                            tabConfig : {
-                                ui : 'tab-blue'
-                            }   
-	                    },
-                        { 
-                            xtype       : 'gridApLists',  
-                            title       : i18n('sAttached_Devices'),
-                            glyph       : Rd.config.icnChain,
-                            padding     : Rd.config.gridPadding,
-                            tabConfig : {
-                                ui : 'tab-orange'
-                            } 
-                        }
-	                ]
-	            });      
-            pnl.add(tp);
-            pnl.on({activate : me.gridActivate,scope: me});
-            added = true;
-        }
-        return added;      
-    },
-
-    actionIndexZ: function(pnl){
-        var me      = this; 
-    
-        if (me.populated) {
-            return; 
-        } 
-        
-        var items =   [
-            {   
-                xtype       : 'gridApProfiles',
-                title       : i18n('sAccess_Point_Profiles'), 
-                glyph       : Rd.config.icnProfile,
-                padding     : Rd.config.gridPadding,
-                tabConfig : {
-                    ui : 'tab-blue'
-                }    
-            },
-            { 
-                xtype       : 'gridApLists',  
-                title       : i18n('sAttached_Devices'),
-                glyph       : Rd.config.icnChain,
-                padding     : Rd.config.gridPadding,
-                tabConfig : {
-                    ui : 'tab-orange'
-                } 
-            }
-        ];
-        
-        if(me.application.getDashboardData().show_unknown_nodes){
-            items   = [
-                {   
-                    xtype       : 'gridApProfiles',
-                    title       : i18n('sAccess_Point_Profiles'), 
-                    glyph       : Rd.config.icnProfile,
-                    padding     : Rd.config.gridPadding,
-                    tabConfig   : {
-                        ui : 'tab-blue'
-                    }    
-                },
-                { 
-                    xtype       : 'gridApLists',  
-                    title       : i18n('sAttached_Devices'),
-                    glyph       : Rd.config.icnChain,
-                    padding     : Rd.config.gridPadding,
-                    tabConfig   : {
-                        ui : 'tab-orange'
-                    } 
-                },
-                {  
-                    xtype       : 'gridUnknownNodes', 
-                    title       : i18n('sDetached_Devices'),
-                    glyph       : Rd.config.icnChainBroken,
-                    padding     : Rd.config.gridPadding,
-                    tabConfig   : {
-                        ui : 'tab-brown'
-                    } 
-                }	
-            ];      
-        }
-        
-            
-        pnl.add({
-            xtype   : 'tabpanel',
-            border  : false,
-            itemId  : 'tabAccessPoints',
-            items   : items
-        });
-        me.populated = true;
+        return;     
     },
 
     views:  [
@@ -173,7 +65,8 @@ Ext.define('Rd.controller.cAccessPoints', {
     refs: [
         {  ref: 'grid',             selector: 'gridApProfiles'},
         {  ref: 'gridApLists',      selector: 'gridApLists'},
-        {  ref: 'gridUnknownNodes', selector: '#tabAccessPoints gridUnknownNodes'}      
+        {  ref: 'gridUnknownNodes', selector: '#tabAccessPoints gridUnknownNodes'},
+        {  ref: 'tabAccessPoints',  selector: '#tabMainNetworks' }      
     ],
     init: function() {
         var me = this;
@@ -184,13 +77,13 @@ Ext.define('Rd.controller.cAccessPoints', {
         me.inited = true;
         
         me.control({
-            '#tabAccessPoints'    : {
+            '#tabMainNetworks'    : {
                 destroy   :      me.appClose
             },
-			'#tabAccessPoints gridApProfiles' : {
+			'#tabMainNetworks gridApProfiles' : {
 				activate	: me.gridActivate
 			},
-			'#tabAccessPoints gridApLists' : {
+			'#tabMainNetworks gridApLists' : {
 				activate	: me.gridActivate
 			},
             '#tabAccessPoints gridUnknownNodes' : {
@@ -426,7 +319,7 @@ Ext.define('Rd.controller.cAccessPoints', {
     //_______ Known APs ________
     addAp: function(button){
         var me      = this;     
-        var tab     = button.up("#tabAccessPoints"); 
+        var tab     = me.getTabAccessPoints(); 
         var store   = tab.down("gridApLists").getStore();
         var id      = 0; // New Ap
         var name    = "New Ap"; 
@@ -480,7 +373,7 @@ Ext.define('Rd.controller.cAccessPoints', {
     },
     editAp: function(button){
         var me      = this;     
-        var tab     = button.up("#tabAccessPoints"); 
+        var tab     = me.getTabAccessPoints(); 
         var store   = me.getGridApLists().getStore();
 		var selCount = me.getGridApLists().getSelectionModel().getCount();
         if(selCount == 0){
@@ -515,8 +408,7 @@ Ext.define('Rd.controller.cAccessPoints', {
     },
     execute:   function(button){
         var me      = this;
-        
-        var tab     = button.up("#tabAccessPoints"); 
+        var tab     = me.getTabAccessPoints(); 
         var grid    = tab.down("gridApLists");
          
         //Find out if there was something selected
@@ -568,11 +460,9 @@ Ext.define('Rd.controller.cAccessPoints', {
     
     restart:   function(button){
         var me      = this; 
-        
-        var tab     = button.up("#tabAccessPoints"); 
+        var tab     = me.getTabAccessPoints();
         var grid    = tab.down("gridApLists");
 		
-    
         //Find out if there was something selected
         if(grid.getSelectionModel().getCount() == 0){
              Ext.ux.Toaster.msg(

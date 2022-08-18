@@ -89,6 +89,11 @@ class PermanentUsersController extends AppController{
     } 
 
     public function index(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
 
       	$req_q    = $this->request->getQuery(); //q_data is the query data
         $cloud_id = $req_q['cloud_id'];
@@ -149,8 +154,7 @@ class PermanentUsersController extends AppController{
             array_push($items,$row); 
                  
         }
-        
-       
+             
         $this->set(array(
             'items'         => $items,
             'success'       => true,

@@ -10,7 +10,7 @@ Ext.define('Rd.controller.cMeshNode', {
         urlAdvancedSettingsForModel : '/cake4/rd_cake/meshes/advanced_settings_for_model.json'
     },
     refs: [
-        {  ref: 'tabMeshes',  selector: '#tabMainMeshes' } 
+        {  ref: 'tabMeshes',  selector: '#tabMainNetworks' } 
     ],
     init: function() {
         var me = this;

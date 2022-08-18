@@ -67,7 +67,8 @@ class AppController extends Controller
     
     //--RD tweak 2022 to serve .json and .xml files (but it seems this one is not compulsory
     public function viewClasses(): array{
-    	return [JsonView::class, XmlView::class];
+    	//return [JsonView::class, XmlView::class];//It did not like this one when trying to do pdf creation
+    	return [JsonView::class];
 	}
 	//--END RD TWEAK
 	

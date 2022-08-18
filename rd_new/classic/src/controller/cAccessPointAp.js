@@ -13,7 +13,7 @@ Ext.define('Rd.controller.cAccessPointAp', {
         urlRedirectAp   : '/cake4/rd_cake/aps/redirect_unknown.json'
     },
     refs: [
-        {  ref: 'tabAccessPoints',  selector: '#tabMainAccessPoints' } 
+        {  ref: 'tabAccessPoints',  selector: '#tabMainNetworks' } 
     ],
     init: function() {
         var me = this;

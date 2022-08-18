@@ -48,7 +48,7 @@ Ext.define('Rd.controller.cMeshEdits', {
     refs: [
     	{  ref: 'editEntryWin', 	selector: 'winMeshEditEntry'},
         {  ref: 'editExitWin',  	selector: 'winMeshEditExit'},
-        {  ref: 'tabMeshes',        selector: '#tabMainMeshes' }       
+        {  ref: 'tabMeshes',        selector: '#tabMainNetworks' }       
     ],
     init: function() {
         var me = this;
@@ -250,7 +250,6 @@ Ext.define('Rd.controller.cMeshEdits', {
     actionIndex: function(pnl,config){
         var me          = this;
         var id		    = 'tabMeshEdit'+ config.id;
-        //var tabMeshes   = pnl;
         var tabMeshes   = me.getTabMeshes();
         var newTab  = tabMeshes.items.findBy(
             function (tab){
@@ -268,32 +267,6 @@ Ext.define('Rd.controller.cMeshEdits', {
                 border  : false,
                 meshId  : config.id,
                 meshName: config.name
-            });
-        }    
-        tabMeshes.setActiveTab(newTab);
-    },
-    actionIndexZZ: function(mesh_id,name){
-        var me      = this; 
-         
-        var id		= 'tabMeshEdit'+ mesh_id;
-        var tabMeshes = me.getTabMeshes();
-        var newTab  = tabMeshes.items.findBy(
-            function (tab){
-                return tab.getItemId() === id;
-            });
-         
-        if (!newTab){
-            newTab = tabMeshes.add({
-                glyph   : Rd.config.icnEdit, 
-                //title   : i18n('sEdit')+' '+name,
-                title   : name,
-                closable: true,
-                layout  : 'fit',
-                xtype   : 'pnlMeshEdit',
-                itemId  : id,
-                border  : false,
-                meshId  : mesh_id,
-                meshName: name
             });
         }    
         tabMeshes.setActiveTab(newTab);
