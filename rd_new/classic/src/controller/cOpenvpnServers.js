@@ -5,59 +5,18 @@ Ext.define('Rd.controller.cOpenvpnServers', {
         var item    = pnl.down('#'+itemId);
         var added   = false;
         if(!item){
-         /*   var tp = Ext.create('Ext.tab.Panel',
-            	{          
-	            	border  : false,
-	                itemId  : itemId,
-	                plain	: true,
-	                cls     : 'subTab',
-	                items   : [
-	                    { 
-	                        title  : 'OpenVPN Server', 
-	                        xtype  : 'gridOpenvpnServers',
-	                        border : false,
-	                        plain  : true,
-	                        glyph  : 'xf10d@FontAwesome',
-                            padding: '0 5 0 5',
-                            tabConfig : {
-                                ui : 'tab-orange'
-                            } 
-	                    }
-	                ]
-	            }); */     
             pnl.add({ 
-                        itemId: itemId,
-	                     //   title  : 'OpenVPN Server', 
-	                        xtype  : 'gridOpenvpnServers',
-	                        border : false,
-	                        plain  : true,
-	                   //     glyph  : 'xf10d@FontAwesome',
-                            padding: '0 5 0 5',
-                            tabConfig : {
-                                ui : 'tab-orange'
-                            } 
-	                    });
+                itemId: itemId,
+                xtype  : 'gridOpenvpnServers',
+                border : false,
+                plain  : true,
+                padding: '0 5 0 5'
+            });
+            pnl.on({activate : me.reload,scope: me});
             added = true;
         }
         return added;      
     },
-    actionIndexZ: function(pnl){
-
-        var me = this;
-        
-        if (me.populated) {
-            return; 
-        }     
-        pnl.add({
-            xtype   : 'gridOpenvpnServers',
-            border  : false,
-            itemId  : 'tabOpenvpnServers',
-            plain   : true,
-            padding : Rd.config.gridPadding 
-        });
-        me.populated = true;
-    },
-
     views:  [
         'openvpnServers.gridOpenvpnServers',           
         'openvpnServers.winOpenvpnServerEdit', 		'openvpnServers.winOpenvpnServerAdd'
@@ -77,10 +36,6 @@ Ext.define('Rd.controller.cOpenvpnServers', {
     ],
     init: function() {
         var me = this;
-        if (me.inited) {
-            return;
-        }
-        me.inited = true;
         me.control({
             '#tabOpenvpnServers' : {
                 destroy   :      me.appClose   

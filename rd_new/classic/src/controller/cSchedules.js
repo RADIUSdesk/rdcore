@@ -4,42 +4,18 @@ Ext.define('Rd.controller.cSchedules', {
         var me      = this;
         var item    = pnl.down('#'+itemId);
         var added   = false;
-        if(!item){
-            var tp = Ext.create('Ext.tab.Panel',
-            	{          
-	            	border  : false,
-	                itemId  : itemId,
-	                plain	: true,
-	                cls     : 'subSubTab', //Make darker -> Maybe grey
-	                items   : [
-	                    { 
-	                         title  : 'Schedules', 
-	                         xtype  : 'gridSchedules',
-	                         border : false,
-	                         plain  : true,
-	                         glyph  : Rd.config.icnWatch
-	                    }
-	                ]
-	            });      
-            pnl.add(tp);
+        if(!item){  
+            pnl.add({
+                itemId : itemId,
+                xtype  : 'gridSchedules',
+                border : false,
+                plain  : true,
+                padding: '0 5 0 5'
+            });
             pnl.on({activate : me.gridActivate,scope: me});
             added = true;
         }
         return added;      
-    },
-    actionIndexZ: function(pnl){
-        var me  = this; 
-        if (me.populated) {
-            return; 
-        }       
-        pnl.add({
-            xtype   : 'gridSchedules',
-            padding : Rd.config.gridPadding,
-            border  : false,
-            plain	: true
-        });
-        pnl.on({activate : me.gridActivate,scope: me});
-        me.populated = true;
     },
     views:  [
         'schedules.gridSchedules',		
@@ -63,12 +39,8 @@ Ext.define('Rd.controller.cSchedules', {
     refs: [
         {  ref: 'grid',  selector: 'gridSchedules'}       
     ],
-    init: function() {
-        var me = this;
-        if (me.inited) {
-            return;
-        }
-        me.inited = true;         
+    init: function() { 
+        var me = this;       
         me.control({
             'gridSchedules #predef_cmds' : {
                 click   : me.predefCmds

@@ -15,10 +15,10 @@ class TopUpTransactionsController extends AppController{
         $this->loadModel('Users');
           
         $this->loadComponent('Aa');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model'                     => 'TopUpTransactions',
             'no_available_to_siblings'  => true,
-            'sort_by'                   => 'PermanentUsers.username'
+            'sort_by'                   => 'TopUpTransactions.permanent_user'
         ]); 
              
         $this->loadComponent('JsonErrors'); 
@@ -32,18 +32,21 @@ class TopUpTransactionsController extends AppController{
         if(!$user){
             return;
         }
+        
+        $req_q    = $this->request->getQuery(); //q_data is the query data
+        $cloud_id = $req_q['cloud_id'];   
                 
         $query = $this->{$this->main_model}->find();
 
-        $this->CommonQuery->build_common_query($query,$user,['PermanentUsers','Users']);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['TopUps','PermanentUsers']);//build_common_query($query,$user,['PermanentUsers','Users']);
  
         $limit  = 50;
         $page   = 1;
         $offset = 0;
-        if(isset($this->request->query['limit'])){
-            $limit  = $this->request->query['limit'];
-            $page   = $this->request->query['page'];
-            $offset = $this->request->query['start'];
+        if(isset($req_q['limit'])){
+            $limit  = $req_q['limit'];
+            $page   = $req_q['page'];
+            $offset = $req_q['start'];
         }
         
         $query->page($page);
@@ -52,19 +55,12 @@ class TopUpTransactionsController extends AppController{
 
         $total  = $query->count();       
         $q_r    = $query->all();
-        $items  = array();
+        $items  = [];
 
         foreach($q_r as $i){
-              
-            $owner_id   = $i->user_id;
-            if(!array_key_exists($owner_id,$this->owner_tree)){
-                $owner_tree     = $this->Users->find_parents($owner_id);
-            }else{
-                $owner_tree = $this->owner_tree[$owner_id];
-            }
-                
-            $row        = array();
-            $fields    = $this->{$this->main_model}->schema()->columns();
+                         
+            $row       = [];
+            $fields    = $this->{$this->main_model}->getSchema()->columns();
             foreach($fields as $field){
                 $row["$field"]= $i->{"$field"};
                 
@@ -76,15 +72,11 @@ class TopUpTransactionsController extends AppController{
                 }
             } 
             
-            $row['user']	        = $i->user->username;
             if($i->real_permanent_user == null){
                 $row['permanent_user']	= "!! USER DELETED !!"; 
             }else{
                 $row['permanent_user']	= $i->real_permanent_user->username;
-            }
-              
-            $row['owner']           = $owner_tree;
-		
+            }	
             array_push($items,$row);      
         }
        

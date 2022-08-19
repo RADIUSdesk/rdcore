@@ -46,27 +46,35 @@ class CommonQueryFlatComponent extends Component {
 		$query->where($where_clause);
     }
     
-    public function build_cloud_query($query,$cloud_id,$contain_array = ['Users'], $model = null, $allowOverride = true, $sort = null){
+    public function build_cloud_query($query,$cloud_id = 0,$contain_array = [], $model = null, $allowOverride = true, $sort = null){ 
     
-    	$query->where(['cloud_id' => $cloud_id]);
-    	$query->contain($contain_array);
+    	$model  = is_null($model) ? $this->getConfig('model') : $model;
+    	$m_cid  = "$model.cloud_id"; 
+    	
+    	if($model == 'Devices'){ //With devices we use the PermanentUsers as filter
+    		$m_cid = "PermanentUsers.cloud_id";
+    	}
+    	
+    	if($model == 'TopUpTransactions'){ //With devices we use the PermanentUsers as filter
+    		$m_cid = "TopUps.cloud_id";
+    	}
+    	    	
 
+    	$query->where([$m_cid => $cloud_id]);
+    	$query->contain($contain_array);
         if(!is_null($sort)){
             $this->sort_by = $sort;
         }
-
         if(is_null($model)){
        		$this->_common_sort($query, $this->sort_by, null, $allowOverride);
         } else {
             $this->_common_sort($query, $this->sort_by, $model, $allowOverride);
         }
-
-        $where_clause = $this->_common_filter($model);
-     	//$where_clause = [];
-        
+        $where_clause = $this->_common_filter($model);       
         $query->where($where_clause);  
     }
     
+           
      private function _common_sort($query, $default_column = 'name', $model = null, $allowSortOverride =  true){
 
         //Defaults
@@ -107,6 +115,12 @@ class CommonQueryFlatComponent extends Component {
             if($req_q['sort'] == 'ap_profile'){
                 $sort = 'ApProfiles.name';
             }
+            
+            //Special case for Devices / PermanentUser
+            if($req_q['sort'] == 'permanent_user'){
+                $sort = 'PermanentUsers.username';
+            }
+            
             
             $dir  = isset($req_q['dir']) ? $req_q['dir'] : $dir;
         }

@@ -11,7 +11,7 @@ Ext.define('Rd.controller.cTopUps', {
 		        	border  : false,
 		            itemId  : itemId,
 		            plain	: true,
-		            cls     : 'subSubTab', //Make darker -> Maybe grey
+		            cls     : 'subTab', //Make darker -> Maybe grey
 		            items   : [
 		                { 
 		                    'title' : 'TopUps', 

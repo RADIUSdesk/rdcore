@@ -650,6 +650,9 @@ Ext.define('Rd.controller.cVouchers', {
                 }
             }
         }
+
+        var extra_params    = Ext.Object.toQueryString(Ext.Ajax.getExtraParams());
+        url_to_add = url_to_add+'&'+extra_params;
         
         var urlPdf  = me.getUrlPdfBase()+'?'+url_to_add;
         window.open(urlPdf);

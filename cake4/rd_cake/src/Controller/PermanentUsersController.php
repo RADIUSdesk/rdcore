@@ -22,7 +22,7 @@ class PermanentUsersController extends AppController{
         $this->loadModel('Profiles');      
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model'     => 'PermanentUsers',
             'sort_by'   => 'PermanentUsers.username'
         ]); 
@@ -33,25 +33,21 @@ class PermanentUsersController extends AppController{
     }
 
     public function exportCsv(){
-        //__ Authentication + Authorization __
+
         $user = $this->_ap_right_check();
         if(!$user){
             return;
         }
-               
-        $query = $this->{$this->main_model}->find(); 
-   
-        if($this->CommonQuery->build_with_realm_query($query,$user,['Realms']) == false){
-            //FIXME Later we can redirect to an error page for CSV
-            return;
-        }
         
-        $q_r    = $query->all();
+        $req_q 		= $this->request->getQuery();
+        $cloud_id 	= $req_q['cloud_id'];              
+        $query 		= $this->{$this->main_model}->find();           
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id);    
+        $q_r    	= $query->all();
 
         //Headings
         $heading_line   = [];
-        $req_q          = $this->request->getQuery();
-        
+            
         if(isset($req_q['columns'])){
             $columns = json_decode($req_q['columns']);
             foreach($columns as $c){
@@ -64,7 +60,6 @@ class PermanentUsersController extends AppController{
         ];
 
         foreach($q_r as $i){
-
             $columns    = [];
             $csv_line   = [];
             if(isset($req_q['columns'])){
@@ -83,9 +78,10 @@ class PermanentUsersController extends AppController{
         }
          
         $_serialize = 'data';
-        $this->setResponse($this->getResponse()->withDownload('export.csv'));
+        $this->setResponse($this->getResponse()->withDownload('PermanentUsers.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
-        $this->set(compact('data', '_serialize'));    
+        $this->set(compact('data', '_serialize')); 
+                  
     } 
 
     public function index(){
@@ -98,7 +94,7 @@ class PermanentUsersController extends AppController{
       	$req_q    = $this->request->getQuery(); //q_data is the query data
         $cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,[]);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id);
         
         $limit  = 50;
         $page   = 1;
@@ -164,6 +160,11 @@ class PermanentUsersController extends AppController{
     }
     
     public function add(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
     
     	$req_d		= $this->request->getData();
           
@@ -255,6 +256,12 @@ class PermanentUsersController extends AppController{
     }
 
     public function delete() {
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+    
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
@@ -277,6 +284,11 @@ class PermanentUsersController extends AppController{
 	}
 
     public function viewBasicInfo(){
+    	
+  		$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
        
         $entity     = $this->{$this->main_model}->get( $this->request->getQuery('user_id'));
         $username   = $entity->username;
@@ -333,7 +345,12 @@ class PermanentUsersController extends AppController{
         ]);
     }
 
-    public function editBasicInfo(){ 
+    public function editBasicInfo(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        } 
        
         //---Set Realm related things--- 
         $req_d		= $this->request->getData();
@@ -391,6 +408,11 @@ class PermanentUsersController extends AppController{
     }
 
     public function viewPersonalInfo(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
        
        	$req_q      = $this->request->getQuery(); //q_data is the query data
      	$items      = [];
@@ -411,6 +433,11 @@ class PermanentUsersController extends AppController{
     }
 
     public function editPersonalInfo(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
        
         //TODO Check if the owner of this user is in the chain of the APs
         $req_d		= $this->request->getData();
@@ -438,6 +465,11 @@ class PermanentUsersController extends AppController{
     }
 
     public function privateAttrIndex(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
         
         $username   = $this->request->getQuery('username');
         $items      =  $this->{$this->main_model}->privateAttrIndex($username);
@@ -450,6 +482,11 @@ class PermanentUsersController extends AppController{
     }
 
     public function privateAttrAdd(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
        
         $req_d  = $this->request->getData();
         $entity =  $this->{$this->main_model}->privateAttrAdd($this->request);
@@ -468,6 +505,11 @@ class PermanentUsersController extends AppController{
     }
 
     public function privateAttrEdit(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
         
         $entity =  $this->{$this->main_model}->privateAttrEdit($this->request);
         $req_d  = $this->request->getData();    
@@ -486,6 +528,12 @@ class PermanentUsersController extends AppController{
     }
 
     public function privateAttrDelete(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+    
         if($this->{$this->main_model}->privateAttrDelete($this->request)){
             $message = __('Could not delete some items');
             $this->JsonErrors->errorMessage($message);  
@@ -544,6 +592,11 @@ class PermanentUsersController extends AppController{
     }
     
     public function enableDisable(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
         
         $req_d      = $this->request->getData(); 
         $rb         = $req_d['rb'];
@@ -570,6 +623,11 @@ class PermanentUsersController extends AppController{
     }
 
     public function viewPassword(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
 
         $success    = false;
         $value      = false;
@@ -608,6 +666,11 @@ class PermanentUsersController extends AppController{
     }
 
     public function changePassword(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
 
 		$req_d      = $this->request->getData();
         unset($req_d);
@@ -641,6 +704,11 @@ class PermanentUsersController extends AppController{
     }
    
     public function menuForGrid(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
              
         $menu = $this->GridButtonsFlat->returnButtons(false,'permanent_users');
         $this->set(array(
@@ -651,6 +719,11 @@ class PermanentUsersController extends AppController{
     }
 
     function menuForUserDevices(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
     
         $settings = ['listed_only' => false,'add_mac' => false];
         
@@ -692,6 +765,11 @@ class PermanentUsersController extends AppController{
     }
 
     function menuForAccountingData(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
 
         $menu = $this->GridButtonsFlat->returnButtons(false,'fr_acct_and_auth');
         $this->set(array(
@@ -702,6 +780,11 @@ class PermanentUsersController extends AppController{
     }
 
     function menuForAuthenticationData(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
       
         $menu = $this->GridButtonsFlat->returnButtons(true,'fr_acct_and_auth');
         $this->set(array(

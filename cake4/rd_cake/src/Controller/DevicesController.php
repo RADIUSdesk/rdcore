@@ -25,7 +25,7 @@ class DevicesController extends AppController{
         
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model'     => 'Devices',
             'sort_by'   => 'Devices.name'
         ]); 
@@ -35,15 +35,17 @@ class DevicesController extends AppController{
     }
 
     public function exportCsv(){
-
-        $query = $this->{$this->main_model}->find();
-        
-        if($this->CommonQuery->build_with_realm_query($query,$user,['PermanentUsers']) == false){
-            //FIXME Later we can redirect to an error page for CSV
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
             return;
         }
-        
-        $q_r    = $query->all();
+
+      	$req_q    = $this->request->getQuery(); //q_data is the query data
+        $cloud_id = $req_q['cloud_id'];     
+        $query 	  = $this->{$this->main_model}->find();       
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['PermanentUsers']);    
+        $q_r      = $query->all();
         
         //Headings
         $heading_line   = array();
@@ -77,18 +79,24 @@ class DevicesController extends AppController{
         }
         
         $_serialize = 'data';
-        $this->setResponse($this->getResponse()->withDownload('export.csv'));
+        $this->setResponse($this->getResponse()->withDownload('Devices.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
         $this->set(compact('data', '_serialize'));  
     } 
 
     public function index(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
        
-        $query = $this->{$this->main_model}->find();   
-      //  if($this->CommonQuery->build_with_realm_query($query,$user,['PermanentUsers'],'name','Devices') == false){
-      //      return;
-      //  }
-        $req_q    		= $this->request->getQuery();
+        $query 		= $this->{$this->main_model}->find();    
+        $req_q    	= $this->request->getQuery();
+        $cloud_id 	= $req_q['cloud_id'];
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['PermanentUsers']); 
+
+        
         //This is to list devices owned by a specific permanent user
         if(isset($req_q['permanent_user_id'])){
             $query->where(['permanent_user_id' => $req_q['permanent_user_id']]);
@@ -139,8 +147,7 @@ class DevicesController extends AppController{
                 }        
                 
             }
-                        
-        //    $row["permanent_user"]  = $i->permanent_user->username;               
+            $row["permanent_user"]  = $i->permanent_user->username;               
             $row['update']	        = true;
 			$row['delete']	        = true; 
             
@@ -157,6 +164,11 @@ class DevicesController extends AppController{
 
 
      public function add(){
+     
+     	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
          
         //---Set Realm related things---
          //Get the device's owner's username
@@ -237,6 +249,12 @@ class DevicesController extends AppController{
     }
 
    	public function delete() {
+   	
+   		$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+   	
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
@@ -265,6 +283,11 @@ class DevicesController extends AppController{
 	}
 
     public function enableDisable(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
 
 		$req_d  = $this->request->getData();
         $rb     = $req_d['rb'];
@@ -290,6 +313,11 @@ class DevicesController extends AppController{
     }
 
      public function privateAttrIndex(){
+     
+     	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
        
         $username   = $this->request->getQuery('username');
         $items      =  $this->{$this->main_model}->privateAttrIndex($username);
@@ -302,6 +330,11 @@ class DevicesController extends AppController{
     }
 
      public function viewBasicInfo(){
+     
+     	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
 
         $entity     = $this->{$this->main_model}->get( $this->request->getQuery('device_id'));
         $username   = $entity->username;
@@ -339,6 +372,11 @@ class DevicesController extends AppController{
     }
 
     public function editBasicInfo(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
     
     	$req_d  = $this->request->getData(); 
         
@@ -381,6 +419,11 @@ class DevicesController extends AppController{
 
     public function privateAttrAdd(){
     
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+    
     	$req_d  = $this->request->getData();
       
         $entity =  $this->{$this->main_model}->privateAttrAdd($this->request);
@@ -400,6 +443,11 @@ class DevicesController extends AppController{
 
     public function privateAttrEdit(){
     
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+    
     	$req_d  = $this->request->getData();
 
         $entity =  $this->{$this->main_model}->privateAttrEdit($this->request);    
@@ -418,6 +466,11 @@ class DevicesController extends AppController{
     }
 
     public function privateAttrDelete(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
 
         if($this->{$this->main_model}->privateAttrDelete($this->request)){
             $message = __('Could not delete some items');
@@ -431,6 +484,12 @@ class DevicesController extends AppController{
     }
 
     public function menuForGrid(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
         $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
             return;
@@ -445,6 +504,12 @@ class DevicesController extends AppController{
     }
 
     function menuForAccountingData(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+    
        $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
             return;
@@ -459,6 +524,12 @@ class DevicesController extends AppController{
     }
 
     function menuForAuthenticationData(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+    
        $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
             return;

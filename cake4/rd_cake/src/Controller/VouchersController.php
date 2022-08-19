@@ -24,7 +24,7 @@ class VouchersController extends AppController{
        
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model'     => 'Vouchers',
             'sort_by'   => 'Vouchers.name'
         ]);  
@@ -35,16 +35,17 @@ class VouchersController extends AppController{
     }
 
     public function exportCsv(){
-
-        $query = $this->{$this->main_model}->find(); 
-        $req_q = $this->request->getQuery();
-  
-        if($this->CommonQuery->build_with_realm_query($query,$user,['Users','Realms']) == false){
-            //FIXME Later we can redirect to an error page for CSV
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
             return;
         }
         
-        $q_r    = $query->all();
+        $req_q 		= $this->request->getQuery();
+        $cloud_id 	= $req_q['cloud_id'];         
+        $query 		= $this->{$this->main_model}->find(); 
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id);         
+        $q_r    	= $query->all();
 
         //Headings
         $heading_line   = [];
@@ -60,8 +61,8 @@ class VouchersController extends AppController{
         ];
         
         foreach($q_r as $i){
-            $columns    = array();
-            $csv_line   = array();
+            $columns    = [];
+            $csv_line   = [];
             if(isset($req_q['columns'])){
                 $columns = json_decode($req_q['columns']);
                 foreach($columns as $c){
@@ -75,10 +76,6 @@ class VouchersController extends AppController{
                             $pieces = explode("-", $i->{$column_name});
                             array_push($csv_line,$pieces[0].'-'.$pieces[1].'-'.$pieces[2]);
                         } 
-                    }elseif($column_name =='owner'){
-                        $owner_id       = $i->user_id;
-                        $owner_tree     = $this->Users->find_parents($owner_id);
-                        array_push($csv_line,$owner_tree); 
                     }else{
                         array_push($csv_line,$i->{$column_name});  
                     }
@@ -88,7 +85,7 @@ class VouchersController extends AppController{
         }
         
         $_serialize = 'data';
-        $this->setResponse($this->getResponse()->withDownload('export.csv'));
+        $this->setResponse($this->getResponse()->withDownload('Vouchers.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
         $this->set(compact('data', '_serialize'));  
           
@@ -96,9 +93,14 @@ class VouchersController extends AppController{
 
      public function exportPdf(){
      
-     	$req_q = $this->request->getQuery();
+     	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
+        $req_q 		= $this->request->getQuery();
+        $cloud_id 	= $req_q['cloud_id'];
         $this->viewBuilder()->setLayout('pdf');
-        //$this->response->type('pdf');
         $this->response = $this->response->withType('pdf');
         
 		//We improve this function by also allowing the user to specify certain values
@@ -136,17 +138,17 @@ class VouchersController extends AppController{
         //We need to see if there are a selection:
         if(isset($req_q['selected'])){
             $selected = json_decode($req_q['selected']);
-            $sel_condition = array();
+            $sel_condition = [];
             foreach($selected as $i){
-                array_push($sel_condition, array("Vouchers.id" => $i)); 
+                array_push($sel_condition, ["Vouchers.id" => $i]); 
             }
 
-            $voucher_data = array();
+            $voucher_data = [];
             $query = $this->{$this->main_model}->find();
             $q_r   = $query->where(['OR' => $sel_condition])->all();
 
             foreach($q_r as $i){
-                $v                  = array();
+                $v                  = [];
                 $v['username']      = $i->name;
                 $v['password']      = $i->password;
                 
@@ -171,7 +173,7 @@ class VouchersController extends AppController{
                         $row["$r_field"]= $e_realm->{"$r_field"};
                     } 
                     $voucher_data[$realm] = $row;
-                    $voucher_data[$realm]['vouchers'] = array();
+                    $voucher_data[$realm]['vouchers'] = [];
                 }
                 array_push($voucher_data[$realm]['vouchers'],$v); 
             }
@@ -179,18 +181,13 @@ class VouchersController extends AppController{
             $this->set('voucher_data',$voucher_data);
         }else{
             //Check if there is a filter applied
-            $query = $this->{$this->main_model}->find(); 
-            $query->contain(['Realms']);
-            
-           // if($this->CommonQuery->build_with_realm_query($query,$user,['Users','Realms']) == false){
-                //FIXME Later we can redirect to an error page for CSV
-           //     return;
-           // }
-            
+            $query = $this->{$this->main_model}->find();
+            $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['Realms']);
+            $query->contain(['Realms']);            
             $q_r   = $query->all();
-            $voucher_data = array();
+            $voucher_data = [];
             foreach($q_r as $i){
-                $v                  = array();
+                $v                  = [];
                 $v['username']      = $i->name;
                 $v['password']      = $i->password;
                 
@@ -216,7 +213,7 @@ class VouchersController extends AppController{
                         $row["$r_field"]= $e_realm->{"$r_field"};
                     } 
                     $voucher_data[$realm] = $row;
-                    $voucher_data[$realm]['vouchers'] = array();
+                    $voucher_data[$realm]['vouchers'] = [];
                 }
                 array_push($voucher_data[$realm]['vouchers'],$v);    
             }
@@ -239,12 +236,16 @@ class VouchersController extends AppController{
     
     //____ BASIC CRUD Manager ________
     public function index(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
 
       	$req_q    = $this->request->getQuery(); //q_data is the query data
-        $cloud_id = $req_q['cloud_id'];
-        
+        $cloud_id = $req_q['cloud_id'];     
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,[]);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id); 
                 
         $limit  = 50;
         $page   = 1;
@@ -345,6 +346,11 @@ class VouchersController extends AppController{
     }
    
     public function add(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
     
     	$req_d    = $this->request->getData();  
         $check_items = [
@@ -455,6 +461,11 @@ class VouchersController extends AppController{
     } 
 
     public function viewBasicInfo(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
        
     	$req_q    	= $this->request->getQuery();       
         $entity     = $this->{$this->main_model}->get( $req_q['voucher_id']);
@@ -495,6 +506,11 @@ class VouchersController extends AppController{
     }
 
     public function editBasicInfo(){ 
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
       
         //---Set Realm related things--- 
         $req_d    = $this->request->getData();  
@@ -560,6 +576,11 @@ class VouchersController extends AppController{
     
     public function bulkDelete(){
     
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+    
         if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
@@ -574,6 +595,12 @@ class VouchersController extends AppController{
     }
     
     public function delete() {
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
@@ -596,6 +623,12 @@ class VouchersController extends AppController{
 	}
 
      public function privateAttrIndex(){
+     
+     	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
         $username   = $this->request->getQuery('username');
         $items      =  $this->{$this->main_model}->privateAttrIndex($username);
         $this->set([
@@ -606,6 +639,11 @@ class VouchersController extends AppController{
     }
 
     public function privateAttrAdd(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
     
     	$req_d  = $this->request->getData();  	
         $entity =  $this->{$this->main_model}->privateAttrAdd($this->request);
@@ -625,6 +663,11 @@ class VouchersController extends AppController{
 
     public function privateAttrEdit(){
     
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+    
     	$req_d  = $this->request->getData(); 
         $entity =  $this->{$this->main_model}->privateAttrEdit($this->request);    
         $errors = $entity->getErrors();
@@ -642,6 +685,12 @@ class VouchersController extends AppController{
     }
 
     public function privateAttrDelete(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
         if($this->{$this->main_model}->privateAttrDelete($this->request)){
             $message = __('Could not delete some items');
             $this->JsonErrors->errorMessage($message);  
@@ -654,6 +703,11 @@ class VouchersController extends AppController{
     }
 
     public function changePassword(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
     
     	$req_d  = $this->request->getData();
 
@@ -692,6 +746,11 @@ class VouchersController extends AppController{
     }
 
     public function emailVoucherDetails(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
 
         $data   = $this->request->getData();
         $to     = $data['email'];
@@ -791,6 +850,4 @@ class VouchersController extends AppController{
             '_serialize'    => array('items','success')
         ));
     }
-
-
 }

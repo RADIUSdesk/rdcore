@@ -5,40 +5,17 @@ Ext.define('Rd.controller.cAccessProviders', {
          me.ui      = Rd.config.tabAccPrvdrs; //This is set in the config file    
         var item    = pnl.down('#'+itemId);
         var added   = false;
-        if(!item){
-            var tp = Ext.create('Ext.tab.Panel',
-            	{          
-	            	border  : false,
-	                itemId  : itemId,
-	                plain	: true,
-	                cls     : 'subSubTab', 
-	                items   : [
-	                    { 
-	                         title  : 'Admins', 
-	                         xtype  : 'gridAccessProviders',
-	                         border : false,
-	                         plain  : true,
-	                         glyph  : Rd.config.icnHddO
-	                    }
-	                ]
-	            });      
-            pnl.add(tp);
+        if(!item){   
+            pnl.add({
+                itemId  : itemId,
+                xtype   : 'gridAccessProviders',
+                border  : false,
+                plain   : true
+            });
+            pnl.on({activate : me.reload,scope: me});
             added = true;
         }
         return added;      
-    },
-       
-    actionIndexZ: function(pnl){
-        var me = this;
-        me.ui   = Rd.config.tabAccPrvdrs; //This is set in the config file    
-        if (me.populated) {
-            return; 
-        }      
-        pnl.add({ 
-            padding : Rd.config.gridPadding,
-            xtype   : 'gridAccessProviders'
-        });
-        me.populated = true;
     },
     views:  [
         'accessProviders.pnlAccessProviderDetail', 
@@ -64,10 +41,6 @@ Ext.define('Rd.controller.cAccessProviders', {
     ],
     init: function() {
         var me = this;
-        if (me.inited) {
-            return;
-        }
-        me.inited = true;
         me.control({
             'gridAccessProviders #reload': {
                 click:      me.reload

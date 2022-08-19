@@ -4,45 +4,18 @@ Ext.define('Rd.controller.cClouds', {
         var me      = this;
         var item    = pnl.down('#'+itemId);
         var added   = false;
-        if(!item){
-            var tp = Ext.create('Ext.tab.Panel',
-            	{          
-	            	border  : false,
-	                itemId  : itemId,
-	                plain	: true,
-	                cls     : 'subSubTab', //Make darker -> Maybe grey
-	                items   : [
-	                    { 
-	                         title  : 'Clouds', 
-	                       //  xtype  : 'pnlCloudAndMap',
-                             xtype   : 'treeClouds',
-	                         border : false,
-	                         plain  : true,
-	                         glyph  : 'xf0c2@FontAwesome'
-	                    }
-	                ]
-	            });      
-            pnl.add(tp);
-            //pnl.on({activate : me.gridActivate,scope: me});
+        if(!item){         
+            pnl.add({
+                 itemId : itemId,
+                 xtype  : 'treeClouds',
+                 border : false,
+                 plain  : true
+            });
+            pnl.on({activate : me.reload,scope: me});
             added = true;
         }
         return added;
-    },
-    actionIndexZ: function(pnl){
-        var me = this;        
-        if (me.populated) {
-            return; 
-        }
-             
-        pnl.add({
-           // xtype   : 'treeClouds',
-            xtype   : 'pnlCloudAndMap',
-            border  : false,
-            itemId  : 'tabClouds',
-            plain   : true
-        });
-        me.populated = true;
-    },
+    }, 
     views:  [
         'clouds.treeClouds',         
         'clouds.winCloudEdit',
@@ -62,10 +35,6 @@ Ext.define('Rd.controller.cClouds', {
     ],
     init: function() {
         var me = this;
-        if (me.inited) {
-            return;
-        }
-        me.inited = true;
         me.control({
             '#tabClouds' : {
                 destroy   :      me.appClose   

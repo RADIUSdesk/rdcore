@@ -595,6 +595,48 @@ class DashboardController extends AppController{
                 ]     
            	];
         }
+        
+       	if($req_q['item_id'] == 'tabMainOther'){
+        	$items = [
+        		 [
+                    "title"	=> "Settings",
+                    "glyph"	=> "xf085@FontAwesome",
+                    "id"	=> "cSettings",
+                    "layout"=> "fit"
+                ],
+        		[
+                    "title" => "OpenVPN Servers",
+                    "glyph" => "xf10e@FontAwesome",
+                    "id"	=> "cOpenvpnServers",
+                    "layout"=> "fit"
+                ],
+                [
+                    "title"	=> "Clouds",
+                    "glyph"	=> "xf0c2@FontAwesome",
+                    "id"	=> "cClouds",
+                    "layout"=> "fit"
+                ],
+                [
+                    "title"	=> "Admins",
+                    "glyph"	=> "xf084@FontAwesome",
+                    "id" 	=> "cAccessProviders",
+                    "layout"=> "fit"
+                ],              
+                [
+                    "title"	=> "Schedules",
+                    "glyph"	=> "xf133@FontAwesome",
+                    "id"	=> "cSchedules",
+                    "layout"=> "fit"
+                ],
+                [
+                    "title"	=> "Hardwares",
+                    "glyph"	=> "xf0a0@FontAwesome",
+                    "id"	=> "cHardwares",
+                    "layout"=> "fit"
+                ]
+         	];
+        }
+        
         $this->set([
             'success' => true,
             'items'    => $items,
@@ -892,9 +934,9 @@ class DashboardController extends AppController{
 				'glyph'		=> 'xf0e8'	
 			],
 			[
-				'text' => 'LOGIN',
-				'leaf'	=> true,
-				'controller'	=> 'cDynamicDetails',
+				'text' 		=> 'LOGIN',
+				'leaf'		=> true,
+				'controller'=> 'cDynamicDetails',
 				'id'		=> 'tabDynamicCDetails',
 				'iconCls'	=> 'x-fa fa-arrow-circle-right',
 				'glyph'		=> 'xf090'
@@ -902,11 +944,10 @@ class DashboardController extends AppController{
 			[
 				'text' 		=> 'OTHER',
 				'leaf'	    => true,
-				'id'		=> 5,
-				'controller'=> '5',
+				'id'		=> 'tabMainOther',
+				'controller'=> 'cMainOther',
 				'iconCls'	=> 'x-fa fa-gears',
-			//	'children'	=> [],
-			//	'children'	=> $thOther		
+				'glyph'		=> 'xf090'	
 			]  
     	];
     	
