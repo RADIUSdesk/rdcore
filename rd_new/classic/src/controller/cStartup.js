@@ -187,9 +187,11 @@ Ext.define('Rd.controller.cStartup', {
 		});
 	},
     showAuth: function() {
+        console.log("Show Auth");
         this.application.runAction('cLogin','Index');
     },
     showMain: function() {
+        console.log("Show Main");
         this.application.runAction('cDashboard','Index');
     },
     handleUnmatchedRoute: function(route) {

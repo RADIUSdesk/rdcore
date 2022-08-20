@@ -1,6 +1,7 @@
 Ext.define('Rd.view.hardwares.gridHardwares' ,{
     extend:'Ext.grid.Panel',
     alias : 'widget.gridHardwares',
+    xtype : 'gridHardwares',
     multiSelect: true,
     store : 'sHardwares',
     stateful: true,
@@ -15,8 +16,10 @@ Ext.define('Rd.view.hardwares.gridHardwares' ,{
     viewConfig: {
         loadMask:true
     },
-    urlMenu: '/cake4/rd_cake/hardwares/menu_for_grid.json',
-    plugins     : 'gridfilters',  //*We specify this
+    urlMenu : '/cake4/rd_cake/hardwares/menu_for_grid.json',
+    plugins : [
+        'gridfilters'
+    ],  //*We specify this
     initComponent: function(){
         var me  = this;
         me.bbar = [{
@@ -27,11 +30,14 @@ Ext.define('Rd.view.hardwares.gridHardwares' ,{
                 'ux-progressbarpager': true
             }
         }];
+
+        console.log("H");
+
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 
         me.columns  = [
-            { text: i18n('sName'),         dataIndex: 'name',   tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridFK3'},
-            { text: 'Vendor',              dataIndex: 'vendor', flex: 1,filter: {type: 'string'},stateId: 'StateGridFK3A'},
+           { text: i18n('sName'),         dataIndex: 'name',   tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridFK3'},
+           { text: 'Vendor',              dataIndex: 'vendor', flex: 1,filter: {type: 'string'},stateId: 'StateGridFK3A'},
             { text: 'Model',               dataIndex: 'model',  flex: 1,filter: {type: 'string'},stateId: 'StateGridFK3B'},
             { text: 'Firmware ID',         dataIndex: 'fw_id',  flex: 1,filter: {type: 'string'},stateId: 'StateGridFK3C',hidden: true},
             { text: 'Radio Count',         dataIndex: 'radio_count',  flex: 1,filter: {type: 'string'},stateId: 'StateGridFK3D'},
@@ -139,8 +145,8 @@ Ext.define('Rd.view.hardwares.gridHardwares' ,{
                         }
 					}
 				]
-            }            
-        ];        
+            }           
+        ];   
         me.callParent(arguments);
     }
 });

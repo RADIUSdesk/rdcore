@@ -10,7 +10,7 @@ Ext.define('Rd.view.accessProviders.gridAccessProviders' ,{
     requires: [
         'Rd.view.components.ajaxToolbar',
         'Ext.toolbar.Paging',
-        'Ext.ux.ProgressBarPager'   
+        'Ext.ux.ProgressBarPager'
     ],
     urlMenu     : '/cake3/rd_cake/access-providers/menu_for_grid.json', 
     plugins     : 'gridfilters',  //*We specify this

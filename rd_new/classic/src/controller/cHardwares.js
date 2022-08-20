@@ -4,13 +4,13 @@ Ext.define('Rd.controller.cHardwares', {
         var me      = this;
         var item    = pnl.down('#'+itemId);
         var added   = false;
-        if(!item){    
-            pnl.add({ 
-                xtype   : 'gridHardwares',
+        if(!item){  
+            var g = Ext.create('Rd.view.hardwares.gridHardwares',{
                 border  : false,
                 plain   : true,
                 itemId  : itemId
-            });
+             }); 
+            pnl.add(g);
             pnl.on({activate : me.gridActivate,scope: me});
             added = true;
         }

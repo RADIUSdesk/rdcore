@@ -2,16 +2,16 @@ Ext.define('Rd.controller.cAccessProviders', {
     extend: 'Ext.app.Controller',
     actionIndex: function(pnl,itemId){
         var me      = this;
-         me.ui      = Rd.config.tabAccPrvdrs; //This is set in the config file    
+        me.ui       = Rd.config.tabAccPrvdrs; //This is set in the config file    
         var item    = pnl.down('#'+itemId);
         var added   = false;
-        if(!item){   
-            pnl.add({
-                itemId  : itemId,
-                xtype   : 'gridAccessProviders',
+        if(!item){ 
+            var g = Ext.create('Rd.view.accessProviders.gridAccessProviders',{
                 border  : false,
-                plain   : true
-            });
+                plain   : true,
+                itemId  : itemId
+             }); 
+            pnl.add(g);
             pnl.on({activate : me.reload,scope: me});
             added = true;
         }
@@ -23,7 +23,9 @@ Ext.define('Rd.controller.cAccessProviders', {
         'components.winCsvColumnSelect', 
         'accessProviders.winAccessProviderPassword','components.winEnableDisable',      'components.vCmbLanguages'
     ],
-    stores: ['sLanguages',   'sAccessProvidersGrid'
+    stores: [
+        'sLanguages',
+        'sAccessProvidersGrid'
     ],
     models: ['mAccessProviderGrid'],
     selectedRecord: undefined,

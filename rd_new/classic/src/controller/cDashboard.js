@@ -290,7 +290,6 @@ Ext.define('Rd.controller.cDashboard', {
 
             var new_data = Ext.Object.merge(pnlDashboard.down('#tbtHeader').getData(),{fa_value:'&#'+glyph+';', value :name});
             pnlDashboard.down('#tbtHeader').update(new_data);
-
     		if(!item){
     			var added = me.application.runAction(c,'Index',pnl,id);
                 if(!added){
@@ -302,7 +301,7 @@ Ext.define('Rd.controller.cDashboard', {
 		   	}else{
 		   		pnl.setActiveItem(item);
                 pnl.getEl().slideIn('r'); //Slide it in if **not** added
-		   	}      	
+		   	}     	
     	} 
     },
     pnlWestRendered: function(pnl){

@@ -533,8 +533,8 @@ class DashboardController extends AppController{
                     "tabConfig" => [
                         "ui" => "tab-blue"
                     ]
-                ],
-                [
+               ],
+               [
                     "title" => "Vouchers",
                     "glyph" => "xf145@FontAwesome",
                     "id" => "cVouchers",
@@ -955,43 +955,23 @@ class DashboardController extends AppController{
     }
     
     private function _nav_tree_blank(){
-    
-    	$thOther = [
-    		[
-				'text'	=> 'ADMINS',
-				'leaf'	=> true,
-				'controller'	=> 'cAccessProviders',
-				'id'		=> 'tabMainAccessProviders',
-				'iconCls'	=> 'x-fa fa-graduation-cap',
-				'glyph'		=> 'xf19d'
-			],
-			[
-				'text'	=> 'CLOUDS',
-				'leaf'	=> true,
-				'controller'	=> 'cClouds',
-				'id'		=> 'tabMainClouds',
-				'iconCls'	=> 'x-fa fa-cloud',
-				'glyph'		=> 'xf0c2'
-			],
-		];
-    
+        
     	$items = [
 			[
-			//	'text' 		=> 'OVERVIEW',
-				'id'   		=> 1,
+				'text' 		=> 'OVERVIEW',
 				'leaf' 		=> true,
 				'iconCls' 	=> 'x-fa fa-th-large',
 				'glyph'		=> 'xf009',
-				'controller'	=> 'cNetworkOverview',
-				'id'		=> 'tabMainNetworkOverview',
-				'children'	=> []
+				'controller'=> 'cNetworkOverview',
+				'id'		=> 'tabMainNetworkOverview'
 			],
 			[
-			//	'text' 		=> 'OTHER',
-				'id'		=> 5,
-				'controller'=> '5',
+				'text' 		=> 'OTHER',
+				'leaf'	    => true,
+				'id'		=> 'tabMainOther',
+				'controller'=> 'cMainOther',
 				'iconCls'	=> 'x-fa fa-gears',
-				'children'	=> []	
+				'glyph'		=> 'xf090'	
 			]  
     	];
     	

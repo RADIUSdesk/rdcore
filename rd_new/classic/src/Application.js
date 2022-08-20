@@ -7,6 +7,15 @@ Ext.define('Rd.Application', {
     extend	: 'Ext.app.Application',   
     name	: 'Rd',
     requires: [
+		//'Ext.*',  
+		'Ext.chart.interactions.Rotate',
+		'Ext.chart.interactions.ItemHighlight',
+		'Ext.chart.series.Pie',
+		'Ext.chart.axis.Numeric',
+		'Ext.chart.axis.Category',
+		'Ext.chart.series.Bar',
+		'Ext.grid.filters.Filters',
+        'Ext.ux.ProgressBarPager',
 		'Rd.*'    //Uncomment when building production
     ],
     controllers: [
