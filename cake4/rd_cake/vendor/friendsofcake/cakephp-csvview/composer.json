@@ -1,0 +1,83 @@
+{
+    "name": "friendsofcake/cakephp-csvview",
+    "description": "A CSV View class for CakePHP",
+    "type": "cakephp-plugin",
+    "keywords": [
+        "cakephp",
+        "csv",
+        "view",
+        "export"
+    ],
+    "homepage": "https://github.com/friendsofcake/cakephp-csvview",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jose Diaz-Gonzalez",
+            "email": "email@josediazgonzalez.com",
+            "homepage": "https://josediazgonzalez.com",
+            "role": "Maintainer"
+        },
+        {
+            "name":"ADmad",
+            "role":"Contributor",
+            "homepage": "https://github.com/admad"
+        },
+        {
+            "name":"Mark Scherer",
+            "role":"Contributor",
+            "homepage": "https://github.com/dereuromark"
+        },
+        {
+            "name":"Joshua Paling",
+            "role":"Contributor",
+            "homepage": "https://github.com/joshuapaling"
+        },
+        {
+            "name":"Gaurish Sharma",
+            "role":"Contributor",
+            "homepage": "https://github.com/gaurish"
+        },
+        {
+            "name":"Gregory Gaskill",
+            "role":"Contributor",
+            "homepage":"https://github.com/chronon"
+        }
+    ],
+    "require":{
+        "cakephp/cakephp": "^4.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~8.5.0",
+        "cakephp/cakephp-codesniffer": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "CsvView\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "CsvView\\Test\\": "tests/",
+            "Cake\\Test\\": "vendor/cakephp/cakephp/tests/",
+            "Cake\\Test\\Fixture\\": "./vendor/cakephp/cakephp/tests/Fixture"
+        }
+    },
+    "support": {
+        "issues": "https://github.com/friendsofcake/cakephp-csvview/issues",
+        "source": "https://github.com/friendsofcake/cakephp-csvview"
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs -p -v --standard=vendor/cakephp/cakephp-codesniffer/CakePHP src/ tests/",
+        "cs-fix": "phpcbf -p --standard=vendor/cakephp/cakephp-codesniffer/CakePHP src/ tests/",
+        "test": "phpunit",
+        "stan": "phpstan analyse && psalm",
+        "phpstan": "phpstan analyse",
+        "psalm": "psalm --show-info=false",
+        "stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^0.12 vimeo/psalm:^3.7 && mv composer.backup composer.json",
+        "test-coverage": "phpunit --coverage-clover=clover.xml"
+    }
+}

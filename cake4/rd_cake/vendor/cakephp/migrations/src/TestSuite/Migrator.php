@@ -1,0 +1,260 @@
+<?php
+declare(strict_types=1);
+
+/**
+ * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @link          http://cakephp.org CakePHP(tm) Project
+ * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ */
+namespace Migrations\TestSuite;
+
+use Cake\Datasource\ConnectionManager;
+use Cake\Log\Log;
+use Cake\TestSuite\ConnectionHelper;
+use Migrations\Migrations;
+use RuntimeException;
+
+class Migrator
+{
+    /**
+     * @var \Cake\TestSuite\ConnectionHelper
+     */
+    protected $helper;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->helper = new ConnectionHelper();
+    }
+
+    /**
+     * Runs one set of migrations.
+     * This is useful if all your migrations are located in config/Migrations,
+     * or in a single directory, or in a single plugin.
+     *
+     * ## Options
+     *
+     * - `skip` A list of `fnmatch` compatible table names that should be ignored.
+     *
+     * For additional options {@see \Migrations\Migrations::migrate()}.
+     *
+     * @param array<string, mixed> $options Migrate options. Connection defaults to `test`.
+     * @param bool $truncateTables Truncate all tables after running migrations. Defaults to true.
+     * @return void
+     */
+    public function run(
+        array $options = [],
+        bool $truncateTables = true
+    ): void {
+        $this->runMany([$options], $truncateTables);
+    }
+
+    /**
+     * Runs multiple sets of migrations.
+     * This is useful if your migrations are located in multiple sources, plugins or connections.
+     *
+     * For options, {@see \Migrations\Migrator::run()}.
+     *
+     * Example:
+     *
+     * $this->runMany([
+     *  ['connection' => 'some-connection', 'source' => 'some/directory'],
+     *  ['plugin' => 'PluginA']
+     * ]);
+     *
+     * @param array<array<string, mixed>> $options Array of option arrays.
+     * @param bool $truncateTables Truncate all tables after running migrations. Defaults to true.
+     * @return void
+     */
+    public function runMany(
+        array $options = [],
+        bool $truncateTables = true
+    ): void {
+        // Don't recreate schema if we are in a phpunit separate process test.
+        if (isset($GLOBALS['__PHPUNIT_BOOTSTRAP'])) {
+            return;
+        }
+
+        // Detect all connections involved, and mark those with changed status.
+        $connectionsToDrop = [];
+        $connectionsList = [];
+        foreach ($options as $i => $migrationSet) {
+            $migrationSet += ['connection' => 'test'];
+            $skip = $migrationSet['skip'] ?? [];
+            unset($migrationSet['skip']);
+
+            $options[$i] = $migrationSet;
+            $connectionName = $migrationSet['connection'];
+            if (!in_array($connectionName, $connectionsList)) {
+                $connectionsList[] = ['name' => $connectionName, 'skip' => $skip];
+            }
+
+            $migrations = new Migrations();
+            if (!in_array($connectionName, $connectionsToDrop) && $this->shouldDropTables($migrations, $migrationSet)) {
+                $connectionsToDrop[] = ['name' => $connectionName, 'skip' => $skip];
+            }
+        }
+
+        foreach ($connectionsToDrop as $item) {
+            $this->dropTables($item['name'], $item['skip']);
+        }
+
+        // Run all sets of migrations
+        foreach ($options as $migrationSet) {
+            $migrations = new Migrations();
+
+            if (!$migrations->migrate($migrationSet)) {
+                throw new RuntimeException(
+                    "Unable to migrate fixtures for `{$migrationSet['connection']}`."
+                );
+            }
+        }
+
+        // Truncate all connections if required in parameters
+        if ($truncateTables) {
+            foreach ($connectionsList as $item) {
+                $this->truncate($item['name'], $item['skip']);
+            }
+        }
+    }
+
+    /**
+     * Truncate tables after calling run([], false)
+     *
+     * For options, {@see \Migrations\Migrations::migrate()}.
+     *
+     * @param string $connection Connection name to truncate all non-phinx tables
+     * @param string[] $skip A fnmatch compatible list of table names to skip.
+     * @return void
+     */
+    public function truncate(string $connection, array $skip = []): void
+    {
+        // Don't recreate schema if we are in a phpunit separate process test.
+        if (isset($GLOBALS['__PHPUNIT_BOOTSTRAP'])) {
+            return;
+        }
+
+        $tables = $this->getNonPhinxTables($connection, $skip);
+        if ($tables) {
+            $this->helper->truncateTables($connection, $tables);
+        }
+    }
+
+    /**
+     * Detect if migrations have changed and the database needs to be wiped.
+     *
+     * @param \Migrations\Migrations $migrations The migrations service.
+     * @param array $options The connection options.
+     * @return bool
+     */
+    protected function shouldDropTables(Migrations $migrations, array $options): bool
+    {
+        Log::write('debug', "Reading migrations status for {$options['connection']}...");
+
+        $messages = [
+            'down' => [],
+            'missing' => [],
+        ];
+        foreach ($migrations->status($options) as $migration) {
+            if ($migration['status'] === 'up' && ($migration['missing'] ?? false)) {
+                $messages['missing'][] = 'Applied but, missing Migration ' .
+                    "source={$migration['name']} id={$migration['id']}";
+            }
+            if ($migration['status'] === 'down') {
+                $messages['down'][] = "Migration to reverse. source={$migration['name']} id={$migration['id']}";
+            }
+        }
+        $output = [];
+        $hasProblems = false;
+        $itemize = function ($item) {
+            return '- ' . $item;
+        };
+        if (!empty($messages['down'])) {
+            $hasProblems = true;
+            $output[] = 'Migrations needing to be reversed:';
+            $output = array_merge($output, array_map($itemize, $messages['down']));
+            $output[] = '';
+        }
+        if (!empty($messages['missing'])) {
+            $hasProblems = true;
+            $output[] = 'Applied but missing migrations:';
+            $output = array_merge($output, array_map($itemize, $messages['down']));
+            $output[] = '';
+        }
+        if ($output) {
+            $output = array_merge(
+                ['Your migration status some differences with the expected state.', ''],
+                $output,
+                ['Going to drop all tables in this source, and re-apply migrations.']
+            );
+            Log::write('debug', implode("\n", $output));
+        }
+
+        return $hasProblems;
+    }
+
+    /**
+     * Drops the regular tables of the provided connection
+     * and truncates the phinx tables.
+     *
+     * @param string $connection Connection on which tables are dropped.
+     * @param string[] $skip A fnmatch compatible list of tables to skip.
+     * @return void
+     */
+    protected function dropTables(string $connection, array $skip = []): void
+    {
+        $dropTables = $this->getNonPhinxTables($connection, $skip);
+        if (count($dropTables)) {
+            $this->helper->dropTables($connection, $dropTables);
+        }
+        $phinxTables = $this->getPhinxTables($connection);
+        if (count($phinxTables)) {
+            $this->helper->truncateTables($connection, $phinxTables);
+        }
+    }
+
+    /**
+     * Get the list of tables that are phinxlog
+     *
+     * @param string $connection The connection name to operate on.
+     * @return string[] The list of tables that are not related to phinx in the provided connection.
+     */
+    protected function getPhinxTables(string $connection): array
+    {
+        $tables = ConnectionManager::get($connection)->getSchemaCollection()->listTables();
+
+        return array_filter($tables, function ($table) {
+            return strpos($table, 'phinxlog') !== false;
+        });
+    }
+
+    /**
+     * Get the list of tables that are not phinxlog related.
+     *
+     * @param string $connection The connection name to operate on.
+     * @param string[] $skip A fnmatch compatible list of tables to skip.
+     * @return string[] The list of tables that are not related to phinx in the provided connection.
+     */
+    protected function getNonPhinxTables(string $connection, array $skip): array
+    {
+        $tables = ConnectionManager::get($connection)->getSchemaCollection()->listTables();
+        $skip[] = '*phinxlog*';
+
+        return array_filter($tables, function ($table) use ($skip) {
+            foreach ($skip as $pattern) {
+                if (fnmatch($pattern, $table) === true) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }
+}

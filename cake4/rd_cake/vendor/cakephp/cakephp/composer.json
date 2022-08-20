@@ -1,0 +1,130 @@
+{
+    "name": "cakephp/cakephp",
+    "type": "library",
+    "description": "The CakePHP framework",
+    "keywords": [
+        "framework",
+        "mvc",
+        "rapid-development",
+        "conventions over configuration",
+        "dry",
+        "orm",
+        "form",
+        "validation",
+        "psr-7"
+    ],
+    "homepage": "https://cakephp.org",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "CakePHP Community",
+            "homepage": "https://github.com/cakephp/cakephp/graphs/contributors"
+        }
+    ],
+    "require": {
+        "php": ">=7.4.0",
+        "ext-intl": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "cakephp/chronos": "^2.2",
+        "composer/ca-bundle": "^1.2",
+        "laminas/laminas-diactoros": "^2.2.2",
+        "laminas/laminas-httphandlerrunner": "^1.1 || ^2.0",
+        "league/container": "^4.2.0",
+        "psr/container": "^1.1 || ^2.0",
+        "psr/http-client": "^1.0",
+        "psr/http-server-handler": "^1.0",
+        "psr/http-server-middleware": "^1.0",
+        "psr/log": "^1.0 || ^2.0",
+        "psr/simple-cache": "^1.0 || ^2.0"
+    },
+    "replace": {
+        "cakephp/cache": "self.version",
+        "cakephp/collection": "self.version",
+        "cakephp/console": "self.version",
+        "cakephp/core": "self.version",
+        "cakephp/database": "self.version",
+        "cakephp/datasource": "self.version",
+        "cakephp/event": "self.version",
+        "cakephp/filesystem": "self.version",
+        "cakephp/form": "self.version",
+        "cakephp/http": "self.version",
+        "cakephp/i18n": "self.version",
+        "cakephp/log": "self.version",
+        "cakephp/orm": "self.version",
+        "cakephp/utility": "self.version",
+        "cakephp/validation": "self.version"
+    },
+    "require-dev": {
+        "cakephp/cakephp-codesniffer": "^4.5",
+        "mikey179/vfsstream": "^1.6.10",
+        "paragonie/csp-builder": "^2.3",
+        "phpunit/phpunit": "^8.5 || ^9.3"
+    },
+    "suggest": {
+        "ext-curl": "To enable more efficient network calls in Http\\Client.",
+        "ext-openssl": "To use Security::encrypt() or have secure CSRF token generation.",
+        "lib-ICU": "The intl PHP library, to use Text::transliterate() or Text::slug()",
+        "paragonie/csp-builder": "CSP builder, to use the CSP Middleware"
+    },
+    "config": {
+        "process-timeout": 900,
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Cake\\": "src/"
+        },
+        "files": [
+            "src/Core/functions.php",
+            "src/Collection/functions.php",
+            "src/I18n/functions.php",
+            "src/Routing/functions.php",
+            "src/Utility/bootstrap.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Cake\\PHPStan\\": "tests/PHPStan/",
+            "Cake\\Test\\": "tests/",
+            "TestApp\\": "tests/test_app/TestApp/",
+            "TestApp\\Test\\": "tests/test_app/TestApp/tests/",
+            "TestPlugin\\": "tests/test_app/Plugin/TestPlugin/src/",
+            "TestPlugin\\Test\\": "tests/test_app/Plugin/TestPlugin/tests/",
+            "TestPluginTwo\\": "tests/test_app/Plugin/TestPluginTwo/src/",
+            "Company\\TestPluginThree\\": "tests/test_app/Plugin/Company/TestPluginThree/src/",
+            "Company\\TestPluginThree\\Test\\": "tests/test_app/Plugin/Company/TestPluginThree/tests/",
+            "Named\\": "tests/test_app/Plugin/Named/src/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs --colors --parallel=16 -p src/ tests/",
+        "cs-fix": "phpcbf --colors --parallel=16 -p src/ tests/",
+        "phpstan": "phpstan.phar analyse",
+        "psalm": "psalm.phar --show-info=false",
+        "stan": [
+            "@phpstan",
+            "@psalm"
+        ],
+        "stan-tests": "phpstan.phar analyze -c tests/phpstan.neon",
+        "stan-baseline": "phpstan.phar --generate-baseline",
+        "stan-setup": "cp composer.json composer.backup && composer require --dev symfony/polyfill-php81 phpstan/phpstan:~1.8.0 psalm/phar:~4.24.0 && mv composer.backup composer.json",
+        "lowest": "validate-prefer-lowest",
+        "lowest-setup": "composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction && cp composer.json composer.backup && composer require --dev dereuromark/composer-prefer-lowest && mv composer.backup composer.json",
+        "test": "phpunit",
+        "test-coverage": "phpunit --coverage-clover=clover.xml"
+    },
+    "support": {
+        "issues": "https://github.com/cakephp/cakephp/issues",
+        "forum": "https://stackoverflow.com/tags/cakephp",
+        "irc": "irc://irc.freenode.org/cakephp",
+        "source": "https://github.com/cakephp/cakephp"
+    }
+}
