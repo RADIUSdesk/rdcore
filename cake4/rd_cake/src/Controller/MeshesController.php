@@ -1830,7 +1830,7 @@ class MeshesController extends AppController{
         $this->loadModel('NodeConnectionSettings');
         
         //Determine what the IP Address must be
-        $ip = $this->{'Nodes'}->get_ip_for_node($req_d);
+        $ip = $this->{'Nodes'}->get_ip_for_node($req_d['mesh_id']);
         $req_d['ip'] = $ip; 
         
         $check_items = [
@@ -1847,6 +1847,7 @@ class MeshesController extends AppController{
         } 
         
         $ent_node = $this->{'Nodes'}->newEntity($req_d); 
+        
         
         if ($this->{'Nodes'}->save($ent_node)) {
 
