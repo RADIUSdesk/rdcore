@@ -38,6 +38,10 @@ Ext.define('Rd.view.meshes.vcMeshViewNode', {
     init: function() {
     
     },
+    onPnlActivate: function(pnl){
+        var me = this;
+        me.reload();
+    },
     onGraphActivate: function(pnl){
         me = this;
         me.reload();

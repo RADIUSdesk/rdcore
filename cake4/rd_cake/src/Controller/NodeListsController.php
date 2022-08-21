@@ -37,7 +37,7 @@ class NodeListsController extends AppController{
         //$this->loadModel('OpenvpnClients');
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtons');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'Nodes'
         ]);
                 
@@ -60,7 +60,7 @@ class NodeListsController extends AppController{
 		$req_q    		= $this->request->getQuery();      
        	$cloud_id 		= $req_q['cloud_id'];
 						
-        $this->CommonQuery->build_node_lists_query($query, $cloud_id, ['Meshes','NodeUptmHistories','NodeConnectionSettings']); //AP QUERY is sort of different in a way
+        $this->CommonQueryFlat->build_cloud_query($query, $cloud_id, ['Meshes','NodeUptmHistories','NodeConnectionSettings']); //AP QUERY is sort of different in a way
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -150,14 +150,6 @@ class NodeListsController extends AppController{
 		    $i->country_name   = $country_name;
 		    $i->city           = $city;
 		    $i->postal_code    = $postal_code;
-
-            $owner_id = $i['mesh']['user_id'];
-            if (!array_key_exists($owner_id, $this->owner_tree)) {
-                $owner_tree = $this->Users->find_parents($owner_id);
-            } else {
-                $owner_tree = $this->owner_tree[$owner_id];
-            }
-            $action_flags 	= $this->Aa->get_action_flags($owner_id, $user);  
 
 			$mesh_id = $i->mesh_id;
 			
@@ -250,9 +242,8 @@ class NodeListsController extends AppController{
             }
 
 			$i->state   = $state;
-			$i->update  = $action_flags['update'];
-            $i->delete  = $action_flags['delete'];
-			$i->owner 	= $owner_tree;
+			$i->update  = true;
+            $i->delete  = true;
 			$i->mesh    = $i['mesh']['name'];
 			// Get ready
 			$this_data  = $i;

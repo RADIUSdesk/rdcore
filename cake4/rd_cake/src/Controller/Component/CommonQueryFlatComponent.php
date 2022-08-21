@@ -58,6 +58,10 @@ class CommonQueryFlatComponent extends Component {
     	if($model == 'TopUpTransactions'){ //With devices we use the PermanentUsers as filter
     		$m_cid = "TopUps.cloud_id";
     	}
+    	
+    	if($model == 'Nodes'){ //With devices we use the PermanentUsers as filter
+    		$m_cid = "Meshes.cloud_id";
+    	}
     	    	
 
     	$query->where([$m_cid => $cloud_id]);

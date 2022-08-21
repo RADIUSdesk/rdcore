@@ -12,6 +12,9 @@ Ext.define('Rd.view.meshes.pnlMeshViewNode', {
         'Rd.view.meshes.pnlMeshViewEntriesGraph',
         'Rd.view.meshes.winMeshEditMacAlias'  
     ],
+    listeners       : {
+        activate : 'onPnlActivate' //Trigger a load of the settings (This is only on the initial load)
+    },
     controller  : 'vcMeshViewEntries',
     initComponent: function() {
         var me   = this;         

@@ -1,4 +1,4 @@
-Ext.define('Rd.view.meshes.gridUnknownNodes' ,{
+Ext.define('Rd.view.unknownNodes.gridUnknownNodes' ,{
     extend		:'Ext.grid.Panel',
     alias 		: 'widget.gridUnknownNodes',
     multiSelect	: true,
@@ -11,53 +11,25 @@ Ext.define('Rd.view.meshes.gridUnknownNodes' ,{
         'Ext.toolbar.Paging',
         'Ext.ux.ProgressBarPager'
     ],
+    requires    : [
+        'Rd.view.components.ajaxToolbar',
+        'Ext.toolbar.Paging',
+        'Ext.ux.ProgressBarPager',
+        'Rd.store.sUnknownNodes',
+        'Rd.model.mUnknownNode',
+        'Rd.view.unknownNodes.vcUnknownNodes',
+        'Rd.view.unknownNodes.winUnknownRedirect'
+    ],
     viewConfig: {
         loadMask:true
     },
-    urlMenu     : '/cake3/rd_cake/unknown-nodes/menu-for-grid.json',
+    urlMenu     : '/cake4/rd_cake/unknown-nodes/menu-for-grid.json',
     plugins     : 'gridfilters',  //*We specify this
+    controller  : 'vcUnknownNodes',
     initComponent: function(){
         var me      = this;
-       
-		me.store    = Ext.create(Rd.store.sUnknownNodes,{
-            listeners: {
-                load: function(store, records, successful) {
-                    if(!successful){
-                        Ext.ux.Toaster.msg(
-                            i18n('sError_encountered'),
-                            store.getProxy().getReader().rawData.message.message,
-                            Ext.ux.Constants.clsWarn,
-                            Ext.ux.Constants.msgWarn
-                        );
-                        //console.log(store.getProxy().getReader().rawData.message.message);
-                    }
-                },
-                update: function(store, records, success, options) {
-                    store.sync({
-                        success: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sUpdated_item'),
-                                i18n('sItem_has_been_updated'),
-                                Ext.ux.Constants.clsInfo,
-                                Ext.ux.Constants.msgInfo
-                            );   
-                        },
-                        failure: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sProblems_updating_the_item'),
-                                i18n('sItem_could_not_be_updated'),
-                                Ext.ux.Constants.clsWarn,
-                                Ext.ux.Constants.msgWarn
-                            );
-                        }
-                    });
-                },
-                scope: this
-            },
-            autoLoad: false 
-        });
-        
-         me.bbar     =  [
+        me.store    = Ext.create('Rd.store.sUnknownNodes',{});
+        me.bbar     =  [
             {
                  xtype       : 'pagingtoolbar',
                  store       : me.store,
@@ -70,24 +42,6 @@ Ext.define('Rd.view.meshes.gridUnknownNodes' ,{
 
 		me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
         me.columns  = [
- 		//	{xtype: 'rownumberer',stateId: 'StateGridUnknownNodes1'},
- 		/*	{ 
-				text		: 'Descriptive Name',      	
-				dataIndex	: 'name',          
-				tdCls		: 'gridMain', 
-				flex		: 1,
-				filter		: {type: 'string'},
-				stateId     : 'StateGridUNd2'
-			},
-			{ 
-				text		: 'Firmware Key',      	
-				dataIndex	: 'token_key',          
-				tdCls		: 'gridMain', 
-				flex		: 1,
-				hidden		: true,
-				filter		: {type: 'string'},
-				stateId     : 'StateGridUNd3'
-			},*/
             { 
 				text		: 'MAC Address',      	
 				dataIndex	: 'mac',          

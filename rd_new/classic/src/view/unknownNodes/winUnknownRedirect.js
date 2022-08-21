@@ -1,6 +1,6 @@
-Ext.define('Rd.view.meshes.winMeshUnknownRedirect', {
+Ext.define('Rd.view.unknownNodes.winUnknownRedirect', {
     extend		: 'Ext.window.Window',
-    alias 		: 'widget.winMeshUnknownRedirect',
+    alias 		: 'widget.winUnknownRedirect',
     title 		: 'Redirect To Another Server',
     layout		: 'fit',
     autoShow	: false,

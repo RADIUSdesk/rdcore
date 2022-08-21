@@ -55,6 +55,10 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
     init: function() {
     
     },
+    onPnlActivate: function(pnl){
+        var me = this;
+        me.reload();
+    },
     onGraphActivate: function(pnl){
         me = this;
         me.reload();

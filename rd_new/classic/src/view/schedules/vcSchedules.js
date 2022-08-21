@@ -22,8 +22,7 @@ Ext.define('Rd.view.schedules.vcSchedules', {
         },
         'gridSchedules #edit': {
             click: 'edit'
-        },
-        
+        },       
         'gridSchedules #delete': {
             click   : 'del'
         },

@@ -25,19 +25,17 @@ Ext.define('Rd.controller.cMeshes', {
     },
     views:  [
         'meshes.gridMeshes',        'meshes.winMeshAdd',
-		'meshes.gridNodeLists',	    'meshes.gridUnknownNodes',
-        'meshes.winMeshUnknownRedirect',
-        'meshes.winMeshUnknownModeChange',
+		'meshes.gridNodeLists',
         'meshes.cmbHardwareOptions', 'meshes.tagStaticEntries', 'meshes.cmbStaticExits',
         'meshes.pnlMeshViewMapGoogle',
         'meshes.pnlMeshViewMapLeaflet'  
     ],
     stores      : [
-		'sMeshes',    'sNodeLists', 				'sUnknownNodes',
+		'sMeshes',    'sNodeLists',
 		'sMeshEntries', 'sMeshExits', 	'sMeshEntryPoints',
 		'sClouds'
 	],
-    models : ['mMesh',  'mNodeList', 	'mUnknownNode'],
+    models : ['mMesh',  'mNodeList'],
     selectedRecord: null,
     config: {
         urlAdd          : '/cake4/rd_cake/meshes/add.json',
@@ -46,7 +44,6 @@ Ext.define('Rd.controller.cMeshes', {
         urlAddNode      : '/cake4/rd_cake/meshes/mesh_node_add.json',
         urlViewNode     : '/cake4/rd_cake/meshes/mesh_node_view.json',
         urlEditNode     : '/cake4/rd_cake/meshes/mesh_node_edit.json',
-        urlRedirectNode : '/cake4/rd_cake/nodes/redirect_unknown.json',
         urlRestartNodes : '/cake4/rd_cake/mesh-reports/restart_nodes.json',
         urlMeshAddNodeAction: '/cake4/rd_cake/node-actions/add.json',
         urlChangeDeviceMode: '/cake4/rd_cake/nodes/change_node_mode.json',
@@ -55,8 +52,7 @@ Ext.define('Rd.controller.cMeshes', {
     refs: [
         {  ref: 'grid',             selector: 'gridMeshes'},
         {  ref: 'gridNodeLists',    selector: 'gridNodeLists'},
-        {  ref: 'tabMeshes',        selector: '#tabMainNetworks'},
-        {  ref: 'gridUnknownNodes', selector: '#tabMeshes gridUnknownNodes'}
+        {  ref: 'tabMeshes',        selector: '#tabMainNetworks'}
     ],
     init: function() {
         var me = this;
@@ -73,9 +69,6 @@ Ext.define('Rd.controller.cMeshes', {
 				activate	: me.gridActivate
 			},
 			'#tabMainNetworks gridNodeLists' : {
-				activate	: me.gridActivate
-			},
-			'#tabMainNetworks gridUnknownNodes' : {
 				activate	: me.gridActivate
 			},
             'gridMeshes #reload': {
@@ -138,34 +131,6 @@ Ext.define('Rd.controller.cMeshes', {
             'gridNodeLists actioncolumn' : {
                  itemClick  : me.onNodeListsActionColumnItemClick
             },            
-			'#tabMeshes gridUnknownNodes #reload': {
-                click:      me.gridUnknownNodesReload
-            },
-            '#tabMeshes gridUnknownNodes #reload menuitem[group=refresh]'   : {
-                click:      me.reloadUnknownNodesOptionClick
-            },
-			'#tabMeshes gridUnknownNodes #attach': {
-                click:  me.attachNode
-            },
-			'#tabMeshes gridUnknownNodes #delete': {
-                click: me.delUnknownNode
-            },
-            '#tabMeshes gridUnknownNodes #redirect' : {
-                click: me.redirectNode
-            },
-            '#tabMeshes gridUnknownNodes actioncolumn' : {
-                 itemClick  : me.onUnknownActionColumnItemClick
-            }, 
-                      
-            'winMeshUnknownRedirect #save' : {
-				click: me.btnRedirectNodeSave
-			},
-			'#tabMeshes gridUnknownNodes #change_device_mode' : {
-                click: me.changeDeviceMode
-            },
-            'winMeshUnknownModeChange #save' : {
-				click: me.btnChangeDeviceModeSave
-			},
 			'pnlMeshView #editMesh' : {
 			    click: me.btnEditMeshClicked
 			},
@@ -185,10 +150,6 @@ Ext.define('Rd.controller.cMeshes', {
         
         if(me.autoReloadNodeLists != undefined){
             clearInterval(me.autoReloadNodeLists);   //Always clear
-        }
-        
-        if(me.autoReloadUnknownNodes != undefined){
-            clearInterval(me.autoReloadUnknownNodes);   //Always clear
         }
     },
 	gridActivate: function(g){
@@ -582,98 +543,7 @@ Ext.define('Rd.controller.cMeshes', {
         me.getGridNodeLists().getStore().load();   
     },
       
-	gridUnknownNodesReload: function(button){
-        var me  = this;
-        var g = button.up('gridUnknownNodes');
-        g.getStore().load();
-    },
-    reloadUnknownNodesOptionClick: function(menu_item){
-        var me      = this;
-        var n       = menu_item.getItemId();
-        var b       = menu_item.up('button'); 
-        var interval= 30000; //default
-        clearInterval(me.autoReloadUnknownNodes);   //Always clear
-        b.setGlyph(Rd.config.icnTime);
-
-        if(n == 'mnuRefreshCancel'){
-            b.setGlyph(Rd.config.icnReload);
-            return;
-        }
-        
-        if(n == 'mnuRefresh1m'){
-           interval = 60000
-        }
-
-        if(n == 'mnuRefresh5m'){
-           interval = 360000
-        }
-        me.autoReloadUnknownNodes = setInterval(function(){        
-            me.gridUnknownNodesReload(b);
-        },  interval);  
-    },
-
-	//_______ Unknown Nodes ______
-	attachNode: function(){
-	    var me      = this;
-        var store   = me.getGridUnknownNodes().getStore();
-        if(me.getGridUnknownNodes().getSelectionModel().getCount() == 0){
-            Ext.ux.Toaster.msg(
-                i18n('sSelect_an_item'),
-                i18n('sFirst_select_an_item'),
-                Ext.ux.Constants.clsWarn,
-                Ext.ux.Constants.msgWarn
-            );  
-        }else{
-            var sr              = me.getGridUnknownNodes().getSelectionModel().getLastSelected();
-            var id              = 0
-			var mac		        = sr.get('mac');				
-			me.application.runAction('cMeshNode','Index',id,{
-			    name        : 'Attach Node',
-			    id          : id,
-			    mac			: mac,
-				store       : store,
-				record      : sr
-		    });
-        }
-    },
-	delUnknownNode:   function(){
-        var me      = this;
-        var grid    = me.getGridUnknownNodes();    
-        //Find out if there was something selected
-        if(grid.getSelectionModel().getCount() == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item_to_delete'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
-                if(val== 'yes'){
-                    grid.getStore().remove(grid.getSelectionModel().getSelection());
-                    grid.getStore().sync({
-                        success: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sItem_deleted'),
-                                i18n('sItem_deleted_fine'),
-                                Ext.ux.Constants.clsInfo,
-                                Ext.ux.Constants.msgInfo
-                            );  
-                        },
-                        failure: function(batch,options,c,d){
-                            Ext.ux.Toaster.msg(
-                                i18n('sProblems_deleting_item'),
-                                batch.proxy.getReader().rawData.message.message,
-                                Ext.ux.Constants.clsWarn,
-                                Ext.ux.Constants.msgWarn
-                            );
-                            grid.getStore().load(); //Reload from server since the sync was not good
-                        }
-                    });
-                }
-            });
-        }
-    },
+	
     
     //===MAPS START HERE===  
     mapLoadGoogleApi: function (key,callback) {
@@ -792,103 +662,7 @@ Ext.define('Rd.controller.cMeshes', {
         me.getGrid().getStore().load();
     },   
     //Redirecting
-    redirectNode: function(){
-        var me      = this;
-        var store   = me.getGridUnknownNodes().getStore();
-        if(me.getGridUnknownNodes().getSelectionModel().getCount() == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            var sr          = me.getGridUnknownNodes().getSelectionModel().getLastSelected();
-            var id          = sr.getId();
-            var new_server  = sr.get('new_server');
-            var proto       = sr.get('new_server_protocol');
-            if(!Ext.WindowManager.get('winMeshUnknownRedirectId')){
-                var w = Ext.widget('winMeshUnknownRedirect',
-                {
-                    id              :'winMeshUnknownRedirectId',
-                    unknownNodeId   : id,
-					new_server	    : new_server,
-					new_server_protocol : proto,
-                    store           : store
-                });
-                w.show();         
-            }
-        }
-    },
-	btnRedirectNodeSave: function(button){
-        var me      = this;
-        var win     = button.up("winMeshUnknownRedirect");
-        var form    = win.down('form');
-        form.submit({
-            clientValidation: true,
-            url: me.getUrlRedirectNode(),
-            success: function(form, action) {
-                win.close();
-                win.store.load();
-                Ext.ux.Toaster.msg(
-                    i18n('sItem_updated'),
-                    i18n('sItem_updated_fine'),
-                    Ext.ux.Constants.clsInfo,
-                    Ext.ux.Constants.msgInfo
-                );
-            },
-            failure: Ext.ux.formFail
-        });
-    },
     
-    //Mode Change
-    changeDeviceMode: function(button){
-        var me      = this;
-        var win     = button.up("#tabMeshes");
-        var store   = win.down("gridUnknownNodes").getStore();
-        if(win.down("gridUnknownNodes").getSelectionModel().getCount() == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            var sr          = win.down("gridUnknownNodes").getSelectionModel().getLastSelected();
-            var id          = sr.getId();
-            var new_mode    = sr.get('new_mode');
-            if(!Ext.WindowManager.get('winMeshUnknownModeChangeId')){
-                var w = Ext.widget('winMeshUnknownModeChange',
-                {
-                    id              :'winMeshUnknownModeChangeId',
-                    unknownNodeId   : id,
-					new_mode	    : new_mode,
-                    store           : store
-                });
-                w.show();         
-            }
-        }
-    },
-	btnChangeDeviceModeSave: function(button){
-        var me      = this;
-        var win     = button.up("winMeshUnknownModeChange");
-        var form    = win.down('form');
-        form.submit({
-            clientValidation: true,
-            url: me.getUrlChangeDeviceMode(),
-            success: function(form, action) {
-                win.close();
-                win.store.load();
-                Ext.ux.Toaster.msg(
-                    i18n('sItem_updated'),
-                    i18n('sItem_updated_fine'),
-                    Ext.ux.Constants.clsInfo,
-                    Ext.ux.Constants.msgInfo
-                );
-            },
-            failure: Ext.ux.formFail
-        });
-    },
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");
         var me = this;
@@ -913,21 +687,6 @@ Ext.define('Rd.controller.cMeshes', {
         var me = this;
         pnlMeshEdit = b.up('pnlMeshEdit');
         me.application.runAction('cMeshViews','Index',pnlMeshEdit.meshId,pnlMeshEdit.meshName);
-    },
-    onUnknownActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
-        //console.log("Action Item "+action+" Clicked");
-        var me = this;
-        var grid = view.up('grid');
-        grid.setSelection(record);
-        if(action == 'attach'){
-            me.attachNode()
-        }
-        if(action == 'delete'){
-            me.delUnknownNode();
-        }
-        if(action == 'redirect'){
-            me.redirectNode();
-        }      
     },
     onNodeListsActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");

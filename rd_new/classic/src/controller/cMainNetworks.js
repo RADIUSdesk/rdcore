@@ -22,6 +22,7 @@ Ext.define('Rd.controller.cMainNetworks', {
             pnl.add(tp);
             me.application.runAction('cMeshes','Index',tp);
             me.application.runAction('cAccessPoints','Index',tp);
+            me.application.runAction('cUnknownNodes','Index',tp);
             added = true;
         }
         return added;      
