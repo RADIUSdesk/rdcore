@@ -567,6 +567,11 @@ class GridButtonsFlatComponent extends Component {
             $b  = $this->_fetchUnknown();
             $menu = [$b]; 
         }
+        
+       	if($type == 'add_and_delete'){
+            $b = $this->_fetchAddAndDelete();
+            $menu = [$b];
+        }
                        
         return $menu;
     }
@@ -1057,6 +1062,17 @@ class GridButtonsFlatComponent extends Component {
                    $this->btnDelete, 
                    $this->btnRedirect
             ]]
+        ];
+        return $menu;
+    }
+    
+    private function _fetchAddAndDelete(){
+    
+        $menu = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+                    $this->btnReload,
+                    $this->btnAdd,
+                    $this->btnDelete,    
+                ]
         ];
         return $menu;
     }

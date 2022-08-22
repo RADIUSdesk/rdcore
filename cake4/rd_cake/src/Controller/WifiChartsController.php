@@ -93,7 +93,7 @@ class WifiChartsController extends AppController{
         }
     }
     
-    public function ApUsageForSsid(){
+    public function apUsageForSsid(){
     
         //Try to determine the timezone if it might have been set ....       
         $this->_setTimeZone();

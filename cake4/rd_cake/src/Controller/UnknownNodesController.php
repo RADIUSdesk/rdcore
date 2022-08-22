@@ -124,9 +124,9 @@ class UnknownNodesController extends AppController {
         if(!$user){   //If not a valid user
             return;
         }
-        $req_d    	= $this->request->getData();
+        $req_d 	= $this->request->getData();
 
-	    if(isset($req_q['id'])){   //Single item delete
+	    if(isset($req_d['id'])){   //Single item delete
        
             $entity     = $this->{$this->main_model}->get($req_d['id']);   
             $this->{$this->main_model}->delete($entity);  

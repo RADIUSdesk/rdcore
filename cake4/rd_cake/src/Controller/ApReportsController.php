@@ -16,7 +16,7 @@ class ApReportsController extends AppController {
         'signal_avg' => 'AVG(ApStations.signal_avg)',
     ];
 
-    public function initialize()
+    public function initialize() : void
     {
         parent::initialize();
         $this->loadModel('Aps');
@@ -25,7 +25,7 @@ class ApReportsController extends AppController {
         $this->loadModel('ApStations');
         $this->loadModel('ApSystems');
         $this->loadModel('ApProfileEntries');
-        $this->loadModel('ApSettings');
+        $this->loadModel('ApProfileSettings');
         $this->loadModel('ApActions');
         $this->loadModel('ApProfileExits');
         $this->loadModel('ApProfileSettings');

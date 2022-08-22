@@ -58,7 +58,6 @@ class DynamicDetailsController extends AppController{
                             ->where(['DynamicPhotos.active' => true]);
                     },
                     'DynamicDetailSocialLogins',
-                    'DynamicDetailMobiles',
                     'DynamicDetailCtcs'
                 ])
                 ->where([$this->main_model.'.id' =>$dynamic_id])
@@ -124,7 +123,6 @@ class DynamicDetailsController extends AppController{
                             },
                             'DynamicPages',
                             'DynamicDetailSocialLogins',
-                            'DynamicDetailMobiles',
                             'DynamicDetailCtcs'
                         ]
                 ])
@@ -282,11 +280,11 @@ class DynamicDetailsController extends AppController{
         }
         
         $client_info                = []; 
-        $client_info['userAgent']   = $this->request->header('User-Agent');    
+        $client_info['userAgent']   = $this->request->getHeaderLine('User-Agent');   
         $client_info['isMobile']    = $this->request->is('mobile');
-        $client_info['isAndroid']   = stripos($this->request->header('User-Agent'), 'Android');
-        $client_info['isIPhone']    = stripos($this->request->header('User-Agent'), 'iPhone');
-        $client_info['isIPad']      = stripos($this->request->header('User-Agent'), 'iPad');  
+        $client_info['isAndroid']   = stripos($client_info['userAgent'], 'Android');
+        $client_info['isIPhone']    = stripos($client_info['userAgent'], 'iPhone');
+        $client_info['isIPad']      = stripos($client_info['userAgent'], 'iPad');  
         $items['client_info']       = $client_info;
         
         $this->set([
@@ -298,11 +296,11 @@ class DynamicDetailsController extends AppController{
     
     public function idMe(){  
         $info               = []; 
-        $info['userAgent']  = $this->request->header('User-Agent');    
+        $info['userAgent']  = $this->request->getHeaderLine('User-Agent');    
         $info['isMobile']   = $this->request->is('mobile');
-        $info['isAndroid']  = stripos($this->request->header('User-Agent'), 'Android');
-        $info['isIPhone']   = stripos($this->request->header('User-Agent'), 'iPhone');
-        $info['isIPad']     = stripos($this->request->header('User-Agent'), 'iPad');
+        $info['isAndroid']  = stripos($info['userAgent'], 'Android');
+        $info['isIPhone']   = stripos($info['userAgent'], 'iPhone');
+        $info['isIPad']     = stripos($info['userAgent'], 'iPad');
         if(isset($_SERVER['HTTP_X_REQUESTED_WITH'])){ 
             $info['HTTP_X_REQUESTED_WITH'] = $_SERVER['HTTP_X_REQUESTED_WITH'];
         }
@@ -319,7 +317,7 @@ class DynamicDetailsController extends AppController{
         foreach(array_keys($req_q) as $key){
             $session->write('coova_'.$key, $req_q[$key]);
        	}
-		$this->response->header('Location', '/vpn_login');
+		$this->response =  $this->response->withHeader('Location', '/vpn_login');
         return $this->response;	
     }
     
@@ -350,32 +348,32 @@ class DynamicDetailsController extends AppController{
     public function chilliBrowserDetect(){  
 		$redir_to = $this->_doBrowserDetectFor('coova');
 		print_r($redir_to);
-		$this->response->header('Location', $redir_to);
+		$this->response = $this->response->withHeader('Location', $redir_to);
         return $this->response;	
     }
     
     public function mikrotikBrowserDetect(){  
 		$redir_to = $this->_doBrowserDetectFor('coova');
-		$this->response->header('Location', $redir_to);
+		$this->response = $this->response->withHeader('Location', $redir_to);
         return $this->response;	
     }
     
     public function ruckusBrowserDetect(){  
 		$redir_to = $this->_doBrowserDetectFor('ruckus');
-		$this->response->header('Location', $redir_to);
+		$this->response = $this->response->withHeader('Location', $redir_to);
         return $this->response;	
     }
     
     //----- Give better preview pages -----
     public function previewChilliDesktop(){
         $redir_to = $this->_doPreviewChilli('desktop');
-		$this->response->header('Location', $redir_to);
+		$this->response = $this->response->withHeader('Location', $redir_to);
         return $this->response;	
     }
     
     public function previewChilliMobile(){
         $redir_to = $this->_doPreviewChilli('mobile');
-		$this->response->header('Location', $redir_to);
+		$this->response = $this->response->withHeader('Location', $redir_to);
         return $this->response;	
     }
     

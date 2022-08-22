@@ -13,7 +13,7 @@ class ApActionsController extends AppController {
 
 //------------------------------------------------------------------------
 
-    public function initialize()
+    public function initialize():void
     {
         parent::initialize();
         $this->loadModel($this->main_model);
@@ -26,7 +26,7 @@ class ApActionsController extends AppController {
         $this->loadComponent('GridFilter');
 
         $this->loadComponent('JsonErrors');
-        $this->loadComponent('GridButtons');  
+        $this->loadComponent('GridButtonsFlat');  
         $this->loadComponent('TimeCalculations'); 
 
     }
@@ -43,20 +43,21 @@ class ApActionsController extends AppController {
         }
         
         $user_id    = $user['id'];
-        $query      = $this->{$this->main_model}->find();
+        $query      = $this->{$this->main_model}->find();        
+        $req_q    	= $this->request->getQuery();  
         
-        if(isset($this->request->query['ap_id'])){
-            $query->where(["ApActions.ap_id" => $this->request->query['ap_id']]);
+        if(isset($req_q['ap_id'])){
+            $query->where(["ApActions.ap_id" => $req_q['ap_id']]);
         }
 
         //===== PAGING (MUST BE LAST) ======
         $limit = 50;   //Defaults
         $page = 1;
         $offset = 0;
-        if (isset($this->request->query['limit'])) {
-            $limit = $this->request->query['limit'];
-            $page = $this->request->query['page'];
-            $offset = $this->request->query['start'];
+        if (isset($req_q['limit'])) {
+            $limit 	= $req_q['limit'];
+            $page 	= $req_q['page'];
+            $offset = $req_q['start'];
         }
 
         $query->page($page);
@@ -69,7 +70,7 @@ class ApActionsController extends AppController {
 
         foreach ($q_r as $i) {
             $row        = array();
-            $fields     = $this->{$this->main_model}->schema()->columns();
+            $fields     = $this->{$this->main_model}->getSchema()->columns();
             foreach($fields as $field){
                 $row["$field"]= $i->{"$field"};
                 
@@ -115,12 +116,11 @@ class ApActionsController extends AppController {
 		        $cfg["$s_name"] = $s_value;
 		    }
 		}
-        
-        
-        
-        $client = new Client();
+              
+        $client	= new Client();
+        $req_d  = $this->request->getData();
 
-        foreach(array_keys($this->request->data) as $key){
+        foreach(array_keys($req_d) as $key){
             if(preg_match('/^\d+/',$key)){
             
                 $formData               = $this->request->getData();
@@ -132,7 +132,7 @@ class ApActionsController extends AppController {
                         $formData['command']    = $entPre->command;
                     }  
                 }
-                $formData['ap_id']  = $this->request->data[$key];
+                $formData['ap_id']  = $req_d[$key];
                 $entity             = $this->{$this->main_model}->newEntity($formData);
                  if ($this->{$this->main_model}->save($entity)) {
                  
@@ -168,7 +168,7 @@ class ApActionsController extends AppController {
             }
         }
 
-		if(isset($this->request->data['ap_id'])){
+		if(isset($req_d['ap_id'])){
 		
 		    $formData               = $this->request->getData();
 		    //Substitute the predefined_command 
@@ -225,13 +225,14 @@ class ApActionsController extends AppController {
         }
 
         $user_id    = $user['id'];
-        $fail_flag = false;
+        $fail_flag  = false;
+        $req_d      = $this->request->getData();
 
-	    if(isset($this->request->data['id'])){   //Single item delete
+	    if(isset($req_d['id'])){   //Single item delete
             $message = "Single item ".$this->data['id'];
-            $this->{$this->main_model}->query()->delete()->where(['id' => $this->request->data['id']])->execute();
+            $this->{$this->main_model}->query()->delete()->where(['id' => $req_d['id']])->execute();
         }else{                          //Assume multiple item delete
-            foreach($this->request->data as $d){
+            foreach($req_d as $d){
                 $this->{$this->main_model}->query()->delete()->where(['id' => $d['id']])->execute();
             }
         }
@@ -253,8 +254,10 @@ class ApActionsController extends AppController {
      //DEPECATED => Using NodeActions controller with ONE URL
      //With that URL we now cover actions for AP Profiels and Meshes depending on the value of 'mode' in the POST
 	public function getActionsFor(){
+	
+		$req_d      = $this->request->getData();
 
-		if(!(array_key_exists('mac', $this->request->getData()))){
+		if(!(array_key_exists('mac', $req_d))){
 				$this->set([
 				'message'		=> 'Required field missing in POST',
 		        'success' => false,
@@ -305,9 +308,7 @@ class ApActionsController extends AppController {
 		        $cfg["$s_name"] = $s_value;
 		    }
 		}
-        
-        
-        
+              
         //Loop through the nodes and make sure there is not already one pending before adding one
         foreach ($this->request->getData('aps') as $a) {
             $ap_id    = $a['id'];
@@ -316,9 +317,7 @@ class ApActionsController extends AppController {
                 $ent_ap->reboot_flag = !$ent_ap->reboot_flag;
                 if($this->{'Aps'}->save($ent_ap)){
                     //ADD Support for MQTT
-                
-                
-                    
+                                                  
                 }
             }
         }
@@ -361,8 +360,8 @@ class ApActionsController extends AppController {
         if (!$user) {   //If not a valid user
             return;
         }
-
-        $menu = $this->GridButtons->returnButtons($user,false, 'add_and_delete'); 
+        
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'add_and_delete'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,
