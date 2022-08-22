@@ -10,7 +10,7 @@ Ext.define('Rd.controller.cAccessPointViews', {
         urlHardware             : '/cake4/rd_cake/ap-reports/view_overview.json',
     },
     refs: [
-        {  ref: 'tabAccessPoints',    selector: '#tabAccessPoints' },
+        {  ref: 'tabAccessPoints',    selector: '#tabMainNetworks' },
         {  ref: 'gridApViewActions',  selector: 'gridApViewActions' } 
     ],
     control: {

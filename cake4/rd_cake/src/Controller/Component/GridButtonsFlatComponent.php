@@ -572,7 +572,7 @@ class GridButtonsFlatComponent extends Component {
             $b = $this->_fetchAddAndDelete();
             $menu = [$b];
         }
-                       
+                            
         return $menu;
     }
    
@@ -1011,38 +1011,8 @@ class GridButtonsFlatComponent extends Component {
 		];
         return $menu;    
     }
-    
-    private function _fetchBasicApProfiles(){
-  
-       	$menu 	= [];
-		$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
-				$this->btnReloadTimer,
-				$this->btnAdd,
-				$this->btnDelete,
-				$this->btnEdit
-			]
-		];
-        return $menu;    
-    }
-       
-    private function _fetchAps(){
-
-       	$menu = [];
-		$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
-				$this->btnReloadTimer,
-				$this->btnAdd,
-				$this->btnDelete,
-				$this->btnEdit,
-				$this->btnView,
-				$this->btnExecute,
-				$this->btnRestart
-			]
-		];
-        return $menu;    
-    }
-    
+             
   	private function _fetchCrud(){
-       	$menu = [];
 		$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
 				$this->btnReload,
 				$this->btnAdd,
@@ -1076,6 +1046,32 @@ class GridButtonsFlatComponent extends Component {
         ];
         return $menu;
     }
-      
     
+  	private function _fetchBasicApProfiles(){
+    
+        $menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+                $this->btnReloadTimer,
+                $this->btnAdd,
+                $this->btnDelete,
+				$this->btnEdit,
+            ]
+        ];       
+        return $menu;    
+    }
+    
+    private function _fetchAps(){
+        
+		$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+				$this->btnReloadTimer,
+				$this->btnAdd,
+				$this->btnDelete,
+				$this->btnEdit,
+				$this->btnView,
+				$this->btnExecute,
+				$this->btnRestart
+			]
+		];
+        return $menu;    
+    }
+          
 }

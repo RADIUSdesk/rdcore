@@ -8,19 +8,19 @@ var rdConnect = (function () {
         var h               = document.location.hostname;
         var isMikroTik      = getParameterByName('link_status') != "";
         //!!!!
-        var urlUse          = location.protocol+'//'+h+'/cake3/rd_cake/radaccts/get_usage.json'
+        var urlUse          = location.protocol+'//'+h+'/cake4/rd_cake/radaccts/get_usage.json'
         //!!!!
         var urlUam          = location.protocol+'//'+h+'/login/services/uam.php';
         
         //Be sure this is the same as specified in FB e.g. IP or DNS!!
-	    var urlSocialBase   = location.protocol+'//'+h+'/cake3/rd_cake/third-party-auths/index.json'; 
+	    var urlSocialBase   = location.protocol+'//'+h+'/cake4/rd_cake/third-party-auths/index.json'; 
 	    
 	    //To pull the username and password associated with this ID + typ
-	    var urlSocialInfoFor= location.protocol+'//'+h+'/cake3/rd_cake/third-party-auths/info-for.json';
+	    var urlSocialInfoFor= location.protocol+'//'+h+'/cake4/rd_cake/third-party-auths/info-for.json';
 	    
 	    //!!!!  
-	    var urlAdd			= location.protocol+'//'+h+'/cake3/rd_cake/register-users/new-permanent-user.json';
-		var urlLostPw		= location.protocol+'//'+h+'/cake3/rd_cake/register-users/lost-password.json';
+	    var urlAdd			= location.protocol+'//'+h+'/cake4/rd_cake/register-users/new-permanent-user.json';
+		var urlLostPw		= location.protocol+'//'+h+'/cake4/rd_cake/register-users/lost-password.json';
 		//!!!!
 		
 		
@@ -680,7 +680,7 @@ $$('sliderData').refresh();
                     values.ssid = ssid;
                 }   
                     
-                var add_mac  = location.protocol+'//'+document.location.hostname+"/cake3/rd_cake/data-collectors/add-mac.json";
+                var add_mac  = location.protocol+'//'+document.location.hostname+"/cake4/rd_cake/data-collectors/add-mac.json";
                 webix.ajax().timeout(3000).post(
                     add_mac,
                     values,
@@ -722,7 +722,7 @@ $$('sliderData').refresh();
                 var nasid       = getParameterByName('nasid');
                 formData.append("nasid", nasid);
                      
-                var email_check = location.protocol+'//'+document.location.hostname+"/cake3/rd_cake/data-collectors/mac-check.json";
+                var email_check = location.protocol+'//'+document.location.hostname+"/cake4/rd_cake/data-collectors/mac-check.json";
                 
                 webix.ajax().timeout(3000).post(
                     email_check,formData,{ 

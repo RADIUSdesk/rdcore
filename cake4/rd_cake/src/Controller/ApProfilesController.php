@@ -33,12 +33,12 @@ class ApProfilesController extends AppController {
         $this->loadModel('Timezones');
 
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons'); 
+        $this->loadComponent('GridButtonsFlat'); 
         $this->loadComponent('GridFilter');
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('JsonErrors');
         
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'ApProfiles'
         ]);
     }
@@ -55,7 +55,7 @@ class ApProfilesController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,['Aps']);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['Aps']);
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -2457,7 +2457,7 @@ class ApProfilesController extends AppController {
             return;
         }
 
-        $menu = $this->GridButtons->returnButtons($user, false, 'ApProfiles'); 
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'ApProfiles'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,
@@ -2472,7 +2472,7 @@ class ApProfilesController extends AppController {
             return;
         }
 
-        $menu = $this->GridButtons->returnButtons($user, false, 'ApProfileEntries'); 
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'ApProfileEntries'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,
@@ -2487,7 +2487,7 @@ class ApProfilesController extends AppController {
             return;
         }
 
-        $menu = $this->GridButtons->returnButtons($user, false, 'ApProfileExits'); 
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'ApProfileExits'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,
@@ -2503,7 +2503,7 @@ class ApProfilesController extends AppController {
             return;
         }
 
-        $menu = $this->GridButtons->returnButtons($user, false, 'Aps'); 
+        $menu = $this->GridButtonsFlat->returnButtonsFlat(false, 'Aps'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,
@@ -2518,7 +2518,7 @@ class ApProfilesController extends AppController {
             return;
         }
 
-        $menu = $this->GridButtons->returnButtons($user, false, 'ApProfileDevices'); 
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'ApProfileDevices'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,

@@ -51,14 +51,14 @@ var sConnectSimple = (function () {
         var redirect_url    = undefined;
         
         //Be sure this is the same as specified in FB e.g. IP or DNS!!
-	    var urlSocialBase   = location.protocol+'//'+h+'/cake3/rd_cake/third-party-auths/index.json'; 
+	    var urlSocialBase   = location.protocol+'//'+h+'/cake4/rd_cake/third-party-auths/index.json'; 
 	    
 	    //To pull the username and password associated with this ID + typ
-	    var urlSocialInfoFor= location.protocol+'//'+h+'/cake3/rd_cake/third-party-auths/info-for.json';
+	    var urlSocialInfoFor= location.protocol+'//'+h+'/cake4/rd_cake/third-party-auths/info-for.json';
         
         //!!!!  
-	    var urlAdd			= location.protocol+'//'+h+'/cake3/rd_cake/register-users/new-permanent-user.json';
-		var urlLostPw		= location.protocol+'//'+h+'/cake3/rd_cake/register-users/lost-password.json';
+	    var urlAdd			= location.protocol+'//'+h+'/cake4/rd_cake/register-users/new-permanent-user.json';
+		var urlLostPw		= location.protocol+'//'+h+'/cake4/rd_cake/register-users/lost-password.json';
 		//!!!!
         
         var req_class       = 'p-1 bg-secondary border';
@@ -154,7 +154,7 @@ var sConnectSimple = (function () {
             if(cDynamicData.settings.click_to_connect.cust_info_check == false){          
                 onBtnClickToConnectClick(event);       
             }else{
-                var email_check = location.protocol+'//'+document.location.hostname+"/cake3/rd_cake/data-collectors/mac-check.json";
+                var email_check = location.protocol+'//'+document.location.hostname+"/cake4/rd_cake/data-collectors/mac-check.json";
                 var mac_address = decodeURIComponent(getParameterByName('mac'));
                 mac_address     = mac_address.replace(/:/g, '-');
                 console.log("MAC IS "+mac_address);
@@ -479,7 +479,7 @@ var sConnectSimple = (function () {
                 event.stopPropagation()
             }else{
             
-                var add_mac     = location.protocol+'//'+document.location.hostname+"/cake3/rd_cake/data-collectors/add-mac.json";       
+                var add_mac     = location.protocol+'//'+document.location.hostname+"/cake4/rd_cake/data-collectors/add-mac.json";       
                 var formData    = new FormData(document.querySelector('#frmCustInfo'))
                        
                 //===SPECIAL CHECK FOR CUSTOM FIELDS=====

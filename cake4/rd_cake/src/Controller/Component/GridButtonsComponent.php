@@ -571,7 +571,7 @@ class GridButtonsComponent extends Component {
             $menu = [$b]; 
         }
         
-         if($type == 'ApProfiles'){
+        if($type == 'ApProfiles'){
             $b = $this->_fetchBasicApProfiles();
             $menu = [$b]; 
         }

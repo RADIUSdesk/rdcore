@@ -30,7 +30,7 @@ class DynamicDetailsController extends AppController{
         
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => $this->main_model
         ]);
         $this->loadComponent('JsonErrors');
@@ -310,7 +310,7 @@ class DynamicDetailsController extends AppController{
             '_serialize'    => ['data','success']
         ]);
     }
-    ///cake3/rd_cake/dynamic-details/chilli-session-write/
+    ///cake4/rd_cake/dynamic-details/chilli-session-write/
     public function chilliSessionWrite(){  
         $session    = $this->getRequest()->getSession();
         $req_q    	= $this->request->getQuery();  
@@ -396,8 +396,11 @@ class DynamicDetailsController extends AppController{
        
     public function exportCsv(){
 
-        $query = $this->{$this->main_model}->find(); 
-        $this->CommonQuery->build_common_query($query,$user,[]);  
+		$req_q    = $this->request->getQuery();      
+       	$cloud_id = $req_q['cloud_id'];
+        $query 	  = $this->{$this->main_model}->find();      
+
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id); 
         $q_r    = $query->all();
         //Headings
         $heading_line   = [];
@@ -449,7 +452,7 @@ class DynamicDetailsController extends AppController{
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,[]);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id);
  
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -495,15 +498,18 @@ class DynamicDetailsController extends AppController{
         if(!$user){
             return;
         }
-        $query  = $this->{$this->main_model}->find();
-        $this->CommonQuery->build_common_query($query,$user,[]);        
+        
+        $req_q    = $this->request->getQuery();      
+       	$cloud_id = $req_q['cloud_id'];        
+        $query    = $this->{$this->main_model}->find();
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id);        
         $q_r    = $query->all();
-        $items      = array();
+        $items      = [];
         foreach($q_r as $i){
-            array_push($items,array(
+            array_push($items,[
                 'id'                    => $i->id, 
                 'text'                  => $i->name
-            ));
+            ]);
         }   
 
         $this->set(array(
@@ -892,7 +898,7 @@ class DynamicDetailsController extends AppController{
         $path_parts     = pathinfo($_FILES['photo']['name']);
         $unique         = time();
         $dest           = WWW_ROOT."img/dynamic_details/".$unique.'.'.$path_parts['extension'];
-        $dest_www       = "/cake3/rd_cake/webroot/img/dynamic_details/".$unique.'.'.$path_parts['extension'];
+        $dest_www       = "/cake4/rd_cake/webroot/img/dynamic_details/".$unique.'.'.$path_parts['extension'];
        
         $entity         = $this->{$this->main_model}->get($req_d['id']);
         $icon_file_name = $unique.'.'.$path_parts['extension'];
@@ -971,7 +977,7 @@ class DynamicDetailsController extends AppController{
         $path_parts   = pathinfo($_FILES['photo']['name']);
         $unique       = time();
         $dest         = WWW_ROOT."img/dynamic_photos/".$unique.'.'.$path_parts['extension'];
-        $dest_www     = "/cake3/rd_cake/img/dynamic_photos/".$unique.'.'.$path_parts['extension'];
+        $dest_www     = "/cake4/rd_cake/img/dynamic_photos/".$unique.'.'.$path_parts['extension'];
         
         $req_d['file_name'] = $unique.'.'.$path_parts['extension'];
         
@@ -1225,7 +1231,7 @@ class DynamicDetailsController extends AppController{
                 if($table == 'DynamicPhotos'){
                     $f          = $i->file_name;
                     $location   = Configure::read('paths.real_photo_path').$f;
-                    $row['img'] = "/cake3/rd_cake/webroot/files/image.php?width=400&height=100&image=".$location;
+                    $row['img'] = "/cake4/rd_cake/webroot/files/image.php?width=400&height=100&image=".$location;
                     
                     $row['translations'] = [];
                     foreach($i->dynamic_photo_translations as $t){

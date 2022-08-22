@@ -32,8 +32,7 @@ class ApReportsController extends AppController {
 		$this->loadModel('ApUptmHistories');
 		
 		$this->loadModel('Hardwares');         
-
-
+		
         $this->loadComponent('Aa');
         $this->loadComponent('MacVendors');
         $this->loadComponent('Formatter');

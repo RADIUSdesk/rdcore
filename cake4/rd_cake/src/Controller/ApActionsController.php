@@ -24,7 +24,6 @@ class ApActionsController extends AppController {
         $this->loadComponent('Aa');
         $this->loadComponent('Formatter');
         $this->loadComponent('GridFilter');
-
         $this->loadComponent('JsonErrors');
         $this->loadComponent('GridButtonsFlat');  
         $this->loadComponent('TimeCalculations'); 

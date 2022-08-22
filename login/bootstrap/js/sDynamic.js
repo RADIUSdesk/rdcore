@@ -5,7 +5,7 @@ var sDynamic = (function () {
     
     
         //=====Constants======
-        cDynUrl         = location.protocol+'//'+document.location.hostname+"/cake3/rd_cake/dynamic-details/info-for.json";
+        cDynUrl         = location.protocol+'//'+document.location.hostname+"/cake4/rd_cake/dynamic-details/info-for.json";
         cAjaxTimeout    = 3000;
         cDynamicData    = undefined; //Will be populated when gettting DynamicDetail from back-end
         cDebug          = true;
@@ -777,7 +777,7 @@ var sDynamic = (function () {
                     "title": "Rocks rocks rocks",
                     "description": "Nature\u0027s own obstacle course",
                     "url": "",
-                    "file_name": "\/cake3\/rd_cake\/img\/dynamic_photos\/1369746199.jpg",
+                    "file_name": "\/cake4\/rd_cake\/img\/dynamic_photos\/1369746199.jpg",
                     "created": "2013-05-28T15:03:19+00:00",
                     "modified": "2017-01-16T10:00:46+00:00",
                     "active": true,

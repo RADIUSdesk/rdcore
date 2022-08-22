@@ -1,7 +1,7 @@
 Ext.define('Rd.view.components.cmbClouds', {
     extend          : 'Ext.form.ComboBox',
     alias           : 'widget.cmbClouds',
-    fieldLabel      : 'Clouds',
+    fieldLabel      : 'Cloud',
     labelSeparator  : '',
     queryMode       : 'local',
     valueField      : 'id',
