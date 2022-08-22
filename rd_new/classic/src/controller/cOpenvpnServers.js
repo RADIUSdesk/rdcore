@@ -35,7 +35,13 @@ Ext.define('Rd.controller.cOpenvpnServers', {
         {  ref: 'grid',  selector: 'gridOpenvpnServers'}       
     ],
     init: function() {
+
         var me = this;
+        if (me.inited) {
+            return;
+        }
+        me.inited = true;
+
         me.control({
             '#tabOpenvpnServers' : {
                 destroy   :      me.appClose   

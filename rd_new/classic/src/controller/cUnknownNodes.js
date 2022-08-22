@@ -13,22 +13,6 @@ Ext.define('Rd.controller.cUnknownNodes', {
         });    
     },
     views:  [
-        'unknownNodes.gridUnknownNodes',
-        'unknownNodes.winUnknownRedirect'
-    ],
-    stores: ['sUnknownNodes'],
-    models: ['mUnknownNode'],
-    selectedRecord: null,
-    refs: [
-        {  ref: 'grid',  selector: 'gridUnknownNodes'}       
-    ],
-    gridActivate: function(g){
-        var me = this;
-        var grid = g.down('grid');
-        if(grid){
-            grid.getStore().reload();
-        }else{
-            g.getStore().reload();
-        }        
-    }
+        'unknownNodes.gridUnknownNodes'
+    ]
 });

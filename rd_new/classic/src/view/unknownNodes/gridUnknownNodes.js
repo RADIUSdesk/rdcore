@@ -20,6 +20,9 @@ Ext.define('Rd.view.unknownNodes.gridUnknownNodes' ,{
         'Rd.view.unknownNodes.vcUnknownNodes',
         'Rd.view.unknownNodes.winUnknownRedirect'
     ],
+    listeners       : {
+        activate : 'onPnlActivate' //Trigger a load of the settings (This is only on the initial load)
+    },
     viewConfig: {
         loadMask:true
     },
@@ -158,14 +161,21 @@ Ext.define('Rd.view.unknownNodes.gridUnknownNodes' ,{
             {
                 xtype       : 'actioncolumn',
                 text        : 'Actions',
-                width       : 80,
+                width       : 100,
                 stateId     : 'StateGridUnknownNodes9',
                 items       : [					 
                     {  
-                        iconCls : 'txtBlue x-fa fa-paperclip',
-                        tooltip : 'Attach',
+                        iconCls : 'txtBlue x-fa  fa-share-alt',
+                        tooltip : 'Add To Mesh',
 						handler: function(view, rowIndex, colIndex, item, e, record, row) {
-                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'attach');
+                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'attachMesh');
+                        }
+					},
+                    {  
+                        iconCls : 'txtBlue x-fa fa-cube',
+                        tooltip : 'Add To AP Profile',
+						handler: function(view, rowIndex, colIndex, item, e, record, row) {
+                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'attachAp');
                         }
 					},
 					{ 

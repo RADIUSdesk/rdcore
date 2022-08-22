@@ -14,9 +14,9 @@ Ext.define('Rd.controller.cMeshes', {
         });
 
         pnl.add({ 
-            title       : i18n('sKnown_Nodes'), 	
+            title       : 'Mesh Nodes', 	
             xtype       : 'gridNodeLists',	
-            glyph       : Rd.config.icnCheck,
+            glyph       : Rd.config.icnNetwork,
             padding     : Rd.config.gridPadding,
             tabConfig   : {
                 ui : 'tab-orange'

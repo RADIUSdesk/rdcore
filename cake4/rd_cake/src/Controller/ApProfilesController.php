@@ -412,11 +412,20 @@ class ApProfilesController extends AppController {
 
         $items          = [];
         $total          = 0;
-        $ap_profile_id  = $this->request->getQuery('ap_profile_id');       
+        $ap_profile_id  = $this->request->getQuery('ap_profile_id'); 
+        
+        if(!$ap_profile_id){
+        	$this->set([
+		        'items' => [],
+		        'success' => true,
+		        '_serialize' => ['items','success']
+		    ]);
+		    return;     
+        }
+              
         $add_no_exit    = $this->request->getQuery('add_no_exit');
         
-        if($add_no_exit == 'true'){
-        
+        if($add_no_exit == 'true'){        
             array_push($items, [
                 'id'            => 0,
                 'ap_profile_id' => $ap_profile_id,

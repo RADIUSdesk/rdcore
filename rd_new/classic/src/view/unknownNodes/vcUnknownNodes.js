@@ -14,8 +14,11 @@ Ext.define('Rd.view.unknownNodes.vcUnknownNodes', {
         'gridUnknownNodes #reload menuitem[group=refresh]'   : {
             click:      'reloadUnknownNodesOptionClick'
         },
-		'gridUnknownNodes #attach': {
+		'gridUnknownNodes #attachMesh': {
             click:  'attachNode'
+        },
+        'gridUnknownNodes #attachAp': {
+            click:  'attachAp'
         },
 		'gridUnknownNodes #delete': {
             click: 'delUnknownNode'
@@ -29,6 +32,10 @@ Ext.define('Rd.view.unknownNodes.vcUnknownNodes', {
         'winMeshUnknownRedirect #save' : {
 			click: 'btnRedirectNodeSave'
 		} 
+    },
+    onPnlActivate: function(pnl){
+        var me = this;
+        me.reload();
     },
     reload: function(){
         var me      = this;
@@ -80,8 +87,31 @@ Ext.define('Rd.view.unknownNodes.vcUnknownNodes', {
             var sr              = me.getView().getSelectionModel().getLastSelected();
             var id              = 0
 			var mac		        = sr.get('mac');				
-			me.application.runAction('cMeshNode','Index',id,{
+			Rd.getApplication().runAction('cMeshNode','Index',id,{
 			    name        : 'Attach Node',
+			    id          : id,
+			    mac			: mac,
+				store       : store,
+				record      : sr
+		    });
+        }
+    },
+    attachAp: function(){
+	    var me      = this;
+        var store   = me.getView().getStore();
+        if(me.getView().getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
+                i18n('sSelect_an_item'),
+                i18n('sFirst_select_an_item'),
+                Ext.ux.Constants.clsWarn,
+                Ext.ux.Constants.msgWarn
+            );  
+        }else{
+            var sr              = me.getView().getSelectionModel().getLastSelected();
+            var id              = 0
+			var mac		        = sr.get('mac');				
+			Rd.getApplication().runAction('cAccessPointAp','Index',id,{
+			    name        : 'Attach AP',
 			    id          : id,
 			    mac			: mac,
 				store       : store,
@@ -129,8 +159,8 @@ Ext.define('Rd.view.unknownNodes.vcUnknownNodes', {
     },
     redirectNode: function(){
         var me      = this;
-        var store   = me.getGridUnknownNodes().getStore();
-        if(me.getGridUnknownNodes().getSelectionModel().getCount() == 0){
+        var store   = me.getView().getStore();
+        if(me.getView().getSelectionModel().getCount() == 0){
              Ext.ux.Toaster.msg(
                         i18n('sSelect_an_item'),
                         i18n('sFirst_select_an_item'),
@@ -138,7 +168,7 @@ Ext.define('Rd.view.unknownNodes.vcUnknownNodes', {
                         Ext.ux.Constants.msgWarn
             );
         }else{
-            var sr          = me.getGridUnknownNodes().getSelectionModel().getLastSelected();
+            var sr          = me.getView().getSelectionModel().getLastSelected();
             var id          = sr.getId();
             var new_server  = sr.get('new_server');
             var proto       = sr.get('new_server_protocol');
@@ -180,8 +210,11 @@ Ext.define('Rd.view.unknownNodes.vcUnknownNodes', {
         var me = this;
         var grid = view.up('grid');
         grid.setSelection(record);
-        if(action == 'attach'){
+        if(action == 'attachMesh'){
             me.attachNode()
+        }
+        if(action == 'attachAp'){
+            me.attachAp()
         }
         if(action == 'delete'){
             me.delUnknownNode();

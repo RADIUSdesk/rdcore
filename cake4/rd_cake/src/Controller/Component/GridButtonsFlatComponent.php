@@ -178,6 +178,25 @@ class GridButtonsFlatComponent extends Component {
             'ui'        => $this->btnUiPdf
         ];
         
+        $this->btnAddMesh = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnNode'), 
+            'scale'     => $this->scale,
+            'itemId'    => 'attachMesh',      
+            'tooltip'=> __('Add To Mesh'),
+            'ui'        => $this->btnUiAttach
+        ];
+        
+        $this->btnAddAp = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnCube'), 
+            'scale'     => $this->scale,
+            'itemId'    => 'attachAp',      
+            'tooltip'=> __('Add To AP Profile'),
+            'ui'        => $this->btnUiAttach
+        ];
+        
+        
         $this->btnAttach = [
             'xtype'     => 'button', 
             'glyph'     => Configure::read('icnAttach'), 
@@ -488,8 +507,8 @@ class GridButtonsFlatComponent extends Component {
                     "<div style='font-size:larger;width:300px;'>",
                     "<ul class='fa-ul'>",
                     "<li style='padding:2px;'>",
-                    "<span class='fa-li' style='font-family:FontAwesome;'>&#xf20e</span> MESHES {meshes_total} <span style='color:green;'>({meshes_up} ONLINE)</span></li>",
-                    "<li style='padding:2px;'><i class='fa-li fa fa-cube'></i> Nodes {nodes_total} <span style='color:green;'>({nodes_up} ONLINE)</span></li>",
+                    "<span class='fa-li' style='font-family:FontAwesome;'>&#xf20e</span> Meshes {meshes_total} <span style='color:green;'>({meshes_up} ONLINE)</span></li>",
+                    "<li style='padding:2px;'><i class='fa-li fa  fa-share-alt'></i> Mesh Nodes {nodes_total} <span style='color:green;'>({nodes_up} ONLINE)</span></li>",
                     "</ul>",
                     "</div>"                    
                 ],
@@ -541,6 +560,11 @@ class GridButtonsFlatComponent extends Component {
         
         if($type == 'ApProfileDevices'){
             $b = $this->_fetchCrud();
+            $menu = [$b]; 
+        }
+        
+         if($type == 'unknown_ap_or_nodes'){
+            $b  = $this->_fetchUnknown();
             $menu = [$b]; 
         }
                        
@@ -1022,6 +1046,19 @@ class GridButtonsFlatComponent extends Component {
 			]
 		];
         return $menu;    
+    }
+    
+    private function _fetchUnknown(){
+        $menu = [
+                ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+                   $this->btnReloadTimer,
+                   $this->btnAddMesh,
+                   $this->btnAddAp,
+                   $this->btnDelete, 
+                   $this->btnRedirect
+            ]]
+        ];
+        return $menu;
     }
       
     

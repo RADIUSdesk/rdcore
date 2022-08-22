@@ -21,96 +21,33 @@ class UnknownNodesController extends AppController {
         $this->loadModel('UnknownNodes');
         $this->loadModel('Users');   
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
+        $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('JsonErrors'); 
-        $this->loadComponent('TimeCalculations'); 
-        
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
-            'model' => 'UnknownNodes',
-            'sort_by' => 'UnknownNodes.mac'
-        ]);
+        $this->loadComponent('TimeCalculations');
     }
-    
-    public function claimOwnership(){
-             
-        $data           = [];
-        $data['mac']    = $this->request->data['mac'];
-        $data['name']   = '=HO ADD= '.$this->request->data['description'];
-        $data['new_server']             = $this->request->data['host'];
-        $data['new_server_protocol']    = $this->request->data['proto'];
-        $data['from_ip']                = $this->request->clientIp();
-        
-        $entity  = $this->{$this->main_model}->find()->where(['mac' => $data['mac']])->first();
-        if(!$entity){ 
-            $entity = $this->{$this->main_model}->newEntity($data);
-        }else{
-            $data['name'] = '=HO EDIT= '.$this->request->data['description'];
-            $this->{$this->main_model}->patchEntity($entity, $data);
-        }
-        
-        if ($this->{$this->main_model}->save($entity)) {
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
-        } else {
-            $message = __('Could not update item');
-            $this->JsonErrors->entityErros($entity,$message);
-        }
-    }
-     
-    public function releaseOwnership(){
-             
-        $data           = [];
-        $data['mac']    = $this->request->data['mac'];
-        $data['name']   = '=HO DEL=';
-        $data['new_server']             = '';
-        $data['new_server_protocol']    = '';
-        $data['new_server_status']      = 'awaiting';
-        $data['from_ip']                = $this->request->clientIp();
-        
-        $entity  = $this->{$this->main_model}->find()->where(['mac' => $data['mac']])->first();
-        if(!$entity){ 
-            $entity = $this->{$this->main_model}->newEntity($data);
-        }else{
-            $data['name'] = '=HO DEL=';
-            $this->{$this->main_model}->patchEntity($entity, $data);
-        }
-        
-        if ($this->{$this->main_model}->save($entity)) {
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
-        } else {
-            $message = __('Could not update item');
-            $this->JsonErrors->entityErros($entity,$message);
-        }
-    }
-    
+      
     public function index(){
         //__ Authentication + Authorization __
         $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
             return;
         }
+        $req_q    	= $this->request->getQuery(); 
         
         $geo_data   = Configure::read('paths.geo_data');
         $reader     = new Reader($geo_data);
         
         $user_id    = $user['id'];
         $query      = $this->{$this->main_model}->find();
-        $query->contain(['FirmwareKeys']);
-        
-       
+               
         //===== PAGING (MUST BE LAST) ======
         $limit = 50;   //Defaults
         $page = 1;
         $offset = 0;
-        if (isset($this->request->query['limit'])) {
-            $limit = $this->request->query['limit'];
-            $page = $this->request->query['page'];
-            $offset = $this->request->query['start'];
+        if (isset($req_q['limit'])) {
+            $limit 	= $req_q['limit'];
+            $page 	= $req_q['page'];
+            $offset = $req_q['start'];
         }
 
         $query->page($page);
@@ -123,8 +60,8 @@ class UnknownNodesController extends AppController {
         $items = [];
 
         foreach ($q_r as $i) {    
-            $row        = array();
-            $fields     = $this->{$this->main_model}->schema()->columns();
+            $row        = [];
+            $fields     = $this->{$this->main_model}->getSchema()->columns();
             try {
                 $record         = $reader->city($i->{"from_ip"});
             } catch (\Exception $e) {
@@ -187,22 +124,23 @@ class UnknownNodesController extends AppController {
         if(!$user){   //If not a valid user
             return;
         }
+        $req_d    	= $this->request->getData();
 
-	    if(isset($this->request->data['id'])){   //Single item delete
+	    if(isset($req_q['id'])){   //Single item delete
        
-            $entity     = $this->{$this->main_model}->get($this->request->data['id']);   
+            $entity     = $this->{$this->main_model}->get($req_d['id']);   
             $this->{$this->main_model}->delete($entity);  
    
         }else{                          //Assume multiple item delete
-            foreach($this->request->data as $d){
+            foreach($req_d as $d){
                 $entity     = $this->{$this->main_model}->get($d['id']);  
                 $this->{$this->main_model}->delete($entity);      
             }
         }
-        $this->set(array(
+        $this->set([
             'success' => true,
-            '_serialize' => array('success')
-        ));
+            '_serialize' => ['success']
+        ]);
 	}
 
     public function menuForGrid(){
@@ -212,7 +150,7 @@ class UnknownNodesController extends AppController {
             return;
         }
 
-        $menu = $this->GridButtons->returnButtons($user, false, 'unknown_ap_or_nodes'); 
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'unknown_ap_or_nodes'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,

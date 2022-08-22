@@ -17,8 +17,8 @@ Ext.define('Rd.controller.cAccessPoints', {
 
         pnl.add({  
             xtype       : 'gridApLists',  
-            title       : i18n('sAttached_Devices'),
-            glyph       : Rd.config.icnChain,
+            title       : 'APs',
+            glyph       : Rd.config.icnCube,
             padding     : Rd.config.gridPadding,
             tabConfig : {
                 ui : 'tab-orange'
