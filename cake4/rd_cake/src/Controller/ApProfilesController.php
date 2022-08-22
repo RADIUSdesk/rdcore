@@ -2503,7 +2503,7 @@ class ApProfilesController extends AppController {
             return;
         }
 
-        $menu = $this->GridButtonsFlat->returnButtonsFlat(false, 'Aps'); 
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'Aps'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,
