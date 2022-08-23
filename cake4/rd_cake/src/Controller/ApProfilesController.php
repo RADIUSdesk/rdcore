@@ -1279,6 +1279,11 @@ class ApProfilesController extends AppController {
         $q_r   = $this->{'UserSettings'}->find()->where(['user_id' => -1])->all();
         if($q_r){
             foreach($q_r as $s){
+            
+            	//ALL Report Adv Related default settings will be 'report_adv_<whatever>'
+                if(preg_match('/^report_adv_/',$s->name)){
+                    $data[$s->name]    = $s->value;     
+                }
                 
                 if($s->name == 'password'){
                     $data[]         = $s->value;
@@ -1820,6 +1825,19 @@ class ApProfilesController extends AppController {
                             return;
                         }
                     }
+                    
+                    if($key == 'device_type'){
+		                $d_setting = [];
+		                $d_setting['ap_id'] = $n_id;
+		                $d_setting['name'] 	= $key;
+		                $d_setting['value'] = $cdata["$key"];
+		                $ent_s = $this->{'ApWifiSettings'}->newEntity($d_setting);  
+		                if(!$this->{'ApWifiSettings'}->save($ent_s)){
+		                    $message = __('Could not add item');
+		                    $this->JsonErrors->entityErros($ent_s,$message);
+		                    return;
+		                }
+		            }                    
                 }                                
             }
             //------- END Add settings for this ap ---
@@ -2141,27 +2159,7 @@ class ApProfilesController extends AppController {
                         //---------Add WiFi settings for this ap ------
                         //--Clean up--
                         $a_id = $this->request->getData('id');
-
                         $this->ApWifiSettings->deleteAll(['ApWifiSettings.ap_id' => $a_id]);
-
-                        //Check if the radio0_enable is perhaps missing
-                        if(array_key_exists('radio0_enable', $cdata)) {
-                            $cdata['radio0_disabled'] = 0;
-                        }else{
-                            $cdata['radio0_disabled'] = 1;
-                        }
-
-                        //Check for radio1 -> First we need to be sure there are a radio1!
-                        if(array_key_exists('radio1_band', $cdata)) {
-                            if(array_key_exists('radio1_enable', $cdata)) {
-                                $cdata['radio1_disabled'] = 0;
-                            }else{
-                                $cdata['radio1_disabled'] = 1;
-                            }
-                        }
-                        
-                        //--Clean up--
-                        $this->{'ApWifiSettings'}->deleteAll(['ApWifiSettings.ap_id' => $a_id]);
 
                         foreach(array_keys($cdata) as $key){
                             if(preg_match('/^radio\d+_(disabled|band|mode|width|txpower|include_distance|distance|include_beacon_int|beacon_int|ht_capab|mesh|ap|config|channel_five|channel_two|noscan)/',$key)){  
@@ -2184,6 +2182,15 @@ class ApProfilesController extends AppController {
                                     $this->{'ApWifiSettings'}->save($ent_s);
                                 }
                             }
+                            
+                            if($key == 'device_type'){
+				                $d_setting = [];
+				                $d_setting['ap_id'] 	= $a_id;
+				                $d_setting['name']      = $key;
+				                $d_setting['value']     = $cdata["$key"];
+				                $ent_s = $this->{'ApWifiSettings'}->newEntity($d_setting);  
+				                $this->{'ApWifiSettings'}->save($ent_s);
+				            }                                
                         }
                 }
 

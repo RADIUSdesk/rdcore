@@ -6,7 +6,7 @@ use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
 use Cake\Utility\Inflector;
 use Cake\ORM\TableRegistry;
-use Cake\Mailer\Email;
+use Cake\Mailer\Mailer;
 
 
 class VouchersController extends AppController{
@@ -769,14 +769,17 @@ class VouchersController extends AppController{
             $success        = false;
                       
             if($from !== false){         
-                $email      = new Email(['transport'   => 'mail_rd']);
-                $email->subject('Your voucher detail')
-                    ->from($from)
-                    ->to($to)
-                    ->viewVars(compact( 'username', 'password','valid_for','profile','extra_name','extra_value','message'))
-                    ->template('voucher_detail', 'voucher_notify')
-                    ->emailFormat('html')
-                    ->send();
+                $email      = new Mailer(['transport'   => 'mail_rd']);
+                $email->setSubject('Your voucher detail')
+                    ->setFrom($from)
+                    ->setTo($to)
+                    ->setViewVars(compact( 'username', 'password','valid_for','profile','extra_name','extra_value','message'))
+                    ->setEmailFormat('html')
+                    ->viewBuilder()
+                    	->setTemplate('voucher_detail')
+                		->setLayout('voucher_notify');                   
+
+                $email->deliver();
                 $success    = true;
                 $this->set([
                     'data'          => $data,

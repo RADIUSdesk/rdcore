@@ -39,6 +39,14 @@ Ext.define('Rd.view.settings.pnlSettingsDefaults', {
     initComponent: function(){
         var me      = this;
         var w_prim  = 550;
+
+        var store_proto = Ext.create('Ext.data.Store', {
+            fields: ['id', 'Name'],
+            data : [
+                {"id":"http", "name":"HTTP"},
+                {"id":"https", "name":"HTTPS"}
+            ]
+        });
            
         var cntMdAndAp  = {
             xtype       : 'container',
@@ -59,19 +67,66 @@ Ext.define('Rd.view.settings.pnlSettingsDefaults', {
                 {
                     xtype   : 'cmbTimezones',
                     labelClsExtra   : 'lblRdReq'
+                }
+            ]
+        }
+
+         var cntMonitor = {
+            xtype       : 'container',
+            width       : w_prim,
+            layout      : 'anchor',
+            defaults    : {
+                anchor  : '100%'
+            },
+            items       : [
+                {
+                    xtype       : 'combobox',
+                    fieldLabel  : 'Protocol',
+                    store       : store_proto,
+                    queryMode   : 'local',
+                    name        : 'report_adv_proto',
+                    displayField: 'name',
+                    valueField  : 'id',
+                    value       : 'http'//Default
+                },
+                {
+                    xtype       : 'numberfield',
+                    name        : 'report_adv_light',
+                    itemId      : 'report_adv_light',
+                    fieldLabel  : 'Light Report Interval',
+                    value       : 60,
+                    maxValue    : 21600,
+                    minValue    : 60
+                },
+                {
+                    xtype       : 'numberfield',
+                    name        : 'report_adv_full',
+                    itemId      : 'report_adv_full',
+                    fieldLabel  : 'Full Report Interval',
+                    value       : 600,
+                    maxValue    : 21600,
+                    minValue    : 300
+                },
+                {
+                    xtype       : 'numberfield',
+                    name        : 'report_adv_sampling',
+                    itemId      : 'report_adv_sampling',
+                    fieldLabel  : 'Data Sampling Interval',
+                    value       : 60,
+                    maxValue    : 21600,
+                    minValue    : 60
                 },
                 {
                     xtype       : 'numberfield',
                     name        : 'heartbeat_dead_after',
                     itemId      : 'heartbeat_dead_after',
-                    fieldLabel  : 'Heartbeat Dead After',
+                    fieldLabel  : 'Heartbeat Is Dead After',
                     value       : 600,
                     maxValue    : 21600,
-                    minValue    : 300,
-                    labelClsExtra   : 'lblRdReq'
-                } 
+                    minValue    : 300
+                }        
             ]
-        }
+        };
         
         var cntCp  = {
             xtype       : 'container',
@@ -151,6 +206,19 @@ Ext.define('Rd.view.settings.pnlSettingsDefaults', {
                 },
                 bodyPadding : 10,
                 items       : cntMdAndAp				
+            },
+            {
+                xtype       : 'panel',
+                title       : 'Monitor',
+                glyph       : Rd.config.icnHeartbeat,  
+                ui          : 'panel-green',
+                layout      : {
+                  type  : 'vbox',
+                  align : 'start',
+                  pack  : 'start'
+                },
+                bodyPadding : 10,
+                items       : cntMonitor				
             },
             {
                 xtype       : 'panel',

@@ -269,6 +269,7 @@ class ApHelperComponent extends Component {
 		//Get the root password
 		//print_r($ap_profile);
 		$default_data = $this->_getDefaultSettings();
+	
 		$ss = [];
         if($ap_profile->ap_profile->ap_profile_setting !== null && $ap_profile->ap_profile->ap_profile_setting->password_hash != ''){
             $ss['password_hash'] 		= $ap_profile->ap_profile->ap_profile_setting->password_hash;
@@ -284,33 +285,7 @@ class ApHelperComponent extends Component {
         } else {
             $ss['timezone']     = $default_data['tz_value'];
         }
-
-	    //Syslog Server 1
-	    if($ap_profile->ap_profile->ap_profile_setting !== null && $ap_profile->ap_profile->ap_profile_setting->syslog1_ip != ''){
-		    $ss['syslog1_ip'] = $ap_profile->ap_profile->ap_profile_setting->syslog1_ip;
-                    $ss['syslog1_port'] = $ap_profile->ap_profile->ap_profile_setting->syslog1_port;
-	    }else{
-		    $ss['syslog1_ip'] = isset($default_data['syslog1_ip']) ? $default_data['syslog1_ip'] : '';
-		    $ss['syslog1_port'] = isset($default_data['syslog1_port']) ? $default_data['syslog1_port'] : '';
-	    }
-
-	    //Syslog Server 2
-        if($ap_profile->ap_profile->ap_profile_setting !== null && $ap_profile->ap_profile->ap_profile_setting->syslog2_ip != ''){
-                $ss['syslog2_ip'] =$ap_profile->ap_profile->ap_profile_setting->syslog2_ip;
-                $ss['syslog2_port'] = $ap_profile->ap_profile->ap_profile_setting->syslog2_port;
-        }else{
-            $ss['syslog2_ip'] = isset($default_data['syslog2_ip']) ? $default_data['syslog2_ip'] : '';
-            $ss['syslog2_port'] = isset($default_data['syslog2_port']) ? $default_data['syslog2_port'] : '';
-        }
-
-	    //Syslog Server 3
-        if($ap_profile->ap_profile->ap_profile_setting !== null && $ap_profile->ap_profile->ap_profile_setting->syslog3_ip != ''){
-                $ss['syslog3_ip'] = $ap_profile->ap_profile->ap_profile_setting->syslog3_ip;
-                $ss['syslog3_port'] = $ap_profile->ap_profile->ap_profile_setting->syslog3_port;
-        }else{
-            $ss['syslog3_ip'] = isset($default_data['syslog3_ip']) ? $default_data['syslog3_ip'] : '';
-            $ss['syslog3_port'] = isset($default_data['syslog3_port']) ? $default_data['syslog3_port'] : '';
-        }
+	    
 
         //Gateway specifics
         if($ap_profile->ap_profile->ap_profile_setting !== null && $ap_profile->ap_profile->ap_profile_setting->gw_dhcp_timeout != ''){
@@ -326,14 +301,14 @@ class ApHelperComponent extends Component {
         }
         
         //Advanced Reporting
-        if($ap_profile->ap_profile->ap_profile_setting->report_adv_proto !== null){     
-            $ss['report_adv_enable']    = $ap_profile->ap_profile->ap_profile_setting->report_adv_enable;
+        if($ap_profile->ap_profile->ap_profile_setting !== null && $ap_profile->ap_profile->ap_profile_setting->report_adv_proto != ''){  
+            $ss['report_adv_enable']    = true; //enable by default
             $ss['report_adv_proto']     = $ap_profile->ap_profile->ap_profile_setting->report_adv_proto;
             $ss['report_adv_light']     = $ap_profile->ap_profile->ap_profile_setting->report_adv_light;
             $ss['report_adv_full']      = $ap_profile->ap_profile->ap_profile_setting->report_adv_full;
             $ss['report_adv_sampling']  = $ap_profile->ap_profile->ap_profile_setting->report_adv_sampling;
         }else{
-            $ss['report_adv_enable']    = $default_data['report_adv_enable'];
+            $ss['report_adv_enable']    = true; //enable by default
             $ss['report_adv_proto']     = $default_data['report_adv_proto'];
             $ss['report_adv_light']     = $default_data['report_adv_light'];
             $ss['report_adv_full']      = $default_data['report_adv_full'];
@@ -365,6 +340,12 @@ class ApHelperComponent extends Component {
         $q_r = $this->{'UserSettings'}->find()->where(['user_id' => -1])->all();
         if($q_r){
             foreach($q_r as $s){
+                        	            
+            	//ALL Report Adv Related default settings will be 'report_adv_<whatever>'
+                if(preg_match('/^report_adv_/',$s->name)){
+                    $data[$s->name]    = $s->value;     
+                }
+                       
                 //ALL Captive Portal Related default settings will be 'cp_<whatever>'
                 if(preg_match('/^cp_/',$s->name)){
                     $name           = preg_replace('/^cp_/', '', $s->name);

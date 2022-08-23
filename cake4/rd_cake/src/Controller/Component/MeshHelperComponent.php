@@ -355,6 +355,12 @@ class MeshHelperComponent extends Component {
         $q_r = $this->{'UserSettings'}->find()->where(['user_id' => -1])->all();
         if($q_r){
             foreach($q_r as $s){
+            
+            	//ALL Report Adv Related default settings will be 'report_adv_<whatever>'
+                if(preg_match('/^report_adv_/',$s->name)){
+                    $data[$name]    = $s->value;    
+                }
+            
                 //ALL Captive Portal Related default settings will be 'cp_<whatever>'
                 if(preg_match('/^cp_/',$s->name)){
                     $name           = preg_replace('/^cp_/', '', $s->name);

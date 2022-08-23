@@ -4,7 +4,7 @@ namespace App\Controller;
 use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
-use Cake\Mailer\Email;
+use Cake\Mailer\Mailer;
 use Cake\Http\Client;
 
 class SettingsController extends AppController{
@@ -293,7 +293,59 @@ class SettingsController extends AppController{
         }
     }
     
-     public function saveMqtt(){
+    public function saveEmail(){
+    
+        if(!$this->Aa->admin_check($this)){   //Only for admin users!
+            return;
+        }
+       
+        if ($this->request->is('post')) {
+        
+            $items = [];  
+            $data  = $this->request->getData();       
+            $check_items = [
+			    'email_enabled',
+			    'email_ssl' 
+		    ];		
+            foreach($check_items as $i){
+                if(isset($data[$i])){
+                    $data[$i] = 1;
+                }else{
+                    $data[$i] = 0;
+                }
+            }
+                 
+            foreach(array_keys($data) as $k){
+                $q_r = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name' => $k ])->first();
+                if($q_r){
+                    array_push($items,$k);
+                    $value = $data[$k];
+                    $this->{$this->main_model}->patchEntity($q_r, ['value'=> $value]);
+                    $this->{$this->main_model}->save($q_r);
+                }else{
+                    if(($k !== 'token')&&($k !== 'sel_language')){
+                        $d = [];
+                        $d['name']      = $k;
+                        $d['value']     = $data[$k];
+                        $d['user_id']   = -1;
+                        $entity = $this->{$this->main_model}->newEntity($d);
+                        $this->{$this->main_model}->save($entity);
+                    }
+                }
+            }
+
+            $this->set([
+                'items' => $items,
+                'success' => true,
+                '_serialize' => ['items','success']
+            ]);
+               
+        }
+    }
+    
+    
+    
+   	public function saveMqtt(){
     
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
@@ -382,11 +434,11 @@ class SettingsController extends AppController{
             $from       = $this->MailTransport->setTransport($user);           
             $success    = false;            
             if($from !== false){         
-                $email = new Email(['transport'   => 'mail_rd']);
-                $email->from($from)
-                    ->to($email_to)
-                    ->subject("$subject")
-                    ->send("$base_msg");
+                $email = new Mailer(['transport'   => 'mail_rd']);
+                $email->setFrom($from)
+                    ->setTo($email_to)
+                    ->setSubject("$subject")
+                    ->deliver("$base_msg");
                 $success    = true;
                 $this->set([
                     'data'          => $data,
