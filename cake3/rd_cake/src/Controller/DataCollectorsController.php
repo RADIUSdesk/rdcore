@@ -127,8 +127,8 @@ class DataCollectorsController extends AppController{
      public function exportCsv(){
 
         //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if (!$user) {   //If not a valid user
             return;
         }
         
@@ -173,10 +173,12 @@ class DataCollectorsController extends AppController{
     
     public function index(){
         //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if (!$user) {
+        
+        $user = $this->Aa->user_for_token($this);
+        if (!$user) {   //If not a valid user
             return;
         }
+        
         $user_id    = $user['id'];
         $dd_id      = $this->request->query['dynamic_detail_id'];
         $query      = $this->{$this->main_model}->find()
@@ -200,7 +202,7 @@ class DataCollectorsController extends AppController{
         $total = $query->count();
         $q_r = $query->all();
 
-        $items = array();
+        $items = [];
 
         foreach ($q_r as $i) {         
             $row        = [];
@@ -222,18 +224,18 @@ class DataCollectorsController extends AppController{
         }
 
         //___ FINAL PART ___
-        $this->set(array(
+        $this->set([
             'items' => $items,
             'success' => true,
             'totalCount' => $total,
-            '_serialize' => array('items', 'success', 'totalCount')
-        ));
+            '_serialize' => ['items', 'success', 'totalCount']
+        ]);
     }
     
     public function add(){
     
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if (!$user) {   //If not a valid user
             return;
         }
         
@@ -243,8 +245,8 @@ class DataCollectorsController extends AppController{
     
     public function edit(){
     
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if (!$user) {   //If not a valid user
             return;
         }
         $this->_addOrEdit($user,'edit');
@@ -335,8 +337,8 @@ class DataCollectorsController extends AppController{
 		}
 
         //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
+        $user = $this->Aa->user_for_token($this);
+        if (!$user) {   //If not a valid user
             return;
         }
 
