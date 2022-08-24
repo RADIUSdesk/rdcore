@@ -179,7 +179,7 @@ class PermanentUsersController extends AppController{
         $req_d['country_id']  = $country;
         
         //---Set Realm related things--- 
-        $realm_entity           = $this->Realms->entityBasedOnPost($this->request->data);
+        $realm_entity           = $this->Realms->entityBasedOnPost($this->request->getData());
         if($realm_entity){
             $req_d['realm']   = $realm_entity->name;
             $req_d['realm_id']= $realm_entity->id;
@@ -197,7 +197,7 @@ class PermanentUsersController extends AppController{
         }
         
         //---Set profile related things---
-        $profile_entity = $this->Profiles->entityBasedOnPost($this->request->data);
+        $profile_entity = $this->Profiles->entityBasedOnPost($this->request->getData());
         if($profile_entity){
             $req_d['profile']   = $profile_entity->name;
             $req_d['profile_id']= $profile_entity->id;
@@ -239,10 +239,10 @@ class PermanentUsersController extends AppController{
         }
         
         //The rest of the attributes should be same as the form..
-        $entity = $this->{$this->main_model}->newEntity($this->request->data());
+        $entity = $this->{$this->main_model}->newEntity($req_d);
          
         if($this->{$this->main_model}->save($entity)){
-            $reply_data         = $this->request->data();
+            $reply_data         = $req_d;
             $reply_data['id']   = $entity->id;
             $this->set(array(
                 'success' => true,
@@ -272,7 +272,7 @@ class PermanentUsersController extends AppController{
             $entity     = $this->{$this->main_model}->get($req_d['id']);   
             $this->{$this->main_model}->delete($entity);       
         }else{                          //Assume multiple item delete
-            foreach($this->request->data as $d){
+            foreach($req_d as $d){
                 $entity     = $this->{$this->main_model}->get($d['id']);               
               	$this->{$this->main_model}->delete($entity);
             }

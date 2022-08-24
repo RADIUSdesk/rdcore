@@ -1072,10 +1072,10 @@ class ApProfilesController extends AppController {
                     $ap_profile_name    = $q_r->ap_profile->name;
                     $ap_profile_name    = preg_replace('/\s+/', '_', $ap_profile_name);
 
-                    $this->DynamicClients->deleteAll(['DynamicClients.nasidentifier LIKE' => "$ap_profile_name"."_%_cp_".$id]);
+                    $this->DynamicClients->deleteAll(['DynamicClients.nasidentifier LIKE' => "%_cp_".$id]);
 
                     $this->DynamicPairs->deleteAll([
-                        'DynamicPairs.value LIKE' => "$ap_profile_name"."_%_cp_".$id,
+                        'DynamicPairs.value LIKE' => "%_cp_".$id,
                         'DynamicPairs.name' => 'nasid',
                     ]);
                 }              
@@ -1090,9 +1090,9 @@ class ApProfilesController extends AppController {
                     if($q_r->type == 'captive_portal'){
                         $ap_profile_name    = $q_r->ap_profile->name;
                         $ap_profile_name    = preg_replace('/\s+/', '_', $ap_profile_name);
-                        $this->DynamicClients->deleteAll(['DynamicClients.nasidentifier LIKE' => "$ap_profile_name"."_%_cp_".$id]);
+                        $this->DynamicClients->deleteAll(['DynamicClients.nasidentifier LIKE' => "%_cp_".$id]);
                         $this->DynamicPairs->deleteAll([
-                            'DynamicPairs.value LIKE' => "$ap_profile_name"."_%_cp_".$id,
+                            'DynamicPairs.value LIKE' => "%_cp_".$id,
                             'DynamicPairs.name' => 'nasid',
                         ]);
                     }
@@ -1666,7 +1666,8 @@ class ApProfilesController extends AppController {
 	            $name_no_spaces = preg_replace('/\s+/', '_', $name_no_spaces);          
 	            $dc_data                            = [];
 	            $dc_data['cloud_id']                = $cloud_id;
-	            $dc_data['nasidentifier']           = $ap_profile_name.'_'.$name_no_spaces.'_cp_'.$exit_id;
+	            $dc_data['name'] 					= 'APdesk_'.$ap_profile_name.'_'.$name_no_spaces.'_cp_'.$exit_id;
+	            $dc_data['nasidentifier']           = 'ap_'.$new_id.'_cp_'.$exit_id;
 	            $dc_data['realm_list']              = $qe->realm_list;
 	            
 	            if($qe->auto_dynamic_client == 1){  //It has to be enabled
@@ -1878,16 +1879,17 @@ class ApProfilesController extends AppController {
             $q_r = $this->Aps->find()->contain(['ApProfiles'])->where(['Aps.id' => $cdata['id']])->first();
 
             if($q_r){
+            	$ap_id				= $q_r->id;
                 $ap_profile_name    = $q_r->ap_profile->name;
                 $ap_profile_name    = preg_replace('/\s+/', '_', $ap_profile_name);
                 $ap_name            = $q_r->name;
                 $ap_name            = preg_replace('/\s+/', '_', $ap_name);
 
-                $this->DynamicClients->deleteAll(['DynamicClients.nasidentifier LIKE' => "$ap_profile_name".'_'.$ap_name."_cp_%"]);
+                $this->DynamicClients->deleteAll(['DynamicClients.nasidentifier LIKE' => "ap_".$ap_id."_cp_%"]);
                 $this->DynamicPairs->deleteAll(
                             [
-                                'DynamicPairs.value LIKE' => "$ap_profile_name".'_'.$ap_name."_cp_%",
-                                'DynamicPairs.name' => 'nasid',
+                                'DynamicPairs.value LIKE' 	=> "ap_".$ap_id."_cp_%",
+                                'DynamicPairs.name' 		=> 'nasid',
                             ]);
 
                 $this->Aps->delete($q_r);
@@ -1897,16 +1899,17 @@ class ApProfilesController extends AppController {
                 $id     = $d['id'];
                 $q_r    = $this->Aps->find()->contain(['ApProfiles'])->where(['Aps.id' => $d['id']])->first();
                 if($q_r){
+                	$ap_id				= $q_r->id;
                     $ap_profile_name    = $q_r->ap_profile->name;
                     $ap_profile_name    = preg_replace('/\s+/', '_', $ap_profile_name);
                     $ap_name            = $q_r->name;
                     $ap_name            = preg_replace('/\s+/', '_', $ap_name);
 
-                    $this->DynamicClients->deleteAll(['DynamicClients.nasidentifier LIKE' => "$ap_profile_name".'_'.$ap_name."_cp_%"]);
+                    $this->DynamicClients->deleteAll(['DynamicClients.nasidentifier LIKE' => "ap_".$ap_id."_cp_%"]);
                     $this->DynamicPairs->deleteAll(
                         [
-                            'DynamicPairs.value LIKE' => "$ap_profile_name".'_'.$ap_name."_cp_%",
-                            'DynamicPairs.name' => 'nasid',
+                            'DynamicPairs.value LIKE' 	=> "ap_".$ap_id."_cp_%",
+                            'DynamicPairs.name' 		=> 'nasid',
                         ]);
 
                     $this->Aps->delete($q_r);
@@ -1986,11 +1989,11 @@ class ApProfilesController extends AppController {
                         $ap_profile_name    = $q_r->name;
                         $ap_profile_name    = preg_replace('/\s+/', '_', $ap_profile_name);
 
-                        $this->DynamicClients->deleteAll(['DynamicClient.nasidentifier LIKE' => "$ap_profile_name"."_%_cp_".$current_ap_id]);
+                        $this->DynamicClients->deleteAll(['DynamicClient.nasidentifier LIKE' => "ap_".$current_ap_id."_cp_%"]);
                         $this->DynamicPairs->deleteAll(
                             [
-                                'DynamicPairs.value LIKE' => "$ap_profile_name"."_%_cp_".$current_ap_id,
-                                'DynamicPairs.name' => 'nasid',
+                                'DynamicPairs.value LIKE' 	=> "ap_".$current_ap_id."_cp_%",
+                                'DynamicPairs.name' 		=> 'nasid',
                             ]);
                     }
 
@@ -2536,7 +2539,6 @@ class ApProfilesController extends AppController {
     private function _add_dynamic($dc_data){
     
         //--Formulate a name
-        $dc_data['name'] = 'APdesk_'.$dc_data['nasidentifier'];
         $dynClientEntity = $this->DynamicClients->newEntity($dc_data);
         if ($this->DynamicClients->save($dynClientEntity)) {
             //After this we can add the Realms if there are any

@@ -229,7 +229,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailEmails' ,{
                 type    : 'ajax',
                 format  : 'json',
                 batchActions: true, 
-                url     : '/cake3/rd_cake/data-collectors/index.json',
+                url     : '/cake4/rd_cake/data-collectors/index.json',
                 extraParams: { 'dynamic_detail_id' : me.dynamic_detail_id },
                 reader: {
                     type            : 'json',
@@ -238,7 +238,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailEmails' ,{
                     totalProperty   : 'totalCount' //Required for dynamic paging
                 },
                 api: {
-                    destroy  : '/cake3/rd_cake/data-collectors/delete.json'
+                    destroy  : '/cake4/rd_cake/data-collectors/delete.json'
                 },
                 simpleSortMode: true //This will only sort on one column (sort) and a direction(dir) value ASC or DESC
             },

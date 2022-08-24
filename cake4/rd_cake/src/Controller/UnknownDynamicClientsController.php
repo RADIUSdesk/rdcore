@@ -105,11 +105,11 @@ class UnknownDynamicClientsController extends AppController {
 
               
             array_push($items,array(
-                'id'                    => $i['id'],
-                'nasidentifier'         => $i['nasidentifier'],
-                'calledstationid'       => $i['calledstationid'],
-                'last_contact'          => $i['last_contact'], 
-                'last_contact_ip'       => $i['last_contact_ip'],
+                'id'                    => $i->id,
+                'nasidentifier'         => $i->nasidentifier,
+                'calledstationid'       => $i->calledstationid,
+                'last_contact'          => $i->last_contact, 
+                'last_contact_ip'       => $i->last_contact_ip,
                 'last_contact_human'    => $this->TimeCalculations->time_elapsed_string($i['last_contact']), 
                 'country_code'          => $country_code,
                 'country_name'          => $country,

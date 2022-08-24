@@ -5,7 +5,7 @@ Ext.define('Rd.model.mUnknownDynamicClient', {
          {name: 'nasidentifier',    type: 'string'  },
          {name: 'calledstationid',  type: 'string'  },
 		 {name: 'last_contact_ip',  type: 'string'  },
-		 {name: 'last_contact',    	type: 'date',      dateFormat: 'Y-m-d H:i:s'   },
+		 {name: 'last_contact',    	type: 'date'},
          'last_contact_human',
          'country_code',
          'country_name',

@@ -19,7 +19,7 @@ class DynamicClientsController extends AppController{
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('GridFilter');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'DynamicClients'
         ]);
                 
@@ -35,7 +35,7 @@ class DynamicClientsController extends AppController{
         $cquery     = $this->request->getQuery();  
         $cloud_id 	= $cquery['cloud_id'];
         $query 	  	= $this->{$this->main_model}->find();
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,['DynamicClientRealms.Realms']);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['DynamicClientRealms.Realms']);
         
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -296,7 +296,7 @@ class DynamicClientsController extends AppController{
             //Unfortunately there are many check items which means they will not be in the POST if unchecked
             //so we have to check for them
             $check_items = [
-                'active', 'available_to_siblings', 'on_public_maps', 'session_auto_close','data_limit_active','daily_data_limit_active'
+                'active', 'on_public_maps', 'session_auto_close','data_limit_active','daily_data_limit_active'
             ];
 
             foreach($check_items as $i){

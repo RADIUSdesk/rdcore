@@ -761,7 +761,8 @@ class ApHelperComponent extends Component {
                     //Generate the NAS ID                  
                     $ap_profile_name    = preg_replace('/\s+/', '_', $ap_profile->ap_profile->name);
                     $ap_dev_name        = preg_replace('/\s+/', '_', $ap_profile->name);
-                    $a['radius_nasid']  = $ap_profile_name.'_'.$ap_dev_name.'_cp_'.$ap_profile_e->ap_profile_exit_captive_portal->ap_profile_exit_id;
+                    //$a['radius_nasid']  = $ap_profile_name.'_'.$ap_dev_name.'_cp_'.$ap_profile_e->ap_profile_exit_captive_portal->ap_profile_exit_id;
+                    $a['radius_nasid']  = 'ap_'.$this->ApId.'_cp_'.$ap_profile_e->ap_profile_exit_captive_portal->ap_profile_exit_id;
                     array_push($captive_portal_data,$a);
 
                     if($ap_profile_e->ap_profile_exit_captive_portal->dnsdesk == true){
