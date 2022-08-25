@@ -42,7 +42,6 @@ Ext.define('Rd.view.topUps.gridTopUpTransactions' ,{
         });
         
         me.columns  = [
-            { xtype: 'rownumberer',stateId: 'StateGridTut1'},
             { 
 
                 text        :'Owner', 

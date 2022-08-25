@@ -14,18 +14,19 @@ Ext.define('Rd.controller.cTopUps', {
 		            cls     : 'subTab', //Make darker -> Maybe grey
 		            items   : [
 		                { 
-		                    'title' : 'TopUps', 
-		                     xtype  : 'gridTopUps',
-		                     border : false,
-		                     plain  : true,
-                             //padding : Rd.config.gridPadding,
-		                    'glyph' : Rd.config.icnTopUp
+                            title   : 'TopUps', 
+                            xtype   : 'gridTopUps',
+                            border  : false,
+                            plain   : true,
+                            padding : Rd.config.gridSlim,
+                            glyph   : Rd.config.icnTopUp
 		                },
 		                { 
 		                    title   : 'Transaction History', 
 		                    xtype   : 'gridTopUpTransactions',
-                            //padding : Rd.config.gridPadding,
-		                    glyph   : Rd.config.icnHistory
+                            padding : Rd.config.gridSlim,
+		                    glyph   : Rd.config.icnHistory,
+                            margin  : 5
 		                }
 		            ]
 		        });      

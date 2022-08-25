@@ -8,7 +8,7 @@ Ext.define('Rd.view.aps.pnlApViewHardware', {
         var me   = this;            
         me.tpl   = new Ext.XTemplate(
             '<div style="color:grey;  background-color:white; padding:5px;">',
-            '<img src="/cake3/rd_cake/img/hardwares/{hw_info.photo_file_name}" alt="{hw_info.name}" style="float: left; padding-right: 20px;">',
+            '<img src="/cake4/rd_cake/img/hardwares/{hw_info.photo_file_name}" alt="{hw_info.name}" style="float: left; padding-right: 20px;">',
             '<h2>{name}</h2>',
             '<span>{model}</span>',
             '</div>',

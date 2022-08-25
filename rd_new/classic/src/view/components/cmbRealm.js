@@ -23,7 +23,7 @@ Ext.define('Rd.view.components.cmbRealm', {
                 type            : 'ajax',
                 format          : 'json',
                 batchActions    : true, 
-                url             : '/cake4/rd_cake/realms/index-ap.json',
+                url             : '/cake4/rd_cake/realms/index-cloud.json',
                 reader: {
                     type            : 'json',
                     rootProperty            : 'items',

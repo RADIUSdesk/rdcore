@@ -22,7 +22,7 @@ Ext.define('Rd.view.dynamicClients.pnlDynamicClient', {
                 xtype               : 'pnlRealmsForDynamicClientCloud',
                 record              : me.record,
                 dynamic_client_id   : me.dynamic_client_id,
-                margin              : 5
+                padding             : Rd.config.gridSlim
             },
             {
                 title               : "Photo",

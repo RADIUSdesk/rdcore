@@ -10,7 +10,7 @@ Ext.define('Rd.controller.cDynamicClients', {
                 xtype  : 'gridDynamicClients',
                 border : false,
                 plain  : true,
-                padding : '0 3 0 3'
+                padding : Rd.config.gridSlim
             });
             pnl.on({activate : me.gridActivate,scope: me});
             added = true;
@@ -101,28 +101,9 @@ Ext.define('Rd.controller.cDynamicClients', {
             'pnlDynamicClient #tabPhoto #cancel': {
                 click:       me.photoCancel
             },
-            
-            //Availability
-            'gridDynamicClientsAvailability' :{
-                activate:       me.tabAvailabilityActivate
-            },
-            'gridDynamicClientsAvailability #reload' :{
-                click:          me.gridDynamicClientsAvailabilityReload
-            },
-            'gridDynamicClientsAvailability #delete' :{
-                click:          me.gridDynamicClientsAvailabilityDelete
-            },
-            'gridDynamicClientsAvailability cmbTimezones' :{
-                afterrender : me.gridDynamicClientsAvailabilityReload,
-                change      : me.gridDynamicClientsAvailabilityReload
-            },
-            //END Availability
-            
+                        
             'gridDynamicClients #graph'   : {
                 click:      me.graph
-            },
-            'gridDynamicClients #available'   : {
-                click:      me.available
             },
             'gridDynamicClients #unknown_clients'   : {
                 click:      me.unknown_clients
@@ -549,60 +530,7 @@ Ext.define('Rd.controller.cDynamicClients', {
         var me      = this;
         var form    = button.up('form');
         form.getForm().reset();
-    },
-    
-    tabAvailabilityActivate : function(tab){
-        var me      = this;
-        tab.getStore().load();
-    },
-    gridDynamicClientsAvailabilityReload: function(button){
-        var me      = this;       
-        var grid    = button.up('gridDynamicClientsAvailability');
-        var tz      = grid.down('cmbTimezones');
-        if(tz){   //Only if this component already exists
-            grid.getStore().getProxy().setExtraParam('timezone_id',tz.getValue());
-            grid.getStore().load();
-        }
-    },
-    gridDynamicClientsAvailabilityDelete:   function(button){
-        var me      = this;  
-        var grid    = button.up('gridDynamicClientsAvailability');   
-        //Find out if there was something selected
-        if(grid.getSelectionModel().getCount() == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item_to_delete'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
-                if(val== 'yes'){
-                    grid.getStore().remove(grid.getSelectionModel().getSelection());
-                    grid.getStore().sync({
-                        success: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sItem_deleted'),
-                                i18n('sItem_deleted_fine'),
-                                Ext.ux.Constants.clsInfo,
-                                Ext.ux.Constants.msgInfo
-                            );
-                            grid.getStore().load(); //Reload from server since the sync was not good  
-                        },
-                        failure: function(batch,options,c,d){
-                            Ext.ux.Toaster.msg(
-                                i18n('sProblems_deleting_item'),
-                                batch.proxy.getReader().rawData.message.message,
-                                Ext.ux.Constants.clsWarn,
-                                Ext.ux.Constants.msgWarn
-                            );
-                            grid.getStore().load(); //Reload from server since the sync was not good
-                        }
-                    });
-                }
-            });
-        }
-    },     
+    }, 
     del:   function(){
         var me      = this;     
         //Find out if there was something selected
@@ -696,9 +624,6 @@ Ext.define('Rd.controller.cDynamicClients', {
             var id              = sr.getId();
 			var nasidentifier   = sr.get('nasidentifier');
             var calledstationid = sr.get('calledstationid');
-  
-			//Determine if we can show a power bar or not.
-			var hide_power = true; //FIXME To be fiexed with real value from mesh
 			if(!Ext.WindowManager.get('winAttachUnknownDynamicClientId')){
                 var w = Ext.widget('winAttachUnknownDynamicClient',
                 {
@@ -793,46 +718,7 @@ Ext.define('Rd.controller.cDynamicClients', {
             });
             tp.setActiveTab(tab_id); //Set focus on Add Tab 
         }
-    },
-    available: function(b){
-        var me = this;  
-        //Find out if there was something selected
-        if(me.getGrid().getSelectionModel().getCount() == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            //Check if the node is not already open; else open the node:
-            var tp      = me.getGrid().up('tabpanel');
-            var sr      = me.getGrid().getSelectionModel().getLastSelected();
-            var id      = sr.getId();
-            var tab_id  = 'dynamicClientTabAvailable_'+id;
-            var nt      = tp.down('#'+tab_id);
-            if(nt){
-                tp.setActiveTab(tab_id); //Set focus on  Tab
-                return;
-            }
-
-            var tab_name = sr.get('name');
-            //Tab not there - add one
-            tp.add({ 
-                title               : tab_name,
-                itemId              : tab_id,
-                closable            : true,
-                glyph               : Rd.config.icnWatch, 
-                xtype               : 'pnlDynamicClientAvailable',
-                dynamic_client_id   : id,
-                tabConfig           : {
-                    ui : me.ui
-                }
-            });
-            tp.setActiveTab(tab_id); //Set focus on Add Tab 
-        }
-    },
-    
+    },   
     chkDataLimitActiveChange: function(chk){
         var me      = this;
         var form    = chk.up('form');
@@ -912,7 +798,7 @@ Ext.define('Rd.controller.cDynamicClients', {
         if (!tab){
             tab = tp.insert(1,{
                 xtype   : 'gridUnknownDynamicClients',
-                padding : Rd.config.gridPadding,
+                padding : Rd.config.gridSlim,
                 border  : false,
                 glyph   : Rd.config.icnQuestion,
                 title   : 'Unknown Clients',

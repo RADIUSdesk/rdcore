@@ -34,7 +34,6 @@ Ext.define('Rd.view.meshes.winMeshEditExit', {
         'Rd.view.meshes.vcMeshExitPoint',
         'Rd.view.meshes.cmbMeshUpstreamList',
         'Rd.view.meshes.tagMeshEntryPoints',
-        'Rd.view.meshes.cmbHomeServerPools',
         'Rd.view.components.pnlExitPointNatDhcp'
     ],
     controller  : 'vcMeshExitPoint',

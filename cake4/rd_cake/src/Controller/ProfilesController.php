@@ -183,19 +183,6 @@ class ProfilesController extends AppController
         
         foreach(array_keys($this->request->getData()) as $key){
             if(preg_match('/^\d+/',$key)){
-
-                if($rb == 'sub'){
-                    $entity = $this->{$this->main_model}->get($key);
-                    $entity->set('available_to_siblings', 1);
-                    $this->{$this->main_model}->save($entity);
-                }
-
-                if($rb == 'no_sub'){
-                    $entity = $this->{$this->main_model}->get($key);
-                    $entity->set('available_to_siblings', 0);
-                    $this->{$this->main_model}->save($entity);
-                }
-
                 if($rb == 'remove'){
                     $entity         = $this->{$this->main_model}->get($key);
                     $profile_name   = $entity->name;

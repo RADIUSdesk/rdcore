@@ -6,11 +6,11 @@ Ext.define('Rd.controller.cPermanentUsers', {
         var added   = false;
         if(!item){ 
             pnl.add({ 
-                 itemId : itemId,
-                 xtype  : 'gridPermanentUsers',
-                 border : false,
-                 plain  : true,
-                 padding : '0 3 0 3'
+                itemId  : itemId,
+                xtype   : 'gridPermanentUsers',
+                border  : false,
+                plain   : true,
+                padding : Rd.config.gridSlim
             });
             pnl.on({activate : me.gridActivate,scope: me});
             added = true;

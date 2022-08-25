@@ -54,7 +54,7 @@ Ext.define('Rd.view.dataUsage.pnlDataUsageWeek', {
             proxy: {
                     type    : 'ajax',
                     format  : 'json',
-                    url     : '/cake3/rd_cake/data-usages/macs_for_user.json',
+                    url     : '/cake4/rd_cake/data-usages/macs_for_user.json',
                     reader: {
                         type			: 'json',
                         rootProperty    : 'items',

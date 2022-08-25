@@ -1,4 +1,10 @@
 <?php
+/**
+ * Created by G-edit.
+ * User: dirkvanderwalt
+ * Date: 25/Aug/2022
+ * Time: 00:00
+ */
 
 namespace App\Controller;
 use Cake\Core\Configure;
@@ -18,17 +24,20 @@ class DynamicClientsController extends AppController{
         $this->loadModel('Users');              
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
-        $this->loadComponent('GridFilter');
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'DynamicClients'
-        ]);
-                
+        ]);                
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');       
     }
 
     //____ BASIC CRUD Manager ________
     public function index(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
 
         $geo_data   = Configure::read('paths.geo_data');
         $reader     = new Reader($geo_data);     
@@ -145,59 +154,14 @@ class DynamicClientsController extends AppController{
             '_serialize' => ['items','success','totalCount']
         ]);
     }
-
-    public function clientsAvailForMap() {
-
-        $cquery = $this->request->getQuery();
-
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
+    
+    public function add() {
+    
+    	$user = $this->_ap_right_check();
         if(!$user){
             return;
         }
-        $user_id    = $user['id'];
-
-        $query = $this->{$this->main_model}->find();
-
-        //--FIXME$this->_build_common_query($query, $user);
-
-        //===== PAGING (MUST BE LAST) ======
-        $limit  = 50;   //Defaults
-        $page   = 1;
-        $offset = 0;
-
-        if(isset($cquery['limit'])){
-            $limit  = $cquery['limit'];
-            $page   = $cquery['page'];
-            $offset = $cquery['start'];
-        }
-
-        $query->page($page);
-        $query->limit($limit);
-        $query->offset($offset);
-
-        $total = $query->count();
-        $q_r = $query->all();
-
-        $items  = [];
-
-        foreach($q_r as $i){
-            $id     = $i->id;
-            $name   = $i->name;
-            $item = ['id' => $id,'name' => $name];
-            array_push($items,$item);
-        }
-
-        //___ FINAL PART ___
-        $this->set([
-            'items' => $items,
-            'success' => true,
-            'totalCount' => $total,
-            '_serialize' => ['items','success','totalCount']
-        ]);
-    }
-
-    public function add() {
+    
         $this->loadModel('UnknownDynamicClients');
 
         $cdata = $this->request->getData();
@@ -265,7 +229,13 @@ class DynamicClientsController extends AppController{
     public function delete($id = null) {
         if (!$this->request->is('post')) {
             throw new MethodNotAllowedException();
-        }  
+        }
+        
+        $user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+          
         $cdata = $this->request->getData();
         if(isset($cdata['id'])){ 
             $deleteEntity = $this->{$this->main_model}->get($cdata['id']);
@@ -322,6 +292,12 @@ class DynamicClientsController extends AppController{
 
 
     public function view(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+    
         $data = [];
         if(null !== $this->request->getQuery('dynamic_client_id')){
 
@@ -364,6 +340,11 @@ class DynamicClientsController extends AppController{
     }
 
     public function uploadPhoto($id = null){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
 
        //This is a deviation from the standard JSON serialize view since extjs requires a html type reply when files
         //are posted to the server.
@@ -399,7 +380,21 @@ class DynamicClientsController extends AppController{
         }
         //$this->set('json_return',$json_return);
     }
-
+     
+    public function menuForGrid(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+         
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'DynamicClients'); 
+        $this->set(array(
+            'items' => $menu,
+            'success' => true,
+            '_serialize' => array('items', 'success')
+        ));
+    }
  
     private function _add_dynamic_client_realm($dynamic_client_id,$realm_id){
 
@@ -430,14 +425,5 @@ class DynamicClientsController extends AppController{
            
         return $total_data;
     }
-    
-    public function menuForGrid(){     
-        $menu = $this->GridButtonsFlat->returnButtons(false, 'DynamicClients'); 
-        $this->set(array(
-            'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
-        ));
-    }
-    
+        
 }

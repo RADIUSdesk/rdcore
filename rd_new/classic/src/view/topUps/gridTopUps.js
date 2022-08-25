@@ -38,7 +38,6 @@ Ext.define('Rd.view.topUps.gridTopUps' ,{
         
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
         me.columns  = [
-            { xtype: 'rownumberer',stateId: 'StateGridTopUps1'},
             { 
 
                 text        :'Owner', 

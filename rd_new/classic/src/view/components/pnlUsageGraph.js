@@ -92,7 +92,7 @@ Ext.define('Rd.view.components.pnlUsageGraph', {
                 type        : 'ajax',
                 format      : 'json',
                 extraParams : { 'username' : me.username, 'type' : me.type, 'span' : me.span, 'timezone_id' : me.timezone_id },
-                url         : '/cake3/rd_cake/user-stats/index.json',
+                url         : '/cake4/rd_cake/user-stats/index.json',
                 reader      : {
                     keepRawData     : true,
                     type            : 'json',

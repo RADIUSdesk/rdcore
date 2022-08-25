@@ -112,10 +112,10 @@ Ext.define('Rd.view.dynamicClients.winAttachUnknownDynamicClient', {
                             },
                             items:[
                                 {
-                                    xtype       : 'displayfield',
-                                    fieldLabel  : 'Cloud',
-                                    value       : me.cloudName,
-                                    labelClsExtra: 'lblRdReq'
+                                    name        : 'unknown_dynamic_client_id',
+                                    hidden      : true,
+                                    xtype       : 'textfield',
+                                    value       : me.unknown_dynamic_client_id
                                 },
                                 {
                                     xtype       : 'displayfield',
@@ -250,88 +250,10 @@ Ext.define('Rd.view.dynamicClients.winAttachUnknownDynamicClient', {
                             ]
                         },
                         { 
-                            title   : 'Data Limit',
-                            itemId  : 'tabDataLimit',
-                            autoScroll: true,
-                            layout    : 'anchor',
-                            defaults    : {
-                                anchor  : '100%'
-                            },
-                            items: [
-                                {
-                                    xtype       : 'checkbox',      
-                                    boxLabel    : i18n('sActive'),
-                                    name        : 'data_limit_active',
-                                    inputValue  : 'data_limit_active',
-                                    itemId      : 'chkDataLimitActive',
-                                    checked     : false,
-                                    cls         : 'lblRd'
-                                    
-                                },
-                                {
-                                    xtype       : 'numberfield',
-                                    itemId      : 'nrDataLimitAmount',
-                                    anchor      : '100%',
-                                    name        : 'data_limit_amount',
-                                    fieldLabel  : 'Amount',
-                                    value       : 1,
-                                    maxValue    : 1023,
-                                    minValue    : 1,
-                                    hidden      : true,
-                                    labelClsExtra   : 'lblRdReq'
-                                },
-                                cmbDataUnit,
-                                {
-                                    xtype       : 'numberfield',
-                                    itemId      : 'nrDataLimitResetOn',
-                                    anchor      : '100%',
-                                    name        : 'data_limit_reset_on',
-                                    fieldLabel  : 'Day To Reset',
-                                    value       : 1,
-                                    maxValue    : 31,
-                                    minValue    : 1,
-                                    hidden      : true,
-                                    labelClsExtra   : 'lblRdReq'
-                                },
-                                {
-                                    xtype       : 'numberfield',
-                                    itemId      : 'nrDataLimitResetHour',
-                                    anchor      : '100%',
-                                    name        : 'data_limit_reset_hour',
-                                    fieldLabel  : 'Hour To Reset',
-                                    value       : 0,
-                                    maxValue    : 23,
-                                    minValue    : 0,
-                                    hidden      : true,
-                                    labelClsExtra   : 'lblRdReq'
-                                },
-                                {
-                                    xtype       : 'numberfield',
-                                    itemId      : 'nrDataLimitResetMinute',
-                                    anchor      : '100%',
-                                    name        : 'data_limit_reset_minute',
-                                    fieldLabel  : 'Minute To Reset',
-                                    value       : 0,
-                                    maxValue    : 59,
-                                    minValue    : 0,
-                                    hidden      : true,
-                                    labelClsExtra   : 'lblRdReq'
-                                }  
-                            ]
-                        },
-                        { 
                             'title' : i18n('sRealms'),
                             itemId  : 'tabRealms',
-                            tbar: [{
-                                xtype       : 'checkboxfield',
-                                boxLabel    : i18n('sMake_available_to_any_realm'), 
-                                cls         : 'lblRd',
-                                itemId      : 'chkAvailForAll',
-                                name        : 'available_to_all',
-                                inputValue  : true
-                            }],
-                            layout: 'fit',
-                            items: { xtype: 'gridRealmsForDynamicClientOwner', realFlag: true}
+                            layout  : 'fit',
+                            items   : { xtype: 'pnlRealmsForDynamicClientCloud'}
                         }
                     ]
                 }    

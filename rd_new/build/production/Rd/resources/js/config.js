@@ -4,6 +4,7 @@ Rd.config = {
 
     //GUI Improvements
     gridPadding     : 10,
+    gridSlim        : '0 3 0 3',
     tabAccPrvdrs    : 'tab-blue',
     tabRealms       : 'tab-orange',
     tabPermUsers    : 'tab-blue',

@@ -2,7 +2,7 @@
 /**
  * Created by G-edit.
  * User: dirkvanderwalt
- * Date: 27/09/2017
+ * Date: 25/Aug/2022
  * Time: 00:00
  */
 
@@ -13,9 +13,6 @@ use Cake\Event\Event;
 use Cake\Utility\Inflector;
 use Cake\Utility\Text;
 use GeoIp2\Database\Reader;
-
-
-//use Geo\Geocoder\Geocoder;
 
 
 class UnknownDynamicClientsController extends AppController {
@@ -47,12 +44,8 @@ class UnknownDynamicClientsController extends AppController {
         }
 		
 		$geo_data   = Configure::read('paths.geo_data');
-        $reader     = new Reader($geo_data);
-        
+        $reader     = new Reader($geo_data);   
         $req_q      = $this->request->getQuery();
-
-		//$Geocoder   = new Geocoder(['allowInconclusive' => true, 'minAccuracy' => Geocoder::TYPE_POSTAL]);
-
         $user_id    = $user['id'];
         $query      = $this->{$this->main_model}->find();
 
@@ -72,21 +65,16 @@ class UnknownDynamicClientsController extends AppController {
         $query->limit($limit);
         $query->offset($offset);
 
-        $total = $query->count();
-        $q_r = $query->all();
-
-        $items = array();
-        //App::uses('GeoIpLocation', 'GeoIp.Model');
-        //$GeoIpLocation = new GeoIpLocation();
+        $total 	= $query->count();
+        $q_r 	= $query->all();
+        $items 	= [];
 
         foreach ($q_r as $i) {
             try {
                 $record         = $reader->city($i->{"last_contact_ip"});
             } catch (\Exception $e) {
                 //Do Nothing
-            }
-            
-            
+            }          
             $country_code   = '';
             $country        = '';
             $city           = '';
@@ -128,7 +116,6 @@ class UnknownDynamicClientsController extends AppController {
 
     }
 
-
     public function delete() {
 
 		if (!$this->request->is('post')) {
@@ -141,8 +128,7 @@ class UnknownDynamicClientsController extends AppController {
             return;
         }
         
-        $req_d		= $this->request->getData();
-
+        $req_d	= $this->request->getData();
 	    if(isset($req_d['id'])){   //Single item delete
        
             $entity     = $this->{$this->main_model}->get($req_d['id']);   
@@ -154,27 +140,23 @@ class UnknownDynamicClientsController extends AppController {
                 $this->{$this->main_model}->delete($entity);      
             }
         }
-        $this->set(array(
+        $this->set([
             'success' => true,
-            '_serialize' => array('success')
-        ));
-
-
+            '_serialize' => ['success']
+        ]);
 	}
-
-  
+ 
     public function menuForGrid()
     {
-        $user = $this->Aa->user_for_token($this);
-        if (!$user) {   //If not a valid user
+        $user = $this->_ap_right_check();
+        if (!$user) {
             return;
         }
-
         $menu = $this->GridButtons->returnButtons($user, false, 'unknown_dynamic'); 
-        $this->set(array(
+        $this->set([
             'items' => $menu,
             'success' => true,
-            '_serialize' => array('items', 'success')
-        ));
+            '_serialize' => ['items', 'success']
+        ]);
     }
 }

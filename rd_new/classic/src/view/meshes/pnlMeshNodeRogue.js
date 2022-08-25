@@ -18,7 +18,7 @@ Ext.define('Rd.view.meshes.pnlMeshNodeRogue', {
     viewConfig  : {
         loadMask:true
     },
-    urlMenu     : '/cake3/rd_cake/node-reports/menu-for-scans-for-node.json',
+    urlMenu     : '/cake4/rd_cake/node-reports/menu-for-scans-for-node.json',
     initComponent: function() {
         var me      = this;
         

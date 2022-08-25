@@ -15,8 +15,8 @@ Ext.define('Rd.controller.cActivityMonitor', {
             cls         : 'subTab', //Make darker -> Maybe grey
             layout      : 'fit', 
             items       : [
-                { 'title' : i18n('sAccounting_data'),       xtype: 'gridRadaccts',     padding     : Rd.config.gridPadding },
-                { 'title' : i18n('sAuthentication_data'),   xtype: 'gridRadpostauths', padding     : Rd.config.gridPadding }
+                { 'title' : i18n('sAccounting_data'),       xtype: 'gridRadaccts',     padding     : Rd.config.gridSlim },
+                { 'title' : i18n('sAuthentication_data'),   xtype: 'gridRadpostauths', padding     : Rd.config.gridSlim }
             ]
         });
         pnl.on({activate : me.gridActivate,scope: me});       

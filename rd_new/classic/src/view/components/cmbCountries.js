@@ -29,7 +29,7 @@ Ext.define('Rd.view.components.cmbCountries', {
                     type    : 'ajax',
                     format  : 'json',
                     batchActions: true, 
-                    url     : '/cake3/rd_cake/utilities/countries-index.json',
+                    url     : '/cake4/rd_cake/utilities/countries-index.json',
                     reader: {
                         type            : 'json',
                         rootProperty            : 'items',

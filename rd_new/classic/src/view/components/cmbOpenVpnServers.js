@@ -18,7 +18,7 @@ Ext.define('Rd.view.components.cmbOpenVpnServers', {
                 type    : 'ajax',
                 format  : 'json',
                 batchActions: true, 
-                url     : '/cake3/rd_cake/openvpn-servers/index.json',
+                url     : '/cake4/rd_cake/openvpn-servers/index.json',
                 reader: {
                     type: 'json',
                     rootProperty: 'items',

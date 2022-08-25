@@ -9,7 +9,7 @@ Ext.define('Rd.controller.cProfileComponents', {
         if (!tab){
             tab = tp.insert(1,{
                 xtype   : 'gridProfileComponents',
-                padding : Rd.config.gridPadding,
+                padding : Rd.config.gridSlim,
                 border  : false,
                // itemId  : 'tabDevices',
                 glyph   : Rd.config.icnComponent,

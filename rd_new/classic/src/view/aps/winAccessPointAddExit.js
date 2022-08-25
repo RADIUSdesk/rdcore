@@ -440,8 +440,8 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
                                                     name        : 'uam_url',
                                                     allowBlank  : false,
                                                     labelClsExtra: 'lblRdReq',
-                                                    emptyText   : 'http://your_ip_here/cake3/rd_cake/dynamic-details/chilli_browser_detect/',
-                                                    blankText   : 'Try http://your_ip_here/cake3/rd_cake/dynamic-details/chilli-browser-detect/'
+                                                    emptyText   : 'http://your_ip_here/cake4/rd_cake/dynamic-details/chilli_browser_detect/',
+                                                    blankText   : 'Try http://your_ip_here/cake4/rd_cake/dynamic-details/chilli-browser-detect/'
                                                 },
                                                 {
                                                     xtype       : 'textfield',

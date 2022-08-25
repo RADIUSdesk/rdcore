@@ -3,7 +3,6 @@ Ext.define('Rd.view.dynamicClients.gridRealmsForDynamicClientCloud' ,{
     alias       : 'widget.gridRealmsForDynamicClientCloud',
     border      : false,
     requires    :   ['Rd.view.components.advCheckColumn'],
-    realFlag    : false, 
     columns: [
         { text: i18n('sName'),    dataIndex: 'name',      tdCls: 'gridTree', flex: 1},
         {
@@ -27,19 +26,14 @@ Ext.define('Rd.view.dynamicClients.gridRealmsForDynamicClientCloud' ,{
     ],
     initComponent: function(){
 
-        var me          = this;
-
-     //   me.tbar = [ 
-      //      { xtype: 'button',  glyph: Rd.config.icnReload,  scale: 'large', itemId: 'reload',   tooltip:    i18n('sReload')}      
-    //    ];
-
+        var me   = this;
         me.store = Ext.create(Ext.data.Store,{
             model: 'Rd.model.mRealmForDynamicClientCloud',
             proxy: {
                 type            : 'ajax',
                 format          : 'json',
                 batchActions    : true, 
-                url             : '/cake3/rd_cake/realms/list-realms-for-dynamic-client-cloud.json',
+                url             : '/cake4/rd_cake/realms/list-realms-for-dynamic-client-cloud.json',
                 reader          : {
                     type            : 'json',
                     rootProperty    : 'items',
@@ -49,8 +43,8 @@ Ext.define('Rd.view.dynamicClients.gridRealmsForDynamicClientCloud' ,{
                     writeAllFields: true 
                 },
                 api: {
-                    read    : '/cake3/rd_cake/realms/list-realms-for-dynamic-client-cloud.json',
-                    update  : '/cake3/rd_cake/realms/update-dynamic-client-realm.json'
+                    read    : '/cake4/rd_cake/realms/list-realms-for-dynamic-client-cloud.json',
+                    update  : '/cake4/rd_cake/realms/update-dynamic-client-realm.json'
                 }
             },
             listeners: {

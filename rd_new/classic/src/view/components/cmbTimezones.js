@@ -26,7 +26,7 @@ Ext.define('Rd.view.components.cmbTimezones', {
                     type    : 'ajax',
                     format  : 'json',
                     batchActions: true, 
-                    url     : '/cake3/rd_cake/utilities/timezones-index.json',
+                    url     : '/cake4/rd_cake/utilities/timezones-index.json',
                     reader: {
                         type            : 'json',
                         rootProperty    : 'items',

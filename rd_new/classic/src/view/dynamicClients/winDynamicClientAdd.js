@@ -345,7 +345,7 @@ Ext.define('Rd.view.dynamicClients.winDynamicClientAdd', {
                                 inputValue  : true
                             }],
                             layout: 'fit',
-                            items: { xtype: 'gridRealmsForDynamicClientCloud', realFlag: true}
+                            items: { xtype: 'gridRealmsForDynamicClientCloud'}
                         }
                     ]
                 }    

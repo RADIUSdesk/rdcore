@@ -2,8 +2,8 @@ Ext.define('Rd.view.meshes.vcMeshNodeRogue', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcMeshNodeRogue',
     config : {
-        urlDelete       : '/cake3/rd_cake/node-reports/remove-scans-for-node.json',
-        urlStartScan    : '/cake3/rd_cake/node-reports/start-scan-for-node.json'
+        urlDelete       : '/cake4/rd_cake/node-reports/remove-scans-for-node.json',
+        urlStartScan    : '/cake4/rd_cake/node-reports/start-scan-for-node.json'
     },
     init: function() {
         var me = this;

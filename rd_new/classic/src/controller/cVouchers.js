@@ -6,11 +6,11 @@ Ext.define('Rd.controller.cVouchers', {
         var added   = false;
         if(!item){   
             pnl.add({ 
-                 itemId : itemId,
-                 xtype  : 'gridVouchers',
-                 border : false,
-                 plain  : true,
-                 padding : '0 3 0 3'
+                itemId  : itemId,
+                xtype   : 'gridVouchers',
+                border  : false,
+                plain   : true,
+                padding : Rd.config.gridSlim
             });
             pnl.on({activate : me.gridActivate,scope: me});
             added = true;

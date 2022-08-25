@@ -21,7 +21,7 @@ Ext.define('Rd.view.components.cmbSsid', {
                 type    : 'ajax',
                 format  : 'json',
                 batchActions: true, 
-                url     : '/cake3/rd_cake/ssids/index-ap.json',
+                url     : '/cake4/rd_cake/ssids/index-ap.json',
                 reader: {
                     type            : 'json',
                     rootProperty            : 'items',
