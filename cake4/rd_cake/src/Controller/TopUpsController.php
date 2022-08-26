@@ -21,7 +21,7 @@ class TopUpsController extends AppController{
           
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model'                     => 'TopUps',
             'no_available_to_siblings'  => true,
             'sort_by'                   => 'PermanentUsers.username'
@@ -37,7 +37,7 @@ class TopUpsController extends AppController{
 
 		$cloud_id 	= $req_q['cloud_id'];
         $query 		= $this->{$this->main_model}->find(); 
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,['PermanentUsers']);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['PermanentUsers']);
         
         $q_r  = $query->all();
 
@@ -79,8 +79,7 @@ class TopUpsController extends AppController{
         $cloud_id 	= $req_q['cloud_id'];             
         $query 		= $this->{$this->main_model}->find();
         
-        //FIXME
-        //$this->CommonQuery->build_cloud_query($query,$cloud_id,['PermanentUsers']);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['PermanentUsers']);
  
         $limit  = 50;
         $page   = 1;

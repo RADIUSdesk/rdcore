@@ -4,22 +4,22 @@ Ext.define('Rd.controller.cAccessPoints', {
         var me      = this;
 
         pnl.add({ 
-            xtype  : 'gridApProfiles',
-	        title  : 'AP Profiles',
-            border : false,
-            plain  : true,
-            glyph  : Rd.config.icnProfile,
-            padding: Rd.config.gridPadding,
+            xtype   : 'gridApProfiles',
+	        title   : 'AP Profiles',
+            border  : false,
+            plain   : true,
+            glyph   : Rd.config.icnProfile,
+            padding : Rd.config.gridSlim,
             tabConfig   : {
                 ui : 'tab-blue'
             }   
         });
 
         pnl.add({  
-            xtype       : 'gridApLists',  
-            title       : 'APs',
-            glyph       : Rd.config.icnCube,
-            padding     : Rd.config.gridPadding,
+            xtype   : 'gridApLists',  
+            title   : 'APs',
+            glyph   : Rd.config.icnCube,
+            padding : Rd.config.gridSlim,
             tabConfig : {
                 ui : 'tab-orange'
             }    

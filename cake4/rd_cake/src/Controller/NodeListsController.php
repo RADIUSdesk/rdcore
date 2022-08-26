@@ -36,7 +36,6 @@ class NodeListsController extends AppController{
 		
         //$this->loadModel('OpenvpnClients');
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'Nodes'
         ]);

@@ -8,7 +8,7 @@ Ext.define('Rd.model.mApList', {
 		 {name: 'owner',        	    type: 'string'  },
          {name: 'description',          type: 'string'  },
          {name: 'mac',                  type: 'string'  },
-		 {name: 'last_contact',    	    type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
+		 {name: 'last_contact',    	    type: 'date'    },
 		 {name: 'last_contact_from_ip', type: 'string' },
          {name: 'update',       	    type: 'bool'},
          {name: 'delete',       	    type: 'bool'},      

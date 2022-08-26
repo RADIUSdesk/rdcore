@@ -13,11 +13,12 @@ Ext.define('Rd.controller.cDynamicDetails', {
 	                cls     : 'subSubTab', //Make darker -> Maybe grey
 	                items   : [
 	                    { 
-	                         title  : 'Login Pages', 
-	                         xtype  : 'gridDynamicDetails',
-	                         border : false,
-	                         plain  : true,
-	                         glyph  : 'xf090@FontAwesome'
+	                        title   : 'Login Pages', 
+	                        xtype   : 'gridDynamicDetails',
+	                        border  : false,
+	                        plain   : true,
+	                        glyph   : 'xf090@FontAwesome',
+                            padding : Rd.config.gridSlim,
 	                    }
 	                ]
 	            });      

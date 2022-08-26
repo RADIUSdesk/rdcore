@@ -351,8 +351,7 @@ class ApActionsController extends AppController {
             return false;
         }
     }
-
-
+    
     //----- Menus ------------------------
     public function menuForGrid(){
         $user = $this->Aa->user_for_token($this);
@@ -367,109 +366,4 @@ class ApActionsController extends AppController {
             '_serialize' => array('items', 'success')
         ));
     }
-
-    function _build_common_query($query, $user){
-
-        $where = [];
-        $joins = [];
-
-        $query->contain(['Aps']);
-
-        //===== SORT =====
-        //Default values for sort and dir
-        $sort   = 'ApActions.created';
-        $dir    = 'ASC';
-
-        if(null !== $this->request->getQuery('sort')){
-            $sort = $this->main_model.'.'.$this->request->getQuery('sort');
-            $dir  = $this->request->getQuery('dir');
-        }
-
-        $query->order([$sort => $dir]);
-        //==== END SORT ===
-
-
-        //====== REQUEST FILTER =====
-        if(null !== $this->request->getQuery('filter')){
-            $filter = json_decode($this->request->getQuery('filter'));
-            foreach($filter as $f){
-            
-                $f = $this->GridFilter->xformFilter($f);
-            
-                //Strings
-                if($f->type == 'string'){
-                    $col = $this->main_model.'.'.$f->field;
-                    array_push($where, ["$col LIKE" => '%'.$f->value.'%']);
-                }
-                //Bools
-                if($f->type == 'boolean'){
-                     $col = $this->main_model.'.'.$f->field;
-                     array_push($where, ["$col" => $f->value]);
-                }
-            }
-        }
-        //====== END REQUEST FILTER =====
-
-        //====== AP FILTER =====
-        //If the user is an AP; we need to add an extra clause to only show the Tags which he is allowed to see.
-        if($user['group_name'] == Configure::read('group.ap')){  //AP
-            $tree_array = [];
-            $user_id    = $user['id'];
-
-            //**AP and upward in the tree**
-//            $this->parents = $this->User->getPath($user_id,'User.id');
-            $this->parents = $this->Users->find('path', ['for' => $user_id, 'fields' => ['Users.id']]);
-//            $Navigations->find('path', ['for' => 33]);
-            //So we loop this results asking for the parent nodes who have available_to_siblings = true
-            foreach($this->parents as $i){
-                $i_id = $i->id;
-                if($i_id != $user_id){ //upstream
-                  ////  array_push($tree_array,array('Ap.user_id' => $i_id,'Na.available_to_siblings' => true));
-                }else{
-                  ///  array_push($tree_array,array('Na.user_id' => $i_id));
-                }
-            }
-            //** ALL the AP's children
-            $this->children    = $this->Users->find_access_provider_children($user['id']);
-            if($this->children){   //Only if the AP has any children...
-                foreach($this->children as $i){
-                    $id = $i['id'];
-                  ////  array_push($tree_array,array('Na.user_id' => $id));
-                }       
-            }   
-            //Add it as an OR clause
-            array_push($where, ['OR' => $tree_array]);
-        }       
-        //====== END AP FILTER =====      
-        return $query->where($where);
-    }
-
-    private function _get_action_flags($owner_id,$user){
-        if($user['group_name'] == Configure::read('group.admin')){  //Admin
-            return ['update' => true, 'delete' => true];
-        }
-
-        if($user['group_name'] == Configure::read('group.ap')){  //AP
-            $user_id = $user['id'];
-
-            //test for self
-            if($owner_id == $user_id){
-                return ['update' => true, 'delete' => true];
-            }
-            //Test for Parents
-            foreach($this->parents as $i){
-                if($i->id == $owner_id){
-                    return ['update' => false, 'delete' => false];
-                }
-            }
-
-            //Test for Children
-            foreach($this->children as $i){
-                if($i['id'] == $owner_id){
-                    return ['update' => true, 'delete' => true];
-                }
-            }  
-        }
-    }
-
 }

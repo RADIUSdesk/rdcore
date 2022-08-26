@@ -24,13 +24,13 @@ class SchedulesController extends AppController {
         $this->loadModel('Users');
         $this->loadModel('ScheduleEntries');
 
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model'     => 'Schedules',
             'sort_by'   => 'Schedules.name'
         ]);
         
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');    
+        $this->loadComponent('GridButtonsFlat');    
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');
     }
@@ -404,7 +404,7 @@ class SchedulesController extends AppController {
             return;
         }
         
-        $menu = $this->GridButtons->returnButtons($user,false,'Schedules');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'Schedules');
         $this->set([
             'items'         => $menu,
             'success'       => true,

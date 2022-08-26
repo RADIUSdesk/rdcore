@@ -25,7 +25,7 @@ class OpenvpnServersController extends AppController {
         parent::initialize();
         $this->loadModel('OpenvpnServers');
         $this->loadModel('Users');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => $this->main_model,
             'sort_by' => $this->main_model . '.id'
         ]);
@@ -95,7 +95,7 @@ class OpenvpnServersController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,[]);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,[]);
 
 
         //===== PAGING (MUST BE LAST) ======
@@ -165,7 +165,7 @@ class OpenvpnServersController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,[]);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,[]);
         
         $q_r = $query->all();
 

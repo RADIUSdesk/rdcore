@@ -41,7 +41,7 @@ class ProfilesController extends AppController
         $this->loadModel('Devices');
         $this->loadModel('Radchecks');
         
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'Profiles'
         ]);
         $this->loadComponent('Aa');
@@ -60,7 +60,7 @@ class ProfilesController extends AppController
         $req_q    = $this->request->getQuery(); //q_data is the query data      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,['Radusergroups'=> ['Radgroupchecks']]);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['Radusergroups'=> ['Radgroupchecks']]);
         $q_r        = $query->all();
         
         $items      = array();
@@ -105,7 +105,7 @@ class ProfilesController extends AppController
     	$req_q    = $this->request->getQuery(); //q_data is the query data      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,['Radusergroups'=> ['Radgroupchecks']]);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['Radusergroups'=> ['Radgroupchecks']]);
        
         //===== PAGING (MUST BE LAST) ======
         $limit = 50;   //Defaults

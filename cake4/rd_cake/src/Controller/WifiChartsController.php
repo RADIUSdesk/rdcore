@@ -37,12 +37,7 @@ class WifiChartsController extends AppController{
         $this->loadModel('NodeStations');
         $this->loadModel('ApStations');   
         $this->loadComponent('Aa');
-        $this->loadComponent('MacVendors');
-        $this->loadComponent('CommonQuery', [ 
-            'model'                     => 'Meshes',
-            'no_available_to_siblings'  => false,
-            'sort_by'                   => 'Meshes.name'
-        ]);           
+        $this->loadComponent('MacVendors');      
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');    
     }

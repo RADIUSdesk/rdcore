@@ -123,7 +123,7 @@ class DashboardController extends AppController{
                 //Check for auto-compact setting
                 $auto_compact = false;
                 if($this->request->getData('auto_compact')){
-                    if($this->request->getData('auto_compact')=='true'){ //Carefull with the query's true and false it is actually a string
+                    if($this->request->getData('auto_compact')=='true'){ //Carefull with the queryz's true and false it is actually a string
                         $auto_compact = true;
                     }
                 }
@@ -171,7 +171,7 @@ class DashboardController extends AppController{
                 //Check for auto-compact setting
                 $auto_compact = false;
                 if(isset($q_data['auto_compact'])){
-                    if($q_data['auto_compact']=='true'){ //Carefull with the query's true and false it is actually a string
+                    if($q_data['auto_compact']=='true'){ //Carefull with the queryz's true and false it is actually a string
                         $auto_compact = true;
                     }
                 }

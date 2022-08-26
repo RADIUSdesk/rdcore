@@ -55,7 +55,7 @@ class MeshReportsController extends AppController {
         $this->loadModel('Hardwares');
         $this->loadModel('Timezones'); 
         
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'Meshes'
         ]); 
 
@@ -428,8 +428,10 @@ class MeshReportsController extends AppController {
                 $query->where(['Meshes.id' => $mesh_id]);
             }
         }
+       
+		$cloud_id 	= $req_q['cloud_id'];
         
-        $this->CommonQuery->build_common_query($query, $user, ['Users','Nodes']); //AP QUERY is sort of different in a way     
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id, ['Users','Nodes']); //AP QUERY is sort of different in a way     
         $q_r    = $query->all();
         
         $coordsAll  = [];

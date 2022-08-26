@@ -8,7 +8,8 @@ Ext.define('Rd.controller.cHardwares', {
             var g = Ext.create('Rd.view.hardwares.gridHardwares',{
                 border  : false,
                 plain   : true,
-                itemId  : itemId
+                itemId  : itemId,
+                padding : Rd.config.gridSlim
              }); 
             pnl.add(g);
             pnl.on({activate : me.gridActivate,scope: me});

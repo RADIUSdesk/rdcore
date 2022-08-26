@@ -14,14 +14,8 @@ class RadpostauthsController extends AppController {
         parent::initialize();
         $this->loadModel($this->main_model);
         $this->loadModel('Users');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
-            'model' => $this->main_model,
-            'sort_by' => $this->main_model . '.id'
-        ]);
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
         $this->loadComponent('GridFilter');
-
         $this->loadComponent('JsonErrors');
         $this->loadComponent('TimeCalculations');
     }

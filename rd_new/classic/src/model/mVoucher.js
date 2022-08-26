@@ -14,10 +14,10 @@ Ext.define('Rd.model.mVoucher', {
             'perc_time_used',
             'perc_data_used',
          {name: 'status',       type: 'string'  },
-         {name: 'last_accept_time', type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
+         {name: 'last_accept_time', type: 'date' },
          {name: 'last_accept_time_in_words',  type: 'string'  },
          {name: 'last_accept_nas'},
-         {name: 'last_reject_time', type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
+         {name: 'last_reject_time', type: 'date'},
          {name: 'last_reject_time_in_words', type: 'string'  },
          {name: 'last_reject_nas'},
          {name: 'last_reject_message'},
@@ -29,8 +29,8 @@ Ext.define('Rd.model.mVoucher', {
          {name: 'delete',       type: 'bool'},
          {name: 'extra_name',   type: 'string'  },
          {name: 'extra_value',  type: 'string'  },
-         {name: 'created',           type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
-         {name: 'modified',          type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
+         {name: 'created',           type: 'date'},
+         {name: 'modified',          type: 'date'},
          {name: 'created_in_words',  type: 'string'  },
          {name: 'modified_in_words', type: 'string'  }
         ]

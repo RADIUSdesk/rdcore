@@ -36,7 +36,7 @@ class MeshesController extends AppController{
                  
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat'); 
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'Meshes'
         ]);
                
@@ -54,7 +54,7 @@ class MeshesController extends AppController{
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,['Nodes']);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['Nodes']);
                 
         $q_no_lomits = $query;
 

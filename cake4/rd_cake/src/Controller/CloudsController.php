@@ -76,9 +76,7 @@ class CloudsController extends AppController {
             'sort_by'   => 'Clouds.id'
         ]);
         
-        $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
-        
+        $this->loadComponent('Aa');       
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('Formatter');
@@ -962,14 +960,10 @@ class CloudsController extends AppController {
                 }           
             }
             
-
             $action_flags = [];
             $action_flags['update'] = true;
-		    $action_flags['delete'] = true;
-         
-            
-            //$action_flags = $this->Aa->get_action_flags($owner_id, $user);
-            
+		    $action_flags['delete'] = true; 
+		             
             $created_in_words   = $this->TimeCalculations->time_elapsed_string($i->{'created'});
             $modified_in_words  = $this->TimeCalculations->time_elapsed_string($i->{'modified'});
 

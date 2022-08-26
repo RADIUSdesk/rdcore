@@ -27,7 +27,7 @@ class ProfileComponentsController extends AppController {
         $this->loadModel('Radgroupchecks');
         $this->loadModel('Radgroupreplies');
         
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'ProfileComponents',
             'sort_by' => 'ProfileComponents.name'
         ]);
@@ -330,7 +330,7 @@ class ProfileComponentsController extends AppController {
        	$cloud_id = $req_q['cloud_id'];
        	
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,['Radgroupchecks','Radgroupreplies']);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['Radgroupchecks','Radgroupreplies']);
 
         //===== PAGING (MUST BE LAST) ======
         $limit = 50;   //Defaults

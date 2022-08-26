@@ -6,10 +6,11 @@ Ext.define('Rd.controller.cClouds', {
         var added   = false;
         if(!item){         
             pnl.add({
-                 itemId : itemId,
-                 xtype  : 'treeClouds',
-                 border : false,
-                 plain  : true
+                itemId  : itemId,
+                xtype   : 'treeClouds',
+                border  : false,
+                plain   : true,
+                padding : Rd.config.gridSlim
             });
             pnl.on({activate : me.reload,scope: me});
             added = true;

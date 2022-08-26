@@ -23,12 +23,8 @@ class NodeActionsController extends AppController {
         $this->loadModel('PredefinedCommands');
         $this->loadModel('Users');
         $this->loadModel('UserSettings');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
-            'model'     => $this->main_model,
-            'sort_by'   => $this->main_model.'.created'
-        ]);
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');  
+        $this->loadComponent('GridButtonsFlat');  
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations'); 
     }
@@ -256,7 +252,7 @@ class NodeActionsController extends AppController {
             return;
         }
 
-        $menu = $this->GridButtons->returnButtons($user,false, 'add_and_delete'); 
+        $menu = $this->GridButtonsFlat->returnButtons($user,false, 'add_and_delete'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,

@@ -44,7 +44,7 @@ class AccessProvidersController extends AppController{
 		$this->loadModel('UserSettings');  
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => $this->main_model
         ]);               
         $this->loadComponent('WhiteLabel'); 

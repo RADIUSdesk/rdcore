@@ -13,7 +13,7 @@ Ext.define('Rd.model.mNodeList', {
          {name: 'hw_human',         type: 'string'  },
          {name: 'power',            type: 'int'     },
          {name: 'ip',               type: 'string'  },
-		 {name: 'last_contact',    	type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
+		 {name: 'last_contact',    	type: 'date'    },
 		 {name: 'available_to_siblings',  type: 'bool'},
          {name: 'update',       	type: 'bool'},
          {name: 'delete',       	type: 'bool'},

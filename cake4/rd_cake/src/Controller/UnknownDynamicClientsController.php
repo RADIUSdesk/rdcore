@@ -25,13 +25,8 @@ class UnknownDynamicClientsController extends AppController {
         parent::initialize();
         $this->loadModel('UnknownDynamicClients');
         $this->loadModel('Users');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
-            'model' => 'UnknownDynamicClients',
-            'sort_by' => 'UnknownDynamicClients.id'
-        ]);
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
-        
+        $this->loadComponent('GridButtonsFlat');  
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations'); 
     }
@@ -48,8 +43,6 @@ class UnknownDynamicClientsController extends AppController {
         $req_q      = $this->request->getQuery();
         $user_id    = $user['id'];
         $query      = $this->{$this->main_model}->find();
-
-        //$this->CommonQuery->build_common_query($query, $user, ['Users']); //AP QUERY is sort of different in a way
 
         //===== PAGING (MUST BE LAST) ======
         $limit = 50;   //Defaults
@@ -152,7 +145,7 @@ class UnknownDynamicClientsController extends AppController {
         if (!$user) {
             return;
         }
-        $menu = $this->GridButtons->returnButtons($user, false, 'unknown_dynamic'); 
+        $menu = $this->GridButtonsFlat->returnButtons( false, 'unknown_dynamic'); 
         $this->set([
             'items' => $menu,
             'success' => true,

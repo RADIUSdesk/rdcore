@@ -29,7 +29,7 @@ class PredefinedCommandsController extends AppController {
         ]);
         
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');    
+        $this->loadComponent('GridButtonsFlat');    
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');
     }
@@ -242,7 +242,7 @@ class PredefinedCommandsController extends AppController {
             return;
         }
 
-        $menu = $this->GridButtons->returnButtons($user, false, 'basic'); 
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'basic'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,

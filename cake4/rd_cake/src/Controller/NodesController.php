@@ -31,10 +31,7 @@ class NodesController extends AppController {
     public function initialize():void{
         parent::initialize();
         $this->loadModel('Nodes');
-    
-        $this->loadComponent('Aa');
-        $this->loadComponent('GridButtons');
-        
+        $this->loadComponent('Aa');    
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');
              

@@ -6,8 +6,8 @@ Ext.define('Rd.model.mSchedule', {
          {name: 'owner',        type: 'string'  },
          {name: 'update',       type: 'bool'},
          {name: 'delete',       type: 'bool'},
-         {name: 'created',           type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
-         {name: 'modified',          type: 'date',       dateFormat: 'Y-m-d H:i:s'   },
+         {name: 'created',           type: 'date'},
+         {name: 'modified',          type: 'date'},
          {name: 'created_in_words',  type: 'string'  },
          {name: 'modified_in_words', type: 'string'  }
         ]

@@ -9,7 +9,8 @@ Ext.define('Rd.controller.cAccessProviders', {
             var g = Ext.create('Rd.view.accessProviders.gridAccessProviders',{
                 border  : false,
                 plain   : true,
-                itemId  : itemId
+                itemId  : itemId,
+                padding : Rd.config.gridSlim
              }); 
             pnl.add(g);
             pnl.on({activate : me.reload,scope: me});

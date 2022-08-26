@@ -572,8 +572,60 @@ class GridButtonsFlatComponent extends Component {
             $b = $this->_fetchAddAndDelete();
             $menu = [$b];
         }
+        
+       	if($type == 'Schedules'){
+            $b      = $this->_fetchSchedules();
+            $menu   = $b;
+        }
+        
+         if($type == 'unknown_dynamic'){
+            $b  = $this->_fetchUnknownDynamic();
+            $menu = [$b]; 
+        }
                             
         return $menu;
+    }
+    
+   	private function _fetchUnknownDynamic(){
+        $menu = [
+                ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+                   $this->btnReloadTimer,
+                   $this->btnAttach,
+                   $this->btnDelete, 
+            ]]
+        ];
+        return $menu;
+    }
+
+    
+    private function _fetchSchedules(){
+        $cmb_options = [
+            'xtype'     => 'cmbScheduleOptions',
+            'margin'    => '5 0 5 0',
+            'isRoot'    => false,
+            'itemId'    => 'cmbScheduleOptions'  
+        ];
+        
+        $b = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+            $this->btnReload,
+            $cmb_options,         
+            $this->btnAdd,
+            $this->btnDelete,
+            $this->btnEdit
+            ]
+	    ];
+	    $c = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+            [
+                'xtype'     => 'button', 
+                'glyph'     => Configure::read('icnComponent'), 
+                'scale'     => $this->scale,
+                'itemId'    => 'predef_cmds',
+                'tooltip'   =>  __('Predefined Commands'),
+                'ui'        => $this->btnUiProfComp
+            ]                   
+        ]];    
+	    $menu = [$b,$c];
+        return $menu;    
     }
    
   	private function _fetchBasic($with_reload_timer=false){       

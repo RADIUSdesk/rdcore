@@ -3,21 +3,22 @@ Ext.define('Rd.controller.cMeshes', {
     actionIndex: function(pnl){
         var me      = this;
         pnl.add({ 
-            title  : 'Meshes', 
-            xtype  : 'gridMeshes',
-            border : false,
-            plain  : true,
-            glyph  : Rd.config.icnMesh,
+            title   : 'Meshes', 
+            xtype   : 'gridMeshes',
+            border  : false,
+            plain   : true,
+            glyph   : Rd.config.icnMesh,
+            padding : Rd.config.gridSlim,
             tabConfig   : {
                 ui : 'tab-blue'
             }   
         });
 
         pnl.add({ 
-            title       : 'Mesh Nodes', 	
-            xtype       : 'gridNodeLists',	
-            glyph       : Rd.config.icnNetwork,
-            padding     : Rd.config.gridPadding,
+            title   : 'Mesh Nodes', 	
+            xtype   : 'gridNodeLists',	
+            glyph   : Rd.config.icnNetwork,
+            padding : Rd.config.gridSlim,
             tabConfig   : {
                 ui : 'tab-orange'
             } 
