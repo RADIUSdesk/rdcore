@@ -365,22 +365,23 @@ class FreeRadiusBehavior extends Behavior {
     private function _forVouchersBeforeSave($entity){
 
         $request = Router::getRequest();
+        $req_d   = $request->getData();
         if($request){
-            if(isset($request->data['days_valid'])){
-                if($request->data['days_valid'] !== ''){
+            if(isset($req_d['days_valid'])){
+                if($req_d['days_valid'] !== ''){
                     $hours      = 0;
                     $minutes    = 0;
-                    if(isset($request->data['hours_valid'])){
-                        $hours = $request->data['hours_valid'];
+                    if(isset($req_d['hours_valid'])){
+                        $hours = $req_d['hours_valid'];
                     }
 
-                    if(isset($request->data['minutes_valid'])){
-                        $minutes = $request->data['minutes_valid'];
+                    if(isset($req_d['minutes_valid'])){
+                        $minutes = $req_d['minutes_valid'];
                     }
 
                     $hours      = sprintf("%02d", $hours);
                     $minutes    = sprintf("%02d", $minutes);
-                    $valid      = $request->data['days_valid']."-".$hours."-".$minutes."-00";
+                    $valid      = $req_d['days_valid']."-".$hours."-".$minutes."-00";
                     $entity->time_valid = $valid;    
                 }
             }else{
@@ -465,15 +466,15 @@ class FreeRadiusBehavior extends Behavior {
                 }    
             }  
         }
-       
-
+        
         $request = Router::getRequest();
+        $req_d   = $request->getData();
         if($request){
-            if(!(isset($request->data['days_valid']))){
+            if(!(isset($req_d['days_valid']))){
                 $this->_remove_radcheck_item($username,$this->vChecks["time_valid"]);
             }
             //If always_active is selected remove fr->dates
-            if(isset($request->data['never_expire'])){
+            if(isset($req_d['never_expire'])){
                 $this->_remove_radcheck_item($username,$this->vChecks["expire"]);
             }
         }      
@@ -522,7 +523,8 @@ class FreeRadiusBehavior extends Behavior {
        
         //If always_active is selected remove fr->dates
         $request = Router::getRequest();
-        if(isset($request->data['always_active'])){
+        $req_d   = $request->getData();
+        if(isset($req_d['always_active'])){
             foreach($this->fr_dates as $d){
                 if(array_key_exists($d, $this->puChecks)){
                     $this->_remove_radcheck_item($username,$this->puChecks["$d"]);
@@ -583,7 +585,8 @@ class FreeRadiusBehavior extends Behavior {
 
         //If always_active is selected remove fr->dates
         $request = Router::getRequest();
-        if(isset($request->data['always_active'])){
+        $req_d   = $request->getData();
+        if(isset($req_d['always_active'])){
             foreach($this->fr_dates as $d){
                 if(array_key_exists($d, $this->puChecks)){
                     $this->_remove_radcheck_item($username,$this->puChecks["$d"]);
