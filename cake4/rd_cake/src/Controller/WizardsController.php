@@ -383,14 +383,13 @@ class WizardsController extends AppController{
                 $d_ns['id']     = $ns_id;
             }  
             
-            $d_ns['mesh_id']    = $mesh_id;
-            $d_ns['tz_name']    = $req_d['tz_name'];
-            $d_ns['tz_value']   = $req_d['tz_value'];
-            $d_ns['country']    = $req_d['country'];
-            
-            $new_pwd            = $this->_make_linux_password($req_d['password']);
-            $d_ns['password']   = $req_d['password'];
-            $d_ns['password_hash'] = $new_pwd;
+            $d_ns['mesh_id']    	= $mesh_id;
+            $d_ns['tz_name']    	= $req_d['tz_name'];
+            $d_ns['tz_value']   	= $req_d['tz_value'];
+            $d_ns['country']    	= $req_d['country'];         
+            $new_pwd            	= $this->_make_linux_password($req_d['password']);
+            $d_ns['password']   	= $req_d['password'];
+            $d_ns['password_hash'] 	= $new_pwd;
             
             if($q_ns){
                 $this->NodeSettings->patchEntity($q_ns, $d_ns);  
@@ -418,30 +417,33 @@ class WizardsController extends AppController{
                 ])
                 ->first();
             
-            $d_ap_s             = array();
+            $d_ap_s             = [];
             if($q_ap_s){
                 $ap_s_id            = $q_ap_s->id;
                 $d_ap_s['id']       = $ap_s_id;
             }    
             
             $d_ap_s['ap_profile_id']    = $ap_profile_id;
-            $d_ap_s['tz_name']  = $req_d['tz_name'];
-            $d_ap_s['tz_value'] = $req_d['tz_value'];
-            $d_ap_s['country']  = $req_d['country'];
-            
+            $d_ap_s['tz_name']  		= $req_d['tz_name'];
+            $d_ap_s['tz_value'] 		= $req_d['tz_value'];
+            $d_ap_s['country']  		= $req_d['country'];            
             $new_pwd                    = $this->_make_linux_password($req_d['password']);
             $d_ap_s['password']         = $req_d['password'];
             $d_ap_s['password_hash']    = $new_pwd;
             
-            $this->ApProfileSettings->patchEntity($q_ap, $d_ap_s);
-            $this->ApProfileSettings->save($q_ap);
+            if($q_ap_s){
+                $this->ApProfileSettings->patchEntity($q_ap_s, $d_ap_s);  
+            }else{
+                $q_ap_s = $this->ApProfileSettings->newEntity($d_ap_s);
+            }           
+            $this->ApProfileSettings->save($q_ap_s);
         }
         
-        $this->set(array(
-            'items'     => array(),
+        $this->set([
+            'items'     => [],
             'success'   => true,
-            '_serialize' => array('items','success')
-        ));   
+            '_serialize' => ['items','success']
+        ]);   
     }
     
      public function viewLogo(){
@@ -478,8 +480,8 @@ class WizardsController extends AppController{
             return;
         }   
 
-        $this->viewBuilder()->layout('ext_file_upload');
-
+        $this->viewBuilder()->setLayout('ext_file_upload');
+        
         $path_parts     = pathinfo($_FILES['photo']['name']);
         $unique         = time();
         $dest           = WWW_ROOT."img/dynamic_details/".$unique.'.'.$path_parts['extension'];
@@ -492,7 +494,7 @@ class WizardsController extends AppController{
         $user_id    = $user['id'];
         $req_d		= $this->request->getData();
         $this->new_name = $req_d['name'];
-        
+       
         if(isset($req_d['name'])){
             $this->new_name =  preg_replace('/^\s+/', '', $this->new_name); //Remove laeding spaces
             $this->new_name =  preg_replace('/\s+$/', '', $this->new_name); //Remove trailing spaces
@@ -528,17 +530,17 @@ class WizardsController extends AppController{
                     $q_realm->icon_file_name = $unique.'.'.$path_parts['extension'];
                     $this->Realms->save($q_realm);
                 }
-                //----------------------------                            
-                $this->set([
-				    'success' 			=> true,
-				    'id'      			=> $q_r->id,
-				    'icon_file_name'	=> $unique.'.'.$path_parts['extension'],
-				    '_serialize' => ['success','id','icon_file_name']
-				]);              
+                //---------------------------- 
+                
+                $this->set(['json_return' => [
+					'success' 			=> true,
+					'id'      			=> $q_r->id,
+				    'icon_file_name'	=> $unique.'.'.$path_parts['extension']
+				]]);                       
                 
             }else{
                 $errors = $q_r->errors();
-                $a = [];
+                $a 		= [];
                 foreach(array_keys($errors) as $field){
                     $detail_string = '';
                     $error_detail =  $errors[$field];
@@ -548,16 +550,15 @@ class WizardsController extends AppController{
                     $a[$field] = $detail_string;
                 }
                 
-                $this->set([
+                $this->set(['json_return' => [
 				    'errors' 	=> $a,
 				    'message' 	=> __('Problem uploading Logo'),
-				    'success'	=> false,
-				    '_serialize' => ['success','message','errors']
-				]);
+				    'success'	=> false]
+				]);  
             }  
         }else{
             $errors = $q_r->errors();
-            $a = [];
+            $a 		= [];
             foreach(array_keys($errors) as $field){
                 $detail_string = '';
                 $error_detail =  $errors[$field];
@@ -565,12 +566,12 @@ class WizardsController extends AppController{
                     $detail_string = $detail_string." ".$error_detail[$error];   
                 }
                 $a[$field] = $detail_string;
-            }       
-            $this->set([
+            }
+            
+            $this->set(['json_return' => [
 			    'errors' 	=> $a,
 			    'message' 	=> __('Problem uploading Logo'),
-			    'success'	=> false,
-			    '_serialize' => ['success','message','errors']
+			    'success'	=> false]
 			]);
         }
     }
@@ -593,7 +594,7 @@ class WizardsController extends AppController{
         if($q_r){
         
             $id = $q_r->id;
-            $items = array();
+            $items = [];
         
             $q_p = $this->DynamicPhotos->find()
                 ->where(['DynamicPhotos.dynamic_detail_id' => $id])
@@ -633,8 +634,9 @@ class WizardsController extends AppController{
         if(!$user){   //If not a valid user
             return;
         }
+        $user_id        = $user['id'];
          
-        $this->viewBuilder()->layout('ext_file_upload');  
+        $this->viewBuilder()->setLayout('ext_file_upload');  
         
         //We find the ID for this name....
         $user_id        = $user['id'];
@@ -647,7 +649,7 @@ class WizardsController extends AppController{
         }
         
         
-        $this->cloud_id = $this->_return_cloud_id_from_name($this->new_name,$cloud_id);
+        $this->cloud_id = $this->_return_cloud_id_from_name($this->new_name,$user_id);
         $q_r            = $this->DynamicDetails->find()
             ->where(['DynamicDetails.name' => $this->new_name,'DynamicDetails.cloud_id' => $this->cloud_id])
             ->first();
@@ -672,11 +674,12 @@ class WizardsController extends AppController{
         $entity = $this->DynamicPhotos->newEntity($req_d); 
         if($this->DynamicPhotos->save($entity)){
             move_uploaded_file ($_FILES['photo']['tmp_name'] , $dest);
-            $this->set([
-		        'success' 			=> true,
-		        'id'      			=> $entity->id,
-		        '_serialize' => ['success','id']
-		    ]); 
+            
+            $this->set(['json_return' => [
+		        	'success' => true,
+		        	'id'      => $entity->id
+		        ]
+			]); 
 
         }else{
             $message = 'Error';
@@ -689,13 +692,14 @@ class WizardsController extends AppController{
                     $detail_string = $detail_string." ".$error_detail[$error];   
                 }
                 $a[$field] = $detail_string;
-            } 
-            $this->set([
-		        'errors' 	=> $a,
-		        'message' 	=> array("message"   => __('Problem uploading photo')),
-		        'success'	=> false,
-		        '_serialize' => ['success','message','errors']
-		    ]);
+            }
+            
+            $this->set(['json_return' => [
+				    'errors' 	=> $a,
+				    'message' 	=> array("message"   => __('Problem uploading photo')),
+				    'success'	=> false
+		        ]
+			]); 
         }
     }
     
@@ -924,7 +928,8 @@ class WizardsController extends AppController{
         $d_user['cloud_id']   = $this->cloud_id;
         
         //Make the username so that it has the suffix
-        $d_user['username']    = $ap_name.'@'.$ap_name;
+        $d_user['username']   = $ap_name.'@'.$ap_name;
+        $d_user['password']   = $this->pwd;
          
         $e_pu = $this->PermanentUsers->newEntity($d_user);       
         $this->PermanentUsers->save($e_pu);
@@ -988,19 +993,7 @@ class WizardsController extends AppController{
         
         $e_d_photo = $this->DynamicPhotos->newEntity($d_photo);
         $this->DynamicPhotos->save($e_d_photo);
-        
-        $e_d_client = $this->DynamicClients->newEntity($d_common);
-        $this->DynamicClients->save($e_d_client);
-        $dynamic_client_id = $e_d_client->id;
-        
-        $d_dc_r = [];
-        $d_dc_r['dynamic_client_id'] = $dynamic_client_id;
-        $d_dc_r['realm_id'] = $realm_id;
-        
-        $e_d_dc_r = $this->DynamicClientRealms->newEntity($d_dc_r);
-        $this->DynamicClientRealms->save($e_d_dc_r);
-        $dynamic_client_realm_id = $e_d_dc_r->id;
-     
+           
         $e_ap_profile = $this->ApProfiles->newEntity($d_common);
         $this->ApProfiles->save($e_ap_profile);
         $ap_profile_id = $e_ap_profile->id;    
@@ -1239,21 +1232,7 @@ class WizardsController extends AppController{
         
         return false;
     }
-    
-    private function _return_aco_path($id){
-    
-        $parents        = $this->Acl->Aco->find('path', ['for' => $id]); 
-        $path_string    = '';
-        foreach($parents as $line_num => $i){
-            if($line_num == 0){
-                $path_string = $i->alias;
-            }else{
-                $path_string = $path_string."/".$i->alias;
-            }
-        }
-        return $path_string;
-    }
-    
+     
     private function _make_linux_password($pwd){
 		return exec("openssl passwd -1 $pwd");
 	}

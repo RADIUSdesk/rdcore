@@ -41,7 +41,7 @@ class ApsController extends AppController {
         
         $this->loadComponent('ApHelper');
         
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'Aps'
         ]);
         
@@ -233,7 +233,7 @@ class ApsController extends AppController {
             'ApConnectionSettings'
         ]);
         
-     /*   $this->CommonQuery->build_ap_lists_query($query, $user, [
+     /*   $this->CommonQueryFlat->build_ap_lists_query($query, $user, [
             'ApProfiles'    => ['Users'],
             'ApActions'     => ['sort' => ['ApActions.id' => 'DESC']],
             'OpenvpnServerClients',

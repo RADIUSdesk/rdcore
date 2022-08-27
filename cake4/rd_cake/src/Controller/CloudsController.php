@@ -65,12 +65,7 @@ class CloudsController extends AppController {
         $this->loadModel('Timezones');
         $this->loadModel('NodeStations');
         $this->loadModel('ApStations');
-        $this->loadModel('CloudAdmins');
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
-            'model'     => 'Clouds',
-            'sort_by'   => 'Clouds.id'
-        ]);
-        
+        $this->loadModel('CloudAdmins');    
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model'     => 'Clouds',
             'sort_by'   => 'Clouds.id'

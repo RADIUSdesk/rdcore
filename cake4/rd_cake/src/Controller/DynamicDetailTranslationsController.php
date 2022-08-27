@@ -42,7 +42,7 @@ class DynamicDetailTranslationsController extends AppController {
         parent::initialize();
         $this->loadComponent('Aa');
         
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'DynamicDetails'
         ]);
         
@@ -450,11 +450,14 @@ class DynamicDetailTranslationsController extends AppController {
         }
         $user_id    = $user['id'];
         
+        $req_q      = $this->request->getQuery();    
+       	$cloud_id   = $req_q['cloud_id'];
+        
         //Fields
 		$fields  = ['id','name'];
 		
         $query = $this->{'DynamicDetails'}->find();
-        $this->CommonQuery->build_common_query($query,$user,['Users']);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id);
         $query->order(['DynamicDetails.name']);
         $q_r   = $query->all();   
         $items = [];

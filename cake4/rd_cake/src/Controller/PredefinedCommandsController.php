@@ -23,7 +23,7 @@ class PredefinedCommandsController extends AppController {
         $this->loadModel($this->main_model);
         $this->loadModel('Users');
 
-        $this->loadComponent('CommonQuery', [ //Very important to specify the Model
+        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model'     => 'PredefinedCommands',
             'sort_by'   => 'PredefinedCommands.name'
         ]);
