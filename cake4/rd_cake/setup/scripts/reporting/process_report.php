@@ -2,7 +2,7 @@
 
 #Improved reporting for meshes (also modify the Nginx config file accordingly)
 #Every five minutes, process any reports from the temp_reports table (also check the syslog file there will be a report from this script saying how long it took ... should be under 5 min!!)
-#*/5 * * * * www-data php /var/www/html/cake3/rd_cake/setup/scripts/reporting/process_report.php >> /dev/null 2>&1
+#*/5 * * * * www-data php /var/www/html/cake4/rd_cake/setup/scripts/reporting/process_report.php >> /dev/null 2>&1
 
 
 //Some global variables

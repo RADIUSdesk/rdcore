@@ -8,7 +8,7 @@ use Cake\Datasource\ConnectionManager;
 
 class CountersTask extends Shell {
  
-    public function initialize(){
+    public function initialize():void{
         parent::initialize();
         $this->loadModel('Radusergroups');
         $this->loadModel('Radgroupchecks');

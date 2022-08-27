@@ -8,7 +8,7 @@ use Cake\I18n\FrozenTime;
 
 class DebugTask extends Shell {
 
-    public function initialize(){
+    public function initialize():void{
         parent::initialize();
         $this->loadModel('Checks');
     }
@@ -36,7 +36,7 @@ class DebugTask extends Shell {
             $now    = time();
             if($value < $now){
                 $this->out("<info>Debug::Debug timed out - disabling it</info>"); 
-                exec("sudo /var/www/html/cake3/rd_cake/setup/scripts/radmin_wrapper.pl debug stop",$output);
+                exec("sudo /var/www/html/cake4/rd_cake/setup/scripts/radmin_wrapper.pl debug stop",$output);
                 $this->out("<info>Debug::Deleting the intry in Checks table</info>");
                 $this->Checks->deleteAll(['Checks.name' => 'debug_timeout']);
             }else{

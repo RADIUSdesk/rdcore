@@ -353,7 +353,7 @@ class DynamicClientsController extends AppController{
         $path_parts     = pathinfo($_FILES['photo']['name']);
         $unique         = time();
         $dest           = WWW_ROOT."img/nas/".$unique.'.'.$path_parts['extension'];
-        $dest_www       = "/cake3/rd_cake/webroot/img/nas/".$unique.'.'.$path_parts['extension'];
+        $dest_www       = "/cake4/rd_cake/webroot/img/nas/".$unique.'.'.$path_parts['extension'];
 
         //Now add....
         $data['id']  = $this->request->getData('id');

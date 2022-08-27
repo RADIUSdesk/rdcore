@@ -10,7 +10,7 @@ class MonitorDynamicTask extends Shell {
 
     protected   $heartbeat_dead_after    = 300;
 
-    public function initialize(){
+    public function initialize():void{
         parent::initialize();
         $this->loadModel('DynamicClients');
         $this->loadModel('DynamicClientStates');

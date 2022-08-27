@@ -23,7 +23,7 @@ class NodesController extends AppController {
     public $base            = "Access Providers/Controllers/Nodes/";
     protected $owner_tree   = [];
     protected $main_model   = 'Nodes';
-    protected $release_owner  = '/cake3/rd_cake/unknown-nodes/release-ownership.json';
+    protected $release_owner  = '/cake4/rd_cake/unknown-nodes/release-ownership.json';
     //protected $base_server  = "http://127.0.0.1";
     protected $base_server  = "https://base.wifi-dashboard.com";
     

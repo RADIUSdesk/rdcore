@@ -125,7 +125,7 @@ class OpenvpnClientsTable extends Table {
         }  
     }
 /*
-* FFC - deal with cascade in cake3
+* FFC - deal with cascade in cake4
 */
     public function beforeDelete($event,$entity,$options = []) { // $cascade
         //Find the username which is just the filename

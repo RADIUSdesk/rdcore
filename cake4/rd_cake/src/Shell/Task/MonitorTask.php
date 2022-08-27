@@ -8,7 +8,7 @@ use Cake\I18n\FrozenTime;
 
 class MonitorTask extends Shell {
 
-    public function initialize(){
+    public function initialize():void{
         parent::initialize();
         $this->loadModel('Nas');
         $this->loadModel('NaStates');

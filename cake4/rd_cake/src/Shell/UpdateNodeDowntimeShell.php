@@ -22,7 +22,7 @@ class UpdateNodeDowntimeShell extends Shell{
         $this->loadModel('ApUptmHistories');      
 	    $this->loadModel('Alerts');
     }
-
+    
     public function main(){
         $this->out("Updating Node Downtime");
         //-- Figure out the dead_after time --
@@ -80,25 +80,7 @@ class UpdateNodeDowntimeShell extends Shell{
                  ];
                  $this->_do_ap_uptm_history($ap_data);
             }             
-        }      
-        
-		/*Configure::load('MESHdesk');
-		$data 		= Configure::read('common_node_settings'); //Read the defaults
-		$dead_after	= $data['heartbeat_dead_after'];
-        $this->connection = ConnectionManager::get('default');
-		// Get Nodes
-        $this->connection->execute("set @dead_seconds = ".$dead_after);
-        $this->connection->execute("set @nds = 0");
-        $this->connection->execute("call sp_update_node_downtime(@dead_seconds,@nds)");
-        $nresults = $this->connection->execute("select @nds;")->fetchAll('assoc');
-        $ncount = $nresults[0]['@nds'];
-		// Get Aps
-        $this->connection->execute("set @dead_seconds = ".$dead_after);
-        $this->connection->execute("set @ads = 0");
-        $this->connection->execute("call sp_update_ap_downtime(@dead_seconds,@ads)");
-        $aresults = $this->connection->execute("select @ads;")->fetchAll('assoc');
-        $acount = $aresults[0]['@ads'];
-        $this->out("$ncount nodes were updated, $acount aps were updated");*/
+        }
     }
     
     private function _do_node_uptm_history($d){

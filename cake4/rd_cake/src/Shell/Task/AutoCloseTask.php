@@ -7,7 +7,7 @@ use Cake\Datasource\ConnectionManager;
 
 class AutoCloseTask extends Shell {
 
-    public function initialize(){
+    public function initialize():void{
         parent::initialize();
         $this->loadModel('Radaccts');
         $this->loadModel('Nas');

@@ -46,7 +46,7 @@ class DashboardController extends AppController{
     public function getToken(){
     
         //Sample call from CURL
-        //curl -X POST -H 'Content-Type: application/x-www-form-urlencoded' -i 'http://127.0.0.1/cake3/rd_cake/dashboard/get-token.json' 
+        //curl -X POST -H 'Content-Type: application/x-www-form-urlencoded' -i 'http://127.0.0.1/cake4/rd_cake/dashboard/get-token.json' 
         //--data 'username=root&password=admin'
         //END Sample Call from Curl
          $this->loadComponent('Auth', [

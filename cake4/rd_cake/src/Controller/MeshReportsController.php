@@ -198,9 +198,9 @@ class MeshReportsController extends AppController {
             } 
             
             if($i->gateway !== 'none'){ 
-                $img = "/cake3/rd_cake/img/hardwares/lan_internet.png"; 
+                $img = "/cake4/rd_cake/img/hardwares/lan_internet.png"; 
                 if($i->gateway == 'wifi'){
-                    $img = "/cake3/rd_cake/img/hardwares/wifi_internet.png";    
+                    $img = "/cake4/rd_cake/img/hardwares/wifi_internet.png";    
                 }         
                 //This is the gateway -> Add an Internet connection to it
                 $gw_adj = [[
@@ -282,7 +282,7 @@ class MeshReportsController extends AppController {
                     'type'          => 'no_neighbors',
                     
                     '$type'     => "image",
-                    '$url'      => "/cake3/rd_cake/img/hardwares/".$node_data['hw_photo_file_name']
+                    '$url'      => "/cake4/rd_cake/img/hardwares/".$node_data['hw_photo_file_name']
                 ];
 
                 $this_data = array_merge((array)$node_data, (array)$specific_data);
@@ -366,7 +366,7 @@ class MeshReportsController extends AppController {
                     ////'type'          => $type,
                     
                     '$type'     => "image",
-                    '$url'      => "/cake3/rd_cake/img/hardwares/".$node_data['hw_photo_file_name']                     
+                    '$url'      => "/cake4/rd_cake/img/hardwares/".$node_data['hw_photo_file_name']                     
                 ];
                 $this_data = array_merge((array)$node_data, (array)$specific_data);
                 array_push($items, ['id'=> $this_data['id'],'name'=> $this_data['name'], 'data' => $this_data,'adjacencies'=> $adjacencies]);
