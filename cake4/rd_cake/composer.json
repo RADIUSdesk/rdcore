@@ -14,7 +14,8 @@
         "geoip2/geoip2": "^2.12",
         "guzzlehttp/guzzle": "^7.0",
         "mobiledetect/mobiledetectlib": "^2.8",
-        "tecnickcom/tcpdf": "^6.5"
+        "tecnickcom/tcpdf": "^6.5",
+        "hybridauth/hybridauth" : "~3.0"
     },
     "require-dev": {
         "cakephp/bake": "^2.6",

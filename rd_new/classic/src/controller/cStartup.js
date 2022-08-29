@@ -37,8 +37,8 @@ Ext.define('Rd.controller.cStartup', {
 	},
 	actionIndex: function(){
         var me          = this;     
-        me.application.setSelLanguage(Rd.config.selLanguage); //We hardcode the language since it is not very efficient to store the phrases in DB
-        Ext.Ajax.setExtraParams({'sel_language': me.application.getSelLanguage()});
+        Rd.getApplication().setSelLanguage(Rd.config.selLanguage); //We hardcode the language since it is not very efficient to store the phrases in DB
+        Ext.Ajax.setExtraParams({'sel_language': Rd.getApplication().getSelLanguage()});
 		me.originalRoute = Rd.getApplication().getDefaultToken();
 		setTimeout(function(){
 		  Ext.get('loading').remove();
@@ -75,12 +75,12 @@ Ext.define('Rd.controller.cStartup', {
 				me.showAuth();
 			}).then(function(authData) {
                 if(authData != undefined){//Apply phrases to the cusom VTypes to include language:
-					me.application.applyVtypes();
+					Rd.getApplication().applyVtypes();
 					Ext.Ajax.setExtraParams({}); // Clear any old ones out
 					//Set extra params to token's value
 					//This is the second place of three where we set the extraParams. The token is valid 3rt blace in cLogin.js
-					Ext.Ajax.setExtraParams({'token': authData.data.token,'sel_language': me.application.getSelLanguage()});
-					me.application.setDashboardData(authData.data);
+					Ext.Ajax.setExtraParams({'token': authData.data.token,'sel_language': Rd.getApplication().getSelLanguage()});
+					Rd.getApplication().setDashboardData(authData.data);
 					me.showMain();
 				}
 				return;
@@ -95,7 +95,7 @@ Ext.define('Rd.controller.cStartup', {
 		if(!email64 || email64 == 'nr'){
 			email64 = '';
 		}
-        me.application.runAction('cRegister','Index',email64); 
+        Rd.getApplication().runAction('cRegister','Index',email64); 
     },
 	onBeforeUpdateReg: function(valEmail,action){
 		var me 		= this,
@@ -118,13 +118,12 @@ Ext.define('Rd.controller.cStartup', {
         var me = this; 
 			
 		me.cleanUpWins();
-		me.application.runAction('cRegister','UpdateRegistration',valEmail); 
+		Rd.getApplication().runAction('cRegister','UpdateRegistration',valEmail); 
 
     },
     onPasswordReset: function() {
-        var me = this; 
-			
-        me.application.runAction('cPasswordReset','Index'); // TODO
+        var me = this; 			
+        Rd.getApplication().runAction('cPasswordReset','Index'); // TODO
 
     },
 	//

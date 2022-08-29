@@ -11,11 +11,16 @@ Ext.define('Rd.store.sRadaccts', {
             url     : '/cake4/rd_cake/radaccts/index.json',
             autoLoad: false,
             reader: {
-                keepRawData     : true,
                 type: 'json',
+                keepRawData: true,
                 rootProperty: 'items',
                 messageProperty: 'message',
                 totalProperty: 'totalCount' //Required for dynamic paging
+            },
+            listeners: {
+                exception: function(proxy, response, operation, eOpts) {
+                    //FIXME Do proper error handling
+                }
             },
             simpleSortMode: true //This will only sort on one column (sort) and a direction(dir) value ASC or DESC
     },

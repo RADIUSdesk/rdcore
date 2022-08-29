@@ -14,8 +14,9 @@ Ext.define('Rd.view.dashboard.winDashboardSettings', {
     border  : false,
     layout  : 'fit',
     requires: [
-      //  'Rd.view.components.cmbRealm',
+        'Rd.view.components.cmbRealm',
         'Rd.view.components.cmbTimezones',
+        'Rd.view.components.cmbClouds',
         'Rd.view.dashboard.vcWinDashboardSettings',
         'Ext.tab.Panel',
         'Ext.form.Panel',
@@ -80,21 +81,30 @@ Ext.define('Rd.view.dashboard.winDashboardSettings', {
                                             data: [
                                                 {
                                                     id  : 'radius_overview',
-                                                    name: "RADIUS"
+                                                    name: "Data Usage (RADIUS)"
                                                 },
                                                 {
                                                     id  : 'meshdesk_overview',
-                                                    name: "MESH Networks"
+                                                    name: "Networks"
                                                 }
                                             ]
                                         }    
                                     },
-                                   /* {
+                                    {
+                                        xtype       : 'cmbClouds',
+                                        fieldLabel  : 'Default Cloud',
+                                        hidden      : false,
+                                        disabled    : false,
+                                        listeners   : {
+				                            change  : 'onCmbCloudsChange'
+				                        }
+                                    },                                    
+                                    {
                                         xtype       : 'cmbRealm',
                                         fieldLabel  : 'Default Realm',
                                         hidden      : true,
                                         disabled    : true
-                                    },*/
+                                    },
                                     {
                                         xtype       : 'cmbTimezones',
                                         name        : 'timezone_id'

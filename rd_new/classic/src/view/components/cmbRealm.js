@@ -30,7 +30,7 @@ Ext.define('Rd.view.components.cmbRealm', {
                     messageProperty : 'message'
                 }
             },
-            autoLoad            : false
+            autoLoad            : true
         });
         me.store = s;
         this.callParent(arguments);

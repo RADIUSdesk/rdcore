@@ -324,8 +324,8 @@ Ext.define('Rd.controller.cDynamicDetails', {
     },
     add: function(button){
         var me 		= this;
-        var c_name 	= me.application.getCloudName();
-        var c_id	= me.application.getCloudId()
+        var c_name 	= Ext.getApplication().getCloudName();
+        var c_id	= Ext.getApplication().getCloudId()
         if(!Ext.WindowManager.get('winDynamicDetailAddId')){
             var w = Ext.widget('winDynamicDetailAdd',{id:'winDynamicDetailAddId',cloudId: c_id, cloudName: c_name});
             w.show();         

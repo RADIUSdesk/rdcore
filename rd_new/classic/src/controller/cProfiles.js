@@ -101,7 +101,7 @@ Ext.define('Rd.controller.cProfiles', {
         var tp      = me.getGrid().up('tabpanel');
         var id      = 0; // New Profile
         var name    = "New Profile"; 
-        me.application.runAction('cProfileSimple','Index',id,{
+        Ext.getApplication().runAction('cProfileSimple','Index',id,{
             name        :name,
             store       :store,
             tp          :tp,
@@ -201,7 +201,7 @@ Ext.define('Rd.controller.cProfiles', {
             var sr      = me.getGrid().getSelectionModel().getLastSelected();
             var id      = sr.getId();
             var name    = sr.get('name');
-            me.application.runAction('cProfileSimple','Index',id,{
+            Ext.getApplication().runAction('cProfileSimple','Index',id,{
                 name        :name,
                 tp          :tp
             });                  
@@ -277,7 +277,7 @@ Ext.define('Rd.controller.cProfiles', {
     profileComponents: function(b){
         var me = this;
         tp = b.up('tabpanel');
-        me.application.runAction('cProfileComponents','Index',tp);
+        Ext.getApplication().runAction('cProfileComponents','Index',tp);
     },
     advanced_edit: function(){
         var me      = this;

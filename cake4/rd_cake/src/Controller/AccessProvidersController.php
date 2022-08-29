@@ -127,7 +127,6 @@ class AccessProvidersController extends AppController{
      //____ BASIC CRUD Manager ________
     public function index(){
 
-        //__ Authentication + Authorization __
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
         }
@@ -177,8 +176,7 @@ class AccessProvidersController extends AppController{
    
     public function add(){
 
-        $user = $this->_ap_right_check();
-        if(!$user){
+        if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
         }
         $req_d		= $this->request->getData();
@@ -240,12 +238,12 @@ class AccessProvidersController extends AppController{
     }
     
     public function view(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
+
+
+        if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
         }
-        $user_id    = $user['id'];
+        
         $items 		= [];
         $req_q    = $this->request->getQuery();
         if(isset($req_q['ap_id'])){
@@ -296,17 +294,13 @@ class AccessProvidersController extends AppController{
   
     public function edit(){
     
-         //This is a deviation from the standard JSON serialize view since extjs requires a html type reply when files
-        //are posted to the server.    
+       	if(!$this->Aa->admin_check($this)){   //Only for admin users!
+            return;
+        } 
+          
         $this->viewBuilder()->setLayout('ext_file_upload');
     
         //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if(!$user){
-            return;
-        }
-        $user_id    = $user['id'];
-
         //We need to unset a few of the values submitted:
         $req_d		= $this->request->getData();
         unset($req_d['token']);
@@ -458,6 +452,11 @@ class AccessProvidersController extends AppController{
     }
     
     public function delete($id = null) {
+    
+    	if(!$this->Aa->admin_check($this)){   //Only for admin users!
+            return;
+        }
+    
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
@@ -478,6 +477,10 @@ class AccessProvidersController extends AppController{
 	}
 	
 	public function changePassword(){
+	
+		if(!$this->Aa->admin_check($this)){   //Only for admin users!
+            return;
+        }
 
         $success 	= false;
         $req_d		= $this->request->getData();
@@ -498,7 +501,11 @@ class AccessProvidersController extends AppController{
         ]);
     }
     
-    public function enableDisable(){       
+    public function enableDisable(){ 
+    
+    	if(!$this->Aa->admin_check($this)){   //Only for admin users!
+            return;
+        }      
 
 		$req_d	= $this->request->getData();
         $rb  	= $req_d['rb'];

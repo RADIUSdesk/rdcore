@@ -216,10 +216,10 @@ Ext.define('Rd.controller.cPermanentUsers', {
     },
     add: function(button){  
         var me      = this;
-        var c_name 	= me.application.getCloudName();
-        var c_id	= me.application.getCloudId()
+        var c_name 	= Ext.getApplication().getCloudName();
+        var c_id	= Ext.getApplication().getCloudId()
         if(!Ext.WindowManager.get('winPermanentUserAddId')){
-            var w = Ext.widget('winPermanentUserAdd',{id:'winPermanentUserAddId',cloudId: c_id, cloudName: c_name,selLanguage : me.application.getSelLanguage()});
+            var w = Ext.widget('winPermanentUserAdd',{id:'winPermanentUserAddId',cloudId: c_id, cloudName: c_name,selLanguage : Ext.getApplication().getSelLanguage()});
             w.show();         
         }
     },
@@ -549,7 +549,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
                 var sr          = me.getGrid().getSelectionModel().getLastSelected();
                 var item_id     = sr.getId();
                 var username    = sr.get('username');
-                me.application.runAction('cPassword','Index',{id:item_id, username : username});                  
+                Ext.getApplication().runAction('cPassword','Index',{id:item_id, username : username});                  
             }    
         }
     },
@@ -615,7 +615,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
             );
         }else{
             var sr = grid.getSelectionModel().getLastSelected();
-            me.application.runAction('cRadiusClient','TestPermanent',sr);        
+            Ext.getApplication().runAction('cRadiusClient','TestPermanent',sr);        
         }
     },  
     gridUserRadpostauthsReload: function(button){
@@ -1066,7 +1066,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
                 tp.setActiveTab(tab_id); //Set focus on  Tab
                 return;
             }
-            var dd              = me.application.getDashboardData();
+            var dd              = Ext.getApplication().getDashboardData();
             var timezone_id     = dd.user.timezone_id;
 
             var tab_name = sr.get('username');
@@ -1089,7 +1089,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
     byod: function(b){
         var me = this;
         tp = b.up('tabpanel');
-        me.application.runAction('cDevices','Index',tp);
+        Ext.getApplication().runAction('cDevices','Index',tp);
     },
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");

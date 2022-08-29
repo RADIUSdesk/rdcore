@@ -188,8 +188,8 @@ Ext.define('Rd.controller.cMeshes', {
     },
     add: function(button){
         var me 		= this;
-        var c_name 	= me.application.getCloudName();
-        var c_id	= me.application.getCloudId()
+        var c_name 	= Ext.getApplication().getCloudName();
+        var c_id	= Ext.getApplication().getCloudId()
         if(!Ext.WindowManager.get('winMeshAddId')){
             var w = Ext.widget('winMeshAdd',{id:'winMeshAddId',cloudId: c_id, cloudName: c_name});
             w.show();         
@@ -292,7 +292,7 @@ Ext.define('Rd.controller.cMeshes', {
                 var sr      = me.getGrid().getSelectionModel().getLastSelected();
                 var id      = sr.getId();
                 var name    = sr.get('name');  
-				me.application.runAction('cMeshViews','Index',id,name); 
+				Ext.getApplication().runAction('cMeshViews','Index',id,name); 
             }
         }
     },
@@ -320,7 +320,7 @@ Ext.define('Rd.controller.cMeshes', {
                 var id      = sr.getId();
                 var name    = sr.get('name');
                 var tabPanel= me.getGrid().up('tabpanel')
-				me.application.runAction('cMeshEdits','Index',tabPanel,{name:name,id:id}); 
+				Ext.getApplication().runAction('cMeshEdits','Index',tabPanel,{name:name,id:id}); 
             }
         }
     },
@@ -409,7 +409,7 @@ Ext.define('Rd.controller.cMeshes', {
         var store   = tab.down("gridNodeLists").getStore();
         var id      = 0; // New Ap
         var name    = "New Node"; 
-        me.application.runAction('cMeshNode','Index',id,{name:name,store:store});
+        Ext.getApplication().runAction('cMeshNode','Index',id,{name:name,store:store});
     },
     delNode:   function(){
         var me      = this;
@@ -475,7 +475,7 @@ Ext.define('Rd.controller.cMeshes', {
                 var name    = sr.get('name'); 
                 var meshId  = sr.get('mesh_id');
 			    var meshName= sr.get('mesh');
-                me.application.runAction('cMeshNode','Index',id,{
+                Ext.getApplication().runAction('cMeshNode','Index',id,{
                     name        : name,
                     meshId      : meshId,
 					meshName	: meshName,
@@ -682,12 +682,12 @@ Ext.define('Rd.controller.cMeshes', {
     btnEditMeshClicked: function(b){
         var me = this;
         pnlMeshView = b.up('pnlMeshView');        
-        me.application.runAction('cMeshEdits','Index',pnlMeshView,{name:pnlMeshView.getTitle(),id:pnlMeshView.mesh_id});   
+        Ext.getApplication().runAction('cMeshEdits','Index',pnlMeshView,{name:pnlMeshView.getTitle(),id:pnlMeshView.mesh_id});   
     },
     btnViewMeshClicked: function(b){
         var me = this;
         pnlMeshEdit = b.up('pnlMeshEdit');
-        me.application.runAction('cMeshViews','Index',pnlMeshEdit.meshId,pnlMeshEdit.meshName);
+        Ext.getApplication().runAction('cMeshViews','Index',pnlMeshEdit.meshId,pnlMeshEdit.meshName);
     },
     onNodeListsActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");

@@ -1,37 +1,17 @@
-Ext.define('Rd.controller.cMainOther', {
+Ext.define('Rd.controller.cMainOverview', {
     extend  : 'Ext.app.Controller',
     config: {
         urlGetContent : '/cake4/rd_cake/dashboard/items-for.json'
     },
     control : {
-        '#tabMainOther #cHardwares' : {
+        '#tabMainOverview #cNetworkOverview' : {
 		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cHardwares','Index',pnl);
+		        Ext.getApplication().runAction('cNetworkOverview','Index',pnl);
 		    }
 	    },
-        '#tabMainOther #cSettings' : {
+        '#tabMainOverview #cDataUsage' : {
 		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cSettings','Index',pnl);
-		    }
-	    },
-        '#tabMainOther #cOpenvpnServers' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cOpenvpnServers','Index',pnl);
-		    }
-	    },
-        '#tabMainOther #cSchedules' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cSchedules','Index',pnl);
-		    }
-	    },
-        '#tabMainOther #cClouds' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cClouds','Index',pnl);
-		    }
-	    },
-        '#tabMainOther #cAccessProviders' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cAccessProviders','Index',pnl);
+		        Ext.getApplication().runAction('cDataUsage','Index',pnl);
 		    }
 	    }
     },

@@ -100,10 +100,18 @@ class AaComponent extends Component {
 		        $cloud_id = $r_data['cloud_id'];
 		    }elseif(isset($q_data['cloud_id'])){ 
 		        $cloud_id = $q_data['cloud_id'];
-		    }      
+		    }
+		    
+		    //-----!!!---
+		    if(isset($q_data['settings_cloud_id'])){ //Override for settings Window
+		   		$cloud_id  = $q_data['settings_cloud_id'];
+		   	}
+		   	//----!!!----
+		          
 		    if($cloud_id == false){
 		    	$result = ['success' => false, 'message' => __('Cloud ID Missing')];
 		    }
+		    		    
 		    //==END IS cloud_id PRESENT AND VALID==
 		}
         

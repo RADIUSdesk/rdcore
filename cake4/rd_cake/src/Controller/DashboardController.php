@@ -27,9 +27,13 @@ class DashboardController extends AppController{
         parent::initialize();
         $this->loadModel('Users');
         $this->loadModel('UserSettings');
-        $this->loadModel('Realms');   
+        $this->loadModel('Realms'); 
+        $this->loadModel('Clouds');   
         $this->loadComponent('Aa');
-        $this->loadComponent('WhiteLabel');      
+        $this->loadComponent('WhiteLabel');
+        $this->loadModel('Clouds');
+        $this->loadModel('CloudAdmins');    
+            
     }
       
     public function navTree(){
@@ -272,31 +276,20 @@ class DashboardController extends AppController{
             }
         } 
            
-        //Now for the more difficult bit finding the default realm if there are not one.
         $q_rr = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'realm_id'])->first();
         if($q_rr){
             $q_r                = $this->Realms->find()->where(['id' => $q_rr->value])->first();
             $realm_name         = $q_r->name;
             $data['realm_name'] = $realm_name;
-            $data['realm_id']   = $q_rr->value;
-        }else{
-            //We need to find the first valid realm
-            if($user['group_name'] == 'Administrators'){
-                $q_r            = $this->Realms->find()->first();
-                if($q_r){
-                    $realm_name         = $q_r->name;
-                    $data['realm_name'] = $realm_name;
-                    $data['realm_id']   = $q_r->id;
-                }
-            }
-            
-            if($user['group_name'] == 'Access Providers'){
-                /*$realm_detail = $this->_ap_default_realm($user_id); FIXME 2022 Replace with default Cloud
-                if(array_key_exists('realm_id',$realm_detail)){
-                    $data['realm_name'] = $realm_detail['realm_name'];
-                    $data['realm_id']   = $realm_detail['realm_id'];
-                }*/
-            }    
+            $data['realm_id']   = intval($q_rr->value);
+        }
+        
+        $q_cloud = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'cloud_id'])->first();
+        if($q_cloud){
+            $q_c                = $this->Clouds->find()->where(['id' => $q_cloud->value])->first();
+            $cloud_name         = $q_c->name;
+            $data['cloud_name'] = $cloud_name;
+            $data['cloud_id']   = intval($q_cloud->value);
         }
      
         $this->set([
@@ -326,7 +319,8 @@ class DashboardController extends AppController{
             'realm_id',
             'default_overview',
             'alert_activate',
-            'alert_frequency'
+            'alert_frequency',
+            'cloud_id'
         ];  
           
         //Clean up everything
@@ -400,8 +394,16 @@ class DashboardController extends AppController{
             foreach($looking_for as $ri){
                  $this->UserSettings->deleteAll(['UserSetting.user_id' => $user_id,'UserSetting.name' => $ri]);
             } 
-        }  
-               
+        } 
+        
+         if(isset($r_data['cloud_id'])){
+		    $s = $this->UserSettings->newEmptyEntity();
+            $s->user_id = $user_id;
+            $s->name    = 'cloud_id';
+            $s->value   = $r_data['cloud_id'];
+            $this->UserSettings->save($s);
+        }
+                       
         if(isset($r_data['realm_id'])){
 		    $s = $this->UserSettings->newEmptyEntity();
             $s->user_id = $user_id;
@@ -518,35 +520,50 @@ class DashboardController extends AppController{
         if(!$user){
             return;
         }
-        $user_id    = $user['id'];
+        $user_id  	= $user['id'];
+        $isRootUser = false;
+        $group		= $user['group_name'];
+        
+        if( $group  == Configure::read('group.admin')){  //Admin
+            $isRootUser = true; 
+        }
+           
         $req_q    = $this->request->getQuery();
         
         $items	= [];
         
          if($req_q['item_id'] == 'tabMainOverview'){
-        	$items = [
-        		[
-                    "title" => "Network Overview",
-                    "glyph" => "xf0c2@FontAwesome",
-                    "id" 	=> "cNetworkOverview",
-                    "layout" => "fit",
-                    "tabConfig" => [
-                        "ui" => "tab-blue"
-                    ]
-               ],
-               [
-                    "title" => "Data Usage",
-                    "glyph" => "xf0c2@FontAwesome",
-                    "id" 	=> "cDataUsage",
-                    "layout" => "fit",
-                    "tabConfig" => [
-                        "ui" => "tab-orange"
-                    ]
-               ]       	
-        	];        
+         
+         	$q_network = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'meshdesk_overview'])->first();
+         	if($q_network){
+                 	
+		     	array_push($items,[
+		                "title" => "Network Overview",
+		                "glyph" => "xf0c2@FontAwesome",
+		                "id" 	=> "cNetworkOverview",
+		                "layout" => "fit",
+		                "tabConfig" => [
+		                    "ui" => "tab-blue"
+		                ]
+		           ]);
+		  	}
+		  	
+		  	$q_radius = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'radius_overview'])->first();
+         	if($q_radius){
+                 	
+		     	array_push($items,[
+		                "title" => "Data Usage",
+		                "glyph" => "xf0c2@FontAwesome",
+		                "id" 	=> "cDataUsage",
+		                "layout" => "fit",
+		                "tabConfig" => [
+		                    "ui" => "tab-orange"
+		                ]
+		           ]);
+		  	}
+                      	  
         }
-        
-       
+              
         if($req_q['item_id'] == 'tabMainUsers'){
         	$items = [
         		[
@@ -621,44 +638,53 @@ class DashboardController extends AppController{
         }
         
        	if($req_q['item_id'] == 'tabMainOther'){
-        	$items = [
-        		 [
+       	
+       		$items = [];
+       		if($isRootUser){
+       			array_push($items,[
                     "title"	=> "Settings",
                     "glyph"	=> "xf085@FontAwesome",
                     "id"	=> "cSettings",
                     "layout"=> "fit"
-                ],
-        		[
-                    "title" => "OpenVPN Servers",
-                    "glyph" => "xf10e@FontAwesome",
-                    "id"	=> "cOpenvpnServers",
-                    "layout"=> "fit"
-                ],
-                [
-                    "title"	=> "Clouds",
-                    "glyph"	=> "xf0c2@FontAwesome",
-                    "id"	=> "cClouds",
-                    "layout"=> "fit"
-                ],
-                [
+                ]);	
+       		}
+       		
+       		array_push($items,[
+                "title" => "OpenVPN Servers",
+                "glyph" => "xf10e@FontAwesome",
+                "id"	=> "cOpenvpnServers",
+                "layout"=> "fit"
+            ]);
+            
+            array_push($items,[
+                "title"	=> "Clouds",
+                "glyph"	=> "xf0c2@FontAwesome",
+                "id"	=> "cClouds",
+                "layout"=> "fit"
+            ]);
+            
+            if($isRootUser){
+            	array_push($items,[
                     "title"	=> "Admins",
                     "glyph"	=> "xf084@FontAwesome",
                     "id" 	=> "cAccessProviders",
                     "layout"=> "fit"
-                ],              
-                [
-                    "title"	=> "Schedules",
-                    "glyph"	=> "xf133@FontAwesome",
-                    "id"	=> "cSchedules",
-                    "layout"=> "fit"
-                ],
-                [
-                    "title"	=> "Hardwares",
-                    "glyph"	=> "xf0a0@FontAwesome",
-                    "id"	=> "cHardwares",
-                    "layout"=> "fit"
-                ]
-         	];
+                ]);	
+       		}
+       		
+            array_push($items,[
+                "title"	=> "Schedules",
+                "glyph"	=> "xf133@FontAwesome",
+                "id"	=> "cSchedules",
+                "layout"=> "fit"
+            ]);
+            
+            array_push($items,[
+                "title"	=> "Hardwares",
+                "glyph"	=> "xf0a0@FontAwesome",
+                "id"	=> "cHardwares",
+                "layout"=> "fit"
+            ]);
         }
         
         $this->set([
@@ -685,6 +711,44 @@ class DashboardController extends AppController{
        	}else{
        		$compact	= false;
        	}
+       	
+       	//Check if the user has any clouds it can manage
+       	$query   = $this->{'Clouds'}->find();
+            
+		//---Access Providers- Special where clause--
+    	if($user->group->name == Configure::read('group.ap')){ 
+    		      		
+			$clouds_OR_list		= [['Clouds.user_id' => $id]]; //This is the basic search item
+			$q_ca = $this->{'CloudAdmins'}->find()->where(['CloudAdmins.user_id'=>$id])->all();//The access provider (ap) might also be admin to other clouds
+			foreach($q_ca as $e_ca){
+				array_push($clouds_OR_list,['Clouds.id' => $e_ca->cloud_id]);
+			}      	
+			$query->where(['OR' => $clouds_OR_list]);
+    	}
+    	//---END---        	   
+    	
+    	$query->order(['name' => 'ASC']);
+    	$cloud_count 	= $query->count();
+    	$cloud_name		= false;
+    	$cloud_id		= false;
+    	$realm_id		= false;
+    	
+    	
+    	if($cloud_count > 0){ //Check if there is a default cloud set for this user  	
+    		$q_cloud = $this->UserSettings->find()->where(['user_id' => $id,'name' => 'cloud_id'])->first();
+        	if($q_cloud){
+            	$q_c                = $this->Clouds->find()->where(['id' => $q_cloud->value])->first();
+            	$cloud_name         = $q_c->name;
+				$cloud_id			= intval($q_cloud->value);
+        	} 
+        	
+        	$q_realm = $this->UserSettings->find()->where(['user_id' => $id,'name' => 'realm_id'])->first();
+        	if($q_realm){
+            	$q_r                = $this->Realms->find()->where(['id' => $q_realm->value])->first();
+            	$realm_name         = $q_r->name;
+				$realm_id			= intval($q_realm->value);
+        	} 	       		
+    	}
         
         //White Label
         $white_label            = [];
@@ -725,18 +789,26 @@ class DashboardController extends AppController{
           	$show_wizard = true;
             $show_unknown_nodes = true; 
         }
-        
-        
+               
         $data_usage = [];
-        if(isset($this->realm_id)){
-           $data_usage = ['realm_id' => $this->realm_id, 'realm_name' => $this->realm_name];
+        if($realm_id){
+           $data_usage = ['realm_id' => $realm_id, 'realm_name' => $realm_name];
         }
             
         return [
             'token'         =>  $token,
             'isRootUser'    =>  $isRootUser,
             'data_usage'    =>  $data_usage,
-            'user'          =>  ['id' => $id, 'username' => $username,'group' => $group,'cls' => $cls,'timezone_id' => $user->timezone_id],
+            'user'          =>  [
+            	'id' 			=> $id, 
+            	'username' 		=> $username,
+            	'group' 		=> $group,
+            	'cls' 			=> $cls,
+            	'timezone_id' 	=> $user->timezone_id,
+            	'cloud_count' 	=> $cloud_count,
+            	'cloud_name'	=> $cloud_name,
+            	'cloud_id'		=> $cloud_id
+           	],
             'white_label'   =>  $white_label,
             'show_wizard'   =>  $show_wizard,
             'show_unknown_nodes' => $show_unknown_nodes,
@@ -744,186 +816,9 @@ class DashboardController extends AppController{
             'tree_nav' 		=> $this->_nav_tree_blank()
         ];        
     }
-       
-    
-    private function _ap_default_realm($ap_id){
-    
-        $realm = array();
-      
-        $q_r = $this->Users->find('path',['for' => $ap_id]);
-            
-        $found_flag = false; 
-       
-               
-        foreach($q_r as $i){    
-            $user_id    = $i->id;          
-            $r          = $this->Realms->find()->where(['Realms.user_id' => $user_id,'Realms.available_to_siblings'=> true])->all();
-               
-            foreach($r  as $j){
-                $id     = $j->id;
-                $name   = $j->name;
-
-                $read = $this->Acl->check(
-                            array('model' => 'Users', 'foreign_key' => $ap_id), 
-                            array('model' => 'Realms','foreign_key' => $id), 'read');
-                if($read == true){
-                    $realm['realm_id']      = $id;
-                    $realm['realm_name']    = $name;
-                    $found_flag = true;
-                    break; // We only need one 
-                }
-            }
-        }
-        
-        //All the realms owned by anyone this access provider created (and also itself) 
-        //will automatically be under full controll of this access provider  
-        if($found_flag == false){           
-            $this->children     = $this->Users->find_access_provider_children($ap_id);
-            $or_array           = array(['Realms.user_id' => $ap_id]); //Start with itself
-            if($this->children){   //Only if the AP has any children...
-                foreach($this->children as $i){
-                    $id = $i['id'];
-                    array_push($or_array,array('Realms.user_id' => $id));
-                }       
-            }
-            if(count($or_array)>0){ //Only if there are something to 'OR'
-                $r_sub = $this->Realms->find()->where(['OR' => $or_array])->all(); 
-                foreach($r_sub  as $j){
-                    $realm['realm_id']     = $j->id;
-                    $realm['realm_name']   = $j->name;
-                    break; //We only need one
-                }
-            }              
-        }
-        return $realm;
-    }
     
     private function _nav_tree(){
-    
-    	$trRadius =	[
-			[
-				'text'	=> 'USERS',
-				'leaf'	=> true,
-				'controller'	=> 'cPermanentUsers',
-				'id'		=> 'tabMainPermanentUsers',
-				'iconCls'	=> 'x-fa fa-user',
-				'glyph'		=> 'xf007'
-			],
-			[
-				'text'	=> 'VOUCHERS',
-				'leaf'	=> true,
-				'controller'	=> 'cVouchers',
-				'id'		=> 'tabMainVouchers',
-				'iconCls'	=> 'x-fa fa-tag',
-				'glyph'		=> 'xf02b'
-			],
-			[
-				'text'	=> 'TOP-UPS',
-				'leaf'	=> true,
-				'controller'	=> 'cTopUps',
-				'id'		=> 'tabMainTopUps',
-				'iconCls'	=> 'x-fa  fa-coffee',
-				'glyph'		=> 'xf0f4'
-			]			
-		];
-		
-		$thRadiusComponents = [
-			[
-				'text'	=> 'REALMS',
-				'leaf'	=> true,
-				'controller'	=> 'cRealms',
-				'id'		=> 'tabMainRealms',
-				'iconCls'	=> 'x-fa fa-globe',
-				'glyph'		=> 'xf0ac'
-			],		
-			[
-				'text'	=> 'PROFILES',
-				'leaf'	=> true,
-				'controller'	=> 'cProfiles',
-				'id'		=> 'tabMainProfiles',
-				'iconCls'	=> 'x-fa fa-cubes',
-				'glyph'		=> 'xf1b3'
-			],
-			[
-				'text'	=> 'CLIENTS',
-				'leaf'	=> true,
-				'controller'	=> 'cDynamicClients',
-				'id'		=> 'tabMainDynamicClients',
-				'iconCls'	=> 'x-fa fa-dot-circle-o',
-				'glyph'		=> 'xf192'
-			]		
-		];
-		
-		$thNetworks = [
-			[
-				'text'	=> 'MESHdesk',
-				'leaf'	=> true,
-				'controller'=> 'cMeshes',
-				'id'		=> 'tabMainMeshes',
-				'iconCls'	=> 'x-fa fa-wifi',
-				'glyph'		=> 'xf1eb'
-			],
-			[
-				'text'	=> 'APdesk',
-				'leaf'	=> true,
-				'controller'=> 'cAccessPoints',
-				'id'		=> 'tabMainAccessPoints',
-				'iconCls'	=> 'x-fa fa-wifi',
-				'glyph'		=> 'xf1eb'
-			],	
-			[
-				'text'	=> 'HARDWARES',
-				'leaf'	=> true,
-				'controller'=> 'cHardwares',
-				'id'		=> 'tabMainHardwares',
-				'iconCls'	=> 'x-fa fa-cog',
-				'glyph'		=> 'xf013'
-			],
-			[
-				'text'	=> 'SCHEDULES',
-				'leaf'	=> true,
-				'controller'=> 'cSchedules',
-				'id'		=> 'tabMainSchedules',
-				'iconCls'	=> 'x-fa fa-clock',
-				'glyph'		=> 'xf017'
-			],
-			[
-				'text'	=> 'OPEN VPN',
-				'leaf'	=> true,
-				'controller'=> 'cOpenvpnServers',
-				'id'		=> 'tabMainOpenvpnServers',
-				'iconCls'	=> 'x-fa  fa-quote-left',
-				'glyph'		=> 'xf10d'
-			]			
-		];
-		
-		$thOther = [
-			[
-				'text'	=> 'ADMINS',
-				'leaf'	=> true,
-				'controller'	=> 'cAccessProviders',
-				'id'		=> 'tabMainAccessProviders',
-				'iconCls'	=> 'x-fa fa-graduation-cap',
-				'glyph'		=> 'xf19d'
-			],
-			[
-				'text'	=> 'CLOUDS',
-				'leaf'	=> true,
-				'controller'	=> 'cClouds',
-				'id'		=> 'tabMainClouds',
-				'iconCls'	=> 'x-fa fa-cloud',
-				'glyph'		=> 'xf0c2'
-			],
-			[
-				'text'	=> 'SETTINGS',
-				'leaf'	=> true,
-				'controller'	=> 'cSettings',
-				'id'		=> 'tabMainSettings',
-				'iconCls'	=> 'x-fa fa-cog',
-				'glyph'		=> 'xf013'
-			]
-		];
-    	   
+      	   
     	$items = [
 			[
 				'text' 		=> 'OVERVIEW',

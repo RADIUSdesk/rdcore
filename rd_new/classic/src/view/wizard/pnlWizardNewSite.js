@@ -540,21 +540,12 @@ Ext.define('Rd.view.wizard.pnlWizardNewSite', {
                         ],
                         buttons     : [
                             {
-                                text    : 'Preview Mobile',
+                                text    : 'Preview',
                                 scale   : 'large',
                                 glyph   : Rd.config.icnMobile,
                                 margin  : Rd.config.buttonMargin,
                                 listeners       : {
                                     click : 'previewMobile'
-                                }
-                            },
-                            {
-                                text    : 'Preview Desktop',
-                                scale   : 'large',
-                                glyph   : Rd.config.icnDesktop,
-                                margin  : Rd.config.buttonMargin,
-                                listeners       : {
-                                    click : 'previewDesktop'
                                 }
                             },
                             '->', 

@@ -83,5 +83,12 @@ Ext.define('Rd.view.dashboard.vcWinDashboardSettings', {
 		}else{
 		    fld_freq.setDisabled (true);
 		}	
-	}    
+	},
+    onCmbCloudsChange: function(cmb){
+        var me      = this;
+        var pnl     = cmb.up('panel');
+        var realm   = pnl.down('cmbRealm');
+        realm.getStore().getProxy().setExtraParam('settings_cloud_id',cmb.getValue());
+        realm.getStore().load();
+    }   
 });

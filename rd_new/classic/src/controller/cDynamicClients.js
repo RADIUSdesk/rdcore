@@ -232,8 +232,8 @@ Ext.define('Rd.controller.cDynamicClients', {
         var tab     = button.up("tabpanel");
         var store   = tab.down("gridDynamicClients").getStore();
         var me 		= this;
-        var c_name 	= me.application.getCloudName();
-        var c_id	= me.application.getCloudId()
+        var c_name 	= Ext.getApplication().getCloudName();
+        var c_id	= Ext.getApplication().getCloudId()
         if(!Ext.WindowManager.get('winDynamicClientAddId')){
             var w = Ext.widget('winDynamicClientAdd',{id:'winDynamicClientAddId',cloudId: c_id, cloudName: c_name,store: store});
             w.show();         
@@ -699,7 +699,7 @@ Ext.define('Rd.controller.cDynamicClients', {
                 tp.setActiveTab(tab_id); //Set focus on  Tab
                 return;
             }
-            var dd              = me.application.getDashboardData();
+            var dd              = Ext.getApplication().getDashboardData();
             var timezone_id     = dd.user.timezone_id;
 
             var tab_name = sr.get('name');

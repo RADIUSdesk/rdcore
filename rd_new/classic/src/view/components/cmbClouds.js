@@ -8,7 +8,7 @@ Ext.define('Rd.view.components.cmbClouds', {
     displayField    : 'name',
     forceSelection  : true,
     mode            : 'local',
-    name            : 'clouds',
+    name            : 'cloud_id',
     multiSelect     : false,
     labelClsExtra   : 'lblRdReq',
     allowBlank      : false,

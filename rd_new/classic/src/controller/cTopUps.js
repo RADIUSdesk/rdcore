@@ -162,8 +162,8 @@ Ext.define('Rd.controller.cTopUps', {
     },
     add: function(button){   
         var me 		= this;
-        var c_name 	= me.application.getCloudName();
-        var c_id	= me.application.getCloudId()
+        var c_name 	= Ext.getApplication().getCloudName();
+        var c_id	= Ext.getApplication().getCloudId()
         if(!Ext.WindowManager.get('winTopUpAddId')){
             var w = Ext.widget('winTopUpAdd',{id:'winTopUpAddId',cloudId: c_id, cloudName: c_name});
             w.show();         

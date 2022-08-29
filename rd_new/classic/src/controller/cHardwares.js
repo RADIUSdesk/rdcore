@@ -99,9 +99,9 @@ Ext.define('Rd.controller.cHardwares', {
     add: function(button){   
     	var me 		= this;
         console.log("Add Called");
-        var c_name 	= me.application.getCloudName();
-        var c_id	= me.application.getCloudId();
-        var dd      = me.application.getDashboardData();
+        var c_name 	= Ext.getApplication().getCloudName();
+        var c_id	= Ext.getApplication().getCloudId();
+        var dd      = Ext.getApplication().getDashboardData();
         var root    = false;
         if(dd.isRootUser){
             root = true   
@@ -235,7 +235,7 @@ Ext.define('Rd.controller.cHardwares', {
                 }
 
                 var hw_tab_name = sr.get('name');
-                var dd      = me.application.getDashboardData();
+                var dd      = Ext.getApplication().getDashboardData();
                 var root    = false;
                 if(dd.isRootUser){
                     root = true   

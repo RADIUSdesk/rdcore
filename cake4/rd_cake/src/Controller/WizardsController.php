@@ -930,6 +930,7 @@ class WizardsController extends AppController{
         //Make the username so that it has the suffix
         $d_user['username']   = $ap_name.'@'.$ap_name;
         $d_user['password']   = $this->pwd;
+        $d_user['active']	  = 1;
          
         $e_pu = $this->PermanentUsers->newEntity($d_user);       
         $this->PermanentUsers->save($e_pu);

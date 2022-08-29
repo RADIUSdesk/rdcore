@@ -35,8 +35,14 @@ class RealmsController extends AppController{
             return;
         }
         
-        $req_q    = $this->request->getQuery(); //q_data is the query data      
-       	$cloud_id = $req_q['cloud_id'];
+        $req_q    = $this->request->getQuery(); //q_data is the query data  
+        
+        if(isset($req_q['settings_cloud_id'])){ //Override for settings Window
+       		$cloud_id  = $req_q['settings_cloud_id'];
+       	}else{
+       		$cloud_id = $req_q['cloud_id'];
+       	}   	
+       	      	   	   	
         $query 	  = $this->{$this->main_model}->find();      
         $this->CommonQueryFlat->build_cloud_query($query,$cloud_id);
         $q_r        = $query->all();     

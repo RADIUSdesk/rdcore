@@ -6,26 +6,22 @@ Ext.define('Rd.controller.cMainUsers', {
     control:{         
         '#tabMainUsers #cVouchers' : {
              afterrender	: function(pnl){
-                var me = this;
-		        me.application.runAction('cVouchers','Index',pnl);
+                Ext.getApplication().runAction('cVouchers','Index',pnl);
 		    }
 	    },
         '#tabMainUsers #cPermanentUsers' : {
             afterrender	: function(pnl){
-                var me = this;
-		        me.application.runAction('cPermanentUsers','Index',pnl);
+                Ext.getApplication().runAction('cPermanentUsers','Index',pnl);
 		    }
 	    },
         '#tabMainUsers #cActivityMonitor' : {
             afterrender	: function(pnl){
-                var me = this;
-		        me.application.runAction('cActivityMonitor','Index',pnl);
+                Ext.getApplication().runAction('cActivityMonitor','Index',pnl);
 		    }
 	    },
         '#tabMainUsers #cTopUps' : {
             afterrender	: function(pnl){
-                var me = this;
-		        me.application.runAction('cTopUps','Index',pnl);
+                Ext.getApplication().runAction('cTopUps','Index',pnl);
 		    }
 	    }
     },

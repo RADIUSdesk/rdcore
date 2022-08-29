@@ -928,7 +928,7 @@ Ext.define('Rd.controller.cAccessPointEdits', {
 		var name    = "New Ap"; 
 		var apProfileId = pnl.ap_profile_id;
 		var apProfile   = pnl.title;
-        me.application.runAction('cAccessPointAp','Index',id,{name:name,apProfileId:apProfileId,apProfile:apProfile,store:store});
+        Ext.getApplication().runAction('cAccessPointAp','Index',id,{name:name,apProfileId:apProfileId,apProfile:apProfile,store:store});
     },
     delAp:   function(button){
         var me      = this;
@@ -996,7 +996,7 @@ Ext.define('Rd.controller.cAccessPointEdits', {
             var name    = sr.get('name'); 
 			var apProfileId = sr.get('ap_profile_id');
 			var apProfile   = sr.get('ap_profile');
-            me.application.runAction('cAccessPointAp','Index',id,{name:name,apProfileId:apProfileId,apProfile:apProfile,store:store});
+            Ext.getApplication().runAction('cAccessPointAp','Index',id,{name:name,apProfileId:apProfileId,apProfile:apProfile,store:store});
         }
     },
 	//____ MAP ____

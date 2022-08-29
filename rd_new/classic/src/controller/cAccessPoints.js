@@ -252,7 +252,7 @@ Ext.define('Rd.controller.cAccessPoints', {
         var name    = "New Ap"; 
 		var apProfileId = '';
 		var apProfile   = '';
-        me.application.runAction('cAccessPointAp','Index',id,{name:name,apProfileId:apProfileId,apProfile:apProfile,store:store});
+       Ext.getApplication().runAction('cAccessPointAp','Index',id,{name:name,apProfileId:apProfileId,apProfile:apProfile,store:store});
     },
     delAp:   function(btn){
         var me      = this;
@@ -324,7 +324,7 @@ Ext.define('Rd.controller.cAccessPoints', {
                 var name    = sr.get('name'); 
 				var apProfileId = sr.get('ap_profile_id');
 				var apProfile   = sr.get('ap_profile');
-                me.application.runAction('cAccessPointAp','Index',id,{
+                Ext.getApplication().runAction('cAccessPointAp','Index',id,{
                     name        : name,
                     apProfileId : apProfileId,
                     apProfile   : apProfile,
@@ -469,14 +469,14 @@ Ext.define('Rd.controller.cAccessPoints', {
                 var name    = sr.get('name'); 
                 //var cont    = Rd.app.createController('cAccessPointViews');
                 //cont.actionIndex(id,name);
-                me.application.runAction('cAccessPointViews','Index',id,name);
+                Ext.getApplication().runAction('cAccessPointViews','Index',id,name);
             }
         }
     },
     add: function(button){
         var me      = this;
-        var c_name 	= me.application.getCloudName();
-        var c_id	= me.application.getCloudId();
+        var c_name 	= Ext.getApplication().getCloudName();
+        var c_id	= Ext.getApplication().getCloudId();
         if(!Ext.WindowManager.get('winApProfileAddId')){
             var w = Ext.widget('winApProfileAdd',{id:'winApProfileAddId',cloudId: c_id, cloudName: c_name});
             w.show();         
@@ -582,7 +582,7 @@ Ext.define('Rd.controller.cAccessPoints', {
                 var sr      = me.getGrid().getSelectionModel().getLastSelected();
                 var id      = sr.getId();
                 var name    = sr.get('name');
-                me.application.runAction('cAccessPointEdits','Index',id,name); 
+                Ext.getApplication().runAction('cAccessPointEdits','Index',id,name); 
             }
         }
     }, 

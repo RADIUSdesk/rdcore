@@ -9,7 +9,7 @@ Ext.define('Rd.controller.cDashboard', {
         urlChangePassword   : '/cake4/rd_cake/dashboard/change_password.json',
         urlSettingsSubmit   : '/cake4/rd_cake/dashboard/settings_submit.json',
         urlViewSettings     : '/cake4/rd_cake/dashboard/settings_view.json',
-        defaultScreen       : 'tabMainNetworkOverview'      
+        defaultScreen       : 'tabMainOverview'      
     },
     requires: [
  
@@ -67,7 +67,7 @@ Ext.define('Rd.controller.cDashboard', {
             },
             'pnlDashboard  #btnSetupWizard' : {
 		        click   : function(btn){
-                    me.application.runAction('cSetupWizard','Index')
+                    Ext.getApplication().runAction('cSetupWizard','Index');
                 } 
 		    }    
         });
@@ -75,7 +75,7 @@ Ext.define('Rd.controller.cDashboard', {
     },
     actionIndex: function(){
         var me      = this;
-        var dd      = me.application.getDashboardData();
+        var dd      = Ext.getApplication().getDashboardData();
         var user    = dd.user.username;
         var cls     = dd.user.cls;   
         var pnlDash = me.getView('dashboard.pnlDashboard').create({dashboard_data: dd});            
@@ -87,7 +87,7 @@ Ext.define('Rd.controller.cDashboard', {
         var me = this;
         b.up('panel').close();
         me.getViewP().removeAll(true);
-        me.application.runAction('cLogin','Exit');
+        Ext.getApplication().runAction('cLogin','Exit');
     },
     loadSettings: function(win){
         var me      = this; 
@@ -95,7 +95,18 @@ Ext.define('Rd.controller.cDashboard', {
         form.load({
             url         :me.getUrlViewSettings(), 
             method      :'GET',
-            success     : function(a,b,c){  
+            success     : function(a,b,c){
+
+                //var cmb     = form.down("cmbRealm");
+                //var rec     = Ext.create('Rd.model.mRealm', {name: b.result.data.realm_name, id: b.result.data.realm_id});
+                //cmb.getStore().loadData([rec],false);
+                //cmb.setValue(b.result.data.realm_id); 
+
+                //var cc     = form.down("cmbClouds");
+                //var rec_c  = Ext.create('Rd.model.mClouds', {name: b.result.data.cloud_name, id: b.result.data.cloud_id});
+                //cc.getStore().loadData([rec_c],false);
+                //cc.setValue(b.result.data.cloud_id); 
+  
                 if(b.result.data.wl_img != null){
                     var img = form.down("#imgWlLogo");
                     img.setSrc(b.result.data.wl_img);
@@ -105,7 +116,7 @@ Ext.define('Rd.controller.cDashboard', {
     },
     onSettings: function(b){
         var me  = this;
-        var dd  = me.application.getDashboardData();
+        var dd  = Ext.getApplication().getDashboardData();
         if(!Ext.WindowManager.get('winDashboardSettingsId')){
             var w = Ext.widget('winDashboardSettings',{
                 id  :'winDashboardSettingsId',
@@ -201,20 +212,17 @@ Ext.define('Rd.controller.cDashboard', {
     },
     onCloudSelect: function(cmb,record){
     	var me = this;
-    	me.application.setCloudId(cmb.getValue());
-    	me.application.setCloudName(record.get('name'));
-    	console.log(me.application.getCloudId());
-    	console.log(me.application.getCloudName());
+    	Ext.getApplication().setCloudId(cmb.getValue());
+    	//Ext.getApplication().setCloudName(record.get('name'));
         //1.) We set the extra parameters
     	var extra_p 	 = Ext.Ajax.getExtraParams();
-    	extra_p.cloud_id = me.application.getCloudId()
+    	extra_p.cloud_id = Ext.getApplication().getCloudId()
     	Ext.Ajax.setExtraParams(extra_p);
 
         //2.) Set the default screen as active first
         var children = me.getPnlCenter().query('> panel');
         Ext.each(children, function(child){
             if(child.getItemId() == me.getDefaultScreen()){
-                console.log("Set hom active");
                 me.getPnlCenter().setActiveItem(child);
             }
         });
@@ -230,8 +238,8 @@ Ext.define('Rd.controller.cDashboard', {
             })
         }
         //4.) Reload the treeview for the selected cloud 
-        var pnl = me.getPnlDashboard();
-        tl = pnl.down('#tlNav');
+        var pnlD = me.getPnlDashboard();
+        var tl = pnlD.down('#tlNav');
         var myStore = tl.getStore();
         Ext.Ajax.request({
             url     : '/cake4/rd_cake/dashboard/nav-tree.json',
@@ -249,7 +257,13 @@ Ext.define('Rd.controller.cDashboard', {
                     }
                 });
             }
-        }); 
+        });
+
+        //Reload the realm store on the overviews (if included) wit this cloud_id set
+        var cmbRealm = pnlD.down('#duCmbRealm');
+        if(cmbRealm){
+            cmbRealm.getStore().reload();
+        }
     },
     btnExpandClick: function(btn){
     	var me = this;
@@ -291,7 +305,7 @@ Ext.define('Rd.controller.cDashboard', {
             var new_data = Ext.Object.merge(pnlDashboard.down('#tbtHeader').getData(),{fa_value:'&#'+glyph+';', value :name});
             pnlDashboard.down('#tbtHeader').update(new_data);
     		if(!item){
-    			var added = me.application.runAction(c,'Index',pnl,id);
+    			var added = Ext.getApplication().runAction(c,'Index',pnl,id);
                 if(!added){
                     pnl.setActiveItem(item);
                     pnl.getEl().slideIn('r'); //Slide it in if **not** added
@@ -306,23 +320,28 @@ Ext.define('Rd.controller.cDashboard', {
     },
     pnlWestRendered: function(pnl){
         var me  = this;
-        var dd  = me.application.getDashboardData();
+        var dd  = Ext.getApplication().getDashboardData();
         tl      = pnl.down('#tlNav');
         var myStore = tl.getStore();
         //Initial loading
         myStore.getRoot().appendChild(dd.tree_nav);
-        //Select the Overview by default
-        pnl.down('#tlNav').getStore().each(function(record){
-            console.log(record.get('id'));
-        });
-
         //--Set the detault selected item--
         var rootNode = pnl.down('#tlNav').getStore().getRootNode();
         rootNode.eachChild(function(n) {
             if(n.get('id') == me.getDefaultScreen()){
                 pnl.down('#tlNav').setSelection(n);
             }
-        });           
+        });
 
+        if(dd.user.cloud_count == 0){
+            console.log("No Clouds - Start Up the Wizard");
+            Ext.getApplication().runAction('cSetupWizard','Index') 
+        }else{
+            if(dd.user.cloud_id){
+                var cmbCloud = me.getViewP().down('cmbClouds');
+                cmbCloud.select(dd.user.cloud_id);
+                me.onCloudSelect(cmbCloud);
+            }           
+        }
     }
 });

@@ -36,10 +36,10 @@ class HardwaresController extends AppController{
      //____ BASIC CRUD Manager ________
     public function index(){
     
-    	$user = $this->Aa->user_for_token($this);
-        if(!$user){   //If not a valid user
+    	$user = $this->_ap_right_check();
+        if(!$user){
             return;
-        } 
+        }
 
 		$req_q    = $this->request->getQuery();    
        	$cloud_id = $req_q['cloud_id'];

@@ -1110,7 +1110,7 @@ Ext.define('Rd.controller.cMeshEdits', {
 		var name    = "New Node"; 
 		var meshId  = pnl.meshId;
 		var mesh    = pnl.title;
-        me.application.runAction('cMeshNode','Index',id,{name:name,meshId:meshId,meshName:mesh,store:store});    
+        Ext.getApplication().runAction('cMeshNode','Index',id,{name:name,meshId:meshId,meshName:mesh,store:store});    
         
     },
     delNode:   function(btn){
@@ -1171,7 +1171,7 @@ Ext.define('Rd.controller.cMeshEdits', {
             var name    = sr.get('name'); 
 			var meshId  = sr.get('mesh_id');
 			var mesh    = sr.get('mesh');
-            me.application.runAction('cMeshNode','Index',id,{name:name,meshId:meshId,meshName:mesh,store:store});
+            Ext.getApplication().runAction('cMeshNode','Index',id,{name:name,meshId:meshId,meshName:mesh,store:store});
         }
     },
 

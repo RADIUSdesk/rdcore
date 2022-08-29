@@ -20,9 +20,9 @@ Ext.define('Rd.controller.cMainNetworks', {
 	                cls     : 'subSubTab'
 	            });      
             pnl.add(tp);
-            me.application.runAction('cMeshes','Index',tp);
-            me.application.runAction('cAccessPoints','Index',tp);
-            me.application.runAction('cUnknownNodes','Index',tp);
+            Ext.getApplication().runAction('cMeshes','Index',tp);
+            Ext.getApplication().runAction('cAccessPoints','Index',tp);
+            Ext.getApplication().runAction('cUnknownNodes','Index',tp);
             added = true;
         }
         return added;      

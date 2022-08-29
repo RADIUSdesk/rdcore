@@ -742,7 +742,7 @@ Ext.define('Rd.controller.cMeshViews', {
             var name    = sr.get('name'); 
 			var meshId  = sr.get('mesh_id');
 			var mesh    = sr.get('mesh');
-            me.application.runAction('cMeshNodeRogue','Index',id,{name:name,meshId:meshId,meshName:mesh,store:store});
+            Ext.getApplication().runAction('cMeshNodeRogue','Index',id,{name:name,meshId:meshId,meshName:mesh,store:store});
         }
     },
 	mapRestart: function(b){

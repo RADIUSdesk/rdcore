@@ -57,7 +57,7 @@ Ext.define('Rd.controller.cLogin', {
             url                 : me.getUrlLogin(),
             params              : {auto_compact: auto_compact},
             success: function(form, action) {
-                me.application.setDashboardData(action.result.data);
+                Ext.getApplication().setDashboardData(action.result.data);
 
                 //Set the token cookie
                 var now = new Date();
@@ -65,13 +65,13 @@ Ext.define('Rd.controller.cLogin', {
                 Ext.util.Cookies.set("Token", action.result.data.token, now, "/", null, false);
 
                 //Add the token and language (the 3rd place where we can ser extraParams - remember each time we set it overrides!
-                //Ext.Ajax.setExtraParams({'token': action.result.data.token,'sel_language': me.application.getSelLanguage()});
+                //Ext.Ajax.setExtraParams({'token': action.result.data.token,'sel_language': Ext.getApplication().getSelLanguage()});
 
                 me.getViewP().removeAll(true);
                 win.close();
 				me.redirectTo('dashboard', {force: true});
 
-                //me.application.runAction('cDashboard','Index');
+                //Ext.getApplication().runAction('cDashboard','Index');
             },
             failure: Ext.ux.formFail
         });

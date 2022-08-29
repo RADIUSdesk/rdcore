@@ -148,8 +148,8 @@ Ext.define('Rd.controller.cRealms', {
     },
     add: function(button){
         var me 		= this;
-        var c_name 	= me.application.getCloudName();
-        var c_id	= me.application.getCloudId()
+        var c_name 	= Ext.getApplication().getCloudName();
+        var c_id	= Ext.getApplication().getCloudId()
         if(!Ext.WindowManager.get('winRealmAddId')){
             var w = Ext.widget('winRealmAdd',{id:'winRealmAddId',cloudId: c_id, cloudName: c_name});
             w.show();         
@@ -484,7 +484,7 @@ Ext.define('Rd.controller.cRealms', {
                 tp.setActiveTab(tab_id); //Set focus on  Tab
                 return;
             }
-            var dd              = me.application.getDashboardData();
+            var dd              = Ext.getApplication().getDashboardData();
             var timezone_id     = dd.user.timezone_id;
 
             var tab_name = sr.get('name');

@@ -584,7 +584,7 @@ Ext.define('Rd.controller.cActivityMonitor', {
                     tp.setActiveTab(graph_id); //Set focus on  Tab
                     return;
                 }
-                var dd              = me.application.getDashboardData();
+                var dd              = Ext.getApplication().getDashboardData();
                 var timezone_id     = dd.user.timezone_id;
                 
                 //Tab not there - add one

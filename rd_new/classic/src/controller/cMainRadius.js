@@ -6,17 +6,17 @@ Ext.define('Rd.controller.cMainRadius', {
     control : {
         '#tabMainRadius #cDynamicClients' : {
 		    afterrender	: function(pnl){
-		        me.application.runAction('cDynamicClients','Index',pnl);
+		        Ext.getApplication().runAction('cDynamicClients','Index',pnl);
 		    }
 	    },
         '#tabMainRadius #cProfiles' : {
 		    afterrender	: function(pnl){
-		        me.application.runAction('cProfiles','Index',pnl);
+		        Ext.getApplication().runAction('cProfiles','Index',pnl);
 		    }
 	    },
         '#tabMainRadius #cRealms' : {
 		    afterrender	: function(pnl){
-		        me.application.runAction('cRealms','Index',pnl);
+		        Ext.getApplication().runAction('cRealms','Index',pnl);
 		    }
 	    }
     },

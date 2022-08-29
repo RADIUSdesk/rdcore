@@ -65,6 +65,6 @@ Ext.define('Rd.controller.cSchedules', {
     predefCmds: function(b){
         var me  = this;
         tp      = b.up('tabpanel');
-        me.application.runAction('cPredefinedCommands','Index',tp);
+        Ext.getApplication().runAction('cPredefinedCommands','Index',tp);
     }
 });

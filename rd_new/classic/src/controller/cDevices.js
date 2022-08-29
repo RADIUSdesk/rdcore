@@ -210,7 +210,7 @@ Ext.define('Rd.controller.cDevices', {
         var me = this;
         if(!Ext.WindowManager.get('winDeviceAddId')){
             var w = Ext.widget('winDeviceAdd',{
-                id:'winDeviceAddId', selLanguage : me.application.getSelLanguage()
+                id:'winDeviceAddId', selLanguage : Ext.getApplication().getSelLanguage()
             });
             w.show();
         }
@@ -578,7 +578,7 @@ Ext.define('Rd.controller.cDevices', {
             );
         }else{
             var sr = grid.getSelectionModel().getLastSelected();
-            me.application.runAction('cRadiusClient','TestDevice',sr);        
+            Ext.getApplication().runAction('cRadiusClient','TestDevice',sr);        
         }
     },  
     onTabBasicInfoActive: function(t){
@@ -916,7 +916,7 @@ Ext.define('Rd.controller.cDevices', {
                 tp.setActiveTab(tab_id); //Set focus on  Tab
                 return;
             }
-            var dd              = me.application.getDashboardData();
+            var dd              = Ext.getApplication().getDashboardData();
             var timezone_id     = dd.user.timezone_id;
 
             var tab_name = sr.get('name');
