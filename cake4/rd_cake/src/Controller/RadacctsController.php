@@ -213,7 +213,7 @@ class RadacctsController extends AppController {
         }
         
         $_serialize = 'data';
-        $this->setResponse($this->getResponse()->withDownload('export.csv'));
+        $this->setResponse($this->getResponse()->withDownload('RadiusAccounting.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
         $this->set(compact('data', '_serialize'));  
         
@@ -233,6 +233,7 @@ class RadacctsController extends AppController {
         }
 
         $user_id    = $user['id'];
+        
 
         $fields = [
             'total_in' => 'sum(Radaccts.acctinputoctets)',
@@ -242,7 +243,9 @@ class RadacctsController extends AppController {
 
         $query = $this->{$this->main_model}->find();
 
-        $this->_build_common_query($query, $user);
+        if(!$this->_build_common_query($query, $user)){
+        	return;
+        }
         
         //==== TIMEZONE ======
         $tz = 'UTC';
@@ -274,7 +277,9 @@ class RadacctsController extends AppController {
         $q_r    = $query->all();
         
         $query_total = $this->{$this->main_model}->find();
-        $this->_build_common_query($query_total, $user);
+        if(!$this->_build_common_query($query_total, $user)){
+        	return;
+        }
         $t_q    = $query_total->select($fields)->first();
 
         $items  = [];
@@ -547,12 +552,18 @@ class RadacctsController extends AppController {
 
     //______ END EXT JS UI functions ________
 
-
-     function _build_common_query($query, $user){
+  	function _build_common_query($query, $user){
 
         $where = [];
-        $joins = [];
-                        
+        $joins = [];     
+        $req_q = $this->request->getQuery();
+        
+		//Make sure there is a cloud id
+        if(!isset($req_q['cloud_id'])){
+        	$this->Aa->fail_no_rights("Required Cloud ID Missing");
+        	return false;
+       	}      	
+                      
         //====== Only_connectd filter ==========
         $only_connected = false;
         if(null !== $this->request->getQuery('only_connected')){
@@ -579,8 +590,6 @@ class RadacctsController extends AppController {
         $query->order([$sort => $dir]);
         //==== END SORT ===
 
-       
-
         //======= For a specified username filter *Usually on the edit of user / voucher ======
         if(null !== $this->request->getQuery('username')){
             $un = $this->request->getQuery('username');
@@ -592,8 +601,6 @@ class RadacctsController extends AppController {
             $cs_id = $this->request->getQuery('callingstationid');
             array_push($where, [$this->main_model.".callingstationid" => $cs_id]);
         }
-
-
 
         //====== REQUEST FILTER =====
         if(null !== $this->request->getQuery('filter')){
@@ -650,71 +657,26 @@ class RadacctsController extends AppController {
             }
         }
         //====== END REQUEST FILTER =====
-
-        //====== AP FILTER =====
-        if($user['group_name'] == Configure::read('group.ap')){  //AP               
-            $this->loadModel('Realms');
-
-            
-            $ap_clause      = [];
-            $ap_id          = $user['id'];
-            
-            //** ALL the Realms beloning to this AP
-            $q_r            = $this->{'Realms'}->find()->where(['Realms.user_id' => $user['id']])->all();
-            foreach($q_r as $r){
-                array_push($ap_clause, [$this->main_model.'.realm' => $r->name]);
-            }
-              
-            //** ALL the AP's children **
-            $tree_array_children    = [];
-            $found_children         = false;
-            $this->children         = $this->Users->find_access_provider_children($user['id']);
-            if($this->children){   //Only if the AP has any children...
-                foreach($this->children as $i){
-                    $id = $i['id'];
-                    array_push($tree_array_children, $id);
-                    $found_children = true;
-                }
-            }
-             
-            if($found_children){
-                $r_children = $this->Realms->find()->where(['Realms.user_id IN ' => $tree_array_children])->all();
-                foreach($r_children as $r_c){
-                    $name   = $r_c->name;
-                    array_push($ap_clause, [$this->main_model.'.realm' => $name]);
-                }
-            }
-            
-            //** ALL the AP's Parents **
-            
-            $tree_array_parents     = [];
-            $this->parents = $this->Users->find('path', ['for' => $user['id'], 'fields' => ['Users.id']]); //Get all the parents up to the root
-            foreach($this->parents as $i){
-                $i_id = $i->id;
-                if($i_id != $user['id']){ //upstream
-                    array_push($tree_array_parents, $i_id);
-                }
-            } 
-                       
-            $r_parents = $this->Realms->find()->where(['Realms.user_id IN ' => $tree_array_parents, 'Realms.available_to_siblings' => true])->all();
-
-            foreach($r_parents as $r_p){
-                $id     = $r_p->id;
-                $name   = $r_p->name;
-                $read   = $this->Acl->check(
-                                ['model' => 'Users', 'foreign_key' => $user['id']],
-                                ['model' => 'Realms','foreign_key' => $id], 'read');
-                if($read == true){
-                    array_push($ap_clause, [$this->main_model.'.realm' => $name]);
-                }                  
-            }
-            
-            
-            //Add it as an OR clause
-            array_push($where, ['OR' => $ap_clause]);
-        }
-        //====== END AP FILTER =====        
-        return $query->where($where);
+        
+        //====== CLOUD's Realms FILTER =====  
+      	$this->loadModel('Realms'); 	
+      	$realm_clause = [];
+      	$found_realm  = false;
+     	$q_realms  = $this->{'Realms'}->find()->where(['Realms.cloud_id' => $req_q['cloud_id']])->all();
+      	foreach($q_realms as $r){
+      		$found_realm = true;
+          	array_push($realm_clause, [$this->main_model.'.realm' => $r->name]);
+     	}
+     	if($found_realm){
+     		array_push($where, ['OR' => $realm_clause]);
+     	}else{
+     		$this->Aa->fail_no_rights("No Realms owned by this cloud"); //If the list of realms for this cloud is empty reject the request
+        	return false;
+     	}      
+        //====== END Realm FILTER ===== 
+        
+        $query->where($where);           
+        return true;
     }
 
    

@@ -523,6 +523,30 @@ class DashboardController extends AppController{
         
         $items	= [];
         
+         if($req_q['item_id'] == 'tabMainOverview'){
+        	$items = [
+        		[
+                    "title" => "Network Overview",
+                    "glyph" => "xf0c2@FontAwesome",
+                    "id" 	=> "cNetworkOverview",
+                    "layout" => "fit",
+                    "tabConfig" => [
+                        "ui" => "tab-blue"
+                    ]
+               ],
+               [
+                    "title" => "Data Usage",
+                    "glyph" => "xf0c2@FontAwesome",
+                    "id" 	=> "cDataUsage",
+                    "layout" => "fit",
+                    "tabConfig" => [
+                        "ui" => "tab-orange"
+                    ]
+               ]       	
+        	];        
+        }
+        
+       
         if($req_q['item_id'] == 'tabMainUsers'){
         	$items = [
         		[
@@ -906,8 +930,8 @@ class DashboardController extends AppController{
 				'leaf' 		=> true,
 				'iconCls' 	=> 'x-fa fa-th-large',
 				'glyph'		=> 'xf009',
-				'controller'	=> 'cNetworkOverview',
-				'id'		=> 'tabMainNetworkOverview'
+				'controller'	=> 'cMainOverview',
+				'id'		=> 'tabMainOverview'
 			],
 			[
 				'text'		=> 'USERS',
@@ -962,8 +986,8 @@ class DashboardController extends AppController{
 				'leaf' 		=> true,
 				'iconCls' 	=> 'x-fa fa-th-large',
 				'glyph'		=> 'xf009',
-				'controller'=> 'cNetworkOverview',
-				'id'		=> 'tabMainNetworkOverview'
+			    'controller'=> 'cMainOverview',
+				'id'		=> 'tabMainOverview'
 			],
 			[
 				'text' 		=> 'OTHER',

@@ -24,8 +24,8 @@ class AaComponent extends Component {
         return $this->_check_if_valid(false);
     }
 
-    public function fail_no_rights(){
-        $this->_fail_no_rights();
+    public function fail_no_rights($message=false){
+        $this->_fail_no_rights($message);
     }
 
     public function admin_check($controller,$hard_fail=true){

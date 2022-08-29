@@ -49,10 +49,10 @@ class WifiChartsController extends AppController{
             return;
         }
         
-        $req_q    = $this->request->getQuery();      
-       	$cloud_id = $req_q['cloud_id'];
-        
-        $list_of_macs = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $this->request->getData('mac'),'MacAliases.cloud_id' => $cloud_id])->all();
+        $post_data 	= $this->request->getData();
+        $cloud_id	= $post_data['cloud_id'];
+
+        $list_of_macs = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $this->request->getData('mac'),'MacAliases.cloud_id' => $this->request->getData('cloud_id')])->all();
         $entity = null;
         foreach($list_of_macs as $mac_alias){    
             if($mac_alias->cloud_id == $cloud_id){
@@ -563,12 +563,16 @@ class WifiChartsController extends AppController{
         return $totals;   
     }
      
-    private function _find_alias($mac){  
+    private function _find_alias($mac){
+    
+    	$req_q    = $this->request->getQuery();    
+       	$cloud_id = $req_q['cloud_id'];
+      
         $alias = false;
-        $qr = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac])->all(); 
-        foreach($qr as $a){
-            $alias = $a->alias;
-        }  
+        $qr = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id'=> $cloud_id])->first();
+        if($qr){
+        	$alias = $qr->alias;
+        } 
         return $alias;
     }
        

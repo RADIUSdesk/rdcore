@@ -22,80 +22,58 @@ class RadpostauthsController extends AppController {
 
 
     //-------- BASIC CRUD -------------------------------
-
-    public function exportCsv(){
-
-        $cquery = $this->request->getQueryParams();
-        
-        $this->autoRender   = false;
+    
+     public function exportCsv(){
 
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
-        if (!$user) {
+        if(!$user){
             return;
         }
 
-        $query  = $this->{$this->main_model}->find();
+        //Build query
+        $user_id    = $user['id'];
 
-        $this->_build_common_query($query, $user, []); //AP QUERY is sort of different in a way
+        $query = $this->{$this->main_model}->find();
 
-        //===== PAGING (MUST BE LAST) ======
-        $limit  = 50;   //Defaults
-        $page   = 1;
-        $offset = 0;
-
-        if(isset($cquery['limit'])){
-            $limit  = $cquery['limit'];
-            $page   = $cquery['page'];
-            $offset = $cquery['start'];
-        }
-
-        $query->page($page);
-        $query->limit($limit);
-        $query->offset($offset);
+        $this->_build_common_query($query, $user);
 
         $q_r = $query->all();
 
-        //Create file
-        $this->ensureTmp();     
-        $tmpFilename    = TMP . $this->tmpDir . DS .  strtolower(Inflector::pluralize($this->main_model) ) . '-' . date('Ymd-Hms') . '.csv';
-        $fp             = fopen($tmpFilename, 'w');
-
         //Headings
         $heading_line   = [];
-        if(null !== $cquery['columns']){
-            $columns = json_decode($cquery['columns']);
+        if(null !== $this->request->getQuery('columns')){
+            $columns = json_decode($this->request->getQuery('columns'));
             foreach($columns as $c){             
                 array_push($heading_line,$c->name);
             }
         }
-        fputcsv($fp, $heading_line,',','"');
+        $data = [
+            $heading_line
+        ];
 
         //Results
         foreach($q_r as $i){
-
             $columns    = [];
             $csv_line   = [];
-            if(isset($cquery['columns'])){
-                $columns = json_decode($cquery['columns']);
-                foreach($columns as $c){
-                    $column_name = $c->name;     
-                    array_push($csv_line,$i->$column_name);
+            if(null !== $this->request->getQuery('columns')){
+                $columns = json_decode($this->request->getQuery('columns'));
+                foreach($columns as $c){                    
+                	$column_name = $c->name;                   
+                 	array_push($csv_line,$i->$column_name);
+
                 }
-                fputcsv($fp, $csv_line,',','"');
+                array_push($data,$csv_line);
             }
         }
-        //Return results
-        fclose($fp);
-        $dataStream = new Stream($tmpFilename);
-        $this->cleanupTmp($tmpFilename);
-        $this->RequestHandler->respondAs('csv');
-
-        $this->response->withDownload(strtolower(Inflector::pluralize($this->main_model)) . '.csv' );
-
-        $this->response->withBody($dataStream);      
+        
+        $_serialize = 'data';
+        $this->setResponse($this->getResponse()->withDownload('Radpostauths.csv'));
+        $this->viewBuilder()->setClassName('CsvView.Csv');
+        $this->set(compact('data', '_serialize'));  
+        
     }
-
+    
     public function index(){
         $cquery = $this->request->getQuery();
         //-- Required query attributes: token;
@@ -398,6 +376,13 @@ class RadpostauthsController extends AppController {
 
         $where = [];
         $joins = [];
+        $req_q = $this->request->getQuery();
+        
+		//Make sure there is a cloud id
+        if(!isset($req_q['cloud_id'])){
+        	$this->Aa->fail_no_rights("Required Cloud ID Missing");
+        	return false;
+       	}    
                                     
         //===== SORT =====
         //Default values for sort and dir
@@ -453,71 +438,25 @@ class RadpostauthsController extends AppController {
             }
         }
         //====== END REQUEST FILTER =====
-
-        //====== AP FILTER =====
-        if($user['group_name'] == Configure::read('group.ap')){  //AP               
-            $this->loadModel('Realms');
-
-            
-            $ap_clause      = [];
-            $ap_id          = $user['id'];
-            
-            //** ALL the Realms beloning to this AP
-            $q_r            = $this->{'Realms'}->find()->where(['Realms.user_id' => $user['id']])->all();
-            foreach($q_r as $r){
-                array_push($ap_clause, [$this->main_model.'.realm' => $r->name]);
-            }
-              
-            //** ALL the AP's children **
-            $tree_array_children    = [];
-            $found_children         = false;
-            $this->children         = $this->Users->find_access_provider_children($user['id']);
-            if($this->children){   //Only if the AP has any children...
-                foreach($this->children as $i){
-                    $id = $i['id'];
-                    array_push($tree_array_children, $id);
-                    $found_children = true;
-                }
-            }
-             
-            if($found_children){
-                $r_children = $this->Realms->find()->where(['Realms.user_id IN ' => $tree_array_children])->all();
-                foreach($r_children as $r_c){
-                    $name   = $r_c->name;
-                    array_push($ap_clause, [$this->main_model.'.realm' => $name]);
-                }
-            }
-            
-            //** ALL the AP's Parents **
-            
-            $tree_array_parents     = [];
-            $this->parents = $this->Users->find('path', ['for' => $user['id'], 'fields' => ['Users.id']]); //Get all the parents up to the root
-            foreach($this->parents as $i){
-                $i_id = $i->id;
-                if($i_id != $user['id']){ //upstream
-                    array_push($tree_array_parents, $i_id);
-                }
-            } 
-                       
-            $r_parents = $this->Realms->find()->where(['Realms.user_id IN ' => $tree_array_parents, 'Realms.available_to_siblings' => true])->all();
-
-            foreach($r_parents as $r_p){
-                $id     = $r_p->id;
-                $name   = $r_p->name;
-                $read   = $this->Acl->check(
-                                ['model' => 'Users', 'foreign_key' => $user['id']],
-                                ['model' => 'Realms','foreign_key' => $id], 'read');
-                if($read == true){
-                    array_push($ap_clause, [$this->main_model.'.realm' => $name]);
-                }                  
-            }
-            
-            
-            //Add it as an OR clause
-            array_push($where, ['OR' => $ap_clause]);
-        }
-        //====== END AP FILTER =====        
-        return $query->where($where);
+        
+         //====== CLOUD's Realms FILTER =====  
+      	$this->loadModel('Realms'); 	
+      	$realm_clause = [];
+      	$found_realm  = false;
+     	$q_realms  = $this->{'Realms'}->find()->where(['Realms.cloud_id' => $req_q['cloud_id']])->all();
+      	foreach($q_realms as $r){
+      		$found_realm = true;
+          	array_push($realm_clause, [$this->main_model.'.realm' => $r->name]);
+     	}
+     	if($found_realm){
+     		array_push($where, ['OR' => $realm_clause]);
+     	}else{
+     		$this->Aa->fail_no_rights("No Realms owned by this cloud"); //If the list of realms for this cloud is empty reject the request
+        	return false;
+     	}      
+        //====== END Realm FILTER =====   
+        $query->where($where);           
+        return true;
     }
 
 }
