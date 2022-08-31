@@ -1,7 +1,0 @@
-/composer.lock
-/phpunit.xml
-/vendor
-
-## IntelliJ project files
-.idea
-*.iml
