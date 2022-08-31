@@ -13,6 +13,11 @@ Ext.define('Rd.controller.cMainOverview', {
 		    afterrender	: function(pnl){
 		        Ext.getApplication().runAction('cDataUsage','Index',pnl);
 		    }
+	    },
+        '#tabMainOverview #cUtilities' : {
+		    afterrender	: function(pnl){
+		        Ext.getApplication().runAction('cUtilities','Index',pnl);
+		    }
 	    }
     },
     actionIndex: function(pnl,itemId){

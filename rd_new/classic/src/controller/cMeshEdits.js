@@ -14,6 +14,8 @@ Ext.define('Rd.controller.cMeshEdits', {
         'components.cmbTimezones',      
         'components.cmbCountries',
         'components.cmbRealm',
+        'components.winSelectCloud',
+        'components.pnlClouds',
         'meshes.pnlMeshEditLeafletMap'
     ],
     stores      : [	
@@ -111,6 +113,9 @@ Ext.define('Rd.controller.cMeshEdits', {
             },
             'pnlMeshEdit pnlMeshGeneral #save': {
                 click:  me.btnMeshGeneralSave
+            },
+            'pnlMeshEdit pnlMeshGeneral #btnPickGroup' : {
+                click: me.btnMeshGeneralPickGroup
             },
             'pnlMeshEdit #tabMeshSettings' : {
                 activate:      me.frmMeshSettingsLoad
@@ -629,6 +634,17 @@ Ext.define('Rd.controller.cMeshEdits', {
             },
             failure: Ext.ux.formFail
         });
+    },
+    btnMeshGeneralPickGroup: function(button){
+        var me             = this;
+        var form           = button.up('form');
+        var updateDisplay  = form.down('#displTag');
+        var updateValue    = form.down('#hiddenTag');
+        
+        if(!Ext.WindowManager.get('winSelectCloudId')){
+            var w = Ext.widget('winSelectCloud',{id:'winSelectCloudId',updateDisplay:updateDisplay,updateValue:updateValue});
+            w.show();         
+        }
     }, 
     btnMeshSettingsSave: function(button){
         var me      = this;

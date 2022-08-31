@@ -3,7 +3,7 @@ Ext.define('Rd.view.meshOverview.vcPnlMeshOverviewMap', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcPnlMeshOverviewMap',
     config: {
-        urlMapSave      : '/cake3/rd_cake/mesh-overview-maps/map-save.json',
+        urlMapSave      : '/cake4/rd_cake/mesh-overview-maps/map-save.json',
         urlMapOrangeW   : 'resources/images/map_markers/orange_w.png',
         urlMapBlueW     : 'resources/images/map_markers/blue_w.png',
         urlMapPurpleW   : 'resources/images/map_markers/purple_w.png',

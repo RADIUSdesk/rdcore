@@ -12,7 +12,7 @@ Ext.define('Rd.view.accessProviders.gridAccessProviders' ,{
         'Ext.toolbar.Paging',
         'Ext.ux.ProgressBarPager'
     ],
-    urlMenu     : '/cake3/rd_cake/access-providers/menu_for_grid.json', 
+    urlMenu     : '/cake4/rd_cake/access-providers/menu_for_grid.json', 
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
         var me      = this; 

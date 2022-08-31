@@ -2,7 +2,7 @@ Ext.define('Rd.view.meshOverview.vcPnlMeshOverviewMapMain', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcPnlMeshOverviewMapMain',
     config: {
-        urlMapPrefView  : '/cake3/rd_cake/mesh-overviews-light/index-map.json',
+        urlMapPrefView  : '/cake4/rd_cake/mesh-overviews-light/index-map.json',
         timespan        : 'daily',
         nodeId          : 0
     },

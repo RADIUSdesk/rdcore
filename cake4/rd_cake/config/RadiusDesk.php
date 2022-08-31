@@ -183,6 +183,7 @@ $config['icnWifi2']     = 'xf1eb@'.$config['webFont'];
 $config['icnHandshake'] = 'xf2b5@'.$config['webFont'];
 $config['icnSkyatlas']  = 'xf216@'.$config['webFont'];
 $config['icnCalendarO'] = 'xf133@'.$config['webFont'];
+$config['icnNetwork']   = 'xf0e8@'.$config['webFont'];
 
 //=== Dynamic RADIUS Clients 23/1/17 ===
 /*--- This has to be the same value as the ons specified in--

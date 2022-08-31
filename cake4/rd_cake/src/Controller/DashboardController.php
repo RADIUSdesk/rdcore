@@ -538,8 +538,8 @@ class DashboardController extends AppController{
          	if($q_network){
                  	
 		     	array_push($items,[
-		                "title" => "Network Overview",
-		                "glyph" => "xf0c2@FontAwesome",
+		                "title" => "Networks",
+		                "glyph" => "xf0e8@FontAwesome",
 		                "id" 	=> "cNetworkOverview",
 		                "layout" => "fit",
 		                "tabConfig" => [
@@ -553,7 +553,7 @@ class DashboardController extends AppController{
                  	
 		     	array_push($items,[
 		                "title" => "Data Usage",
-		                "glyph" => "xf0c2@FontAwesome",
+		                "glyph" => "xf1c0@FontAwesome",
 		                "id" 	=> "cDataUsage",
 		                "layout" => "fit",
 		                "tabConfig" => [
@@ -561,6 +561,16 @@ class DashboardController extends AppController{
 		                ]
 		           ]);
 		  	}
+		  	
+		 	array_push($items,[
+                "title" => "Utilities",
+                "glyph" => "xf085@FontAwesome",
+                "id" 	=> "cUtilities",
+                "layout" => "fit",
+                "tabConfig" => [
+                    "ui" => "tab-blue"
+                ]
+           ]);
                       	  
         }
               
@@ -692,7 +702,51 @@ class DashboardController extends AppController{
             'items'    => $items,
             '_serialize' => ['success','items']
         ]);   
+      
+    }
     
+     public function utilitiesItems(){
+     
+        $ta     = 'left';        
+        $data   = [
+            [
+                'xtype'   => 'button',
+                'text'    => 'Networks',
+                'glyph'   => Configure::read('icnNetwork'),
+                'scale'   => 'large',
+                'itemId'  => 'btnMeshOverview',
+                'textAlign' => $ta 
+            ],
+            [
+                'xtype'   => 'button',
+                'text'    => 'Data Usage',
+                'glyph'   => Configure::read('icnData'),
+                'scale'   => 'large',
+                'itemId'  => 'btnDataUsage',
+                'textAlign' => $ta 
+            ],
+            [
+                'xtype'   => 'button',
+                'text'    => 'Alerts',
+                'glyph'   => Configure::read('icnBell'),
+                'scale'   => 'large',
+                'itemId'  => 'btnAlerts',
+                'textAlign' => $ta 
+            ],
+            [
+                'xtype'   => 'button',
+                'text'    => 'Flows',
+                'glyph'   => Configure::read('icnSkyatlas'),
+                'scale'   => 'large',
+                'itemId'  => 'btnFlows',
+                'textAlign' => $ta 
+            ]             
+        ];      
+        $this->set([
+            'data'          => $data,
+            'success'       => true,
+            '_serialize'    => ['success','data']
+        ]);
     
     }
     

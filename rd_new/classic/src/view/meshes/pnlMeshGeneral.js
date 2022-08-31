@@ -41,6 +41,42 @@ Ext.define('Rd.view.meshes.pnlMeshGeneral', {
             },
             items       : [
                 {
+                    xtype       : 'fieldcontainer',
+                    itemId      : 'fcPickGroup',
+                    layout      : {
+                        type    : 'hbox',
+                        align   : 'begin',
+                        pack    : 'start'
+                    },
+                    items:[
+                        {
+                            itemId      : 'displTag',
+                            xtype       : 'displayfield',
+                            fieldLabel  : 'Grouping',
+                            name        : 'tag_path',
+                            margin      : 0,
+                            padding     : 0,
+                            width       : 410
+                        },
+                        {
+                            xtype       : 'button',
+                            text        : 'Change Group',
+                            margin      : 5,
+                            padding     : 5,
+                            ui          : 'button-green',
+                            itemId      : 'btnPickGroup',
+                            width       : 100
+                        },
+                        {
+                            xtype       : 'textfield',
+                            //name        : 'tree_tag_id',
+                            name        : 'network_id',
+                            itemId      : 'hiddenTag',
+                            hidden      : true
+                        }
+                    ]
+                },
+                {
                     xtype       : 'textfield',
                     fieldLabel  : i18n('sName'),
                     name        : "name",

@@ -257,7 +257,7 @@ Ext.define('Rd.view.accessProviders.pnlAccessProviderDetail', {
                 },
                 {
                     xtype       : 'image',
-                  //  src         : '/cake3/rd_cake/img/access_providers/logo.png', //Souces it when form loads
+                  //  src         : '/cake4/rd_cake/img/access_providers/logo.png', //Souces it when form loads
                     autoEl      : 'div',
                     title       : 'Current Logo',
                     itemId      : 'imgWlLogo',

@@ -523,7 +523,7 @@ class CloudsController extends AppController {
         //=== ITEMS FOR MAP====
         $query  = $this->{$l_model }->find();            
         if($level == '0'){ //Level 0 == 'root' = includes all belonging to Access Provider
-            $this->CommonQueryFlat->build_simple_cloud_query($query); //AP QUERY is sort of different in a way
+            $this->CommonQueryFlat->build_simple_cloud_query($query,$user); //AP QUERY is sort of different in a way
         }else{
             if(($level == 'Clouds')||($level == 'Sites')){
                 $query->where($conditions);

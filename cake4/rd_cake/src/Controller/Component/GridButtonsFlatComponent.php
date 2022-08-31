@@ -582,6 +582,15 @@ class GridButtonsFlatComponent extends Component {
             $b  = $this->_fetchUnknownDynamic();
             $menu = [$b]; 
         }
+        
+        if($type == 'Alerts'){
+            $b = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+                $this->btnReload,
+                $this->btnDelete,
+                $this->btnAcknowledged 
+            ]];
+            $menu = $b; 
+        }
                             
         return $menu;
     }

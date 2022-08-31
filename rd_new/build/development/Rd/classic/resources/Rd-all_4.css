@@ -8556,17 +8556,17 @@ tr.x-grid-subtable-row {
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:495 */
 .x-treelist-nav2 {
-    background-color: #fff;
+    background-color: #323d4d;
     background-position: 25px 0%;
     padding: 0 0 0 0;
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:103 */
 .x-treelist-nav2 .x-treelist-toolstrip {
-    background-color: #fff;
+    background-color: #323d4d;
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:112 */
 .x-treelist-nav2 .x-treelist-item-selected.x-treelist-item-tool {
-    color: #fff;
+    color: #02d537;
     background-color: #587da9;
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:134 */
@@ -8610,8 +8610,8 @@ tr.x-grid-subtable-row {
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:193 */
 .x-treelist-nav2 .x-treelist-item-icon,
 .x-treelist-nav2 .x-treelist-item-tool {
-    color: #adb3b8;
-    font-size: 18px;
+    color: #acacac;
+    font-size: 22px;
     width: 25px;
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:206 */
@@ -8620,15 +8620,15 @@ tr.x-grid-subtable-row {
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:216 */
 .x-treelist-nav2 .x-treelist-item-expander {
-    color: #adb3b8;
+    color: #acacac;
     font-size: 17px;
-    width: 24px;
+    width: 30px;
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:253 */
 .x-treelist-nav2 .x-treelist-item-text {
-    color: #adb3b8;
+    color: #acacac;
     margin-left: 31px;
-    margin-right: 24px;
+    margin-right: 30px;
     font-size: 17px;
     line-height: 44px;
 }
@@ -8666,7 +8666,7 @@ tr.x-grid-subtable-row {
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:304 */
 .x-treelist-nav2 .x-treelist-item-floated > .x-treelist-row {
-    background-color: #fff;
+    background-color: #323d4d;
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:308 */
 .x-treelist-nav2 .x-treelist-item-floated > .x-treelist-container {
@@ -8691,56 +8691,28 @@ tr.x-grid-subtable-row {
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:330 */
 .x-treelist-nav2 .x-treelist-item-floated > .x-treelist-row-over {
-    background-color: #fff;
+    background-color: #323d4d;
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:333 */
 .x-treelist-nav2 .x-treelist-item-floated > .x-treelist-row-over > * > .x-treelist-item-text {
-    color: #adb3b8;
-}
-/* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:339 */
-.x-treelist-nav2 .x-treelist-item-expanded {
-    background-color: #2c3845;
-}
-/* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:357 */
-.x-treelist-nav2 .x-treelist-highlight-path .x-treelist-item-over > * > * > .x-treelist-item-icon {
-    color: #5c5c5c;
-}
-/* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:361 */
-.x-treelist-nav2 .x-treelist-highlight-path .x-treelist-item-over > * > * > .x-treelist-item-text {
-    color: #5c5c5c;
-}
-/* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:365 */
-.x-treelist-nav2 .x-treelist-highlight-path .x-treelist-item-over > * > * > .x-treelist-item-expander {
-    color: #5c5c5c;
+    color: #acacac;
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:372 */
 .x-treelist-nav2 .x-treelist-row-over {
-    background-color: orange;
-}
-/* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:376 */
-.x-treelist-nav2 .x-treelist-row-over > * > .x-treelist-item-icon {
-    color: #5c5c5c;
-}
-/* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:380 */
-.x-treelist-nav2 .x-treelist-row-over > * > .x-treelist-item-text {
-    color: #5c5c5c;
-}
-/* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:384 */
-.x-treelist-nav2 .x-treelist-row-over > * > .x-treelist-item-expander {
-    color: #5c5c5c;
+    background-color: grey;
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:391 */
 .x-treelist-nav2 .x-treelist-expander-first .x-treelist-item-icon {
-    left: 24px;
+    left: 30px;
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:400 */
 .x-treelist-nav2 .x-treelist-expander-first .x-treelist-item-text {
-    margin-left: 55px;
+    margin-left: 61px;
     margin-right: 0;
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:410 */
 .x-treelist-nav2 .x-treelist-expander-first .x-treelist-item-hide-icon > * > * > .x-treelist-item-text {
-    margin-left: 27px;
+    margin-left: 33px;
 }
 /* /var/www/rdcore/rd_new/ext/packages/core/sass/src/list/TreeItem.scss:420 */
 .x-treelist-nav2 .x-treelist-item-hide-icon > * > * > .x-treelist-item-text {
@@ -9033,7 +9005,7 @@ p {
     margin: 1px 0px 1px 0px;
     padding: 2px 0px 2px 0px;
     color: #6b032f;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
 }
 /* /var/www/rdcore/rd_new/classic/sass/src/Application.scss:278 */
@@ -9042,7 +9014,7 @@ p {
     margin: 1px 0px 1px 0px;
     padding: 2px 0px 2px 0px;
     color: #1e5304;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
 }
 /* /var/www/rdcore/rd_new/classic/sass/src/Application.scss:287 */
@@ -9051,7 +9023,7 @@ p {
     margin: 1px 0px 1px 0px;
     padding: 2px 0px 2px 0px;
     color: #4d4d4d;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
 }
 /* /var/www/rdcore/rd_new/classic/sass/src/Application.scss:296 */
@@ -9060,7 +9032,7 @@ p {
     margin: 1px 0px 1px 0px;
     padding: 2px 0px 2px 0px;
     color: #994d00;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
 }
 /* /var/www/rdcore/rd_new/classic/sass/src/Application.scss:305 */
@@ -9069,7 +9041,7 @@ p {
     margin: 1px 0px 1px 0px;
     padding: 2px 0px 2px 0px;
     color: #4d4d4d;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
 }
 /* /var/www/rdcore/rd_new/classic/sass/src/Application.scss:314 */
@@ -9078,7 +9050,7 @@ p {
     margin: 1px 0px 1px 0px;
     padding: 2px 0px 2px 0px;
     color: #737373;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
 }
 /* /var/www/rdcore/rd_new/classic/sass/src/Application.scss:323 */
@@ -9087,7 +9059,7 @@ p {
     margin: 1px 0px 1px 0px;
     padding: 2px 0px 2px 0px;
     color: #fff;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
 }
 /* /var/www/rdcore/rd_new/classic/sass/src/Application.scss:332 */
@@ -9096,7 +9068,7 @@ p {
     margin: 1px 0px 1px 0px;
     padding: 2px 0px 2px 0px;
     color: #fff;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
 }
 /* /var/www/rdcore/rd_new/classic/sass/src/Application.scss:341 */
@@ -9105,14 +9077,14 @@ p {
     margin: 1px 0px 1px 0px;
     padding: 2px 0px 2px 0px;
     color: #fff;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
 }
 /* /var/www/rdcore/rd_new/classic/sass/src/Application.scss:350 */
 .fieldGreyWhite {
     background: #767575;
     color: #fff;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
     margin: 1px 0px 1px 0px;
     padding: 2px 0px 2px 0px;
@@ -9123,7 +9095,7 @@ p {
     margin: 1px 0px 1px 0px;
     padding: 2px 0px 2px 0px;
     color: #fff;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
 }
 /* /var/www/rdcore/rd_new/classic/sass/src/Application.scss:369 */
@@ -9132,7 +9104,7 @@ p {
     margin: 1px 0px 1px 0px;
     padding: 2px 0px 2px 0px;
     color: #fff;
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
 }
 /* /var/www/rdcore/rd_new/classic/sass/src/Application.scss:379 */

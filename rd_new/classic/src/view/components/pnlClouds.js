@@ -14,6 +14,7 @@ Ext.define('Rd.view.components.pnlClouds', {
     updateDispaly: false,
     updateValue  : false,
     onlyLeaves  : true,
+    noJumping   : true, //Set this to force selection withing a cloud
     requires    : [   
         'Rd.store.sClouds',
         'Rd.view.components.vcClouds'

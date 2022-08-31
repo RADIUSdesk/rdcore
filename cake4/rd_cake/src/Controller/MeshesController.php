@@ -510,6 +510,19 @@ class MeshesController extends AppController{
             $data['name']          			= $q_m->name;
             $data['enable_alerts']          = $q_m->enable_alerts;
             $data['enable_overviews']       = $q_m->enable_overviews;
+            
+            $data['tree_tag_id']            = $q_m->tree_tag_id;
+            $tree_tag                       = $this->_tree_tags($q_m);
+            if($tree_tag['value'] == 'not_tagged'){
+                $data['tag_path']          = "<div class=\"fieldGrey\"><i class='fa fa-check-circle'></i> <b>(NOT IN GROUP)</b></div>";
+            }elseif($tree_tag['value'] == 'orphaned'){
+                $data['tag_path']          = "<div class=\"fieldRed\"><i class='fa fa-exclamation'></i> <b>(ORPHANED)</b></div>";
+            }else{     
+                $data['tag_path']   = "<div class=\"fieldBlue\" style=\"text-align:left;\"> <b>".$tree_tag['value']."</b></div>";
+            }
+            $data['network_id'] = $tree_tag['network_id'];
+            
+            
         }
         
         $this->set([
@@ -613,6 +626,13 @@ class MeshesController extends AppController{
         }
              
         $req_d = $this->request->getData();
+        
+        //TreeTag we now use network_id
+        if(isset($req_d['network_id'])){
+            $network_id     = $req_d['network_id']; //Will be in format Network_<id>
+            $tree_tag_id    =  preg_replace('/^(\w+)_/', '', $network_id);//Then we use that value to populate the tree tag
+            $req_d['tree_tag_id'] = $tree_tag_id;
+        }
         
         $check_items = [
 			'enable_overviews',
@@ -2763,31 +2783,8 @@ class MeshesController extends AppController{
         ));
 
     }
-/*
-    private function _tree_tags($entity){
-        $tag_path = 'not_tagged'; 
-        if($entity->tree_tag_id !== null){    
-            //Make sure the TreeTag exists
-            $tt_check = $this->{'TreeTags'}->find()->where(['TreeTags.id' => $entity->tree_tag_id])->first();
-            if($tt_check){
-                $tag_path = ''; 
-                $crumbs = $this->{'TreeTags'}->find('path', ['for' => $entity->tree_tag_id]);     
-                foreach ($crumbs as $crumb) {
-                    if($crumb->id == $entity->tree_tag_id){
-                        $tag_path = $tag_path.$crumb->name;
-                    }else{
-                        $tag_path = $tag_path.$crumb->name . ' > ';
-                    }
-                }
-            }else{
-                $tag_path = "orphaned";
-            }
-        }  
-        return $tag_path;
-    }
-*/
-    
-     private function _tree_tags($entity){
+        
+   	private function _tree_tags($entity){
         $tag_path = [];    
         $tag_path['value'] = 'not_tagged';
         $tag_path['network_id'] = '';  
