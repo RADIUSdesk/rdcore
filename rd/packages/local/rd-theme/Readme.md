@@ -1,2 +1,0 @@
-# rd-theme - Read Me
-
