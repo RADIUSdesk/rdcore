@@ -117,11 +117,12 @@ class AaComponent extends Component {
         
         //If it failed - set the controller up
         if($result['success'] == false){
-            $controller->set([
+        	$controller = $this->getController();
+        	$controller->set([
                 'success'   => $result['success'],
-                'message'   => $result['message'],
-                '_serialize' => ['success', 'message']
+                'message'   => $result['message']
             ]);
+			$controller->viewBuilder()->setOption('serialize', true);
             return false;
         }else{
         	if($result['user']['group_name'] == Configure::read('group.admin')){         	
@@ -182,12 +183,12 @@ class AaComponent extends Component {
         if(empty($message)){
             $message = __('You do not have rights for this action');
         }
-        $controller = $this->getController();
-        $controller->set([
-            'success'       => false,
-            'message'       => $message,
-            '_serialize'    => ['success', 'message']
+        $controller = $this->getController();       
+    	$controller->set([
+        	'success'       => false,
+        	'message'       => $message
         ]);
+		$controller->viewBuilder()->setOption('serialize', true);
     }
     
 }

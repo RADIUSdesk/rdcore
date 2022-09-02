@@ -38,12 +38,12 @@ class DashboardController extends AppController{
       
     public function navTree(){
     
-    	$items = $this->_nav_tree();   
+    	$items = $this->_nav_tree(); 	  
     	$this->set([
             'items'          => $items,
-            'success'       => true,
-            '_serialize'    => ['items','success']
-        ]);      
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);      
     }
     
     
@@ -73,29 +73,29 @@ class DashboardController extends AppController{
             $user = $this->Auth->identify();
             if ($user){
             
-                $this->set(array(
+                $this->set([
                     'data'          => ['token' => $user['token'],'username' =>$user['username']],
-                    'success'       => true,
-                    '_serialize' => array('data','success')
-                ));
+                    'success'       => true
+                ]);
+                $this->viewBuilder()->setOption('serialize', true); 
             
             }else{
             
                 $this->set(array(
                     'errors'        => array('username' => __('Confirm this name'),'password'=> __('Type the password again')),
                     'success'       => false,
-                    'message'       => __('Authentication failed'),
-                    '_serialize' => array('errors','success','message')
+                    'message'       => __('Authentication failed')
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
       
             }
         }else{
             $this->set(array(
                 'errors'        => array('username' => __('Required'),'password'=> __('Required')),
                 'success'       => false,
-                'message'       => __('HTTP POST Required -> Authentication failed'),
-                '_serialize' => array('errors','success','message')
+                'message'       => __('HTTP POST Required -> Authentication failed')
             ));
+            $this->viewBuilder()->setOption('serialize', true);
             return;
         }
     }
@@ -137,9 +137,9 @@ class DashboardController extends AppController{
                                   
                 $this->set([
                     'data'          => $data,
-                    'success'       => true,
-                    '_serialize' => ['data','success']
+                    'success'       => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
                 
             }else{
             
@@ -147,8 +147,8 @@ class DashboardController extends AppController{
                     'errors'        => ['username' => __('Confirm this name'),'password'=> __('Type the password again')],
                     'success'       => false,
                     'message'       => __('Authentication failed'),
-                    '_serialize' => ['errors','success','message']
-                ]);               
+                ]);
+                $this->viewBuilder()->setOption('serialize', true);               
             }
         }
     }
@@ -165,9 +165,9 @@ class DashboardController extends AppController{
             if(!$user){
                 $this->set(array(
                     'errors'        => array('token'=>'invalid'),
-                    'success'       => false,
-                    '_serialize'    => array('errors','success')
+                    'success'       => false
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
             
             }else{
                // print_r($user);
@@ -183,18 +183,18 @@ class DashboardController extends AppController{
                 $data = $this->_get_user_detail($user,$auto_compact);                              
                 $this->set([
                     'data'          => $data,
-                    'success'       => true,
-                    '_serialize'    => ['data','success']
+                    'success'       => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
             }
                      
         }else{
 
             $this->set(array(
                 'errors'        => array('token'=>'missing'),
-                'success'       => false,
-                '_serialize'    => array('errors','success')
+                'success'       => false
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
          
     }
@@ -209,9 +209,9 @@ class DashboardController extends AppController{
         }
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
      
      public function settingsView(){
@@ -294,9 +294,9 @@ class DashboardController extends AppController{
      
         $this->set([
             'data'   => $data,
-            'success' => true,
-            '_serialize' => ['success','data']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
      
      public function settingsSubmit(){
@@ -489,9 +489,9 @@ class DashboardController extends AppController{
 		//$this->viewBuilder()->setOption('serialize', ['articles', 'comments']);
         $this->set([
             'success'   => true,
-            'data'      => $white_label,
-            '_serialize' => ['success','data']
+            'data'      => $white_label
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function changePassword(){
@@ -510,9 +510,9 @@ class DashboardController extends AppController{
         
         $this->set([
             'success' => true,
-            'data'    => $data,
-            '_serialize' => ['success','data']
+            'data'    => $data
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function itemsFor(){
@@ -699,9 +699,9 @@ class DashboardController extends AppController{
         
         $this->set([
             'success' => true,
-            'items'    => $items,
-            '_serialize' => ['success','items']
-        ]);   
+            'items'    => $items
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);   
       
     }
     
@@ -744,9 +744,9 @@ class DashboardController extends AppController{
         ];      
         $this->set([
             'data'          => $data,
-            'success'       => true,
-            '_serialize'    => ['success','data']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     
     }
     

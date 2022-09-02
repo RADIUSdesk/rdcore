@@ -106,9 +106,9 @@ class CloudsController extends AppController {
     	}
         $this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => ['items','success']
-        ]);   	   
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);   	   
     }
     
     public function indexNetworkOverview(){
@@ -228,9 +228,9 @@ class CloudsController extends AppController {
         $this->set([
             'data'      => $data,
             'metaData'  => $this->meta_data,
-            'success'   => true,
-            '_serialize' => ['data','success','metaData']
-        ]);   
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);   
     
     }
     
@@ -483,9 +483,9 @@ class CloudsController extends AppController {
                 $this->set([
                     'items'     => $items,
                     'connections' => $connections,
-                    'success'   => true,
-                    '_serialize' => ['items','success','connections']
-                ]);            
+                    'success'   => true
+                ]);
+                $this->viewBuilder()->setOption('serialize', true);            
                 return;
             }
             
@@ -580,9 +580,9 @@ class CloudsController extends AppController {
             'items'     => $items,
             'total'     => $total,
             'metaData'  => $this->meta_data,
-            'success'   => true,
-            '_serialize' => ['items','success','total','metaData']
+            'success'   => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function mapNodeSave(){
@@ -621,9 +621,9 @@ class CloudsController extends AppController {
         }
       
         $this->set([
-            'success'   => true,
-            '_serialize' => ['success']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
       
     public function mapNodeDelete(){
@@ -658,9 +658,9 @@ class CloudsController extends AppController {
         }
       
         $this->set([
-            'success'   => true,
-            '_serialize' => ['success']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function indexOnline(){
@@ -779,9 +779,9 @@ class CloudsController extends AppController {
         $this->set(array(
             'items' => $items,
             'total' => $total,
-            'success' => true,
-            '_serialize' => array('items','success','total')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function wip(){
@@ -812,9 +812,9 @@ class CloudsController extends AppController {
     	
     	 $this->set(array(
     	 	'items'		=> $items,
-            'success' 	=> true,
-            '_serialize'=> array('success','items')
-        ));    
+            'success' 	=> true
+        ));
+        $this->viewBuilder()->setOption('serialize', true);    
     }
       
     public function index(){
@@ -1006,13 +1006,13 @@ class CloudsController extends AppController {
 			    'delete'    => true
             ]); 
         }
-            
+                       
         $this->set(array(
             'items' => $items,
             'total' => $total,
-            'success' => true,
-            '_serialize' => array('items','success','total')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function add(){
@@ -1047,9 +1047,9 @@ class CloudsController extends AppController {
             $entity = $this->{$l_model}->newEntity($data); 
             if ($this->{$l_model}->save($entity)) {
                 $this->set(array(
-                    'success' => true,
-                    '_serialize' => array('success')
+                    'success' => true
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
             } else {
                 $message = __('Could not update item');
                 $this->JsonErrors->entityErros($entity,$message);
@@ -1092,9 +1092,9 @@ class CloudsController extends AppController {
 		          	}
 		          	                
                     $this->set(array(
-                        'success' => true,
-                        '_serialize' => array('success')
+                        'success' => true
                     ));
+                    $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not update item');
                     $this->JsonErrors->entityErros($entity,$message);
@@ -1125,9 +1125,9 @@ class CloudsController extends AppController {
             }
         }
         $this->set(array(
-            'success' => true,
-            '_serialize' => array('success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function mapDelete(){
@@ -1148,9 +1148,9 @@ class CloudsController extends AppController {
             $this->{$level}->save($entity);    
         }
         $this->set(array(
-            'success' => true,
-            '_serialize' => array('success')
-        ));  
+            'success' => true
+        ));
+        $this->viewBuilder()->setOption('serialize', true);  
     }
     
     
@@ -1204,9 +1204,9 @@ class CloudsController extends AppController {
                 
         }
         $this->set(array(
-            'success' => true,
-            '_serialize' => array('success')
-        ));  
+            'success' => true
+        ));
+        $this->viewBuilder()->setOption('serialize', true);  
     }
     
     public function mapOverviewSave(){
@@ -1264,9 +1264,9 @@ class CloudsController extends AppController {
         }
         
         $this->set([
-            'success'       => true,
-            '_serialize'    => ['success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }  
     
     public function mapSave(){
@@ -1291,9 +1291,9 @@ class CloudsController extends AppController {
         }
         
         $this->set([
-            'success'       => true,
-            '_serialize'    => ['success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     } 
     private function _meta_data_for_level_and_id($level,$id,$tt_level){
         $config_level = $tt_level-1;

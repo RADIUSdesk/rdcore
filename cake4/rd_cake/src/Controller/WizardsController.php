@@ -139,13 +139,12 @@ class WizardsController extends AppController{
         $this->PermanentUsers->deleteAll(['PermanentUsers.username' => 'click_to_connect@'.$user_name,'PermanentUsers.cloud_id'=>$this->cloud_id]);
         
         $this->Radchecks->deleteAll(['Radchecks.username' => 'click_to_connect@'.$user_name]);
-        
-      
+               
         $this->set([
-            'items'     => [],
-            'success'   => true,
-            '_serialize' => ['items','success']
-        ]);
+        	'items'     => [],
+            'success'   => true
+       	]);
+		$this->viewBuilder()->setOption('serialize', true);
     }
     
     public function newSiteStepOne(){
@@ -175,21 +174,21 @@ class WizardsController extends AppController{
         
         if(!$exist_test){
             $this->_add_items($this->new_name);
-        }else{
-            $this->set(array(
-                'errors'    => array('name' => "Items with this name alreay exist: $exist_test"),
+        }else{        
+        	$this->set([
+		    	'errors'    => ['name' => "Items with this name alreay exist: $exist_test"],
                 'success'   => false,
-                'message'   => array($exist_test." already exist"),
-                '_serialize' => array('errors','success','message')
-            ));
+                'message'   => [$exist_test." already exist"]
+		   	]);
+			$this->viewBuilder()->setOption('serialize', true);
             return;
         }
-        	
-        $this->set(array(
-            'items'     => array(),
+        
+        $this->set([
+	    	'items'     => [],
             'success'   => true,
-            '_serialize' => array('items','success')
-        ));
+	   	]);
+		$this->viewBuilder()->setOption('serialize', true);
     }
     
     public function changeTheme(){
@@ -222,12 +221,12 @@ class WizardsController extends AppController{
             $e->theme = $req_d['theme'];
             $this->DynamicDetails->save($e);  
         }
-    
-        $this->set(array(
-            'data'      => array(),
+         
+        $this->set([
+	    	'data'     => [],
             'success'   => true,
-            '_serialize'=> array('data','success')
-        ));
+	   	]);
+		$this->viewBuilder()->setOption('serialize', true);
     }
     
     public function viewCountryAndTimezone(){
@@ -237,10 +236,10 @@ class WizardsController extends AppController{
         $d['country']   = $data['country'];
         $d['timezone']  = $data['timezone'];
         $this->set([
-            'data'          => $d,
-            'success'       => true,
-            '_serialize'    => ['data','success']
-        ]);
+	    	'data'     => $d,
+            'success'   => true,
+	   	]);
+		$this->viewBuilder()->setOption('serialize', true);
     }
     
     private function _getDefaultSettings(){
@@ -440,10 +439,10 @@ class WizardsController extends AppController{
         }
         
         $this->set([
-            'items'     => [],
-            'success'   => true,
-            '_serialize' => ['items','success']
-        ]);   
+        	'items'     => [],
+            'success'   => true
+       	]);
+		$this->viewBuilder()->setOption('serialize', true);
     }
     
      public function viewLogo(){
@@ -459,16 +458,19 @@ class WizardsController extends AppController{
             ->where(['DynamicDetails.name' => $this->new_name,'DynamicDetails.cloud_id' => $this->cloud_id])
             ->first();
         if($q_r){
-            $this->set(array(
-                'data'     => $q_r->toArray(),
-                'success'   => true,
-                '_serialize'=> array('success', 'data')
-            ));
+        
+        	$this->set([
+		    	'data'     => $q_r->toArray(),
+                'success'   => true
+		   	]);
+			$this->viewBuilder()->setOption('serialize', true);
+        
         }else{
-            $this->set(array(
-                'success'   => false,
-                '_serialize'=> array('success')
-            ));
+        
+        	$this->set([
+                'success'   => false
+		   	]);
+			$this->viewBuilder()->setOption('serialize', true);
         }
     }
     
@@ -613,17 +615,18 @@ class WizardsController extends AppController{
                 $row['img']= "/cake4/rd_cake/webroot/files/image.php?width=400&height=200&image=".$photo;      
            	    array_push($items,$row);
             }
-       
-            $this->set(array(
+            
+            $this->set([
                 'items'     => $items,
-                'success'   => true,
-                '_serialize'=> array('success', 'items')
-            ));
+                'success'   => true
+		   	]);
+			$this->viewBuilder()->setOption('serialize', true);
+       
         }else{
-            $this->set(array(
-                'success'   => false,
-                '_serialize'=> array('success')
-            ));
+            $this->set([
+                'success'   => false
+		   	]);
+			$this->viewBuilder()->setOption('serialize', true);
         }
     }
     
@@ -740,11 +743,9 @@ class WizardsController extends AppController{
                 }
             }
         }
-
-        $this->set([
-            'success' => true,
-            '_serialize' => ['success']
-        ]);
+        
+        $this->set(['success' => true]);
+		$this->viewBuilder()->setOption('serialize', true);
 	}
     
     private function _add_items($name){

@@ -12,16 +12,16 @@ use Cake\Controller\Component;
 class JsonErrorsComponent extends Component {
 
     
-    public function errorMessage($message="An error has occured",$field='message'){
-        $this->getController()->set(array(
-            'success' => false,
-            "$field"   => $message,
-            '_serialize' => array('success',"$field")
-        ));
+    public function errorMessage($message="An error has occured",$field='message'){  
+    	$controller = $this->getController();       
+    	$controller->set([
+        	'success'       => false,
+        	'message'       => $message
+        ]);
+		$controller->viewBuilder()->setOption('serialize', true);
     }
 
-    public function entityErros($entity,$message="An error has occured"){
-        
+    public function entityErros($entity,$message="An error has occured"){      
             $errors     = $entity->getErrors();  
             $a          = [];
             $m_add      = '';
@@ -36,13 +36,15 @@ class JsonErrorsComponent extends Component {
                 $m_add = $m_add."<br>".$detail_string;
             }
 
-            $message = $message.$m_add;           
-            $this->getController()->set([
-                'errors'    => $a,
+            $message = $message.$m_add; 
+            
+            $controller = $this->getController();       
+			$controller->set([
+		    	'errors'    => $a,
                 'success'   => false,
-                'message'   => $message,
-                '_serialize' => ['errors','success','message']
-            ]);
+                'message'   => $message
+		    ]);
+			$controller->viewBuilder()->setOption('serialize', true);
     }
 
 }

@@ -87,10 +87,11 @@ class UnknownsComponent extends Component {
 		        if($include_new_mode){
 		            $fb['new_mode'] = $entity->new_mode;
 		            array_push($serialize,'new_mode');
-		        }
-		        $fb['_serialize'] = $serialize;
-		        
-		        $this->getController()->set($fb);
+		        }		        
+		        $this->getController()->set($fb);		        
+		        $controller = $this->getController();       
+				$controller->set($fb);
+				$controller->viewBuilder()->setOption('serialize', true);	        
             }else{
                 $this->getController()->JsonErrors->errorMessage("MAC Address: ".$mac." not defined on system",'error'); 
             }     
