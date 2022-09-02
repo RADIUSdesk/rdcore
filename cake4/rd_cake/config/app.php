@@ -66,6 +66,7 @@ return [
             'locales' => [RESOURCES . 'locales' . DS],
         ],
     ],
+    
 
     /*
      * Security and encryption configuration
@@ -184,7 +185,7 @@ return [
      *   your application that still emit deprecations.
      */
     'Error' => [
-        'errorLevel' => E_ALL,
+        'errorLevel' => E_ALL & ~E_USER_DEPRECATED, //Add & ~E_USER_DEPRECATED since some installs somehow did not like it
         'skipLog' => [],
         'log' => true,
         'trace' => true,
