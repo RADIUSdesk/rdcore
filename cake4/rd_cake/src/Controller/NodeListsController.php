@@ -283,7 +283,7 @@ class NodeListsController extends AppController{
 						$node_dwn_mins = $node_dwn_mins + $diff;
 					}
 					// Figure how many 'bars' for diff
-					$diff_rem = (int($diff)) % 10; // Minimum bar is 20 minutes
+					$diff_rem = ((int) $diff) % 10; // Minimum bar is 20 minutes
 					$diff_slice = $diff / 10;
 					//printf('$node_state: %d, $diff: %f</br>', $node_state,$diff);
 					if ( $diff_rem >= 5 ) {
