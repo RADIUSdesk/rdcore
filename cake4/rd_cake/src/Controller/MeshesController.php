@@ -1985,7 +1985,12 @@ class MeshesController extends AppController{
                         $empty_flag = true;
                         break;
                     }else{
-                        array_push($entry_ids,$req_d['static_entries'][$count]);
+                    	if(is_int($req_d['static_entries'][$count])){ //The empty text causes troubles (which is not integer)
+                        	array_push($entry_ids,$req_d['static_entries'][$count]);
+                       	}else{
+                       		$empty_flag = true;
+                        	break;
+                       	}
                     }
                     $count++;
                 }
@@ -2181,7 +2186,12 @@ class MeshesController extends AppController{
                             $empty_flag = true;
                             break;
                         }else{
-                            array_push($entry_ids,$req_d['static_entries'][$count]);
+                        	if(is_int($req_d['static_entries'][$count])){ //The empty text causes troubles (which is not integer)
+                            	array_push($entry_ids,$req_d['static_entries'][$count]);
+                           	}else{
+                           		$empty_flag = true;
+                            	break;
+                           	}
                         }
                         $count++;
                     }
