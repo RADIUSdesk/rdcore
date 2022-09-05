@@ -44,6 +44,9 @@ function main(){
                     if(isset($_POST['wbw_info'])){
                         _addWbwInfo($node->id);
                     }
+                    if(isset($_POST['flows'])){
+                        _addSoftflowLogs($node);
+                    }
                     _doLightReport($node);                   
                 }
                 if($report_type == 'full'){
@@ -175,6 +178,56 @@ function _getAwaitingCommands($id){
          array_push($items,$row->id);
     }
     return $items;
+}
+
+function _addSoftflowLogs($node){
+
+	global $conn,$mode;
+    $flows = $_POST['flows'];   
+    foreach ($flows as $fl){ 
+
+		if($mode == 'mesh'){
+		    $stmt = $conn->prepare("INSERT into temp_flow_logs (node_id,mesh_id,username,proto,src_mac,src_ip,src_port,dst_ip,dst_port,oct_in,pckt_in,oct_out,pckt_out,start,finish) VALUES(:node_id,:mesh_id,:username,:proto,:src_mac,:src_ip,:src_port,:dst_ip,:dst_port,:oct_in,:pckt_in,:oct_out,:pckt_out,:start,:finish)");
+		    $stmt->execute([
+		        'node_id'   => $node->id,
+		        'mesh_id'   => $node->mesh_id,
+		        'username'  => $fl['username'],
+		        'proto'     => $fl['proto'],
+		        'src_mac'   => $fl['src_mac'],
+		        'src_ip'    => $fl['src_ip'],
+		        'src_port'  => $fl['src_port'],
+		        'dst_ip'    => $fl['dst_ip'],
+		        'dst_port'  => $fl['dst_port'],
+		        'oct_in'    => $fl['oct_in'],
+		        'pckt_in'   => $fl['pckt_in'],
+		        'oct_out'   => $fl['oct_out'],
+		        'pckt_out'  => $fl['pckt_out'],
+		        'start'     => $fl['start'],
+		        'finish'    => $fl['finish'],
+		    ]);      
+		}
+		
+		if($mode == 'ap'){
+		    $stmt = $conn->prepare("INSERT into temp_flow_logs (ap_id,ap_profile_id,username,proto,src_mac,src_ip,src_port,dst_ip,dst_port,oct_in,pckt_in,oct_out,pckt_out,start,finish) VALUES(:ap_id,:ap_profile_id,:username,:proto,:src_mac,:src_ip,:src_port,:dst_ip,:dst_port,:oct_in,:pckt_in,:oct_out,:pckt_out,:start,:finish)");
+		    $stmt->execute([
+		        'ap_id'   		=> $node->id,
+		        'ap_profile_id' => $node->ap_profile_id,
+		        'username'  	=> $fl['username'],
+		        'proto'     	=> $fl['proto'],
+		        'src_mac'   	=> $fl['src_mac'],
+		        'src_ip'    	=> $fl['src_ip'],
+		        'src_port'  	=> $fl['src_port'],
+		        'dst_ip'    	=> $fl['dst_ip'],
+		        'dst_port'  	=> $fl['dst_port'],
+		        'oct_in'    	=> $fl['oct_in'],
+		        'pckt_in'   	=> $fl['pckt_in'],
+		        'oct_out'   	=> $fl['oct_out'],
+		        'pckt_out'  	=> $fl['pckt_out'],
+		        'start'     	=> $fl['start'],
+		        'finish'    	=> $fl['finish'],
+		    ]);       
+		}        
+    } 
 }
 
 function _addWbwInfo($id){

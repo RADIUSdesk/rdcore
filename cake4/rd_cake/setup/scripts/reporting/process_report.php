@@ -164,7 +164,7 @@ function _doReports(){
     //=== AP REPORTS ====
     $ap_completed = [];
     $ap_conclusion = [];
-    $ap_stmt = $conn->prepare("SELECT * FROM temp_reports where mesh_id=0"); //ap_profile_id = 0 for mesh reports
+    $ap_stmt = $conn->prepare("SELECT * FROM temp_reports where mesh_id=0"); //mesh_id = 0 for ap reports
     $ap_stmt->execute();  
     while ($row = $ap_stmt->fetch(PDO::FETCH_OBJ)){
         $ap_id = $row->ap_id;
@@ -191,7 +191,7 @@ function _doReports(){
         _do_ap_load($ap_id,$report['system_info']['sys']);
         //Update system info (if required)
         _do_ap_system_info($ap_id,$report['system_info']['sys']);
-     
+    
     }
     
     //Clean up

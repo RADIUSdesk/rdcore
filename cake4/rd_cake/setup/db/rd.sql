@@ -4183,6 +4183,8 @@ CREATE TABLE `temp_flow_logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `node_id` int(11) DEFAULT NULL,
   `mesh_id` int(11) DEFAULT NULL,
+  `ap_id` int(11) DEFAULT NULL,
+  `ap_profile_id` int(11) DEFAULT NULL,
   `username` varchar(255) NOT NULL,
   `proto` int(11) NOT NULL,
   `src_mac` varchar(255) NOT NULL,
@@ -4650,4 +4652,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-08-27  9:39:19
+-- Dump completed on 2022-09-05  8:24:41
