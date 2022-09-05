@@ -266,6 +266,7 @@ CREATE TABLE `ap_profile_exit_captive_portals` (
   `dnsparanoia` tinyint(1) NOT NULL DEFAULT 0,
   `dnsdesk` tinyint(1) NOT NULL DEFAULT 0,
   `ap_profile_exit_upstream_id` int(11) DEFAULT NULL,
+  `softflowd_enabled` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1986,13 +1987,7 @@ CREATE TABLE `mesh_exit_captive_portals` (
   `dnsparanoia` tinyint(1) NOT NULL DEFAULT 0,
   `dnsdesk` tinyint(1) NOT NULL DEFAULT 0,
   `mesh_exit_upstream_id` int(11) DEFAULT NULL,
-  `xwf_enable` tinyint(1) NOT NULL DEFAULT 0,
-  `xwf_traffic_class_id` int(11) DEFAULT NULL,
-  `xwf_uamhomepage` varchar(255) NOT NULL DEFAULT '',
-  `xwf_radiuslocationname` varchar(255) NOT NULL DEFAULT '',
-  `xwf_bw_enable` tinyint(1) NOT NULL DEFAULT 0,
-  `xwf_bw_down` int(11) DEFAULT 1,
-  `xwf_bw_up` int(11) DEFAULT 1,
+  `softflowd_enabled` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `idx_mesh_exit_captive_portals_mesh_exit_id` (`mesh_exit_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb3;

@@ -841,7 +841,8 @@ class MeshesController extends AppController{
                     'dns_manual',
                     'uamanydns',
                     'dnsparanoia',
-                    'dnsdesk'
+                    'dnsdesk',
+                    'softflowd_enabled'
 				];
 			    foreach($check_items as $i){
 			        if(isset($req_d[$i])){
@@ -1127,7 +1128,8 @@ class MeshesController extends AppController{
                         'dns_manual',
                         'uamanydns',
                         'dnsparanoia',
-                        'dnsdesk'
+                        'dnsdesk',
+                        'softflowd_enabled'
 					];
 					foreach($check_items as $i){
 					    if(isset($req_d[$i])){
@@ -1142,8 +1144,6 @@ class MeshesController extends AppController{
 			            $cp_data['dns1'] = '';
 			            $cp_data['dns2'] = '';
 			        }
-
-                   // print_r($cp_data);
                    $this->{'MeshExitCaptivePortals'}->patchEntity($ent_cp, $cp_data);
                    
                    if(!($this->{'MeshExitCaptivePortals'}->save($ent_cp))){

@@ -506,6 +506,23 @@ Ext.define('Rd.view.aps.winAccessPointEditExit', {
                                                    value            : 0
                                                 }     
                                             ]
+                                        },
+                                        {
+                                            title       : 'Traffic Monitor',
+                                            layout      : 'anchor',
+                                            defaults    : {
+                                                    anchor: '100%'
+                                            },
+                                            items       :[
+                                                 {
+                                                    xtype       : 'checkbox',      
+                                                    fieldLabel  : 'Enable Softflowd',
+                                                    name        : 'softflowd_enabled',
+                                                    inputValue  : 1,
+                                                    checked     : false,
+                                                    labelClsExtra: 'lblRd'
+                                                }     
+                                            ]
                                         }
                                     ]
                                 } 

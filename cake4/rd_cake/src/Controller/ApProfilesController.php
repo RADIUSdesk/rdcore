@@ -566,7 +566,8 @@ class ApProfilesController extends AppController {
                     'dns_manual',
                     'uamanydns',
                     'dnsparanoia',
-                    'dnsdesk'
+                    'dnsdesk',
+                    'softflowd_enabled'
 				];
 			    foreach($check_items as $i){
 			        if(isset($req_d[$i])){
@@ -741,7 +742,8 @@ class ApProfilesController extends AppController {
                         'dns_manual',
                         'uamanydns',
                         'dnsparanoia',
-                        'dnsdesk'
+                        'dnsdesk',
+                        'softflowd_enabled'
 					];
 					foreach($check_items as $i){
 					    if(isset($req_d[$i])){
