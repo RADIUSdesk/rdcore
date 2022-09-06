@@ -252,7 +252,7 @@ class NodeActionsController extends AppController {
             return;
         }
 
-        $menu = $this->GridButtonsFlat->returnButtons($user,false, 'add_and_delete'); 
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'add_and_delete'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,
