@@ -585,7 +585,7 @@ class VouchersController extends AppController{
 			throw new MethodNotAllowedException();
 		}
 
-        $conditions = $this->CommonQuery->get_filter_conditions();          
+        $conditions = $this->CommonQueryFlat->get_filter_conditions();          
         $this->{$this->main_model}->deleteAll($conditions);
         
         $this->set([

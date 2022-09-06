@@ -43,26 +43,26 @@ class AccessProvidersController extends AppController{
         $this->loadModel('Groups');
 		$this->loadModel('UserSettings');  
         $this->loadComponent('Aa');
-        $this->loadComponent('GridButtonsFlat');
-        $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
-            'model' => $this->main_model
-        ]);               
+        $this->loadComponent('GridButtonsFlat');           
         $this->loadComponent('WhiteLabel'); 
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('JsonErrors');     
     }
        
     public function exportCsv(){
-   
-        $query = $this->{$this->main_model}->find(); 
-        $this->CommonQuery->build_ap_query($query,$user); //AP QUERY is sort of different in a way
+    
+    	if(!$this->Aa->admin_check($this)){   //Only for admin users!
+            return;
+        }
         
-        $q_r    = $query->all();
-
-        //Headings
-        $heading_line   = array();
-        if(isset($this->request->query['columns'])){
-            $columns = json_decode($this->request->query['columns']);
+        $req_q    	= $this->request->getQuery(); //q_data is the query data             
+        $ap_name    = Configure::read('group.ap');             
+        $query		= $this->{$this->main_model}->find()->where(['Groups.name' => $ap_name])->contain(['Groups']);       
+        $q_r    	= $query->all();
+        
+        $heading_line   = [];
+        if(isset($req_q['columns'])){
+            $columns = json_decode($req_q['columns']);
             foreach($columns as $c){
                 array_push($heading_line,$c->name);
             }
@@ -74,11 +74,12 @@ class AccessProvidersController extends AppController{
         
         foreach($q_r as $i){
 
-            $columns    = array();
-            $csv_line   = array();
-            if(isset($this->request->query['columns'])){
-                $columns = json_decode($this->request->query['columns']);
-                foreach($columns as $c){                  
+            $columns    = [];
+            $csv_line   = [];
+            if(isset($req_q['columns'])){
+                $columns = json_decode($req_q['columns']);
+                foreach($columns as $c){
+                	$column_name = $c->name;                  
                		array_push($csv_line,$i->{$column_name});  
                 }
                 array_push($data,$csv_line);
@@ -86,7 +87,7 @@ class AccessProvidersController extends AppController{
         }
          
         $_serialize = 'data';
-        $this->setResponse($this->getResponse()->withDownload('export.csv'));
+        $this->setResponse($this->getResponse()->withDownload('AccessProviders.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
         $this->set(compact('data', '_serialize'));  
     }

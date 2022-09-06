@@ -300,7 +300,7 @@ Ext.define('Rd.controller.cAccessProviders', {
             var f_found     = false;
             var filter_json ='';
                  
-            var filter_collection = me.getGrad().getStore().getFilters();     
+            var filter_collection = me.getGrid().getStore().getFilters();     
             if(filter_collection.count() > 0){
                 var i = 0;
                 while (f_count < filter_collection.count()) { 

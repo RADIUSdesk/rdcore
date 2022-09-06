@@ -44,7 +44,7 @@ class PredefinedCommandsController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
        	$query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,[]);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,[]);
         
         //===== PAGING (MUST BE LAST) ======
         $limit = 50;   //Defaults
@@ -89,7 +89,7 @@ class PredefinedCommandsController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
        	$query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,[]);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,[]);
 
 
         //===== PAGING (MUST BE LAST) ======

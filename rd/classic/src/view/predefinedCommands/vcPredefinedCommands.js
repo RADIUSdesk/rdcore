@@ -40,8 +40,7 @@ Ext.define('Rd.view.predefinedCommands.vcPredefinedCommands', {
     add: function(button){      
         var me = this;
         var c_name 	= Rd.getApplication().getCloudName();
-        var c_id	= Rd.getApplication().getCloudId()
-             
+        var c_id	= Rd.getApplication().getCloudId();           
         if(!Ext.WindowManager.get('winPredefinedCommandsAddId')){
             var w = Ext.widget('winPredefinedCommandsAdd',{id:'winPredefinedCommandsAddId',cloudId: c_id, cloudName: c_name});
             me.getView().add(w);

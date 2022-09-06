@@ -961,30 +961,14 @@ class ApProfilesController extends AppController {
         }
 
         if($q_r->ap_profile_exit_captive_portal){
-            $q_r['radius_1']        = $q_r->ap_profile_exit_captive_portal->radius_1;
-            $q_r['radius_2']        = $q_r->ap_profile_exit_captive_portal->radius_2;
-            $q_r['radius_secret']   = $q_r->ap_profile_exit_captive_portal->radius_secret;
-            $q_r['uam_url']         = $q_r->ap_profile_exit_captive_portal->uam_url;
-            $q_r['uam_secret']      = $q_r->ap_profile_exit_captive_portal->uam_secret;
-            $q_r['walled_garden']   = $q_r->ap_profile_exit_captive_portal->walled_garden;
-            $q_r['swap_octets']     = $q_r->ap_profile_exit_captive_portal->swap_octets;
-			$q_r['mac_auth']        = $q_r->ap_profile_exit_captive_portal->mac_auth;
-
-            //Proxy settings
-            $q_r['proxy_enable']    = $q_r->ap_profile_exit_captive_portal->proxy_enable;
-            $q_r['proxy_ip']        = $q_r->ap_profile_exit_captive_portal->proxy_ip;
-            $q_r['proxy_port']      = intval($q_r->ap_profile_exit_captive_portal->proxy_port);
-            $q_r['proxy_auth_username']      = $q_r->ap_profile_exit_captive_portal->proxy_auth_username;
-            $q_r['proxy_auth_password']      = $q_r->ap_profile_exit_captive_portal->proxy_auth_password;
-            $q_r['coova_optional']  = $q_r->ap_profile_exit_captive_portal->coova_optional;
-            
-            //DNS settings
-            $q_r['dns_manual']      = $q_r->ap_profile_exit_captive_portal->dns_manual;
-            $q_r['dns1']            = $q_r->ap_profile_exit_captive_portal->dns1;
-            $q_r['dns2']            = $q_r->ap_profile_exit_captive_portal->dns2;
-            $q_r['uamanydns']       = $q_r->ap_profile_exit_captive_portal->uamanydns;
-            $q_r['dnsparanoia']     = $q_r->ap_profile_exit_captive_portal->dnsparanoia;
-            $q_r['dnsdesk']         = $q_r->ap_profile_exit_captive_portal->dnsdesk;
+        
+            $this->loadModel('ApProfileExitCaptivePortals');
+            $fields     = $this->{'ApProfileExitCaptivePortals'}->getSchema()->columns();
+            foreach($fields as $item){
+            	if($item !== 'id'){
+                	$q_r["$item"] = $q_r->ap_profile_exit_captive_portal->{"$item"};
+               	}
+            }
             
             //Upstream VLAN id (if applicable)
             if($q_r->ap_profile_exit_captive_portal->ap_profile_exit_upstream_id){

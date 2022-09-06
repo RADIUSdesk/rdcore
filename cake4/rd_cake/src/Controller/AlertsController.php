@@ -39,15 +39,19 @@ class AlertsController extends AppController{
         if (!$user) {   //If not a valid user
             return;
         }
+        
+        $req_q    	= $this->request->getQuery(); //q_data is the query data      
+       	$cloud_id 	= $req_q['cloud_id'];
+        
         $user_id    = $user['id'];
         $where      = $this->_common_filter();   
         $query      = $this->{$this->main_model}->find()->where($where)->contain(['Meshes','Nodes','ApProfiles','Aps','Users']);
         $this->_ap_filter_for_available_to_siblings($query,$user);
         
-        if(isset($this->request->query['sort'])){       
+        if(isset($req_q['sort'])){       
             $dir    = 'ASC';
-            $dir    = isset($this->request->query['dir']) ? $this->request->query['dir'] : $dir;
-            $sort = 'Alerts'.'.'.$this->request->query['sort'];
+            $dir    = isset($req_q['dir']) ? $req_q['dir'] : $dir;
+            $sort = 'Alerts'.'.'.$req_q['sort'];
             $query->order([$sort => $dir]);    
         }
 
@@ -55,10 +59,10 @@ class AlertsController extends AppController{
         $limit  = 50;   //Defaults
         $page   = 1;
         $offset = 0;
-        if(isset($this->request->query['limit'])){
-            $limit  = $this->request->query['limit'];
-            $page   = $this->request->query['page'];
-            $offset = $this->request->query['start'];
+        if(isset($req_q['limit'])){
+            $limit  = $req_q['limit'];
+            $page   = $req_q['page'];
+            $offset = $req_q['start'];
         }
         
         $query->page($page);
@@ -148,14 +152,15 @@ class AlertsController extends AppController{
 
         $user_id    = $user['id'];
         $fail_flag  = false;
+        $req_d		= $this->request->getData();
 
-	    if(isset($this->request->data['id'])){   //Single item delete
-            $message = "Single item ".$this->request->data['id'];
+	    if(isset($req_d['id'])){   //Single item delete
+            $message = "Single item ".$req_d['id'];
             //NOTE: we first check of the user_id is the logged in user OR a sibling of them:         
-            $entity     = $this->{'Alerts'}->find()->where(['Alerts.id' => $this->request->data['id']])->first();
+            $entity     = $this->{'Alerts'}->find()->where(['Alerts.id' => $req_d['id']])->first();
             $this->{'Alerts'}->delete($entity);
         }else{                          //Assume multiple item delete
-            foreach($this->request->data as $d){
+            foreach($req_d as $d){
                 $entity     = $this->{'Alerts'}->find()->where(['Alerts.id' => $d['id']])->first();
                 $this->{'Alerts'}->delete($entity);
             }
@@ -188,11 +193,12 @@ class AlertsController extends AppController{
 
         $user_id    = $user['id'];
         $fail_flag  = false;
+        $req_d		= $this->request->getData();
 
-	    if(isset($this->request->data['id'])){   //Single item delete
-            $message = "Single item ".$this->request->data['id'];
+	    if(isset($req_d['id'])){   //Single item delete
+            $message = "Single item ".$req_d['id'];
             //NOTE: we first check of the user_id is the logged in user OR a sibling of them:         
-            $entity     = $this->{'Alerts'}->find()->where(['Alerts.id' => $this->request->data['id']])->first();
+            $entity     = $this->{'Alerts'}->find()->where(['Alerts.id' => $req_d['id']])->first();
             if($entity){
                 $entity->acknowledged   = FrozenTime::now();
                 $entity->user_id        = $user_id;
@@ -200,7 +206,7 @@ class AlertsController extends AppController{
             }
 
         }else{                          //Assume multiple item delete
-            foreach($this->request->data as $d){
+            foreach($req_d as $d){
                 $entity     = $this->{'Alerts'}->find()->where(['Alerts.id' => $d['id']])->first();
                 if($entity){
                     $entity->acknowledged   = FrozenTime::now();
@@ -336,9 +342,11 @@ class AlertsController extends AppController{
 
         $where_clause   = [];
         $model          = 'Alerts';
+        
+        $req_q    		= $this->request->getQuery(); //q_data is the query data 
 
-        if(isset($this->request->query['filter'])){
-            $filter = json_decode($this->request->query['filter']);        
+        if(isset($req_q['filter'])){
+            $filter = json_decode($req_q['filter']);        
             foreach($filter as $f){ 
             
                 //Strings (like)

@@ -25,7 +25,7 @@ class DataCollectorsController extends AppController{
     
     public function macCheck(){
     
-        $data   = $this->request->data;      
+        $data	= $this->request->getData();      
         $q_r    = $this->_find_dynamic_detail_id();
         
         $data['ci_required']  = false; // By defaul don't ask for customer info;
@@ -46,7 +46,7 @@ class DataCollectorsController extends AppController{
                     $data['ci_required'] = true; // Every time == -1 //No need to check if expired
                 }else{       
                     $q_dd = $this->{$this->main_model}->find()
-                        ->where([$this->main_model.'.dynamic_detail_id' => $dd_id,$this->main_model.'.mac' => $this->request->data['mac']])
+                        ->where([$this->main_model.'.dynamic_detail_id' => $dd_id,$this->main_model.'.mac' => $data['mac']])
                         ->order(['modified' => 'DESC']) //Get the most recent one 
                         ->first();
                     if($q_dd){
@@ -76,11 +76,12 @@ class DataCollectorsController extends AppController{
     public function addMac(){
         if ($this->request->is('post')) { 
             if($this->request->getData('email')){
-                if(!$this->_test_email($this->request->data['email'])){
+                if(!$this->_test_email($this->request->getData('email'))){
                     return;
                 }
             }
-            $dd = $this->_find_dynamic_detail_id();
+            $req_d		= $this->request->getData();
+            $dd 		= $this->_find_dynamic_detail_id();
             
             if(!$dd){
                 $this->set(array(
@@ -91,25 +92,25 @@ class DataCollectorsController extends AppController{
                 ));
                 return;
             }else{
-                $this->request->data['dynamic_detail_id'] = $dd->dynamic_detail->id;
+                $req_d['dynamic_detail_id'] = $dd->dynamic_detail->id;
             }
                
-            $this->request->data['public_ip'] = $this->request->clientIp();
-            $this->request->data['is_mobile'] = $this->request->isMobile();
+            $req_d['public_ip'] = $this->request->clientIp();
+            $req_d['is_mobile'] = $this->request->isMobile();
             
             //See if there are not perhaps one already that just needs refreshing
             //== Record EVERY TIME ==
           /*  $q_dd = $this->{$this->main_model}->find()
                     ->where([
                         $this->main_model.'.dynamic_detail_id' => $dd->dynamic_detail->id,
-                        $this->main_model.'.mac' => $this->request->data['mac']
+                        $this->main_model.'.mac' => $req_d['mac']
                     ])
                     ->first();
             if($q_dd){
-                $this->{$this->main_model}->patchEntity($q_dd, $this->request->data);
+                $this->{$this->main_model}->patchEntity($q_dd, $req_d);
                 $this->{$this->main_model}->save($q_dd);
             }else{ */     
-                $entity = $this->{$this->main_model}->newEntity($this->request->data);
+                $entity = $this->{$this->main_model}->newEntity($req_d);
                 $this->{$this->main_model}->save($entity);
           //  }
             
@@ -264,10 +265,11 @@ class DataCollectorsController extends AppController{
     private function _find_dynamic_detail_id(){
     
         $result = false;
+        $req_d	= $this->request->getData();
         $conditions = array("OR" =>array());
-        foreach(array_keys($this->request->data) as $key){
+        foreach(array_keys($req_d) as $key){
             array_push($conditions["OR"],
-                array("DynamicPairs.name" => $key, "DynamicPairs.value" =>  $this->request->data[$key])
+                array("DynamicPairs.name" => $key, "DynamicPairs.value" =>  $req_d[$key])
             ); //OR query all the keys
         }
        	
@@ -292,23 +294,24 @@ class DataCollectorsController extends AppController{
         //__ Authentication + Authorization __
         
         $user_id    = $user['id'];
+        $req_d	    = $this->request->getData();
         
         if($this->request->getData('email')){
-            if(!$this->_test_email($this->request->data['email'])){
+            if(!$this->_test_email($req_d['email'])){
                 return;
             }
         }
         
-        $this->request->data['public_ip'] = $this->request->clientIp();
-        $this->request->data['is_mobile'] = $this->request->isMobile();
+        $req_d['public_ip'] = $this->request->clientIp();
+        $req_d['is_mobile'] = $this->request->isMobile();
        
         if($type == 'add'){ 
-            $entity = $this->{$this->main_model}->newEntity($this->request->data);
+            $entity = $this->{$this->main_model}->newEntity($req_d);
         }
        
         if($type == 'edit'){
-            $entity = $this->{$this->main_model}->get($this->request->data['id']);
-            $this->{$this->main_model}->patchEntity($entity, $this->request->data);
+            $entity = $this->{$this->main_model}->get($req_d['id']);
+            $this->{$this->main_model}->patchEntity($entity, $req_d);
         }
               
         if ($this->{$this->main_model}->save($entity)) {
@@ -333,18 +336,20 @@ class DataCollectorsController extends AppController{
             return;
         }
 
-        $user_id   = $user['id'];
-        $fail_flag = false;
+        $user_id    = $user['id'];
+        $fail_flag  = false;
+        $req_d		= $this->request->getData();
 
-	    if(isset($this->request->data['id'])){   //Single item delete
-            $message = "Single item ".$this->request->data['id'];
-            $entity  = $this->{$this->main_model}->get($this->request->data['id']);   
+	    if(isset($req_d['id'])){   //Single item delete       
+            $entity     = $this->{$this->main_model}->get($req_d['id']);   
             $this->{$this->main_model}->delete($entity);
-        }else{                          //Assume multiple item delete
-            foreach($this->request->data as $d){
+
+        }else{
+            foreach($req_d as $d){
+                $entity     = $this->{$this->main_model}->get($d['id']);  
                 $this->{$this->main_model}->delete($entity);
             }
-        }
+        }     
 
         if($fail_flag == true){
             $this->set(array(

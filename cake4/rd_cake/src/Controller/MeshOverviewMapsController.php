@@ -56,27 +56,29 @@ class MeshOverviewMapsController extends AppController {
         if(!$user){   //If not a valid user
             return;
         }
+              
         if ($this->request->is('post')) {
 
-            if(isset($this->request->data['id'])){
-                $id = $this->request->data['id'];
+			$req_db = $this->request->getData();
+			
+            if(isset($req_db['id'])){
+                $id = $req_db['id'];
                 $nodes = $this->{'Nodes'}->find()->where(['Nodes.mesh_id' =>$id])->all();
                 if($nodes){
                     if($nodes->count() == 1){
                         $node = $nodes->first();
-                        $node->lat = $this->request->data['lat'];
-                        $node->lon = $this->request->data['lon'];
+                        $node->lat = $req_db['lat'];
+                        $node->lon = $req_db['lon'];
                         $this->{'Nodes'}->save($node);
                         //ALSO PUT THE CENTRE OF THE MAP for MESH VIEW MAYBE?
                     }else{
                         #FIXME try and only put it  on the GW
                         $node = $nodes->first();
-                        $node->lat = $this->request->data['lat'];
-                        $node->lon = $this->request->data['lon'];
+                        $node->lat = $req_db['lat'];
+                        $node->lon = $req_db['lon'];
                         $this->{'Nodes'}->save($node);         
                     }    
-                }
-                
+                }              
             }            
         }   
         $this->set([
@@ -102,11 +104,12 @@ class MeshOverviewMapsController extends AppController {
         $tt_level   = 0;
         $conditions = ['TreeTags.parent_id IS NULL'];
         $this->meta_data['level_stats'] = [];
-        $this->_meta_data_for_id(0);
+        $this->_meta_data_for_id(0);    
+        $req_q    	= $this->request->getQuery(); //q_data is the query data
         
-        if(isset($this->request->query['tree_tag_id'])){
-            if($this->request->query['tree_tag_id'] != 0){
-                $id         = $this->request->query['tree_tag_id'];
+        if(isset($req_q['tree_tag_id'])){
+            if($req_q['tree_tag_id'] != 0){
+                $id         = $req_q['tree_tag_id'];
                 $this->_meta_data_for_id($id);
                 $conditions = ['TreeTags.parent_id' => $id];                        
             }    

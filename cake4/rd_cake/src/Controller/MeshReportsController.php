@@ -1866,7 +1866,7 @@ class MeshReportsController extends AppController {
         }
 
         //--- Finally we may have some commands waiting for the nodes----
-        //--- We assume $this->request->data['network_info'][0]['eth0'] will contain one of the nodes of the mesh
+        //--- We assume $this->request->getData() = $cdata['network_info'][0]['eth0'] will contain one of the nodes of the mesh
         $cdata = $this->request->getData();
 
         $items = false;

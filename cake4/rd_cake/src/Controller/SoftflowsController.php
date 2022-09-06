@@ -87,12 +87,13 @@ class SoftflowsController extends AppController{
          
         $query      = $this->{$this->main_model}->find()->where($where)->where(['start >=' => $ft_start])->where(['dynamic_client_id' => $dc_id ]);
         
-        $fields     = $this->{$this->main_model}->schema()->columns();
+        $fields     = $this->{$this->main_model}->schema()->columns();     
+        $req_q      = $this->request->getQuery(); //q_data is the query data
         
-        if(isset($this->request->query['sort'])){       
+        if(isset($req_q['sort'])){       
             $dir    = 'ASC';
-            $dir    = isset($this->request->query['dir']) ? $this->request->query['dir'] : $dir;
-            $sort   = 'Softflows'.'.'.$this->request->query['sort'];
+            $dir    = isset($req_q['dir']) ? $req_q['dir'] : $dir;
+            $sort   = 'Softflows'.'.'.$req_qy['sort'];
             $query->order([$sort => $dir]);    
         }
 
@@ -100,10 +101,10 @@ class SoftflowsController extends AppController{
         $limit  = 50;   //Defaults
         $page   = 1;
         $offset = 0;
-        if(isset($this->request->query['limit'])){
-            $limit  = $this->request->query['limit'];
-            $page   = $this->request->query['page'];
-            $offset = $this->request->query['start'];
+        if(isset($req_q['limit'])){
+            $limit  = $req_q['limit'];
+            $page   = $req_q['page'];
+            $offset = $req_q['start'];
         }
         
         $query->page($page);
@@ -147,9 +148,10 @@ class SoftflowsController extends AppController{
 
         $where_clause   = [];
         $model          = 'Softflows';
+        $req_q          = $this->request->getQuery(); //q_data is the query data
 
-        if(isset($this->request->query['filter'])){
-            $filter = json_decode($this->request->query['filter']);        
+        if(isset($req_q['filter'])){
+            $filter = json_decode($req_q['filter']);        
             foreach($filter as $f){ 
             
                 //Strings (like)

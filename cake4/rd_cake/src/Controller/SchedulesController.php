@@ -45,7 +45,7 @@ class SchedulesController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,['Nodes']);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['Nodes']);
 
 
         //===== PAGING (MUST BE LAST) ======
@@ -91,7 +91,7 @@ class SchedulesController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQuery->build_cloud_query($query,$cloud_id,['ScheduleEntries']);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['ScheduleEntries']);
 
 
         //===== PAGING (MUST BE LAST) ======

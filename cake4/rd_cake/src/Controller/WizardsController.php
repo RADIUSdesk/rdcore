@@ -345,7 +345,7 @@ class WizardsController extends AppController{
             $req_d['tz_value']    = $ent_tz->value;
         }
         
-        //$this->request->data['timezone'] is the value you have to use to set on the dynamic_clients
+        //$req_d['timezone'] is the value you have to use to set on the dynamic_clients
         $mesh_name_underscored = preg_replace('/\s+/', '_', $this->new_name);
         $mesh_name_underscored = strtolower($mesh_name_underscored);  
         $name_like = 'MESHdesk_'.$mesh_name_underscored.'_mcp_%';
