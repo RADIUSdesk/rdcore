@@ -339,7 +339,7 @@ class NodeActionsController extends AppController {
                     $model = 'ApActions';
                 }
             }
-		    $id     = $req_['node_action_id'];
+		    $id     = $req_d['node_action_id'];
 		    $entity = $this->{$model}->find()->where(['id' => $id])->first();
 		    if($entity){
                 $entity->status = 'replied';
