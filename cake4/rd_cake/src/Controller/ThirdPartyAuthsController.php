@@ -80,7 +80,7 @@ class ThirdPartyAuthsController extends AppController{
         }
         
         //Now we need to determine what social login idp detail to use
-        $config = $this->_determine_sl();
+        $config = $this->_determine_sl($req_q);
         if($config == false){
             $this->JsonErrors->errorMessage('Problems with the config of Login Page or IDP config');
             return;
@@ -139,18 +139,15 @@ class ThirdPartyAuthsController extends AppController{
 		}
 	}
     
-    private function _determine_sl(){
+    private function _determine_sl($req_q){
     
-    	$req_q      = $this->request->getQuery();
         $conditions = array("OR" =>array());
-        
-      
         foreach(array_keys($req_q) as $key){
             array_push($conditions["OR"],
                 array("DynamicPairs.name" => $key, "DynamicPairs.value" =>  $req_q[$key])
             );
         }
-       	
+            	
 		$q_r = $this->DynamicPairs
             ->find()
             ->contain([
@@ -164,9 +161,9 @@ class ThirdPartyAuthsController extends AppController{
             ->first();
             
         $config = false; 
-         
+                 
         if($q_r){
-              
+                   
             $new_query_array  = $req_q;
             //Remove unwanted items
             foreach($this->alt_excludes as $excl){
@@ -209,7 +206,7 @@ class ThirdPartyAuthsController extends AppController{
 
 		//Take the query string and make in an Array
 
-		$result = array();
+		$result = [];
 		//string must contain at least one = and cannot be in first position
 		if(strpos($qry,'=')) {
 		    if(strpos($qry,'?')!==false) {
