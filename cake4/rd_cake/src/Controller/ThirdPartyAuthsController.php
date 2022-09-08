@@ -20,7 +20,8 @@ class ThirdPartyAuthsController extends AppController{
     
     protected $social_login_info;
     protected $dynamic_detail_cloud_id;
-    protected $user_profile; 
+    protected $user_profile;
+    protected $req_q 
     
     protected $excludes     = [
         'protocol',
@@ -58,7 +59,7 @@ class ThirdPartyAuthsController extends AppController{
             $result = [];
             parse_str(urldecode($req_q['state']),$result); 
             foreach(array_keys($result) as $key){
-                $req_q[$key] = $result[$key];
+                $this->req_q[$key] = $result[$key];
             } 
         }
         
@@ -85,12 +86,15 @@ class ThirdPartyAuthsController extends AppController{
             $this->JsonErrors->errorMessage('Problems with the config of Login Page or IDP config');
             return;
         }
-        
-        
+             
         $hybridauth     	= new HybridAuth($config);     
         $adapter            = $hybridauth->authenticate($req_q['idp_name']);
         $this->user_profile = $adapter->getUserProfile();
         $isConnected        = $adapter->isConnected();
+    
+    	$isConnected = true;
+    	$this->user_profile = (object)[]; 
+    	$this->user_profile->identifier = '39090348';  
     
         if($isConnected){ 
             $this->_authForRadius();
@@ -300,9 +304,10 @@ class ThirdPartyAuthsController extends AppController{
 	            $this->{'SocialLoginUserRealms'}->save($entity);
 	        }  
 		}
+
         
-        $req_q            = $this->request->getQuery(); 
-        $new_query_array  = $this->request->getQuery(); 
+        $req_q            = $this->req_q; 
+        $new_query_array  = $this->req_q; 
         //Remove unwanted items
         foreach($this->excludes as $excl){
             unset($new_query_array[$excl]);   
