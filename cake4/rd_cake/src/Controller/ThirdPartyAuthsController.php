@@ -21,7 +21,7 @@ class ThirdPartyAuthsController extends AppController{
     protected $social_login_info;
     protected $dynamic_detail_cloud_id;
     protected $user_profile;
-    protected $req_q 
+    protected $req_q; 
     
     protected $excludes     = [
         'protocol',
@@ -59,7 +59,8 @@ class ThirdPartyAuthsController extends AppController{
             $result = [];
             parse_str(urldecode($req_q['state']),$result); 
             foreach(array_keys($result) as $key){
-                $this->req_q[$key] = $result[$key];
+                $this->req_q[$key] 	= $result[$key];
+                $req_q[$key] 		= $result[$key];
             } 
         }
         
