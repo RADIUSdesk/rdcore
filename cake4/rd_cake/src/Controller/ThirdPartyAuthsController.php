@@ -92,11 +92,7 @@ class ThirdPartyAuthsController extends AppController{
         $adapter            = $hybridauth->authenticate($req_q['idp_name']);
         $this->user_profile = $adapter->getUserProfile();
         $isConnected        = $adapter->isConnected();
-    
-    	$isConnected = true;
-    	$this->user_profile = (object)[]; 
-    	$this->user_profile->identifier = '39090348';  
-    
+       
         if($isConnected){ 
             $this->_authForRadius();
         }
