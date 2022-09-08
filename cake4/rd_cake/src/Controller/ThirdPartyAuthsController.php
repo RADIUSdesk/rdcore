@@ -59,10 +59,10 @@ class ThirdPartyAuthsController extends AppController{
             $result = [];
             parse_str(urldecode($req_q['state']),$result); 
             foreach(array_keys($result) as $key){
-                $this->req_q[$key] 	= $result[$key];
                 $req_q[$key] 		= $result[$key];
             } 
         }
+        $this->req_q = $req_q;
         
         //Only go on if it is a social login based request
         if(!isset($req_q['social_login'])){
