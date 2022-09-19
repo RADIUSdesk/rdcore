@@ -406,7 +406,7 @@ class MeshHelper22Component extends Component {
             [
                 "interface"    => "loopback",
                 "options"   => [
-                    "ifname"        => "lo",
+                    "device"        => "lo",
                     "proto"         => "static",
                     "ipaddr"        => "127.0.0.1",
                     "netmask"       => "255.0.0.0"
