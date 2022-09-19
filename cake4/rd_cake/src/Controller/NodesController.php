@@ -33,19 +33,28 @@ class NodesController extends AppController {
         $this->loadModel('Nodes');
         $this->loadComponent('Aa');    
         $this->loadComponent('JsonErrors'); 
-        $this->loadComponent('TimeCalculations');
-             
+        $this->loadComponent('TimeCalculations');            
         $this->loadComponent('Unknowns');
-        $this->loadComponent('MeshHelper'); 
-        $this->loadComponent('ApHelper');
     }
     
     public function getConfigForNode(){
          if(null !== $this->request->getQuery('mac')){
             $mac        = $this->request->getQuery('mac');
+            $version    = $this->request->getQuery('version');
+            $ap_helper	= 'ApHelper';
+            $mesh_helper= 'MeshHelper';
+            
+            //Sept 2022 We use a version specific helper for the new convention in newer versions of OpenWrt
+            if(($version == 22.03)||($version == 21.02)){
+            	$ap_helper	= 'ApHelper22';
+            	$mesh_helper= 'MeshHelper22';
+            }
+            
+            $this->loadComponent($ap_helper);
+            $this->loadComponent($mesh_helper);
                        
             //-Mar 2021- We add a function to first look if this device is not under APdesk
-            $json = $this->ApHelper->JsonForAp($mac);
+            $json = $this->{$ap_helper}->JsonForAp($mac);
             if(isset($json['config_settings'])){
                 $this->set([
                     'config_settings'   => $json['config_settings'],
@@ -66,7 +75,7 @@ class NodesController extends AppController {
                         $gw = true;
                     }
                 }
-                $json = $this->MeshHelper->JsonForMeshNode($ent_node,$gw);
+                $json = $this->{$mesh_helper}->JsonForMeshNode($ent_node,$gw);
                 $this->set([
                     'config_settings'   => $json['config_settings'],
                     'timestamp'         => $json['timestamp'],
