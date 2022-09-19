@@ -507,7 +507,7 @@ class MeshHelper22Component extends Component {
                     "interface" => "lan",
                     "options"   => [
                     	"proto" => "$proto",
-                    	"name"	=> 'br-lan'
+                    	"device"=> 'br-lan'
                     ]
             ]);
             
