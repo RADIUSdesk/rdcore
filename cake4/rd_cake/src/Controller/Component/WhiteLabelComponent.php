@@ -17,12 +17,13 @@ use Cake\ORM\TableRegistry;
 
 class WhiteLabelComponent extends Component {
 
-	protected $root_user_id    = 44; 
+	protected $root_user_id	= 44;
+	protected $wallpaper	= "/cake4/rd_cake/img/wallpapers/1.jpg";	 
 
     public function detail($user_id){
     
-        $wl = [];       
-        $site_active = Configure::read('whitelabel.active');       
+        $wl 			= [];       
+        $site_active 	= Configure::read('whitelabel.active');       
         if($site_active){
             //First we will get the site settings
             $wl['wl_active']    = 'wl_active';
@@ -30,6 +31,7 @@ class WhiteLabelComponent extends Component {
             $wl['wl_h_bg']      = Configure::read('whitelabel.hBg');
             $wl['wl_h_fg']      = Configure::read('whitelabel.hFg');
             $wl['wl_footer']    = Configure::read('whitelabel.fName');
+            $wl['wl_wallpaper'] = Configure::read('whitelabel.wallpaper');
    
             $img_active         = Configure::read('whitelabel.imgActive');
             if($img_active == true){
@@ -87,7 +89,8 @@ class WhiteLabelComponent extends Component {
                 }     
                  
             }
-        }      
+        }
+        $wl['wl_wallpaper'] = Configure::read('whitelabel.wallpaper'); //Set this manually for the user   
         return $wl;
     }
 }

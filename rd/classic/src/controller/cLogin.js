@@ -2,8 +2,9 @@ Ext.define('Rd.controller.cLogin', {
     extend: 'Ext.app.Controller',
     views:  ['login.pnlLogin'],
     config: {
-        urlLogin    : '/cake4/rd_cake/dashboard/authenticate.json',
-        urlWallpaper: 'resources/images/wallpapers/2.jpg'
+        urlLogin        : '/cake4/rd_cake/dashboard/authenticate.json',
+        urlBranding     : '/cake4/rd_cake/dashboard/branding.json',
+        urlWallpaper    : 'resources/images/wallpapers/2.jpg'
     },
     refs: [
         { ref: 'viewP',         selector: 'viewP',          xtype: 'viewP',      autoCreate: true },
@@ -35,10 +36,22 @@ Ext.define('Rd.controller.cLogin', {
     },
     actionIndex: function(){
         var me = this;
-        var li = me.getView('login.pnlLogin').create({'url':me.getUrlWallpaper()});
-        var vp = me.getViewP();
-        vp.removeAll(true);
-        vp.add([li]);
+        Ext.Ajax.request({
+            url     : me.getUrlBranding(),
+            method  : 'GET',
+            success: function(response){
+                var jsonData    = Ext.JSON.decode(response.responseText);
+                console.log(jsonData);
+                if(jsonData.success){
+                    var li = me.getView('login.pnlLogin').create(jsonData.data);
+                    var vp = me.getViewP();
+                    vp.removeAll(true);
+                    vp.add([li]);
+
+                }   
+            },
+            scope: me
+        });        
     },
 
     login: function(button){

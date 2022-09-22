@@ -35,6 +35,34 @@ class DashboardController extends AppController{
         $this->loadModel('CloudAdmins');    
             
     }
+    
+    
+    public function branding(){
+    
+    	$ap_id					= 44; //root's ID (Small hack)
+    
+    	$white_label            = [];
+        $wl                     = $this->WhiteLabel->detail($ap_id);
+        $white_label['active']  = true;
+        $white_label['hName']   = $wl['wl_header'];
+        $white_label['hBg']     = '#'.$wl['wl_h_bg'];
+        $white_label['hFg']     = '#'.$wl['wl_h_fg'];   
+        $white_label['fName']   = $wl['wl_footer'];
+        
+        if(($wl['wl_img_active'] === 'wl_img_active')||($wl['wl_img_active'] == 1)){
+            $white_label['imgActive'] = true;   
+        }else{
+            $white_label['imgActive'] = false;
+        }
+        $white_label['imgFile']    = $wl['wl_img'];
+        $white_label['wallpaper']  = $wl['wl_wallpaper'];	 
+
+        $this->set([
+            'success'   => true,
+            'data'      => $white_label
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    }
       
     public function navTree(){
     

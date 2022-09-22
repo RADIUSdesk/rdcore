@@ -205,10 +205,11 @@ $config['extensions']['active']     = true;
 $config['whitelabel']['active']     = true; //JUL 2021 Always make this true
 $config['whitelabel']['hName']      = 'RADIUSdesk';
 $config['whitelabel']['hBg']        = 'fff';
-$config['whitelabel']['hFg']        = '005691';                                   
+$config['whitelabel']['hFg']        = '005691';                               
 $config['whitelabel']['imgActive']  = true;
 $config['whitelabel']['imgFile']    = 'logo.png';
-$config['whitelabel']['fName']      = 'RADIUSdesk';
+$config['whitelabel']['fName']      = 'RADIUSdesk 2022';
+$config['whitelabel']['wallpaper']  = "/cake4/rd_cake/img/wallpapers/1.jpg"; //Sept 2022 Add Wallpapers
 
 //=== Language List =====
 $config['Admin']['i18n'][0]     = [    

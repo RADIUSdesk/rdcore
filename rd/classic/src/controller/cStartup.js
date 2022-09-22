@@ -176,6 +176,7 @@ Ext.define('Rd.controller.cStartup', {
                     if(jsonData.success){ //Token is ok, let us continiue
                         resolve(jsonData);
                     }else{
+                        console.log(jsonData);
                         reject(response.status+':'+response.statusText);
                     }
                 },
