@@ -382,7 +382,8 @@ class ApHelper22Component extends Component {
         $captive_portal_data 	= [];
         $openvpn_bridge_data    = [];
 		$include_lan_dhcp 		= true;
-		$nat_detail				= [];
+		$nat_detail				= [];		
+		$interfaces				= [];
 		
 
         //--Jul 2021 --See if there are a WAN bridge to-- 
@@ -402,7 +403,7 @@ class ApHelper22Component extends Component {
             [
                 "interface"    => "loopback",
                 "options"   => [
-                    "ifname"        => "lo",
+                    "device"        => "lo",
                     "proto"         => "static",
                     "ipaddr"        => "127.0.0.1",
                     "netmask"       => "255.0.0.0"
@@ -411,7 +412,6 @@ class ApHelper22Component extends Component {
 
 
         $br_int     = $this->_wan_for($this->Hardware);
-        $wan_if     = $this->_wan_for($this->Hardware);
         $version    = $this->getController()->getRequest()->getQuery('version');
         //SMALL HACK START 
 		$m = $this->getController()->getRequest()->getQuery('mac');
@@ -427,10 +427,9 @@ class ApHelper22Component extends Component {
         
         $wan_options = [
             "ifname"    => "$wan_if",
-            "type"      => "bridge",
             "proto"     => "dhcp"
         ];
-        
+               
         $e_s = $this->{'ApConnectionSettings'}->find()->where([
             'ApConnectionSettings.ap_id'    => $this->ApId,
             'ApConnectionSettings.grouping' => 'wan_static_setting',
@@ -489,63 +488,27 @@ class ApHelper22Component extends Component {
             }
         }
         
-		if($include_lan_dhcp){
-		    if($this->getController()->getRequest()->getQuery('zzversion') !== null){ //For now we just check for its presence
-		
-		        array_push( $network,
-		            [
-		                "interface"    => "lan",
-		                "options"   => [
-		                     "ipv6"          => '1',
-		                    "ifname"        => "$br_int", 
-		                    "type"          => "bridge"
-		               ]
-		       	]);
-		       	  	
-		       	array_push( $network,
-		            [
-		                "interface"    => "lan_4",
-		                "options"   => [
-		                    "ifname"        => "@lan",
-		                    "proto"         => "dhcp"
+      	array_push( $network,
+            [
+                "device" => "br-lan",
+                "options"   => [
+                	'name'	=> 'br-lan',
+                	'type'	=> 'bridge'
+                ],
+                'lists'	=> ['ports' => [
+                	$wan_if
+                ]
+        	]
+        ]);
+        
+        $wan_options['device'] = 'br-lan';
+               
+        array_push( $network,
+            [
+                "interface" => "lan",
+                "options"   => $wan_options
+       	]); 	
 
-		               ]
-		       	]);
-		       	
-		       	array_push( $network,
-		            [
-		                "interface"    => "lan_6",
-		                "options"   => [
-		                    "ifname"        => "@lan",
-		                    "proto"         => 'dhcpv6',
-                            "ifname"        => '@lan',
-                            "reqaddress"    => 'try',
-                            "reqprefix"     => 'auto'
-
-		               ]
-		       	]);
-		       		
-		    }else{
-		        array_push( $network,
-		            [
-		                "interface" => "lan",
-		                "options"   => $wan_options
-		       	]);
-		    }
-		    
-		    if($version == '21.02'){         
-                if($wan_if == 'wan'){      
-                    array_push( $network,
-                        [
-                            "device"    => $wan_if,
-                            "options"   => [
-                                "name"      => $wan_if, 
-                                "macaddr"   => "$m"
-                           ]
-                    ]);
-                }      
-            }	        	
-		}
 		
 		//LTE/4G - !!HEADSUP Place it here since some code expect the LAN IF to be on $network[1]['options']['ifname'];!!
         $e_qmi = $this->{'ApConnectionSettings'}->find()->where([
@@ -623,14 +586,28 @@ class ApHelper22Component extends Component {
                 $captive_portal_count = 1;
 
                 if($type == 'tagged_bridge'){
-
-				    $interfaces =  $br_int.'.'.$vlan; //only one
+                
+                	$interfaces =  [ $br_int.'.'.$vlan ]; //only one
+                
+                	array_push($network,
+	                    [
+	                        "device"    => "br-$interfaces",
+	                        "options"   => [
+	                        	"name"		=> "br-$interfaces",
+	                            "type"      => "bridge",
+	                            'stp'       => 1,
+	                       	],
+	                       	'lists'	=> [
+	                       		'ports'	=> $interfaces
+	                       	]                          
+	                    ]
+	                );               		    
 
                     array_push($network,
                         [
                             "interface"    => "$if_name",
                             "options"   => [
-                                "ifname"    => $interfaces,
+                                "device"    => "br-$interfaces",
                                 "type"      => "bridge"
                         ]]
                     );
@@ -658,20 +635,35 @@ class ApHelper22Component extends Component {
                         $nat_detail[$if_name]=$nat_detail_item;
                     }
                                         
-                    $interfaces =  "nat.".$start_number;
+                    $interfaces =  ["nat.".$start_number];
                     if($eth_one_bridge == true){
-                        $interfaces = "$interfaces ".$this->_lan_for($this->Hardware);
+                        array_push($interfaces,$this->_lan_for($this->Hardware));
                     }
                     
                     if($exit_id == $wan_bridge_id){
-                        $interfaces = "$interfaces $br_int";    
+                        array_push($interfaces,$br_int);    
                     }
+                    
+                    array_push($network,
+	                    [
+	                        "device"    => "br-$if_name",
+	                        "options"   => [
+	                        	"name"		=> "br-$if_name",
+	                            "type"      => "bridge",
+	                            'stp'       => 1,
+	                       	],
+	                       	'lists'	=> [
+	                       		'ports'	=> $interfaces
+	                       	]                          
+	                    ]
+	                );
+                    
                                      
                     array_push($network,
                         [
                             "interface"    => "$if_name",
                             "options"   => [
-                                "ifname"    => $interfaces,
+                                "device"    => "br-$if_name",
                                 "type"      => "bridge",
                                 'ipaddr'    =>  $if_ipaddr,
                                 'netmask'   =>  $if_netmask,
@@ -685,27 +677,40 @@ class ApHelper22Component extends Component {
                 }
 
                 if($type=='bridge'){  
-                    $current_interfaces = $network[1]['options']['ifname'];                  
+                    $current_interfaces = $network[1]['lists']['ports'];                  
                     if($eth_one_bridge == true){
-                        $current_interfaces = $current_interfaces." ".$this->_lan_for($this->Hardware);
+                        array_push($current_interfaces,$this->_lan_for($this->Hardware));
                     }   
                 
                     if(($this->WbwActive == true)||($this->QmiActive == true)){
                         $this->if_wbw_nat_br = $if_name;
-                        $interfaces =  "nat.".$start_number;
+                        $interfaces =  ["nat.".$start_number];
                         if($eth_one_bridge == true){
-                            $interfaces = "$interfaces ".$this->_lan_for($this->Hardware);
+                            array_push($interfaces,$this->_lan_for($this->Hardware));
                         }
                         if($exit_id == $wan_bridge_id){
-                            $interfaces = "$interfaces $br_int";    
+                            array_push($interfaces,$br_int);    
                         }
-                                                
+                        
+                        array_push($network,
+		                    [
+		                        "device"    => "br-$if_name",
+		                        "options"   => [
+		                        	"name"		=> "br-$if_name",
+		                            "type"      => "bridge",
+		                            'stp'       => 1,
+		                       	],
+		                       	'lists'	=> [
+		                       		'ports'	=> $interfaces
+		                       	]                          
+		                    ]
+		                );
+										                                           
                         array_push($network,
                             [
                                 "interface"    => "$if_name",
                                 "options"   => [
-                                    "ifname"    => $interfaces,
-                                    "type"      => "bridge",
+                                    "device"    => "br-$if_name",
                                     'ipaddr'    =>  "10.210.".(100+$start_number).".1",
                                     'netmask'   =>  "255.255.255.0",
                                     'proto'     => 'static',
@@ -716,9 +721,8 @@ class ApHelper22Component extends Component {
                         //Push the nat data
                         array_push($nat_data,$if_name);                        
                     }else{                   
-                        $network[1]['options']['ifname'] = $current_interfaces;
-                    }
-                   // $start_number++;                                                                 
+                        $network[1]['lists']['ports'] = $current_interfaces;
+                    }                                                               
                     continue; //We dont care about the other if's
                 }
 
@@ -764,27 +768,43 @@ class ApHelper22Component extends Component {
                     //$a['radius_nasid']  = $ap_profile_name.'_'.$ap_dev_name.'_cp_'.$ap_profile_e->ap_profile_exit_captive_portal->ap_profile_exit_id;
                     $a['radius_nasid']  = 'ap_'.$this->ApId.'_cp_'.$ap_profile_e->ap_profile_exit_captive_portal->ap_profile_exit_id;
                     array_push($captive_portal_data,$a);
+                    
+                    $cp_interfaces = [];
+                    //Add the LAN side if set as an interface to the bridge
+                    if($eth_one_bridge == true){
+                        $cp_interfaces = [$this->_lan_for($this->Hardware)];
+                    }
 
                     if($ap_profile_e->ap_profile_exit_captive_portal->dnsdesk == true){
                         $options_cp = [
-                            "type"      => "bridge",
                             "proto"     => "none",
                             "ipaddr"    => "$if_ip",
                             "netmask"   => "255.255.255.0",
                             "proto"     => "static"
                         ];
-                    }else{
+                    }else{                  
+                    
                         $options_cp = [
-                             "type"      => "bridge",
                              "proto"     => "none"
                         ];
                     }
                     
-                    //Add the LAN side if set as an interface to the bridge
-                    if($eth_one_bridge == true){
-                        $options_cp["ifname"] = $this->_lan_for($this->Hardware);
-                    }
-
+                    array_push($network,
+		                [
+		                    "device"    => "br-$if_name",
+		                    "options"   => [
+		                    	"name"		=> "br-$if_name",
+		                        "type"      => "bridge",
+		                        'stp'       => 1,
+		                   	],
+		                   	'lists'	=> [
+		                   		'ports'	=> $cp_interfaces
+		                   	]                          
+		                ]
+		            ); 
+		            
+		            $options_cp['device'] = "br-$if_name";     
+                    
                     array_push($network,["interface" => "$if_name","options"=> $options_cp]);
                     $start_number++;
                     continue; //We dont care about the other if's
@@ -840,7 +860,7 @@ class ApHelper22Component extends Component {
                  //____ LAYER 3 Tagged Bridge ____
                 if($type == 'tagged_bridge_l3'){
 
-                    $interfaces     = $br_int.'.'.$ap_profile_e['vlan'];  //We only do eth0
+                    $interfaces     = [$br_int.'.'.$ap_profile_e['vlan']];  //We only do eth0
                     $exit_point_id  = $ap_profile_e['id'];
 
                     $this->l3_vlans[$exit_point_id] = $if_name;
