@@ -1316,7 +1316,11 @@ class ApHelper22Component extends Component {
 	    $return_val = 'eth1'; //some default	
 		$q_e = $this->{'Hardwares'}->find()->where(['Hardwares.fw_id' => $hw, 'Hardwares.for_ap' => true])->first();
 		if($q_e){
-		    $return_val = $q_e->lan;   
+		    $return_val = $q_e->lan; 
+		    $ports = preg_split('/\s+/', $q_e->lan);//New format if there are multiple items
+		    if($ports){
+		    	$return_val = $ports; 
+		    }   
 		}
 		return $return_val;
 	}
