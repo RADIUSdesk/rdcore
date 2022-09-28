@@ -637,7 +637,7 @@ class ApHelper22Component extends Component {
                                         
                     $interfaces =  ["nat.".$start_number];
                     if($eth_one_bridge == true){
-                        array_push($interfaces,$this->_lan_for($this->Hardware));
+                        array_merge($interfaces,$this->_lan_for($this->Hardware));
                     }
                     
                     if($exit_id == $wan_bridge_id){
@@ -679,14 +679,14 @@ class ApHelper22Component extends Component {
                 if($type=='bridge'){  
                     $current_interfaces = $network[1]['lists']['ports'];                  
                     if($eth_one_bridge == true){
-                        array_push($current_interfaces,$this->_lan_for($this->Hardware));
+                        array_merge($current_interfaces,$this->_lan_for($this->Hardware));
                     }   
                 
                     if(($this->WbwActive == true)||($this->QmiActive == true)){
                         $this->if_wbw_nat_br = $if_name;
                         $interfaces =  ["nat.".$start_number];
                         if($eth_one_bridge == true){
-                            array_push($interfaces,$this->_lan_for($this->Hardware));
+                            array_merge($interfaces,$this->_lan_for($this->Hardware));
                         }
                         if($exit_id == $wan_bridge_id){
                             array_push($interfaces,$br_int);    
@@ -772,7 +772,7 @@ class ApHelper22Component extends Component {
                     $cp_interfaces = [];
                     //Add the LAN side if set as an interface to the bridge
                     if($eth_one_bridge == true){
-                        $cp_interfaces = [$this->_lan_for($this->Hardware)];
+                        $cp_interfaces = $this->_lan_for($this->Hardware);
                     }
 
                     if($ap_profile_e->ap_profile_exit_captive_portal->dnsdesk == true){
@@ -1313,14 +1313,14 @@ class ApHelper22Component extends Component {
 	}
 	
 	private function _lan_for($hw){
-	    $return_val = 'eth1'; //some default	
+	    $return_val = ['eth1']; //some default	
 		$q_e = $this->{'Hardwares'}->find()->where(['Hardwares.fw_id' => $hw, 'Hardwares.for_ap' => true])->first();
 		if($q_e){
-		    $return_val = $q_e->lan; 
+		    $return_val = [$q_e->lan]; 
 		    $ports = preg_split('/\s+/', $q_e->lan);//New format if there are multiple items
 		    if($ports){
 		    	$return_val = $ports; 
-		    }   
+		    } 
 		}
 		return $return_val;
 	}

@@ -669,7 +669,7 @@ class MeshHelper22Component extends Component {
                         $lan_if = $this->_lan_if_for($this->Hardware);
                         if($lan_if){
                             //array_push($interfaces,"bat0.".$start_number);
-                            array_push($interfaces,$lan_if);
+                            array_merge($interfaces,$lan_if);
                         }
                     }
                 }             
@@ -1721,7 +1721,7 @@ class MeshHelper22Component extends Component {
 		$return_val = false; //By default false to catch devices with single ethernet port
 		$q_e = $this->{'Hardwares'}->find()->where(['Hardwares.fw_id' => $hw, 'Hardwares.for_mesh' => true])->first();
 		if($q_e){
-		    $return_val = $q_e->lan;
+		    $return_val = [$q_e->lan];
 		    $ports = preg_split('/\s+/', $q_e->lan);//New format if there are multiple items
 		    if($ports){
 		    	$return_val = $ports; 
