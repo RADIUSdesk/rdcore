@@ -41,8 +41,8 @@ class WhiteLabelComponent extends Component {
             $wl['wl_img_file']  = Configure::read('whitelabel.imgFile');
             
             //After we have the site settings lets see if the Access Provider has white label settings / IF NOT use root user's as reference
-            $wl_for_ap          = $this->lookForUserSettings($user_id);  
-            if (empty($wl_for_ap)) {                     
+            $wl_for_ap          = $this->lookForUserSettings($user_id); 
+            if (empty($wl_for_ap)) {                  
                 $wl_for_root   = $this->lookForUserSettings($this->root_user_id);
                 if(!empty($wl_for_root)){
                     if($wl_for_root['wl_active'] == 'wl_active'){ //Only if it is active!
@@ -62,8 +62,10 @@ class WhiteLabelComponent extends Component {
         $user_settings  = TableRegistry::get('UserSettings');
         $q_r            = $user_settings->find()->where(['UserSettings.user_id' => $user_id])->all();          
         $looking_for    = ['wl_active','wl_header','wl_h_bg','wl_h_fg','wl_footer','wl_img_active','wl_img_file'];     
-        $wl             = [];      
+        $wl             = [];
+        $found			= false;      
         foreach($q_r as $i){
+        	$found = true;
             $item = $i->name;
             if (in_array($item, $looking_for)) {
             
@@ -90,7 +92,9 @@ class WhiteLabelComponent extends Component {
                  
             }
         }
-        $wl['wl_wallpaper'] = Configure::read('whitelabel.wallpaper'); //Set this manually for the user   
+        if($found){ //Only if found
+        	$wl['wl_wallpaper'] = Configure::read('whitelabel.wallpaper'); //Set this manually for the user
+        }   
         return $wl;
     }
 }
