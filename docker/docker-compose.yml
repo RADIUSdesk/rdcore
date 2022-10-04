@@ -1,0 +1,49 @@
+version: '3'
+services:
+ 
+  radiusdesk:
+    build:
+      context: ./
+      dockerfile: Dockerfile-build-radiusdesk
+      args:
+        radiusdesk_volume: ${RADIUSDESK_VOLUME}
+    container_name: radiusdesk
+
+    environment:
+      - "PHP_INI_SCAN_DIR=:/p/gd"
+      - "PHP.cgi.fix_pathinfo=1"
+      - "PHP_SELF=/index.php"
+      - "PHP_INI_SCAN_DIR=:/p/sqlite3"
+    restart: always
+    depends_on:
+      - "rdmariadb"
+
+    ports:
+      - '80:80'
+      - "1812:1812/udp"
+      - "1813:1813/udp"
+
+  rdmariadb:
+    container_name: radiusdesk-mariadb
+    image: docker.io/bitnami/mariadb:10.5
+
+    restart: always
+    environment:
+      - "ALLOW_EMPTY_PASSWORD=yes"
+      - "MARIADB_USER=rd"
+      - "MARIADB_DATABASE=rd"
+      - "MARDIADB_PASSWORD=rd"
+   
+    volumes:
+      - ${RADIUSDESK_VOLUME}/db_conf/my_custom.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf:ro
+      - rd_data:/bitnami/mariadb
+      - ${RADIUSDESK_VOLUME}/db_startup:/tmp
+      
+volumes:
+  rd_data:
+
+networks:
+  default:
+    external:
+      name: "${RADIUSDESK_NETWORK}"
+

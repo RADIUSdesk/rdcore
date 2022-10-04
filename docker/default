@@ -1,0 +1,64 @@
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    index index.php index.html;
+    server_name php-docker.local;
+    error_log  /var/log/nginx/error.log;
+    access_log /var/log/nginx/access.log;
+    root /var/www/html;
+
+    location / {
+        # First attempt to serve request as file, then
+        # as directory, then fall back to displaying a 404.
+        try_files $uri $uri/ =404;
+    }
+
+    server_name _;
+
+    location /cake3/rd_cake/node-reports/submit_report.json {
+        try_files $uri $uri/ /reporting/reporting.php;
+    }
+    location /cake4/rd_cake/node-reports/submit_report.json {
+        try_files $uri $uri/ /reporting/reporting.php;
+    }
+    
+    location ~ \.php$ {
+        include snippets/fastcgi-php.conf;
+        #
+        #       # With php-fpm (or other unix sockets):
+        #fastcgi_pass unix:/run/php/php7.4-fpm.sock;
+        #       # With php-cgi (or other tcp sockets):
+        fastcgi_pass 127.0.0.1:9000;
+    }
+
+    location ~ ^/cake3/.+\.(jpg|jpeg|gif|png|ico|js|css)$ {
+        rewrite ^/cake3/rd_cake/webroot/(.*)$ /cake3/rd_cake/webroot/$1 break;
+        rewrite ^/cake3/rd_cake/(.*)$ /cake3/rd_cake/webroot/$1 break;
+        access_log off;
+        expires max;
+        add_header Cache-Control public;
+    }
+    location ~ ^/cake4/.+\.(jpg|jpeg|gif|png|ico|js|css)$ {
+        rewrite ^/cake4/rd_cake/webroot/(.*)$ /cake4/rd_cake/webroot/$1 break;
+        rewrite ^/cake4/rd_cake/(.*)$ /cake4/rd_cake/webroot/$1 break;
+        access_log off;
+        expires max;
+        add_header Cache-Control public;
+    }
+    
+    location /cake3/rd_cake {
+        rewrite ^/cake3/rd_cake(.+)$ /cake3/rd_cake/webroot$1 break;
+        try_files $uri $uri/ /cake3/rd_cake/index.php$is_args$args;
+    }
+    
+    location /cake4/rd_cake {
+       rewrite ^/cake4/rd_cake(.+)$ /cake4/rd_cake/webroot$1 break;
+       try_files $uri $uri/ /cake4/rd_cake/index.php$is_args$args;
+    }
+
+    location ~ /\.ht {
+        deny all;
+    }
+}
+
+
