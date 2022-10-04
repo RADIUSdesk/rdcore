@@ -56,6 +56,7 @@ return [
         /*
          * The test connection is used during the test suite.
          */
+         /* //OCT 2022 disable this one for Docket image to work//
         'test' => [
             'host' => 'localhost',
             //'port' => 'non_standard_port_number',
@@ -65,6 +66,7 @@ return [
             //'schema' => 'myapp',
             'url' => env('DATABASE_TEST_URL', 'sqlite://127.0.0.1/tests.sqlite'),
         ],
+        */
     ],
 
     /*
