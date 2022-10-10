@@ -1488,6 +1488,12 @@ CREATE TABLE `dynamic_details` (
   `show_name` tinyint(1) NOT NULL DEFAULT 1,
   `name_colour` varchar(255) NOT NULL DEFAULT '',
   `lost_password_method` enum('email','sms') DEFAULT 'email',
+  `ctc_phone_opt_in` tinyint(1) NOT NULL DEFAULT 0,
+  `ctc_phone_opt_in_txt` varchar(200) NOT NULL DEFAULT 'Send Promotional SMS',
+  `ctc_email_opt_in` tinyint(1) NOT NULL DEFAULT 0,
+  `ctc_email_opt_in_txt` varchar(200) NOT NULL DEFAULT 'Send Promotional Email',
+  `chilli_json_unavailable` tinyint(1) NOT NULL DEFAULT 0,
+  `chilli_use_chap` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -4652,4 +4658,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-09-05  8:24:41
+-- Dump completed on 2022-10-10 20:08:10

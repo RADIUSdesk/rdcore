@@ -199,12 +199,12 @@ class RealmsController extends AppController{
         }
        
         if($type == 'add'){ 
-            $entity = $this->{$this->main_model}->newEntity($this->request->getData());
+            $entity = $this->{$this->main_model}->newEntity($req_d);
         }
        
         if($type == 'edit'){
             $entity = $this->{$this->main_model}->get($this->request->getData('id'));
-            $this->{$this->main_model}->patchEntity($entity, $this->request->getData());
+            $this->{$this->main_model}->patchEntity($entity, $req_d);
         }
               
         if ($this->{$this->main_model}->save($entity)) {
