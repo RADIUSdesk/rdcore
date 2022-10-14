@@ -9,6 +9,11 @@ Ext.define('Rd.controller.cMainRadius', {
 		        Ext.getApplication().runAction('cDynamicClients','Index',pnl);
 		    }
 	    },
+        '#tabMainRadius #cNas' : {
+		    afterrender	: function(pnl){
+		        Ext.getApplication().runAction('cNas','Index',pnl);
+		    }
+	    },
         '#tabMainRadius #cProfiles' : {
 		    afterrender	: function(pnl){
 		        Ext.getApplication().runAction('cProfiles','Index',pnl);

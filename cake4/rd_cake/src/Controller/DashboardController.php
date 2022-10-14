@@ -655,6 +655,15 @@ class DashboardController extends AppController{
                     ]
                 ],
                 [
+                    "title" => "NAS",
+                    "glyph" => "xf1cb@FontAwesome",
+                    "id"    => "cNas",
+                    "layout"=> "fit",
+                    "tabConfig"=> [
+                        "ui"=> "tab-blue"
+                    ]
+                ],
+                [
                     "title" => "Profiles",
                     "glyph" => "xf1b3@FontAwesome",
                     "id"    => "cProfiles",

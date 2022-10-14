@@ -2270,6 +2270,7 @@ CREATE TABLE `nas` (
   `community` varchar(50) DEFAULT NULL,
   `description` varchar(200) DEFAULT 'RADIUS Client',
   `connection_type` enum('direct','openvpn','pptp','dynamic') DEFAULT 'direct',
+  `timezone` varchar(255) NOT NULL DEFAULT '',
   `record_auth` tinyint(1) NOT NULL DEFAULT 0,
   `ignore_acct` tinyint(1) NOT NULL DEFAULT 0,
   `dynamic_attribute` varchar(50) NOT NULL DEFAULT '',
@@ -2289,7 +2290,7 @@ CREATE TABLE `nas` (
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `nasname` (`nasname`)
-) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4658,4 +4659,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-10 20:08:10
+-- Dump completed on 2022-10-14 11:53:32

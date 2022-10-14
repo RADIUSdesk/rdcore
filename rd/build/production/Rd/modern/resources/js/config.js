@@ -182,6 +182,7 @@ Rd.config = {
     'icnThermometer': 'xf2c9@FontAwesome',
     'icnListOl'     : 'xf0cb@FontAwesome',
     'icnHandshakeO' : 'xf2b5@FontAwesome',
-    'icnHddO'       : 'f0a0@FontAwesome'     
+    'icnHddO'       : 'f0a0@FontAwesome',
+    'icnExchange'   : 'f0ec@FontAwesome'   
 }
 

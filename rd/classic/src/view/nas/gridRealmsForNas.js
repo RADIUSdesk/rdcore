@@ -1,6 +1,6 @@
-Ext.define('Rd.view.dynamicClients.gridRealmsForDynamicClientCloud' ,{
+Ext.define('Rd.view.nas.gridRealmsForNas' ,{
     extend      :'Ext.grid.Panel',
-    alias       : 'widget.gridRealmsForDynamicClientCloud',
+    alias       : 'widget.gridRealmsForNas',
     border      : false,
     requires    :   ['Rd.view.components.advCheckColumn'],
     columns: [
@@ -33,7 +33,7 @@ Ext.define('Rd.view.dynamicClients.gridRealmsForDynamicClientCloud' ,{
                 type            : 'ajax',
                 format          : 'json',
                 batchActions    : true, 
-                url             : '/cake4/rd_cake/realms/list-realms-for-dynamic-client-cloud.json',
+                url             : '/cake4/rd_cake/realms/list-realms-for-nas-cloud.json',
                 reader          : {
                     type            : 'json',
                     rootProperty    : 'items',
@@ -43,8 +43,8 @@ Ext.define('Rd.view.dynamicClients.gridRealmsForDynamicClientCloud' ,{
                     writeAllFields: true 
                 },
                 api: {
-                    read    : '/cake4/rd_cake/realms/list-realms-for-dynamic-client-cloud.json',
-                    update  : '/cake4/rd_cake/realms/update-dynamic-client-realmzz.json'
+                    read    : '/cake4/rd_cake/realms/list-realms-for-nas-cloud.json',
+                    update  : '/cake4/rd_cake/realms/update-nas-realm.json'
                 }
             },
             listeners: {

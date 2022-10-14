@@ -1,6 +1,10 @@
 Ext.define('Rd.view.aps.pnlAccessPointCommonSettings', {
     extend  : 'Ext.form.Panel',
     alias   : 'widget.pnlAccessPointCommonSettings',
+    requires: [
+        'Rd.view.aps.vcAccessPointCommonSettings'
+    ],
+    controller  : 'vcAccessPointCommonSettings',
     autoScroll	: true,
     plain       : true,
     frame       : false,
@@ -39,8 +43,9 @@ Ext.define('Rd.view.aps.pnlAccessPointCommonSettings', {
         'Rd.view.components.cmbSchedule' 
     ],
     initComponent: function(){
-        var me          = this;
-        var w_prim      = 550; 
+        var me      = this;
+        var w_prim  = 550; 
+        var w_rb    = 75;
         
         var store_proto = Ext.create('Ext.data.Store', {
             fields: ['id', 'Name'],
@@ -184,6 +189,89 @@ Ext.define('Rd.view.aps.pnlAccessPointCommonSettings', {
                 }       
             ]
         }
+
+        var cntVlans = {
+            xtype       : 'container',
+            width       : w_prim,
+            layout      : 'anchor',
+            margin      : 0,
+            defaults    : {
+                anchor  : '100%'
+            },
+            items       : [
+                 {
+                    xtype       : 'checkbox',      
+                    fieldLabel  : 'Enable',
+                    name        : 'vlan_enable',
+                    inputValue  : '1',
+		            itemId		: 'chkEnableDynamicVlans',
+                    checked     : false,
+                    labelClsExtra: 'lblRdReq',
+                    listeners   : {
+		                change  : 'OnChkVlanEnableChange'
+	                }
+                },
+                {
+                    xtype       : 'radiogroup',
+                    itemId      : 'rgrpVlanRangeOrList',
+                    disabled    : true,
+                    fieldLabel  : 'VLANs Used',
+                    labelWidth  : Rd.config.labelWidth+18,
+                    columns     : 2,
+                    vertical    : false,
+                    items       : [
+                        {
+                            boxLabel  : 'Range',
+                            name      : 'vlan_range_or_list',
+                            inputValue: 'range',
+                            margin    : '0',
+                            width     : w_rb,
+                            checked   : true
+                        }, 
+                        {
+                            boxLabel  : 'List',
+                            name      : 'vlan_range_or_list',
+                            inputValue: 'list',
+                            margin    : '0 0 0 0',
+                            width     : w_rb
+                        }
+                    ],
+                    listeners   : {
+				        change  : 'rgrpVlanChange'
+			        }
+                },
+                {
+                    xtype       : 'numberfield',
+                    name        : 'vlan_start',
+                    itemId      : 'vlan_start',
+                    fieldLabel  : 'VLAN Start',
+                    disabled    : true,
+                    value       : 100,
+                    maxValue    : 4094,
+                    minValue    : 1
+                },
+                {
+                    xtype       : 'numberfield',
+                    name        : 'vlan_end',
+                    itemId      : 'vlan_end',
+                    disabled    : true,
+                    fieldLabel  : 'VLAN End',
+                    value       : 101,
+                    maxValue    : 4094,
+                    minValue    : 2
+                },
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : 'VLAN List',
+                    name        : "vlan_list",
+                    itemId      : 'vlan_list',
+                    disabled    : true,
+                    hidden      : true,
+                    allowBlank  : false,
+                    blankText   : 'Comma Separated List',
+                }                
+            ]
+        }
         
         me.items = [
             {
@@ -224,6 +312,19 @@ Ext.define('Rd.view.aps.pnlAccessPointCommonSettings', {
                 },
                 bodyPadding : 10,
                 items       : cntGateway				
+            },
+            {
+                xtype       : 'panel',
+                title       : 'Dynamic VLANs (Requires RADIUS)',
+                glyph       : Rd.config.icnExchange,  
+                ui          : 'panel-green',
+                layout      : {
+                  type  : 'vbox',
+                  align : 'start',
+                  pack  : 'start'
+                },
+                bodyPadding : 10,
+                items       : cntVlans				
             }
         ];    
         me.callParent(arguments);

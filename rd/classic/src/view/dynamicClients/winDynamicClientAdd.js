@@ -98,8 +98,7 @@ Ext.define('Rd.view.dynamicClients.winDynamicClientAdd', {
                 labelAlign: 'left',
                 labelSeparator: '',
                 margin      : Rd.config.fieldMargin,
-                labelWidth  : Rd.config.labelWidth,
-                maxWidth    : Rd.config.maxWidth  
+                labelWidth  : Rd.config.labelWidth
             },
             defaultType: 'textfield',
             items:[

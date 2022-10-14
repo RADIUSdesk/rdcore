@@ -20,6 +20,7 @@ class RealmsController extends AppController{
         $this->loadModel('Users');     
         $this->loadModel('NaRealms');
         $this->loadModel('DynamicClientRealms');
+        $this->loadModel('NaRealms');
            
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -464,5 +465,113 @@ class RealmsController extends AppController{
             'success' => true,
             '_serialize' => ['success']
         ]);
-    }           
+    }
+    
+    public function listRealmsForNasCloud(){
+    
+    	$user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+    
+    	$req_q      = $this->request->getQuery();   
+    	$cloud_id 	= $req_q['cloud_id'];
+        $query 	  	= $this->{$this->main_model}->find();      
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['NaRealms']);
+        $q_r 		= $query->all();       
+        $items 		= [];
+        
+        $na_id = false;
+        if(isset($req_q['na_id'])){
+        	$na_id = $req_q['na_id'];
+        }
+        
+        //========== CLEAR FIRST CHECK =======
+        //By default clear_flag is not included
+        $clear_flag = false;
+        if(isset($req_q['clear_flag'])){
+            if($req_q['clear_flag'] == 'true'){
+                $clear_flag = true;
+            }
+        }
+
+        if($clear_flag){    //If we first need to remove previous associations! 
+            $this->NaRealms->deleteAll(['NaRealms.na_id' => $na_id]);
+        }
+        //========== END CLEAR FIRST CHECK =======
+        
+        
+        foreach ($q_r as $i) {
+        	$selected = false;
+            if($na_id){
+            	foreach($i->na_realms as $nr){
+                    if($nr->na_id == $na_id){
+                        $selected = true;
+                    }
+                }
+            }   
+                       
+        	$item = [ 'id' => $i->id, 'name' => $i->name,'selected' => $selected];          
+        	array_push($items,$item);    
+        }
+        
+        $this->set([
+            'items'     	=> $items,
+            'success'   	=> true,
+            '_serialize' 	=> ['items','success']
+        ]);  
+    }
+    
+    public function updateNasRealm(){
+     
+        if (!$this->request->is('post')) {
+			throw new MethodNotAllowedException();
+		}
+		
+		$user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+		
+		$req_q    = $this->request->getQuery();
+		$req_d	  = $this->request->getData();
+
+        if((isset($req_q['na_id']))&&($req_q['na_id'] !== '')){
+            $na_id     = $req_q['na_id'];
+	        if(isset($req_d['id'])){   //Single item select
+                $realm_id   = $req_d['id'];
+                if($req_d['selected']){
+                    $entity 		= $this->NaRealms->newEmptyEntity();
+                    $entity->na_id 	= $na_id;
+                    $entity->realm_id =  $realm_id;
+                    $this->NaRealms->save($entity);
+                }else{
+                    $this->NaRealms->deleteAll(
+                        ['NaRealms.na_id' => $na_id,'NaRealms.realm_id' => $realm_id]
+                    );        
+                }
+            }else{                          //Assume multiple item select
+                foreach($req_d as $d){
+                    if(isset($d['id'])){   //Single item select
+                        $realm_id   = $d['id'];
+                        if($d['selected']){
+                            $entity = $this->NaRealms->newEmptyEntity();
+                            $entity->na_id = $na_id;
+                            $entity->realm_id =  $realm_id;
+                            $this->NaRealms->save($entity);
+                        }else{
+                            $this->NaRealms->deleteAll(
+                                ['NaRealms.na_id' => $na_id,'NaRealms.realm_id' => $realm_id]
+                            );        
+                        }
+                    }
+                }
+            }
+        }
+        
+        $this->set([
+            'success' => true,
+            '_serialize' => ['success']
+        ]);
+    }                    
 }

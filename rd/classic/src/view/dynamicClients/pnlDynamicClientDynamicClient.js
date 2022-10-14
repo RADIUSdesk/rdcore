@@ -472,7 +472,7 @@ Ext.define('Rd.view.dynamicClients.pnlDynamicClientDynamicClient', {
             {
                 xtype       : 'panel',
                 title       : 'Enhancements',
-                glyph       : Rd.config.icnFacebook, 
+                glyph       : Rd.config.icnStar, 
                 ui          : 'panel-green',
                 layout      : {
                   type      : 'vbox',

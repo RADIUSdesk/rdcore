@@ -1307,7 +1307,7 @@ class ApProfilesController extends AppController {
 
         if ($this->request->is('post')) {
 
-            $check_items = ['gw_use_previous','gw_auto_reboot','enable_schedules'];
+            $check_items = ['gw_use_previous','gw_auto_reboot','enable_schedules','vlan_enable'];
             foreach($check_items as $i){
                 if(isset($cdata[$i])){
                     $cdata[$i] = 1;

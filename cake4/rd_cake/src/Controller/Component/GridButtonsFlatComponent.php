@@ -591,6 +591,12 @@ class GridButtonsFlatComponent extends Component {
             ]];
             $menu = $b; 
         }
+        
+        if($type == 'nas'){
+            $b  = $this->_fetchBasic(true);
+            $a  = $this->_fetchNas();
+            $menu = [$b,$a];
+        }
                             
         return $menu;
     }
@@ -1133,6 +1139,17 @@ class GridButtonsFlatComponent extends Component {
 			]
 		];
         return $menu;    
+    }
+    
+   	private function _fetchNas(){
+        $menu = [
+            'xtype' => 'buttongroup',
+            'title' => $this->t, 
+            'items' => [
+				$this->btnGraph
+            ]
+        ];          
+        return $menu;
     }
           
 }
