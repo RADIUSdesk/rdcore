@@ -23,6 +23,7 @@ class ApProfilesController extends AppController {
         $this->loadModel('OpenvpnServers');
         $this->loadModel('OpenvpnServerClients');
         $this->loadModel('ApProfileEntries');
+        $this->loadModel('ApProfileSettings');
         
         //New change May2021
         $this->loadModel('Networks');
@@ -131,6 +132,7 @@ class ApProfilesController extends AppController {
             return;
         }
         $user_id = $user['id'];
+        $cdata   = $this->request->getData();
         $apProfileEntity = $this->{$this->main_model}->newEntity($cdata);
 
         if ($this->{$this->main_model}->save($apProfileEntity)) {
@@ -295,10 +297,10 @@ class ApProfilesController extends AppController {
                     $cdata[$i] = 0;
                 }
             }
-
-            $entryEntity = $this->ApProfileEntries->newEntity($this->request->getData());
-            // If the form data can be validated and saved...
-            if ($this->ApProfileEntries->save($entryEntity)) {
+            
+            $entity = $this->{'ApProfileEntries'}->get($cdata['id']);
+            $this->{'ApProfileEntries'}->patchEntity($entity, $cdata);
+            if ($this->{'ApProfileEntries'}->save($entity)) {
                    $this->set([
                     'success' => true,
                     '_serialize' => ['success']
@@ -444,12 +446,19 @@ class ApProfilesController extends AppController {
             $exit_entries = [];
 
             foreach($m->ap_profile_exit_ap_profile_entries as $m_e_ent){
-                if($m_e_ent->ap_profile_entry_id != 0){
+                if($m_e_ent->ap_profile_entry_id > 0){
                     array_push($exit_entries, ['name' => $m_e_ent->ap_profile_entry->name]);
                 }
                 if($m_e_ent->ap_profile_entry_id == 0){
                     array_push($exit_entries, ['name' => 'LAN (If Hardware Supports It)']);
-                }  
+                } 
+                //OCT 2022
+                if(preg_match('/^-9/',$m_e_ent->ap_profile_entry_id)){ 	
+                	$dynamic_vlan = $m_e_ent->ap_profile_entry_id;
+                	$dynamic_vlan = str_replace("-9","",$dynamic_vlan);
+                	array_push($exit_entries, ['name' => "Dynamic VLAN $dynamic_vlan"]);
+                
+                }
             }
 
             array_push($items, [
@@ -480,8 +489,6 @@ class ApProfilesController extends AppController {
 
 		$req_d 		= $this->request->getData();
 
-        $exitEntity = $this->ApProfileExits->newEntity($req_d);
-
         if($this->request->getData('type') == 'captive_portal'){
             if(null !== $this->request->getData('auto_dynamic_client')){
                 $req_d['auto_dynamic_client'] = 1;
@@ -510,6 +517,8 @@ class ApProfilesController extends AppController {
                 $req_d['auto_login_page'] = 0;
             }
         }
+        
+        $exitEntity = $this->ApProfileExits->newEntity($req_d);
         
         if ($this->ApProfileExits->save($exitEntity)) {
             $new_id         = $exitEntity->id;
@@ -1152,7 +1161,32 @@ class ApProfilesController extends AppController {
         }else{
             array_push($items, ['id' => 0, 'name' => "LAN (If Hardware Suports It)"]); //Allow the user not to assign at this stage
         }
-         
+        
+        //==Oct 2022 Add support for Dynamic VLANs==
+        $ap_s = $this->{'ApProfileSettings'}->find()->where(['ApProfileSettings.ap_profile_id' => $ap_profile_id])->first();
+        if($ap_s->vlan_enable == 1){
+        	//Find out the list of vlans.
+        	if($ap_s->vlan_range_or_list == 'range'){
+        		$start 	= $ap_s->vlan_start;
+        		$end 	= $ap_s->vlan_end;
+        		while($start <= $end){
+        			$vlan_id = intval('-9'.$start);
+        			        			
+        			array_push($items, ['id' => $vlan_id, 'name' => "Dynamic VLAN $start"]); //Allow the user not to assign at this stage
+        			$start++;
+        		}        		
+        	}
+        	if($ap_s->vlan_range_or_list == 'list'){
+        		$list 	= $ap_s->vlan_list;
+        		$pieces = explode(",", $list);
+        		foreach($pieces as $p){
+        			$vlan_id = intval('-9'.$p);        			
+        			array_push($items, ['id' => $vlan_id, 'name' => "Dynamic VLAN $p"]); //Allow the user not to assign at this stage
+        		}        		
+        	}       
+        }
+        //==END OCT 2022 ADD ON===
+                      
         $this->set([
             'items' => $items,
             'success' => true,

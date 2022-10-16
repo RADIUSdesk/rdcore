@@ -51,6 +51,17 @@ Ext.define('Rd.view.clouds.treeClouds' ,{
             flex        : 1
         },
         { 
+            text    : 'Cloud ID',
+            sortable: false,
+            tdCls   : 'gridTree',
+            xtype   : 'templatecolumn', 
+            tpl     : new Ext.XTemplate(
+                '<div class="fieldBlue">{cloud_id}</div>',
+            ),
+            dataIndex: 'cloud_id',
+            flex     : 1
+        },
+        { 
             text        : 'Created',
             dataIndex   : 'created', 
             tdCls       : 'gridTree',

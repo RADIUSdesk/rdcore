@@ -9,8 +9,9 @@ $config['encryption'][0]     = array('name' => __('None'),              'id' => 
 $config['encryption'][1]     = array('name' => __('WEP'),               'id' => 'wep',      'active' => true);
 $config['encryption'][2]     = array('name' => __('WPA Personal'),      'id' => 'psk',      'active' => true);
 $config['encryption'][3]     = array('name' => __('WPA2 Personal'),     'id' => 'psk2',     'active' => true);
-$config['encryption'][4]     = array('name' => __('WPA Enterprise'),    'id' => 'wpa',      'active' => true);
-$config['encryption'][5]     = array('name' => __('WPA2 Enterprise'),   'id' => 'wpa2',     'active' => true);
+$config['encryption'][4]     = array('name' => __('Private PSK Key (PPSK)'),     'id' => 'ppsk',     'active' => true);
+$config['encryption'][5]     = array('name' => __('WPA Enterprise'),    'id' => 'wpa',      'active' => true);
+$config['encryption'][6]     = array('name' => __('WPA2 Enterprise'),   'id' => 'wpa2',     'active' => true);
 
 //== Default mesh settings ==
 //Define default settings for the mesh which can be overwritten

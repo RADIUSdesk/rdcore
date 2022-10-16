@@ -98,6 +98,12 @@ Ext.define('Rd.view.dashboard.winDashboardSettings', {
                                         listeners   : {
 				                            change  : 'onCmbCloudsChange'
 				                        }
+                                    },
+                                    {
+                                        xtype       : 'textfield',
+                                        name        : "changed_cloud_id",
+                                        hidden      : true,
+                                        itemId      : 'txtChangedCloudId'
                                     },                                    
                                     {
                                         xtype       : 'cmbRealm',

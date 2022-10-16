@@ -915,6 +915,7 @@ class CloudsController extends AppController {
             $owner_id   = false;
             $owner      = null;
             $admins		= null;
+            $cloud_id	= null;
               
             if($level == 'root'){         
                 $owner_id 	= $i->user_id;
@@ -933,6 +934,7 @@ class CloudsController extends AppController {
 		            }                
                 	array_push($admins,['username' => $admin, 'id' => $ca->user->id]);
                 }
+                $cloud_id = $i->id;
             }
             
             if($level == 'Clouds'){
@@ -975,8 +977,7 @@ class CloudsController extends AppController {
                     $leaf       = false;
                 }
             }
-            
-            
+                      
             if($tree_level == 'Clouds'){    
                 $owner_id = $i->user_id;
             }
@@ -986,7 +987,8 @@ class CloudsController extends AppController {
                 //$cls = 'txtOrange';
             }          
             array_push($items,[
-                'id'        => $tree_level.'_'.$id, 
+                'id'        => $tree_level.'_'.$id,
+                'cloud_id'	=> $cloud_id,
                 'name'      => $alias, 
                 'text'      => $alias, 
                 'cls'       => $cls,

@@ -307,17 +307,21 @@ class DashboardController extends AppController{
         $q_rr = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'realm_id'])->first();
         if($q_rr){
             $q_r                = $this->Realms->find()->where(['id' => $q_rr->value])->first();
-            $realm_name         = $q_r->name;
-            $data['realm_name'] = $realm_name;
-            $data['realm_id']   = intval($q_rr->value);
+            if($q_r){
+            	$realm_name         = $q_r->name;
+            	$data['realm_name'] = $realm_name;
+            	$data['realm_id']   = intval($q_rr->value);
+            }
         }
         
         $q_cloud = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'cloud_id'])->first();
         if($q_cloud){
             $q_c                = $this->Clouds->find()->where(['id' => $q_cloud->value])->first();
-            $cloud_name         = $q_c->name;
-            $data['cloud_name'] = $cloud_name;
-            $data['cloud_id']   = intval($q_cloud->value);
+            if($q_c){
+            	$cloud_name         = $q_c->name;
+            	$data['cloud_name'] = $cloud_name;
+            	$data['cloud_id']   = intval($q_cloud->value);
+            }
         }
      
         $this->set([
@@ -425,6 +429,11 @@ class DashboardController extends AppController{
         } 
         
          if(isset($r_data['cloud_id'])){
+         
+         	if(isset($r_data['changed_cloud_id'])){       	
+         		$r_data['cloud_id'] = $r_data['changed_cloud_id'];
+         	}
+         
 		    $s = $this->UserSettings->newEmptyEntity();
             $s->user_id = $user_id;
             $s->name    = 'cloud_id';
@@ -830,14 +839,26 @@ class DashboardController extends AppController{
         	if($q_cloud){
             	$q_c                = $this->Clouds->find()->where(['id' => $q_cloud->value])->first();
             	$cloud_name         = $q_c->name;
-				$cloud_id			= intval($q_cloud->value);
+				$cloud_id			= intval($q_cloud->value);			
+				if($q_c){
+            		$cloud_name         = $q_c->name;
+					$cloud_id			= intval($q_cloud->value);
+				}else{
+					$cloud_name         = '';
+					$cloud_id			= null;
+				}				
         	} 
         	
         	$q_realm = $this->UserSettings->find()->where(['user_id' => $id,'name' => 'realm_id'])->first();
         	if($q_realm){
             	$q_r                = $this->Realms->find()->where(['id' => $q_realm->value])->first();
-            	$realm_name         = $q_r->name;
-				$realm_id			= intval($q_realm->value);
+            	if($q_r){
+            		$realm_name         = $q_r->name;
+					$realm_id			= intval($q_realm->value);
+				}else{
+					$realm_name			= '';
+					$realm_id			= null;
+				}
         	} 	       		
     	}
         

@@ -36,7 +36,8 @@ Ext.define('Rd.view.aps.gridAccessPointEntries' ,{
                     '<tpl if="encryption==\'psk\'"><div class="fieldGreyWhite"><i class="fa fa-lock"></i> '+' '+i18n('sWPA_Personal')+'</div></tpl>',
                     '<tpl if="encryption==\'psk2\'"><div class="fieldGreyWhite"><i class="fa fa-lock"></i> '+' '+i18n('sWPA2_Personal')+'</div></tpl>',
                     '<tpl if="encryption==\'wpa\'"><div class="fieldGreyWhite"><i class="fa fa-lock"></i> '+' '+i18n('sWPA_Enterprise')+'</div></tpl>',
-                    '<tpl if="encryption==\'wpa2\'"><div class="fieldGreyWhite"><i class="fa fa-lock"></i> '+' '+i18n('sWPA2_Enterprise')+'</div></tpl>' 
+                    '<tpl if="encryption==\'wpa2\'"><div class="fieldGreyWhite"><i class="fa fa-lock"></i> '+' '+i18n('sWPA2_Enterprise')+'</div></tpl>', 
+                    '<tpl if="encryption==\'ppsk\'"><div class="fieldGreyWhite"><i class="fa fa-lock"></i> '+' '+'Private PSK Key (PPSK)'+'</div></tpl>' 
                 ),   
                 stateId: 'StateGridAccessPointEntries3'
             },

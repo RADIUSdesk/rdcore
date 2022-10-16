@@ -39,6 +39,8 @@ class ApHelper22Component extends Component {
     protected $wbw_settings     = [];
     protected $wan_settings     = [];
     protected $reboot_setting   = [];
+    
+    protected $ppsk_flag		= false;
 
 
     public function initialize(array $config):void{
@@ -562,11 +564,21 @@ class ApHelper22Component extends Component {
                     if($entry->ap_profile_entry_id == 0){
                         $eth_one_bridge = true;
                     }
+                    
+                    //==OCT ADD ON==
+                    if(preg_match('/^-9/',$entry->ap_profile_entry_id)){ 	
+		            	$dynamic_vlan = $entry->ap_profile_entry_id;
+		            	$dynamic_vlan = str_replace("-9","",$dynamic_vlan);
+		            	$if_name = 'ex_vlan'.$dynamic_vlan;
+		            	$this->ppsk_flag = true; //set the heads-up flag		            
+		            }
+		                               
                     if($type == 'bridge'){ //The gateway needs the entry points to be bridged to the LAN
-                        array_push($entry_point_data, ['network' => 'lan','entry_id' => $entry->ap_profile_entry_id]);
+                        array_push($entry_point_data, ['network' => 'lan','entry_id' => $entry->ap_profile_entry_id, 'exit_id'=> $entry->ap_profile_exit_id ]);
                     }else{
-                        array_push($entry_point_data, ['network' => $if_name,'entry_id' => $entry->ap_profile_entry_id]);
+                        array_push($entry_point_data, ['network' => $if_name,'entry_id' => $entry->ap_profile_entry_id, 'exit_id'=> $entry->ap_profile_exit_id]);
                     }
+                    //print_r($entry_point_data);
                 }           
             }
             
@@ -922,7 +934,7 @@ class ApHelper22Component extends Component {
 
     private function _build_wireless($ap_profile,$entry_point_data){
 
-        //print_r($entry_point_data);
+       // print_r($entry_point_data);
 
         //First get the WiFi settings wether default or specific
         $this->_setWiFiSettings();
@@ -1175,8 +1187,17 @@ class ApHelper22Component extends Component {
         foreach($ap_profile->ap_profile->ap_profile_entries as $ap_profile_e){
             $entry_id   = $ap_profile_e->id;
             //Check if it is assigned to an exit point
+                    
             foreach($entry_point_data as $epd){
                 if($epd['entry_id'] == $entry_id){ //We found our man :-) This means the Entry has been 'connected' to an exit point
+                
+                	//Lets see if there is not perhaps a Dynamic VLAN to override the interface name 
+                	$exit_id = $epd['exit_id'];
+                	foreach($entry_point_data as $epd_vlan){
+                		if(($epd_vlan['exit_id'] == $exit_id)&&(preg_match('/^ex_vlan/',$epd_vlan['network']))){
+                			$epd['network'] = $epd_vlan['network'];
+                		}             	
+                	}
       
                     //Loop through all the radios
                     for ($y = 0; $y < $radio_count; $y++){
@@ -1240,6 +1261,37 @@ class ApHelper22Component extends Component {
                                 $base_array['acct_server']	= $ap_profile_e->auth_server;
                                 $base_array['acct_secret']	= $ap_profile_e->auth_secret;
                             }
+                            
+                            //==OCT 2022== Private PSK Support ==
+                            /*
+                            config wifi-iface 'default_radio0'
+								option device 'radio0'
+								option network 'lan'
+								option mode 'ap'
+								option ssid 'OpenWrt'
+								option encryption 'psk2'
+								option ppsk '1'
+								option auth_secret 'testing123'
+								option key '12345678'
+								option auth_server '192.168.8.101'
+								option nasid 'DisVrydag'
+								option dynamic_vlan '2'
+								option vlan_tagged_interface 'lan1'
+								option vlan_bridge 'br-vlan'
+								option vlan_naming '0'
+							*/
+							if($ap_profile_e->encryption == 'ppsk'){
+								$base_array['encryption']	= 'psk2';
+								$base_array['ppsk']			= '1';
+								$base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+								$base_array['vlan_bridge']  = 'br-ex_vlan';
+								//$base_array['vlan_tagged_interface']  = 'lan1';//Is this needed
+								$base_array['vlan_naming']	= '0';
+								
+								//Set the flag
+								$this->ppsk_flag = true;
+							}
+                            
 
                             if($ap_profile_e->macfilter != 'disable'){
                                 $this->loadModel('Devices');

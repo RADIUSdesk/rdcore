@@ -261,7 +261,6 @@ class ProfilesController extends AppController
 		
 		$this->reqData = $this->request->getData();
 		
-
         $check_items = [
 			'data_limit_mac',
 			'time_limit_mac'	
@@ -284,11 +283,15 @@ class ProfilesController extends AppController
         ];
         
         foreach($t_f_settings as $i){
-            if($this->reqData[$i] === 'true'){
-                $this->reqData[$i] = 1;
-            }else{
-                $this->reqData[$i] = 0;
-            }
+        	if(isset($this->reqData[$i])){
+		        if($this->reqData[$i] === 'true'){
+		            $this->reqData[$i] = 1;
+		        }else{
+		            $this->reqData[$i] = 0;
+		        }
+		  	}else{
+		  		$this->reqData[$i] = 0;
+		  	}
         }
        
         $entity = $this->{$this->main_model}->newEntity($this->reqData);
@@ -318,7 +321,7 @@ class ProfilesController extends AppController
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
-        }    
+        }        
 	}
 	
 	public function simpleEdit(){

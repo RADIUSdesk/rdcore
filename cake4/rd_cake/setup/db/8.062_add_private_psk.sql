@@ -31,6 +31,40 @@ if not exists (select * from information_schema.columns
 end if;
 
 
+alter table ap_profile_entries modify `encryption` enum('none','wep','psk','psk2','wpa','wpa2','ppsk') DEFAULT 'none';
+alter table mesh_entries modify `encryption` enum('none','wep','psk','psk2','wpa','wpa2','ppsk') DEFAULT 'none';
+
+if not exists (select * from information_schema.columns
+    where column_name = 'default_vlan' and table_name = 'ap_profile_entries' and table_schema = 'rd') then
+    alter table ap_profile_entries add column `default_vlan` int(10) NOT NULL DEFAULT '100';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'default_key' and table_name = 'ap_profile_entries' and table_schema = 'rd') then
+    alter table ap_profile_entries add column `default_key` varchar(255) NOT NULL DEFAULT '12345678';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'default_vlan' and table_name = 'mesh_entries' and table_schema = 'rd') then
+    alter table mesh_entries add column `default_vlan` int(10) NOT NULL DEFAULT '100';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'default_key' and table_name = 'mesh_entries' and table_schema = 'rd') then
+    alter table mesh_entries add column `default_key` varchar(255) NOT NULL DEFAULT '12345678';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'default_vlan' and table_name = 'dynamic_clients' and table_schema = 'rd') then
+    alter table dynamic_clients add column `default_vlan` int(10) NOT NULL DEFAULT '100';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'default_key' and table_name = 'dynamic_clients' and table_schema = 'rd') then
+    alter table dynamic_clients add column `default_key` varchar(255) NOT NULL DEFAULT '12345678';
+end if;
+
+
 end//
 
 delimiter ;

@@ -44,7 +44,7 @@ Ext.define('Rd.view.dynamicClients.gridRealmsForDynamicClientCloud' ,{
                 },
                 api: {
                     read    : '/cake4/rd_cake/realms/list-realms-for-dynamic-client-cloud.json',
-                    update  : '/cake4/rd_cake/realms/update-dynamic-client-realmzz.json'
+                    update  : '/cake4/rd_cake/realms/update-dynamic-client-realm.json'
                 }
             },
             listeners: {

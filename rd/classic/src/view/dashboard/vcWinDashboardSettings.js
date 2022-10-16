@@ -90,5 +90,6 @@ Ext.define('Rd.view.dashboard.vcWinDashboardSettings', {
         var realm   = pnl.down('cmbRealm');
         realm.getStore().getProxy().setExtraParam('settings_cloud_id',cmb.getValue());
         realm.getStore().load();
+        pnl.down('#txtChangedCloudId').setValue(cmb.getValue());
     }   
 });
