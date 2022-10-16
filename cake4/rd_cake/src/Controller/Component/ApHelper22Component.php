@@ -1287,6 +1287,7 @@ class ApHelper22Component extends Component {
 								$base_array['vlan_bridge']  = 'br-ex_vlan';
 								//$base_array['vlan_tagged_interface']  = 'lan1';//Is this needed
 								$base_array['vlan_naming']	= '0';
+								$base_array['nasid']		= $ap_profile_e->nasid;
 								
 								//Set the flag
 								$this->ppsk_flag = true;
