@@ -20,7 +20,8 @@ class VouchersController extends AppController{
         $this->loadModel('Vouchers'); 
         $this->loadModel('Users');
         $this->loadModel('Realms');
-        $this->loadModel('Profiles');   
+        $this->loadModel('Profiles');
+        $this->loadModel('Radaccts');   
        
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -450,6 +451,12 @@ class VouchersController extends AppController{
                     $row["$field"]= $entity->{"$field"};
                 }
                 array_push($created,$row);
+                
+                //OCT 2022 ADD A STEP TO REMOVE POTENTIAL OLD ORPHANED ACCOUNTIG RECORDS
+                $n = $req_d['name'];
+                $this->{'Radaccts'}->deleteAll(['Radaccts.username' => $n]);
+                //END
+                
             }            
         }
         
