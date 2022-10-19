@@ -60,6 +60,10 @@ class CommonQueryFlatComponent extends Component {
     	if($model == 'Nodes'){ //With devices we use the PermanentUsers as filter
     		$m_cid = "Meshes.cloud_id";
     	}
+    	
+    	if($model == 'Aps'){ //With devices we use the PermanentUsers as filter
+    		$m_cid = "ApProfiles.cloud_id";
+    	}
     	    	
 
     	$query->where([$m_cid => $cloud_id]);

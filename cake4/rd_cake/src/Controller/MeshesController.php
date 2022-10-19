@@ -32,7 +32,8 @@ class MeshesController extends AppController{
         $this->loadModel('MeshExitCaptivePortals');
         $this->loadModel('MeshExits');
         $this->loadModel('Timezones');   
-        $this->loadModel('Hardwares');
+        $this->loadModel('Hardwares');       
+        $this->loadModel('NodeSettings');
                  
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat'); 
@@ -684,13 +685,20 @@ class MeshesController extends AppController{
         foreach($q_r as $m){
             $exit_entries = array();
             foreach($m->mesh_exit_mesh_entries as $m_e_ent){
-                if($m_e_ent['mesh_entry_id'] != 0){
+                if($m_e_ent['mesh_entry_id'] > 0){
                     array_push($exit_entries,['name' => $m_e_ent->mesh_entry->name]);
                 }
                 if($m_e_ent['mesh_entry_id'] == 0){
                     array_push($exit_entries,['name' => 'LAN']);
+                }            
+            	//OCT 2022
+                if(preg_match('/^-9/',$m_e_ent-> mesh_entry_id)){ 	
+                	$dynamic_vlan = $m_e_ent->mesh_entry_id;
+                	$dynamic_vlan = str_replace("-9","",$dynamic_vlan);
+                	array_push($exit_entries, ['name' => "Dynamic VLAN $dynamic_vlan"]);               
                 }
-            }
+                
+          	}
 
             array_push($items,array(
                 'id'            => $m->id,
@@ -1359,6 +1367,31 @@ class MeshesController extends AppController{
             array_push($items,array('id' => 0, 'name' => "LAN")); //Not used up yet
         }
         
+        //==Oct 2022 Add support for Dynamic VLANs==
+        $node_s = $this->{'NodeSettings'}->find()->where(['NodeSettings.mesh_id' => $mesh_id])->first();
+        if($node_s->vlan_enable == 1){
+        	//Find out the list of vlans.
+        	if($node_s->vlan_range_or_list == 'range'){
+        		$start 	= $node_s->vlan_start;
+        		$end 	= $node_s->vlan_end;
+        		while($start <= $end){
+        			$vlan_id = intval('-9'.$start);
+        			        			
+        			array_push($items, ['id' => $vlan_id, 'name' => "Dynamic VLAN $start"]); //Allow the user not to assign at this stage
+        			$start++;
+        		}        		
+        	}
+        	if($node_s->vlan_range_or_list == 'list'){
+        		$list 	= $node_s->vlan_list;
+        		$pieces = explode(",", $list);
+        		foreach($pieces as $p){
+        			$vlan_id = intval('-9'.$p);        			
+        			array_push($items, ['id' => $vlan_id, 'name' => "Dynamic VLAN $p"]); //Allow the user not to assign at this stage
+        		}        		
+        	}       
+        }
+        //==END OCT 2022 ADD ON===
+        
          
         $this->set(array(
             'items' => $items,
@@ -1788,7 +1821,7 @@ class MeshesController extends AppController{
 
             //Unfortunately there are many check items which means they will not be in the POST if unchecked
             //so we have to check for them
-            $check_items = ['all_power','eth_br_chk','eth_br_for_all', 'gw_use_previous','gw_auto_reboot','enable_adv_reporting','enable_schedules'];
+            $check_items = ['all_power','eth_br_chk','eth_br_for_all', 'gw_use_previous','gw_auto_reboot','enable_adv_reporting','enable_schedules','vlan_enable'];
             foreach($check_items as $i){
                 if(isset($req_d[$i])){
                     $req_d[$i] = 1;

@@ -29,6 +29,7 @@ class MeshHelper22Component extends Component {
     protected $WbwActive        = false;
     protected $QmiActive        = false;   
     protected $Schedules        = false;
+    protected $ppsk_flag		= false;
 
     public function initialize(array $config):void{
         //Please Note that we assume the Controller has a JsonErrors Component Included which we can access.
@@ -634,7 +635,16 @@ class MeshHelper22Component extends Component {
             if(count($me->mesh_exit_mesh_entries) > 0){
                 $has_entries_attached = true;
                 foreach($me->mesh_exit_mesh_entries as $entry){
-                    if($entry->mesh_entry_id!=0){ //Entry id of 0 is for eth1 ...   
+                    if($entry->mesh_entry_id!=0){ //Entry id of 0 is for eth1 ...
+                    
+                    	//==OCT ADD ON==
+		                if(preg_match('/^-9/',$entry->mesh_entry_id)){ 	
+				        	$dynamic_vlan = $entry->mesh_entry_id;
+				        	$dynamic_vlan = str_replace("-9","",$dynamic_vlan);
+				        	$if_name = 'ex_vlan'.$dynamic_vlan;
+				        	$this->ppsk_flag = true; //set the heads-up flag	            
+				        }
+                       
                         if(($type == 'bridge')&&($gateway)){ //The gateway needs the entry points to be bridged to the LAN
                             array_push($entry_point_data, ['network' => 'lan','entry_id' => $entry->mesh_entry_id]);
                         }else{
@@ -1519,6 +1529,18 @@ class MeshHelper22Component extends Component {
                                         $base_array['acct_server']	= $me->auth_server;
                                         $base_array['acct_secret']	= $me->auth_secret;
                                     }
+                                    
+                                    if($me->encryption == 'ppsk'){
+										$base_array['encryption']	= 'psk2';
+										$base_array['ppsk']			= '1';
+										$base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+										$base_array['vlan_bridge']  = 'br-ex_vlan';
+										//$base_array['vlan_tagged_interface']  = 'lan1';//Is this needed?
+										$base_array['vlan_naming']	= '0';
+										$base_array['nasid']		= $me->nasid;														
+										//Set the flag
+										$this->ppsk_flag = true;
+									}
 
                                     if($me->macfilter != 'disable'){
                                         $base_array['macfilter']    = $me->macfilter;
@@ -1617,7 +1639,20 @@ class MeshHelper22Component extends Component {
                                                         $base_array['acct_secret']	= $me->auth_secret;
                                                     }
                                                     
-                                                   if($me->macfilter != 'disable'){
+                                                    //OCT 2022
+                                                    if($me->encryption == 'ppsk'){
+														$base_array['encryption']	= 'psk2';
+														$base_array['ppsk']			= '1';
+														$base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+														$base_array['vlan_bridge']  = 'br-ex_vlan';
+														//$base_array['vlan_tagged_interface']  = 'lan1';//Is this needed?
+														$base_array['vlan_naming']	= '0';
+														$base_array['nasid']		= $me->nasid;														
+														//Set the flag
+														$this->ppsk_flag = true;
+													}
+                                                    
+                                                   	if($me->macfilter != 'disable'){
                                                         $base_array['macfilter']    = $me->macfilter;
                                                         $mac_list                   = $this->_find_mac_list($me->permanent_user_id);
                                                         if(count($mac_list)>0){

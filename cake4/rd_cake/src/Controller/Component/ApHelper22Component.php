@@ -1200,6 +1200,7 @@ class ApHelper22Component extends Component {
             foreach($entry_point_data as $epd){
                 if($epd['entry_id'] == $entry_id){ //We found our man :-) This means the Entry has been 'connected' to an exit point
                 
+                	//FIXME DONT THINK THIS IS NEEDED ACTUALLY
                 	//Lets see if there is not perhaps a Dynamic VLAN to override the interface name 
                 	$exit_id = $epd['exit_id'];
                 	foreach($entry_point_data as $epd_vlan){

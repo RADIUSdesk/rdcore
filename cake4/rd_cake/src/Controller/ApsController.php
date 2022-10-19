@@ -223,26 +223,17 @@ class ApsController extends AppController {
             return;
         }
         $user_id    = $user['id'];
-
-        $query = $this->{$this->main_model}->find();
-        $query->contain([
+        
+        $req_q    = $this->request->getQuery();      
+       	$cloud_id = $req_q['cloud_id'];
+       	$query 	  = $this->{$this->main_model}->find();
+       	$this->CommonQueryFlat->build_cloud_query($query,$cloud_id,[
             'ApProfiles'    => ['Clouds'],
             'ApActions'     => ['sort' => ['ApActions.id' => 'DESC']],
             'OpenvpnServerClients',
             'ApUptmHistories',
             'ApConnectionSettings'
-        ]);
-        
-     /*   $this->CommonQueryFlat->build_ap_lists_query($query, $user, [
-            'ApProfiles'    => ['Users'],
-            'ApActions'     => ['sort' => ['ApActions.id' => 'DESC']],
-            'OpenvpnServerClients',
-            'ApUptmHistories',
-            'ApConnectionSettings'
-        ]); //AP QUERY is sort of different in a way*/
-        
-        
-        //$this->_build_common_query($query, $user);
+        ],'Aps');
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
