@@ -584,7 +584,7 @@ class MeshHelper22Component extends Component {
                         'stp'       => 1,
                    	],
                    	'lists'	=> [
-                   		'ports'	=> "bat0.1"
+                   		'ports'	=> [ "bat0.1" ]
                    	]                          
                 ]
             );
