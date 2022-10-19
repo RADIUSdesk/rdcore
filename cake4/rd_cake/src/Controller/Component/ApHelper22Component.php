@@ -385,7 +385,8 @@ class ApHelper22Component extends Component {
         $openvpn_bridge_data    = [];
 		$include_lan_dhcp 		= true;
 		$nat_detail				= [];		
-		$interfaces				= [];
+		$interfaces				= [];	
+		$dummy_start			= 100; //Dummy Interface start for Dynamic VLAN (PPSK)
 		
 
         //--Jul 2021 --See if there are a WAN bridge to-- 
@@ -570,7 +571,7 @@ class ApHelper22Component extends Component {
 		            	$dynamic_vlan = $entry->ap_profile_entry_id;
 		            	$dynamic_vlan = str_replace("-9","",$dynamic_vlan);
 		            	$if_name = 'ex_vlan'.$dynamic_vlan;
-		            	$this->ppsk_flag = true; //set the heads-up flag		            
+		            	$this->ppsk_flag = true; //set the heads-up flag	            
 		            }
 		                               
                     if($type == 'bridge'){ //The gateway needs the entry points to be bridged to the LAN
@@ -647,7 +648,11 @@ class ApHelper22Component extends Component {
                         $nat_detail[$if_name]=$nat_detail_item;
                     }
                                         
-                    $interfaces =  ["nat.".$start_number];
+                    $interfaces =  [];
+                    if($this->ppsk_flag){                 
+                		$interfaces = ['eth'.$dummy_start]; 
+	            		$dummy_start++; //Increment it with one;
+	            	}	   
                     if($eth_one_bridge == true){
                         array_merge($interfaces,$this->_lan_for($this->Hardware));
                     }
@@ -669,14 +674,12 @@ class ApHelper22Component extends Component {
 	                       	]                          
 	                    ]
 	                );
-                    
-                                     
+                                                       
                     array_push($network,
                         [
                             "interface"    => "$if_name",
                             "options"   => [
                                 "device"    => "br-$if_name",
-                                "type"      => "bridge",
                                 'ipaddr'    =>  $if_ipaddr,
                                 'netmask'   =>  $if_netmask,
                                 'proto'     => 'static'
@@ -785,6 +788,12 @@ class ApHelper22Component extends Component {
                     //Add the LAN side if set as an interface to the bridge
                     if($eth_one_bridge == true){
                         $cp_interfaces = $this->_lan_for($this->Hardware);
+                    }else{  
+                    	//Set dummy interface for Dynamci VLAN 
+                    	if($this->ppsk_flag){                 
+                    		$cp_interfaces = ['eth'.$dummy_start]; 
+		            		$dummy_start++; //Increment it with one;
+		            	}	                  
                     }
 
                     if($ap_profile_e->ap_profile_exit_captive_portal->dnsdesk == true){
