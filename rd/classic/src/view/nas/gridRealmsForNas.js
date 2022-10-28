@@ -48,11 +48,12 @@ Ext.define('Rd.view.nas.gridRealmsForNas' ,{
                 }
             },
             listeners: {
-                load: function(store, records, successful) {      
-                    if(!successful){
+                load: function(store, records, successful, operation) {
+                    if(!successful){ 
+                        var error = operation.getError();
                         Ext.ux.Toaster.msg(
-                            i18n('sError_encountered'),
-                            store.getProxy().getReader().rawData.message.message,
+                            'Warning',
+                            error,
                             Ext.ux.Constants.clsWarn,
                             Ext.ux.Constants.msgWarn
                         );

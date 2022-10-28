@@ -6,6 +6,7 @@ Ext.define('Rd.view.nas.pnlNas', {
     url     : null,
     plain   : true,
     cls     : 'subTab',
+    root    : false,
     initComponent: function(){
         var me      = this;
         me.items    = [
@@ -13,7 +14,8 @@ Ext.define('Rd.view.nas.pnlNas', {
                 title   : 'NAS',
                 itemId  : 'tabNasNas',
                 xtype   : 'pnlNasNas',
-                nas_id  : me.nas_id
+                nas_id  : me.nas_id,
+                root    : me.root
             },
             {
                 title   : 'Realms',

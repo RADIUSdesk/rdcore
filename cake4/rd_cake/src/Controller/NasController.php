@@ -115,7 +115,7 @@ class NasController extends AppController{
         $query 		= $this->{$this->main_model}->find();
 		$cquery     = $this->request->getQuery();
 		$cloud_id 	= $cquery['cloud_id'];
-		$this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['NaRealms.Realms','NaStates']);
+		$this->CommonQueryFlat->cloud_with_system($query,$cloud_id,['NaRealms.Realms','NaStates']);
         $limit  = 50;
         $page   = 1;
         $offset = 0;
@@ -138,12 +138,26 @@ class NasController extends AppController{
             $realms     = [];
             foreach($i->na_realms as $nr){ 
             	$r_id= $nr->realm->id;
-              	$r_n = $nr->realm->name;       
-                array_push($realms,
+              	$r_n = $nr->realm->name;
+
+              	if(($nr->realm->cloud_id != $cloud_id)&&($user['group_name'] == Configure::read('group.admin'))){ //Admin can see all of them
+              		array_push($realms,
                     [
                         'id'                    => $r_id,
-                        'name'                  => $r_n
-                    ]);
+                        'name'                  => $r_n,
+                        'other_cloud'			=> true
+                    ]);             	
+              	
+              	}else{
+              		if($nr->realm->cloud_id == $cloud_id){
+		          		array_push($realms,
+		                [
+		                    'id'                    => $r_id,
+		                    'name'                  => $r_n,
+		                    'other_cloud'			=> false
+		                ]);
+		          	}             	
+              	}                     
             }
 /*                     
 			//FIXME Add NaState
@@ -176,6 +190,12 @@ class NasController extends AppController{
             */
             
             $i->realms = $realms;
+            
+            $i->for_system = false;
+            if($i->cloud_id == -1){
+            	$i->for_system = true;
+            } 
+            
             $i->update = true;
             $i->delete = true;
             array_push($items,$i);      
@@ -198,6 +218,25 @@ class NasController extends AppController{
         }
     
         $cdata = $this->request->getData();
+        
+        $check_items = [
+        	'for_system'
+        ];
+        
+        foreach($check_items as $i){
+            if(isset($cdata[$i])){
+                $cdata[$i] = 1;
+            }else{
+                $cdata[$i] = 0;
+            }
+        }
+            
+        if($cdata['for_system'] == 1){
+	    	$cdata['cloud_id'] = -1;
+	    }else{
+	    	$cdata['cloud_id'] = $this->request->getData('cloud_id');
+	    }
+          
         $modelEntity = $this->{$this->main_model}->newEntity($cdata);
 
         if ($this->{$this->main_model}->save($modelEntity)) {
@@ -240,6 +279,9 @@ class NasController extends AppController{
                 ->first();
             if($q_r){
                 $data = $q_r;
+                if($q_r->cloud_id == -1){
+                	$data['for_system'] = true;
+                }
             }         
         }
         $this->set([
@@ -258,13 +300,28 @@ class NasController extends AppController{
         }
 
         $cdata = $this->request->getData();
+              
+        //If cloud_id = -1 and the user is not root ...reject the action
+        if($user['group_name'] == Configure::read('group.ap')){
+        	$e_check = $this->{$this->main_model}->find()->where(['Nas.id' => $this->request->getData('id')])->first();
+        	if($e_check){       
+		    	if($e_check->cloud_id == -1){
+		    		$this->set([
+						'message' 	=> 'Not enough rights for action',
+						'success'	=> false,
+						'_serialize' => ['success','message']
+					]);
+					return;
+		    	}
+		  	}
+        }      
 
         if ($this->request->is('post')) {
 
             //Unfortunately there are many check items which means they will not be in the POST if unchecked
             //so we have to check for them
             $check_items = [
-                'active', 'on_public_maps', 'session_auto_close','record_auth','ignore_acct'
+                'active', 'on_public_maps', 'session_auto_close','record_auth','ignore_acct', 'for_system'
             ];
 
             foreach($check_items as $i){
@@ -274,6 +331,12 @@ class NasController extends AppController{
                     $cdata[$i] = 0;
                 }
             }
+            
+            if($cdata['for_system'] == 1){
+		    	$cdata['cloud_id'] = -1;
+		    }else{
+		    	$cdata['cloud_id'] = $this->request->getData('cloud_id');
+		    }
 
             $modelEntity = $this->{$this->main_model}->get($cdata['id']);
             // Update Entity with Request Data
@@ -303,16 +366,39 @@ class NasController extends AppController{
             return;
         }
           
-        $cdata = $this->request->getData();
-        if(isset($cdata['id'])){ 
-            $deleteEntity = $this->{$this->main_model}->get($cdata['id']);
-            $this->{$this->main_model}->delete($deleteEntity);
-        }else{                          //Assume multiple item delete
-            foreach($this->request->getData() as $d){
-                $deleteEntity = $this->{$this->main_model}->get($d['id']);
-                $this->{$this->main_model}->delete($deleteEntity);
+        $req_d		= $this->request->getData();	
+		$ap_flag 	= true;		
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
+        
+	    if(isset($req_d['id'])){   
+            $entity     = $this->{$this->main_model}->get($req_d['id']);          
+            if(($entity->cloud_id == -1)&&($ap_flag == true)){
+	    		$this->set([
+					'message' 	=> 'Not enough rights for action',
+					'success'	=> false,
+					'_serialize' => ['success','message']
+				]);
+				return;
+	    	}          
+            $this->{$this->main_model}->delete($entity);
+
+        }else{ 
+            foreach($req_d as $d){
+                $entity     = $this->{$this->main_model}->get($d['id']);
+                if(($entity->cloud_id == -1)&&($ap_flag == true)){
+					$this->set([
+							'message' 	=> 'Not enough rights for action',
+							'success'	=> false,
+							'_serialize' => ['success','message']
+						]);
+					return;
+				}      
+                $this->{$this->main_model}->delete($entity);
             }
-        }
+       	}
+       	
         $this->set([
             'success' => true,
             '_serialize' => ['success']

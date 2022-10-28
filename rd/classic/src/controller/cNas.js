@@ -145,9 +145,14 @@ Ext.define('Rd.controller.cNas', {
         var store   = tab.down("gridNas").getStore();
         var me 		= this;
         var c_name 	= Ext.getApplication().getCloudName();
-        var c_id	= Ext.getApplication().getCloudId()
+        var c_id	= Ext.getApplication().getCloudId();
+        var dd      = Ext.getApplication().getDashboardData();
+        var root    = false;
+        if(dd.isRootUser){
+            root = true   
+        }
         if(!Ext.WindowManager.get('winNasAddId')){
-            var w = Ext.widget('winNasAdd',{id:'winNasAddId',cloudId: c_id, cloudName: c_name,store: store});
+            var w = Ext.widget('winNasAdd',{id:'winNasAddId',cloudId: c_id, cloudName: c_name,store: store,root:root});
             w.show();         
         }
     },
@@ -391,7 +396,12 @@ Ext.define('Rd.controller.cNas', {
         }else{
 
             var selected    =  grid.getSelectionModel().getSelection();
-            var count       = selected.length;         
+            var count       = selected.length;
+            var dd          = Ext.getApplication().getDashboardData();
+            var root        = false;
+            if(dd.isRootUser){
+                root = true   
+            }         
             Ext.each(grid.getSelectionModel().getSelection(), function(sr,index){
 
                 //Check if the node is not already open; else open the node:
@@ -415,7 +425,7 @@ Ext.define('Rd.controller.cNas', {
                     tabConfig : {
                         ui : me.ui
                     }, 
-                    items:      {'xtype' : 'pnlNas',nas_id: nas_id, record: sr}
+                    items:      {'xtype' : 'pnlNas',nas_id: nas_id, record: sr,root:root}
                 });
                 tp.setActiveTab(nas_tab_id); //Set focus on Add Tab
             });

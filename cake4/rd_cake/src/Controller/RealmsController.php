@@ -21,6 +21,7 @@ class RealmsController extends AppController{
         $this->loadModel('NaRealms');
         $this->loadModel('DynamicClientRealms');
         $this->loadModel('NaRealms');
+        $this->loadModel('Nas');
            
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -495,8 +496,32 @@ class RealmsController extends AppController{
             }
         }
 
-        if($clear_flag){    //If we first need to remove previous associations! 
-            $this->NaRealms->deleteAll(['NaRealms.na_id' => $na_id]);
+        if($clear_flag){    //If we first need to remove previous associations!        
+        	//if the cloud_id of the na_id (nas) is -1 (System Wide) and we are not root; do not clear it!
+        	$ent_nas = $this->{'Nas'}->find()->where(['Nas.id' => $na_id])->first();
+        	if($ent_nas){
+        		//System Wide we do a bit different
+        		if($ent_nas->cloud_id == -1){
+        			if($user['group_name'] == Configure::read('group.ap')){
+		    				$this->set([
+							'message' 	=> 'Not enough rights for action',
+							'success'	=> false,
+							'_serialize' => ['success','message']
+						]);
+						return;	
+        			}
+        			//If it is System Wide ONLY remove Realms with the selected cloud_id 
+        			$realm_list = $this->{'Realms'}->find()->where(['Realms.cloud_id' => $cloud_id])->all();
+        			$or_realms = [];
+        			foreach($realm_list as $r){
+        				array_push($or_realms, ['NaRealms.realm_id' => $r->id]);
+        			}
+        			$this->NaRealms->deleteAll(['OR' =>$or_realms]);      			
+        		}else{
+        			$this->NaRealms->deleteAll(['NaRealms.na_id' => $na_id]); //If it fails the -1 and group.ap test it will never reach here        		
+        		}
+        	}       
+            
         }
         //========== END CLEAR FIRST CHECK =======
         

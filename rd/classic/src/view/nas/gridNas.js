@@ -30,9 +30,24 @@ Ext.define('Rd.view.nas.gridNas' ,{
 
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});     
         me.columns  = [
-            { text: i18n('sIP_Address'),    dataIndex: 'nasname',      tdCls: 'gridMain', flex: 1, filter: {type: 'string'},stateId: 'StateGridNasA'},
+            { text: i18n('sIP_Address'),    dataIndex: 'nasname',      tdCls: 'gridMain', flex: 1, filter: {type: 'string'},stateId: 'StateGridNas1'},
             { text: i18n('sName'),          dataIndex: 'shortname',    tdCls: 'gridMain', flex: 1, filter: {type: 'string'},stateId: 'StateGridNas2'},
             { text: i18n('sNAS-Identifier'),dataIndex: 'nasidentifier',tdCls: 'gridMain', flex: 1, filter: {type: 'string'}, hidden: false,stateId: 'StateGridNas3'},
+             { 
+                text        : 'System Wide',  
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                                "<tpl if='for_system == true'><div class=\"fieldBlue\">"+i18n("sYes")+"</div></tpl>",
+                                "<tpl if='for_system == false'><div class=\"fieldGrey\">"+i18n("sNo")+"</div></tpl>"
+                            ),
+                dataIndex   : 'for_system',
+                filter      : {
+                        type            : 'boolean',
+                        defaultValue    : false,
+                        yesText         : 'Yes',
+                        noText          : 'No'
+                }, stateId: 'StateGridNas4'
+            },
             { 
                 text:   i18n('sRealms'),
                 sortable: false,
@@ -41,10 +56,12 @@ Ext.define('Rd.view.nas.gridNas' ,{
                 tpl:    new Ext.XTemplate(
                             '<tpl if="Ext.isEmpty(realms)"><div class=\"fieldBlueWhite\">Available to all!</div></tpl>', //Warn them when available     to all
                             '<tpl for="realms">',     // interrogate the realms property within the data
-                                "<div class=\"fieldGreen\">{name}</div>",
+                                "<tpl if='other_cloud == true'><div class=\"fieldGrey\">{name}</div></tpl>",
+                                "<tpl if='other_cloud == false'><div class=\"fieldGreen\">{name}</div></tpl>",
                             '</tpl>'
                         ),
-                dataIndex: 'realms'
+                dataIndex: 'realms',
+                stateId: 'StateGridNas5'
             },
             { 
                 text        : i18n("sStatus"),   
@@ -63,7 +80,7 @@ Ext.define('Rd.view.nas.gridNas' ,{
                     }else{
                         return "<div class=\"fieldBlue\">"+i18n("sUnknown")+"</div>";
                     }              
-                },stateId: 'StateGridNas5'
+                },stateId: 'StateGridNas6'
             }   
         ];
 

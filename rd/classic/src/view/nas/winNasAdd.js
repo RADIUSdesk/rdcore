@@ -30,6 +30,12 @@ Ext.define('Rd.view.nas.winNasAdd', {
     mkScrnData: function(){
     
         var me      = this;
+
+        var hide_system = true;
+        if(me.root){
+            hide_system = false;
+        }
+
         var frmData = Ext.create('Ext.form.Panel',{
             border:     false,
             layout:     'fit',
@@ -96,7 +102,15 @@ Ext.define('Rd.view.nas.winNasAdd', {
                                     allowBlank  : false,
                                     blankText   : i18n("sSupply_a_value"),
                                     labelClsExtra: 'lblRdReq'
-                                }
+                                },
+                                {
+                                    xtype       : 'checkbox',      
+                                    fieldLabel  : 'System Wide',
+                                    name        : 'for_system',
+                                    inputValue  : 'for_system',
+                                    hidden      : hide_system,
+                                    disabled    : hide_system
+                                } 
                             ]
                         },
                         { 
