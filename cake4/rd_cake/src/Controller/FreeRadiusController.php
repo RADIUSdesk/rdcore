@@ -121,9 +121,9 @@ class FreeRadiusController extends AppController {
 
         $this->set([
             'items'         => $items,
-            'success'       => true,
-            '_serialize'    => ['success', 'items']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function status(){
@@ -145,9 +145,9 @@ class FreeRadiusController extends AppController {
 
         $this->set([
             'data'          => $items,
-            'success'       => true,
-            '_serialize'    => ['success', 'data']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function start(){
@@ -163,9 +163,9 @@ class FreeRadiusController extends AppController {
         
         $this->set([
             'data'          => $items,
-            'success'       => true,
-            '_serialize'    => ['success', 'data']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function stop(){
@@ -181,9 +181,9 @@ class FreeRadiusController extends AppController {
         
         $this->set([
             'data'          => $items,
-            'success'       => true,
-            '_serialize'    => ['success', 'data']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function info(){
@@ -202,9 +202,9 @@ class FreeRadiusController extends AppController {
             $items['uptime'] = $uptime;
         }else{
             $this->set([
-                'success'       => false,
-                '_serialize'    => ['success']
+                'success'       => false
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
             return;
         }
         
@@ -244,9 +244,9 @@ class FreeRadiusController extends AppController {
         
         $this->set([
             'data'          => $items,
-            'success'       => true,
-            '_serialize'    => ['success', 'data']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function statusDebug(){
@@ -283,9 +283,9 @@ class FreeRadiusController extends AppController {
         }      
         $this->set([
             'data'          => $items,
-            'success'       => true,
-            '_serialize'    => ['success', 'data']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function startDebug(){
@@ -352,9 +352,9 @@ class FreeRadiusController extends AppController {
     
         $this->set([
             'data'          => $items,
-            'success'       => true,
-            '_serialize'    => ['success', 'data']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function stopDebug(){
@@ -375,9 +375,9 @@ class FreeRadiusController extends AppController {
 
         $this->set([
             'data'          => $items,
-            'success'       => true,
-            '_serialize'    => ['success', 'data']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function timeDebug(){
@@ -409,9 +409,9 @@ class FreeRadiusController extends AppController {
 
         $this->set([
             'data'          => $items,
-            'success'       => true,
-            '_serialize'    => ['success', 'data']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function testRadius(){
@@ -506,8 +506,8 @@ class FreeRadiusController extends AppController {
 
         $this->set([
             'data'          => $items,
-            'success'       => true,
-            '_serialize'    => ['success', 'data']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 }

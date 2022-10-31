@@ -116,11 +116,11 @@ class ApProfilesController extends AppController {
        
         //___ FINAL PART ___
         $this->set([
-            'items' => $items,
-            'success' => true,
-            'totalCount' => $total,
-            '_serialize' => ['items','success','totalCount']
+            'items' 		=> $items,
+            'success' 		=> true,
+            'totalCount' 	=> $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     
@@ -137,18 +137,17 @@ class ApProfilesController extends AppController {
 
         if ($this->{$this->main_model}->save($apProfileEntity)) {
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
         }else {
             $message = 'Error';
             $this->set([
                 'errors'    => $this->JsonErrors->entityErros($apProfileEntity, $message),
                 'success'   => false,
-                'message'   => ['message' => __('Could not create item')],
-                '_serialize' => ['errors','success','message']
+                'message'   => __('Could not create item')
             ]);
         }
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 
     public function delete() {
@@ -182,15 +181,14 @@ class ApProfilesController extends AppController {
         if($fail_flag == true){
             $this->set(array(
                 'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
+                'message'   => __('Could not delete some items'),
             ));
         }else{
             $this->set(array(
                 'success' => true,
-                '_serialize' => array('success')
             ));
         }
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	
@@ -232,9 +230,9 @@ class ApProfilesController extends AppController {
         $this->set([
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => ['items','success','totalCount']
+            'totalCount' => $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function apProfileEntryAdd(){
@@ -255,18 +253,17 @@ class ApProfilesController extends AppController {
                 $entry->saveField("nasid","$nasid");
             } 
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
         } else {
             $message = 'Error';
             $this->set([
                 'errors'    => $this->JsonErrors->entityErros($entryEntity, $message),
                 'success'   => false,
-                'message'   => ['message' => __('Could not create item')],
-                '_serialize' => ['errors','success','message']
+                'message'   => __('Could not create item')
             ]);
         }
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function apProfileEntryEdit(){
@@ -302,10 +299,10 @@ class ApProfilesController extends AppController {
             $this->{'ApProfileEntries'}->patchEntity($entity, $cdata);
             if ($this->{'ApProfileEntries'}->save($entity)) {
                    $this->set([
-                    'success' => true,
-                    '_serialize' => ['success']
+                    'success' => true
                 ]);
             }
+            $this->viewBuilder()->setOption('serialize', true);
         } 
     }
 
@@ -336,9 +333,9 @@ class ApProfilesController extends AppController {
         
         $this->set(array(
             'items'     => $items,
-            'success'   => true,
-            '_serialize'=> array('success', 'items')
-        ));   
+            'success'   => true
+        ));
+        $this->viewBuilder()->setOption('serialize', true);   
     }
 
     public function apProfileEntryView(){
@@ -363,9 +360,9 @@ class ApProfilesController extends AppController {
 
         $this->set([
             'data'     => $q_r,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function apProfileEntryDelete(){
@@ -397,9 +394,9 @@ class ApProfilesController extends AppController {
             }
         }  
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     //======= AP Profile exits ============
@@ -418,10 +415,10 @@ class ApProfilesController extends AppController {
         
         if(!$ap_profile_id){
         	$this->set([
-		        'items' => [],
-		        'success' => true,
-		        '_serialize' => ['items','success']
+		        'items' 	=> [],
+		        'success' 	=> true
 		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);
 		    return;     
         }
               
@@ -473,9 +470,9 @@ class ApProfilesController extends AppController {
         //___ FINAL PART ___
         $this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => ['items','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function apProfileExitAdd(){
@@ -653,18 +650,17 @@ class ApProfilesController extends AppController {
             }
 
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
         }else{
             $message = 'Error';
             $this->set([
                 'errors'    => $this->JsonErrors->entityErros($exitEntity, $message),
                 'success'   => false,
-                'message'   => ['message' => __('Could not create item')],
-                '_serialize' => ['errors','success','message']
+                'message'   => __('Could not create item')
             ]);
         }
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function apProfileExitEdit(){
@@ -879,9 +875,9 @@ class ApProfilesController extends AppController {
                 }
 
                 $this->set([
-                    'success' => true,
-                    '_serialize' => ['success']
+                    'success' => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
             }
         } 
     }
@@ -906,9 +902,9 @@ class ApProfilesController extends AppController {
         }
         $this->set([
             'data'      => $data,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function apExperimentalCheck(){
@@ -916,9 +912,9 @@ class ApProfilesController extends AppController {
         $active = Configure::read('experimental.active'); //Read the defaults
         $this->set([
             'active'     => $active,
-            'success'   => true,
-            '_serialize'=> ['success', 'active']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function apProfileExitView(){
@@ -1003,9 +999,9 @@ class ApProfilesController extends AppController {
 
         $this->set([
             'data'     => $data,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function apProfileExitUpstreamList(){
@@ -1034,9 +1030,9 @@ class ApProfilesController extends AppController {
         
         $this->set([
             'items'     => $items,
-            'success'   => true,
-            '_serialize'=> ['success', 'items']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function apProfileExitDelete(){
@@ -1096,9 +1092,9 @@ class ApProfilesController extends AppController {
             }
         }  
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function apProfileEntryPoints(){
@@ -1189,9 +1185,9 @@ class ApProfilesController extends AppController {
                       
         $this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => ['items','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function  apProfileSettingsView(){   
@@ -1214,9 +1210,9 @@ class ApProfilesController extends AppController {
         
         $this->set([
             'data'      => $data,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function apProfileSettingsEdit(){
@@ -1245,9 +1241,9 @@ class ApProfilesController extends AppController {
             $this->{$this->main_model}->patchEntity($e, $cdata);
             if($this->{$this->main_model}->save($e)){
                 $this->set([
-                    'success' => true,
-                    '_serialize' => ['success']
-                ]);           
+                    'success' => true
+                ]);
+                $this->viewBuilder()->setOption('serialize', true);           
             }else{
                 $message = __('Could not update item');
                 $this->JsonErrors->entityErros($e,$message);  
@@ -1285,9 +1281,9 @@ class ApProfilesController extends AppController {
 
         $this->set([
             'data'      => $data,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     private function _getCommonSettings(){
@@ -1374,9 +1370,9 @@ class ApProfilesController extends AppController {
             
             if ( $this->ApProfileSettings->save($ent_setting)) {
                    $this->set([
-                    'success' => true,
-                    '_serialize' => ['success']
+                    'success' => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
             }
         }
     }
@@ -1458,9 +1454,9 @@ class ApProfilesController extends AppController {
        
         $this->set([
             'data' => $data,
-            'success' => true,
-            '_serialize' => ['data','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     
@@ -1567,9 +1563,9 @@ class ApProfilesController extends AppController {
         //___ FINAL PART ___
         $this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => ['items','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function apProfileApAdd(){
@@ -1864,9 +1860,9 @@ class ApProfilesController extends AppController {
             //------- END Add settings for this ap ---
 
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $message = __('Could not create item');
             $this->JsonErrors->entityErros($apEntity,$message);
@@ -1937,9 +1933,9 @@ class ApProfilesController extends AppController {
             }
         }  
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     
@@ -2220,9 +2216,9 @@ class ApProfilesController extends AppController {
                 //------- END Add settings for this ap ---
 
                 $this->set([
-                    'success' => true,
-                    '_serialize' => ['success']
+                    'success' => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
 			}
 
             }else{
@@ -2230,9 +2226,9 @@ class ApProfilesController extends AppController {
                 $this->set([
                     'errors'    => $this->JsonErrors->entityErros($apEntity, $message),
                     'success'   => false,
-                    'message'   => ['message' => __('Could not create item')],
-                    '_serialize' => ['errors','success','message']
+                    'message'   => __('Could not create item'),
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
             }
         } 
     }
@@ -2398,9 +2394,9 @@ class ApProfilesController extends AppController {
 
         $this->set([
             'data'      => $data,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
    
 	
@@ -2490,9 +2486,9 @@ class ApProfilesController extends AppController {
         $menu = $this->GridButtonsFlat->returnButtons(false, 'ApProfiles'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function menuForEntriesGrid(){
@@ -2505,9 +2501,9 @@ class ApProfilesController extends AppController {
         $menu = $this->GridButtonsFlat->returnButtons(false, 'ApProfileEntries'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function menuForExitsGrid(){
@@ -2520,9 +2516,9 @@ class ApProfilesController extends AppController {
         $menu = $this->GridButtonsFlat->returnButtons(false, 'ApProfileExits'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     
@@ -2536,9 +2532,9 @@ class ApProfilesController extends AppController {
         $menu = $this->GridButtonsFlat->returnButtons(false, 'Aps'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function menuForDevicesGrid(){
@@ -2551,9 +2547,9 @@ class ApProfilesController extends AppController {
         $menu = $this->GridButtonsFlat->returnButtons(false, 'ApProfileDevices'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     private function _add_dynamic($dc_data){

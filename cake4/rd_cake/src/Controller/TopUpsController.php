@@ -67,10 +67,10 @@ class TopUpsController extends AppController{
             }
         }
          
-        $_serialize = 'data';
         $this->setResponse($this->getResponse()->withDownload('export.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
-        $this->set(compact('data', '_serialize'));         
+        $this->set([ 'data' => $data ]);
+        $this->viewBuilder()->setOption('serialize', true);         
     } 
     
     public function index(){
@@ -120,17 +120,17 @@ class TopUpsController extends AppController{
         $this->set(array(
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total,
-            '_serialize'    => array('items','success','totalCount')
+            'totalCount'    => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true); 
     }
    
     public function add(){
     
     	$this->set([
-            'success'       => true,
-            '_serialize'    => ['success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true); 
         $this->_addOrEdit('add');          
     }
     
@@ -194,9 +194,9 @@ class TopUpsController extends AppController{
               
         if ($this->{$this->main_model}->save($entity)) {
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true); 
         } else {
         
             $message = __('Could not create item');
@@ -209,9 +209,9 @@ class TopUpsController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false,'top_ups'); 
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true); 
     }
     
     public function delete() {
@@ -242,14 +242,14 @@ class TopUpsController extends AppController{
         if($fail_flag == true){
             $this->set(array(
                 'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
+                'message'   => __('Could not delete some items'),
             ));
+            $this->viewBuilder()->setOption('serialize', true); 
         }else{
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true); 
         }
 	}
 }

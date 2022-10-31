@@ -346,9 +346,9 @@ class NodeListsController extends AppController{
         $this->set(array(
             'items' => $sortedNodes, //$items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => array('items','success','totalCount')
-        ));           
+            'totalCount' => $total
+        ));
+        $this->viewBuilder()->setOption('serialize', true);           
     }
   
     private function _get_dead_after($mesh_id){

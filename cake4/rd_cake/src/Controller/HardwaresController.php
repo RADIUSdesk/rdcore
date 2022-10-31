@@ -113,9 +113,9 @@ class HardwaresController extends AppController{
         $this->set(array(
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => array('items','success','totalCount')
+            'totalCount' => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function apProfilesList(){
@@ -166,9 +166,9 @@ class HardwaresController extends AppController{
 		    	if($e_check->cloud_id == -1){
 		    		$this->set([
 						'message' 	=> 'Not enough rights for action',
-						'success'	=> false,
-						'_serialize' => ['success','message']
+						'success'	=> false
 					]);
+					$this->viewBuilder()->setOption('serialize', true);
 					return;
 		    	}
 		  	}
@@ -211,9 +211,9 @@ class HardwaresController extends AppController{
                 $this->_processRadios(); //Do the radios
             }         
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -242,9 +242,9 @@ class HardwaresController extends AppController{
             if(($entity->cloud_id == -1)&&($ap_flag == true)){
 	    		$this->set([
 					'message' 	=> 'Not enough rights for action',
-					'success'	=> false,
-					'_serialize' => ['success','message']
+					'success'	=> false
 				]);
+				$this->viewBuilder()->setOption('serialize', true);
 				return;
 	    	}          
             $this->{$this->main_model}->delete($entity);
@@ -255,9 +255,9 @@ class HardwaresController extends AppController{
                 if(($entity->cloud_id == -1)&&($ap_flag == true)){
 					$this->set([
 							'message' 	=> 'Not enough rights for action',
-							'success'	=> false,
-							'_serialize' => ['success','message']
+							'success'	=> false
 						]);
+						$this->viewBuilder()->setOption('serialize', true);
 					return;
 				}      
                 $this->{$this->main_model}->delete($entity);
@@ -265,9 +265,9 @@ class HardwaresController extends AppController{
         }
  
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	public function view(){
@@ -287,9 +287,9 @@ class HardwaresController extends AppController{
                
         $this->set([
             'data'          => $data,
-            'success'       => true,
-            '_serialize'    => ['data','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	public function uploadPhoto($id = null){
@@ -315,9 +315,9 @@ class HardwaresController extends AppController{
         if(($entity->cloud_id == -1)&&($ap_flag == true)){
 			$this->set([
 					'message' 	=> 'Not enough rights for action',
-					'success'	=> false,
-					'_serialize' => ['success','message']
+					'success'	=> false
 				]);
+			$this->viewBuilder()->setOption('serialize', true);
 			return;
 		}      
         
@@ -331,9 +331,9 @@ class HardwaresController extends AppController{
             $this->set([
 		        'success' 			=> true,
 		        'id'      			=> $this->request->getData('id'),
-		        'photo_file_name'	=> $photo_file_name,
-		        '_serialize' => ['success','id','photo_file_name']
-		    ]);            
+		        'photo_file_name'	=> $photo_file_name
+		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);            
                       
         }else{       
             $errors = $entity->getErrors();
@@ -349,10 +349,10 @@ class HardwaresController extends AppController{
             
             $this->set([
 		        'errors' 	=> $a,
-		        'message' 	=> array("message"   => __('Problem uploading photo')),
+		        'message' 	=> __('Problem uploading photo'),
 		        'success'	=> false,
-		        '_serialize' => ['success','message','success']
 		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);
         }
     }
 	
@@ -416,9 +416,9 @@ class HardwaresController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false, 'Hardwares'); 
         $this->set([
             'items' => $menu,
-            'success' => true,
-            '_serialize' => ['items', 'success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     private function _commonList($cloud_id,$item = 'mesh',$id = 'fw_id'){
@@ -479,9 +479,9 @@ class HardwaresController extends AppController{
         $this->set([
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => ['items','success','totalCount']
-        ]);  
+            'totalCount' => $total
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);  
     }
        
 }

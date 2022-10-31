@@ -94,9 +94,9 @@ class ProfilesController extends AppController
         } 
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
 
     }
 
@@ -161,9 +161,9 @@ class ProfilesController extends AppController
         $this->set(array(
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => array('items', 'success', 'totalCount')
+            'totalCount' => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function manageComponents(){
@@ -209,9 +209,9 @@ class ProfilesController extends AppController
         }
 
         $this->set(array(
-            'success'       => true,
-            '_serialize'    => array('success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
        
 	}
 	  
@@ -248,9 +248,9 @@ class ProfilesController extends AppController
             }
         }
 		$this->set([
-            'success' 		=> true,
-            '_serialize' 	=> ['success']
+            'success' 		=> true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	public function simpleAdd(){
@@ -315,9 +315,9 @@ class ProfilesController extends AppController
             $this->_doRadius($e_pc->name);
                        
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -436,9 +436,9 @@ class ProfilesController extends AppController
         if ($this->{$this->main_model}->save($entity)) {
             $this->_doRadius($pc_name);     
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -478,9 +478,9 @@ class ProfilesController extends AppController
 	
 	    $this->set([
             'success' => true,
-            'data' => $data,
-            '_serialize' => ['success','data']
+            'data' => $data
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
     public function menuForGrid()
@@ -493,9 +493,9 @@ class ProfilesController extends AppController
         $menu = $this->GridButtonsFlat->returnButtons(false, 'profiles'); 
         $this->set([
             'items' => $menu,
-            'success' => true,
-            '_serialize' => ['items', 'success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     private function _doRadius($groupname){

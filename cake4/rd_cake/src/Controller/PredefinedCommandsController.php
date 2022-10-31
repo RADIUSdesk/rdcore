@@ -72,9 +72,9 @@ class PredefinedCommandsController extends AppController {
         $this->set([
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total,
-            '_serialize'    => ['items', 'success', 'totalCount']
+            'totalCount'    => $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     
@@ -134,9 +134,9 @@ class PredefinedCommandsController extends AppController {
         $this->set(array(
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => array('items', 'success', 'totalCount')
+            'totalCount' => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function add(){
@@ -188,9 +188,9 @@ class PredefinedCommandsController extends AppController {
               
         if ($this->{$this->main_model}->save($entity)) {
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -224,14 +224,14 @@ class PredefinedCommandsController extends AppController {
         if($fail_flag == true){
             $this->set(array(
                 'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
+                'message'   => __('Could not delete some items'),
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
 	}
 
@@ -245,9 +245,9 @@ class PredefinedCommandsController extends AppController {
         $menu = $this->GridButtonsFlat->returnButtons(false, 'basic'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
 }

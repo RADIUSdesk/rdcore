@@ -33,9 +33,9 @@ class DynamicDetailTranslationsController extends AppController {
     
     public function dummy(){
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
-        ]);    
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);    
     }
 
     public function initialize():void{
@@ -338,9 +338,9 @@ class DynamicDetailTranslationsController extends AppController {
 
         $this->set([
             'data' => [$pnl_gen,$pnlLang,$pnlSocial],
-            'success' => true,
-            '_serialize' => ['data', 'success']
-        ]); 
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
     }
    
     
@@ -385,9 +385,9 @@ class DynamicDetailTranslationsController extends AppController {
           
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function index(){
@@ -423,9 +423,9 @@ class DynamicDetailTranslationsController extends AppController {
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
       
     public function languagesList(){  
@@ -436,9 +436,9 @@ class DynamicDetailTranslationsController extends AppController {
         }
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function pagesList(){
@@ -475,9 +475,9 @@ class DynamicDetailTranslationsController extends AppController {
         }
         $this->set(array(
             'items'         => $items,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
      
     public function keysList(){ 
@@ -489,9 +489,9 @@ class DynamicDetailTranslationsController extends AppController {
         }
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     } 
     
     public function addLanguage(){
@@ -504,9 +504,9 @@ class DynamicDetailTranslationsController extends AppController {
         if ($this->{'DynamicDetailLanguages'}->save($languageEntity)) {
             $this->set(array(
                 'id'        => $languageEntity->id,
-                'success'   => true,
-                '_serialize' => array('success')
+                'success'   => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could Not Create Item');
             $this->JsonErrors->entityErros($languageEntity,$message);
@@ -522,9 +522,9 @@ class DynamicDetailTranslationsController extends AppController {
         $this->{'DynamicDetailLanguages'}->patchEntity($entity, $this->request->getData());
         if ($this->{'DynamicDetailLanguages'}->save($entity)) {
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -542,9 +542,9 @@ class DynamicDetailTranslationsController extends AppController {
         $entity    = $this->{'DynamicDetailLanguages'}->get($this->request->getData('id'));
         $this->{'DynamicDetailLanguages'}->delete($entity);      
         $this->set([
-            'success'       => true,
-            '_serialize'    => ['success']
-        ]);       
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);       
     }
     
     public function addKey(){
@@ -556,9 +556,9 @@ class DynamicDetailTranslationsController extends AppController {
         if ($this->{'DynamicDetailTransKeys'}->save($keyEntity)) {
             $this->set(array(
                 'id'        => $keyEntity->id,
-                'success'   => true,
-                '_serialize' => array('success')
+                'success'   => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could Not Create Item');
             $this->JsonErrors->entityErros($keyEntity,$message);
@@ -579,9 +579,9 @@ class DynamicDetailTranslationsController extends AppController {
         $this->{'DynamicDetailTransKeys'}->patchEntity($entity, $this->request->getData());
         if ($this->{'DynamicDetailTransKeys'}->save($entity)) {
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -602,9 +602,9 @@ class DynamicDetailTranslationsController extends AppController {
         $entity    = $this->{'DynamicDetailTransKeys'}->get($this->request->getData('id'));
         $this->{'DynamicDetailTransKeys'}->delete($entity);      
         $this->set([
-            'success'       => true,
-            '_serialize'    => ['success']
-        ]);      
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);      
     }
     
     public function addPhrase(){
@@ -622,16 +622,16 @@ class DynamicDetailTranslationsController extends AppController {
         if ($this->{'DynamicDetailTranslations'}->save($ent)) {
             $this->set(array(
                 'id'        => $ent->id,
-                'success'   => true,
-                '_serialize' => array('success')
+                'success'   => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }else {
             $message = 'Error';
             $this->set(array(
                 'errors' => $this->JsonErrors->entityErros($ent, $message),
-                'success' => false,
-                '_serialize' => array('errors','success')
+                'success' => false
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }           
     }
     
@@ -664,14 +664,14 @@ class DynamicDetailTranslationsController extends AppController {
         if($fail_flag == true){
             $this->set(array(
                 'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
+                'message'   => __('Could not delete some items')
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }  
     }
     
@@ -686,16 +686,16 @@ class DynamicDetailTranslationsController extends AppController {
             $data = $ent;   
             $this->set([
                 'data'      => $data,
-                'success'   => true,
-                '_serialize' => ['success','data']
-            ]); 
+                'success'   => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true); 
         
         }else{
       
             $this->set([
-                'success' => false,
-                '_serialize' => ['success']
+                'success' => false
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }      
     }
     
@@ -749,9 +749,9 @@ class DynamicDetailTranslationsController extends AppController {
             
         $this->set([
             'data'      => $data,
-            'success'   => true,
-            '_serialize' => ['success','data']
-        ]);     
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);    
     }
        
     public function saveTweaks(){
@@ -836,9 +836,9 @@ class DynamicDetailTranslationsController extends AppController {
         $this->_add_or_edit_piar($dd_id,'default_lang',$default_iso_code); 
                             
         $this->set([
-            'success'   => true,
-            '_serialize' => ['success']
-        ]);     
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);     
     }
     
     public function viewPhotoTranslation(){
@@ -865,9 +865,9 @@ class DynamicDetailTranslationsController extends AppController {
          
         $this->set([
             'data'      => $data,
-            'success'   => true,
-            '_serialize' => ['success','data']
-        ]);  
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);  
     }
     
     public function savePhotoTranslation(){
@@ -898,9 +898,9 @@ class DynamicDetailTranslationsController extends AppController {
                     //Delete and return           
                     $this->{'DynamicPhotoTranslations'}->delete($entity);
                     $this->set(array(
-                        'success' => true,
-                        '_serialize' => array('success')
+                        'success' => true
                     ));
+                    $this->viewBuilder()->setOption('serialize', true);
                     return;
                 }else{                         
                     $this->{'DynamicPhotoTranslations'}->patchEntity($entity,$post_data);
@@ -912,18 +912,18 @@ class DynamicDetailTranslationsController extends AppController {
              
             if ($this->{'DynamicPhotoTranslations'}->save($entity)) {
                 $this->set(array(
-                    'success' => true,
-                    '_serialize' => array('success')
+                    'success' => true
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
             } else {
                 $message = __('Could not update item');
                 $this->JsonErrors->entityErros($entity,$message);
             }
         }else{
             $this->set([
-                'success' => false,
-                '_serialize' => array('success')
+                'success' => false
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
     
@@ -940,9 +940,9 @@ class DynamicDetailTranslationsController extends AppController {
         
         if ($this->{'DynamicPairs'}->save($entity)) {
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);

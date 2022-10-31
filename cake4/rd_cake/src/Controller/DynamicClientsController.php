@@ -150,9 +150,9 @@ class DynamicClientsController extends AppController{
         $this->set([
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => ['items','success','totalCount']
+            'totalCount' => $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function add() {
@@ -217,9 +217,9 @@ class DynamicClientsController extends AppController{
 
             $this->set([
                 'success' => true,
-                'data'      => $cdata,
-                '_serialize' => ['success','data']
+                'data'      => $cdata
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = 'Error';
             $this->JsonErrors->entityErros($modelEntity,$message);
@@ -247,9 +247,9 @@ class DynamicClientsController extends AppController{
             }
         }
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function edit(){
@@ -283,9 +283,9 @@ class DynamicClientsController extends AppController{
 
             if ($this->{$this->main_model}->save($modelEntity)) {
                 $this->set([
-                    'success' => true,
-                    '_serialize' => ['success']
+                    'success' => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
             }
         }
     }
@@ -310,9 +310,9 @@ class DynamicClientsController extends AppController{
         }
         $this->set([
             'data'   => $data,
-            'success' => true,
-            '_serialize' => ['success','data']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function viewPhoto(){
@@ -334,9 +334,9 @@ class DynamicClientsController extends AppController{
 
         $this->set([
             'data'   => $items, //For the form to load we use data instead of the standard items as for grids
-            'success' => true,
-            '_serialize' => ['success','data']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function uploadPhoto($id = null){
@@ -365,18 +365,18 @@ class DynamicClientsController extends AppController{
            	$this->set([
 		        'success' 			=> true,
 		        'id'      			=> $uploadEntity->id,
-		        'photo_file_name'	=> $unique.'.'.$path_parts['extension'],
-		        '_serialize' => ['success','id','photo_file_name']
-		    ]);           
+		        'photo_file_name'	=> $unique.'.'.$path_parts['extension']
+		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);           
             
         }else{
             $message = 'Error';
             $this->set([
 		        'success' 	=> false,
 		        'errors'  	=> $this->JsonErrors->entityErros($uploadEntity, $message),
-		        'message'	=> array("message"   => __('Problem uploading photo')),
-		        '_serialize' => ['success','errors','message']
-		    ]);           
+		        'message'	=> __('Problem uploading photo')
+		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);           
         }
         //$this->set('json_return',$json_return);
     }
@@ -389,11 +389,11 @@ class DynamicClientsController extends AppController{
         }
          
         $menu = $this->GridButtonsFlat->returnButtons(false, 'DynamicClients'); 
-        $this->set(array(
+        $this->set([
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
-        ));
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
  
     private function _add_dynamic_client_realm($dynamic_client_id,$realm_id){

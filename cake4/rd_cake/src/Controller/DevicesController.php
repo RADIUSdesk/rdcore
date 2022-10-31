@@ -78,10 +78,13 @@ class DevicesController extends AppController{
             }
         }
         
-        $_serialize = 'data';
         $this->setResponse($this->getResponse()->withDownload('Devices.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
-        $this->set(compact('data', '_serialize'));  
+        
+        $this->set([
+            'data'   => $data
+        ]);     
+        $this->viewBuilder()->setOption('serialize', true);
     } 
 
     public function index(){
@@ -157,9 +160,9 @@ class DevicesController extends AppController{
         $this->set(array(
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total,
-            '_serialize'    => array('items','success','totalCount')
+            'totalCount'    => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
 
@@ -239,9 +242,9 @@ class DevicesController extends AppController{
          
         if($this->{$this->main_model}->save($entity)){
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $message = __('Could not create item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -277,9 +280,9 @@ class DevicesController extends AppController{
             }
         }
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 
     public function enableDisable(){
@@ -306,10 +309,10 @@ class DevicesController extends AppController{
                 $this->{$this->main_model}->save($entity);
             }
         }
-        $this->set(array(
-            'success' => true,
-            '_serialize' => array('success',)
-        ));
+        $this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
      public function privateAttrIndex(){
@@ -322,11 +325,11 @@ class DevicesController extends AppController{
         $username   = $this->request->getQuery('username');
         $items      =  $this->{$this->main_model}->privateAttrIndex($username);
 
-        $this->set(array(
+        $this->set([
             'items'         => $items,
-            'success'       => true,
-            '_serialize'    => array('items','success')
-        ));
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
      public function viewBasicInfo(){
@@ -364,11 +367,11 @@ class DevicesController extends AppController{
         }
 
 
-        $this->set(array(
+        $this->set(
             'data'   => $items, //For the form to load we use data instead of the standard items as for grids
-            'success' => true,
-            '_serialize' => array('success','data')
-        ));
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function editBasicInfo(){
@@ -407,10 +410,10 @@ class DevicesController extends AppController{
         $this->{$this->main_model}->patchEntity($entity, $req_d);
      
         if ($this->{$this->main_model}->save($entity)) {
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
+            $this->set([
+                'success' => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -435,9 +438,9 @@ class DevicesController extends AppController{
             $req_d['id'] = $entity->id;
             $this->set(array(
                 'items'     => $req_d,
-                'success'   => true,
-                '_serialize' => array('success','items')
+                'success'   => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
 
@@ -459,9 +462,9 @@ class DevicesController extends AppController{
             $req_d['id'] = $entity->id;
             $this->set(array(
                 'items'     => $req_d,
-                'success'   => true,
-                '_serialize' => array('success','items')
+                'success'   => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
 
@@ -477,9 +480,9 @@ class DevicesController extends AppController{
             $this->JsonErrors->errorMessage($message);  
         }else{
             $this->set(array(
-                'success'   => true,
-                '_serialize' => array('success')
+                'success'   => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
 
@@ -498,9 +501,9 @@ class DevicesController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false,'devices');
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     function menuForAccountingData(){
@@ -518,9 +521,9 @@ class DevicesController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false,'fr_acct_and_auth');
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     function menuForAuthenticationData(){
@@ -538,9 +541,9 @@ class DevicesController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false,'fr_acct_and_auth');
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 }
 

@@ -73,15 +73,15 @@ class UserStatsController extends AppController {
                 ],
                 'totalIn'       => $ret_info['total_in'],
                 'totalOut'      => $ret_info['total_out'],
-                'totalInOut'    => $ret_info['total_in_out'],
-                '_serialize'    => ['items','totalIn','totalOut', 'totalInOut','metaData','success']
+                'totalInOut'    => $ret_info['total_in_out']
             ]);
+            
         }else{
             $this->set([
-                'success'       => false,
-                '_serialize'    => ['success']
+                'success'       => false
             ]);
         }
+        $this->viewBuilder()->setOption('serialize', true); 
     }
 
     private function _getDaily($day){

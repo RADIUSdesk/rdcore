@@ -1009,11 +1009,11 @@ class CloudsController extends AppController {
             ]); 
         }
                        
-        $this->set(array(
+        $this->set([
             'items' => $items,
             'total' => $total,
             'success' => true
-        ));
+        ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
     

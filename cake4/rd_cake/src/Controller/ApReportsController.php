@@ -51,12 +51,12 @@ class ApReportsController extends AppController {
 
 		//Handy for debug to see what has been submitted
         //file_put_contents('/tmp/ap_report.txt', print_r($this->request->getData(), true));
-        $this->set(array(
+        $this->set([
             'items'         => $fb,
             'reboot_flag'   => $this->rebootFlag,
-            'success'       => true,
-            '_serialize' => ['items', 'success','reboot_flag']
-        ));
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     //______ AP View ______________
@@ -85,9 +85,9 @@ class ApReportsController extends AppController {
         }
         $this->set([
             'items'   => $items,
-            'success' => true,
-            '_serialize' => ['items','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     //Overview of Access Point Hardware and Firmware
@@ -186,11 +186,11 @@ class ApReportsController extends AppController {
                 }
             }
         }
-         $this->set([
+        $this->set([
             'data'   => $data,
-            'success' => true,
-            '_serialize' => ['data','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
       
     //Chart for AccessPoint Data Usage
@@ -329,9 +329,9 @@ class ApReportsController extends AppController {
             'success' => true,
             'totalIn'   => $totalIn,
             'totalOut'  => $totalOut,
-            'totalInOut'=> $totalInOut,
-            '_serialize' => ['items','success','totalIn','totalOut','totalInOut']
+            'totalInOut'=> $totalInOut
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     //Chart for AccessPiont Connected users
@@ -451,9 +451,9 @@ class ApReportsController extends AppController {
         $this->set([
             'items'         => $items,
             'success'       => true,
-            'totalUsers'    => $totalUsers,
-            '_serialize' => ['items','success','totalUsers']
+            'totalUsers'    => $totalUsers
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     //------- END AP View ---------------
@@ -469,9 +469,9 @@ class ApReportsController extends AppController {
 		if(null == $this->request->getQuery('ap_id')){
 			$this->set([
 		        'message'	=> ["message"	=>"AP ID (ap_id) missing"],
-		        'success' => false,
-		        '_serialize' => ['success','message']
+		        'success' => false
 		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);
 			return;
 		}
 
@@ -595,9 +595,9 @@ class ApReportsController extends AppController {
 		 
         $this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => ['items','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
 

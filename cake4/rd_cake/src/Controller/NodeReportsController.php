@@ -103,9 +103,9 @@ class NodeReportsController extends AppController {
         $items = [];  
         $this->set([
             'items'         => $items,
-            'success'       => true,
-            '_serialize'    => ['items','success']
-        ]);    
+            'success'       => true
+        ]); 
+        $this->viewBuilder()->setOption('serialize', true);   
     }
     
     public function startScanForNode(){
@@ -135,9 +135,9 @@ class NodeReportsController extends AppController {
         $items = [];  
         $this->set([
             'items'         => $items,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     
     }
      
@@ -251,7 +251,7 @@ class NodeReportsController extends AppController {
         }
                 
          
-        $this->set(array(
+        $this->set([
             'items'    => $items,
             'metaData' => [
                 'no_scan_data'      => $no_scan_data,
@@ -263,9 +263,9 @@ class NodeReportsController extends AppController {
                 'awaiting_time_human' => $awaiting_human,
                 'entries'           => $entries      
             ] ,
-            'success' => true,
-            '_serialize' => array('items','metaData', 'success')
-        ));
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
 
     }
       
@@ -299,9 +299,9 @@ class NodeReportsController extends AppController {
     
         $this->set([
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function removeScansForNode(){ 
@@ -317,9 +317,9 @@ class NodeReportsController extends AppController {
         $items = [];  
         $this->set([
             'items'         => $items,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function submitReport(){
@@ -343,9 +343,9 @@ class NodeReportsController extends AppController {
                // 'data'          => $this->request->getData(),
                 'reboot_flag'   => $this->rebootFlag,
                 'reporting'     => $this->repSettings,
-                'success'       => true,
-                '_serialize' => array('items', 'success','reboot_flag','reporting')
-            ));    
+                'success'       => true
+            )); 
+            $this->viewBuilder()->setOption('serialize', true);   
         
         }else{
             $fb = $this->_new_report();
@@ -353,20 +353,19 @@ class NodeReportsController extends AppController {
                 'items'         => $fb,
                 'reboot_flag'   => $this->rebootFlag,
                 'timestamp'     => $this->UptmTimestamp,
-                'success'       => true,
-                '_serialize' => array('items', 'success','timestamp','reboot_flag')
-            )); 
+                'success'       => true
+            ));
+            $this->viewBuilder()->setOption('serialize', true); 
         } 
     }
     
     public function index(){  
         $items = [];      
         $this->set(array(
-            'items' => $items,
-            
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'items' => $items,        
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     //===***===   

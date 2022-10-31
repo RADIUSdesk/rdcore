@@ -62,9 +62,9 @@ class RealmsController extends AppController{
         } 
         $this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => ['items', 'success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function exportCsv(){
@@ -105,10 +105,10 @@ class RealmsController extends AppController{
             }
         }
         
-        $_serialize = 'data';
         $this->setResponse($this->getResponse()->withDownload('Realms.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
-        $this->set(compact('data', '_serialize'));  
+        $this->set(['data' => $data]);   
+        $this->viewBuilder()->setOption('serialize', true);  
         
     } 
 
@@ -162,9 +162,9 @@ class RealmsController extends AppController{
         $this->set([
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => ['items','success','totalCount']
+            'totalCount' => $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function add(){
@@ -211,9 +211,9 @@ class RealmsController extends AppController{
               
         if ($this->{$this->main_model}->save($entity)) {
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = 'Error';           
             $errors = $entity->errors();
@@ -230,9 +230,9 @@ class RealmsController extends AppController{
             $this->set([
                 'errors'    => $a,
                 'success'   => false,
-                'message'   => ['message' => __('Could not create item')],
-                '_serialize' => ['errors','success','message']
+                'message'   => __('Could not create item'),
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
 	}
 	
@@ -254,9 +254,9 @@ class RealmsController extends AppController{
         }      
         $this->set([
             'data'      => $data,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 	
     public function menuForGrid(){
@@ -269,9 +269,9 @@ class RealmsController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false,'realms'); //No "Action" title basic refresh/add/delete/edit
         $this->set([
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
  
     public function delete($id = null) {
@@ -297,9 +297,9 @@ class RealmsController extends AppController{
             }
         }         
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	public function uploadLogo($id = null){
@@ -334,9 +334,9 @@ class RealmsController extends AppController{
             $this->set([
 		        'success' 			=> true,
 		        'id'      			=> $this->request->getData('id'),
-		        'icon_file_name'	=> $icon_file_name,
-		        '_serialize' => ['success','id','icon_file_name']
-		    ]);                
+		        'icon_file_name'	=> $icon_file_name
+		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);                
             
         }else{       
             $errors = $entity->errors();
@@ -352,10 +352,10 @@ class RealmsController extends AppController{
             
             $this->set([
 		        'errors' 	=> $a,
-		        'message' 	=> array("message"   => __('Problem uploading photo')),
-		        'success'	=> false,
-		        '_serialize' => ['success','message','success']
+		        'message' 	=> __('Problem uploading photo'),
+		        'success'	=> false
 		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);
                         
         }      
     }    
@@ -410,9 +410,9 @@ class RealmsController extends AppController{
         
         $this->set([
             'items'     	=> $items,
-            'success'   	=> true,
-            '_serialize' 	=> ['items','success']
-        ]);  
+            'success'   	=> true
+        ]); 
+        $this->viewBuilder()->setOption('serialize', true); 
     }
     
     public function updateDynamicClientRealm(){
@@ -463,9 +463,9 @@ class RealmsController extends AppController{
         }
         
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function listRealmsForNasCloud(){
@@ -505,9 +505,9 @@ class RealmsController extends AppController{
         			if($user['group_name'] == Configure::read('group.ap')){
 		    				$this->set([
 							'message' 	=> 'Not enough rights for action',
-							'success'	=> false,
-							'_serialize' => ['success','message']
+							'success'	=> false
 						]);
+						$this->viewBuilder()->setOption('serialize', true);
 						return;	
         			}
         			//If it is System Wide ONLY remove Realms with the selected cloud_id 
@@ -542,9 +542,9 @@ class RealmsController extends AppController{
         
         $this->set([
             'items'     	=> $items,
-            'success'   	=> true,
-            '_serialize' 	=> ['items','success']
-        ]);  
+            'success'   	=> true
+        ]); 
+        $this->viewBuilder()->setOption('serialize', true); 
     }
     
     public function updateNasRealm(){
@@ -595,8 +595,8 @@ class RealmsController extends AppController{
         }
         
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }                    
 }

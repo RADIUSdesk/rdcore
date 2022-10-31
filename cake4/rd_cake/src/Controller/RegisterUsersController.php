@@ -32,17 +32,17 @@ class RegisterUsersController extends AppController {
 		    if(!$q_r){
 		         $this->set([
 				    'success'   => false,
-				    'errors'	=> ['Login Page ID' => 'Page not found in database'],
-					    '_serialize' => ['success','errors']
+				    'errors'	=> ['Login Page ID' => 'Page not found in database']
 			    ]);
+			    $this->viewBuilder()->setOption('serialize', true);
 			    return;
 		    }
 		}else{
 		    $this->set([
 				'success'   => false,
-				'errors'	=> ['Login Page ID' => 'Login Page ID missing'],
-					'_serialize' => ['success','errors']
+				'errors'	=> ['Login Page ID' => 'Login Page ID missing']
 			]);
+			$this->viewBuilder()->setOption('serialize', true);
 			return;
 		}
 		
@@ -50,8 +50,8 @@ class RegisterUsersController extends AppController {
 		    $this->set([
 				'success'   => false,
 				'errors'	=> ['Registration forbidden' => 'User Registration not allowed'],
-					'_serialize' => ['success','errors']
 			]);
+			$this->viewBuilder()->setOption('serialize', true);
 			return; 
 		}
 		
@@ -68,9 +68,9 @@ class RegisterUsersController extends AppController {
 				if($mac == ''){//Can't use empty MACs
 				    $this->set([
 				        'success'   => false,
-				        'errors'	=> ['Address not specified' => 'MAC Address not specified'],
-					        '_serialize' => ['success','errors']
+				        'errors'	=> ['Address not specified' => 'MAC Address not specified']
 			        ]);
+			        $this->viewBuilder()->setOption('serialize', true);
 			        return;
 				}
 
@@ -80,18 +80,18 @@ class RegisterUsersController extends AppController {
 					$already_username = $q->username;
 					$this->set([
 						'success'   => false,
-						'errors'	=> ['username' => "MAC Address $mac in use by $already_username"],
-							'_serialize' => ['success','errors']
+						'errors'	=> ['username' => "MAC Address $mac in use by $already_username"]
 					]);
+					$this->viewBuilder()->setOption('serialize', true);
 					return;
 				}
 			}else{
 
 				$this->set([
 					'success'   => false,
-					'errors'	=> ['Device ID Missing' => 'Device MAC not in request'],
-						'_serialize' => ['success','errors']
+					'errors'	=> ['Device ID Missing' => 'Device MAC not in request']
 				]);
+				$this->viewBuilder()->setOption('serialize', true);
 				return;
 			}
 		}
@@ -186,9 +186,9 @@ class RegisterUsersController extends AppController {
 			$this->set([
             'success'   => $responseData['success'],
 			'errors'	=> $responseData['errors'],
-			'message'	=> $responseData['message'],
-		        '_serialize' => ['success','errors','message']
+			'message'	=> $responseData['message']
 		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);
 		}
 
 		if($responseData['success'] == true){
@@ -223,9 +223,9 @@ class RegisterUsersController extends AppController {
                     
 			$this->set([
             'success'   => $responseData['success'],
-			'data'		=> $postData,
-		        '_serialize' => ['success','data']
+			'data'		=> $postData
 		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);
 		}
 	}
 
@@ -283,9 +283,9 @@ class RegisterUsersController extends AppController {
 
 		$this->set([
         'success'   => $success,
-		'message'   => 'User Not Found',
-	        '_serialize' => ['success','message']
+		'message'   => 'User Not Found'
 	    ]);
+	    $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	public function wipSms(){	
@@ -293,9 +293,9 @@ class RegisterUsersController extends AppController {
 	    //$this->_sms_lost_password('27725963050',"Ussername: dirkvanderwalt@gmail.com@vt\nPassword: 12345678");	    
 	    $this->set([
         'success'   => $success,
-		'message'   => 'User Not Found',
-	        '_serialize' => ['success','message']
+		'message'   => 'User Not Found'
 	    ]);
+	    $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	private function _sms_lost_password($phone,$message){

@@ -96,11 +96,13 @@ class NasController extends AppController{
                 array_push($data,$csv_line);
             }
         }
-        
-        $_serialize = 'data';
+       
         $this->setResponse($this->getResponse()->withDownload('export.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
-        $this->set(compact('data', '_serialize'));  
+         $this->set([
+            'data'=> $data
+        ]);       
+        $this->viewBuilder()->setOption('serialize', true); 
 
     } 
       
@@ -205,8 +207,8 @@ class NasController extends AppController{
             'items' => $items,
             'success' => true,
             'totalCount' => $total,
-            '_serialize' => ['items','success','totalCount']
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
         
     }
     
@@ -255,9 +257,9 @@ class NasController extends AppController{
             $cdata['id'] = $modelEntity->id;
             $this->set([
                 'success' => true,
-                'data'      => $cdata,
-                '_serialize' => ['success','data']
+                'data'      => $cdata
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = 'Error';
             $this->JsonErrors->entityErros($modelEntity,$message);
@@ -286,9 +288,9 @@ class NasController extends AppController{
         }
         $this->set([
             'data'   => $data,
-            'success' => true,
-            '_serialize' => ['success','data']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     
@@ -308,9 +310,9 @@ class NasController extends AppController{
 		    	if($e_check->cloud_id == -1){
 		    		$this->set([
 						'message' 	=> 'Not enough rights for action',
-						'success'	=> false,
-						'_serialize' => ['success','message']
+						'success'	=> false
 					]);
+					$this->viewBuilder()->setOption('serialize', true);
 					return;
 		    	}
 		  	}
@@ -349,9 +351,9 @@ class NasController extends AppController{
 					$this->{$this->modelClass}->NaStates->deleteAll(['na_id' => $cdata['id']], false);
 				}
                 $this->set([
-                    'success' => true,
-                    '_serialize' => ['success']
+                    'success' => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
             }
         }
     }
@@ -377,9 +379,9 @@ class NasController extends AppController{
             if(($entity->cloud_id == -1)&&($ap_flag == true)){
 	    		$this->set([
 					'message' 	=> 'Not enough rights for action',
-					'success'	=> false,
-					'_serialize' => ['success','message']
+					'success'	=> false
 				]);
+				$this->viewBuilder()->setOption('serialize', true);
 				return;
 	    	}          
             $this->{$this->main_model}->delete($entity);
@@ -390,9 +392,9 @@ class NasController extends AppController{
                 if(($entity->cloud_id == -1)&&($ap_flag == true)){
 					$this->set([
 							'message' 	=> 'Not enough rights for action',
-							'success'	=> false,
-							'_serialize' => ['success','message']
+							'success'	=> false
 						]);
+					$this->viewBuilder()->setOption('serialize', true);	
 					return;
 				}      
                 $this->{$this->main_model}->delete($entity);
@@ -400,9 +402,9 @@ class NasController extends AppController{
        	}
        	
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
 	
@@ -417,12 +419,13 @@ class NasController extends AppController{
                 array_push($items, $i);
             }
         }
-
-        $this->set(array(
-            'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
-        ));
+        
+        $this->set([
+            'items' 	=> $items,
+            'success' 	=> true
+        ]);
+        
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
 
@@ -435,9 +438,9 @@ class NasController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false,'nas');
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     private function _add_na_realm($nas_id,$realm_id){

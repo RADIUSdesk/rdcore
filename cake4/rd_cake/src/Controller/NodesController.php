@@ -61,9 +61,9 @@ class NodesController extends AppController {
                     'timestamp'         => $json['timestamp'],
                     'mode'              => 'ap',
                     'meta_data'         => $json['meta_data'],
-                    'success'           => true,
-                    '_serialize'        => ['config_settings','success','timestamp','meta_data','mode']
+                    'success'           => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
                 return;
             }           
             
@@ -81,9 +81,9 @@ class NodesController extends AppController {
                     'timestamp'         => $json['timestamp'],
                     'mode'              => 'mesh',
                     'meta_data'         => $json['meta_data'],
-                    'success'           => true,
-                    '_serialize'        => ['config_settings','success','timestamp','meta_data','mode']
+                    'success'           => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
                   
             }else{
                 $this->Unknowns->RecordUnknownNode();
@@ -120,9 +120,9 @@ class NodesController extends AppController {
         } 
 
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function index(){
@@ -136,9 +136,9 @@ class NodesController extends AppController {
        
         //___ FINAL PART ___
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function redirectUnknown(){
@@ -150,9 +150,9 @@ class NodesController extends AppController {
 
         if ($this->{'UnknownNodes'}->save($unknownEntity)) {
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
             
         }else{
             $message = __('Could not update item');
@@ -169,9 +169,9 @@ class NodesController extends AppController {
 
         if ($this->{'UnknownNodes'}->save($unknownEntity)) {
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($unknownEntity,$message);

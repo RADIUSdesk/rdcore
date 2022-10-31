@@ -97,9 +97,9 @@ class DataUsagesController extends AppController {
 
         $this->set([
             'data' => $data,
-            'success' => true,
-            '_serialize' => ['data','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     //--Read (the whole lot)
@@ -200,9 +200,9 @@ class DataUsagesController extends AppController {
         
         $this->set([
             'data' => $data,
-            'success' => true,
-            '_serialize' => ['data','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function macsForUser(){
@@ -212,9 +212,9 @@ class DataUsagesController extends AppController {
              $this->set([
                 'items' => [],
                 'totalCount'  => [],
-                'success' => true,
-                '_serialize' => ['items','success','totalCount']
-            ]);  
+                'success' => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);  
             return;
         }
         
@@ -355,9 +355,9 @@ class DataUsagesController extends AppController {
                 'totalCount'    => $count  
             ] ,
             'totalCount'    => $count,
-            'success'       => true,
-            '_serialize'    => ['items','success','totalCount','metaData']
-        ]);    
+            'success'       => true
+        ]);
+		$this->viewBuilder()->setOption('serialize', true);  
     }
     
     private function _setTimezone(){ 

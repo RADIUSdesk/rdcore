@@ -50,9 +50,9 @@ class ProfileComponentsController extends AppController {
         }
         $this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => ['items','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function attributes(){
@@ -67,9 +67,9 @@ class ProfileComponentsController extends AppController {
         }
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function indexComp(){
@@ -114,9 +114,9 @@ class ProfileComponentsController extends AppController {
         }
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function addComp(){
@@ -138,9 +138,9 @@ class ProfileComponentsController extends AppController {
                     $req_d['id'] = $id;
                     $this->set(array(
                         'items'     => $req_d,
-                        'success' => true,
-                        '_serialize' => array('success','items')
+                        'success' => true
                     ));
+                    $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not create item');
                     $this->JsonErrors->entityErros($entity,$message);
@@ -155,9 +155,9 @@ class ProfileComponentsController extends AppController {
                     $req_d['id'] = $id;
                     $this->set(array(
                         'items'     => $req_d,
-                        'success'   => true,
-                        '_serialize' => array('success','items')
+                        'success'   => true
                     ));
+                    $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not create item');
                     $this->JsonErrors->entityErros($entity,$message);
@@ -186,9 +186,9 @@ class ProfileComponentsController extends AppController {
                     $req_d['id'] = $id;
                     $this->set(array(
                         'items'     => $req_d,
-                        'success'   => true,
-                        '_serialize' => array('success','items')
+                        'success'   => true
                     ));
+                    $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not edit item');
                     $this->JsonErrors->entityErros($entity,$message);
@@ -208,9 +208,9 @@ class ProfileComponentsController extends AppController {
                     $req_d['id'] = $id;
                     $this->set(array(
                         'items'     => $req_d,
-                        'success'   => true,
-                        '_serialize' => array('success','items')
+                        'success'   => true
                     ));
+                    $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not edit item');
                     $this->JsonErrors->entityErros($entity,$message);
@@ -235,9 +235,9 @@ class ProfileComponentsController extends AppController {
                     $req_d['id'] = $id;
                     $this->set(array(
                         'items'     => $req_d,
-                        'success'   => true,
-                        '_serialize' => array('success','items')
+                        'success'   => true
                     ));
+                    $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not edit item');
                     $this->JsonErrors->entityErros($entity,$message);
@@ -261,9 +261,9 @@ class ProfileComponentsController extends AppController {
                     $req_d['id'] = $id;
                     $this->set(array(
                         'items'     => $req_d,
-                        'success'   => true,
-                        '_serialize' => array('success','items')
+                        'success'   => true
                     ));
+                    $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not edit item');
                     $this->JsonErrors->entityErros($entity,$message);
@@ -318,9 +318,9 @@ class ProfileComponentsController extends AppController {
             $this->JsonErrors->entityErros($entity,$message);
         }else{
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
 
@@ -378,9 +378,9 @@ class ProfileComponentsController extends AppController {
         $this->set([
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => ['items', 'success', 'totalCount']
+            'totalCount' => $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function add(){   
@@ -404,9 +404,9 @@ class ProfileComponentsController extends AppController {
               
         if ($this->{$this->main_model}->save($entity)) {
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -428,9 +428,9 @@ class ProfileComponentsController extends AppController {
             }
         }
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 
     public function menuForGrid()
@@ -443,8 +443,8 @@ class ProfileComponentsController extends AppController {
         $menu = $this->GridButtonsFlat->returnButtons( false, 'basic'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 }

@@ -158,9 +158,9 @@ class MeshesController extends AppController{
                 'nodes_up'      => $nodes_up,  
             ],
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => array('items', 'success', 'totalCount','metaData')
+            'totalCount' => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     
@@ -183,9 +183,9 @@ class MeshesController extends AppController{
         }            
         if ($this->{$this->main_model}->save($entity)) {
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -209,9 +209,9 @@ class MeshesController extends AppController{
             }
         }  
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	public function view(){
@@ -230,9 +230,9 @@ class MeshesController extends AppController{
         
         $this->set(array(
             'data'      => $data,
-            'success'   => true,
-            '_serialize'=> array('success', 'data')
+            'success'   => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	 
     //======= MESH entries ============
@@ -275,9 +275,9 @@ class MeshesController extends AppController{
         $this->set(array(
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => array('items','success','totalCount')
+            'totalCount' => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function meshEntryAdd(){
@@ -315,17 +315,17 @@ class MeshesController extends AppController{
             }
         
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true              
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = 'Error';
             $this->set(array(
                 'errors'    => $this->JsonErrors->entityErros($entity, $message),
                 'success'   => false,
-                'message'   => array('message' => __('Could not create item')),
-                '_serialize' => array('errors','success','message')
+                'message'   => array('message' => __('Could not create item'))
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
     
@@ -366,9 +366,9 @@ class MeshesController extends AppController{
             // If the form data can be validated and saved...
             if ($this->{'MeshEntries'}->save($entity)) {
                    $this->set(array(
-                    'success' => true,
-                    '_serialize' => array('success')
+                    'success' => true
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
             }
         } 
     }
@@ -395,9 +395,9 @@ class MeshesController extends AppController{
         
         $this->set(array(
             'items'     => $items,
-            'success'   => true,
-            '_serialize'=> array('success', 'items')
+            'success'   => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function meshNodesView(){
@@ -422,9 +422,9 @@ class MeshesController extends AppController{
         
         $this->set(array(
             'items'     => $items,
-            'success'   => true,
-            '_serialize'=> array('success', 'items')
+            'success'   => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     
@@ -453,8 +453,8 @@ class MeshesController extends AppController{
         $this->set([
             'data'     => $data,
             'success'   => true,
-            '_serialize'=> ['success', 'data']
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function meshEntryDelete(){
@@ -482,9 +482,9 @@ class MeshesController extends AppController{
             }
         }  
         $this->set(array(
-            'success' => true,
-            '_serialize' => array('success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     //======= MESH settings =======
@@ -528,9 +528,9 @@ class MeshesController extends AppController{
         
         $this->set([
             'data'      => $data,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function meshChangeTag(){
@@ -562,9 +562,9 @@ class MeshesController extends AppController{
         }
     
         $this->set(array(
-            'success'   => true,
-            '_serialize'=> array('success')
+            'success'   => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function meshSettingsEdit(){
@@ -609,9 +609,9 @@ class MeshesController extends AppController{
             
             if ($this->{'MeshSettings'}->save($entity)) {
                 $this->set(array(
-                    'success' => true,
-                    '_serialize' => array('success')
+                    'success' => true
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
             } else {
                 $message = __('Could not update item');
                 $this->JsonErrors->entityErros($entity,$message);
@@ -653,9 +653,9 @@ class MeshesController extends AppController{
             $this->{$this->main_model}->patchEntity($e, $req_d);
             if($this->{$this->main_model}->save($e)){
                 $this->set(array(
-                    'success' => true,
-                    '_serialize' => array('success')
+                    'success' => true
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
             
             }else{
                 $message = __('Could not update item');
@@ -714,9 +714,9 @@ class MeshesController extends AppController{
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
        
     public function meshExitAdd(){
@@ -926,18 +926,17 @@ class MeshesController extends AppController{
             }
 
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
         }else{
             $message = 'Error';
             $this->set(array(
                 'errors'    => $this->JsonErrors->entityErros($entity, $message),
                 'success'   => false,
-                'message'   => array('message' => __('Could not create item')),
-                '_serialize' => array('errors','success','message')
+                'message'   => __('Could not create item')
             ));
         }
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
      public function meshExitView(){
@@ -991,9 +990,9 @@ class MeshesController extends AppController{
 
         $this->set([
             'data'      => $data,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function meshExitDelete(){
@@ -1037,9 +1036,9 @@ class MeshesController extends AppController{
             }
         }  
         $this->set(array(
-            'success' => true,
-            '_serialize' => array('success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function meshExitEdit(){
@@ -1236,10 +1235,10 @@ class MeshesController extends AppController{
                     }
                 }
 
-                $this->set(array(
-                    'success' => true,
-                    '_serialize' => array('success')
-                ));
+                $this->set([
+                    'success' => true
+                ]);
+                $this->viewBuilder()->setOption('serialize', true);
             }
         } 
     } 
@@ -1272,9 +1271,9 @@ class MeshesController extends AppController{
         
         $this->set([
             'items'     => $items,
-            'success'   => true,
-            '_serialize'=> ['success', 'items']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function meshExitAddDefaults(){
@@ -1297,9 +1296,9 @@ class MeshesController extends AppController{
         }
         $this->set([
             'data'      => $data,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     //===== Mesh nodes ======
     
@@ -1393,11 +1392,11 @@ class MeshesController extends AppController{
         //==END OCT 2022 ADD ON===
         
          
-        $this->set(array(
+        $this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
-        ));
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     
@@ -1415,9 +1414,9 @@ class MeshesController extends AppController{
 
         $this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => ['items','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     //-- List available hardware options --
@@ -1447,9 +1446,9 @@ class MeshesController extends AppController{
 		    $items['google_map_api_key'] = Configure::read('mesh_specifics.map.api_key');
 			$this->set([
 		        'data'	        => $items,
-		        'success'       => true,
-		        '_serialize'    => ['success','data']
+		        'success'       => true
 		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);
 			return;
 		}
 
@@ -1518,9 +1517,9 @@ class MeshesController extends AppController{
         }
         $this->set([
             'data'   => $items, //For the form to load we use data instead of the standard items as for grids
-            'success' => true,
-            '_serialize' => ['success','data']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
 	public function mapPrefEdit(){
@@ -1545,9 +1544,9 @@ class MeshesController extends AppController{
             }        
         }
         $this->set(array(
-            'success' => true,
-            '_serialize' => array('success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 
 	public function mapNodeSave(){
@@ -1573,9 +1572,9 @@ class MeshesController extends AppController{
         }
 
 		$this->set(array(
-            'success' => true,
-            '_serialize' => array('success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 
 	public function mapNodeDelete(){	
@@ -1595,9 +1594,9 @@ class MeshesController extends AppController{
 		    }
         }
 		$this->set(array(
-            'success' => true,
-            '_serialize' => array('success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 
 	public function nodesAvailForMap(){
@@ -1611,9 +1610,9 @@ class MeshesController extends AppController{
 		if(!isset($req_q['mesh_id'])){
 			$this->set([
 		        'message'	    => ["message"	=>"Mesh ID (mesh_id) missing"],
-		        'success'       => false,
-		        '_serialize'    => ['success','message']
+		        'success'       => false
 		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);
 			return;
 		}
 	    $this->loadModel('Nodes');
@@ -1631,9 +1630,9 @@ class MeshesController extends AppController{
 
 		$this->set([
             'items'         => $items,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 
 //===========END PORT MAPS====================
@@ -1737,9 +1736,9 @@ class MeshesController extends AppController{
         //___ FINAL PART ___
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
 
     }
 
@@ -1768,11 +1767,11 @@ class MeshesController extends AppController{
             array_push($data, ['id'=> $i->id,'name' => $i->type,'type'=> $i->type,'entries' => $entries]);
         }
 
-        $this->set(array(
+        $this->set([
             'items'     => $data,
-            'success'   => true,
-            '_serialize'=> array('success', 'items')
-        ));
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function nodeCommonSettingsView(){
@@ -1803,9 +1802,9 @@ class MeshesController extends AppController{
               
         $this->set([
             'data'      => $data,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
      public function nodeCommonSettingsEdit(){
@@ -1855,9 +1854,9 @@ class MeshesController extends AppController{
             
             if ($this->{'NodeSettings'}->save($ent_setting)) {
                    $this->set([
-                    'success' => true,
-                    '_serialize' => ['success']
+                    'success' => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
             }
         }
     }
@@ -2132,9 +2131,9 @@ class MeshesController extends AppController{
             //-- END AutoCaptivePortal --
 
             $this->set([
-                'success' 		=> true,
-                '_serialize' 	=> ['success']
+                'success' 		=> true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $message = __('Could not create item');
             $this->JsonErrors->entityErros($ent_node,$message);
@@ -2455,9 +2454,9 @@ class MeshesController extends AppController{
                 //------- END Add settings for this node ---
 
                 $this->set([
-                    'success' => true,
-                    '_serialize' => ['success']
+                    'success' => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
             }else{
                 $message = __('Could not update item');
                 $this->JsonErrors->entityErros($ent_node,$message);
@@ -2498,9 +2497,9 @@ class MeshesController extends AppController{
             }
         }  
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function meshNodeView(){
@@ -2662,9 +2661,9 @@ class MeshesController extends AppController{
 
         $this->set(array(
             'data'      => $q_r,
-            'success'   => true,
-            '_serialize'=> array('success', 'data')
+            'success'   => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function advancedSettingsForModel(){
@@ -2761,9 +2760,9 @@ class MeshesController extends AppController{
 
         $this->set([
             'data' => $data,
-            'success' => true,
-            '_serialize' => ['data','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function staticEntryOptions(){
@@ -2792,9 +2791,9 @@ class MeshesController extends AppController{
 
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function staticExitOptions(){
@@ -2821,10 +2820,9 @@ class MeshesController extends AppController{
 
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
+            'success' => true
         ));
-
+        $this->viewBuilder()->setOption('serialize', true);
     }
         
    	private function _tree_tags($entity){
@@ -2870,9 +2868,9 @@ class MeshesController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false, 'Meshes'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function menuForEntriesGrid(){
@@ -2885,9 +2883,9 @@ class MeshesController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false, 'MeshEntries'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
      public function menuForExitsGrid(){
@@ -2900,9 +2898,9 @@ class MeshesController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false, 'MeshExits'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function menuForNodesGrid(){
@@ -2915,9 +2913,9 @@ class MeshesController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false, 'MeshNodes'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function menuForNodeDetailsGrid(){
@@ -2930,9 +2928,9 @@ class MeshesController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false, 'NodeDetails'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     // Update Node's config_fetched column (MQTT real time)
     public function nodeConfigFetch(){
@@ -2954,23 +2952,23 @@ class MeshesController extends AppController{
                 }
                 $this->set(array(
                     'data'         => $data,
-                    'success'       => true,
-                    '_serialize'    => array('data','success')
+                    'success'       => true
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
             } else {
                 $this->set(array(
                     'message'     => 'Node ID not found',
-                    'success'       => false,
-                    '_serialize'    => array('message','success')
+                    'success'       => false
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
             }
 
         } else {
             $this->set(array(
                 'message'         => 'Send only PUT request',
                 'success'       => false,
-                '_serialize'    => array('message','success')
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
 
@@ -2980,8 +2978,8 @@ class MeshesController extends AppController{
         $this->set(array(
             'active'     => $active,
             'success'   => true,
-            '_serialize'=> array('success', 'active')
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     private function _getDefaultSettings(){

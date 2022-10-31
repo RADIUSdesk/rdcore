@@ -83,8 +83,8 @@ class TopUpTransactionsController extends AppController{
         $this->set(array(
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total,
-            '_serialize'    => array('items','success','totalCount')
+            'totalCount'    => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true); 
     }
 }

@@ -100,9 +100,9 @@ class ThirdPartyAuthsController extends AppController{
         $this->set(array(
             'success'       => true,
             'isConnected'   => $isConnected,
-            'profile'       => $this->user_profile,
-            '_serialize'    => array('success','isConnected','profile')
+            'profile'       => $this->user_profile
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function infoFor(){
@@ -118,9 +118,9 @@ class ThirdPartyAuthsController extends AppController{
 				$voucher_info = $this->_find_vouchername_and_password($req_q['sl_name'],$req_q['sl_value']);
 				$this->set(array(
                     'data'         => $voucher_info,
-                    'success'       => true,
-                    '_serialize'    => array('data','success')
+                    'success'       => true
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
 				return;
 			}
 			
@@ -128,9 +128,9 @@ class ThirdPartyAuthsController extends AppController{
 				$user_info = $this->_find_username_and_password($req_q['sl_name'],$req_q['sl_value']);
 				$this->set(array(
                     'data'         => $user_info,
-                    'success'       => true,
-                    '_serialize'    => array('data','success')
+                    'success'       => true
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
 				return;
 			}
 

@@ -67,10 +67,9 @@ class DataCollectorsController extends AppController{
         
         $this->set([
             'data'          => $data,
-            'success'       => true,
-            '_serialize'    => ['data','success']
+            'success'       => true
         ]);
-        
+        $this->viewBuilder()->setOption('serialize', true);        
     }
     
     public function addMac(){
@@ -84,12 +83,12 @@ class DataCollectorsController extends AppController{
             $dd 		= $this->_find_dynamic_detail_id();
             
             if(!$dd){
-                $this->set(array(
+                $this->set([
                     'errors'    => ['email' => "Dynamic Login Page Not Found"],
                     'success'   => false,
-                    'message'   => "Dynamic Login Page Not Found",
-                    '_serialize' => array('errors','success','message')
-                ));
+                    'message'   => "Dynamic Login Page Not Found"
+                ]);
+                $this->viewBuilder()->setOption('serialize', true);
                 return;
             }else{
                 $req_d['dynamic_detail_id'] = $dd->dynamic_detail->id;
@@ -114,10 +113,10 @@ class DataCollectorsController extends AppController{
                 $this->{$this->main_model}->save($entity);
           //  }
             
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
+            $this->set([
+                'success' => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }    
     }
     
@@ -158,12 +157,12 @@ class DataCollectorsController extends AppController{
                 array_push($data,$csv_line);
             }
         }
-                
-        $_serialize = 'data';
         $this->setResponse($this->getResponse()->withDownload('export.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
-        $this->set(compact('data', '_serialize'));  
-         
+         $this->set([
+            'data'   => $data,
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);         
     } 
     
     public function index(){
@@ -219,9 +218,9 @@ class DataCollectorsController extends AppController{
         $this->set([
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => ['items', 'success', 'totalCount']
+            'totalCount' => $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function add(){
@@ -254,9 +253,9 @@ class DataCollectorsController extends AppController{
             $this->set(array(
                 'errors'    => ['email' => "Domain $domain is not valid"],
                 'success'   => false,
-                'message'   => "Domain $domain is not valid",
-                '_serialize' => array('errors','success','message')
+                'message'   => "Domain $domain is not valid"
             ));
+            $this->viewBuilder()->setOption('serialize', true);
             return false;
         }     
         return true;  
@@ -315,10 +314,10 @@ class DataCollectorsController extends AppController{
         }
               
         if ($this->{$this->main_model}->save($entity)) {
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
+            $this->set([
+                'success' => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -352,16 +351,16 @@ class DataCollectorsController extends AppController{
         }     
 
         if($fail_flag == true){
-            $this->set(array(
+            $this->set([
                 'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
-            ));
+                'message'   => __('Could not delete some items')
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
+            $this->set([
+                'success' => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
 	}
 }

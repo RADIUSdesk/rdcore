@@ -103,9 +103,9 @@ class UnknownDynamicClientsController extends AppController {
         $this->set(array(
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => array('items','success','totalCount')
+            'totalCount' => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true); 
 
     }
 
@@ -134,9 +134,9 @@ class UnknownDynamicClientsController extends AppController {
             }
         }
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true); 
 	}
  
     public function menuForGrid()
@@ -148,8 +148,8 @@ class UnknownDynamicClientsController extends AppController {
         $menu = $this->GridButtonsFlat->returnButtons( false, 'unknown_dynamic'); 
         $this->set([
             'items' => $menu,
-            'success' => true,
-            '_serialize' => ['items', 'success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true); 
     }
 }

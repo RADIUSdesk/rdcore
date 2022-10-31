@@ -84,12 +84,13 @@ class AccessProvidersController extends AppController{
                 }
                 array_push($data,$csv_line);
             }
-        }
-         
-        $_serialize = 'data';
+        }     
         $this->setResponse($this->getResponse()->withDownload('AccessProviders.csv'));
-        $this->viewBuilder()->setClassName('CsvView.Csv');
-        $this->set(compact('data', '_serialize'));  
+        $this->viewBuilder()->setClassName('CsvView.Csv');       
+        $this->set([
+            'data' => $data,
+        ]);       
+        $this->viewBuilder()->setOption('serialize', true); 
     }
     
     public function apTagList(){
@@ -119,10 +120,9 @@ class AccessProvidersController extends AppController{
 		
 		$this->set([
             'items' 		=> $items,
-            'success' 		=> true,
-            '_serialize' 	=> ['items','success']
+            'success' 		=> true
         ]);
-   
+        $this->viewBuilder()->setOption('serialize', true);  
     }
     
      //____ BASIC CRUD Manager ________
@@ -170,9 +170,9 @@ class AccessProvidersController extends AppController{
         $this->set([
             'items' 		=> $items,
             'success' 		=> true,
-            'totalCount' 	=> $total,
-            '_serialize' 	=> ['items','success','totalCount']
+            'totalCount' 	=> $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true); 
     }
    
     public function add(){
@@ -214,9 +214,9 @@ class AccessProvidersController extends AppController{
         $entity = $this->{$this->main_model}->newEntity($req_d); 
         if($this->{$this->main_model}->save($entity)){
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true); 
         }else{
             $message = 'Error';
             $errors = $entity->errors();
@@ -232,9 +232,9 @@ class AccessProvidersController extends AppController{
             $this->set([
                 'errors'    => $a,
                 'success'   => false,
-                'message'   => ['message' => __('Could not create item')],
-                '_serialize' => ['errors','success','message']
+                'message'   => ['message' => __('Could not create item')]
             ]);
+            $this->viewBuilder()->setOption('serialize', true); 
         }   
     }
     
@@ -288,9 +288,9 @@ class AccessProvidersController extends AppController{
         
         $this->set([
             'data'      => $items,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true); 
     }
   
     public function edit(){
@@ -415,9 +415,9 @@ class AccessProvidersController extends AppController{
        
         if ($this->{$this->main_model}->save($e_user)) {
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true); 
         } else {
             $message = 'Error';
             
@@ -435,9 +435,9 @@ class AccessProvidersController extends AppController{
             $this->set([
                 'errors'    => $a,
                 'success'   => false,
-                'message'   => __('Could not create item'),
-                '_serialize' => ['errors','success','message']
+                'message'   => __('Could not create item')
             ]);
+            $this->viewBuilder()->setOption('serialize', true); 
         }
         
     }
@@ -447,9 +447,9 @@ class AccessProvidersController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false,'access_providers');
         $this->set([
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true); 
     }
     
     public function delete($id = null) {
@@ -471,10 +471,10 @@ class AccessProvidersController extends AppController{
                	$this->{$this->main_model}->delete($entity);
             }
         }
-        $this->set(array(
-            'success' => true,
-            '_serialize' => array('success')
-        ));
+        $this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
 	}
 	
 	public function changePassword(){
@@ -497,9 +497,9 @@ class AccessProvidersController extends AppController{
         }
 
         $this->set([
-            'success' => $success,
-            '_serialize' => ['success']
+            'success' => $success
         ]);
+        $this->viewBuilder()->setOption('serialize', true); 
     }
     
     public function enableDisable(){ 
@@ -523,9 +523,9 @@ class AccessProvidersController extends AppController{
             }
         }
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true); 
     }
 	
 }

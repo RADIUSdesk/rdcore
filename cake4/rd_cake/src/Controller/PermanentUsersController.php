@@ -77,10 +77,12 @@ class PermanentUsersController extends AppController{
             }
         }
          
-        $_serialize = 'data';
         $this->setResponse($this->getResponse()->withDownload('PermanentUsers.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
-        $this->set(compact('data', '_serialize')); 
+        $this->set([
+            'data' => $data
+        ]);         
+        $this->viewBuilder()->setOption('serialize', true);
                   
     } 
 
@@ -154,9 +156,9 @@ class PermanentUsersController extends AppController{
         $this->set(array(
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total,
-            '_serialize'    => array('items','success','totalCount')
+            'totalCount'    => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function add(){
@@ -246,9 +248,9 @@ class PermanentUsersController extends AppController{
             $reply_data['id']   = $entity->id;
             $this->set(array(
                 'success' => true,
-                'data'    => $reply_data,
-                '_serialize' => ['success','data']
+                'data'    => $reply_data
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $message = __('Could not create item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -278,9 +280,9 @@ class PermanentUsersController extends AppController{
             }
         }
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 
     public function viewBasicInfo(){
@@ -340,9 +342,9 @@ class PermanentUsersController extends AppController{
 
         $this->set([
             'data'   => $items, //For the form to load we use data instead of the standard items as for grids
-            'success' => true,
-            '_serialize' => ['success','data']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function editBasicInfo(){
@@ -398,9 +400,9 @@ class PermanentUsersController extends AppController{
      
         if ($this->{$this->main_model}->save($entity)) {
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -427,9 +429,9 @@ class PermanentUsersController extends AppController{
         }
         $this->set(array(
             'data'   => $items, //For the form to load we use data instead of the standard items as for grids
-            'success' => true,
-            '_serialize' => array('success','data')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function editPersonalInfo(){
@@ -455,9 +457,9 @@ class PermanentUsersController extends AppController{
      
         if ($this->{$this->main_model}->save($entity)) {
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -476,9 +478,9 @@ class PermanentUsersController extends AppController{
 
         $this->set(array(
             'items'         => $items,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function privateAttrAdd(){
@@ -498,9 +500,9 @@ class PermanentUsersController extends AppController{
             $req_d['id'] = $entity->id;
             $this->set(array(
                 'items'     => $req_d,
-                'success'   => true,
-                '_serialize' => array('success','items')
+                'success'   => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
 
@@ -521,9 +523,9 @@ class PermanentUsersController extends AppController{
             $req_d['id'] = $entity->id;
             $this->set(array(
                 'items'     => $req_d,
-                'success'   => true,
-                '_serialize' => array('success','items')
+                'success'   => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
 
@@ -539,9 +541,9 @@ class PermanentUsersController extends AppController{
             $this->JsonErrors->errorMessage($message);  
         }else{
             $this->set(array(
-                'success'   => true,
-                '_serialize' => array('success')
+                'success'   => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
 
@@ -563,9 +565,9 @@ class PermanentUsersController extends AppController{
             }
         }
         $this->set(array(
-            'success' => true,
-            '_serialize' => array('success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function autoMacOnOff(){
@@ -586,9 +588,9 @@ class PermanentUsersController extends AppController{
         }
 
         $this->set(array(
-            'success' => true,
-            '_serialize' => array('success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function enableDisable(){
@@ -617,9 +619,9 @@ class PermanentUsersController extends AppController{
         }
 
         $this->set(array(
-            'success' => true,
-            '_serialize' => array('success',)
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function viewPassword(){
@@ -659,9 +661,9 @@ class PermanentUsersController extends AppController{
             'success'   => $success,
             'value'     => $value,
             'activate'  => $activate,
-            'expire'    => $expire,
-            '_serialize' => array('success','value','activate','expire')
+            'expire'    => $expire
         ));
+        $this->viewBuilder()->setOption('serialize', true);
 
     }
 
@@ -694,9 +696,9 @@ class PermanentUsersController extends AppController{
 
         if ($this->{$this->main_model}->save($entity)) {
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not change password');
             $this->JsonErrors->entityErros($entity,$message);
@@ -713,9 +715,9 @@ class PermanentUsersController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false,'permanent_users');
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     function menuForUserDevices(){
@@ -759,9 +761,9 @@ class PermanentUsersController extends AppController{
 
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     function menuForAccountingData(){
@@ -774,9 +776,9 @@ class PermanentUsersController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false,'fr_acct_and_auth');
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     function menuForAuthenticationData(){
@@ -789,9 +791,9 @@ class PermanentUsersController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(true,'fr_acct_and_auth');
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 }
 

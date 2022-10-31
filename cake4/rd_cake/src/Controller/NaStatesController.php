@@ -110,12 +110,12 @@ class NaStatesController extends AppController {
         $items = array_reverse($items); //Put the last state at the top!
        
         //___ FINAL PART ___
-        $this->set(array(
-            'items' => $items,
-            'success' => true,
-            'totalCount' => $total,
-            '_serialize' => array('items','success','totalCount')
-        ));
+        $this->set([
+            'items' 		=> $items,
+            'success' 		=> true,
+            'totalCount' 	=> $total
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 	    
 
@@ -167,16 +167,16 @@ class NaStatesController extends AppController {
         }
 
         if($fail_flag == true){
-            $this->set(array(
+            $this->set([
                 'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
-            ));
+                'message'   => __('Could not delete some items')
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
+            $this->set([
+                'success' => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
 	}
 
@@ -189,11 +189,11 @@ class NaStatesController extends AppController {
         }
 
         $menu = $this->GridButtons->returnButtons($user, true, 'fr_acct_and_auth'); 
-        $this->set(array(
-            'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
-        ));
+        $this->set([
+            'items' 	=> $menu,
+            'success' 	=> true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
 }

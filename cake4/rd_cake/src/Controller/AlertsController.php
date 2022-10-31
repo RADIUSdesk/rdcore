@@ -120,9 +120,9 @@ class AlertsController extends AppController{
         $this->set([
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total,
-            '_serialize'    => ['items','success','totalCount']
+            'totalCount'    => $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function menuForGrid(){
@@ -132,11 +132,11 @@ class AlertsController extends AppController{
         }
 
         $menu = $this->GridButtonsFlat->returnButtons(false, 'Alerts'); 
-        $this->set(array(
+        $this->set([
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
-        ));
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
       
     public function delete($id = null) {
@@ -167,17 +167,17 @@ class AlertsController extends AppController{
         }
 
         if($fail_flag == true){
-            $this->set(array(
+            $this->set([
                 'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
-            ));
+                'message'   =>  __('Could not delete some items')
+            ]);
+            
         }else{
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
+            $this->set([
+                'success' => true
+            ]);
         }
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	public function acknowledged($id = null){
@@ -217,17 +217,16 @@ class AlertsController extends AppController{
         }
 
         if($fail_flag == true){
-            $this->set(array(
+            $this->set([
                 'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
-            ));
+                'message'   => __('Could not delete some items'),
+            ]);
         }else{
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
+            $this->set([
+                'success' => true
+            ]);
         }
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	public function sendNotifications(){
@@ -333,9 +332,9 @@ class AlertsController extends AppController{
 	    $items = [];
 	    $this->set([
             'items'         => $items,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	private function _common_filter(){
@@ -427,7 +426,5 @@ class AlertsController extends AppController{
             }  
         }
         $query->where($where_clause);
-    }
-    
-   
+    }   
 }

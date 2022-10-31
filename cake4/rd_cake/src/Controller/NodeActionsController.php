@@ -80,12 +80,12 @@ class NodeActionsController extends AppController {
         }
 
         //___ FINAL PART ___
-        $this->set(array(
-            'items' => $items,
-            'success' => true,
-            'totalCount' => $total,
-            '_serialize' => array('items', 'success', 'totalCount')
-        ));
+        $this->set([
+            'items' 		=> $items,
+            'success' 		=> true,
+            'totalCount' 	=> $total
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function add(){
@@ -152,9 +152,9 @@ class NodeActionsController extends AppController {
                      }
 
                      $this->set(array(
-                         'success' => true,
-                         '_serialize' => array('success')
+                         'success' => true
                      ));
+                     $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not update item');
                     $this->JsonErrors->entityErros($entity,$message);
@@ -195,10 +195,10 @@ class NodeActionsController extends AppController {
                     }
                 }
 
-                $this->set(array(
-				    'success' => true,
-				    '_serialize' => array('success')
-				));
+                $this->set([
+				    'success' => true
+				]);
+				$this->viewBuilder()->setOption('serialize', true);
 				return;
 			} else {
                 $message = __('Could not update item');
@@ -235,14 +235,14 @@ class NodeActionsController extends AppController {
         if($fail_flag == true){
             $this->set(array(
                 'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
+                'message'   => __('Could not delete some items')
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
 	}
 
@@ -253,11 +253,11 @@ class NodeActionsController extends AppController {
         }
 
         $menu = $this->GridButtonsFlat->returnButtons(false, 'add_and_delete'); 
-        $this->set(array(
+        $this->set([
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
-        ));
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     //== THIS IS MY DANS HARE :-) ===
@@ -267,11 +267,11 @@ class NodeActionsController extends AppController {
     	$req_d     = $this->request->getData();
 
         if(!(array_key_exists('mac',$req_d))){
-		        $this->set(array(
-		        'message'		=> 'Required field missing in POST',
-                'success' => false,
-                '_serialize' => array('success','message')
-            ));
+		        $this->set([
+		        'message'	=> 'Required field missing in POST',
+                'success' 	=> false
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
 	        return;
         }
 
@@ -319,9 +319,9 @@ class NodeActionsController extends AppController {
         
         $this->set(array(
 	        'items'		    => $items,
-            'success' 	    => true,
-            '_serialize'    => ['success','items']
+            'success' 	    => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	public function replyToAction(){
@@ -348,11 +348,11 @@ class NodeActionsController extends AppController {
             }
 		}
 				
-		$this->set(array(
+		$this->set([
 	        'items'		=> $req_d,
-            'success' 	=> true,
-            '_serialize' => array('success','items')
-        ));
+            'success' 	=> true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	
 	}
 
@@ -377,23 +377,23 @@ class NodeActionsController extends AppController {
 
                 $this->set(array(
                     'data'          => $req_d,
-                    'success'       => true,
-                    '_serialize'    => array('data','success')
+                    'success'       => true
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
             } else {
                 $this->set(array(
                     'message'     => 'Node ID not found',
-                    'success'       => false,
-                    '_serialize'    => array('message','success')
+                    'success'       => false
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
             }
 
         } else {
             $this->set(array(
                 'message'         => 'Send only PUT request',
-                'success'       => false,
-                '_serialize'    => array('message','success')
+                'success'       => false
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
     
@@ -416,23 +416,23 @@ class NodeActionsController extends AppController {
                 }
                 $this->set(array(
                     'data'          => $req_d,
-                    'success'       => true,
-                    '_serialize'    => array('data','success')
+                    'success'       => true
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
             } else {
                 $this->set(array(
                     'message'     => 'Node ID not found',
-                    'success'       => false,
-                    '_serialize'    => array('message','success')
+                    'success'       => false
                 ));
+                $this->viewBuilder()->setOption('serialize', true);
             }
 
         } else {
             $this->set(array(
                 'message'         => 'Send only PUT request',
-                'success'       => false,
-                '_serialize'    => array('message','success')
+                'success'       => false
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
 

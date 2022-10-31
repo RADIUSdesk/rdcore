@@ -141,16 +141,16 @@ class RadacctsController extends AppController {
       
 			$this->set([
                 'success'   => true,
-                'data'      => $data,
-                '_serialize' => ['success','data']
+                'data'      => $data
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
 
 		}else{
 			$this->set([
                 'success'   => false,
-                'message'   => ['message' => "Require a valid MAC address and username in the query string"],
-                '_serialize' => ['success','message']
+                'message'   => "Require a valid MAC address and username in the query string",
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
 		}
 	}
 
@@ -212,10 +212,12 @@ class RadacctsController extends AppController {
             }
         }
         
-        $_serialize = 'data';
         $this->setResponse($this->getResponse()->withDownload('RadiusAccounting.csv'));
-        $this->viewBuilder()->setClassName('CsvView.Csv');
-        $this->set(compact('data', '_serialize'));  
+        $this->viewBuilder()->setClassName('CsvView.Csv');    
+        $this->set([
+        	'data' => $data
+        ])     
+        $this->viewBuilder()->setOption('serialize', true);  
         
     }
     
@@ -346,9 +348,9 @@ class RadacctsController extends AppController {
                 'totalIn'       => $t_q->total_in,
                 'totalOut'      => $t_q->total_out,
                 'totalInOut'    => $t_q->total,
-            ],
-            '_serialize'    => ['items','success','metaData','totalCount','totalIn','totalOut','totalInOut']
+            ]
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function delete($id = null) {
@@ -378,14 +380,14 @@ class RadacctsController extends AppController {
         if($fail_flag == true){
             $this->set([
                 'success'   => false,
-                'message'   => ['message' => __('Could not delete some items')],
-                '_serialize' => ['success','message']
+                'message'   => __('Could not delete some items'),
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
 	}
 
@@ -429,9 +431,9 @@ class RadacctsController extends AppController {
     
         $this->set([
             'success'       => true,
-            'data'          => $data,
-            '_serialize'    => ['success','data']
+            'data'          => $data
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function closeOpen(){
@@ -458,9 +460,9 @@ class RadacctsController extends AppController {
         }
 
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     //--------- END BASIC CRUD ---------------------------
@@ -545,9 +547,9 @@ class RadacctsController extends AppController {
 
         $this->set([
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     //______ END EXT JS UI functions ________

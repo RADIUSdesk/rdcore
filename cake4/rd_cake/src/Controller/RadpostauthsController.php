@@ -67,10 +67,10 @@ class RadpostauthsController extends AppController {
             }
         }
         
-        $_serialize = 'data';
         $this->setResponse($this->getResponse()->withDownload('Radpostauths.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
-        $this->set(compact('data', '_serialize'));  
+        $this->set(['data'=>$data]);
+        $this->viewBuilder()->setOption('serialize', true);  
         
     }
     
@@ -87,20 +87,6 @@ class RadpostauthsController extends AppController {
         if(!$user){
             return;
         }
-     /*   
-        if(
-            ($user['group_name'] !== 'Administrators')&&
-            ($this->request->getQuery('username')  == null )
-        ){
-            $this->set([
-                'items'         => [],
-                'success'       => true,
-                'totalCount'    => 0,
-                '_serialize'    => ['items','success','totalCount']
-            ]);
-            return; //Only admins not filtered
-        }*/
-
         $query  = $this->{$this->main_model}->find();
         $this->_build_common_query($query, $user, []); //AP QUERY is sort of different in a way
         
@@ -144,9 +130,9 @@ class RadpostauthsController extends AppController {
         $this->set([
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total,
-            '_serialize'    => ['items','success','totalCount']
+            'totalCount'    => $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function add(){
@@ -206,17 +192,17 @@ class RadpostauthsController extends AppController {
 
         if ($this->{$this->main_model}->save($radPostAuthEntity)) {
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = 'Error';
             $this->set([
                 'errors'    => $this->JsonErrors->entityErros($radPostAuthEntity, $message),
                 'success'   => false,
-                'message'   => ['message' => __('Could not create item')],
-                '_serialize' => ['errors','success','message']
+                'message'   => __('Could not create item'),
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
 
@@ -248,14 +234,14 @@ class RadpostauthsController extends AppController {
         if($fail_flag == true){
             $this->set([
                 'success'   => false,
-                'message'   => ['message' => __('Could not delete some items')],
-                '_serialize' => ['success','message']
+                'message'   => __('Could not delete some items')
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
 	}
 
@@ -359,9 +345,9 @@ class RadpostauthsController extends AppController {
         }
         $this->set([
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     //______ END EXT JS UI functions ________

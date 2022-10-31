@@ -51,9 +51,9 @@ class SoftflowsController extends AppController{
         
         $this->set([
             'data'          => $data,
-            'success'       => true,
-            '_serialize'    => ['success','data']
-        ]); 
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
     }
     
     
@@ -64,9 +64,9 @@ class SoftflowsController extends AppController{
         if(!array_key_exists('dynamic_client_id',$cquery)){
             $this->set([
                 'items'         => $items,
-                'success'       => true,
-                '_serialize'    => ['success','items']
-            ]);   
+                'success'       => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);   
             return; //return empty set
         }
                 
@@ -139,9 +139,9 @@ class SoftflowsController extends AppController{
         $this->set([
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total,
-            '_serialize'    => ['items','success','totalCount']
-        ]);  
+            'totalCount'    => $total
+        ]); 
+        $this->viewBuilder()->setOption('serialize', true); 
     }
       
     private function _common_filter(){

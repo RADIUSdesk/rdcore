@@ -74,9 +74,9 @@ class SchedulesController extends AppController {
         $this->set([
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total,
-            '_serialize'    => ['items', 'success', 'totalCount']
+            'totalCount'    => $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     
@@ -149,9 +149,9 @@ class SchedulesController extends AppController {
         $this->set([
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total,
-            '_serialize'    => ['items', 'success', 'totalCount']
+            'totalCount'    => $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function add(){
@@ -165,9 +165,9 @@ class SchedulesController extends AppController {
             $entity = $this->{$this->main_model}->newEntity($this->request->getData()); 
             if ($this->{$this->main_model}->save($entity)) {
                 $this->set([
-                    'success' => true,
-                    '_serialize' => ['success']
+                    'success' => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
             } else {
                 $message = __('Could not update item');
                 $this->JsonErrors->entityErros($entity,$message);
@@ -205,14 +205,14 @@ class SchedulesController extends AppController {
         if($fail_flag == true){
             $this->set([
                 'success'   => false,
-                'message'   => ['message' => __('Could not delete some items')],
-                '_serialize' => ['success','message']
+                'message'   => __('Could not delete some items'),
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
 	}
 	
@@ -248,9 +248,9 @@ class SchedulesController extends AppController {
                 $this->{$this->main_model}->patchEntity($entity, $req_d); 
                 if ($this->{$this->main_model}->save($entity)) {
                     $this->set(array(
-                        'success' => true,
-                        '_serialize' => array('success')
+                        'success' => true
                     ));
+                    $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not update item');
                     $this->JsonErrors->entityErros($entity,$message);
@@ -283,9 +283,9 @@ class SchedulesController extends AppController {
             $entity = $this->{'ScheduleEntries'}->newEntity($req_data); 
             if ($this->{'ScheduleEntries'}->save($entity)) {
                 $this->set([
-                    'success' => true,
-                    '_serialize' => ['success']
+                    'success' => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
             } else {
                 $message = __('Could not update item');
                 $this->JsonErrors->entityErros($entity,$message);
@@ -312,9 +312,9 @@ class SchedulesController extends AppController {
         }
         $this->set([
             'data'      => $data,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function editScheduleEntry(){
@@ -344,9 +344,9 @@ class SchedulesController extends AppController {
                 $this->{'ScheduleEntries'}->patchEntity($entity, $req_data);  
                 if ($this->{'ScheduleEntries'}->save($entity)) {
                     $this->set([
-                        'success' => true,
-                        '_serialize' => ['success']
+                        'success' => true
                     ]);
+                    $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not update item');
                     $this->JsonErrors->entityErros($entity,$message);
@@ -387,14 +387,14 @@ class SchedulesController extends AppController {
         if($fail_flag == true){
             $this->set([
                 'success'   => false,
-                'message'   => ['message' => __('Could not delete some items')],
-                '_serialize' => ['success','message']
+                'message'   => __('Could not delete some items'),
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
 	}
 	
@@ -407,9 +407,9 @@ class SchedulesController extends AppController {
         $menu = $this->GridButtonsFlat->returnButtons(false,'Schedules');
         $this->set([
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
 }

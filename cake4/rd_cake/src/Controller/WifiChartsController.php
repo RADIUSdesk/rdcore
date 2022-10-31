@@ -65,9 +65,9 @@ class WifiChartsController extends AppController{
         if(isset($post_data['remove_alias'])){
             $this->{'MacAliases'}->delete($entity);
             $this->set([
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true); 
             return;
         }	
         
@@ -79,9 +79,9 @@ class WifiChartsController extends AppController{
         
         if ($this->{'MacAliases'}->save($entity)) {
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true); 
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -168,9 +168,9 @@ class WifiChartsController extends AppController{
 
         $this->set([
             'data'          => $data,
-            'success'       => true,
-            '_serialize'    => ['data','success']
-        ]);   
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);    
     }
     
     public function usageForSsid(){
@@ -289,9 +289,9 @@ class WifiChartsController extends AppController{
            
         $this->set([
             'data'          => $data,
-            'success'       => true,
-            '_serialize'    => ['data','success']
-        ]);   
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);    
     }
     
     private function _getNodeData($ft_start,$ft_end){

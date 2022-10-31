@@ -82,9 +82,9 @@ class MeshOverviewMapsController extends AppController {
             }            
         }   
         $this->set([
-            'success'   => true,
-            '_serialize' => ['success']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     } 
     
     public function index(){
@@ -311,13 +311,13 @@ class MeshOverviewMapsController extends AppController {
         $this->meta_data['total_nodes']             = $total_nodes;  
         $this->meta_data['total_nodes_online']      = $total_nodes_online;  
             
-        $this->set(array(
+        $this->set([
             'items'     => $items,
             'total'     => $total,
             'metaData'  => $this->meta_data,
-            'success'   => true,
-            '_serialize' => array('items','success','total','metaData')
-        ));
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     private function _infoBuilding($id){

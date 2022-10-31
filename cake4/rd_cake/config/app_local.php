@@ -56,7 +56,7 @@ return [
         /*
          * The test connection is used during the test suite.
          */
-         /* //OCT 2022 disable this one for Docket image to work//
+         /* //OCT 2022 disable this one for Docker image to work//
         'test' => [
             'host' => 'localhost',
             //'port' => 'non_standard_port_number',

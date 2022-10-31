@@ -94,9 +94,9 @@ class ApsController extends AppController {
                 $this->set([
                     'config_settings'   => $json['config_settings'],
                     'timestamp'         => $json['timestamp'],
-                    'success' => true,
-                    '_serialize' => ['config_settings','success','timestamp']
+                    'success' => true
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
 
             }else{
                 //Write this to an "unknown nodes" table....
@@ -150,7 +150,6 @@ class ApsController extends AppController {
                 if(($include_new_server)||($include_new_mode)){
 		            $fb             = [];
 		            $fb['success']  = false;
-		            $serialize      = ['success'];
 		            
 		            if($include_new_server){
 		                $fb['new_server'] = $new_server;
@@ -162,24 +161,24 @@ class ApsController extends AppController {
 		                $fb['new_mode'] = $unk_q_r->new_mode;
 		                array_push($serialize,'new_mode');
 		            }
-		            $fb['_serialize'] = $serialize;
 		        
 		            $this->set($fb);
+		            $this->viewBuilder()->setOption('serialize', true);
 		            
                 }else{
                      $this->set([
                         'error' => "MAC Address: ".$mac." not attaced to any AP Profile on the system",
-                        'success' => false,
-                        '_serialize' => ['error','success']
+                        'success' => false
                     ]);
+                    $this->viewBuilder()->setOption('serialize', true);
                 }
             }
         }else{
              $this->set([
                 'error' => "MAC Address of node not specified",
-                'success' => false,
-                '_serialize' => ['error','success']
+                'success' => false
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
 
@@ -190,9 +189,9 @@ class ApsController extends AppController {
         $unkwnEntity = $this->UnknownAps->newEntity($data);
         if ($this->UnknownAps->save($unkwnEntity)) {
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $message = __('Could not update item');
             $this->JsonErrors->entityErros(unkwnEntity,$message);
@@ -205,9 +204,9 @@ class ApsController extends AppController {
         $unkwnEntity = $this->UnknownAps->newEntity($data);
         if ($this->UnknownAps->save($unkwnEntity)) {
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $message = __('Could not update item');
             $this->JsonErrors->entityErros(unkwnEntity,$message);
@@ -624,9 +623,9 @@ class ApsController extends AppController {
         $this->set([
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => ['items','success','totalCount']
+            'totalCount' => $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     private function _find_parents($id){

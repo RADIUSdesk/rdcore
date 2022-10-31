@@ -118,11 +118,11 @@ class MeshReportsController extends AppController {
         $fb = $this->_new_report();
         //Handy for debug to see what has been submitted
         file_put_contents('/tmp/mesh_report.txt', print_r($this->request->getData(), true));
-        $this->set(array(
+        $this->set([
             'items'   => $fb,
-            'success' => true,
-            '_serialize' => array('items','success')
-        ));
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function overview(){
@@ -135,11 +135,11 @@ class MeshReportsController extends AppController {
         $req_q    = $this->request->getQuery();
 
         if (!isset($req_q['mesh_id'])) {
-            $this->set(array(
-                'message'   => array("message"  =>"Mesh ID (mesh_id) missing"),
-                'success' => false,
-                '_serialize' => array('success','message')
-            ));
+            $this->set([
+                'message'   => "Mesh ID (mesh_id) missing",
+                'success' => false
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
             return;
         }
 
@@ -406,11 +406,11 @@ class MeshReportsController extends AppController {
             }
         }
 
-        $this->set(array(
+        $this->set([
             'data' => $items,
-            'success' => true,
-            '_serialize' => array('data','success')
-        ));
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function overviewMeshes(){
@@ -456,13 +456,12 @@ class MeshReportsController extends AppController {
         }
         //FIXME Try and figure out whats broken
         //$center = $this->_get_center($coordsAll);
-        $this->set(array(
+        $this->set([
             'meshes'   => $meshes,
-            //'center'   => ["lat"=>$center[0],"lng"=>$center[1]],
             'center'   => [],
-            'success'  => true,
-            '_serialize' => array('meshes', 'center','success')
-        ));
+            'success'  => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function overviewGoogleMap()
@@ -474,12 +473,12 @@ class MeshReportsController extends AppController {
         }
 
         if (null == $this->request->getQuery('mesh_id')) {
-            $this->set(array(
-                'message'   => array("message"  =>"Mesh ID (mesh_id) missing"),
-                'success' => false,
-                '_serialize' => array('success','message')
-            ));
-            return;
+            $this->set([
+                'message'   => "Mesh ID (mesh_id) missing",
+                'success' 	=> false
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
+            return;          
         }
 
         $items          = [];
@@ -668,12 +667,12 @@ class MeshReportsController extends AppController {
             array_push($items, $i);
         }
 
-        $this->set(array(
+        $this->set([
             'items'         => $items,
             'connections'   => $connections,
-            'success'       => true,
-            '_serialize' => array('items', 'connections','success')
-        ));
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function viewEntries()
@@ -686,10 +685,10 @@ class MeshReportsController extends AppController {
 
         if (null == $this->request->getQuery('mesh_id')) {
             $this->set(array(
-                'message'   => array("message"  =>"Mesh ID (mesh_id) missing"),
-                'success' => false,
-                '_serialize' => array('success','message')
+                'message'   => "Mesh ID (mesh_id) missing",
+                'success' 	=> false
             ));
+            $this->viewBuilder()->setOption('serialize', true);
             return;
         }
         
@@ -851,11 +850,11 @@ class MeshReportsController extends AppController {
             }
         }
 
-        $this->set(array(
+        $this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
-        ));
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
 
@@ -868,11 +867,11 @@ class MeshReportsController extends AppController {
         }
 
         if (null == $this->request->getQuery('mesh_id')) {
-            $this->set(array(
-                'message'   => array("message"  =>"Mesh ID (mesh_id) missing"),
-                'success' => false,
-                '_serialize' => array('success','message')
-            ));
+            $this->set([
+                'message'   => "Mesh ID (mesh_id) missing",
+                'success' 	=> false
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
             return;
         }
 
@@ -1045,9 +1044,9 @@ class MeshReportsController extends AppController {
 
         $this->set(array(
           'items' => $items,
-          'success' => true,
-          '_serialize' => array('items','success')
+          'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function viewNodeNodes()
@@ -1060,10 +1059,10 @@ class MeshReportsController extends AppController {
 
         if (null == $this->request->getQuery('mesh_id')) {
             $this->set(array(
-                'message'   => array("message"  =>"Mesh ID (mesh_id) missing"),
-                'success' => false,
-                '_serialize' => array('success','message')
+                'message'   => "Mesh ID (mesh_id) missing",
+                'success' 	=> false,
             ));
+            $this->viewBuilder()->setOption('serialize', true);
             return;
         }
 
@@ -1252,9 +1251,9 @@ class MeshReportsController extends AppController {
 
         $this->set(array(
           'items' => $items,
-          'success' => true,
-          '_serialize' => array('items','success')
+          'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
 
@@ -1268,10 +1267,10 @@ class MeshReportsController extends AppController {
 
         if (null == $this->request->getQuery('mesh_id')) {
             $this->set(array(
-                'message'   => array("message"  =>"Mesh ID (mesh_id) missing"),
+                'message'   => "Mesh ID (mesh_id) missing",
                 'success' => false,
-                '_serialize' => array('success','message')
             ));
+            $this->viewBuilder()->setOption('serialize', true);
             return;
         }
 
@@ -1567,11 +1566,11 @@ class MeshReportsController extends AppController {
             array_push($items, $this_data);
         }
 
-        $this->set(array(
-            'items' => $items, //$items,
-            'success' => true,
-            '_serialize' => array('items','success')
-        ));
+        $this->set([
+            'items' => $items,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function restartNodes()
@@ -1618,9 +1617,9 @@ class MeshReportsController extends AppController {
         $items = [];
         $this->set([
             'items'         => $items,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     //---------- Private Functions --------------

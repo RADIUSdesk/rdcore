@@ -80,9 +80,9 @@ class OpenvpnServersController extends AppController {
             'username'  => $username,
             'password'  => $password, 
             'mac'       => $mac,
-            'success' => $success,
-            '_serialize' => ['mac','username','password','success']
+            'success' => $success
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function index(){
@@ -144,9 +144,9 @@ class OpenvpnServersController extends AppController {
         $this->set(array(
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => array('items','success','totalCount')
+            'totalCount' => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 	
     //____ BASIC CRUD Manager ________
@@ -176,9 +176,9 @@ class OpenvpnServersController extends AppController {
         //___ FINAL PART ___
         $this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => ['items','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
     public function add(){
@@ -230,9 +230,9 @@ class OpenvpnServersController extends AppController {
               
         if ($this->{$this->main_model}->save($entity)) {
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -266,14 +266,14 @@ class OpenvpnServersController extends AppController {
         if($fail_flag == true){
             $this->set(array(
                 'success'   => false,
-                'message'   => array('message' => __('Could not delete some items')),
-                '_serialize' => array('success','message')
+                'message'   => __('Could not delete some items'),
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
 	}
 
@@ -286,8 +286,8 @@ class OpenvpnServersController extends AppController {
         $menu = $this->GridButtonsFlat->returnButtons(false, 'basic'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 }

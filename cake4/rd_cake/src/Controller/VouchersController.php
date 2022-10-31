@@ -85,10 +85,10 @@ class VouchersController extends AppController{
             }
         }
         
-        $_serialize = 'data';
         $this->setResponse($this->getResponse()->withDownload('Vouchers.csv'));
         $this->viewBuilder()->setClassName('CsvView.Csv');
-        $this->set(compact('data', '_serialize'));  
+        $this->set(['data'=>$data]); 
+        $this->viewBuilder()->setOption('serialize', true);  
           
     }
 
@@ -341,9 +341,9 @@ class VouchersController extends AppController{
         $this->set(array(
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total,
-            '_serialize'    => array('items','success','totalCount')
+            'totalCount'    => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true); 
     }
    
     public function add(){
@@ -462,9 +462,9 @@ class VouchersController extends AppController{
         
         $this->set([
             'success' => true,
-            'data'    => $created,
-            '_serialize' => ['success','data']
+            'data'    => $created
         ]);
+        $this->viewBuilder()->setOption('serialize', true); 
     } 
 
     public function viewBasicInfo(){
@@ -507,9 +507,9 @@ class VouchersController extends AppController{
 
         $this->set([
             'data'   => $items, //For the form to load we use data instead of the standard items as for grids
-            'success' => true,
-            '_serialize' => ['success','data']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true); 
     }
 
     public function editBasicInfo(){ 
@@ -572,9 +572,9 @@ class VouchersController extends AppController{
      
         if ($this->{$this->main_model}->save($entity)) {
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true); 
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
@@ -596,9 +596,9 @@ class VouchersController extends AppController{
         $this->{$this->main_model}->deleteAll($conditions);
         
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
-        ]); 
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);  
     }
     
     public function delete() {
@@ -624,9 +624,9 @@ class VouchersController extends AppController{
             }
         }
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true); 
 	}
 
      public function privateAttrIndex(){
@@ -640,9 +640,9 @@ class VouchersController extends AppController{
         $items      =  $this->{$this->main_model}->privateAttrIndex($username);
         $this->set([
             'items'         => $items,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true); 
     }
 
     public function privateAttrAdd(){
@@ -662,9 +662,9 @@ class VouchersController extends AppController{
             $req_d['id'] = $entity->id;
             $this->set(array(
                 'items'     => $req_d,
-                'success'   => true,
-                '_serialize' => array('success','items')
+                'success'   => true
             ));
+            $this->viewBuilder()->setOption('serialize', true); 
         }
     }
 
@@ -685,9 +685,9 @@ class VouchersController extends AppController{
             $req_d['id'] = $entity->id;
             $this->set(array(
                 'items'     => $req_d,
-                'success'   => true,
-                '_serialize' => array('success','items')
+                'success'   => true
             ));
+            $this->viewBuilder()->setOption('serialize', true); 
         }
     }
 
@@ -703,9 +703,9 @@ class VouchersController extends AppController{
             $this->JsonErrors->errorMessage($message);  
         }else{
             $this->set(array(
-                'success'   => true,
-                '_serialize' => array('success')
+                'success'   => true
             ));
+            $this->viewBuilder()->setOption('serialize', true); 
         }
     }
 
@@ -737,9 +737,9 @@ class VouchersController extends AppController{
                     $this->{$this->main_model}->patchEntity($entity, $req_d);
                     if ($this->{$this->main_model}->save($entity)) {
                         $this->set(array(
-                            'success' => true,
-                            '_serialize' => array('success')
+                            'success' => true
                         ));
+                        $this->viewBuilder()->setOption('serialize', true); 
                     } else {
                         $message = __('Could not change Password this time');
                         $this->JsonErrors->entityErros($entity,$message);
@@ -790,16 +790,16 @@ class VouchersController extends AppController{
                 $success    = true;
                 $this->set([
                     'data'          => $data,
-                    'success'       => $success,
-                    '_serialize'    => ['data','success']
-                ]); 
+                    'success'       => $success
+                ]);
+                $this->viewBuilder()->setOption('serialize', true);  
             }else{                     
                 $this->set([
                     'data'          => $data,
                     'success'       => $success,
                     'message'       => 'Email Disabled / Not Configured',
-                    '_serialize'    => ['data','success','message']
                 ]);
+                $this->viewBuilder()->setOption('serialize', true); 
             }            
         }
     }
@@ -810,9 +810,9 @@ class VouchersController extends AppController{
 
 		$this->set(array(
             'data'     => $data,
-            'success'   => true,
-            '_serialize'=> array('success', 'data')
+            'success'   => true
         ));
+        $this->viewBuilder()->setOption('serialize', true); 
 	}
 
     public function pdfVoucherFormats(){
@@ -827,9 +827,9 @@ class VouchersController extends AppController{
 
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true); 
     }
 
     public function menuForGrid(){
@@ -841,9 +841,9 @@ class VouchersController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false,'vouchers');
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true); 
     }
 
     function menuForAccountingData(){
@@ -856,8 +856,8 @@ class VouchersController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false,'fr_acct_and_auth');
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true); 
     }
 }

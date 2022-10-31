@@ -41,9 +41,9 @@ class SettingsController extends AppController{
               
         $this->set([
             'data'          => $data,
-            'success'       => true,
-            '_serialize'    => ['data','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function editSms(){
@@ -88,9 +88,9 @@ class SettingsController extends AppController{
                                 
             $this->set([
                 'data'          => $data,
-                'success'       => true,
-                '_serialize'    => ['success','data']
-            ]);       
+                'success'       => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);       
         }
     }
     
@@ -170,9 +170,9 @@ class SettingsController extends AppController{
             
         $this->set([
             'data'          => $data,
-            'success'       => true,
-            '_serialize'    => ['data','success']
-        ]); 
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
           
     } 
            
@@ -188,9 +188,9 @@ class SettingsController extends AppController{
         
         $this->set(array(
             'data' => $data,
-            'success' => true,
-            '_serialize' => array('data','success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function saveDefaults(){
@@ -236,9 +236,9 @@ class SettingsController extends AppController{
 
             $this->set([
                 'items' => $items,
-                'success' => true,
-                '_serialize' => ['items','success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
                
         }
     }
@@ -286,9 +286,9 @@ class SettingsController extends AppController{
 
             $this->set([
                 'items' => $items,
-                'success' => true,
-                '_serialize' => ['items','success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
                
         }
     }
@@ -336,9 +336,9 @@ class SettingsController extends AppController{
 
             $this->set([
                 'items' => $items,
-                'success' => true,
-                '_serialize' => ['items','success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
                
         }
     }
@@ -388,9 +388,9 @@ class SettingsController extends AppController{
 
             $this->set([
                 'items' => $items,
-                'success' => true,
-                '_serialize' => ['items','success']
+                'success' => true
             ]);
+            $this->viewBuilder()->setOption('serialize', true);
                
         }
     }
@@ -411,9 +411,9 @@ class SettingsController extends AppController{
         }    
         $this->set([
             'data' => $data,
-            'success' => true,
-            '_serialize' => ['data','success']
-        ]);  
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);  
     }
     
     public function testEmail(){
@@ -442,16 +442,16 @@ class SettingsController extends AppController{
                 $success    = true;
                 $this->set([
                     'data'          => $data,
-                    'success'       => $success,
-                    '_serialize'    => ['data','success']
-                ]); 
+                    'success'       => $success
+                ]);
+                $this->viewBuilder()->setOption('serialize', true); 
             }else{                     
                 $this->set([
                     'data'          => $data,
                     'success'       => $success,
-                    'message'       => 'Email Disabled / Not Configured',
-                    '_serialize'    => ['data','success','message']
+                    'message'       => 'Email Disabled / Not Configured'
                 ]);
+                $this->viewBuilder()->setOption('serialize', true);
             }            
         }
     } 

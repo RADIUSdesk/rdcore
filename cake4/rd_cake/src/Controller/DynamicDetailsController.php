@@ -289,9 +289,9 @@ class DynamicDetailsController extends AppController{
         
         $this->set([
             'data' => $items,
-            'success' => $success,
-            '_serialize' => ['data','success']
+            'success' => $success
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function idMe(){  
@@ -306,9 +306,9 @@ class DynamicDetailsController extends AppController{
         }
         $this->set([
             'data'          => $info,
-            'success'       => true,
-            '_serialize'    => ['data','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     ///cake4/rd_cake/dynamic-details/chilli-session-write/
     public function chilliSessionWrite(){  
@@ -339,9 +339,9 @@ class DynamicDetailsController extends AppController{
         
         $this->set([
             'data'          => $data,
-            'success'       => true,
-            '_serialize'    => ['data','success']
+            'success'       => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     
@@ -387,11 +387,11 @@ class DynamicDetailsController extends AppController{
             }
         }
 
-        $this->set(array(
+        $this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
-        ));
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
        
     public function exportCsv(){
@@ -428,12 +428,13 @@ class DynamicDetailsController extends AppController{
             }
         }
         
-        $_serialize = 'data';
         $this->setResponse($this->getResponse()->withDownload('export.csv'));
-        $this->viewBuilder()->setClassName('CsvView.Csv');
-        $this->set(compact('data', '_serialize'));  
-        
-          
+        $this->viewBuilder()->setClassName('CsvView.Csv');     
+        $this->set([
+            'data'   => $data,
+        ]);    
+        $this->viewBuilder()->setOption('serialize', true);  
+               
     } 
        
     //____ BASIC CRUD Manager ________
@@ -486,9 +487,9 @@ class DynamicDetailsController extends AppController{
         $this->set([
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => ['items','success','totalCount']
+            'totalCount' => $total
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
      
     public function indexForFilter(){
@@ -514,9 +515,9 @@ class DynamicDetailsController extends AppController{
 
         $this->set(array(
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
       
     public function add() {
@@ -536,9 +537,9 @@ class DynamicDetailsController extends AppController{
         $entity = $this->{$this->main_model}->newEntity($req_d); 
         if($this->{$this->main_model}->save($entity)){
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $message = 'Error';
             $errors = $entity->getErrors();
@@ -551,12 +552,12 @@ class DynamicDetailsController extends AppController{
                 }
                 $a[$field] = $detail_string;
             }   
-            $this->set(array(
+            $this->set([
                 'errors'    => $a,
                 'success'   => false,
-                'message'   => array('message' => __('Could not create item')),
-                '_serialize' => array('errors','success','message')
-            ));
+                'message'   => __('Could not create item')
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }   
 	}
       
@@ -568,9 +569,9 @@ class DynamicDetailsController extends AppController{
 
         if ($this->{$this->main_model}->save($entity)) {
             $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
+                'success' => true
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = 'Error';
             
@@ -585,12 +586,12 @@ class DynamicDetailsController extends AppController{
                 $a[$field] = $detail_string;
             }
             
-            $this->set(array(
+            $this->set([
                 'errors'    => $a,
                 'success'   => false,
-                'message'   => array('message' => __('Could not update item')),
-                '_serialize' => array('errors','success','message')
-            ));
+                'message'   => __('Could not update item')
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
 	}
 	
@@ -647,10 +648,10 @@ class DynamicDetailsController extends AppController{
         $this->{$this->main_model}->patchEntity($entity, $req_d);
 
         if ($this->{$this->main_model}->save($entity)) {
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
+            $this->set([
+                'success' => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = 'Error';
             
@@ -665,12 +666,12 @@ class DynamicDetailsController extends AppController{
                 $a[$field] = $detail_string;
             }
             
-            $this->set(array(
+            $this->set([
                 'errors'    => $a,
                 'success'   => false,
-                'message'   => array('message' => __('Could not update item')),
-                '_serialize' => array('errors','success','message')
-            ));
+                'message'   => __('Could not update item')
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
     
@@ -684,9 +685,9 @@ class DynamicDetailsController extends AppController{
                    
         $this->set([
             'data'     => $data,
-            'success'   => true,
-            '_serialize'=> ['success', 'data']
+            'success'   => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
       
     public function editClickToConnect(){
@@ -743,10 +744,10 @@ class DynamicDetailsController extends AppController{
         $this->{'DynamicDetailCtcs'}->patchEntity($entity, $req_d);
 
         if ($this->{'DynamicDetailCtcs'}->save($entity)) {
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
+            $this->set([
+                'success' => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = 'Error';
             
@@ -761,12 +762,12 @@ class DynamicDetailsController extends AppController{
                 $a[$field] = $detail_string;
             }
             
-            $this->set(array(
+            $this->set([
                 'errors'    => $a,
                 'success'   => false,
-                'message'   => array('message' => __('Could not update item')),
-                '_serialize' => array('errors','success','message')
-            ));
+                'message'   => __('Could not update item'),
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
     
@@ -820,9 +821,9 @@ class DynamicDetailsController extends AppController{
         }
 
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 
     public function view(){
@@ -875,11 +876,11 @@ class DynamicDetailsController extends AppController{
             }
         }
         
-        $this->set(array(
+        $this->set([
             'data'     => $items,
-            'success'   => true,
-            '_serialize'=> array('success', 'data')
-        ));
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function uploadLogo($id = null){   
@@ -918,10 +919,9 @@ class DynamicDetailsController extends AppController{
             $this->set([
 		        'success' 			=> true,
 		        'id'      			=> $req_d['id'],
-		        'icon_file_name'	=> $icon_file_name,
-		        '_serialize' => ['success','id','icon_file_name']
-		    ]); 
-            
+		        'icon_file_name'	=> $icon_file_name
+		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);         
     
         }else{       
             $errors = $entity->getErrors();
@@ -937,11 +937,10 @@ class DynamicDetailsController extends AppController{
             
             $this->set([
 		        'errors' 	=> $a,
-		        'message' 	=> array("message"   => __('Problem uploading photo')),
-		        'success'	=> false,
-		        '_serialize' => ['success','message','success']
+		        'message' 	=> __('Problem uploading photo'),
+		        'success'	=> false
 		    ]);
-           
+		    $this->viewBuilder()->setOption('serialize', true);        
         }
 
     }
@@ -986,9 +985,9 @@ class DynamicDetailsController extends AppController{
             move_uploaded_file ($_FILES['photo']['tmp_name'] , $dest);
             $this->set([
 		        'success' 			=> true,
-		        'id'      			=> $entity->id,
-		        '_serialize' => ['success','id']
-		    ]);                              
+		        'id'      			=> $entity->id
+		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);                              
         }else{
             $message = 'Error';
             $errors = $entity->getErrors();
@@ -1004,10 +1003,10 @@ class DynamicDetailsController extends AppController{
             
             $this->set([
 		        'errors' 	=> $a,
-		        'message' 	=> array("message"   => __('Problem uploading photo')),
-		        'success'	=> false,
-		        '_serialize' => ['success','message','success']
-		    ]);         
+		        'message' 	=> __('Problem uploading photo'),
+		        'success'	=> false
+		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);         
         }
         
     }
@@ -1049,10 +1048,10 @@ class DynamicDetailsController extends AppController{
             }
         }
 
-        $this->set(array(
-            'success' => true,
-            '_serialize' => array('success')
-        ));
+        $this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	public function editPhoto(){
@@ -1099,9 +1098,9 @@ class DynamicDetailsController extends AppController{
         }
         
      	$this->set([
-	        'success' 	 => true,
-	        '_serialize' => ['success']
-	    ]);  
+	        'success' 	 => true
+	    ]); 
+	    $this->viewBuilder()->setOption('serialize', true); 
     }
     
     public function shufflePhoto(){
@@ -1132,9 +1131,9 @@ class DynamicDetailsController extends AppController{
         }
           
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     
@@ -1275,9 +1274,9 @@ class DynamicDetailsController extends AppController{
                
         $this->set(array(
             'items'     => $items,
-            'success'   => true,
-            '_serialize'=> array('success', 'items')
+            'success'   => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     private function _genericAdd($table){
@@ -1296,10 +1295,10 @@ class DynamicDetailsController extends AppController{
         //The rest of the attributes should be same as the form..
         $entity = $this->{$table}->newEntity($data); 
         if($this->{$table}->save($entity)){
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
+            $this->set([
+                'success' => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }else{
             $message = 'Error';
             $errors = $entity->getErrors();
@@ -1312,12 +1311,12 @@ class DynamicDetailsController extends AppController{
                 }
                 $a[$field] = $detail_string;
             }   
-            $this->set(array(
+            $this->set([
                 'errors'    => $a,
                 'success'   => false,
-                'message'   => array('message' => __('Could not create item')),
-                '_serialize' => array('errors','success','message')
-            ));
+                'message'   => __('Could not create item'),
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }   
     }
     
@@ -1338,10 +1337,10 @@ class DynamicDetailsController extends AppController{
         $this->{$table}->patchEntity($entity, $data);
 
         if ($this->{$table}->save($entity)) {
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
+            $this->set([
+                'success' => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = 'Error';
             
@@ -1359,9 +1358,9 @@ class DynamicDetailsController extends AppController{
             $this->set(array(
                 'errors'    => $a,
                 'success'   => false,
-                'message'   => array('message' => __('Could not update item')),
-                '_serialize' => array('errors','success','message')
+                'message'   => __('Could not update item'),
             ));
+            $this->viewBuilder()->setOption('serialize', true);
         }
     }
     
@@ -1380,10 +1379,10 @@ class DynamicDetailsController extends AppController{
             }
         }
 
-        $this->set(array(
-            'success' => true,
-            '_serialize' => array('success')
-        ));
+        $this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     
@@ -1438,11 +1437,11 @@ class DynamicDetailsController extends AppController{
             
         }
         
-        $this->set(array(
+        $this->set([
             'data'     => $items,
-            'success'   => true,
-            '_serialize'=> array('success', 'data')
-        ));
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	public function editSocialLogin(){
@@ -1476,12 +1475,12 @@ class DynamicDetailsController extends AppController{
 
 		//We have to have a temp user else we fail it
 		if(($req_d['social_enable'] == 1)&&($req_d['social_temp_permanent_user_id'] == '')){
-			 $this->set(array(
-                'errors'    => array('social_temp_permanent_user_id' => "Temp user cannot be empty"),
+			 $this->set([
+                'errors'    => ['social_temp_permanent_user_id' => "Temp user cannot be empty"],
                 'success'   => false,
-                'message'   => array('message' => 'Could not save data'),
-                '_serialize' => array('errors','success','message')
-            ));
+                'message'   => 'Could not save data',
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
 			return;
 		}
 
@@ -1496,12 +1495,12 @@ class DynamicDetailsController extends AppController{
 			    $fb_check_for  = [$p.'_voucher_or_user',$p.'_secret',$p.'_id',$p.'_realm',$p.'_profile'];
 			    foreach($fb_check_for as $i){
 				    if($req_d["$i"] == ''){
-					    $this->set(array(
-				            'errors'    => array("$i" => $i." is required"),
+					    $this->set([
+				            'errors'    => ["$i" => $i." is required"],
 				            'success'   => false,
-				            'message'   => array('message' => 'Could not save data'),
-				            '_serialize' => array('errors','success','message')
-				        ));
+				            'message'   => 'Could not save data'
+				        ]);
+				        $this->viewBuilder()->setOption('serialize', true);
 					    return;
 				    }
 			    }
@@ -1523,10 +1522,10 @@ class DynamicDetailsController extends AppController{
 			if($req_d['social_enable'] == 0){
 			
 				//if not enabled we don't care ....
-				$this->set(array(
-		            'success' => true,
-		            '_serialize' => array('success')
-		        ));
+				$this->set([
+		            'success' => true
+		        ]);
+		        $this->viewBuilder()->setOption('serialize', true);
 				return;
 			}
 			
@@ -1561,20 +1560,20 @@ class DynamicDetailsController extends AppController{
 			    }
 			}
 			
-            $this->set(array(
-                'success' => true,
-                '_serialize' => array('success')
-            ));
+            $this->set([
+                'success' => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
 
         } else {
 
             $message = 'Error';
-            $this->set(array(
+            $this->set([
                 'errors'    => $this->JsonErrors->entityErros($entity, $message),
                 'success'   => false,
-                'message'   => array('message' => 'Could not save data'),
-                '_serialize' => array('errors','success','message')
-            ));
+                'message'   => 'Could not save data',
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
         }
 	}
     
@@ -1597,11 +1596,11 @@ class DynamicDetailsController extends AppController{
            array_shift($items); //Remove the first item which will be "Custom" in the config file
         }
             
-        $this->set(array(
+        $this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => array('items','success')
-        ));
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
 
 	 
@@ -1612,11 +1611,11 @@ class DynamicDetailsController extends AppController{
         }
         
         $menu = $this->GridButtonsFlat->returnButtons(false,'dynamic_details');
-        $this->set(array(
+        $this->set([
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
-        ));
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function menuForPhotos(){
@@ -1637,9 +1636,9 @@ class DynamicDetailsController extends AppController{
         
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function menuForDynamicPages(){
@@ -1652,8 +1651,8 @@ class DynamicDetailsController extends AppController{
         $this->set(array(
             'items'         => $menu,
             'success'       => true,
-            '_serialize'    => array('items','success')
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function menuForDynamicPairs(){
@@ -1665,9 +1664,9 @@ class DynamicDetailsController extends AppController{
         $menu = $this->GridButtonsFlat->returnButtons(false,'basic');
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function menuForDynamicEmails(){
@@ -1686,9 +1685,9 @@ class DynamicDetailsController extends AppController{
         ]);
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function menuForDynamicTranslations(){
@@ -1699,9 +1698,9 @@ class DynamicDetailsController extends AppController{
         $menu = $this->GridButtons->returnButtons(false,'dynamic_translations');
         $this->set(array(
             'items'         => $menu,
-            'success'       => true,
-            '_serialize'    => array('items','success')
+            'success'       => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     

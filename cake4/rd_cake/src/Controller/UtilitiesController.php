@@ -25,9 +25,9 @@ class UtilitiesController extends AppController {
         }
         $this->set([
             'items'         => $items,
-            'success'       => true,
-            '_serialize'    => ['items','success']
+            'success'       => true
         ]); 
+        $this->viewBuilder()->setOption('serialize', true); 
     }
     
     public function countriesIndex(){
@@ -41,9 +41,9 @@ class UtilitiesController extends AppController {
           
         $this->set([
             'items'         => $items,
-            'success'       => true,
-            '_serialize'    => ['items','success']
-        ]);    
+            'success'       => true
+        ]); 
+        $this->viewBuilder()->setOption('serialize', true);    
     }
     
    

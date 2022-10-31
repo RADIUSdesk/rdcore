@@ -88,9 +88,9 @@ class ApActionsController extends AppController {
         $this->set(array(
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => array('items', 'success', 'totalCount')
+            'totalCount' => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     
@@ -156,10 +156,10 @@ class ApActionsController extends AppController {
                          }
                      }              
                  
-                     $this->set(array(
-                         'success' => true,
-                         '_serialize' => array('success')
-                     ));
+                     $this->set([
+                         'success' => true
+                     ]);
+                     $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not update item');
                     $this->JsonErrors->entityErros($entity,$message);
@@ -200,9 +200,9 @@ class ApActionsController extends AppController {
                 }
             
                 $this->set(array(
-				    'success' => true,
-				    '_serialize' => array('success')
+				    'success' => true
 				));
+				$this->viewBuilder()->setOption('serialize', true);
 				return;
 			} else {
                 $message = __('Could not update item');
@@ -239,15 +239,14 @@ class ApActionsController extends AppController {
         if($fail_flag == true){
             $this->set([
                 'success'   => false,
-                'message'   => ['message' => __('Could not delete some items')],
-                '_serialize' => ['success','message']
+                'message'   =>  __('Could not delete some items')
             ]);
         }else{
             $this->set([
-                'success' => true,
-                '_serialize' => ['success']
+                'success' => true
             ]);
         }
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 
      //DEPECATED => Using NodeActions controller with ONE URL
@@ -258,10 +257,10 @@ class ApActionsController extends AppController {
 
 		if(!(array_key_exists('mac', $req_d))){
 				$this->set([
-				'message'		=> 'Required field missing in POST',
-		        'success' => false,
-		        '_serialize' => ['success','message']
+				'message' => 'Required field missing in POST',
+		        'success' => false
 		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);
 			return;
 		}
 
@@ -281,9 +280,9 @@ class ApActionsController extends AppController {
 
 		$this->set([
 			'items'		=> $items,
-            'success' 	=> true,
-            '_serialize' => ['success','items']
+            'success' 	=> true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	public function restartAps(){
@@ -324,9 +323,9 @@ class ApActionsController extends AppController {
 		$items = [];
 		$this->set([
             'items' => $items,
-            'success' => true,
-            '_serialize' => ['items','success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true);
 	}
 	
 	private function _get_ap_mac($ap_id){
@@ -362,8 +361,8 @@ class ApActionsController extends AppController {
         $menu = $this->GridButtonsFlat->returnButtons(false, 'add_and_delete'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true);
     }
 }

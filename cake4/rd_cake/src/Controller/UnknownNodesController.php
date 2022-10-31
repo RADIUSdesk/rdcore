@@ -109,9 +109,9 @@ class UnknownNodesController extends AppController {
         $this->set(array(
             'items' => $items,
             'success' => true,
-            'totalCount' => $total,
-            '_serialize' => array('items', 'success', 'totalCount')
+            'totalCount' => $total
         ));
+        $this->viewBuilder()->setOption('serialize', true); 
     }
 
     public function delete() {
@@ -138,9 +138,9 @@ class UnknownNodesController extends AppController {
             }
         }
         $this->set([
-            'success' => true,
-            '_serialize' => ['success']
+            'success' => true
         ]);
+        $this->viewBuilder()->setOption('serialize', true); 
 	}
 
     public function menuForGrid(){
@@ -153,8 +153,8 @@ class UnknownNodesController extends AppController {
         $menu = $this->GridButtonsFlat->returnButtons(false, 'unknown_ap_or_nodes'); 
         $this->set(array(
             'items' => $menu,
-            'success' => true,
-            '_serialize' => array('items', 'success')
+            'success' => true
         ));
+        $this->viewBuilder()->setOption('serialize', true); 
     }
 }
