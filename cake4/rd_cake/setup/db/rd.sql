@@ -178,7 +178,7 @@ CREATE TABLE `ap_profile_entries` (
   `name` varchar(128) NOT NULL,
   `hidden` tinyint(1) NOT NULL DEFAULT 0,
   `isolate` tinyint(1) NOT NULL DEFAULT 0,
-  `encryption` enum('none','wep','psk','psk2','wpa','wpa2') DEFAULT 'none',
+  `encryption` enum('none','wep','psk','psk2','wpa','wpa2','ppsk') DEFAULT 'none',
   `special_key` varchar(100) NOT NULL DEFAULT '',
   `auth_server` varchar(255) NOT NULL DEFAULT '',
   `auth_secret` varchar(255) NOT NULL DEFAULT '',
@@ -193,6 +193,8 @@ CREATE TABLE `ap_profile_entries` (
   `nasid` varchar(255) NOT NULL DEFAULT '',
   `auto_nasid` tinyint(1) NOT NULL DEFAULT 0,
   `accounting` tinyint(1) NOT NULL DEFAULT 1,
+  `default_vlan` int(10) NOT NULL DEFAULT 100,
+  `default_key` varchar(255) NOT NULL DEFAULT '12345678',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -381,6 +383,11 @@ CREATE TABLE `ap_profile_settings` (
   `report_adv_sampling` int(5) DEFAULT 60,
   `enable_schedules` tinyint(1) NOT NULL DEFAULT 0,
   `schedule_id` int(11) DEFAULT NULL,
+  `vlan_enable` tinyint(1) NOT NULL DEFAULT 0,
+  `vlan_range_or_list` enum('range','list') DEFAULT 'range',
+  `vlan_start` int(10) NOT NULL DEFAULT 100,
+  `vlan_end` int(10) NOT NULL DEFAULT 101,
+  `vlan_list` varchar(255) NOT NULL DEFAULT '100',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1157,6 +1164,8 @@ CREATE TABLE `dynamic_clients` (
   `daily_data_limit_reset_hour` int(3) NOT NULL DEFAULT 0,
   `daily_data_limit_reset_minute` int(3) NOT NULL DEFAULT 0,
   `daily_data_used` bigint(20) DEFAULT NULL,
+  `default_vlan` int(10) NOT NULL DEFAULT 100,
+  `default_key` varchar(255) NOT NULL DEFAULT '12345678',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1929,7 +1938,7 @@ CREATE TABLE `mesh_entries` (
   `hidden` tinyint(1) NOT NULL DEFAULT 0,
   `isolate` tinyint(1) NOT NULL DEFAULT 0,
   `apply_to_all` tinyint(1) NOT NULL DEFAULT 0,
-  `encryption` enum('none','wep','psk','psk2','wpa','wpa2') DEFAULT 'none',
+  `encryption` enum('none','wep','psk','psk2','wpa','wpa2','ppsk') DEFAULT 'none',
   `special_key` varchar(100) NOT NULL DEFAULT '',
   `auth_server` varchar(255) NOT NULL DEFAULT '',
   `auth_secret` varchar(255) NOT NULL DEFAULT '',
@@ -1944,6 +1953,8 @@ CREATE TABLE `mesh_entries` (
   `auto_nasid` tinyint(1) NOT NULL DEFAULT 0,
   `accounting` tinyint(1) NOT NULL DEFAULT 1,
   `frequency_band` enum('both','two','five','five_upper','five_lower') DEFAULT 'both',
+  `default_vlan` int(10) NOT NULL DEFAULT 100,
+  `default_key` varchar(255) NOT NULL DEFAULT '12345678',
   PRIMARY KEY (`id`),
   KEY `idx_mesh_entries_mesh_id` (`mesh_id`),
   KEY `idx_mesh_entries_name` (`name`)
@@ -2717,6 +2728,11 @@ CREATE TABLE `node_settings` (
   `report_adv_sampling` int(5) DEFAULT 60,
   `enable_schedules` tinyint(1) NOT NULL DEFAULT 0,
   `schedule_id` int(11) DEFAULT NULL,
+  `vlan_enable` tinyint(1) NOT NULL DEFAULT 0,
+  `vlan_range_or_list` enum('range','list') DEFAULT 'range',
+  `vlan_start` int(10) NOT NULL DEFAULT 100,
+  `vlan_end` int(10) NOT NULL DEFAULT 101,
+  `vlan_list` varchar(255) NOT NULL DEFAULT '100',
   PRIMARY KEY (`id`),
   KEY `idx_node_settings_mesh_id` (`mesh_id`),
   KEY `idx_node_settings_modified` (`modified`)
@@ -4659,4 +4675,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-10-14 11:53:32
+-- Dump completed on 2022-11-03  7:30:03

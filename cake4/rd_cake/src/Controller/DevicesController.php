@@ -367,7 +367,7 @@ class DevicesController extends AppController{
         }
 
 
-        $this->set(
+        $this->set([
             'data'   => $items, //For the form to load we use data instead of the standard items as for grids
             'success' => true
         ]);

@@ -216,7 +216,7 @@ class RadacctsController extends AppController {
         $this->viewBuilder()->setClassName('CsvView.Csv');    
         $this->set([
         	'data' => $data
-        ])     
+        ]);     
         $this->viewBuilder()->setOption('serialize', true);  
         
     }
