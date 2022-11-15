@@ -1662,6 +1662,7 @@ class DynamicDetailsController extends AppController{
         }
         
         $menu = $this->GridButtonsFlat->returnButtons(false,'basic');
+             
         $this->set(array(
             'items'         => $menu,
             'success'       => true
@@ -1676,13 +1677,26 @@ class DynamicDetailsController extends AppController{
         }
         
         $menu = $this->GridButtonsFlat->returnButtons(false,'basic');
-        array_push($menu[0]['items'],[
+        
+         $items_new = [];
+        
+        foreach($menu[0]['items'] as $m){
+        
+        	if($m['itemId'] !== 'edit'){
+        		array_push($items_new,$m);      	
+        	}
+        }
+                 
+        array_push($items_new,[
             'xtype'     => 'button',     
             'glyph'     => Configure::read('icnCsv'), 
             'scale'     => 'large', 
             'itemId'    => 'csv',      
             'tooltip'   => __('Export CSV')
         ]);
+        
+        $menu[0]['items'] = $items_new;
+        
         $this->set(array(
             'items'         => $menu,
             'success'       => true

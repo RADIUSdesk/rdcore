@@ -199,7 +199,7 @@ class DataCollectorsController extends AppController{
 
         foreach ($q_r as $i) {         
             $row        = [];
-            $fields     = $this->{$this->main_model}->setSchema()->columns();
+            $fields     = $this->{$this->main_model}->getSchema()->columns();
             foreach($fields as $field){
                 $row["$field"]= $i->{"$field"};
                 if($field == 'created'){

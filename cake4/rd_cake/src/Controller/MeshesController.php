@@ -1050,8 +1050,7 @@ class MeshesController extends AppController{
 
         if ($this->request->is('post')) {
         
-        	$req_d		= $this->request->getData();
-        	
+        	$req_d		= $this->request->getData();   	
         	$check_items = [
 				'auto_detect'
 			];
@@ -1198,7 +1197,7 @@ class MeshesController extends AppController{
 
             // If the form data can be validated and saved...
             $ent_exit = $this->{'MeshExits'}->get($req_d['id']);
-            $this->{'MeshExits'}->patchEntity($ent_exit, $this->request->getData());
+            $this->{'MeshExits'}->patchEntity($ent_exit, $req_d);
             
             
             if ($this->{'MeshExits'}->save($ent_exit)) {

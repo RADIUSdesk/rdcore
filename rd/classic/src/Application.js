@@ -41,6 +41,46 @@ Ext.define('Rd.Application', {
             var splash = document.getElementById("divSplash");
             splash.parentNode.removeChild(splash);
         }
+
+        //==WIP==
+/*
+        console.log("Websocket");
+        Ext.Loader.setConfig ({
+	        enabled: true ,
+	        paths: {
+		        'Ext.ux.WebSocket': 'classic/src/ux/WebSocket.js' ,
+		        'Ext.ux.WebSocketManager': 'classic/src/ux/WebSocketManager.js'
+	        }
+        });
+        Ext.require (['Ext.ux.WebSocket', 'Ext.ux.WebSocketManager']);
+
+        var ws = Ext.create ('Ext.ux.WebSocket', {
+            communicationType : 'both', 
+			url: 'ws://localhost:3000' ,
+          //  url: 'wss://demo.piesocket.com/v3/channel_123?api_key=VCXCEuvhGcBDP7XhiJJUDvR1e1D3eiVjgZ9VRiaV&notify_self',
+          //  communicationType: 'text',
+			listeners: {
+				open: function (ws) {
+					console.log("WebSocket just open!");
+                  //  ws.send ('This is only-text message');
+                    ws.send ('init', 'This is a simple text');
+                    ws.send ('and continue', {
+                        'my': 'data' ,
+                        'your': 'data'
+                    });
+				} ,
+				message: function (ws, data) {
+                    console.log("Message");
+                    console.log(data);
+				},
+				close: function (ws) {
+					console.log("Close Hom");
+				}
+			}
+		});
+*/
+
+        //==END WIP==
         
         me.addUx();
         Ext.tip.QuickTipManager.init();
