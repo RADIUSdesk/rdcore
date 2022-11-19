@@ -709,6 +709,23 @@ background-color:#ffecec;
     color: #ffffff;
 }
 
+.lblTipItemL {
+    width: 120px;
+    float: left;
+    text-align: left;
+    color: #868686;
+    font-size:14px;
+    margin: 1px;
+}
+
+.lblTipValueL {
+    text-align: left;
+    font-size:14px;
+    margin: 1px;
+    color: #005691;
+}
+
+
 .custom-color-picker-swatch {
     z-index: 10 !important;
 }

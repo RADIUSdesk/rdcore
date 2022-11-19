@@ -4,6 +4,7 @@ Rd.config = {
 
     //GUI Improvements
     gridPadding     : 10,
+    gridSlim        : '0 3 0 3',
     tabAccPrvdrs    : 'tab-blue',
     tabRealms       : 'tab-orange',
     tabPermUsers    : 'tab-blue',
@@ -181,6 +182,7 @@ Rd.config = {
     'icnThermometer': 'xf2c9@FontAwesome',
     'icnListOl'     : 'xf0cb@FontAwesome',
     'icnHandshakeO' : 'xf2b5@FontAwesome',
-    'icnHddO'       : 'f0a0@FontAwesome'     
+    'icnHddO'       : 'f0a0@FontAwesome',
+    'icnExchange'   : 'f0ec@FontAwesome'   
 }
 

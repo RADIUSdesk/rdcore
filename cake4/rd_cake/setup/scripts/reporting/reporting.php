@@ -47,6 +47,9 @@ function main(){
                     if(isset($_POST['flows'])){
                         _addSoftflowLogs($node);
                     }
+                    if(isset($_POST['qmi_info'])){
+                        _addQmiInfo($node->id);
+                    }
                     _doLightReport($node);                   
                 }
                 if($report_type == 'full'){
@@ -259,6 +262,78 @@ function _addWbwInfo($id){
         }
     } 
 }
+
+function _addQmiInfo($id){
+
+    global $conn,$mode;
+    $qmi_info 		= $_POST['qmi_info'];
+    $qmi_signal		= $qmi_info['signal'];
+    $qmi_system		= $qmi_info['system'];
+      
+    $query_signal   = "SELECT id FROM node_connection_settings WHERE node_id = :id AND grouping='qmi_info_signal' AND name=:key";
+    $query_system   = "SELECT id FROM node_connection_settings WHERE node_id = :id AND grouping='qmi_info_system' AND name=:key";
+    
+    $update 	    = "UPDATE node_connection_settings SET modified = NOW(), value = :value WHERE id = :id";
+    $insert_signal 	= "INSERT into node_connection_settings (node_id,grouping,name,value,created,modified) VALUES(:id,'qmi_info_signal',:key,:value,NOW(),NOW())";
+    $insert_system 	= "INSERT into node_connection_settings (node_id,grouping,name,value,created,modified) VALUES(:id,'qmi_info_system',:key,:value,NOW(),NOW())";
+    if($mode == 'ap'){
+        $query_signal  = "SELECT id FROM ap_connection_settings WHERE ap_id = :id AND grouping='qmi_info_signal' AND name=:key";
+        $query_system  = "SELECT id FROM ap_connection_settings WHERE ap_id = :id AND grouping='qmi_info_system' AND name=:key";
+        $update = "UPDATE ap_connection_settings SET modified = NOW(), value = :value WHERE id = :id";
+        $insert_signal = "INSERT into ap_connection_settings (ap_id,grouping,name,value,created,modified) VALUES(:id,'qmi_info_signal',:key,:value,NOW(),NOW())";
+        $insert_system = "INSERT into ap_connection_settings (ap_id,grouping,name,value,created,modified) VALUES(:id,'qmi_info_system',:key,:value,NOW(),NOW())";
+    }
+    
+    //Signal    
+    foreach (array_keys($qmi_signal) as $key){
+        $value  = $qmi_signal[$key];
+        $stmt   = $conn->prepare($query_signal);
+        $stmt->execute(['id' => $id,'key' =>$key]);   
+        $result = $stmt->fetch(PDO::FETCH_OBJ);
+
+        if(isset($result->id)){
+            $stmt = $conn->prepare($update);
+            $stmt->execute(['id' => $result->id,'value' =>$value]);   
+        }else{
+            $stmt = $conn->prepare($insert_signal);
+            $stmt->execute(['id' => $id,'key' =>$key,'value'=>$value]);   
+        }
+    } 
+    
+    //System (is a bit different it has sub items which we'll do with item:sub_item as key
+    foreach (array_keys($qmi_system) as $key){
+        $value  = $qmi_system[$key];
+        if(is_array($value)){
+        	foreach(array_keys($value) as $two_key){
+        		$k		= $key.":".$two_key;
+        		$v 		= $qmi_system[$key][$two_key];
+		    	$stmt   = $conn->prepare($query_system);
+				$stmt->execute(['id' => $id,'key' =>$k]);   
+				$result = $stmt->fetch(PDO::FETCH_OBJ);
+				if(isset($result->id)){
+				    $stmt = $conn->prepare($update);
+				    $stmt->execute(['id' => $result->id,'value' =>$v]);   
+				}else{
+				    $stmt = $conn->prepare($insert_system);
+				    $stmt->execute(['id' => $id,'key' =>$k,'value'=>$v]);   
+				}      	          	
+        	}       
+        }else{
+		    		    
+		    $stmt   = $conn->prepare($query_system);
+		    $stmt->execute(['id' => $id,'key' =>$key]);   
+		    $result = $stmt->fetch(PDO::FETCH_OBJ);
+		    if(isset($result->id)){
+		        $stmt = $conn->prepare($update);
+		        $stmt->execute(['id' => $result->id,'value' =>$value]);   
+		    }else{
+		        $stmt = $conn->prepare($insert_system);
+		        $stmt->execute(['id' => $id,'key' =>$key,'value'=>$value]);   
+		    }
+		}
+    }   
+}
+
 
 function _doFullReport($node){
 

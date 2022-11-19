@@ -12,6 +12,7 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
     border		: false,
     requires	: [
         'Rd.view.components.ajaxToolbar',
+        'Rd.view.components.rdProgress',
         'Ext.toolbar.Paging',
         'Ext.ux.ProgressBarPager'       
     ],
@@ -278,7 +279,7 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                                 renderTo    : id,
                                 value       : bar,
                                 width       : 140,
-                                text        : "<i class=\"fa fa-wifi\"></i> "+v+" dBm",
+                                text        : "<i class=\"fa fa-signal\"></i> "+v+" dBm",
                                 cls         : cls
                             });
                         
@@ -289,7 +290,115 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                                 target  : id,
                                 border  : true,
                                 anchor  : 'left',
-                                html    : [
+                                closable: true,
+                                autoHide: false,
+                                items: [{
+                                    xtype   : 'panel',
+                                    height  : 250,
+                                    width   : 250,
+                                    scrollable : true,
+                                    padding : 0,
+                                    margin : 0,
+                                    items: [
+                                        {
+                                            xtype   : 'image',
+                                            src     : '/cake4/rd_cake/img/mobile_providers/za_cell_c.png',
+                                            padding : 5,
+                                            style: {
+                                                'display': 'block',
+                                                'margin': 'auto'
+                                            }
+                                        },
+                                        {
+                                            xtype   : 'container',
+                                            margin  : '0 5 0 5',
+                                            html    : [
+                                                "<div>",
+                                                    "<h4 style='text-align: center;margin:5px;'>LTE</h4>",
+                                                    "<label class='lblTipItemL'>RSSI</label><label class='lblTipValueL'>-69 (Good)</label>",                                            
+                                                "</div>"
+                                            ]
+                                        },
+                                        {
+                                            xtype       : 'rdProgress',
+                                            height      : 10,
+                                            value       : .7,
+                                            margin      : '0 5 15 5'       
+                                        },
+                                        {
+                                            xtype   : 'container',
+                                            margin  : '0 5 0 5',
+                                            html    : [
+                                                "<div>",
+                                                    "<label class='lblTipItemL'>RSRP (dBm)</label><label class='lblTipValueL'>-103 (Excellent)</label>",                                           
+                                                "</div>"
+                                            ]
+                                        },
+                                        {
+                                            xtype       : 'rdProgress',
+                                            height      : 10,
+                                            value       : .9,
+                                            margin      : '0 5 15 5'       
+                                        },
+                                        {
+                                            xtype   : 'container',
+                                            margin  : '0 5 0 5',
+                                            html    : [
+                                                "<div>",
+                                                    "<label class='lblTipItemL'>RSRQ (dB)</label><label class='lblTipValueL'>-14 (Mid Cell)</label>",                                            
+                                                "</div>"
+                                            ]
+                                        },
+                                        {
+                                            xtype       : 'rdProgress',
+                                            height      : 10,
+                                            value       : .4,
+                                            margin      : '0 5 15 5'        
+                                        },
+                                        {
+                                            xtype   : 'container',
+                                            margin  : '0 5 0 5',
+                                            html    : [
+                                                "<div>",
+                                                    "<label class='lblTipItemL'>SINR (dB)</label><label class='lblTipValueL'>10 (Cell Edge)</label>",                                          
+                                                "</div>"
+                                            ]
+                                        },
+                                        {
+                                            xtype       : 'rdProgress',
+                                            height      : 10,
+                                            value       : .2,
+                                            margin      : '0 5 15 5'        
+                                        }  
+                                           
+                                    ]
+                                   /* html    : [
+                                        "<div>",
+                                            "<h2>Latest connection detail</h2>",
+                                            "<label class='lblTipItem'>Channel</label><label class='lblTipValue'>"+r.get('wbw_channel')+"</label>",
+                                            "<div style='clear:both;'></div>",
+                                            "<label class='lblTipItem'>TX Power</label><label class='lblTipValue'>"+r.get('wbw_txpower')+"</label>",
+                                            "<div style='clear:both;'></div>",
+                                            "<label class='lblTipItem'>Quality</label><label class='lblTipValue'>"+r.get('wbw_quality')+"/70</label>",
+                                            "<div style='clear:both;'></div>",
+                                            "<label class='lblTipItem'>Noise</label><label class='lblTipValue'>"+r.get('wbw_noise')+"</label>",
+                                            "<div style='clear:both;'></div>",
+                                            "<label class='lblTipItem'>TX Packets</label><label class='lblTipValue'>"+r.get('wbw_tx_packets')+"</label>",
+                                            "<div style='clear:both;'></div>",
+                                            "<label class='lblTipItem'>TX Packets</label><label class='lblTipValue'>"+r.get('wbw_rx_packets')+"</label>",
+                                            "<div style='clear:both;'></div>",
+                                            "<label class='lblTipItem'>TX Rate</label><label class='lblTipValue'>"+r.get('wbw_tx_rate')+" Mbps</label>",
+                                            "<div style='clear:both;'></div>",
+                                            "<label class='lblTipItem'>TX Rate</label><label class='lblTipValue'>"+r.get('wbw_rx_rate')+" Mbps</label>",
+                                            "<div style='clear:both;'></div>", 
+                                            "<label class='lblTipItem'>Speed (~)</label><label class='lblTipValue'>"+r.get('wbw_expected_throughput')+" Mbps</label>",
+                                            "<div style='clear:both;'></div>",
+                                            "<label class='lblTipItem'>SSID</label><label class='lblTipValue'>"+r.get('wbw_ssid')+"</label>",
+                                            "<div style='clear:both;'></div>",
+                                        "</div>" 
+                                    ]*/
+                                }]
+                               /* html    : [
                                     "<div>",
                                         "<h2>Latest connection detail</h2>",
                                         "<label class='lblTipItem'>Channel</label><label class='lblTipValue'>"+r.get('wbw_channel')+"</label>",
@@ -313,7 +422,7 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                                         "<label class='lblTipItem'>SSID</label><label class='lblTipValue'>"+r.get('wbw_ssid')+"</label>",
                                         "<div style='clear:both;'></div>",
                                     "</div>" 
-                                ]
+                                ]*/
                             });
 
                         }, 100);
