@@ -751,6 +751,18 @@ $config['MESHdesk']['xwf_locationprefix'] = 'XWF-';
 
 $config['MESHdesk']['xwf_extra_walled_garden'] = 'xwf.fyi'; //Create a list of comma separated exta xwf walled garden items (Typically for the landing page if it has extra things where it sources items from
 
+
+//==NOV 2022 ADD Temp LTE PROVIDER LIST (Move later to DB)
+// logo located under /var/www/rdcore/cake4/rd_cake/webroot/img/mobile_providers
+// For Souht Africa mcc and mnc
+//https://www.apnsettings.org/southafrica/mcc-mnc-for-south-africa/
+
+$config['MESHdesk']['mobile_providers'] = [
+	['mcc' => 655,	"mnc" => 7, 	'name' => 'Cell C', 	'country' => 'ZA', 'logo' => 'za_cell_c.png' ],
+	['mcc' => 655,	"mnc" => 10, 	'name' => 'MTN', 		'country' => 'ZA', 'logo' => 'za_mtn.png' ],
+	['mcc' => 655,	"mnc" => 1, 	'name' => 'Vodacom', 	'country' => 'ZA', 'logo' => 'za_vodacom.png' ]
+];
+
 return $config;
 
 
