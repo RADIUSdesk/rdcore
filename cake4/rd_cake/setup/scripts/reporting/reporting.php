@@ -306,6 +306,12 @@ function _addQmiInfo($id){
         if(is_array($value)){
         	foreach(array_keys($value) as $two_key){
         		$k		= $key.":".$two_key;
+        		
+        		//Skip over values longer than 25 characters (name     | varchar(25))
+        		if(strlen($k)>25){
+        			continue;
+        		}
+        		       		
         		$v 		= $qmi_system[$key][$two_key];
 		    	$stmt   = $conn->prepare($query_system);
 				$stmt->execute(['id' => $id,'key' =>$k]);   
