@@ -1702,10 +1702,15 @@ class MeshesController extends AppController{
                 $p = $m->power;
             }
             $wbw_active = false;
+            $qmi_active = false;
             if($m->node_connection_settings){
                 foreach($m->node_connection_settings as $ent_ncs){
                     if($ent_ncs->grouping == 'wbw_setting'){
                         $wbw_active = true;
+                        break;
+                    }
+                    if($ent_ncs->grouping == 'qmi_setting'){
+                        $qmi_active = true;
                         break;
                     }
                 }
@@ -1729,7 +1734,8 @@ class MeshesController extends AppController{
                 'static_entries'=> $static_entries,
                 'static_exits'  => $static_exits,
                 'ip'            => $m->ip,
-                'wbw_active'    => $wbw_active
+                'wbw_active'    => $wbw_active,
+                'qmi_active'	=> $qmi_active
             ));
         }
         //___ FINAL PART ___

@@ -288,78 +288,276 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                 width       : 150,
                 sortable    : false,
                 renderer: function (v, m, r) {
-                    if(v != null){
-                        var bar = r.get('wbw_signal_bar');
-                        var state = r.get('state');
-                        if(state == 'up'){
-                            var cls = 'wifigreen';
-                            if(bar < 0.3){
-                                cls = 'wifired';   
-                            }
-                            if((bar >= 0.3)&(bar <= 0.5)){
-                                cls = 'wifiyellow';
-                            }
-                        }else{
-                            cls = 'wifigrey';
-                        }
-                        var id = Ext.id();
-                        Ext.defer(function () {
-                            var p = Ext.widget('progressbarwidget', {
-                                renderTo    : id,
-                                value       : bar,
-                                width       : 140,
-                                text        : "<i class=\"fa fa-wifi\"></i> "+v+" dBm",
-                                cls         : cls
-                            });
-                        
-                            //Fetch some variables:
-                            var t       = r.get('l_modified_human');
-
-                            var t  = Ext.create('Ext.tip.ToolTip', {
-                                target  : id,
-                                border  : true,
-                                anchor  : 'left',
-                                html    : [
-                                    "<div>",
-                                        "<h2>Latest connection detail</h2>",
-                                        "<label class='lblTipItem'>Channel</label><label class='lblTipValue'>"+r.get('wbw_channel')+"</label>",
-                                        "<div style='clear:both;'></div>",
-                                        "<label class='lblTipItem'>TX Power</label><label class='lblTipValue'>"+r.get('wbw_txpower')+"</label>",
-                                        "<div style='clear:both;'></div>",
-                                        "<label class='lblTipItem'>Quality</label><label class='lblTipValue'>"+r.get('wbw_quality')+"/70</label>",
-                                        "<div style='clear:both;'></div>",
-                                        "<label class='lblTipItem'>Noise</label><label class='lblTipValue'>"+r.get('wbw_noise')+"</label>",
-                                        "<div style='clear:both;'></div>",
-                                        "<label class='lblTipItem'>TX Packets</label><label class='lblTipValue'>"+r.get('wbw_tx_packets')+"</label>",
-                                        "<div style='clear:both;'></div>",
-                                        "<label class='lblTipItem'>TX Packets</label><label class='lblTipValue'>"+r.get('wbw_rx_packets')+"</label>",
-                                        "<div style='clear:both;'></div>",
-                                        "<label class='lblTipItem'>TX Rate</label><label class='lblTipValue'>"+r.get('wbw_tx_rate')+" Mbps</label>",
-                                        "<div style='clear:both;'></div>",
-                                        "<label class='lblTipItem'>TX Rate</label><label class='lblTipValue'>"+r.get('wbw_rx_rate')+" Mbps</label>",
-                                        "<div style='clear:both;'></div>", 
-                                        "<label class='lblTipItem'>Speed (~)</label><label class='lblTipValue'>"+r.get('wbw_expected_throughput')+" Mbps</label>",
-                                        "<div style='clear:both;'></div>",
-                                        "<label class='lblTipItem'>SSID</label><label class='lblTipValue'>"+r.get('wbw_ssid')+"</label>",
-                                        "<div style='clear:both;'></div>",
-                                    "</div>" 
-                                ]
-                            });
-
-                        }, 100);
-                        return Ext.String.format('<div id="{0}"></div>', id);
-                    }else{
-                        if(r.get('gateway') == 'no'){
-                            return '<div class=\"fieldGrey\"><i class=\"fa fa-dice-d20\"></i> MESH</div>';
-                        }
-                        if(r.get('gateway') == 'yes'){
-                            return '<div class=\"fieldBlue\"><i class=\"fa fa-network-wired\"></i> LAN</div>';
-                        }
-                        return 'N/A';
-                    }
+                    return this.doConnection(r);
                 }
-            }
+            },
+            {
+                xtype       : 'actioncolumn',
+                text        : 'Actions',
+                width       : 80,
+                stateId     : 'StateGridApLists13',
+                items       : [				
+					 { 
+						iconCls : 'txtOrange x-fa fa-search',
+						tooltip : 'View',
+                        handler: function(view, rowIndex, colIndex, item, e, record, row) {
+                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'view');
+                        }
+                    },
+                    {  
+                        iconCls : 'txtGreen x-fa fa-wrench',
+                        tooltip : 'Execute',
+						handler: function(view, rowIndex, colIndex, item, e, record, row) {
+                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'execute');
+                        }
+					},
+					{  
+                        iconCls : 'txtGrey x-fa fa-power-off',
+                        tooltip : 'Restart',
+						handler: function(view, rowIndex, colIndex, item, e, record, row) {
+                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'restart');
+                        }
+					}
+				]
+	        }      
         ];
         me.callParent(arguments);
+    },
+    doConnection : function(r){
+        var me = this;
+        if(r.get('wbw_signal') !== undefined){
+            return this.doWbwPb(r);
+        }else if(r.get('qmi_rssi') !== undefined){
+            return this.doQmiPb(r);
+        }else{
+            if(r.get('gateway') == 'no'){
+                return '<div class=\"fieldGrey\"><i class=\"fa fa-dice-d20\"></i> MESH</div>';
+            }
+            if(r.get('gateway') == 'yes'){
+                return '<div class=\"fieldBlue\"><i class=\"fa fa-network-wired\"></i> LAN</div>';
+            }
+            return 'N/A';
+        }
+    },
+    doQmiPb: function(r){
+        var v       = r.get('qmi_rssi');
+        var bar     = r.get('qmi_rssi_bar');
+        var state   = r.get('state');
+        if(state == 'up'){
+            var cls = 'wifigreen';
+            if(bar < 0.3){
+                cls = 'wifired';   
+            }
+            if((bar >= 0.3)&(bar <= 0.5)){
+                cls = 'wifiyellow';
+            }
+        }else{
+            cls = 'wifigrey';
+        }
+        var id = Ext.id();
+        Ext.defer(function () {
+            var p = Ext.widget('progressbarwidget', {
+                renderTo    : id,
+                value       : bar,
+                width       : 140,
+                text        : "<i class=\"fa fa-signal\"></i> "+v+" dBm",
+                cls         : cls
+            });
+/*
+            "qmi_type": "lte",
+            "qmi_rssi": "-71",
+            "qmi_rsrq": "-12",
+            "qmi_rsrp": "-101",
+            "qmi_snr": "1.6",
+            "qmi_mcc": "655",
+            "qmi_mnc": "07",
+            "qmi_ecio": "19",
+            "qmi_rssi_bar": 0.1,
+            "qmi_provider_name": "Cell C",
+            "qmi_provider_country": "ZA",
+            "qmi_provider_logo": "/cake4/rd_cake/img/mobile_providers/za_cell_c.png",*/
+        
+            var t  = Ext.create('Ext.tip.ToolTip', {
+                target  : id,
+                border  : true,
+                anchor  : 'left',
+                closable: true,
+                autoHide: false,
+                items: [{
+                    xtype   : 'panel',
+                    height  : 250,
+                    width   : 250,
+                    scrollable : true,
+                    padding : 0,
+                    margin : 0,
+                    items: [
+                        {
+                            xtype   : 'image',
+                            src     : r.get('qmi_provider_logo'),
+                            padding : 5,
+                            style: {
+                                'display': 'block',
+                                'margin': 'auto'
+                            }
+                        },
+                        {
+                            xtype   : 'container',
+                            margin  : '0 5 0 5',
+                            html    : [
+                                "<div>",
+                                    "<h4 style='text-align: center;margin:5px;'>" + r.get('qmi_type').toUpperCase() + "</h4>",
+                                    "<label class='lblTipItemL'>RSSI</label><label class='lblTipValueL'>" + v + " (" + r.get('qmi_rssi_human') + ")</label>",                                            
+                                "</div>"
+                            ]
+                        },
+                        {
+                            xtype       : 'rdProgress',
+                            height      : 10,
+                            value       : r.get('qmi_rssi_bar'),
+                            margin      : '0 5 15 5'       
+                        },
+
+                        //==Power==
+                        {
+                            xtype   : 'container',
+                            margin  : '0 5 0 5',
+                            html    : [
+                                "<div>",
+                                    "<label class='lblTipItemL'>RSRP (dBm)</label><label class='lblTipValueL'>" + r.get('qmi_rsrp')+ " (" + r.get('qmi_rsrp_human') + ")</label>",                                           
+                                "</div>"
+                            ]
+                        },
+                        {
+                            xtype       : 'rdProgress',
+                            height      : 10,
+                            value       : r.get('qmi_rsrp_bar'),
+                            margin      : '0 5 15 5'       
+                        },
+
+                        //==Quality==
+                        {
+                            xtype   : 'container',
+                            margin  : '0 5 0 5',
+                            html    : [
+                                "<div>",
+                                    "<label class='lblTipItemL'>RSRQ (dB)</label><label class='lblTipValueL'>" + r.get('qmi_rsrq')+ " (" + r.get('qmi_rsrq_human') + ")</label>",                                           
+                                "</div>"
+                            ]
+                        },
+                        {
+                            xtype       : 'rdProgress',
+                            height      : 10,
+                            value       : r.get('qmi_rsrq_bar'),
+                            margin      : '0 5 15 5'       
+                        },
+
+                        //==SNR==
+                        {
+                            xtype   : 'container',
+                            margin  : '0 5 0 5',
+                            html    : [
+                                "<div>",
+                                    "<label class='lblTipItemL'>SINR (dB)</label><label class='lblTipValueL'>" + r.get('qmi_snr')+ " (" + r.get('qmi_snr_human') + ")</label>",                                        
+                                "</div>"
+                            ]
+                        },
+                        {
+                            xtype       : 'rdProgress',
+                            height      : 10,
+                            value       : r.get('qmi_snr_bar'),
+                            margin      : '0 5 15 5'        
+                        }                               
+                    ]
+                }]             
+            });
+
+        }, 100);
+        return Ext.String.format('<div id="{0}"></div>', id);
+    },
+    doWbwPb: function(r){
+        var v       = r.get('wbw_signal');
+        var bar     = r.get('wbw_signal_bar');
+        var state   = r.get('state');
+        if(state == 'up'){
+            var cls = 'wifigreen';
+            if(bar < 0.3){
+                cls = 'wifired';   
+            }
+            if((bar >= 0.3)&(bar <= 0.5)){
+                cls = 'wifiyellow';
+            }
+        }else{
+            cls = 'wifigrey';
+        }
+        var id = Ext.id();
+        Ext.defer(function () {
+            var p = Ext.widget('progressbarwidget', {
+                renderTo    : id,
+                value       : bar,
+                width       : 140,
+                text        : "<i class=\"fa fa-wifi\"></i> "+v+" dBm",
+                cls         : cls
+            });
+
+            var t  = Ext.create('Ext.tip.ToolTip', {
+                target  : id,
+                border  : true,
+                anchor  : 'left',
+                closable: true,
+                autoHide: false,
+                items: [{
+                    xtype   : 'panel',
+                    height  : 250,
+                    width   : 250,
+                    scrollable : true,
+                    padding : 0,
+                    margin : 0,
+                    items: [                       
+                        {
+                            xtype   : 'container',
+                            margin  : '0 5 0 5',
+                            html    : [
+                                "<div>",
+                                    "<h4 style='text-align: center;margin:5px;'>Latest connection detail</h4>",                                            
+                                "</div>"
+                            ]
+                        },
+                        {
+                            xtype   : 'container',
+                            margin  : '0 5 0 5',
+                            html    : [
+                                "<div>",
+                                    "<label class='lblTipItemL'>Channel</label><label class='lblTipValueL'>"+r.get('wbw_channel')+"</label>",
+                                    "<div style='clear:both;'></div>",
+                                    "<label class='lblTipItemL'>TX Power</label><label class='lblTipValueL'>"+r.get('wbw_txpower')+"</label>",
+                                    "<div style='clear:both;'></div>",
+                                    "<label class='lblTipItemL'>Quality</label><label class='lblTipValueL'>"+r.get('wbw_quality')+"/70</label>",
+                                    "<div style='clear:both;'></div>",
+                                    "<label class='lblTipItemL'>Noise</label><label class='lblTipValueL'>"+r.get('wbw_noise')+"</label>",
+                                    "<div style='clear:both;'></div>",
+                                    "<label class='lblTipItemL'>TX Packets</label><label class='lblTipValueL'>"+r.get('wbw_tx_packets')+"</label>",
+                                    "<div style='clear:both;'></div>",
+                                    "<label class='lblTipItemL'>TX Packets</label><label class='lblTipValueL'>"+r.get('wbw_rx_packets')+"</label>",
+                                    "<div style='clear:both;'></div>",
+                                    "<label class='lblTipItemL'>TX Rate</label><label class='lblTipValueL'>"+r.get('wbw_tx_rate')+" Mbps</label>",
+                                    "<div style='clear:both;'></div>",
+                                    "<label class='lblTipItemL'>TX Rate</label><label class='lblTipValueL'>"+r.get('wbw_rx_rate')+" Mbps</label>",
+                                    "<div style='clear:both;'></div>", 
+                                    "<label class='lblTipItemL'>Speed (~)</label><label class='lblTipValueL'>"+r.get('wbw_expected_throughput')+" Mbps</label>",
+                                    "<div style='clear:both;'></div>",
+                                    "<label class='lblTipItemL'>SSID</label><label class='lblTipValueL'>"+r.get('wbw_ssid')+"</label>",
+                                    "<div style='clear:both;'></div>",
+                                "</div>" 
+                            ]
+                        }                           
+                    ]                
+                }]
+            });
+
+        }, 100);
+        return Ext.String.format('<div id="{0}"></div>', id);
     }
+
+
+
 });

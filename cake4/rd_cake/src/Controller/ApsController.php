@@ -45,6 +45,8 @@ class ApsController extends AppController {
             'model' => 'Aps'
         ]);
         
+        $this->loadComponent('LteHelper');
+        
     }
     
     public function getConfigForAp(){
@@ -324,7 +326,7 @@ class ApsController extends AppController {
 
                 if($config_fetched == null){
                     $config_state                       = 'never';
-                    $mao['config_fetched_human']  = $config_fetched;
+                    $mao->{'config_fetched_human'}  = $config_fetched;
                 }else{
                     $last_config = strtotime($config_fetched);
                     if ($last_config+$dead_after <= time()) {
@@ -333,12 +335,12 @@ class ApsController extends AppController {
                         $config_state = 'up';
                     }
 
-                    $mao['config_fetched_human'] = $this->TimeCalculations->time_elapsed_string($config_fetched);
+                    $mao->{'config_fetched_human'} = $this->TimeCalculations->time_elapsed_string($config_fetched);
                 }
 
-                $mao['config_state']    = $config_state;
-                $ap_id                      = $i->id;
-                $modified 	                = $this->_get_timespan(); //Default will be an hour
+                $mao->{'config_state'}    = $config_state;
+                $ap_id                  = $i->id;
+                $modified 	            = $this->_get_timespan(); //Default will be an hour
 
                 $q_e = $this->ApProfileEntries->find()->where(['ApProfileEntries.ap_profile_id' => $ap_profile_id])->all();
 
@@ -418,10 +420,10 @@ class ApsController extends AppController {
                     $last_action = $i->ap_actions[0];
                     //Add it to the list....
                     if(isset($last_action['command'])){
-                        $mao['last_cmd'] = $last_action['command'];
+                        $mao->{'last_cmd'} = $last_action['command'];
                     }
                     if(isset($last_action['status'])){
-                        $mao['last_cmd_status'] = $last_action['status'];
+                        $mao->{'last_cmd_status'} = $last_action['status'];
                     }
                 }
 
@@ -451,7 +453,7 @@ class ApsController extends AppController {
                             $lc_human = 'never';
                         }
                         $vpn_state              = $vpn['state'];
-                        array_push($mao['openvpn_list'], [
+                        array_push($mao->{'openvpn_list'}, [
                             'name'          => $vpn_name,
                             'description'   => $vpn_description,
                             'lc_human'      => $lc_human,
@@ -545,56 +547,84 @@ class ApsController extends AppController {
 				    array_push($hist_day,0);
 			    }
 			    
-			    $mao['dayuptimehist'] = $hist_day;
-			    $mao['uptimhistpct'] = $hist_pct;
+			    $mao->{'dayuptimehist'} = $hist_day;
+			    $mao->{'uptimhistpct'} 	= $hist_pct;
 
-                $mao['update']      = true;
-                $mao['delete'] 	    = true;
-                $mao['id']  		= $i->id;
-                $mao['ap_profile']  = $i->ap_profile->name;
+                $mao->{'update'}     	= true;
+                $mao->{'delete'} 	    = true;
+                $mao->{'id'}  		= $i->id;
+                $mao->{'ap_profile'}  = $i->ap_profile->name;
 
-                $mao['last_contact_human']  = $this->TimeCalculations->time_elapsed_string($i->last_contact);
-                $mao['state']               = $state;
-                $mao['data_past_hour']      = $data_past_hour;
-                $mao['newest_station']      = $newest_station;
-                $mao['newest_time']         = $newest_time;
-                $mao['newest_vendor']       = $newest_vendor;
-                $mao['ssids']               = $array_ssids;
+                $mao->{'last_contact_human'}  = $this->TimeCalculations->time_elapsed_string($i->last_contact);
+                $mao->{'state'}               = $state;
+                $mao->{'data_past_hour'}      = $data_past_hour;
+                $mao->{'newest_station'}      = $newest_station;
+                $mao->{'newest_time'}         = $newest_time;
+                $mao->{'newest_vendor'}       = $newest_vendor;
+                $mao->{'ssids'}               = $array_ssids;
                 
                 $gateway = 'no';
                 if(($i->gateway == 'lan')||($i->gateway == '3g')||($i->gateway == 'wifi')){           
                  $gateway = 'yes';      
                 }
-                $mao['gateway'] = $gateway;
+                $mao->{'gateway'} = $gateway;
                 
                 if (array_key_exists($hw_id,$hardware)){             
-                    $mao['hw_human']   = $hardware["$hw_id"]['name'];  //Human name for Hardware
-                    $mao['hw_photo']   = $hardware["$hw_id"]['photo_file_name'];  //Human name for Hardware
+                    $mao->{'hw_human'}   = $hardware["$hw_id"]['name'];  //Human name for Hardware
+                    $mao->{'hw_photo'}   = $hardware["$hw_id"]['photo_file_name'];  //Human name for Hardware
                 }
 
-                $mao['country_code']        = $country_code;
-                $mao['country_name']        = $country_name;
-                $mao['city']                = $city;
-                $mao['postal_code']         = $postal_code;
+                $mao->{'country_code'}      = $country_code;
+                $mao->{'country_name'}        = $country_name;
+                $mao->{'city'}                = $city;
+                $mao->{'postal_code'}         = $postal_code;
                 
                 //wbw detail
                 if($i->ap_connection_settings){   
-                    $mao['wbw_active'] = false;
+                    $mao->{'wbw_active'} = false;
+                    $mao->{'qmi_active'} = false;
                     foreach($i->ap_connection_settings as $ncs){
+                    
+                    	//-wbw-
                         if($ncs->grouping == 'wbw_info'){
                         
                             if($ncs->name == 'signal'){
-                                $mao['wbw_last_contact_human']     = $this->TimeCalculations->time_elapsed_string($ncs->modified);
+                                $mao->{'wbw_last_contact_human'}     = $this->TimeCalculations->time_elapsed_string($ncs->modified);
                             }
                             $wbw_name = 'wbw_'.$ncs->name;
-                            $mao[$wbw_name] = $ncs->value;
+                            $mao->{$wbw_name} = $ncs->value;
                         }
                         if($ncs->grouping == 'wbw_setting'){
-                            $mao['wbw_active'] = true;
+                            $mao->{'wbw_active'} = true;
                         }
+                        
+                        //-qmi-signal
+		                if($ncs->grouping == 'qmi_info_signal'){                    
+		                	if($ncs->name == 'type'){
+		                        $mao->{'qmi_last_contact_human'}     = $this->TimeCalculations->time_elapsed_string($ncs->modified);
+		                    }                    
+		                	$qmi_name = 'qmi_'.$ncs->name;
+		                    $mao->{$qmi_name} = $ncs->value;                    
+		                }
+		                if($ncs->grouping == 'qmi_setting'){
+		                    $mao->{'qmi_active'} = true;
+		                }
+		                
+		                //-qmi-system
+		                if($ncs->grouping == 'qmi_info_system'){ 
+		                	//We only care for mcc and mnc for now                   
+		                	if(str_contains($ncs->name ,':mcc')){
+		                		$qmi_name = 'qmi_mcc';
+		                		$mao->{$qmi_name} = $ncs->value;
+		                	}  
+		                	if(str_contains($ncs->name ,':mnc')){
+		                		$qmi_name = 'qmi_mnc';
+		                		$mao->{$qmi_name} = $ncs->value;
+		                	}                                      
+		                }                                                            
                     }
                     
-                    if($mao['wbw_signal']){       
+                    if($mao->{'wbw_signal'}){       
                         if ($i->{'wbw_signal'} < -95) {
                             $signal_bar = 0.01;
                         }
@@ -605,15 +635,26 @@ class ApsController extends AppController {
                         if ($i->{'wbw_signal'} > -35) {
                             $signal_bar = 1;
                         }
-                        $mao['wbw_signal_bar'] = $signal_bar;
+                        $mao->{'wbw_signal_bar'} = $signal_bar;
+                        
+                        $mao->{'wbw_tx_rate'} = round($i->{'wbw_tx_rate'}/1000 ,1);
+                    	$mao->{'wbw_rx_rate'} = round($i->{'wbw_rx_rate'}/1000 ,1); 
+                    	$mao->{'wbw_expected_throughput'} = round($i->{'wbw_expected_throughput'}/1000 ,1);   
                     } 
-                    $mao['wbw_tx_rate'] = round($i->{'wbw_tx_rate'}/1000 ,1);
-                    $mao['wbw_rx_rate'] = round($i->{'wbw_rx_rate'}/1000 ,1); 
-                    $mao['wbw_expected_throughput'] = round($i->{'wbw_expected_throughput'}/1000 ,1);                
+                    
+                    //-- LTE things --
+		            if($mao->{'qmi_rssi'}){ 
+				        $this->LteHelper->getMobileProvider($mao); 
+				        $this->LteHelper->getRssiGui($mao);
+				        $this->LteHelper->getRsrpGui($mao);
+				        $this->LteHelper->getRsrqGui($mao);
+				        $this->LteHelper->getSnrGui($mao);
+				  	}                            
                 }
 
                 unset($mao->ap_actions);
                 unset($mao->openvpn_server_clients);
+                unset($mao->ap_connection_settings); //Remove the list (not needed)
 
                 array_push($items,$mao);
             }

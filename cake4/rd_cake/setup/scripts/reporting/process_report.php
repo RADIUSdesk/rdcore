@@ -162,9 +162,9 @@ function _doReports(){
     //==== END MESH REPORTS====
     
     //=== AP REPORTS ====
-    $ap_completed = [];
-    $ap_conclusion = [];
-    $ap_stmt = $conn->prepare("SELECT * FROM temp_reports where mesh_id=0"); //mesh_id = 0 for ap reports
+    $ap_completed 	= [];
+    $stmt_update_ap = $conn->prepare("UPDATE aps SET gateway = :gateway, lan_proto = :lan_proto, lan_gw = :lan_gw, lan_ip = :lan_ip  WHERE id = :id");
+    $ap_stmt 		= $conn->prepare("SELECT * FROM temp_reports where mesh_id=0"); //mesh_id = 0 for ap reports
     $ap_stmt->execute();  
     while ($row = $ap_stmt->fetch(PDO::FETCH_OBJ)){
         $ap_id = $row->ap_id;
@@ -191,9 +191,30 @@ function _doReports(){
         _do_ap_load($ap_id,$report['system_info']['sys']);
         //Update system info (if required)
         _do_ap_system_info($ap_id,$report['system_info']['sys']);
+             
+        //------------
+        //--- Check if there are any lan_info items here
+        $gateway    = 'none';
+        $lan_proto  = '';
+        $lan_gw     = '';
+        $lan_ip     = '';
+        
+        if (array_key_exists('lan_info', $report)) {
+            $lan_proto  = $report['lan_info']['lan_proto'];
+            $lan_gw     = $report['lan_info']['lan_gw'];
+            $lan_ip     = $report['lan_info']['lan_ip'];
+        }
+        //--Check if we need to update the gateway field
+        if (array_key_exists('gateway', $report)){
+            $gateway = $report['gateway']; 
+        }
+        
+        $c_data = ['gateway' => $gateway, 'lan_proto' => $lan_proto, 'lan_gw' => $lan_gw, 'lan_ip' => $lan_ip,'id' => $ap_id];
+        $stmt_update_ap->execute($c_data);   
+        //--------------                  
     
     }
-    
+          
     //Clean up
     $ap_stmt_del_nodes   = $conn->prepare("DELETE FROM temp_reports WHERE id = :id");
     foreach($ap_completed as $i){

@@ -41,7 +41,9 @@ class NodeListsController extends AppController{
         ]);
                 
         $this->loadComponent('JsonErrors'); 
-        $this->loadComponent('TimeCalculations');        
+        $this->loadComponent('TimeCalculations');      
+        $this->loadComponent('LteHelper');
+               
     }
     
      public function index(){
@@ -151,8 +153,7 @@ class NodeListsController extends AppController{
                     		$qmi_name = 'qmi_mnc';
                     		$i->{$qmi_name} = $ncs->value;
                     	}                                      
-                    }
-                    
+                    }            
                 }
                 
                 //--We got all our values - now we can do some more processing
@@ -176,239 +177,15 @@ class NodeListsController extends AppController{
                                         
                 } 
                 
-                //-- LTE things --                
-                if($i->{'qmi_rssi'}){
-                
-                	//Assume LTE default type
-                	
-                    if ($i->{'qmi_rssi'} < -85) {
-                        $rssi_bar = 0.2;
-                        $rssi_human = 'Cell Edge';
-                    }
-                                   
-                    if (($i->{'qmi_rssi'} >= -85)&($i->{'qmi_rssi'} <= -75)) {
-		                $source_LOWER_limit = -85;
-						$source_UPPER_limit = -75;
-
-						$source_range 		= $source_UPPER_limit - $source_LOWER_limit;          
-						$measured_signal 	= $i->{'qmi_rssi'};  
-
-						$measured_signal_offset = $measured_signal - $source_LOWER_limit;
-		                                
-						$target_LOWER_limit = 20;
-						$target_UPPER_limit = 50;
-
-						$target_range = $target_UPPER_limit - $target_LOWER_limit;
-						$target_signal = $target_LOWER_limit +($measured_signal_offset /  $source_range) * $target_range;
-		                $rssi_bar = round(($target_signal/100),1);
-		                $rssi_human = 'Mid Cell';
-		         	}
-                                       
-                    if (($i->{'qmi_rssi'} >= -75)&($i->{'qmi_rssi'} <= -65)) {
-		                $source_LOWER_limit = -75;
-						$source_UPPER_limit = -65;
-
-						$source_range 		= $source_UPPER_limit - $source_LOWER_limit;          
-						$measured_signal 	= $i->{'qmi_rssi'};  
-
-						$measured_signal_offset = $measured_signal - $source_LOWER_limit;
-		                                
-						$target_LOWER_limit = 50;
-						$target_UPPER_limit = 90;
-
-						$target_range = $target_UPPER_limit - $target_LOWER_limit;
-						$target_signal = $target_LOWER_limit +($measured_signal_offset /  $source_range) * $target_range;
-		                $rssi_bar = round(($target_signal/100),1);
-		                $rssi_human = 'Good';
-		         	}
-		         			         	  
-                    if ($i->{'qmi_rssi'} > -65) {
-                        $rssi_bar = 1;
-                        $rssi_human = 'Excellent';
-                    }
-                    $i->{'qmi_rssi_bar'} = $rssi_bar;
-                    $i->{'qmi_rssi_human'} = $rssi_human;
-                                     
-                    
-                    //--Provider Info--
-                    $mcc = $i->{'qmi_mcc'};
-                    $mnc = $i->{'qmi_mnc'};                    
-                    foreach($m_providers as $p){
-                    	if(($p['mnc'] == $mnc)&&($p['mcc'] == $mcc)){
-                    		$i->{'qmi_provider_name'} 		= $p['name'];
-                    		$i->{'qmi_provider_country'} 	= $p['country'];
-                    		$i->{'qmi_provider_logo'} 		= '/cake4/rd_cake/img/mobile_providers/'.$p['logo'];
-                    		break;	
-                    	}                  
-                    }                                                                             
-                }
-                
-                //==Power==
-                if($i->{'qmi_rsrp'}){
-               	
-               		//Assume LTE default type
-                	
-                    if ($i->{'qmi_rsrp'} < -100) {
-                        $rsrp_bar = 0.2;
-                        $rsrp_human = 'Cell Edge';
-                    }
-                                   
-                    if (($i->{'qmi_rsrp'} >= -100)&($i->{'qmi_rsrp'} <= -90)) {
-		                $source_LOWER_limit = -100;
-						$source_UPPER_limit = -90;
-
-						$source_range 		= $source_UPPER_limit - $source_LOWER_limit;          
-						$measured_signal 	= $i->{'qmi_rsrp'};  
-
-						$measured_signal_offset = $measured_signal - $source_LOWER_limit;
-		                                
-						$target_LOWER_limit = 20;
-						$target_UPPER_limit = 50;
-
-						$target_range = $target_UPPER_limit - $target_LOWER_limit;
-						$target_signal = $target_LOWER_limit +($measured_signal_offset /  $source_range) * $target_range;
-		                $rsrp_bar = round(($target_signal/100),1);
-		                $rsrp_human = 'Mid Cell';
-		         	}
-                                       
-                    if (($i->{'qmi_rsrp'} >= -90)&($i->{'qmi_rsrp'} <= -80)) {
-		                $source_LOWER_limit = -90;
-						$source_UPPER_limit = -80;
-
-						$source_range 		= $source_UPPER_limit - $source_LOWER_limit;          
-						$measured_signal 	= $i->{'qmi_rsrp'};  
-
-						$measured_signal_offset = $measured_signal - $source_LOWER_limit;
-		                                
-						$target_LOWER_limit = 50;
-						$target_UPPER_limit = 90;
-
-						$target_range = $target_UPPER_limit - $target_LOWER_limit;
-						$target_signal = $target_LOWER_limit +($measured_signal_offset /  $source_range) * $target_range;
-		                $rsrp_bar = round(($target_signal/100),1);
-		                $rsrp_human = 'Good';
-		         	}
-		         			         	  
-                    if ($i->{'qmi_rsrp'} > -80) {
-                        $rsrp_bar = 1;
-                        $rsrp_human = 'Excellent';
-                    }
-                    $i->{'qmi_rsrp_bar'} = $rsrp_bar;
-                    $i->{'qmi_rsrp_human'} = $rsrp_human;
-               	              	              	
-               	}
-                         
-                //==Quality==
-               	if($i->{'qmi_rsrq'}){
-               	
-               		//Assume LTE default type
-                	
-                    if ($i->{'qmi_rsrq'} < -20) {
-                        $rsrq_bar = 0.2;
-                        $rsrq_human = 'Cell Edge';
-                    }
-                                   
-                    if (($i->{'qmi_rsrq'} >= -20)&($i->{'qmi_rsrq'} <= -15)) {
-		                $source_LOWER_limit = -20;
-						$source_UPPER_limit = -15;
-
-						$source_range 		= $source_UPPER_limit - $source_LOWER_limit;          
-						$measured_signal 	= $i->{'qmi_rsrq'};  
-
-						$measured_signal_offset = $measured_signal - $source_LOWER_limit;
-		                                
-						$target_LOWER_limit = 20;
-						$target_UPPER_limit = 50;
-
-						$target_range = $target_UPPER_limit - $target_LOWER_limit;
-						$target_signal = $target_LOWER_limit +($measured_signal_offset /  $source_range) * $target_range;
-		                $rsrq_bar = round(($target_signal/100),1);
-		                $rsrq_human = 'Mid Cell';
-		         	}
-                                       
-                    if (($i->{'qmi_rsrq'} >= -15)&($i->{'qmi_rsrq'} <= -10)) {
-		                $source_LOWER_limit = -15;
-						$source_UPPER_limit = -10;
-
-						$source_range 		= $source_UPPER_limit - $source_LOWER_limit;          
-						$measured_signal 	= $i->{'qmi_rsrq'};  
-
-						$measured_signal_offset = $measured_signal - $source_LOWER_limit;
-		                                
-						$target_LOWER_limit = 50;
-						$target_UPPER_limit = 90;
-
-						$target_range = $target_UPPER_limit - $target_LOWER_limit;
-						$target_signal = $target_LOWER_limit +($measured_signal_offset /  $source_range) * $target_range;
-		                $rsrq_bar = round(($target_signal/100),1);
-		                $rsrq_human = 'Good';
-		         	}
-		         			         	  
-                    if ($i->{'qmi_rssi'} > -10) {
-                        $rssq_bar = 1;
-                        $rssq_human = 'Excellent';
-                    }
-                    $i->{'qmi_rsrq_bar'} = $rsrq_bar;
-                    $i->{'qmi_rsrq_human'} = $rsrq_human;
-               	              	              	
-               	}
-               	
-               	
-               	//SNR
-               	if($i->{'qmi_snr'}){
-               	
-               		//Assume LTE default type
-                	
-                    if ($i->{'qmi_snr'} < -0) {
-                        $snr_bar = 0.2;
-                        $snr_human = 'Cell Edge';
-                    }
-                                   
-                    if (($i->{'qmi_snr'} >= 0)&($i->{'qmi_snr'} <= 13)) {
-		                $source_LOWER_limit = 0;
-						$source_UPPER_limit = 13;
-
-						$source_range 		= $source_UPPER_limit - $source_LOWER_limit;          
-						$measured_signal 	= $i->{'qmi_snr'};  
-
-						$measured_signal_offset = $measured_signal - $source_LOWER_limit;
-		                                
-						$target_LOWER_limit = 20;
-						$target_UPPER_limit = 50;
-
-						$target_range = $target_UPPER_limit - $target_LOWER_limit;
-						$target_signal = $target_LOWER_limit +($measured_signal_offset /  $source_range) * $target_range;
-		                $snr_bar = round(($target_signal/100),1);
-		                $snr_human = 'Mid Cell';
-		         	}
-                                       
-                    if (($i->{'qmi_snr'} >= 13)&($i->{'qmi_snr'} <= 20)) {
-		                $source_LOWER_limit = 13;
-						$source_UPPER_limit = 20;
-
-						$source_range 		= $source_UPPER_limit - $source_LOWER_limit;          
-						$measured_signal 	= $i->{'qmi_snr'};  
-
-						$measured_signal_offset = $measured_signal - $source_LOWER_limit;
-		                                
-						$target_LOWER_limit = 50;
-						$target_UPPER_limit = 90;
-
-						$target_range = $target_UPPER_limit - $target_LOWER_limit;
-						$target_signal = $target_LOWER_limit +($measured_signal_offset /  $source_range) * $target_range;
-		                $snr_bar = round(($target_signal/100),1);
-		                $snr_human = 'Good';
-		         	}
-		         			         	  
-                    if ($i->{'qmi_rssi'} > 20) {
-                        $snr_bar = 1;
-                        $snr_human = 'Excellent';
-                    }
-                    $i->{'qmi_snr_bar'} 	= $snr_bar;
-                    $i->{'qmi_snr_human'} 	= $snr_human;
-               	              	              	
-               	}                
-                                                           
+                //-- LTE things --
+                if($i->{'qmi_rssi'}){ 
+		            $this->LteHelper->getMobileProvider($i); 
+		            $this->LteHelper->getRssiGui($i);
+		            $this->LteHelper->getRsrpGui($i);
+		            $this->LteHelper->getRsrqGui($i);
+		            $this->LteHelper->getSnrGui($i);
+		      	}
+                                     	              	                                                           
             }
             
             unset($i->node_connection_settings); //Remove the list (not needed)

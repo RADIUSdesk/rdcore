@@ -83,6 +83,8 @@ Ext.define('Rd.view.meshes.gridNodes' ,{
                 tpl         : new Ext.XTemplate(
                     '<tpl if="wbw_active == true">',
                         '<div class=\"fieldBlue\"><i class="fa fa-wifi"></i> {name}</div>',
+                    '<tpl elseif="qmi_active == true">',
+                        '<div class=\"fieldGreen\"><i class="fa fa-signal"></i> {name}</div>',
                     '<tpl else>',
                         '<div class=\"fieldGrey\">{name}</div>',
                     '</tpl>'

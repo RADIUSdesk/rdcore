@@ -115,6 +115,10 @@ Ext.define('Rd.controller.cMeshViews', {
 			'pnlMeshView gridMeshViewNodeDetails #rogue_detect' : {
 				click	: me.rogueDetect
 			},
+            'pnlMeshView gridMeshViewNodeDetails actioncolumn' : {
+                 itemClick  : me.onNodeDetailsActionColumnItemClick
+            }, 
+
 			'winMeshAddNodeAction #save' : {
 				click	: me.commitExecute
 			},
@@ -832,6 +836,23 @@ Ext.define('Rd.controller.cMeshViews', {
                 }
             });
         }
+    },
+    onNodeDetailsActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
+        //console.log("Action Item "+action+" Clicked");
+        var me = this;
+        var grid = view.up('grid');
+        grid.setSelection(record);       
+        if(action == 'execute'){
+            var btn = grid.down('#execute');
+            me.execute(btn);
+        }
+        if(action == 'history'){
+            var btn = grid.down('#history');
+            me.history(btn)
+        }
+        if(action == 'restart'){
+            var btn = grid.down('#restart');
+            me.restart(btn);
+        }      
     }
-
 });

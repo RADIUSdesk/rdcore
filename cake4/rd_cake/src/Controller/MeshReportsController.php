@@ -61,6 +61,7 @@ class MeshReportsController extends AppController {
 
         $this->loadComponent('Aa');
         $this->loadComponent('TimeCalculations');
+        $this->loadComponent('LteHelper');
     }
     
      private function print_r_reverse($in){ 
@@ -1337,9 +1338,10 @@ class MeshReportsController extends AppController {
             //wbw detail
             if($i->node_connection_settings){   
                 $i->{'wbw_active'} = false;
+                $i->{'qmi_active'} = false;
                 foreach($i->node_connection_settings as $ncs){
-                    if($ncs->grouping == 'wbw_info'){
-                    
+                	//-wbw-
+                    if($ncs->grouping == 'wbw_info'){                    
                         if($ncs->name == 'signal'){
                             $i->wbw_last_contact_human     = $this->TimeCalculations->time_elapsed_string($ncs->modified);
                         }
@@ -1349,8 +1351,35 @@ class MeshReportsController extends AppController {
                     if($ncs->grouping == 'wbw_setting'){
                         $i->{'wbw_active'} = true;
                     }
+                    
+                    //-qmi-signal
+                    if($ncs->grouping == 'qmi_info_signal'){                    
+                    	if($ncs->name == 'type'){
+                            $i->qmi_last_contact_human     = $this->TimeCalculations->time_elapsed_string($ncs->modified);
+                        }                    
+                    	$qmi_name = 'qmi_'.$ncs->name;
+                        $i->{$qmi_name} = $ncs->value;                    
+                    }
+                    if($ncs->grouping == 'qmi_setting'){
+                        $i->{'qmi_active'} = true;
+                    }
+                    
+                    //-qmi-system
+                    if($ncs->grouping == 'qmi_info_system'){ 
+                    	//We only care for mcc and mnc for now                   
+                    	if(str_contains($ncs->name ,':mcc')){
+                    		$qmi_name = 'qmi_mcc';
+                    		$i->{$qmi_name} = $ncs->value;
+                    	}  
+                    	if(str_contains($ncs->name ,':mnc')){
+                    		$qmi_name = 'qmi_mnc';
+                    		$i->{$qmi_name} = $ncs->value;
+                    	}                                      
+                    }            
                 }
                 
+                //--We got all our values - now we can do some more processing
+                //-- WBW things --
                 if($i->{'wbw_signal'}){       
                     if ($i->{'wbw_signal'} < -95) {
                         $signal_bar = 0.01;
@@ -1363,10 +1392,22 @@ class MeshReportsController extends AppController {
                         $signal_bar = 1;
                     }
                     $i->{'wbw_signal_bar'} = $signal_bar;
+                    
+                    $i->{'wbw_tx_rate'} = round($i->{'wbw_tx_rate'}/1000 ,1);
+                	$i->{'wbw_rx_rate'} = round($i->{'wbw_rx_rate'}/1000 ,1); 
+                	$i->{'wbw_expected_throughput'} = round($i->{'wbw_expected_throughput'}/1000 ,1);    
+                                        
                 } 
-                $i->{'wbw_tx_rate'} = round($i->{'wbw_tx_rate'}/1000 ,1);
-                $i->{'wbw_rx_rate'} = round($i->{'wbw_rx_rate'}/1000 ,1); 
-                $i->{'wbw_expected_throughput'} = round($i->{'wbw_expected_throughput'}/1000 ,1);                
+                
+                //-- LTE things --
+                if($i->{'qmi_rssi'}){ 
+		            $this->LteHelper->getMobileProvider($i); 
+		            $this->LteHelper->getRssiGui($i);
+		            $this->LteHelper->getRsrpGui($i);
+		            $this->LteHelper->getRsrqGui($i);
+		            $this->LteHelper->getSnrGui($i);
+		      	}
+		      	               
             }
             
             unset($i->node_connection_settings); //Remove the list (not needed)

@@ -123,7 +123,10 @@ Ext.define('Rd.controller.cAccessPoints', {
 			},
 			'gridApLists #restart' : {
 				click	: me.restart
-			}
+			},
+            'gridApLists actioncolumn' : {
+                 itemClick  : me.onApListsActionColumnItemClick
+            }  
         });
     },
     appClose:   function(){
@@ -585,8 +588,7 @@ Ext.define('Rd.controller.cAccessPoints', {
                 Ext.getApplication().runAction('cAccessPointEdits','Index',id,name); 
             }
         }
-    }, 
-    
+    },    
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");
         var me = this;
@@ -598,5 +600,20 @@ Ext.define('Rd.controller.cAccessPoints', {
         if(action == 'delete'){
             me.del();
         }     
+    },
+    onApListsActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
+        //console.log("Action Item "+action+" Clicked");
+        var me = this;
+        var grid = view.up('grid');
+        grid.setSelection(record);
+        if(action == 'view'){
+            me.viewAp()
+        }
+        if(action == 'execute'){
+            me.execute();
+        }
+        if(action == 'restart'){
+            me.restart();
+        }      
     }
 });
