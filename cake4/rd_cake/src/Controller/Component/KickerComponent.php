@@ -18,7 +18,7 @@ class KickerComponent extends Component {
 
     protected $radclient;
     //protected $pod_command = '/etc/MESHdesk/pod.lua';
-    protected $pod_command 	= 'chilli_query logout sessionid';
+    protected $pod_command 	= 'chilli_query logout mac';
     protected	$coova_md 	= 'CoovaMeshdesk'; 
     protected	$node_action_add = 'http://127.0.0.1/cake4/rd_cake/node-actions/add.json';
     
@@ -65,7 +65,7 @@ class KickerComponent extends Component {
                 $gw_nodes   = $this->Nodes->find()->where(['Nodes.gateway !=' => 'none','Nodes.mesh_id' => $mesh_id])->all();
                 foreach($gw_nodes as $node){
                     $node_id 	= $node->id;
-                    $command 	= $this->pod_command.' '.$ent->acctsessionid;
+                    $command 	= $this->pod_command.' '.$ent->callingstationid;
                     $a_data 	= [
                     	'node_id' 	=> $node_id,
                     	'command' 	=> $command, 
