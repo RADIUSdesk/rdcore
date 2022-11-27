@@ -40,13 +40,8 @@ $config['dynamic_attributes'][1]     = ['name' => 'Mikrotik-Realm',     'id' => 
 $config['dynamic_attributes'][2]     = ['name' => 'NAS-Identifier',     'id' => 'NAS-Identifier',      'active' => true];
 
 //Define nas types
-$config['nas_types'][0]     = ['name' => 'Other',                  'id' => 'other',                    'active' => true];
-$config['nas_types'][1]     = ['name' => 'CoovaChilli',            'id' => 'CoovaChilli',              'active' => true];
-$config['nas_types'][2]     = ['name' => 'CoovaChilli-Heartbeat',  'id' => 'CoovaChilli-Heartbeat',    'active' => true];
-$config['nas_types'][3]     = ['name' => 'Mikrotik',               'id' => 'Mikrotik',                 'active' => true];
-$config['nas_types'][4]     = ['name' => 'Mikrotik-Heartbeat',     'id' => 'Mikrotik-Heartbeat',       'active' => true];
-$config['nas_types'][5]     = ['name' => 'Telkom',                 'id' => 'Telkom',                   'active' => true];
-
+$config['nas_types'][0]     = ['name' => 'Other',            	'id' => 'other',       		'active' => true];
+$config['nas_types'][1]     = ['name' => 'Coova-On-Meshdesk',	'id' => 'CoovaMeshdesk',   	'active' => true];
 
 
 $config['paths']['wallpaper_location']  = "/rd/resources/images/wallpapers/";

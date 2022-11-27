@@ -296,7 +296,7 @@ class RadacctsController extends AppController {
                 $active         = true; 
                 $online_human   = $this->TimeCalculations->time_elapsed_string($i->acctstarttime,false,true);
             }else{
-                $online_time    = $i->acctstoptime->setTimezone($tz);
+                $online_time    = $i->acctstoptime->setTimezone($tz)->format('Y-m-d H:i:s');
                 //$online_time    = $i->acctstoptime;
                 $active         = false;
             }
@@ -314,7 +314,7 @@ class RadacctsController extends AppController {
                     'nasportid'         => $i->nasportid,
                     'nasporttype'       => $i->nasporttype,
                     //'acctstarttime'     => $i->acctstarttime,
-                    'acctstarttime'     => $i->acctstarttime->setTimezone($tz),   
+                    'acctstarttime'     => $i->acctstarttime->setTimezone($tz)->format('Y-m-d H:i:s'),   
                     'acctstoptime'      => $online_time,
                     'acctsessiontime'   => $i->acctsessiontime,
                     'acctauthentic'     => $i->acctauthentic,
@@ -399,6 +399,11 @@ class RadacctsController extends AppController {
             return;
         }
         
+        //It should have a token if it made it to here :-)
+        $q_data	= $this->request->getQuery();
+        $token 	= $q_data['token'];
+
+        
         $some_session_closed    = false;
         $count                  = 0;
         $msg                    = 'Could not locate session';
@@ -412,7 +417,7 @@ class RadacctsController extends AppController {
                 if($ent->acctstoptime !== null){
                     $some_session_closed = true;
                 }else{
-                    $data = $this->Kicker->kick($ent); //Sent it to the Kicker
+                    $data = $this->Kicker->kick($ent,$token); //Sent it to the Kicker (We include the token in order to make API calls if needed
                 }
             }
         }  
@@ -451,9 +456,8 @@ class RadacctsController extends AppController {
                     if($qr->acctstoptime == null){
                         $now = date('Y-m-d h:i:s');
                         $d['acctstoptime'] = $now;
-                        $radacctEntity = $this->{$this->main_model}->newEntity($d);
-
-                        $this->{$this->main_model}->save($radacctEntity);
+						$this->{$this->main_model}->patchEntity($qr,$d);
+                        $this->{$this->main_model}->save($qr);
                     }
                 }  
             }
