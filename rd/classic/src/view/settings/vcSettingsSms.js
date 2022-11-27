@@ -16,9 +16,9 @@ Ext.define('Rd.view.settings.vcSettingsSms', {
     },
     onViewActivate: function(pnl){
         var me = this;
-        console.log("Settings Panel Activated "+me.getView().nr);
+        //console.log("Settings Panel Activated "+me.getView().nr);
         me.getView().setLoading(true);
-        me.getView().load({url:me.getUrlView(), method:'GET',params:{'nr':me.getView().nr},
+        me.getView().load({url:me.getUrlView(), method:'GET',params:{'nr':me.getView().nr,'edit_cloud_id':me.getView().cloud_id},
 			success : function(a,b){  
 		        me.getView().setLoading(false);
             }
@@ -48,9 +48,13 @@ Ext.define('Rd.view.settings.vcSettingsSms', {
     save: function(button){
         var me      = this;
         var form    = button.up('form');
+        var e_cloud_id = form.down('#editCloudId').getValue();
         form.submit({
             clientValidation    : true,
             url                 : me.getUrlSave(),
+            params              : { //Add extra param for cloud id
+                edit_cloud_id : e_cloud_id
+            },
             success             : function(form, action) {              
                 //FIXME reload store....
                 Ext.ux.Toaster.msg(
@@ -66,7 +70,7 @@ Ext.define('Rd.view.settings.vcSettingsSms', {
     onSmsTestClick : function(){
         var me = this;
         if(!Ext.WindowManager.get('winSettingsSmsTestId')){
-            var w = Ext.widget('winSettingsSmsTest',{id:'winSettingsSmsTestId','nr':me.getView().nr});
+            var w = Ext.widget('winSettingsSmsTest',{id:'winSettingsSmsTestId','nr':me.getView().nr,'cloud_id':me.getView().cloud_id});
             me.getView().add(w); 
             w.show();                 
         }     

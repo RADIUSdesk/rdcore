@@ -100,6 +100,9 @@ Ext.define('Rd.view.nas.pnlNasNas', {
                     labelClsExtra: 'lblRdReq'
                 },
                 {
+                    xtype       : 'cmbNasTypes'
+                },
+                {
                     xtype       : 'checkbox',      
                     fieldLabel  : 'System Wide',
                     name        : 'for_system',

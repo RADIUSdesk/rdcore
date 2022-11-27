@@ -10,11 +10,13 @@ use Cake\Http\Client;
 class SettingsController extends AppController{
   
     protected $main_model   = 'UserSettings';
+    protected $cloud_model  = 'CloudSettings';
     protected $check_items  = ['email_enabled','email_ssl'];
   
     public function initialize():void{  
         parent::initialize(); 
         $this->loadModel($this->main_model);
+        $this->loadModel($this->cloud_model);
         $this->loadComponent('Aa');
         $this->loadComponent('MailTransport');
     }
@@ -30,15 +32,28 @@ class SettingsController extends AppController{
         if(isset($req_q['nr'])){
             $nr = $req_q['nr'];
         }
+        
         $data   = []; 
-        $data   = ['sms_'.$nr.'_enabled' => $enabled];        
-        $q_r    = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_'.$nr.'_%' ])->all();
- 
-        foreach($q_r as $ent){
-            $data[$ent->name] = $ent->value; 
-        }
-             
+        $data   = ['sms_'.$nr.'_enabled' => $enabled];    
               
+        if(isset($req_q['edit_cloud_id'])){
+            $edit_cloud_id = $req_q['edit_cloud_id'];
+            if(preg_match("/^Clouds_/", $edit_cloud_id)){
+            	$cloud_id = preg_replace('/^Clouds_/', '', $edit_cloud_id);
+            }
+
+            //System is (cloud_id -1) UserSettings
+            if($edit_cloud_id == -1){             
+        		$q_r    = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_'.$nr.'_%' ])->all();
+       		}else{       		
+       			$q_r    = $this->{$this->cloud_model}->find()->where(['CloudSettings.cloud_id' => $cloud_id, 'CloudSettings.name LIKE' => 'sms_'.$nr.'_%' ])->all();
+       		} 
+       		
+       		foreach($q_r as $ent){
+		        $data[$ent->name] = $ent->value;
+		   	}  		    		         
+        }
+                                
         $this->set([
             'data'          => $data,
             'success'       => true
@@ -67,21 +82,41 @@ class SettingsController extends AppController{
                     $data[$i] = 0;
                 }
             }
+                       
             foreach(array_keys($data) as $key){
                 if(substr($key, 0, 6) === 'sms_'.$nr.'_'){
                     $value = $data[$key];
-                    $q_r = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name' => $key ])->first();
                     
+                    if(isset($data['edit_cloud_id'])){
+						$edit_cloud_id = $data['edit_cloud_id'];
+						$cloud_id	   = -1;
+						if(preg_match("/^Clouds_/", $edit_cloud_id)){
+							$cloud_id = preg_replace('/^Clouds_/', '', $edit_cloud_id);
+						}
+						
+						$model = $this->main_model;
+
+						//System is (cloud_id -1) UserSettings
+						if($edit_cloud_id == -1){             
+							$q_r   = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name' => $key ])->first();
+							$model = $this->main_model;
+				   		}else{       		
+				   			$q_r   = $this->{$this->cloud_model}->find()->where(['CloudSettings.cloud_id' => $cloud_id, 'CloudSettings.name' => $key ])->first();
+				   			$model = $this->cloud_model;
+				   		} 	    		         
+					}
+                                                           
                     if($q_r){
-                        $this->{$this->main_model}->patchEntity($q_r, ['value'=> $value]);
-                        $this->{$this->main_model}->save($q_r);
+                        $this->{$model}->patchEntity($q_r, ['value'=> $value]);
+                        $this->{$model}->save($q_r);
                     }else{
                         $d = [];
                         $d['name']      = $key;
                         $d['value']     = $value;
                         $d['user_id']   = -1;
-                        $entity = $this->{$this->main_model}->newEntity($d);
-                        $this->{$this->main_model}->save($entity);
+                        $d['cloud_id']  = $cloud_id;
+                        $entity = $this->{$model}->newEntity($d);
+                        $this->{$model}->save($entity);
                     }
                 }          
             }
@@ -105,15 +140,28 @@ class SettingsController extends AppController{
         if($this->request->is('post')) {
             $nr         = $this->request->getData('nr');
             $phone      = $this->request->getData('phone');
-            $message    = $this->request->getData('message');
-            
-            $q_r        = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_'.$nr.'_%' ])->all();
+            $message    = $this->request->getData('message');            
+            $data		= $this->request->getData();          
             $config     = [];
             
-            foreach($q_r as $ent){
-                $config[$ent->name] = $ent->value; 
-            }
-            
+           	if(isset($data['edit_cloud_id'])){
+				$edit_cloud_id = $data['edit_cloud_id'];
+				if(preg_match("/^Clouds_/", $edit_cloud_id)){
+					$cloud_id = preg_replace('/^Clouds_/', '', $edit_cloud_id);
+				}			
+				$model = $this->main_model;
+
+				//System is (cloud_id -1) UserSettings
+				if($edit_cloud_id == -1){             
+					$q_r   = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_'.$nr.'_%' ])->all();
+		   		}else{ 		
+		   			$q_r   = $this->{$this->cloud_model}->find()->where(['CloudSettings.cloud_id' => $cloud_id, 'CloudSettings.name LIKE' => 'sms_'.$nr.'_%'])->all();
+		   		}		   		
+		   		 foreach($q_r as $ent){
+		            $config[$ent->name] = $ent->value; 
+		        }		   		 	    		         
+			}
+		                       
             //===Query Items===
             $query_items = [];
             

@@ -5,7 +5,7 @@ Ext.define('Rd.store.sNasTypes', {
             type    : 'ajax',
             format  : 'json',
             batchActions: true, 
-            url     : '/cake4/rd_cake/nas/nas_types.json',
+            url     : '/cake4/rd_cake/nas/nas-types.json',
             reader: {
                 type: 'json',
                 rootProperty: 'items',

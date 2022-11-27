@@ -180,6 +180,9 @@ Ext.define('Rd.view.dynamicClients.pnlDynamicClientDynamicClient', {
                     name        : "calledstationid",
                     allowBlank  : true,
                     labelClsExtra: 'lblRd'
+                },
+                {
+                    xtype       : 'cmbNasTypes'
                 }  
             ]
         }

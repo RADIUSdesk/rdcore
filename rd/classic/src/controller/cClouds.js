@@ -20,7 +20,8 @@ Ext.define('Rd.controller.cClouds', {
     views:  [
         'clouds.treeClouds',         
         'clouds.winCloudEdit',
-        'clouds.winCloudAdd'
+        'clouds.winCloudAdd',
+        'clouds.pnlCloudEdit'
     ],
     stores: [],
     models: [],
@@ -160,29 +161,44 @@ Ext.define('Rd.controller.cClouds', {
                 );
             }else{
 
-                //We are not suppose to edit the root node
-                if(me.selectedRecord.getId() == 0){
-                    Ext.ux.Toaster.msg(
-                        i18n('sRoot_node_selected'),
-                        i18n('sYou_can_not_edit_the_root_node'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-                    );
 
-                }else{
+                //Check if the node is not already open; else open the node:
+                var tp          = me.getTreeClouds().up('tabpanel');
+                var sr          = me.selectedRecord;
+                var parent_id   = me.selectedRecord.get('parent_id');
+                var id          = sr.getId();
+                
+                if(parent_id == 'root'){
+               
+                    var tab_id      = 'cloudTab_'+id;
+                    var nt          = tp.down('#'+tab_id);
+                    if(nt){
+                        tp.setActiveTab(tab_id); //Set focus on  Tab
+                        return;
+                    }
+
+                    var tab_name    = me.selectedRecord.get('name');
+                    //Tab not there - add one
+                    tp.add({ 
+                        title       : 'Cloud '+tab_name,
+                        itemId      : tab_id,
+                        closable    : true,
+                        glyph       : Rd.config.icnEdit, 
+                        xtype       : 'pnlCloudEdit',
+                        cloud_id    : id
+                    });
+                    tp.setActiveTab(tab_id); //Set focus on Add Tab
+
+                }else{             
                     if(!Ext.WindowManager.get('winCloudEditId')){
-                        var hide_a_to_s = true;
                         var parent_id = me.selectedRecord.get('parent_id');
-                        if(parent_id == 'root'){
-                            hide_a_to_s = false;
-                        }
-                        var w = Ext.widget('winCloudEdit',{id:'winCloudEditId',hide_a_to_s:hide_a_to_s});
+                        var w = Ext.widget('winCloudEdit',{id:'winCloudEditId'});
                         w.show();  
                         w.down('form').loadRecord(me.selectedRecord);
                         //Set the parent ID
                         w.down('hiddenfield[name="parent_id"]').setValue(me.selectedRecord.parentNode.getId());
-                    }  
-                }  
+                    }
+                }
             }
         }
     },

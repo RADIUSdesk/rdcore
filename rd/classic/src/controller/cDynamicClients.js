@@ -29,10 +29,11 @@ Ext.define('Rd.controller.cDynamicClients', {
         'dynamicClients.gridRealmsForDynamicClientCloud',
         'dynamicClients.pnlDynamicClientPhoto',
         'components.pnlUsageGraph',
-        'dynamicClients.pnlDynamicClientGraphs'
+        'dynamicClients.pnlDynamicClientGraphs',
+        'components.cmbNasTypes'
     ],
-    stores: ['sDynamicClients', 'sUnknownDynamicClients',],
-    models: [ 'mDynamicClient','mRealmForDynamicClientCloud', 'mUnknownDynamicClient','mDynamicClientState','mUserStat'],
+    stores: ['sDynamicClients', 'sUnknownDynamicClients', 'sNasTypes'],
+    models: [ 'mDynamicClient','mRealmForDynamicClientCloud', 'mUnknownDynamicClient','mDynamicClientState','mUserStat','mNasType' ],
     selectedRecord: null,
     config: {
         urlExportCsv    : '/cake4/rd_cake/dynamic-clients/export_csv',

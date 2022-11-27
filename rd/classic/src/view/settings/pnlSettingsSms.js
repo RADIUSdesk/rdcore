@@ -10,7 +10,8 @@ Ext.define('Rd.view.settings.pnlSettingsSms', {
         align   : 'stretch'
     },
     margin      : 5,
-    nr          : 1, 
+    nr          : 1,
+    cloud_id    : -1, 
     fieldDefaults: {
         msgTarget       : 'under',
         labelAlign      : 'left',
@@ -57,6 +58,12 @@ Ext.define('Rd.view.settings.pnlSettingsSms', {
                     value           : me.nr,
                     hidden          : true,
                     itemId          : 'hiddenNr'
+                 },
+                 { 
+                    name            : 'edit_cloud_id',
+                    value           : me.cloud_id,
+                    hidden          : true,
+                    itemId          : 'editCloudId'          
                  },
                  { 
                     fieldLabel      : 'Enable', 

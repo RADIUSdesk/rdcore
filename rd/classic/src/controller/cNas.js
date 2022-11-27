@@ -20,12 +20,12 @@ Ext.define('Rd.controller.cNas', {
     views:  [
         'nas.gridNas','nas.winNasAdd','nas.gridRealmsForNas','nas.pnlNas',
         'components.winCsvColumnSelect', 'nas.pnlRealmsForNasCloud', 'nas.pnlNasNas',
-        'nas.cmbNasTypes', 'nas.gridNasAvailability', 
+        'components.cmbNasTypes', 'nas.gridNasAvailability', 
         'components.pnlUsageGraph',
         'nas.pnlNasGraphs'
     ],
     stores: ['sNas', 'sNasTypes'],
-    models: ['mNas' ],
+    models: ['mNas','mNasType' ],
     selectedRecord: null,
     config: {
         urlAdd          : '/cake4/rd_cake/nas/add.json',

@@ -19,6 +19,7 @@ Ext.define('Rd.view.settings.winSettingsSmsTest', {
     requires: [
         'Ext.form.field.Text'
     ],
+    cloud_id    : -1,
     initComponent: function() {
         var me = this;  
         me.items = [
@@ -43,6 +44,12 @@ Ext.define('Rd.view.settings.winSettingsSmsTest', {
                                 name        : 'nr',
                                 value       : me.nr,
                                 hidden      : true
+                            },
+                            { 
+                                name            : 'edit_cloud_id',
+                                value           : me.cloud_id,
+                                hidden          : true,
+                                itemId          : 'editCloudId'          
                             },
                             {
                                 xtype       : 'textfield',
