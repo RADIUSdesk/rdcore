@@ -49,7 +49,8 @@ class KickerComponent extends Component {
      			
      			if(preg_match('/^ap_/' ,$nasidentifier)){ //APdesk		
      				$this->kickApUser($ent,$dc->cloud_id,$token); 			
-     			}   			
+     			}
+     			sleep(1); //Give MQTT time to do its thing....  			
      		}   	
      	}
              
