@@ -1680,11 +1680,12 @@ class ApProfilesController extends AppController {
 	            
 	            $name_no_spaces = $this->request->getData('name');
 	            $name_no_spaces = preg_replace('/\s+/', '_', $name_no_spaces);          
-	            $dc_data                            = [];
-	            $dc_data['cloud_id']                = $cloud_id;
-	            $dc_data['name'] 					= 'APdesk_'.$ap_profile_name.'_'.$name_no_spaces.'_cp_'.$exit_id;
-	            $dc_data['nasidentifier']           = 'ap_'.$new_id.'_cp_'.$exit_id;
-	            $dc_data['realm_list']              = $qe->realm_list;
+	            $dc_data                    = [];
+	            $dc_data['cloud_id']        = $cloud_id;
+	            $dc_data['name'] 			= 'APdesk_'.$ap_profile_name.'_'.$name_no_spaces.'_cp_'.$exit_id;
+	            $dc_data['nasidentifier']   = 'ap_'.$new_id.'_cp_'.$exit_id;
+	            $dc_data['realm_list']     	= $qe->realm_list;
+	            $dc_data['type']            = 'CoovaMeshdesk';
 	            
 	            if($qe->auto_dynamic_client == 1){  //It has to be enabled
 	                $this->_add_dynamic($dc_data);

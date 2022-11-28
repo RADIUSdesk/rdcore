@@ -21,6 +21,7 @@ class KickerComponent extends Component {
     protected $pod_command 	= 'chilli_query logout mac';
     protected	$coova_md 	= 'CoovaMeshdesk'; 
     protected	$node_action_add = 'http://127.0.0.1/cake4/rd_cake/node-actions/add.json';
+    protected	$ap_action_add = 'http://127.0.0.1/cake4/rd_cake/ap-actions/add.json';
     
     public function initialize(array $config):void{
         //Please Note that we assume the Controller has a JsonErrors Component Included which we can access.
@@ -47,7 +48,7 @@ class KickerComponent extends Component {
      			}
      			
      			if(preg_match('/^ap_/' ,$nasidentifier)){ //APdesk		
-     				$this->kickApUser($ent,$token); 			
+     				$this->kickApUser($ent,$dc->cloud_id,$token); 			
      			}   			
      		}   	
      	}
@@ -85,8 +86,31 @@ class KickerComponent extends Component {
         }       
     }
     
-    private function kickApUser($ent,$cloud_id,$token){
-        
-       
+    private function kickApUser($ent,$cloud_id,$token){  
+    	//The nasidentifier will be in the format of ap_<ap id>_cp_<cp number>
+    	//We just care about the ap id since we will send the logout command to that ap
+    	$command 	= $this->pod_command.' '.$ent->callingstationid;
+    	$nasid		= $ent->nasidentifier;
+    	//remove the _cp_<number>
+    	$ap_id      = preg_replace("/_cp_.*/",'', $nasid);
+    	//remove the ap_
+    	$ap_id      = preg_replace("/^ap_/",'', $ap_id);
+    	if($ap_id){
+    		$command 	= $this->pod_command.' '.$ent->callingstationid;
+            $a_data 	= [
+            	'ap_id' 	=> $ap_id,
+            	'command' 	=> $command, 
+            	'action'	=> 'execute',
+				'cloud_id'	=> $cloud_id,
+				'token'		=> $token,
+				'sel_language'	=> '4_4'
+          	];                  	
+          	$http 		= new Client();
+			$response 	= $http->post(
+			  $this->ap_action_add,
+			  json_encode($a_data),
+			  ['type' => 'json']
+			);   	
+    	}      
     }
 }

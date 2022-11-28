@@ -1178,6 +1178,7 @@ class WizardsController extends AppController{
         $d_common['name']                   = 'MESHdesk_'.$nas_id;
         $d_common['nasidentifier']          = $nas_id_short;
         $d_common['available_to_siblings']  = 1;
+        $d_common['type']            		= 'CoovaMeshdesk';
              
 
         $e_dc  = $this->DynamicClients->newEntity($d_common); 

@@ -812,6 +812,7 @@ class MeshesController extends AppController{
 	                $dc_data['cloud_id']        = $cloud_id;
 	                $dc_data['nasidentifier']	= 'mcp_'.$new_id;
 	                $dc_data['name']         	= 'MESHdesk_'.$mesh_name.'_mcp_'.$new_id;
+	                $dc_data['type']            = 'CoovaMeshdesk';
 	                	                
 	                //Get a list of realms if the person selected a list - If it is empty that's fine
                     $count      = 0;
