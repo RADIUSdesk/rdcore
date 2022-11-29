@@ -18,6 +18,7 @@ class TopUpsController extends AppController{
         parent::initialize();
         $this->loadModel('TopUps'); 
         $this->loadModel('PermanentUsers');
+        $this->loadModel('Radaccts');
           
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -99,6 +100,11 @@ class TopUpsController extends AppController{
         $items  = [];
 
         foreach($q_r as $i){
+
+        	$username = "Unknown";
+        	if($i->permanent_user){
+        		$username = $i->permanent_user->username;
+        	}
                        
             $row       = [];
             $fields    = $this->{$this->main_model}->getSchema()->columns();
@@ -112,8 +118,9 @@ class TopUpsController extends AppController{
                     $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
                 }
             }        
-			$row['update']	= true;
-			$row['delete']	= true; 
+			$row['update']			= true;
+			$row['delete']			= true; 
+			$row['permanent_user']	= $username;
             array_push($items,$row);      
         }
        
@@ -140,7 +147,8 @@ class TopUpsController extends AppController{
      
     private function _addOrEdit($type= 'add') {
     
-    	$req_d		= $this->request->getData();      
+    	$req_d			= $this->request->getData();  	
+    	
 
         //====Check what type it is====
         //---Data---
@@ -193,6 +201,17 @@ class TopUpsController extends AppController{
         }
               
         if ($this->{$this->main_model}->save($entity)) {
+        
+        	//Check if we need to zero the accounting (New feature Nov 2022)
+        	if(isset($req_d['accounting_zero'])){
+    			$e_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' => $entity->permanent_user_id])->first();
+    			if($e_pu){
+    				$username 	= $e_pu->username;
+    				$realm		= $e_pu->realm;
+    				$this->{'Radaccts'}->deleteAll(['Radaccts.username' => $username,'Radaccts.realm' => $realm]);
+    			}
+    		}
+    		      
             $this->set(array(
                 'success' => true
             ));

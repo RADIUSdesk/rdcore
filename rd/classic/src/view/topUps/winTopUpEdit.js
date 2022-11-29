@@ -6,7 +6,7 @@ Ext.define('Rd.view.topUps.winTopUpEdit', {
     resizable   : true,
     title       : 'Edit TopUp',
     width       : 500,
-    height      : 400,
+    height      : 450,
     plain       : true,
     border      : false,
     layout      : 'card',
@@ -112,10 +112,10 @@ Ext.define('Rd.view.topUps.winTopUpEdit', {
         });
         
 
-        if(me.data > 0){
+        if(me.record.get('data') > 0){
             cmbType.select(cmbType.getStore().getAt(0));
             var i           = -1;
-            fileSizeInBytes = me.data;
+            fileSizeInBytes = me.record.get('data');
             do {
                 fileSizeInBytes = fileSizeInBytes / 1024;
                 i++;
@@ -127,17 +127,17 @@ Ext.define('Rd.view.topUps.winTopUpEdit', {
             cmbDataUnit.setDisabled(false);
         }
 
-        if(me.time > 0){
+        if(me.record.get('time') > 0){
             cmbType.select(cmbType.getStore().getAt(1));
-            if(me.time > 86400){
-                value = me.time / 86400;
+            if(me.record.get('time') > 86400){
+                value = me.record.get('time') / 86400;
                 cmbTimeUnit.select(cmbTimeUnit.getStore().getAt(2));
             }else{
-                if(me.time > 3600){
-                    value = me.time / 3600;
+                if(me.record.get('time') > 3600){
+                    value = me.record.get('time') / 3600;
                     cmbTimeUnit.select(cmbTimeUnit.getStore().getAt(1));
                 }else{
-                    value = me.time / 60;
+                    value = me.record.get('time') / 60;
                     cmbTimeUnit.select(cmbTimeUnit.getStore().getAt(0));
                 }
             }
@@ -145,11 +145,10 @@ Ext.define('Rd.view.topUps.winTopUpEdit', {
             cmbTimeUnit.setDisabled(false);
         }
 
-        if(me.days_to_use > 0){
+        if(me.record.get('days_to_use') > 0){
             cmbType.select(cmbType.getStore().getAt(2));
-            value = me.days_to_use;
-        }
-     
+            value = me.record.get('days_to_use');
+        }     
         //---
 
 
@@ -187,19 +186,22 @@ Ext.define('Rd.view.topUps.winTopUpEdit', {
                     xtype       : 'textfield',
                     name        : "id",
                     itemId      : 'topUpId',
-                    hidden      : true
+                    hidden      : true,
+                    value       : me.record.get('id')
                 },
                 {
                     xtype       : 'textfield',
                     fieldLabel  : 'Type',
                     name        : 'type',
                     itemId      : 'dispType',
-                    editable    : false
+                    editable    : false,
+                    value       : me.record.get('type')
                 },
                 {
                     xtype       : 'displayfield',
                     fieldLabel  : 'Permanet User',
-                    name        : 'permanent_user'
+                    name        : 'permanent_user',
+                    value       : me.record.get('permanent_user') 
                 },
                 {
                     xtype       : 'numberfield',
@@ -220,8 +222,14 @@ Ext.define('Rd.view.topUps.winTopUpEdit', {
                     name        : "comment",
                     blankText   : i18n('sSupply_a_value'),
                     labelClsExtra: 'lblRd',
-                    value       : me.comment
-                }
+                    value       : me.record.get('comment') 
+                },
+                {
+                    xtype       : 'checkbox',      
+                    fieldLabel  : 'Zero Accounting',
+                    name        : 'accounting_zero',
+                    labelClsExtra: 'lblRd'
+                },
             ],
             buttons: buttons
         });

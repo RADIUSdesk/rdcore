@@ -295,7 +295,6 @@ Ext.define('Rd.controller.cTopUps', {
                         id      : 'winTopUpEditId',
                         record  : sr 
                     });
-                    w.down('form').loadRecord(sr);
                     w.show();         
                 }
             }

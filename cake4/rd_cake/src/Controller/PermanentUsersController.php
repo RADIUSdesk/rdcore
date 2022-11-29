@@ -514,7 +514,26 @@ class PermanentUsersController extends AppController{
         }
         
         $entity =  $this->{$this->main_model}->privateAttrEdit($this->request);
-        $req_d  = $this->request->getData();    
+        $req_d  = $this->request->getData(); 
+        
+        //== START NEW FEATURE ==
+        //===Check if we need to zero the accounting when adjusting Rd-Total-Time (New feature Nov 2022)
+        //== if you also post 'accounting_zero' then we will clear the accounting records 
+        if($req_d['attribute'] == 'Rd-Total-Time'){
+        	if(isset($req_d['accounting_zero'])){
+        		$req_q    	= $this->request->getQuery();
+        		if(isset($req_q['username'])){
+        				$e_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.username' => $req_q['username']])->first();
+        				if($e_pu){
+							$username 	= $e_pu->username;
+							$realm		= $e_pu->realm;
+							$this->{'Radaccts'}->deleteAll(['Radaccts.username' => $username,'Radaccts.realm' => $realm]);
+						}
+        		}
+        	}
+		}
+        //== END NEW FEATURE ==        
+   
         $errors = $entity->getErrors();
         if($errors){
             $message = __('Could not edit item');
