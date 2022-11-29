@@ -10,12 +10,22 @@ class MailTransportComponent extends Component {
 
 	public function initialize(array $config):void{
         $this->controller = $this->_registry->getController();
-        $this->UserSettings  = TableRegistry::get('UserSettings'); 
+        $this->UserSettings  = TableRegistry::get('UserSettings');
+        $this->CloudSettings = TableRegistry::get('CloudSettings'); 
     }
         
-    public function setTransport($user){
+    public function setTransport($user,$cloud_id = false){
     
-        $q_r = $this->{'UserSettings'}->find()->where(['UserSettings.user_id' => -1 ])->all();
+    	if($cloud_id != false){
+    	
+    		$q_r = $this->{'CloudSettings'}->find()->where(['CloudSettings.cloud_id' => $cloud_id ])->all();
+    		
+    	}else{
+    	  
+        	$q_r = $this->{'UserSettings'}->find()->where(['UserSettings.user_id' => -1 ])->all();
+        	
+        }
+        
         $email_config = [];
         foreach($q_r as $i){
             if(preg_match('/^email_/',$i->name)){

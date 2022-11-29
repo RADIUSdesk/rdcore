@@ -9,14 +9,16 @@ Ext.define('Rd.view.settings.pnlSettingsEmail', {
         pack    : 'start',
         align   : 'stretch'
     },
-    margin      : 5,  
+    margin      : 5,
+    cloud_id    : -1,  
     fieldDefaults: {
         msgTarget       : 'under',
         labelAlign      : 'left',
         labelSeparator  : '',
         labelWidth      : Rd.config.labelWidth+20,
         margin          : Rd.config.fieldMargin,
-        labelClsExtra   : 'lblRdReq'
+        labelClsExtra   : 'lblRdReq',
+        defaultType     : 'textfield'
     },
     buttons : [
         {
@@ -48,6 +50,13 @@ Ext.define('Rd.view.settings.pnlSettingsEmail', {
                 anchor  : '100%'
             },
             items       : [
+                { 
+                    name            : 'edit_cloud_id',
+                    value           : me.cloud_id,
+                    hidden          : true,
+                    itemId          : 'editCloudId',
+                    xtype           : 'textfield'          
+                 },
                  { 
                     fieldLabel      : 'Enable', 
                     name            : 'email_enabled', 

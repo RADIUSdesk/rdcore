@@ -21,6 +21,7 @@ class SettingsController extends AppController{
         $this->loadComponent('MailTransport');
     }
     
+    //===== SMS =====
     public function viewSms(){
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
@@ -291,56 +292,49 @@ class SettingsController extends AppController{
         }
     }
     
-    public function saveSms(){
     
+    //=== EMAIL ======   
+     public function viewEmail(){
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
-        }
-       
-        if ($this->request->is('post')) {
+        } 
+        $nr         = 1;
+        $enabled    = false;
+        $req_q      = $this->request->getQuery(); 
         
-            $items = [];  
-            $data  = $this->request->getData();       
-            $check_items = [
-			    'email_enabled',
-			    'email_ssl'	    
-		    ];		
-            foreach($check_items as $i){
-                if(isset($data[$i])){
-                    $data[$i] = 1;
-                }else{
-                    $data[$i] = 0;
-                }
-            }
-                 
-            foreach(array_keys($data) as $k){
-                $q_r = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name' => $k ])->first();
-                if($q_r){
-                    array_push($items,$k);
-                    $value = $data[$k];
-                    $this->{$this->main_model}->patchEntity($q_r, ['value'=> $value]);
-                    $this->{$this->main_model}->save($q_r);
-                }else{
-                    if(($k !== 'token')&&($k !== 'sel_language')){
-                        $d = [];
-                        $d['name']      = $k;
-                        $d['value']     = $data[$k];
-                        $d['user_id']   = -1;
-                        $entity = $this->{$this->main_model}->newEntity($d);
-                        $this->{$this->main_model}->save($entity);
-                    }
-                }
+        if(isset($req_q['nr'])){
+            $nr = $req_q['nr'];
+        }
+        
+        $data   = []; 
+        $data   = ['email_enabled' => $enabled];    
+              
+        if(isset($req_q['edit_cloud_id'])){
+            $edit_cloud_id = $req_q['edit_cloud_id'];
+            if(preg_match("/^Clouds_/", $edit_cloud_id)){
+            	$cloud_id = preg_replace('/^Clouds_/', '', $edit_cloud_id);
             }
 
-            $this->set([
-                'items' => $items,
-                'success' => true
-            ]);
-            $this->viewBuilder()->setOption('serialize', true);
-               
+            //System is (cloud_id -1) UserSettings
+            if($edit_cloud_id == -1){             
+        		$q_r    = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'email_%' ])->all();
+       		}else{       		
+       			$q_r    = $this->{$this->cloud_model}->find()->where(['CloudSettings.cloud_id' => $cloud_id, 'CloudSettings.name LIKE' => 'email_%' ])->all();
+       		} 
+       		
+       		foreach($q_r as $ent){
+		        $data[$ent->name] = $ent->value;
+		   	}  		    		         
         }
+                                
+        $this->set([
+            'data'          => $data,
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
+      
     public function saveEmail(){
     
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
@@ -363,23 +357,45 @@ class SettingsController extends AppController{
                 }
             }
                  
-            foreach(array_keys($data) as $k){
-                $q_r = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name' => $k ])->first();
-                if($q_r){
-                    array_push($items,$k);
-                    $value = $data[$k];
-                    $this->{$this->main_model}->patchEntity($q_r, ['value'=> $value]);
-                    $this->{$this->main_model}->save($q_r);
-                }else{
-                    if(($k !== 'token')&&($k !== 'sel_language')){
-                        $d = [];
-                        $d['name']      = $k;
-                        $d['value']     = $data[$k];
-                        $d['user_id']   = -1;
-                        $entity = $this->{$this->main_model}->newEntity($d);
-                        $this->{$this->main_model}->save($entity);
-                    }
-                }
+          	foreach(array_keys($data) as $key){
+          	
+          		if(preg_match("/^email_/", $key)){ //Only things that starts with email_
+                    $value = $data[$key];
+            
+		        	if(isset($data['edit_cloud_id'])){
+						$edit_cloud_id = $data['edit_cloud_id'];
+						$cloud_id	   = -1;
+						if(preg_match("/^Clouds_/", $edit_cloud_id)){
+							$cloud_id = preg_replace('/^Clouds_/', '', $edit_cloud_id);
+						}
+						
+						$model = $this->main_model;
+
+						//System is (cloud_id -1) UserSettings
+						if($edit_cloud_id == -1){             
+							$q_r   = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name' => $key ])->first();
+							$model = $this->main_model;
+				   		}else{       		
+				   			$q_r   = $this->{$this->cloud_model}->find()->where(['CloudSettings.cloud_id' => $cloud_id, 'CloudSettings.name' => $key ])->first();
+				   			$model = $this->cloud_model;
+				   		}
+				   		
+				   		if($q_r){
+		                    $this->{$model}->patchEntity($q_r, ['value'=> $value]);
+		                    $this->{$model}->save($q_r);
+		                }else{
+		                    $d = [];
+		                    $d['name']      = $key;
+		                    $d['value']     = $value;
+		                    $d['user_id']   = -1;
+		                    $d['cloud_id']  = $cloud_id;
+		                    $entity = $this->{$model}->newEntity($d);
+		                    $this->{$model}->save($entity);
+		                }
+				   					   		 	    		         
+					}
+				}
+								
             }
 
             $this->set([
@@ -391,8 +407,61 @@ class SettingsController extends AppController{
         }
     }
     
+     public function testEmail(){
     
-    
+        if(!$this->Aa->admin_check($this)){   //Only for admin users!
+            return;
+        }
+        $user = $this->_ap_right_check();
+        
+        if ($this->request->is('post')) {
+             	      
+            $base_msg   = 'Test Email Config';
+            $subject    = 'Test Email Config';
+            $data       = $this->request->getData();
+            $email_to   = $data['email'];
+            $message    = $data['message'];
+            $base_msg   = $base_msg."\n".$message;
+            
+            $from       = $this->MailTransport->setTransport($user); 
+
+            
+            if(isset($data['edit_cloud_id'])){
+            	$edit_cloud_id = $data['edit_cloud_id'];
+            	if($data['edit_cloud_id'] == -1){
+            		//$this->MailTransport->setTransport($user); Do nothing  
+            	}else{
+            		if(preg_match("/^Clouds_/", $edit_cloud_id)){
+						$cloud_id = preg_replace('/^Clouds_/', '', $edit_cloud_id);
+						$from     = $this->MailTransport->setTransport($user,$cloud_id); 
+					}
+            	}     	
+        	}
+                                       
+            $success    = false;            
+            if($from !== false){         
+                $email = new Mailer(['transport'   => 'mail_rd']);
+                $email->setFrom($from)
+                    ->setTo($email_to)
+                    ->setSubject("$subject")
+                    ->deliver("$base_msg");
+                $success    = true;
+                $this->set([
+                    'data'          => $data,
+                    'success'       => $success
+                ]);
+                $this->viewBuilder()->setOption('serialize', true); 
+            }else{                     
+                $this->set([
+                    'data'          => $data,
+                    'success'       => $success,
+                    'message'       => 'Email Disabled / Not Configured'
+                ]);
+                $this->viewBuilder()->setOption('serialize', true);
+            }            
+        }
+    } 
+      
    	public function saveMqtt(){
     
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
@@ -464,43 +533,5 @@ class SettingsController extends AppController{
         $this->viewBuilder()->setOption('serialize', true);  
     }
     
-    public function testEmail(){
-    
-        if(!$this->Aa->admin_check($this)){   //Only for admin users!
-            return;
-        }
-        $user = $this->_ap_right_check();
-        
-        if ($this->request->is('post')) {
-        
-            $base_msg   = 'Test Email Config';
-            $subject    = 'Test Email Config';
-            $data       = $this->request->getData();
-            $email_to   = $data['email'];
-            $message    = $data['message'];
-            $base_msg   = $base_msg."\n".$message;           
-            $from       = $this->MailTransport->setTransport($user);           
-            $success    = false;            
-            if($from !== false){         
-                $email = new Mailer(['transport'   => 'mail_rd']);
-                $email->setFrom($from)
-                    ->setTo($email_to)
-                    ->setSubject("$subject")
-                    ->deliver("$base_msg");
-                $success    = true;
-                $this->set([
-                    'data'          => $data,
-                    'success'       => $success
-                ]);
-                $this->viewBuilder()->setOption('serialize', true); 
-            }else{                     
-                $this->set([
-                    'data'          => $data,
-                    'success'       => $success,
-                    'message'       => 'Email Disabled / Not Configured'
-                ]);
-                $this->viewBuilder()->setOption('serialize', true);
-            }            
-        }
-    } 
+   
 }

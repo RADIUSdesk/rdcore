@@ -2,7 +2,7 @@ Ext.define('Rd.view.settings.vcSettingsEmail', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcSettingsEmail',
     config: {
-        urlView  : '/cake4/rd_cake/settings/view.json',
+        urlView  : '/cake4/rd_cake/settings/view-email.json',
         urlSave  : '/cake4/rd_cake/settings/save-email.json',
         UrlEmail : '/cake4/rd_cake/settings/test-email.json'
     }, 
@@ -38,18 +38,22 @@ Ext.define('Rd.view.settings.vcSettingsEmail', {
     onViewActivate: function(pnl){
         var me = this;
         me.getView().setLoading(true);
-        me.getView().load({url:me.getUrlView(), method:'GET',
+        me.getView().load({url:me.getUrlView(), method:'GET',params:{'edit_cloud_id':me.getView().cloud_id},
 			success : function(a,b){  
 		        me.getView().setLoading(false);
             }
 		});       
     },
     save: function(button){
-        var me      = this;
-        var form    = button.up('form');
+        var me         = this;
+        var form       = button.up('form');
+        var e_cloud_id = form.down('#editCloudId').getValue();
         form.submit({
             clientValidation    : true,
             url                 : me.getUrlSave(),
+            params              : { //Add extra param for cloud id
+                edit_cloud_id : e_cloud_id
+            },
             success             : function(form, action) {              
                 //FIXME reload store....
                 Ext.ux.Toaster.msg(
@@ -65,7 +69,7 @@ Ext.define('Rd.view.settings.vcSettingsEmail', {
     onEmailTestClick : function(){
         var me = this;
         if(!Ext.WindowManager.get('winSettingsEmailTestId')){
-            var w = Ext.widget('winSettingsEmailTest',{id:'winSettingsEmailTestId'});
+            var w = Ext.widget('winSettingsEmailTest',{id:'winSettingsEmailTestId','cloud_id':me.getView().cloud_id});
             me.getView().add(w); 
             w.show();                 
         }     

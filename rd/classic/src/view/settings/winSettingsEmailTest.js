@@ -18,6 +18,7 @@ Ext.define('Rd.view.settings.winSettingsEmailTest', {
     requires: [
         'Ext.form.field.Text'
     ],
+    cloud_id    : -1,
      initComponent: function() {
         var me = this;  
         var frmData = Ext.create('Ext.form.Panel',{
@@ -48,6 +49,12 @@ Ext.define('Rd.view.settings.winSettingsEmailTest', {
                 }        
             ],
             items: [
+                    { 
+                        name            : 'edit_cloud_id',
+                        value           : me.cloud_id,
+                        hidden          : true,
+                        itemId          : 'editCloudId'          
+                    },
                     {
                         xtype       : 'textfield',
                         fieldLabel  : 'Email To',
