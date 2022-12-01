@@ -30,7 +30,8 @@ Ext.define('Rd.view.profiles.gridProfiles' ,{
              
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
         me.columns  = [
-            { text: i18n('sName'),         dataIndex: 'name',  tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridProfiles1'},
+            { text: 'ID',               dataIndex: 'id',    flex: 1, stateId: 'StateGridProfiles0', hidden : true},
+            { text: i18n('sName'),      dataIndex: 'name',  tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridProfiles1'},
             { 
                 text        :  i18n('sProfile_components'),
                 sortable    : false,

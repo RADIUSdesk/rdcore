@@ -26,9 +26,7 @@ class RegisterUsersController extends AppController {
 		//--No login_page_id no reg --
 		if(array_key_exists('login_page_id',$this->request->getData())){
 		    $page_id = $this->request->getData('login_page_id');
-
 		    $q_r = $this->DynamicDetails->find()->where(['DynamicDetails.id' => $page_id])->first();
-
 		    if(!$q_r){
 		         $this->set([
 				    'success'   => false,
@@ -110,6 +108,26 @@ class RegisterUsersController extends AppController {
 		//Profile id
 		$profile_id	= $q_r->profile_id;
 		
+		
+		//---- Dec 2022 -- Allow the option to specify an overriding Profile based on other_profile_id / or other_profile_name --
+		//-- Case stude e.g. we want to give a user that specified a certain thing e.g. certain provider for mobile phone a better profile ---
+		
+		$p_data = $this->request->getData();
+		if((array_key_exists('other_profile_id',$p_data))||(array_key_exists('other_profile_name',$p_data))){
+			if(array_key_exists('other_profile_name',$p_data)){			
+				$e_other_profile = $this->{'Profiles'}->find()->where(['Profiles.name' => $p_data['other_profile_name']])->first();
+				if($e_other_profile){
+					$profile_id = $e_other_profile->id;
+				}			
+			}
+			
+			if(array_key_exists('other_profile_id',$p_data)){			
+				$profile_id = $p_data['other_profile_id'];		
+			}		
+		}
+		//---- END Dec 2022 --
+		
+				
 		//Determine the Data / Time cap
 		$e_profile = $this->{'Profiles'}->find()->where(['Profiles.id' => $profile_id])->contain(['Radusergroups'=> ['Radgroupchecks']])->first();
 		
@@ -132,8 +150,7 @@ class RegisterUsersController extends AppController {
         $language   = '4_4';     
         $url        = 'http://127.0.0.1/cake4/rd_cake/permanent-users/add.json'; 
         $username	= $this->request->getData('username');
-		$password	= $this->request->getData('password');
-		
+		$password	= $this->request->getData('password');	
 		
 		//--- ADD ON ---- Expire them after 30 days
 		/*
