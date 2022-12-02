@@ -19,7 +19,8 @@ class PermanentUsersController extends AppController{
         $this->loadModel('PermanentUsers'); 
         $this->loadModel('Users');
         $this->loadModel('Realms');
-        $this->loadModel('Profiles');      
+        $this->loadModel('Profiles');
+        $this->loadModel('Radaccts');       
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
