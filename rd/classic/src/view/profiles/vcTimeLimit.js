@@ -32,15 +32,13 @@ Ext.define('Rd.view.profiles.vcTimeLimit', {
 		var pnl    	    = rgrp.up('panel');
 		if(valObj.time_reset == 'top_up'){	
 		    pnl.down('#pnlTimeTopUp').show();
-		    pnl.down('#rgrpTimeUnit').hide();
 		    pnl.down('#rgrpTimeCap').hide();
-		    pnl.down('rdSlider').hide();
+		    pnl.down('rdSliderTime').hide();
 		    pnl.down('#chkTimeMac').hide();
 		}else{
 		    pnl.down('#pnlTimeTopUp').hide(); 
-		    pnl.down('#rgrpTimeUnit').show();
 		    pnl.down('#rgrpTimeCap').show();
-		    pnl.down('rdSlider').show();
+		    pnl.down('rdSliderTime').show();
 		    pnl.down('#chkTimeMac').show();		
 		}
 	}

@@ -65,10 +65,11 @@ Ext.define('Rd.controller.cProfiles', {
                 click:      me.advanced_edit
             },
             'gridProfiles'   : {
-                select          : me.select
+                select          : me.select,
+                menuItemClick   : me.onActionColumnMenuItemClick
             },
             'gridProfiles actioncolumn': { 
-                 itemClick  : me.onActionColumnItemClick
+                itemClick       : me.onActionColumnItemClick
             },
             '#winCsvColumnSelectProfiles #save': {
                 click:  me.csvExportSubmit
@@ -207,6 +208,28 @@ Ext.define('Rd.controller.cProfiles', {
             });                  
         }
     },
+    fupEdit: function(){    
+        var me      = this;    
+        var store   = me.getGrid().getStore();
+        var tp      = me.getGrid().up('tabpanel'); 
+        if(me.getGrid().getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
+                i18n('sSelect_an_item'),
+                i18n('sFirst_select_an_item'),
+                Ext.ux.Constants.clsWarn,
+                Ext.ux.Constants.msgWarn
+            );           
+        }else{
+            var tp      = me.getGrid().up('tabpanel');
+            var sr      = me.getGrid().getSelectionModel().getLastSelected();
+            var id      = sr.getId();
+            var name    = sr.get('name');
+            Ext.getApplication().runAction('cProfileFup','Index',id,{
+                name        :name,
+                tp          :tp
+            });                  
+        }
+    },
     radioComponentManage: function(rbg){
         var me      = this;
         var form    = rbg.up('form');
@@ -308,6 +331,23 @@ Ext.define('Rd.controller.cProfiles', {
         if(action == 'delete'){
             me.del();
         }     
+        if(action == 'advanced_edit'){
+            me.advanced_edit();
+        }
+    },
+    onActionColumnMenuItemClick: function(grid,action){
+        var me = this;
+        grid.setSelection(grid.selRecord);
+
+        if(action == 'update'){
+            me.edit()
+        }
+
+        if(action == 'fup'){
+            console.log("Klap FUP Pappie");
+            me.fupEdit();
+        }
+
         if(action == 'advanced_edit'){
             me.advanced_edit();
         }

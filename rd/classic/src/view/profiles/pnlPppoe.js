@@ -4,11 +4,11 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
     alias       : 'widget.pnlPppoe',
     requires    : [
         'Rd.view.profiles.vcPppoe',
-        'Rd.view.components.rdSlider'
+        'Rd.view.components.rdSliderSpeed'
     ],
     controller  : 'vcPppoe',
     layout      : { type: 'vbox'},
-    title       : "PPPoE LIMITS",
+    title       : "SPEED LIMITS",
     initComponent: function(){
         var me      = this;
         var w_sec   = 350;
@@ -32,59 +32,15 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
 			    itemId      : 'cntDetail',
 			    items       : [
 			        {
-			            xtype       : 'rdSlider',
-			            sliderName  : 'pppoe_upload_amount',
-			            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up Amount"
+			            xtype       : 'rdSliderSpeed',
+			            sliderName  : 'pppoe_upload',
+			            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up"
 			        },
                     {
-                        xtype       : 'radiogroup',
-                        fieldLabel  : "<i class='fa fa-arrow-up'></i> Up Unit",
-                        itemId      : 'rgrpSpeedUploadUnit',
-                        columns     : 2,
-                        vertical    : false,
-                        items       : [
-                            {
-                                boxLabel  : 'Kb/s',
-                                name      : 'pppoe_upload_unit',
-                                inputValue: 'kbps',
-                                margin    : '0 15 0 0',
-                                checked   : true
-                            }, 
-                            {
-                                boxLabel  : 'Mb/s',
-                                name      : 'pppoe_upload_unit',
-                                inputValue: 'mbps',
-                                margin    : '0 0 0 0'
-                            }
-                        ]
-                    },
-                    {
-			            xtype       : 'rdSlider',
-			            sliderName  : 'pppoe_download_amount',
-			            fieldLabel  : "<i class='fa fa-arrow-down'></i> Down Amount",
+			            xtype       : 'rdSliderSpeed',
+			            sliderName  : 'pppoe_download',
+			            fieldLabel  : "<i class='fa fa-arrow-down'></i> Down",
 			        },
-                    {
-                        xtype       : 'radiogroup',
-                        fieldLabel  : "<i class='fa fa-arrow-down'></i> Down Unit",
-                        itemId      : 'rgrpSpeedDownloadUnit',
-                        columns     : 2,
-                        vertical    : false,
-                        items       : [
-                            {
-                                boxLabel  : 'Kb/s',
-                                name      : 'pppoe_download_unit',
-                                inputValue: 'kbps',
-                                margin    : '0 15 0 0',
-                                checked   : true
-                            }, 
-                            {
-                                boxLabel  : 'Mb/s',
-                                name      : 'pppoe_download_unit',
-                                inputValue: 'mbps',
-                                margin    : '0 0 0 0'
-                            }
-                        ]
-                    },
                     {
                         xtype       : 'checkbox',
                         itemId      : 'chkBurstEnable',

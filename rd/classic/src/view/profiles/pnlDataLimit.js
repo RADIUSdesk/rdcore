@@ -4,7 +4,7 @@ Ext.define('Rd.view.profiles.pnlDataLimit', {
     alias       : 'widget.pnlDataLimit',
     requires    : [
         'Rd.view.profiles.vcDataLimit',
-        'Rd.view.components.rdSlider'
+        'Rd.view.components.rdSliderData'
     ],
     controller  : 'vcDataLimit',
     layout      : 'vbox',
@@ -15,6 +15,7 @@ Ext.define('Rd.view.profiles.pnlDataLimit', {
         var w_rd    = 68;
         me.width    = 550;
         me.padding  = 5;
+        me.labelWidth = 60,
         me.items    = [
 			{
 			    xtype       : 'sldrToggle',
@@ -31,9 +32,16 @@ Ext.define('Rd.view.profiles.pnlDataLimit', {
 			    xtype       : 'container',
 			    itemId      : 'cntDetail',
 			    items       : [
+                    {
+			            xtype       : 'rdSliderData',
+			            sliderName  : 'data',
+			            minValue    : 1,
+                        maxValue    : 999
+			        },
 			        {
                         xtype       : 'radiogroup',
                         fieldLabel  : 'Reset',
+                        labelWidth  : me.labelWidth,
                         itemId      : 'rgrpDataReset',
                         columns     : 3,
                         vertical    : false,
@@ -85,37 +93,9 @@ Ext.define('Rd.view.profiles.pnlDataLimit', {
                         margin  : 10
                     },
                     {
-			            xtype       : 'rdSlider',
-			            sliderName  : 'data_amount',
-			            fieldLabel  : "Amount",
-			            minValue    : 1,
-                        maxValue    : 999
-			        },
-                    {
-                        xtype       : 'radiogroup',
-                        fieldLabel  : 'Units',
-                        itemId      : 'rgrpDataUnit',
-                        columns     : 2,
-                        vertical    : false,
-                        items       : [
-                            {
-                                boxLabel  : 'MB',
-                                name      : 'data_unit',
-                                inputValue: 'mb',
-                                margin    : '0 15 0 0',
-                                checked   : true
-                            }, 
-                            {
-                                boxLabel  : 'GB',
-                                name      : 'data_unit',
-                                inputValue: 'gb',
-                                margin    : '0 0 0 15'
-                            }
-                        ]
-                    },
-                    {
                         xtype       : 'radiogroup',
                         fieldLabel  : 'Type',
+                        labelWidth  : me.labelWidth,
                         itemId      : 'rgrpDataCap',
                         columns     : 2,
                         vertical    : false,

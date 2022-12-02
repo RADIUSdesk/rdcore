@@ -18,7 +18,22 @@ Ext.define('Rd.view.profiles.gridProfiles' ,{
     urlMenu: '/cake4/rd_cake/profiles/menu-for-grid.json',
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
-        var me  = this;        
+        var me  = this; 
+
+        me.menu_grid = new Ext.menu.Menu({
+            items: [
+                { text: 'Simple Edit', glyph: Rd.config.icnEdit,   handler: function(){
+                     me.fireEvent('menuItemClick',me,'update'); 
+                }},
+                { text: 'FUP Edit',  glyph: Rd.config.icnHandshakeO,  handler: function(){
+                     me.fireEvent('menuItemClick',me,'fup');
+                }},
+                { text: 'Advanced Edit',  glyph: Rd.config.icnGears,  handler: function(){
+                     me.fireEvent('menuItemClick',me,'advanced_edit');
+                }}
+            ]
+         });
+      
         me.bbar = [{
             xtype       : 'pagingtoolbar',
             store       : me.store,
@@ -69,33 +84,16 @@ Ext.define('Rd.view.profiles.gridProfiles' ,{
                         }
                     },
                     {  
-                        iconCls : 'txtBlue x-fa fa-pen',
-                        tooltip : 'Edit',
-                        isDisabled: function (grid, rowIndex, colIndex, items, record) {
-                                if (record.get('update') == true) {
-                                     return false;
-                                } else {
-                                    return true;
-                                }
-                        },
-						handler: function(view, rowIndex, colIndex, item, e, record, row) {
-                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'update');
-                        }
-					},
-					{  
-                        iconCls : 'txtGreen x-fa fa-gears',
-                        tooltip : 'Advanced Edit',
-                        isDisabled: function (grid, rowIndex, colIndex, items, record) {
-                                if (record.get('update') == true) {
-                                     return false;
-                                } else {
-                                    return true;
-                                }
-                        },
-						handler: function(view, rowIndex, colIndex, item, e, record, row) {
-                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'advanced_edit');
-                        }
-					}
+                       iconCls : 'txtBlue x-fa fa-pen',
+                       tooltip : 'Edit',
+                       handler: function(view, rowIndex, colIndex, item, e, record) {
+                           var position = e.getXY();
+                           e.stopEvent();
+                           me.selRecord = record; 
+                           me.view = view;
+                           me.menu_grid.showAt(position);
+                       }
+                    }
 				]
             }                              
         ];     

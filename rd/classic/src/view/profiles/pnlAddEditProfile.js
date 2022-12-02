@@ -26,11 +26,9 @@ Ext.define('Rd.view.profiles.pnlAddEditProfile', {
         'Rd.view.profiles.pnlTimeLimit',
         'Rd.view.profiles.pnlLogintime',
         'Rd.view.profiles.pnlSessionLimit',
-        'Rd.view.profiles.pnlPppoe',
         'Rd.view.profiles.pnlAdvDataLimit',
         'Rd.view.profiles.pnlAdvTimeLimit',
         'Rd.view.profiles.pnlSpeedLimit',
-        'Rd.view.profiles.pnlFup'
     ],
     controller  : 'vcProfileGeneric',
     listeners       : {
@@ -129,34 +127,7 @@ Ext.define('Rd.view.profiles.pnlAddEditProfile', {
                     }
                 ]
             }
-        ];
-        
-        var pnlPppoe =  [{
-                xtype       : 'container',
-                layout      : {
-                    type    : 'hbox',
-                    pack    : 'center',
-                    align   : 'stretchmax'
-                },
-                items       : [
-                    {
-                        itemId      : 'pnlPppoe',
-                        hidden      : false,
-                        flex        : 1,
-                        ui          : 'panel-green',
-                        xtype       : 'pnlPppoe'
-                    },
-                    {
-                        itemId      : 'pnlFup',
-                        hidden      : false,
-                        flex        : 1,
-                        ui          : 'panel-blue',
-                        xtype       : 'pnlFup'
-                    }
-                ]
-            }
-        ];
-        
+        ];       
         var pnlAdv =  [{
                 xtype       : 'container',
                 layout      : {
@@ -233,17 +204,8 @@ Ext.define('Rd.view.profiles.pnlAddEditProfile', {
                         },
                         bodyPadding : 10,
                         items   : pnlGenItems
-                    },{
-                        title       : 'PPPoE AND FUP',
-                        bodyStyle   : 'background:#f6f6ee',
-                        layout  : {
-                                type    : 'vbox',
-                                pack    : 'start',
-                                align   : 'middle'
-                        },
-                        bodyPadding : 10,
-                        items   : pnlPppoe
-                    },{
+                    },
+                    {
                         title   : 'ADVANCED',
                         bodyStyle   : 'background:#f6f6ee',
                         layout  : {

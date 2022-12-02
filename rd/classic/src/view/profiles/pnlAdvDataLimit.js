@@ -4,7 +4,7 @@ Ext.define('Rd.view.profiles.pnlAdvDataLimit', {
     alias       : 'widget.pnlAdvDataLimit',
     requires    : [
         'Rd.view.profiles.vcAdvDataLimit',
-        'Rd.view.components.rdSlider'
+        'Rd.view.components.rdSliderData'
     ],
     controller  : 'vcAdvDataLimit',
     layout      : 'vbox',
@@ -33,34 +33,11 @@ Ext.define('Rd.view.profiles.pnlAdvDataLimit', {
 			    items       : [
 			        
                     {
-			            xtype       : 'rdSlider',
-			            sliderName  : 'adv_data_amount',
-			            fieldLabel  : "Amount",
+			            xtype       : 'rdSliderData',
+			            sliderName  : 'adv_data',
 			            minValue    : 1,
                         maxValue    : 999
 			        },
-                    {
-                        xtype       : 'radiogroup',
-                        fieldLabel  : 'Units',
-                        itemId      : 'rgrpDataUnit',
-                        columns     : 2,
-                        vertical    : false,
-                        items       : [
-                            {
-                                boxLabel  : 'MB',
-                                name      : 'adv_data_unit',
-                                inputValue: 'mb',
-                                margin    : '0 15 0 0',
-                                checked   : true
-                            }, 
-                            {
-                                boxLabel  : 'GB',
-                                name      : 'adv_data_unit',
-                                inputValue: 'gb',
-                                margin    : '0 0 0 15'
-                            }
-                        ]
-                    },
                     {
 			            xtype       : 'rdSlider',
 			            itemId      : 'sldrDataPerDay',

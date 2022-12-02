@@ -4,7 +4,7 @@ Ext.define('Rd.view.profiles.pnlAdvTimeLimit', {
     alias       : 'widget.pnlAdvTimeLimit',
     requires    : [
         'Rd.view.profiles.vcAdvTimeLimit',
-        'Rd.view.components.rdSlider'
+        'Rd.view.components.rdSliderTime'
     ],
     controller  : 'vcAdvTimeLimit',
     layout      : { type: 'vbox'},
@@ -33,34 +33,12 @@ Ext.define('Rd.view.profiles.pnlAdvTimeLimit', {
 			    itemId      : 'cntDetail',
 			    items       : [
                     {
-			            xtype       : 'rdSlider',
-			            sliderName  : 'adv_time_amount',
+			            xtype       : 'rdSliderTime',
+			            sliderName  : 'adv_time',
 			            fieldLabel  : "Amount",
                         minValue    : 1,
                         maxValue    : 120
 			        },
-                    {
-                        xtype       : 'radiogroup',
-                        fieldLabel  : 'Units',
-                        itemId      : 'rgrpTimeUnit',
-                        columns     : 3,
-                        vertical    : false,
-                        items       : [
-                            {
-                                boxLabel  : 'Minutes',
-                                name      : 'adv_time_unit',
-                                inputValue: 'min',
-                                margin    : '0 15 0 0',
-                                checked   : true
-                            }, 
-                            {
-                                boxLabel  : 'Hours',
-                                name      : 'adv_time_unit',
-                                inputValue: 'hour',
-                                margin    : '0 0 0 0'
-                            }
-                        ]
-                    },
                     {
 			            xtype       : 'rdSlider',
 			            itemId      : 'sldrTimePerDay',

@@ -3,8 +3,7 @@ Ext.define('Rd.view.profiles.pnlLogintime', {
     glyph       : Rd.config.icnHourHalf,
     alias       : 'widget.pnlLogintime',
     requires    : [
-        'Rd.view.profiles.vcLogintime',
-        'Rd.view.components.rdSlider'
+        'Rd.view.profiles.vcLogintime'
     ],
     controller  : 'vcLogintime',
     layout      : { type: 'vbox'},

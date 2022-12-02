@@ -4,7 +4,7 @@ Ext.define('Rd.view.profiles.pnlSpeedLimit', {
     alias       : 'widget.pnlSpeedLimit',
     requires    : [
         'Rd.view.profiles.vcSpeedLimit',
-        'Rd.view.components.rdSlider'
+        'Rd.view.components.rdSliderSpeed'
     ],
     controller  : 'vcSpeedLimit',
     layout      : { type: 'vbox'},
@@ -33,59 +33,15 @@ Ext.define('Rd.view.profiles.pnlSpeedLimit', {
 			    itemId      : 'cntDetail',
 			    items       : [
 			        {
-			            xtype       : 'rdSlider',
-			            sliderName  : 'speed_upload_amount',
-			            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up Amount"
+			            xtype       : 'rdSliderSpeed',
+			            sliderName  : 'speed_upload',
+			            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up"
 			        },
                     {
-                        xtype       : 'radiogroup',
-                        fieldLabel  : "<i class='fa fa-arrow-up'></i> Up Unit",
-                        itemId      : 'rgrpSpeedUploadUnit',
-                        columns     : 2,
-                        vertical    : false,
-                        items       : [
-                            {
-                                boxLabel  : 'Kb/s',
-                                name      : 'speed_upload_unit',
-                                inputValue: 'kbps',
-                                margin    : '0 15 0 0',
-                                checked   : true
-                            }, 
-                            {
-                                boxLabel  : 'Mb/s',
-                                name      : 'speed_upload_unit',
-                                inputValue: 'mbps',
-                                margin    : '0 0 0 0'
-                            }
-                        ]
-                    },
-                    {
-			            xtype       : 'rdSlider',
-			            sliderName  : 'speed_download_amount',
-			            fieldLabel  : "<i class='fa fa-arrow-down'></i> Down Amount",
-			        },
-                    {
-                        xtype       : 'radiogroup',
-                        fieldLabel  : "<i class='fa fa-arrow-down'></i> Down Unit",
-                        itemId      : 'rgrpSpeedDownloadUnit',
-                        columns     : 2,
-                        vertical    : false,
-                        items       : [
-                            {
-                                boxLabel  : 'Kb/s',
-                                name      : 'speed_download_unit',
-                                inputValue: 'kbps',
-                                margin    : '0 15 0 0',
-                                checked   : true
-                            }, 
-                            {
-                                boxLabel  : 'Mb/s',
-                                name      : 'speed_download_unit',
-                                inputValue: 'mbps',
-                                margin    : '0 0 0 0'
-                            }
-                        ]
-                    }
+			            xtype       : 'rdSliderSpeed',
+			            sliderName  : 'speed_download',
+			            fieldLabel  : "<i class='fa fa-arrow-down'></i> Down",
+			        }
                 ]
             }
         ];       

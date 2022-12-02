@@ -33,15 +33,13 @@ Ext.define('Rd.view.profiles.vcDataLimit', {
 		var pnl    	    = rgrp.up('panel');
 		if(valObj.data_reset == 'top_up'){	
 		    pnl.down('#pnlDataTopUp').show();
-		    pnl.down('#rgrpDataUnit').hide();
 		    pnl.down('#rgrpDataCap').hide();
-		    pnl.down('rdSlider').hide();
+		    pnl.down('rdSliderData').hide();
 		    pnl.down('#chkDataMac').hide();
 		}else{
 		    pnl.down('#pnlDataTopUp').hide(); 
-		    pnl.down('#rgrpDataUnit').show();
 		    pnl.down('#rgrpDataCap').show();
-		    pnl.down('rdSlider').show();
+		    pnl.down('rdSliderData').show();
 		    pnl.down('#chkDataMac').show();		
 		}
 	}

@@ -4,7 +4,7 @@ Ext.define('Rd.view.profiles.pnlTimeLimit', {
     alias       : 'widget.pnlTimeLimit',
     requires    : [
         'Rd.view.profiles.vcTimeLimit',
-        'Rd.view.components.rdSlider'
+        'Rd.view.components.rdSliderTime'
     ],
     controller  : 'vcTimeLimit',
     layout      : { type: 'vbox'},
@@ -16,6 +16,7 @@ Ext.define('Rd.view.profiles.pnlTimeLimit', {
         var w_rd    = 68;
         me.width    = 550;
         me.padding  = 5;
+        me.labelWidth = 60,
         me.items    = [
 			{
 			    xtype       : 'sldrToggle',
@@ -32,9 +33,17 @@ Ext.define('Rd.view.profiles.pnlTimeLimit', {
 			    xtype       : 'container',
 			    itemId      : 'cntDetail',
 			    items       : [
+                    {
+			            xtype       : 'rdSliderTime',
+			            sliderName  : 'time',
+			            fieldLabel  : "Amount",
+                        minValue    : 1,
+                        maxValue    : 120
+			        },
 			        {
                         xtype       : 'radiogroup',
                         fieldLabel  : 'Reset',
+                        labelWidth  : me.labelWidth,
                         itemId      : 'rgrpTimeReset',
                         columns     : 3,
                         vertical    : false,
@@ -86,43 +95,9 @@ Ext.define('Rd.view.profiles.pnlTimeLimit', {
                         margin      : 10
                     },
                     {
-			            xtype       : 'rdSlider',
-			            sliderName  : 'time_amount',
-			            fieldLabel  : "Amount",
-                        minValue    : 1,
-                        maxValue    : 120
-			        },
-                    {
-                        xtype       : 'radiogroup',
-                        fieldLabel  : 'Units',
-                        itemId      : 'rgrpTimeUnit',
-                        columns     : 3,
-                        vertical    : false,
-                        items       : [
-                            {
-                                boxLabel  : 'Minutes',
-                                name      : 'time_unit',
-                                inputValue: 'min',
-                                margin    : '0 15 0 0',
-                                checked   : true
-                            }, 
-                            {
-                                boxLabel  : 'Hours',
-                                name      : 'time_unit',
-                                inputValue: 'hour',
-                                margin    : '0 0 0 0'
-                            },
-                            {
-                                boxLabel  : 'Days',
-                                name      : 'time_unit',
-                                inputValue: 'day',
-                                margin    : '0 0 0 15'
-                            }
-                        ]
-                    },
-                    {
                         xtype       : 'radiogroup',
                         fieldLabel  : 'Type',
+                        labelWidth  : me.labelWidth,
                         itemId      : 'rgrpTimeCap',
                         columns     : 2,
                         vertical    : false,
