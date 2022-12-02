@@ -518,9 +518,10 @@ class PermanentUsersController extends AppController{
         $req_d  = $this->request->getData(); 
         
         //== START NEW FEATURE ==
-        //===Check if we need to zero the accounting when adjusting Rd-Total-Time (New feature Nov 2022)
+        //===Check if we need to zero the accounting when adjusting Rd-Total-Time or Rd-Total-Data (New feature Nov 2022)
         //== if you also post 'accounting_zero' then we will clear the accounting records 
-        if($req_d['attribute'] == 'Rd-Total-Time'){
+        if(($req_d['attribute'] == 'Rd-Total-Time')||($req_d['attribute'] == 'Rd-Total-Data')){
+        	//if(true){
         	if(isset($req_d['accounting_zero'])){
         		$req_q    	= $this->request->getQuery();
         		if(isset($req_q['username'])){
