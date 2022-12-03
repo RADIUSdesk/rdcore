@@ -7,6 +7,7 @@ namespace Laminas\Diactoros;
 use GdImage;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
+use Stringable;
 use Throwable;
 
 use function array_key_exists;
@@ -28,13 +29,12 @@ use function stream_get_contents;
 use function stream_get_meta_data;
 use function strstr;
 
-use const PHP_VERSION_ID;
 use const SEEK_SET;
 
 /**
  * Implementation of PSR HTTP streams
  */
-class Stream implements StreamInterface
+class Stream implements StreamInterface, Stringable
 {
     /**
      * A list of allowed stream resource types that are allowed to instantiate a Stream
@@ -72,7 +72,7 @@ class Stream implements StreamInterface
             }
 
             return $this->getContents();
-        } catch (RuntimeException $e) {
+        } catch (RuntimeException) {
             return '';
         }
     }
@@ -352,13 +352,13 @@ class Stream implements StreamInterface
      * @param mixed $resource Stream resource.
      * @psalm-assert-if-true resource $resource
      */
-    private function isValidStreamResourceType($resource): bool
+    private function isValidStreamResourceType(mixed $resource): bool
     {
         if (is_resource($resource)) {
             return in_array(get_resource_type($resource), self::ALLOWED_STREAM_RESOURCE_TYPES, true);
         }
 
-        if (PHP_VERSION_ID >= 80000 && $resource instanceof GdImage) {
+        if ($resource instanceof GdImage) {
             return true;
         }
 

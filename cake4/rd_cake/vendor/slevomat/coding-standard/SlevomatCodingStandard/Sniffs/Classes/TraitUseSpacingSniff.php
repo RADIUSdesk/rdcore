@@ -6,6 +6,7 @@ use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use PHP_CodeSniffer\Util\Tokens;
 use SlevomatCodingStandard\Helpers\ClassHelper;
+use SlevomatCodingStandard\Helpers\FixerHelper;
 use SlevomatCodingStandard\Helpers\SniffSettingsHelper;
 use SlevomatCodingStandard\Helpers\TokenHelper;
 use function count;
@@ -88,7 +89,7 @@ class TraitUseSpacingSniff implements Sniff
 		$useStartPointer = $firstUsePointer;
 
 		/** @var int $pointerBeforeFirstUse */
-		$pointerBeforeFirstUse = TokenHelper::findPreviousExcluding($phpcsFile, T_WHITESPACE, $firstUsePointer - 1);
+		$pointerBeforeFirstUse = TokenHelper::findPreviousNonWhitespace($phpcsFile, $firstUsePointer - 1);
 
 		if (in_array($tokens[$pointerBeforeFirstUse]['code'], Tokens::$commentTokens, true)) {
 			$pointerBeforeFirstUse = TokenHelper::findPreviousEffective($phpcsFile, $pointerBeforeFirstUse - 1);
@@ -143,9 +144,7 @@ class TraitUseSpacingSniff implements Sniff
 		$phpcsFile->fixer->beginChangeset();
 
 		if ($pointerBeforeIndentation !== null) {
-			for ($i = $pointerBeforeFirstUse + 1; $i <= $pointerBeforeIndentation; $i++) {
-				$phpcsFile->fixer->replaceToken($i, '');
-			}
+			FixerHelper::removeBetweenIncluding($phpcsFile, $pointerBeforeFirstUse + 1, $pointerBeforeIndentation);
 		}
 		for ($i = 0; $i <= $requiredLinesCountBeforeFirstUse; $i++) {
 			$phpcsFile->fixer->addNewline($pointerBeforeFirstUse);
@@ -167,7 +166,7 @@ class TraitUseSpacingSniff implements Sniff
 		$pointerAfterLastUse = TokenHelper::findNextEffective($phpcsFile, $lastUseEndPointer + 1);
 		$isAtTheEndOfClass = $tokens[$pointerAfterLastUse]['code'] === T_CLOSE_CURLY_BRACKET;
 
-		$whitespaceEnd = TokenHelper::findNextExcluding($phpcsFile, T_WHITESPACE, $lastUseEndPointer + 1) - 1;
+		$whitespaceEnd = TokenHelper::findNextNonWhitespace($phpcsFile, $lastUseEndPointer + 1) - 1;
 		if ($lastUseEndPointer !== $whitespaceEnd && $tokens[$whitespaceEnd]['content'] !== $phpcsFile->eolChar) {
 			$lastEolPointer = TokenHelper::findPreviousContent(
 				$phpcsFile,
@@ -203,9 +202,9 @@ class TraitUseSpacingSniff implements Sniff
 		}
 
 		$phpcsFile->fixer->beginChangeset();
-		for ($i = $lastUseEndPointer + 1; $i <= $whitespaceEnd; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+
+		FixerHelper::removeBetweenIncluding($phpcsFile, $lastUseEndPointer + 1, $whitespaceEnd);
+
 		for ($i = 0; $i <= $requiredLinesCountAfterLastUse; $i++) {
 			$phpcsFile->fixer->addNewline($lastUseEndPointer);
 		}
@@ -238,7 +237,7 @@ class TraitUseSpacingSniff implements Sniff
 			}
 
 			$useStartPointer = $usePointer;
-			$pointerBeforeUse = TokenHelper::findPreviousExcluding($phpcsFile, T_WHITESPACE, $usePointer - 1);
+			$pointerBeforeUse = TokenHelper::findPreviousNonWhitespace($phpcsFile, $usePointer - 1);
 
 			if (in_array($tokens[$pointerBeforeUse]['code'], Tokens::$commentTokens, true)) {
 				$useStartPointer = TokenHelper::findNext(
@@ -291,9 +290,7 @@ class TraitUseSpacingSniff implements Sniff
 
 			$phpcsFile->fixer->beginChangeset();
 			if ($pointerBeforeIndentation !== null) {
-				for ($i = $previousUseEndPointer + 1; $i <= $pointerBeforeIndentation; $i++) {
-					$phpcsFile->fixer->replaceToken($i, '');
-				}
+				FixerHelper::removeBetweenIncluding($phpcsFile, $previousUseEndPointer + 1, $pointerBeforeIndentation);
 			}
 			for ($i = 0; $i <= $this->linesCountBetweenUses; $i++) {
 				$phpcsFile->fixer->addNewline($previousUseEndPointer);

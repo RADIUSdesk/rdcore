@@ -21,7 +21,8 @@ use Composer\Pcre\Preg;
 class Url
 {
     /**
-     * @return string the updated URL
+     * @param non-empty-string $url
+     * @return non-empty-string the updated URL
      */
     public static function updateDistReference(Config $config, string $url, string $ref): string
     {
@@ -54,9 +55,15 @@ class Url
             $url = Preg::replace('{(/api/v[34]/projects/[^/]+/repository/archive\.(?:zip|tar\.gz|tar\.bz2|tar)\?sha=).+$}i', '${1}'.$ref, $url);
         }
 
+        assert($url !== '');
+
         return $url;
     }
 
+    /**
+     * @param non-empty-string $url
+     * @return non-empty-string
+     */
     public static function getOrigin(Config $config, string $url): string
     {
         if (0 === strpos($url, 'file://')) {
@@ -87,7 +94,7 @@ class Url
             && !in_array($origin, $config->get('gitlab-domains'), true)
         ) {
             foreach ($config->get('gitlab-domains') as $gitlabDomain) {
-                if (0 === strpos($gitlabDomain, $origin)) {
+                if ($gitlabDomain !== '' && str_starts_with($gitlabDomain, $origin)) {
                     return $gitlabDomain;
                 }
             }
@@ -104,7 +111,7 @@ class Url
 
         $url = Preg::replaceCallback('{^(?P<prefix>[a-z0-9]+://)?(?P<user>[^:/\s@]+):(?P<password>[^@\s/]+)@}i', static function ($m): string {
             // if the username looks like a long (12char+) hex string, or a modern github token (e.g. ghp_xxx) we obfuscate that
-            if (Preg::isMatch('{^([a-f0-9]{12,}|gh[a-z]_[a-zA-Z0-9_]+)$}', $m['user'])) {
+            if (Preg::isMatch('{^([a-f0-9]{12,}|gh[a-z]_[a-zA-Z0-9_]+|github_pat_[a-zA-Z0-9_]+)$}', $m['user'])) {
                 return $m['prefix'].'***:***@';
             }
 

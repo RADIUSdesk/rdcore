@@ -6,6 +6,7 @@ use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use SlevomatCodingStandard\Helpers\ClassHelper;
 use SlevomatCodingStandard\Helpers\DocCommentHelper;
+use SlevomatCodingStandard\Helpers\FixerHelper;
 use SlevomatCodingStandard\Helpers\FunctionHelper;
 use SlevomatCodingStandard\Helpers\IndentationHelper;
 use SlevomatCodingStandard\Helpers\SniffSettingsHelper;
@@ -15,7 +16,6 @@ use function sprintf;
 use function str_repeat;
 use const T_FUNCTION;
 use const T_SEMICOLON;
-use const T_WHITESPACE;
 
 class MethodSpacingSniff implements Sniff
 {
@@ -74,7 +74,7 @@ class MethodSpacingSniff implements Sniff
 			? TokenHelper::findNextEffective($phpcsFile, $methodEndPointer + 1)
 			: TokenHelper::findFirstTokenOnLine($phpcsFile, $nextMethodDocCommentStartPointer ?? $nextMethodPointer);
 
-		if (TokenHelper::findNextExcluding($phpcsFile, T_WHITESPACE, $methodEndPointer + 1, $nextMethodFirstLinePointer) !== null) {
+		if (TokenHelper::findNextNonWhitespace($phpcsFile, $methodEndPointer + 1, $nextMethodFirstLinePointer) !== null) {
 			return;
 		}
 
@@ -115,16 +115,14 @@ class MethodSpacingSniff implements Sniff
 				)
 			);
 
-			for ($i = $methodEndPointer + 1; $i < $nextMethodFirstLinePointer; $i++) {
-				$phpcsFile->fixer->replaceToken($i, '');
-			}
+			FixerHelper::removeBetween($phpcsFile, $methodEndPointer, $nextMethodFirstLinePointer);
 
 		} elseif ($linesBetween > $this->maxLinesCount) {
 			$phpcsFile->fixer->addContent($methodEndPointer, str_repeat($phpcsFile->eolChar, $this->maxLinesCount + 1));
 
-			for ($i = $methodEndPointer + 1; $i < TokenHelper::findFirstTokenOnLine($phpcsFile, $nextMethodFirstLinePointer); $i++) {
-				$phpcsFile->fixer->replaceToken($i, '');
-			}
+			$firstPointerOnNextMethodLine = TokenHelper::findFirstTokenOnLine($phpcsFile, $nextMethodFirstLinePointer);
+
+			FixerHelper::removeBetween($phpcsFile, $methodEndPointer, $firstPointerOnNextMethodLine);
 		} else {
 			$phpcsFile->fixer->addContent($methodEndPointer, str_repeat($phpcsFile->eolChar, $this->minLinesCount - $linesBetween));
 		}

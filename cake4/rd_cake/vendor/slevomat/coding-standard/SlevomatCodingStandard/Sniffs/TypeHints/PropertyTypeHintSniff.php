@@ -17,6 +17,7 @@ use SlevomatCodingStandard\Helpers\Annotation\VariableAnnotation;
 use SlevomatCodingStandard\Helpers\AnnotationHelper;
 use SlevomatCodingStandard\Helpers\AnnotationTypeHelper;
 use SlevomatCodingStandard\Helpers\DocCommentHelper;
+use SlevomatCodingStandard\Helpers\FixerHelper;
 use SlevomatCodingStandard\Helpers\NamespaceHelper;
 use SlevomatCodingStandard\Helpers\PropertyHelper;
 use SlevomatCodingStandard\Helpers\SniffSettingsHelper;
@@ -75,6 +76,9 @@ class PropertyTypeHintSniff implements Sniff
 	/** @var bool|null */
 	public $enableIntersectionTypeHint = null;
 
+	/** @var bool|null */
+	public $enableStandaloneNullTrueFalseTypeHints = null;
+
 	/** @var string[] */
 	public $traversableTypeHints = [];
 
@@ -111,6 +115,9 @@ class PropertyTypeHintSniff implements Sniff
 		$this->enableIntersectionTypeHint = $this->enableNativeTypeHint
 			? SniffSettingsHelper::isEnabledByPhpVersion($this->enableIntersectionTypeHint, 80100)
 			: false;
+		$this->enableStandaloneNullTrueFalseTypeHints = $this->enableNativeTypeHint
+			? SniffSettingsHelper::isEnabledByPhpVersion($this->enableStandaloneNullTrueFalseTypeHints, 80200)
+			: false;
 
 		$tokens = $phpcsFile->getTokens();
 
@@ -121,7 +128,7 @@ class PropertyTypeHintSniff implements Sniff
 
 		$nextPointer = TokenHelper::findNextEffective($phpcsFile, $pointer + 1);
 		if (in_array($tokens[$nextPointer]['code'], [T_VAR, T_PUBLIC, T_PROTECTED, T_PRIVATE, T_READONLY, T_STATIC], true)) {
-			// We don't want to report the some property twice
+			// We don't want to report the same property twice
 			return;
 		}
 
@@ -225,7 +232,7 @@ class PropertyTypeHintSniff implements Sniff
 		if (AnnotationTypeHelper::containsOneType($typeNode)) {
 			/** @var ArrayTypeNode|ArrayShapeNode|IdentifierTypeNode|ThisTypeNode|GenericTypeNode|CallableTypeNode $typeNode */
 			$typeNode = $typeNode;
-			$typeHints[] = AnnotationTypeHelper::getTypeHintFromOneType($typeNode);
+			$typeHints[] = AnnotationTypeHelper::getTypeHintFromOneType($typeNode, false, $this->enableStandaloneNullTrueFalseTypeHints);
 
 		} elseif ($typeNode instanceof UnionTypeNode || $typeNode instanceof IntersectionTypeNode) {
 			$traversableTypeHints = [];
@@ -305,7 +312,13 @@ class PropertyTypeHintSniff implements Sniff
 		}
 		$typeHintsWithConvertedUnion = array_unique($typeHintsWithConvertedUnion);
 
-		if (count($typeHintsWithConvertedUnion) > 1 && !$canTryUnionTypeHint && !$this->enableIntersectionTypeHint) {
+		if (
+			count($typeHintsWithConvertedUnion) > 1
+			&& (
+				($typeNode instanceof UnionTypeNode && !$canTryUnionTypeHint)
+				|| ($typeNode instanceof IntersectionTypeNode && !$this->enableIntersectionTypeHint)
+			)
+		) {
 			$this->reportUselessSuppress($phpcsFile, $propertyPointer, $isSuppressedNativeTypeHint, $suppressNameNativeTypeHint);
 			return;
 		}
@@ -320,7 +333,13 @@ class PropertyTypeHintSniff implements Sniff
 				continue;
 			}
 
-			if (!TypeHintHelper::isValidTypeHint($typeHint, true, false, $this->enableMixedTypeHint)) {
+			if (!TypeHintHelper::isValidTypeHint(
+				$typeHint,
+				true,
+				false,
+				$this->enableMixedTypeHint,
+				$this->enableStandaloneNullTrueFalseTypeHints
+			)) {
 				$this->reportUselessSuppress($phpcsFile, $propertyPointer, $isSuppressedNativeTypeHint, $suppressNameNativeTypeHint);
 				return;
 			}
@@ -489,7 +508,8 @@ class PropertyTypeHintSniff implements Sniff
 			$propertyAnnotation,
 			$this->getTraversableTypeHints(),
 			$this->enableUnionTypeHint,
-			$this->enableIntersectionTypeHint
+			$this->enableIntersectionTypeHint,
+			$this->enableStandaloneNullTrueFalseTypeHints
 		)) {
 			$this->reportUselessSuppress($phpcsFile, $propertyPointer, $isSuppressed, $suppressName);
 			return;
@@ -522,9 +542,7 @@ class PropertyTypeHintSniff implements Sniff
 			$changeEnd = TokenHelper::findNextEffective($phpcsFile, $docCommentClosePointer + 1) - 1;
 
 			$phpcsFile->fixer->beginChangeset();
-			for ($i = $changeStart; $i <= $changeEnd; $i++) {
-				$phpcsFile->fixer->replaceToken($i, '');
-			}
+			FixerHelper::removeBetweenIncluding($phpcsFile, $changeStart, $changeEnd);
 			$phpcsFile->fixer->endChangeset();
 
 			return;
@@ -538,10 +556,9 @@ class PropertyTypeHintSniff implements Sniff
 			[T_DOC_COMMENT_CLOSE_TAG, T_DOC_COMMENT_STAR],
 			$propertyAnnotation->getEndPointer() + 1
 		) - 1;
+
 		$phpcsFile->fixer->beginChangeset();
-		for ($i = $changeStart; $i <= $changeEnd; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+		FixerHelper::removeBetweenIncluding($phpcsFile, $changeStart, $changeEnd);
 		$phpcsFile->fixer->endChangeset();
 	}
 

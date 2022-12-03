@@ -14,6 +14,7 @@ namespace Composer\Command;
 
 use Composer\DependencyResolver\Request;
 use Composer\Package\CompletePackageInterface;
+use Composer\Package\Loader\RootPackageLoader;
 use Composer\Util\Filesystem;
 use Composer\Util\PackageSorter;
 use Seld\Signal\SignalHandler;
@@ -173,8 +174,8 @@ EOT
             /**
              * @see https://github.com/composer/composer/pull/8313#issuecomment-532637955
              */
-            if ($packageType !== 'project') {
-                $io->writeError('<error>The "--fixed" option is only allowed for packages with a "project" type to prevent possible misuses.</error>');
+            if ($packageType !== 'project' && !$input->getOption('dev')) {
+                $io->writeError('<error>The "--fixed" option is only allowed for packages with a "project" type or for dev dependencies to prevent possible misuses.</error>');
 
                 if (!isset($config['type'])) {
                     $io->writeError('<error>If your package is not a library, you can explicitly specify the "type" by using "composer config type project".</error>');
@@ -233,19 +234,26 @@ EOT
                 }
 
                 $pkg = PackageSorter::getMostCurrentVersion($this->getRepos()->findPackages($name));
-                if ($pkg instanceof CompletePackageInterface && count(array_intersect($devTags, array_map('strtolower', $pkg->getKeywords()))) > 0) {
-                    $devPackages[] = $name;
+                if ($pkg instanceof CompletePackageInterface) {
+                    $pkgDevTags = array_intersect($devTags, array_map('strtolower', $pkg->getKeywords()));
+                    if (count($pkgDevTags) > 0) {
+                        $devPackages[] = $pkgDevTags;
+                    }
                 }
             }
 
             if (count($devPackages) === count($requirements)) {
                 $plural = count($requirements) > 1 ? 's' : '';
                 $plural2 = count($requirements) > 1 ? 'are' : 'is';
-                $io->warning('The package'.$plural.' you required '.$plural2.' recommended to be placed in require-dev but you did not use --dev.');
+                $plural3 = count($requirements) > 1 ? 'they are' : 'it is';
+                $pkgDevTags = array_unique(array_merge(...$devPackages));
+                $io->warning('The package'.$plural.' you required '.$plural2.' recommended to be placed in require-dev (because '.$plural3.' tagged as "'.implode('", "', $pkgDevTags).'") but you did not use --dev.');
                 if ($io->askConfirmation('<info>Do you want to re-run the command with --dev?</> [<comment>yes</>]? ')) {
                     $input->setOption('dev', true);
                 }
             }
+
+            unset($devPackages, $pkgDevTags);
         }
 
         $requireKey = $input->getOption('dev') ? 'require-dev' : 'require';
@@ -403,6 +411,15 @@ EOT
             }
             $rootPackage->setRequires($links['require']);
             $rootPackage->setDevRequires($links['require-dev']);
+
+            // extract stability flags & references as they weren't present when loading the unmodified composer.json
+            $references = $rootPackage->getReferences();
+            $references = RootPackageLoader::extractReferences($requirements, $references);
+            $rootPackage->setReferences($references);
+            $stabilityFlags = $rootPackage->getStabilityFlags();
+            $stabilityFlags = RootPackageLoader::extractStabilityFlags($requirements, $rootPackage->getMinimumStability(), $stabilityFlags);
+            $rootPackage->setStabilityFlags($stabilityFlags);
+            unset($stabilityFlags, $references);
         }
 
         $updateDevMode = !$input->getOption('update-no-dev');

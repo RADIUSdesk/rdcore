@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit backupGlobals="false"
+         backupStaticAttributes="false"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         printerClass="LimeDeck\Testing\Printer"
+         processIsolation="false"
+         stopOnFailure="true">
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">./src</directory>
+            <exclude>
+                <directory suffix="Test.php">./tests</directory>
+            </exclude>
+        </whitelist>
+    </filter>
+    <logging>
+        <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
+    </logging>
+    <testsuites>
+        <testsuite name="RouterOS API on PHP tests">
+            <directory suffix=".php">./tests/</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <env name="ROS_HOST_LEGACY" value="127.0.0.1"/>
+        <env name="ROS_HOST_MODERN" value="127.0.0.1"/>
+        <env name="ROS_PORT_MODERN" value="8728"/>
+        <env name="ROS_PORT_LEGACY" value="18728"/>
+        <env name="ROS_USER" value="admin"/>
+        <env name="ROS_PASS" value="admin"/>
+        <env name="ROS_SSH_PORT" value="22222"/>
+    </php>
+</phpunit>

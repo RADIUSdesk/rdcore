@@ -1,0 +1,72 @@
+{
+  "name": "evilfreelancer/routeros-api-php",
+  "type": "library",
+  "description": "Modern Mikrotik RouterOS API PHP client for your applications (with Laravel support)",
+  "keywords": [
+    "socket-client",
+    "psr-4",
+    "routeros",
+    "mikrotik",
+    "laravel",
+    "plugin",
+    "facade"
+  ],
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "RouterOS\\": "./src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "RouterOS\\Tests\\": "./tests/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Paul Rock",
+      "email": "paul@drteam.rocks",
+      "homepage": "http://drteam.rocks/",
+      "role": "Developer"
+    }
+  ],
+  "extra": {
+    "laravel": {
+      "providers": [
+        "RouterOS\\Laravel\\ServiceProvider"
+      ],
+      "aliases": {
+        "RouterOS": "RouterOS\\Laravel\\Facade"
+      }
+    }
+  },
+  "require": {
+    "php": "^7.2|^8.0",
+    "ext-sockets": "*",
+    "divineomega/php-ssh-connection": "^2.2"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "^2.16",
+    "limedeck/phpunit-detailed-printer": "^5.0",
+    "orchestra/testbench": "^4.0|^5.0",
+    "phpunit/phpunit": "^8.0",
+    "rector/rector": "^0.7|^0.8|^0.9",
+    "roave/security-advisories": "dev-master",
+    "squizlabs/php_codesniffer": "^3.5",
+    "larapack/dd": "^1.1"
+  },
+  "config": {
+    "sort-packages": true,
+    "preferred-install": "dist"
+  },
+  "scripts": {
+    "lint": "rector process src && php-cs-fixer fix -v",
+    "test:lint": "php-cs-fixer fix -v --dry-run",
+    "test:rector": "rector process src --dry-run",
+    "test:unit": "phpunit --coverage-clover clover.xml",
+    "test": [
+      "@test:lint",
+      "@test:unit"
+    ]
+  }
+}

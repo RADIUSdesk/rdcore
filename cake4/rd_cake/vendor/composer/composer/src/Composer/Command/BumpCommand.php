@@ -13,8 +13,10 @@
 namespace Composer\Command;
 
 use Composer\Package\AliasPackage;
+use Composer\Package\BasePackage;
 use Composer\Package\Locker;
 use Composer\Package\Version\VersionBumper;
+use Composer\Pcre\Preg;
 use Composer\Util\Filesystem;
 use Symfony\Component\Console\Input\InputInterface;
 use Composer\Console\Input\InputArgument;
@@ -45,6 +47,7 @@ final class BumpCommand extends BaseCommand
                 new InputArgument('packages', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, 'Optional package name(s) to restrict which packages are bumped.', null, $this->suggestRootRequirement()),
                 new InputOption('dev-only', 'D', InputOption::VALUE_NONE, 'Only bump requirements in "require-dev".'),
                 new InputOption('no-dev-only', 'R', InputOption::VALUE_NONE, 'Only bump requirements in "require".'),
+                new InputOption('dry-run', null, InputOption::VALUE_NONE, 'Outputs the packages to bump, but will not execute anything.'),
             ])
             ->setHelp(
                 <<<EOT
@@ -122,11 +125,23 @@ EOT
 
         $bumper = new VersionBumper();
         $tasks = [];
+        if (!$input->getOption('dev-only')) {
+            $tasks['require'] = $composer->getPackage()->getRequires();
+        }
         if (!$input->getOption('no-dev-only')) {
             $tasks['require-dev'] = $composer->getPackage()->getDevRequires();
         }
-        if (!$input->getOption('dev-only')) {
-            $tasks['require'] = $composer->getPackage()->getRequires();
+
+        $packagesFilter = $input->getArgument('packages');
+        if (count($packagesFilter) > 0) {
+            $pattern = BasePackage::packageNamesToRegexp(array_unique(array_map('strtolower', $packagesFilter)));
+            foreach ($tasks as $key => $reqs) {
+                foreach ($reqs as $pkgName => $link) {
+                    if (!Preg::isMatch($pattern, $pkgName)) {
+                        unset($tasks[$key][$pkgName]);
+                    }
+                }
+            }
         }
 
         $updates = [];
@@ -156,7 +171,9 @@ EOT
             }
         }
 
-        if (!$this->updateFileCleanly($composerJson, $updates)) {
+        $dryRun = $input->getOption('dry-run');
+
+        if (!$dryRun && !$this->updateFileCleanly($composerJson, $updates)) {
             $composerDefinition = $composerJson->read();
             foreach ($updates as $key => $packages) {
                 foreach ($packages as $package => $version) {
@@ -168,12 +185,21 @@ EOT
 
         $changeCount = array_sum(array_map('count', $updates));
         if ($changeCount > 0) {
-            $io->write('<info>'.$composerJsonPath.' has been updated ('.$changeCount.' changes).</info>');
+            if ($dryRun) {
+                $io->write('<info>' . $composerJsonPath . ' would be updated with:</info>');
+                foreach ($updates as $requireType => $packages) {
+                    foreach ($packages as $package => $version) {
+                        $io->write(sprintf('<info> - %s.%s: %s</info>', $requireType, $package, $version));
+                    }
+                }
+            } else {
+                $io->write('<info>' . $composerJsonPath . ' has been updated (' . $changeCount . ' changes).</info>');
+            }
         } else {
             $io->write('<info>No requirements to update in '.$composerJsonPath.'.</info>');
         }
 
-        if ($composer->getLocker()->isLocked() && $changeCount > 0) {
+        if (!$dryRun && $composer->getLocker()->isLocked() && $changeCount > 0) {
             $contents = file_get_contents($composerJson->getPath());
             if (false === $contents) {
                 throw new \RuntimeException('Unable to read '.$composerJson->getPath().' contents to update the lock file hash.');
@@ -182,6 +208,10 @@ EOT
             $lockData = $lock->read();
             $lockData['content-hash'] = Locker::getContentHash($contents);
             $lock->write($lockData);
+        }
+
+        if ($dryRun && $changeCount > 0) {
+            return self::ERROR_GENERIC;
         }
 
         return 0;

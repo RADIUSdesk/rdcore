@@ -5,6 +5,7 @@ namespace SlevomatCodingStandard\Sniffs\Commenting;
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use SlevomatCodingStandard\Helpers\CommentHelper;
+use SlevomatCodingStandard\Helpers\FixerHelper;
 use SlevomatCodingStandard\Helpers\StringHelper;
 use SlevomatCodingStandard\Helpers\TokenHelper;
 use function array_key_exists;
@@ -69,7 +70,7 @@ class EmptyCommentSniff implements Sniff
 		$tokens = $phpcsFile->getTokens();
 
 		/** @var int $pointerBeforeWhitespaceBeforeComment */
-		$pointerBeforeWhitespaceBeforeComment = TokenHelper::findPreviousExcluding($phpcsFile, T_WHITESPACE, $commentStartPointer - 1);
+		$pointerBeforeWhitespaceBeforeComment = TokenHelper::findPreviousNonWhitespace($phpcsFile, $commentStartPointer - 1);
 		$whitespaceBeforeComment = $pointerBeforeWhitespaceBeforeComment !== $commentStartPointer - 1
 			? TokenHelper::getContent($phpcsFile, $pointerBeforeWhitespaceBeforeComment + 1, $commentStartPointer - 1)
 			: '';
@@ -77,14 +78,11 @@ class EmptyCommentSniff implements Sniff
 
 		$phpcsFile->fixer->beginChangeset();
 
-		for ($i = $pointerBeforeWhitespaceBeforeComment + 1; $i < $commentStartPointer; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+		FixerHelper::removeBetween($phpcsFile, $pointerBeforeWhitespaceBeforeComment, $commentStartPointer);
+
 		$phpcsFile->fixer->addContent($pointerBeforeWhitespaceBeforeComment, $fixedWhitespaceBeforeComment);
 
-		for ($i = $commentStartPointer; $i <= $commentEndPointer; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+		FixerHelper::removeBetweenIncluding($phpcsFile, $commentStartPointer, $commentEndPointer);
 
 		$whitespacePointerAfterComment = $commentEndPointer + 1;
 
@@ -143,7 +141,7 @@ class EmptyCommentSniff implements Sniff
 		$tokens = $phpcsFile->getTokens();
 
 		/** @var int $beforeCommentStartPointer */
-		$beforeCommentStartPointer = TokenHelper::findPreviousExcluding($phpcsFile, T_WHITESPACE, $commentStartPointer - 1);
+		$beforeCommentStartPointer = TokenHelper::findPreviousNonWhitespace($phpcsFile, $commentStartPointer - 1);
 
 		if ($tokens[$beforeCommentStartPointer]['code'] !== T_COMMENT) {
 			return false;
@@ -170,7 +168,7 @@ class EmptyCommentSniff implements Sniff
 	{
 		$tokens = $phpcsFile->getTokens();
 
-		$afterCommentStartPointer = TokenHelper::findNextExcluding($phpcsFile, T_WHITESPACE, $commentEndPointer + 1);
+		$afterCommentStartPointer = TokenHelper::findNextNonWhitespace($phpcsFile, $commentEndPointer + 1);
 
 		if ($afterCommentStartPointer === null) {
 			return false;

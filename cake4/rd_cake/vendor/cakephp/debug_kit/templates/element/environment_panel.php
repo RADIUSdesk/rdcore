@@ -21,19 +21,18 @@ use Cake\Error\Debugger;
  * @var array $app
  * @var array $cake
  * @var array $php
- * @var array $hidef
  */
 ?>
 
 <div class="c-environment-panel">
-    <h2><?= __d('debug_kit', 'Application Constants') ?></h2>
+    <h2>Application Constants</h2>
 
     <?php if (!empty($app)) : ?>
         <table class="c-debug-table">
             <thead>
             <tr>
-                <th><?= __d('debug_kit', 'Constant') ?></th>
-                <th><?= __d('debug_kit', 'Value') ?></th>
+                <th>Constant</th>
+                <th>Value</th>
             </tr>
             </thead>
             <tbody>
@@ -47,18 +46,18 @@ use Cake\Error\Debugger;
         </table>
     <?php else : ?>
         <div class="c-flash c-flash--warning">
-            <?= __d('debug_kit', 'No application environment available.'); ?>
+            No application environment available.
         </div>
     <?php endif; ?>
 
-    <h2><?= __d('debug_kit', 'CakePHP Constants') ?></h2>
+    <h2>CakePHP Constants</h2>
 
     <?php if (!empty($cake)) : ?>
         <table class="c-debug-table">
             <thead>
             <tr>
-                <th><?= __d('debug_kit', 'Constant') ?></th>
-                <th><?= __d('debug_kit', 'Value') ?></th>
+                <th>Constant</th>
+                <th>Value</th>
             </tr>
             </thead>
             <tbody>
@@ -72,11 +71,11 @@ use Cake\Error\Debugger;
         </table>
     <?php else : ?>
         <div class="c-flash c-flash--warning">
-            <?= __d('debug_kit', 'CakePHP environment unavailable.'); ?>
+            CakePHP environment unavailable.
         </div>
     <?php endif; ?>
 
-    <h2><?= __d('debug_kit', 'INI Environment') ?></h2>
+    <h2>INI Environment</h2>
 
     <?php if (!empty($ini)) : ?>
         <table class="c-debug-table">
@@ -97,18 +96,18 @@ use Cake\Error\Debugger;
         </table>
     <?php else : ?>
         <div class="c-flash c-flash--warning">
-            <?= __d('debug_kit', 'ini environment unavailable.'); ?>
+            ini environment unavailable.
         </div>
     <?php endif; ?>
 
-    <h2><?= __d('debug_kit', 'PHP Environment') ?></h2>
+    <h2>PHP Environment</h2>
 
     <?php if (!empty($php)) : ?>
         <table class="c-debug-table">
             <thead>
             <tr>
-                <th><?= __d('debug_kit', 'Environment Variable') ?></th>
-                <th><?= __d('debug_kit', 'Value') ?></th>
+                <th>Environment Variable</th>
+                <th>Value</th>
             </tr>
             </thead>
             <tbody>
@@ -122,34 +121,7 @@ use Cake\Error\Debugger;
         </table>
     <?php else : ?>
         <div class="c-flash c-flash--warning">
-            <?= __d('debug_kit', 'PHP environment unavailable.'); ?>
+            PHP environment unavailable.
         </div>
-    <?php endif; ?>
-
-    <?php if (isset($hidef)) : ?>
-        <h2><?= __d('debug_kit', 'Hidef Environment') ?></h2>
-
-        <?php if (!empty($hidef)) : ?>
-            <table class="c-debug-table">
-                <thead>
-                <tr>
-                    <th><?= __d('debug_kit', 'Constant') ?></th>
-                    <th><?= __d('debug_kit', 'Value') ?></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($hidef as $key => $val) : ?>
-                    <tr>
-                        <td><?= h($key) ?></td>
-                        <td><?= Debugger::exportVar($val) ?></td>
-                    </tr>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php else : ?>
-            <div class="c-flash c-flash--warning">
-                <?= __d('debug_kit', 'No Hidef environment available.'); ?>
-            </div>
-        <?php endif; ?>
     <?php endif; ?>
 </div>

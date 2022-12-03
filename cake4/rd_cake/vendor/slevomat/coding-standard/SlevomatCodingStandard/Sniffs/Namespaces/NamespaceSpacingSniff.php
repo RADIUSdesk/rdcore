@@ -4,6 +4,7 @@ namespace SlevomatCodingStandard\Sniffs\Namespaces;
 
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
+use SlevomatCodingStandard\Helpers\FixerHelper;
 use SlevomatCodingStandard\Helpers\SniffSettingsHelper;
 use SlevomatCodingStandard\Helpers\TokenHelper;
 use function array_key_exists;
@@ -16,7 +17,6 @@ use function substr_count;
 use const T_NAMESPACE;
 use const T_OPEN_TAG;
 use const T_SEMICOLON;
-use const T_WHITESPACE;
 
 class NamespaceSpacingSniff implements Sniff
 {
@@ -58,7 +58,7 @@ class NamespaceSpacingSniff implements Sniff
 		$tokens = $phpcsFile->getTokens();
 
 		/** @var int $pointerBeforeNamespace */
-		$pointerBeforeNamespace = TokenHelper::findPreviousExcluding($phpcsFile, T_WHITESPACE, $namespacePointer - 1);
+		$pointerBeforeNamespace = TokenHelper::findPreviousNonWhitespace($phpcsFile, $namespacePointer - 1);
 
 		$whitespaceBeforeNamespace = '';
 
@@ -106,9 +106,8 @@ class NamespaceSpacingSniff implements Sniff
 			);
 		}
 
-		for ($i = $pointerBeforeNamespace + 1; $i < $namespacePointer; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+		FixerHelper::removeBetween($phpcsFile, $pointerBeforeNamespace, $namespacePointer);
+
 		for ($i = 0; $i <= $this->linesCountBeforeNamespace; $i++) {
 			$phpcsFile->fixer->addNewline($pointerBeforeNamespace);
 		}
@@ -124,7 +123,7 @@ class NamespaceSpacingSniff implements Sniff
 		/** @var int $namespaceSemicolonPointer */
 		$namespaceSemicolonPointer = TokenHelper::findNextLocal($phpcsFile, T_SEMICOLON, $namespacePointer + 1);
 
-		$pointerAfterWhitespaceEnd = TokenHelper::findNextExcluding($phpcsFile, T_WHITESPACE, $namespaceSemicolonPointer + 1);
+		$pointerAfterWhitespaceEnd = TokenHelper::findNextNonWhitespace($phpcsFile, $namespaceSemicolonPointer + 1);
 		if ($pointerAfterWhitespaceEnd === null) {
 			return;
 		}
@@ -153,9 +152,9 @@ class NamespaceSpacingSniff implements Sniff
 		}
 
 		$phpcsFile->fixer->beginChangeset();
-		for ($i = $namespaceSemicolonPointer + 1; $i < $pointerAfterWhitespaceEnd; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+
+		FixerHelper::removeBetween($phpcsFile, $namespaceSemicolonPointer, $pointerAfterWhitespaceEnd);
+
 		for ($i = 0; $i <= $this->linesCountAfterNamespace; $i++) {
 			$phpcsFile->fixer->addNewline($namespaceSemicolonPointer);
 		}

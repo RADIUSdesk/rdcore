@@ -19,6 +19,7 @@ use SlevomatCodingStandard\Helpers\Annotation\VariableAnnotation;
 use SlevomatCodingStandard\Helpers\AnnotationHelper;
 use SlevomatCodingStandard\Helpers\AnnotationTypeHelper;
 use SlevomatCodingStandard\Helpers\DocCommentHelper;
+use SlevomatCodingStandard\Helpers\FixerHelper;
 use SlevomatCodingStandard\Helpers\FunctionHelper;
 use SlevomatCodingStandard\Helpers\NamespaceHelper;
 use SlevomatCodingStandard\Helpers\SniffSettingsHelper;
@@ -74,6 +75,9 @@ class ParameterTypeHintSniff implements Sniff
 	/** @var bool|null */
 	public $enableIntersectionTypeHint = null;
 
+	/** @var bool|null */
+	public $enableStandaloneNullTrueFalseTypeHints = null;
+
 	/** @var string[] */
 	public $traversableTypeHints = [];
 
@@ -100,6 +104,10 @@ class ParameterTypeHintSniff implements Sniff
 		$this->enableMixedTypeHint = SniffSettingsHelper::isEnabledByPhpVersion($this->enableMixedTypeHint, 80000);
 		$this->enableUnionTypeHint = SniffSettingsHelper::isEnabledByPhpVersion($this->enableUnionTypeHint, 80000);
 		$this->enableIntersectionTypeHint = SniffSettingsHelper::isEnabledByPhpVersion($this->enableIntersectionTypeHint, 80100);
+		$this->enableStandaloneNullTrueFalseTypeHints = SniffSettingsHelper::isEnabledByPhpVersion(
+			$this->enableStandaloneNullTrueFalseTypeHints,
+			80200
+		);
 
 		if (SuppressHelper::isSniffSuppressed($phpcsFile, $functionPointer, self::NAME)) {
 			return;
@@ -178,7 +186,11 @@ class ParameterTypeHintSniff implements Sniff
 
 			$parameterTypeNode = $parametersAnnotations[$parameterName]->getType();
 
-			if ($parameterTypeNode instanceof IdentifierTypeNode && strtolower($parameterTypeNode->name) === 'null') {
+			if (
+				$parameterTypeNode instanceof IdentifierTypeNode
+				&& strtolower($parameterTypeNode->name) === 'null'
+				&& !$this->enableStandaloneNullTrueFalseTypeHints
+			) {
 				continue;
 			}
 
@@ -196,7 +208,11 @@ class ParameterTypeHintSniff implements Sniff
 			if (AnnotationTypeHelper::containsOneType($parameterTypeNode)) {
 				/** @var ArrayTypeNode|ArrayShapeNode|IdentifierTypeNode|ThisTypeNode|GenericTypeNode|CallableTypeNode|ConstTypeNode $parameterTypeNode */
 				$parameterTypeNode = $parameterTypeNode;
-				$typeHints[] = AnnotationTypeHelper::getTypeHintFromOneType($parameterTypeNode);
+				$typeHints[] = AnnotationTypeHelper::getTypeHintFromOneType(
+					$parameterTypeNode,
+					false,
+					$this->enableStandaloneNullTrueFalseTypeHints
+				);
 
 			} elseif (
 				$parameterTypeNode instanceof UnionTypeNode
@@ -276,7 +292,13 @@ class ParameterTypeHintSniff implements Sniff
 			}
 			$typeHintsWithConvertedUnion = array_unique($typeHintsWithConvertedUnion);
 
-			if (count($typeHintsWithConvertedUnion) > 1 && !$canTryUnionTypeHint && !$this->enableIntersectionTypeHint) {
+			if (
+				count($typeHintsWithConvertedUnion) > 1
+				&& (
+					($parameterTypeNode instanceof UnionTypeNode && !$canTryUnionTypeHint)
+					|| ($parameterTypeNode instanceof IntersectionTypeNode && !$this->enableIntersectionTypeHint)
+				)
+			) {
 				continue;
 			}
 
@@ -285,7 +307,13 @@ class ParameterTypeHintSniff implements Sniff
 					continue;
 				}
 
-				if (!TypeHintHelper::isValidTypeHint($typeHint, $this->enableObjectTypeHint, false, $this->enableMixedTypeHint)) {
+				if (!TypeHintHelper::isValidTypeHint(
+					$typeHint,
+					$this->enableObjectTypeHint,
+					false,
+					$this->enableMixedTypeHint,
+					$this->enableStandaloneNullTrueFalseTypeHints
+				)) {
 					continue 2;
 				}
 
@@ -531,7 +559,8 @@ class ParameterTypeHintSniff implements Sniff
 				$parameterAnnotation,
 				$this->getTraversableTypeHints(),
 				$this->enableUnionTypeHint,
-				$this->enableIntersectionTypeHint
+				$this->enableIntersectionTypeHint,
+				$this->enableStandaloneNullTrueFalseTypeHints
 			)) {
 				continue;
 			}
@@ -574,10 +603,9 @@ class ParameterTypeHintSniff implements Sniff
 				[T_DOC_COMMENT_CLOSE_TAG, T_DOC_COMMENT_STAR],
 				$parameterAnnotation->getEndPointer() + 1
 			) - 1;
+
 			$phpcsFile->fixer->beginChangeset();
-			for ($i = $changeStart; $i <= $changeEnd; $i++) {
-				$phpcsFile->fixer->replaceToken($i, '');
-			}
+			FixerHelper::removeBetweenIncluding($phpcsFile, $changeStart, $changeEnd);
 			$phpcsFile->fixer->endChangeset();
 		}
 

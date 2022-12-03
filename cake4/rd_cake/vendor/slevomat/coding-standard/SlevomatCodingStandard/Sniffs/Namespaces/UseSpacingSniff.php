@@ -6,6 +6,7 @@ use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use PHP_CodeSniffer\Util\Tokens;
 use SlevomatCodingStandard\Helpers\CommentHelper;
+use SlevomatCodingStandard\Helpers\FixerHelper;
 use SlevomatCodingStandard\Helpers\SniffSettingsHelper;
 use SlevomatCodingStandard\Helpers\TokenHelper;
 use SlevomatCodingStandard\Helpers\UseStatement;
@@ -18,7 +19,6 @@ use function sprintf;
 use const T_DOC_COMMENT_OPEN_TAG;
 use const T_OPEN_TAG;
 use const T_SEMICOLON;
-use const T_WHITESPACE;
 
 class UseSpacingSniff implements Sniff
 {
@@ -82,7 +82,7 @@ class UseSpacingSniff implements Sniff
 		$tokens = $phpcsFile->getTokens();
 
 		/** @var int $pointerBeforeFirstUse */
-		$pointerBeforeFirstUse = TokenHelper::findPreviousExcluding($phpcsFile, T_WHITESPACE, $firstUse->getPointer() - 1);
+		$pointerBeforeFirstUse = TokenHelper::findPreviousNonWhitespace($phpcsFile, $firstUse->getPointer() - 1);
 		$useStartPointer = $firstUse->getPointer();
 
 		if (
@@ -93,7 +93,7 @@ class UseSpacingSniff implements Sniff
 				? $tokens[$pointerBeforeFirstUse]['comment_opener']
 				: CommentHelper::getMultilineCommentStartPointer($phpcsFile, $pointerBeforeFirstUse);
 			/** @var int $pointerBeforeFirstUse */
-			$pointerBeforeFirstUse = TokenHelper::findPreviousExcluding($phpcsFile, T_WHITESPACE, $useStartPointer - 1);
+			$pointerBeforeFirstUse = TokenHelper::findPreviousNonWhitespace($phpcsFile, $useStartPointer - 1);
 		}
 
 		$actualLinesCountBeforeFirstUse = $tokens[$useStartPointer]['line'] - $tokens[$pointerBeforeFirstUse]['line'] - 1;
@@ -123,9 +123,8 @@ class UseSpacingSniff implements Sniff
 			$phpcsFile->fixer->replaceToken($pointerBeforeFirstUse, '<?php');
 		}
 
-		for ($i = $pointerBeforeFirstUse + 1; $i < $useStartPointer; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+		FixerHelper::removeBetween($phpcsFile, $pointerBeforeFirstUse, $useStartPointer);
+
 		for ($i = 0; $i <= $this->linesCountBeforeFirstUse; $i++) {
 			$phpcsFile->fixer->addNewline($pointerBeforeFirstUse);
 		}
@@ -139,7 +138,7 @@ class UseSpacingSniff implements Sniff
 		/** @var int $useEndPointer */
 		$useEndPointer = TokenHelper::findNextLocal($phpcsFile, T_SEMICOLON, $lastUse->getPointer() + 1);
 
-		$pointerAfterWhitespaceEnd = TokenHelper::findNextExcluding($phpcsFile, T_WHITESPACE, $useEndPointer + 1);
+		$pointerAfterWhitespaceEnd = TokenHelper::findNextNonWhitespace($phpcsFile, $useEndPointer + 1);
 		if ($pointerAfterWhitespaceEnd === null) {
 			return;
 		}
@@ -154,7 +153,7 @@ class UseSpacingSniff implements Sniff
 		) {
 			$useEndPointer = CommentHelper::getMultilineCommentEndPointer($phpcsFile, $pointerAfterWhitespaceEnd);
 			/** @var int $pointerAfterWhitespaceEnd */
-			$pointerAfterWhitespaceEnd = TokenHelper::findNextExcluding($phpcsFile, T_WHITESPACE, $useEndPointer + 1);
+			$pointerAfterWhitespaceEnd = TokenHelper::findNextNonWhitespace($phpcsFile, $useEndPointer + 1);
 		}
 
 		$actualLinesCountAfterLastUse = $tokens[$pointerAfterWhitespaceEnd]['line'] - $tokens[$useEndPointer]['line'] - 1;
@@ -179,9 +178,8 @@ class UseSpacingSniff implements Sniff
 		}
 
 		$phpcsFile->fixer->beginChangeset();
-		for ($i = $useEndPointer + 1; $i < $pointerAfterWhitespaceEnd; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+
+		FixerHelper::removeBetween($phpcsFile, $useEndPointer, $pointerAfterWhitespaceEnd);
 
 		$linesToAdd = $this->linesCountAfterLastUse;
 		if (CommentHelper::isLineComment($phpcsFile, $useEndPointer)) {
@@ -220,7 +218,7 @@ class UseSpacingSniff implements Sniff
 			}
 
 			/** @var int $pointerBeforeUse */
-			$pointerBeforeUse = TokenHelper::findPreviousExcluding($phpcsFile, T_WHITESPACE, $use->getPointer() - 1);
+			$pointerBeforeUse = TokenHelper::findPreviousNonWhitespace($phpcsFile, $use->getPointer() - 1);
 			$useStartPointer = $use->getPointer();
 
 			if (
@@ -258,9 +256,7 @@ class UseSpacingSniff implements Sniff
 			$previousUseSemicolonPointer = TokenHelper::findNextLocal($phpcsFile, T_SEMICOLON, $previousUse->getPointer() + 1);
 
 			$phpcsFile->fixer->beginChangeset();
-			for ($i = $previousUseSemicolonPointer + 1; $i < $useStartPointer; $i++) {
-				$phpcsFile->fixer->replaceToken($i, '');
-			}
+			FixerHelper::removeBetween($phpcsFile, $previousUseSemicolonPointer, $useStartPointer);
 			$phpcsFile->fixer->addNewline($previousUseSemicolonPointer);
 			$phpcsFile->fixer->endChangeset();
 
@@ -292,7 +288,7 @@ class UseSpacingSniff implements Sniff
 			}
 
 			/** @var int $pointerBeforeUse */
-			$pointerBeforeUse = TokenHelper::findPreviousExcluding($phpcsFile, T_WHITESPACE, $use->getPointer() - 1);
+			$pointerBeforeUse = TokenHelper::findPreviousNonWhitespace($phpcsFile, $use->getPointer() - 1);
 			$useStartPointer = $use->getPointer();
 
 			if (
@@ -332,9 +328,9 @@ class UseSpacingSniff implements Sniff
 			$previousUseSemicolonPointer = TokenHelper::findNextLocal($phpcsFile, T_SEMICOLON, $previousUse->getPointer() + 1);
 
 			$phpcsFile->fixer->beginChangeset();
-			for ($i = $previousUseSemicolonPointer + 1; $i < $useStartPointer; $i++) {
-				$phpcsFile->fixer->replaceToken($i, '');
-			}
+
+			FixerHelper::removeBetween($phpcsFile, $previousUseSemicolonPointer, $useStartPointer);
+
 			for ($i = 0; $i <= $this->linesCountBetweenUseTypes; $i++) {
 				$phpcsFile->fixer->addNewline($previousUseSemicolonPointer);
 			}

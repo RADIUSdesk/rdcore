@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace Laminas\Diactoros;
 
 use Psr\Http\Message\UriInterface;
+use SensitiveParameter;
+use Stringable;
 
 use function array_keys;
 use function explode;
-use function get_class;
 use function gettype;
 use function implode;
 use function is_float;
@@ -22,8 +23,9 @@ use function preg_replace;
 use function preg_replace_callback;
 use function rawurlencode;
 use function sprintf;
+use function str_contains;
 use function str_split;
-use function strpos;
+use function str_starts_with;
 use function strtolower;
 use function substr;
 
@@ -37,7 +39,7 @@ use function substr;
  * state of the current instance and return a new instance that contains the
  * changed state.
  */
-class Uri implements UriInterface
+class Uri implements UriInterface, Stringable
 {
     /**
      * Sub-delimiters used in user info, query strings and fragments.
@@ -211,7 +213,7 @@ class Uri implements UriInterface
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects a string argument; received %s',
                 __METHOD__,
-                is_object($scheme) ? get_class($scheme) : gettype($scheme)
+                is_object($scheme) ? $scheme::class : gettype($scheme)
             ));
         }
 
@@ -228,6 +230,9 @@ class Uri implements UriInterface
         return $new;
     }
 
+    // The following rule is buggy for parameters attributes
+    // phpcs:disable SlevomatCodingStandard.TypeHints.ParameterTypeHintSpacing.NoSpaceBetweenTypeHintAndParameter
+
     /**
      * Create and return a new instance containing the provided user credentials.
      *
@@ -236,20 +241,23 @@ class Uri implements UriInterface
      *
      * {@inheritdoc}
      */
-    public function withUserInfo($user, $password = null): UriInterface
-    {
+    public function withUserInfo(
+        $user,
+        #[SensitiveParameter]
+        $password = null
+    ): UriInterface {
         if (! is_string($user)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects a string user argument; received %s',
                 __METHOD__,
-                is_object($user) ? get_class($user) : gettype($user)
+                is_object($user) ? $user::class : gettype($user)
             ));
         }
         if (null !== $password && ! is_string($password)) {
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects a string or null password argument; received %s',
                 __METHOD__,
-                is_object($password) ? get_class($password) : gettype($password)
+                is_object($password) ? $password::class : gettype($password)
             ));
         }
 
@@ -269,6 +277,8 @@ class Uri implements UriInterface
         return $new;
     }
 
+    // phpcs:enable SlevomatCodingStandard.TypeHints.ParameterTypeHintSpacing.NoSpaceBetweenTypeHintAndParameter
+
     /**
      * {@inheritdoc}
      */
@@ -278,7 +288,7 @@ class Uri implements UriInterface
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects a string argument; received %s',
                 __METHOD__,
-                is_object($host) ? get_class($host) : gettype($host)
+                is_object($host) ? $host::class : gettype($host)
             ));
         }
 
@@ -302,7 +312,7 @@ class Uri implements UriInterface
             if (! is_numeric($port) || is_float($port)) {
                 throw new Exception\InvalidArgumentException(sprintf(
                     'Invalid port "%s" specified; must be an integer, an integer string, or null',
-                    is_object($port) ? get_class($port) : gettype($port)
+                    is_object($port) ? $port::class : gettype($port)
                 ));
             }
 
@@ -338,13 +348,13 @@ class Uri implements UriInterface
             );
         }
 
-        if (strpos($path, '?') !== false) {
+        if (str_contains($path, '?')) {
             throw new Exception\InvalidArgumentException(
                 'Invalid path provided; must not contain a query string'
             );
         }
 
-        if (strpos($path, '#') !== false) {
+        if (str_contains($path, '#')) {
             throw new Exception\InvalidArgumentException(
                 'Invalid path provided; must not contain a URI fragment'
             );
@@ -374,7 +384,7 @@ class Uri implements UriInterface
             );
         }
 
-        if (strpos($query, '#') !== false) {
+        if (str_contains($query, '#')) {
             throw new Exception\InvalidArgumentException(
                 'Query string must not include a URI fragment'
             );
@@ -402,7 +412,7 @@ class Uri implements UriInterface
             throw new Exception\InvalidArgumentException(sprintf(
                 '%s expects a string argument; received %s',
                 __METHOD__,
-                is_object($fragment) ? get_class($fragment) : gettype($fragment)
+                is_object($fragment) ? $fragment::class : gettype($fragment)
             ));
         }
 
@@ -465,7 +475,7 @@ class Uri implements UriInterface
             $uri .= '//' . $authority;
         }
 
-        if ('' !== $path && '/' !== substr($path, 0, 1)) {
+        if ('' !== $path && ! str_starts_with($path, '/')) {
             $path = '/' . $path;
         }
 
@@ -594,7 +604,7 @@ class Uri implements UriInterface
      */
     private function filterQuery(string $query): string
     {
-        if ('' !== $query && strpos($query, '?') === 0) {
+        if ('' !== $query && str_starts_with($query, '?')) {
             $query = substr($query, 1);
         }
 
@@ -634,7 +644,7 @@ class Uri implements UriInterface
      */
     private function filterFragment(string $fragment): string
     {
-        if ('' !== $fragment && strpos($fragment, '#') === 0) {
+        if ('' !== $fragment && str_starts_with($fragment, '#')) {
             $fragment = '%23' . substr($fragment, 1);
         }
 

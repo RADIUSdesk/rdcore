@@ -36,6 +36,7 @@ use const T_DOC_COMMENT;
 use const T_DOUBLE_CAST;
 use const T_DOUBLE_COLON;
 use const T_FALSE;
+use const T_FN_ARROW;
 use const T_INLINE_ELSE;
 use const T_INLINE_THEN;
 use const T_INT_CAST;
@@ -282,9 +283,7 @@ class YodaHelper
 		/** @var int $lastOldPointer */
 		$lastOldPointer = key($oldTokens);
 
-		for ($i = $firstOldPointer; $i <= $lastOldPointer; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+		FixerHelper::removeBetweenIncluding($phpcsFile, $firstOldPointer, $lastOldPointer);
 
 		$phpcsFile->fixer->addContent($firstOldPointer, implode('', array_map(static function (array $token): string {
 			/** @var string $content */
@@ -346,6 +345,7 @@ class YodaHelper
 				T_COMMA => true,
 				T_CLOSE_CURLY_BRACKET => true,
 				T_MATCH_ARROW => true,
+				T_FN_ARROW => true,
 			];
 
 			$stopTokenCodes += array_fill_keys(array_keys(Tokens::$assignmentTokens), true);

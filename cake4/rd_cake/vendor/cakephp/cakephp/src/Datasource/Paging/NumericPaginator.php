@@ -2,17 +2,17 @@
 declare(strict_types=1);
 
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         3.5.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://www.opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Datasource\Paging;
 
@@ -363,7 +363,7 @@ class NumericPaginator implements PaginatorInterface
         $order = (array)$data['options']['order'];
         $sortDefault = $directionDefault = false;
 
-        if (!empty($defaults['order']) && count($defaults['order']) === 1) {
+        if (!empty($defaults['order']) && count($defaults['order']) >= 1) {
             $sortDefault = key($defaults['order']);
             $directionDefault = current($defaults['order']);
         }
@@ -582,7 +582,7 @@ class NumericPaginator implements PaginatorInterface
 
         if (
             $options['sort'] === null
-            && count($options['order']) === 1
+            && count($options['order']) >= 1
             && !is_numeric(key($options['order']))
         ) {
             $options['sort'] = key($options['order']);
@@ -680,3 +680,10 @@ class NumericPaginator implements PaginatorInterface
         return $options;
     }
 }
+
+// phpcs:disable
+class_alias(
+    'Cake\Datasource\Paging\NumericPaginator',
+    'Cake\Datasource\Paginator'
+);
+// phpcs:enable

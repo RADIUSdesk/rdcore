@@ -409,6 +409,7 @@ class ServerRequest implements ServerRequestInterface
     {
         $this->trustedProxies = $proxies;
         $this->trustProxy = true;
+        $this->uri = $this->uri->withScheme($this->scheme());
     }
 
     /**
@@ -786,7 +787,7 @@ class ServerRequest implements ServerRequestInterface
      * the headers.
      *
      * @return array<string[]> An associative array of headers and their values.
-     * @link http://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
+     * @link https://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
      */
     public function getHeaders(): array
     {
@@ -814,7 +815,7 @@ class ServerRequest implements ServerRequestInterface
      *
      * @param string $name The header you want to get (case-insensitive)
      * @return bool Whether the header is defined.
-     * @link http://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
+     * @link https://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
      */
     public function hasHeader($name): bool
     {
@@ -832,7 +833,7 @@ class ServerRequest implements ServerRequestInterface
      * @param string $name The header you want to get (case-insensitive)
      * @return array<string> An associative array of headers and their values.
      *   If the header doesn't exist, an empty array will be returned.
-     * @link http://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
+     * @link https://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
      */
     public function getHeader($name): array
     {
@@ -849,7 +850,7 @@ class ServerRequest implements ServerRequestInterface
      *
      * @param string $name The header you want to get (case-insensitive)
      * @return string Header values collapsed into a comma separated string.
-     * @link http://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
+     * @link https://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
      */
     public function getHeaderLine($name): string
     {
@@ -864,7 +865,7 @@ class ServerRequest implements ServerRequestInterface
      * @param string $name The header name.
      * @param array|string $value The header value
      * @return static
-     * @link http://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
+     * @link https://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
      */
     public function withHeader($name, $value)
     {
@@ -884,7 +885,7 @@ class ServerRequest implements ServerRequestInterface
      * @param string $name The header name.
      * @param array|string $value The header value
      * @return static
-     * @link http://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
+     * @link https://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
      */
     public function withAddedHeader($name, $value)
     {
@@ -905,7 +906,7 @@ class ServerRequest implements ServerRequestInterface
      *
      * @param string $name The header name to remove.
      * @return static
-     * @link http://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
+     * @link https://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
      */
     public function withoutHeader($name)
     {
@@ -928,7 +929,7 @@ class ServerRequest implements ServerRequestInterface
      * by CakePHP internally, and will effect the result of this method.
      *
      * @return string The name of the HTTP method used.
-     * @link http://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
+     * @link https://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
      */
     public function getMethod(): string
     {
@@ -940,7 +941,7 @@ class ServerRequest implements ServerRequestInterface
      *
      * @param string $method The HTTP method to use.
      * @return static A new instance with the updated method.
-     * @link http://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
+     * @link https://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
      */
     public function withMethod($method)
     {
@@ -967,7 +968,7 @@ class ServerRequest implements ServerRequestInterface
      * used to create this request.
      *
      * @return array
-     * @link http://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
+     * @link https://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
      */
     public function getServerParams(): array
     {
@@ -979,7 +980,7 @@ class ServerRequest implements ServerRequestInterface
      * use the alternative getQuery() method.
      *
      * @return array
-     * @link http://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
+     * @link https://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
      */
     public function getQueryParams(): array
     {
@@ -991,7 +992,7 @@ class ServerRequest implements ServerRequestInterface
      *
      * @param array $query The query string data to use
      * @return static A new instance with the updated query string data.
-     * @link http://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
+     * @link https://www.php-fig.org/psr/psr-7/ This method is part of the PSR-7 server request interface.
      */
     public function withQueryParams(array $query)
     {

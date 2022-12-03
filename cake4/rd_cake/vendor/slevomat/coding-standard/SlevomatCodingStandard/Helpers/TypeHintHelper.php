@@ -31,7 +31,8 @@ class TypeHintHelper
 		string $typeHint,
 		bool $enableObjectTypeHint,
 		bool $enableStaticTypeHint,
-		bool $enableMixedTypeHint
+		bool $enableMixedTypeHint,
+		bool $enableStandaloneNullTrueFalseTypeHints
 	): bool
 	{
 		if (self::isSimpleTypeHint($typeHint)) {
@@ -48,6 +49,10 @@ class TypeHintHelper
 
 		if ($typeHint === 'mixed') {
 			return $enableMixedTypeHint;
+		}
+
+		if (in_array($typeHint, ['null', 'true', 'false'], true)) {
+			return $enableStandaloneNullTrueFalseTypeHints;
 		}
 
 		return !self::isSimpleUnofficialTypeHints($typeHint);
@@ -186,6 +191,8 @@ class TypeHintHelper
 				'empty',
 				'positive-int',
 				'negative-int',
+				'min',
+				'max',
 			];
 		}
 
@@ -246,7 +253,7 @@ class TypeHintHelper
 			array_merge([T_WHITESPACE], TokenHelper::getTypeHintTokenCodes()),
 			$endPointer - 1
 		);
-		return TokenHelper::findNextExcluding($phpcsFile, T_WHITESPACE, $previousPointer + 1);
+		return TokenHelper::findNextNonWhitespace($phpcsFile, $previousPointer + 1);
 	}
 
 	private static function isTemplate(File $phpcsFile, int $docCommentOpenPointer, string $typeHint): bool

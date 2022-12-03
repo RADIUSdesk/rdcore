@@ -4,6 +4,7 @@ namespace SlevomatCodingStandard\Sniffs\Functions;
 
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
+use SlevomatCodingStandard\Helpers\FixerHelper;
 use SlevomatCodingStandard\Helpers\SniffSettingsHelper;
 use SlevomatCodingStandard\Helpers\TokenHelper;
 use function preg_match;
@@ -13,7 +14,6 @@ use function strlen;
 use function strpos;
 use const T_FN;
 use const T_FN_ARROW;
-use const T_WHITESPACE;
 
 class ArrowFunctionDeclarationSniff implements Sniff
 {
@@ -64,7 +64,7 @@ class ArrowFunctionDeclarationSniff implements Sniff
 
 	private function checkSpacesAfterKeyword(File $phpcsFile, int $arrowFunctionPointer): void
 	{
-		$pointerAfter = TokenHelper::findNextExcluding($phpcsFile, T_WHITESPACE, $arrowFunctionPointer + 1);
+		$pointerAfter = TokenHelper::findNextNonWhitespace($phpcsFile, $arrowFunctionPointer + 1);
 
 		$spaces = TokenHelper::getContent($phpcsFile, $arrowFunctionPointer + 1, $pointerAfter - 1);
 
@@ -98,7 +98,7 @@ class ArrowFunctionDeclarationSniff implements Sniff
 
 	private function checkSpacesBeforeArrow(File $phpcsFile, int $arrowPointer): void
 	{
-		$pointerBefore = TokenHelper::findPreviousExcluding($phpcsFile, T_WHITESPACE, $arrowPointer - 1);
+		$pointerBefore = TokenHelper::findPreviousNonWhitespace($phpcsFile, $arrowPointer - 1);
 
 		$spaces = TokenHelper::getContent($phpcsFile, $pointerBefore + 1, $arrowPointer - 1);
 
@@ -132,7 +132,7 @@ class ArrowFunctionDeclarationSniff implements Sniff
 
 	private function checkSpacesAfterArrow(File $phpcsFile, int $arrowPointer): void
 	{
-		$pointerAfter = TokenHelper::findNextExcluding($phpcsFile, T_WHITESPACE, $arrowPointer + 1);
+		$pointerAfter = TokenHelper::findNextNonWhitespace($phpcsFile, $arrowPointer + 1);
 
 		$spaces = TokenHelper::getContent($phpcsFile, $arrowPointer + 1, $pointerAfter - 1);
 
@@ -173,9 +173,7 @@ class ArrowFunctionDeclarationSniff implements Sniff
 			$phpcsFile->fixer->addContent($pointerBefore, str_repeat(' ', $requiredSpaces));
 		}
 
-		for ($i = $pointerBefore + 1; $i < $pointerAfter; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+		FixerHelper::removeBetween($phpcsFile, $pointerBefore, $pointerAfter);
 
 		$phpcsFile->fixer->endChangeset();
 	}

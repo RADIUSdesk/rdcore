@@ -6,6 +6,7 @@ use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use PHP_CodeSniffer\Util\Tokens;
 use SlevomatCodingStandard\Helpers\CommentHelper;
+use SlevomatCodingStandard\Helpers\FixerHelper;
 use SlevomatCodingStandard\Helpers\IndentationHelper;
 use SlevomatCodingStandard\Helpers\TokenHelper;
 use function array_key_exists;
@@ -50,7 +51,7 @@ class DisallowCommentAfterCodeSniff implements Sniff
 		$tokens = $phpcsFile->getTokens();
 
 		$commentEndPointer = CommentHelper::getCommentEndPointer($phpcsFile, $commentPointer);
-		$nextNonWhitespacePointer = TokenHelper::findNextExcluding($phpcsFile, T_WHITESPACE, $commentEndPointer + 1);
+		$nextNonWhitespacePointer = TokenHelper::findNextNonWhitespace($phpcsFile, $commentEndPointer + 1);
 
 		if (
 			$nextNonWhitespacePointer !== null
@@ -73,11 +74,11 @@ class DisallowCommentAfterCodeSniff implements Sniff
 			$commentContent .= $phpcsFile->eolChar;
 		}
 
-		$firstNonWhiteSpacePointerBeforeComment = TokenHelper::findPreviousExcluding($phpcsFile, T_WHITESPACE, $commentPointer - 1);
+		$firstNonWhiteSpacePointerBeforeComment = TokenHelper::findPreviousNonWhitespace($phpcsFile, $commentPointer - 1);
 
 		$newLineAfterComment = $commentHasNewLineAtTheEnd
 			? $commentEndPointer
-			: TokenHelper::findNextContent($phpcsFile, T_WHITESPACE, $phpcsFile->eolChar, $commentEndPointer + 1);
+			: TokenHelper::findLastTokenOnLine($phpcsFile, $commentEndPointer);
 
 		$indentation = IndentationHelper::getIndentation($phpcsFile, $firstNonWhitespacePointerOnLine);
 		$firstPointerOnLine = TokenHelper::findFirstTokenOnLine($phpcsFile, $firstNonWhitespacePointerOnLine);
@@ -115,9 +116,7 @@ class DisallowCommentAfterCodeSniff implements Sniff
 			$phpcsFile->fixer->addNewline($firstNonWhiteSpacePointerBeforeComment);
 		}
 
-		for ($i = $firstNonWhiteSpacePointerBeforeComment + 1; $i <= $newLineAfterComment; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+		FixerHelper::removeBetweenIncluding($phpcsFile, $firstNonWhiteSpacePointerBeforeComment + 1, $newLineAfterComment);
 
 		$phpcsFile->fixer->endChangeset();
 	}

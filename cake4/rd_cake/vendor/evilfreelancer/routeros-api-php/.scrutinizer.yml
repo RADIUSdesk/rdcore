@@ -1,0 +1,16 @@
+checks:
+  php: true
+
+filter:
+  excluded_paths:
+  - "examples/"
+  - "tests/"
+
+coding_style:
+  php:
+    spaces:
+      around_operators:
+        concatenation: true
+
+tools:
+  external_code_coverage: true

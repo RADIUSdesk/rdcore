@@ -5,6 +5,7 @@ namespace SlevomatCodingStandard\Sniffs\Namespaces;
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use SlevomatCodingStandard\Helpers\CommentHelper;
+use SlevomatCodingStandard\Helpers\FixerHelper;
 use SlevomatCodingStandard\Helpers\NamespaceHelper;
 use SlevomatCodingStandard\Helpers\StringHelper;
 use SlevomatCodingStandard\Helpers\TokenHelper;
@@ -25,7 +26,6 @@ use function strcmp;
 use function uasort;
 use const T_OPEN_TAG;
 use const T_SEMICOLON;
-use const T_WHITESPACE;
 
 class AlphabeticallySortedUsesSniff implements Sniff
 {
@@ -105,7 +105,7 @@ class AlphabeticallySortedUsesSniff implements Sniff
 
 		$commentsBefore = [];
 		foreach ($useStatements as $useStatement) {
-			$pointerBeforeUseStatement = TokenHelper::findPreviousExcluding($phpcsFile, T_WHITESPACE, $useStatement->getPointer() - 1);
+			$pointerBeforeUseStatement = TokenHelper::findPreviousNonWhitespace($phpcsFile, $useStatement->getPointer() - 1);
 
 			if (!in_array($tokens[$pointerBeforeUseStatement]['code'], TokenHelper::$inlineCommentTokenCodes, true)) {
 				continue;
@@ -135,9 +135,7 @@ class AlphabeticallySortedUsesSniff implements Sniff
 
 		$phpcsFile->fixer->beginChangeset();
 
-		for ($i = $firstPointer; $i <= $lastSemicolonPointer; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+		FixerHelper::removeBetweenIncluding($phpcsFile, $firstPointer, $lastSemicolonPointer);
 
 		$phpcsFile->fixer->addContent(
 			$firstPointer,

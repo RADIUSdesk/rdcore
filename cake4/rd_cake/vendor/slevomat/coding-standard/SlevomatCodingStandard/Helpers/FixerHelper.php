@@ -4,7 +4,7 @@ namespace SlevomatCodingStandard\Helpers;
 
 use PHP_CodeSniffer\Files\File;
 use function count;
-use const T_WHITESPACE;
+use function preg_match;
 
 /**
  * @internal
@@ -12,12 +12,22 @@ use const T_WHITESPACE;
 class FixerHelper
 {
 
-	public static function cleanWhitespaceBefore(File $phpcsFile, int $pointer): void
+	public static function removeBetween(File $phpcsFile, int $startPointer, int $endPointer): void
 	{
-		$tokens = $phpcsFile->getTokens();
+		self::removeBetweenIncluding($phpcsFile, $startPointer + 1, $endPointer - 1);
+	}
 
+	public static function removeBetweenIncluding(File $phpcsFile, int $startPointer, int $endPointer): void
+	{
+		for ($i = $startPointer; $i <= $endPointer; $i++) {
+			$phpcsFile->fixer->replaceToken($i, '');
+		}
+	}
+
+	public static function removeWhitespaceBefore(File $phpcsFile, int $pointer): void
+	{
 		for ($i = $pointer - 1; $i > 0; $i--) {
-			if ($tokens[$i]['code'] !== T_WHITESPACE) {
+			if (preg_match('~^\\s+$~', $phpcsFile->fixer->getTokenContent($i)) === 0) {
 				break;
 			}
 
@@ -25,12 +35,10 @@ class FixerHelper
 		}
 	}
 
-	public static function cleanWhitespaceAfter(File $phpcsFile, int $pointer): void
+	public static function removeWhitespaceAfter(File $phpcsFile, int $pointer): void
 	{
-		$tokens = $phpcsFile->getTokens();
-
-		for ($i = $pointer + 1; $i < count($tokens); $i++) {
-			if ($tokens[$i]['code'] !== T_WHITESPACE) {
+		for ($i = $pointer + 1; $i < count($phpcsFile->getTokens()); $i++) {
+			if (preg_match('~^\\s+$~', $phpcsFile->fixer->getTokenContent($i)) === 0) {
 				break;
 			}
 

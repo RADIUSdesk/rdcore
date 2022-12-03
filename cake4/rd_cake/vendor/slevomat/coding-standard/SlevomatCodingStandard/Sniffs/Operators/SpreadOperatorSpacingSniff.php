@@ -4,13 +4,13 @@ namespace SlevomatCodingStandard\Sniffs\Operators;
 
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
+use SlevomatCodingStandard\Helpers\FixerHelper;
 use SlevomatCodingStandard\Helpers\SniffSettingsHelper;
 use SlevomatCodingStandard\Helpers\TokenHelper;
 use function sprintf;
 use function str_repeat;
 use function strlen;
 use const T_ELLIPSIS;
-use const T_WHITESPACE;
 
 class SpreadOperatorSpacingSniff implements Sniff
 {
@@ -38,7 +38,7 @@ class SpreadOperatorSpacingSniff implements Sniff
 	{
 		$this->spacesCountAfterOperator = SniffSettingsHelper::normalizeInteger($this->spacesCountAfterOperator);
 
-		$pointerAfterWhitespace = TokenHelper::findNextExcluding($phpcsFile, T_WHITESPACE, $spreadOperatorPointer + 1);
+		$pointerAfterWhitespace = TokenHelper::findNextNonWhitespace($phpcsFile, $spreadOperatorPointer + 1);
 
 		$whitespace = TokenHelper::getContent($phpcsFile, $spreadOperatorPointer + 1, $pointerAfterWhitespace - 1);
 
@@ -63,9 +63,7 @@ class SpreadOperatorSpacingSniff implements Sniff
 		$phpcsFile->fixer->beginChangeset();
 
 		$phpcsFile->fixer->addContent($spreadOperatorPointer, str_repeat(' ', $this->spacesCountAfterOperator));
-		for ($i = $spreadOperatorPointer + 1; $i < $pointerAfterWhitespace; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+		FixerHelper::removeBetween($phpcsFile, $spreadOperatorPointer, $pointerAfterWhitespace);
 
 		$phpcsFile->fixer->endChangeset();
 	}

@@ -31,6 +31,7 @@ use Cake\Database\Schema\CachedCollection;
 use Cake\Database\Schema\Collection as SchemaCollection;
 use Cake\Database\Schema\CollectionInterface as SchemaCollectionInterface;
 use Cake\Datasource\ConnectionInterface;
+use Cake\Log\Engine\BaseLog;
 use Cake\Log\Log;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
@@ -428,7 +429,7 @@ class Connection implements ConnectionInterface
      *
      * @param string $table the table to insert values in
      * @param array $values values to be inserted
-     * @param array<string, string> $types list of associative array containing the types to be used for casting
+     * @param array<int|string, string> $types Array containing the types to be used for casting
      * @return \Cake\Database\StatementInterface
      */
     public function insert(string $table, array $values, array $types = []): StatementInterface
@@ -449,7 +450,7 @@ class Connection implements ConnectionInterface
      * @param string $table the table to update rows from
      * @param array $values values to be updated
      * @param array $conditions conditions to be set for update statement
-     * @param array $types list of associative array containing the types to be used for casting
+     * @param array<string> $types list of associative array containing the types to be used for casting
      * @return \Cake\Database\StatementInterface
      */
     public function update(string $table, array $values, array $conditions = [], array $types = []): StatementInterface
@@ -467,7 +468,7 @@ class Connection implements ConnectionInterface
      *
      * @param string $table the table to delete rows from
      * @param array $conditions conditions to be set for delete statement
-     * @param array $types list of associative array containing the types to be used for casting
+     * @param array<string> $types list of associative array containing the types to be used for casting
      * @return \Cake\Database\StatementInterface
      */
     public function delete(string $table, array $conditions = [], array $types = []): StatementInterface
@@ -919,7 +920,7 @@ class Connection implements ConnectionInterface
             return $this->_logger;
         }
 
-        if (!class_exists(QueryLogger::class)) {
+        if (!class_exists(BaseLog::class)) {
             throw new RuntimeException(
                 'For logging you must either set a logger using Connection::setLogger()' .
                 ' or require the cakephp/log package in your composer config.'

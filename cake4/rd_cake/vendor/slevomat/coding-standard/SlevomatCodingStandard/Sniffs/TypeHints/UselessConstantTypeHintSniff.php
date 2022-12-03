@@ -6,12 +6,12 @@ use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
 use SlevomatCodingStandard\Helpers\AnnotationHelper;
 use SlevomatCodingStandard\Helpers\DocCommentHelper;
+use SlevomatCodingStandard\Helpers\FixerHelper;
 use SlevomatCodingStandard\Helpers\TokenHelper;
 use function array_key_exists;
 use function count;
 use const T_CONST;
 use const T_DOC_COMMENT_WHITESPACE;
-use const T_WHITESPACE;
 
 class UselessConstantTypeHintSniff implements Sniff
 {
@@ -54,7 +54,7 @@ class UselessConstantTypeHintSniff implements Sniff
 			$fix = $phpcsFile->addFixableError('Useless documentation comment.', $docCommentOpenPointer, self::CODE_USELESS_DOC_COMMENT);
 
 			/** @var int $fixerStart */
-			$fixerStart = TokenHelper::findPreviousContent($phpcsFile, T_WHITESPACE, $phpcsFile->eolChar, $docCommentOpenPointer - 1);
+			$fixerStart = TokenHelper::findLastTokenOnPreviousLine($phpcsFile, $docCommentOpenPointer);
 			$fixerEnd = $tokens[$docCommentOpenPointer]['comment_closer'];
 		} else {
 			$annotation = $annotations['@var'][0];
@@ -80,9 +80,7 @@ class UselessConstantTypeHintSniff implements Sniff
 		}
 
 		$phpcsFile->fixer->beginChangeset();
-		for ($i = $fixerStart; $i <= $fixerEnd; $i++) {
-			$phpcsFile->fixer->replaceToken($i, '');
-		}
+		FixerHelper::removeBetweenIncluding($phpcsFile, $fixerStart, $fixerEnd);
 		$phpcsFile->fixer->endChangeset();
 	}
 
