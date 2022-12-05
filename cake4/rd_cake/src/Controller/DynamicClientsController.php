@@ -20,7 +20,8 @@ class DynamicClientsController extends AppController{
   
     public function initialize():void{  
         parent::initialize();
-        $this->loadModel('DynamicClients'); 
+        $this->loadModel('DynamicClients');
+        $this->loadModel('DynamicClientSettings');  
         $this->loadModel('Users');              
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -28,7 +29,24 @@ class DynamicClientsController extends AppController{
             'model' => 'DynamicClients'
         ]);                
         $this->loadComponent('JsonErrors'); 
-        $this->loadComponent('TimeCalculations');       
+        $this->loadComponent('TimeCalculations');
+              
+        $this->loadComponent('MikrotikApi');
+               
+    }
+    
+    
+    public function testMikrotik(){
+    
+    	$response = $this->MikrotikApi->test();
+    	
+    	//___ FINAL PART ___
+        $this->set([
+        	'data'	 => $response,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    
     }
 
     //____ BASIC CRUD Manager ________
@@ -280,16 +298,36 @@ class DynamicClientsController extends AppController{
             $modelEntity = $this->{$this->main_model}->get($cdata['id']);
             // Update Entity with Request Data
             $modelEntity = $this->{$this->main_model}->patchEntity($modelEntity, $cdata);
-
+           
+            //See if there are Mikrotik specific settings that has to go to DynamicClientSettings
+            foreach(array_keys($cdata) as $key){
+                if(preg_match('/^mt_/',$key)){
+               		$s_data 			= [];
+               		$s_data['name'] 	= $key;
+               		$s_data['value'] 	= $cdata[$key];
+               		$s_data['dynamic_client_id'] = $modelEntity->id;              		
+                	$setting = $this->{'DynamicClientSettings'}->find()
+                		->where(['DynamicClientSettings.dynamic_client_id' => $modelEntity->id,'DynamicClientSettings.name' => $key])
+                		->first();
+                	if($setting){
+                		if($setting->value != $cdata[$key]){
+                			$this->{'DynamicClientSettings'}->patchEntity($setting, $s_data);
+                		}
+                	}else{
+                		$setting = $this->{'DynamicClientSettings'}->newEntity($s_data);
+                	}
+                	$this->{'DynamicClientSettings'}->save($setting);                       
+                }
+            }
+            
             if ($this->{$this->main_model}->save($modelEntity)) {
                 $this->set([
                     'success' => true
                 ]);
                 $this->viewBuilder()->setOption('serialize', true);
-            }
+            }        
         }
     }
-
 
     public function view(){
     
@@ -303,9 +341,14 @@ class DynamicClientsController extends AppController{
 
             $q_r = $this->{$this->main_model}->find()
                 ->where(['DynamicClients.id' => $this->request->getQuery('dynamic_client_id')])
+                ->contain(['DynamicClientSettings'])
                 ->first();
             if($q_r){
                 $data = $q_r;
+                foreach($q_r->dynamic_client_settings as $s){
+            		$data[$s->name] = $s->value;
+            	}
+            	unset($data['dynamic_client_settings']);
             }         
         }
         $this->set([

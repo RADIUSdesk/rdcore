@@ -11,6 +11,7 @@ class DynamicClientsTable extends Table
         $this->addBehavior('Timestamp');  
         $this->belongsTo('Clouds');
         $this->hasMany('DynamicClientRealms',['dependent' => true]);
+        $this->hasMany('DynamicClientSettings',['dependent' => true]);
     }
     
     public function validationDefault(Validator $validator):Validator{

@@ -12,6 +12,7 @@ class NasTable extends Table
         $this->addBehavior('Timestamp');
         $this->belongsTo('Clouds');      
         $this->hasMany('NaRealms',['dependent' => true]); //Do not delete Realms when deleting NAS 
+        $this->hasMany('NaSettings',['dependent' => true]);
         $this->hasMany('NaStates',   [
 				'dependent' => true,
 				'limit'     => 1,
