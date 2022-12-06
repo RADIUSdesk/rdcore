@@ -366,6 +366,16 @@ class GridButtonsFlatComponent extends Component {
             'tooltip'   => __('Acknowlege Alert'),
             'ui'        => $this->btnUiEdit
         ]; 
+        
+        $this->btnApi = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnGears'), 
+            'scale'     => $this->scale,
+            'itemId'    => 'mikrotik_api',
+            'tooltip'   => 'Mikrotik API',
+            'disabled' 	=> true,
+            'ui'        => $this->btnUiEdit
+        ]; 
                             
     }
 
@@ -748,6 +758,7 @@ class GridButtonsFlatComponent extends Component {
         }       
         $m_items = [
             $this->btnGraph,
+            $this->btnApi,
             //$this->btnMap,
             //$this->btnAvailable
         ];      

@@ -22,7 +22,7 @@ class NasController extends AppController{
         parent::initialize();
         $this->loadModel('Nas'); 
         $this->loadModel('Users');
-                 
+        $this->loadModel('NaSettings');                 
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('CommonQueryFlat', [ 
@@ -33,7 +33,49 @@ class NasController extends AppController{
         $this->loadModel('NaStates');
         $this->loadModel('NaRealms');       
         $this->loadComponent('JsonErrors'); 
-        $this->loadComponent('TimeCalculations');         
+        $this->loadComponent('TimeCalculations');
+        $this->loadComponent('MikrotikApi');         
+    }
+    
+    public function testMikrotik(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
+        $cquery     = $this->request->getQuery();
+        $id 		= $cquery['id'];       
+        $q_r 		= $this->{'NaSettings'}->find()->where(['NaSettings.na_id' => $id])->all(); 
+        $mt_data 	= [];
+        foreach($q_r as $s){    
+			if(preg_match('/^mt_/',$s->name)){
+				$name = preg_replace('/^mt_/','',$s->name);
+				$value= $s->value;
+				if($name == 'port'){
+					$value = intval($value); //Requires integer 	
+				}
+				$mt_data[$name] = $value;				
+			}			        
+        }
+        
+        if($mt_data['proto'] == 'https'){
+        	$mt_data['ssl'] = true;
+        	if($mt_data['port'] ==8728){
+        		//Change it to Default SSL port 8729
+        		$mt_data['port'] = 8729;
+        	}
+        }         
+        unset($mt_data['proto']);              
+      	$response = $this->MikrotikApi->test($mt_data);
+    	
+    	//___ FINAL PART ___
+        $this->set([
+        	'data'	 => $response,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    
     }
     
     public function exportCsv(){
@@ -278,12 +320,17 @@ class NasController extends AppController{
 
             $q_r = $this->{$this->main_model}->find()
                 ->where(['Nas.id' => $this->request->getQuery('nas_id')])
+                ->contain(['NaSettings'])
                 ->first();
             if($q_r){
                 $data = $q_r;
                 if($q_r->cloud_id == -1){
                 	$data['for_system'] = true;
                 }
+                foreach($q_r->na_settings as $s){
+            		$data[$s->name] = $s->value;
+            	}
+            	unset($data['na_settings']);                
             }         
         }
         $this->set([
@@ -343,6 +390,27 @@ class NasController extends AppController{
             $modelEntity = $this->{$this->main_model}->get($cdata['id']);
             // Update Entity with Request Data
             $modelEntity = $this->{$this->main_model}->patchEntity($modelEntity, $cdata);
+                        
+            //See if there are Mikrotik specific settings that has to go to NaSettings
+            foreach(array_keys($cdata) as $key){
+                if(preg_match('/^mt_/',$key)){
+               		$s_data 			= [];
+               		$s_data['name'] 	= $key;
+               		$s_data['value'] 	= $cdata[$key];
+               		$s_data['na_id'] = $modelEntity->id;              		
+                	$setting = $this->{'NaSettings'}->find()
+                		->where(['NaSettings.na_id' => $modelEntity->id,'NaSettings.name' => $key])
+                		->first();
+                	if($setting){
+                		if($setting->value != $cdata[$key]){
+                			$this->{'NaSettings'}->patchEntity($setting, $s_data);
+                		}
+                	}else{
+                		$setting = $this->{'NaSettings'}->newEntity($s_data);
+                	}
+                	$this->{'NaSettings'}->save($setting);                       
+                }
+            }
 
             if ($this->{$this->main_model}->save($modelEntity)) {
             

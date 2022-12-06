@@ -547,6 +547,18 @@ Ext.define('Rd.controller.cActivityMonitor', {
                         me.reload();    
                     }   
                 },
+                failure: function (response, options) {
+                    button.setDisabled(false);
+                    var jsonData = Ext.JSON.decode(response.responseText);
+                    Ext.Msg.show({
+                        title       : "Error",
+                        msg         : response.request.url + '<br>' + response.status + ' ' + response.statusText+"<br>"+jsonData.message,
+                        modal       : true,
+                        buttons     : Ext.Msg.OK,
+                        icon        : Ext.Msg.ERROR,
+                        closeAction : 'destroy'
+                    });
+                },
                 scope: me
             });
             //_____________________

@@ -1,8 +1,8 @@
-Ext.define('Rd.view.dynamicClients.vcDynamicClients', {
+Ext.define('Rd.view.nas.vcNas', {
     extend  : 'Ext.app.ViewController',
-    alias   : 'controller.vcDynamicClients',
+    alias   : 'controller.vcNas',
     config: {
-        UrlTestMikrotik  : '/cake4/rd_cake/dynamic-clients/test-mikrotik.json',	        
+        UrlTestMikrotik  : '/cake4/rd_cake/nas/test-mikrotik.json',	        
     },
     init    : function() {
         var me = this;

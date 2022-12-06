@@ -19,13 +19,19 @@ class KickerComponent extends Component {
     protected $radclient;
     //protected $pod_command = '/etc/MESHdesk/pod.lua';
     protected $pod_command 	= 'chilli_query logout mac';
-    protected	$coova_md 	= 'CoovaMeshdesk'; 
+    protected	$coova_md 	= 'CoovaMeshdesk';
+    protected	$mt_api 	= 'Mikrotik-API'; 
     protected	$node_action_add = 'http://127.0.0.1/cake4/rd_cake/node-actions/add.json';
     protected	$ap_action_add = 'http://127.0.0.1/cake4/rd_cake/ap-actions/add.json';
+    
+   	protected $components = ['MikrotikApi'];
     
     public function initialize(array $config):void{
         //Please Note that we assume the Controller has a JsonErrors Component Included which we can access.
         $this->DynamicClients           = TableRegistry::get('DynamicClients');
+        $this->DynamicClientSettings    = TableRegistry::get('DynamicClientSettings');
+        $this->Nas           			= TableRegistry::get('Nas');
+        $this->NaSettings               = TableRegistry::get('NaSettings');
         $this->MeshExitCaptivePortals   = TableRegistry::get('MeshExitCaptivePortals'); 
         $this->MeshExits                = TableRegistry::get('MeshExits'); 
         $this->Nodes                    = TableRegistry::get('Nodes');
@@ -38,8 +44,13 @@ class KickerComponent extends Component {
         $radacctid      = $ent->radacctid;
                 
      	//First we try to locate the client under dynamic_clients
-     	$dc = $this->DynamicClients->find()->where(['DynamicClients.nasidentifier' => $nasidentifier])->first();
+     	$dc = $this->DynamicClients->find()
+     		->where(['DynamicClients.nasidentifier' => $nasidentifier])
+     		->contain(['DynamicClientSettings'])
+     		->first();
+     		
      	if($dc){
+     		//===CoovaMeshdesk====
      		if($dc->type == $this->coova_md){ //It is type CoovaMeshdesk => Now try and locate AP to send command to 
      		
      			//We have a convention of nasidentifier for meshdesk => mcp_<captive_portal_id> and apdesk => ap_<ap id>_cp_<captive_portal_id>
@@ -51,7 +62,37 @@ class KickerComponent extends Component {
      				$this->kickApUser($ent,$dc->cloud_id,$token); 			
      			}
      			sleep(1); //Give MQTT time to do its thing....  			
-     		}   	
+     		}
+     		    		
+     		//===Mikrotik-API===
+
+     		if($dc->type == $this->mt_api){ 
+     		
+     			//We need to determine the API Connection details    		
+     			$mt_data = [];
+     			foreach($dc->dynamic_client_settings as $s){ 
+					if(preg_match('/^mt_/',$s->name)){
+						$name = preg_replace('/^mt_/','',$s->name);
+						$value= $s->value;
+						if($name == 'port'){
+							$value = intval($value); //Requires integer 	
+						}
+						$mt_data[$name] = $value;				
+					}			        
+				}
+				
+				if($mt_data['proto'] == 'https'){
+					$mt_data['ssl'] = true;
+					if($mt_data['port'] ==8728){
+						//Change it to Default SSL port 8729
+						$mt_data['port'] = 8729;
+					}
+				}         
+				unset($mt_data['proto']); 
+				$this->MikrotikApi->kickRadius($ent,$mt_data);				             
+     		   		
+     		}     		
+     		   	
      	}
              
         return $data = [];       

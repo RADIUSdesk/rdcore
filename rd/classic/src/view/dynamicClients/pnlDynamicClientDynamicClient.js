@@ -180,7 +180,7 @@ Ext.define('Rd.view.dynamicClients.pnlDynamicClientDynamicClient', {
                 {
                     xtype       : 'textfield',
                     fieldLabel  : i18n('sIP_Address'),
-                    name        : 'mt_ipaddr',
+                    name        : 'mt_host',
                     allowBlank  : false,
                     blankText   : i18n("sSupply_a_value"),
                     labelClsExtra: 'lblRdReq',
@@ -200,7 +200,7 @@ Ext.define('Rd.view.dynamicClients.pnlDynamicClientDynamicClient', {
                 {
                     xtype           : 'textfield',
                     fieldLabel      : 'Username',
-                    name            : 'mt_username',
+                    name            : 'mt_user',
                     allowBlank      : false,
                     blankText       : i18n('sSupply_a_value'),
                     width           : w_sec,
@@ -208,7 +208,7 @@ Ext.define('Rd.view.dynamicClients.pnlDynamicClientDynamicClient', {
                 },
                 {
                     xtype           : 'rdPasswordfield',
-                    rdName          : 'mt_password',
+                    rdName          : 'mt_pass',
                     width           : w_sec,
                     rdLabel         : 'Password'
                 },

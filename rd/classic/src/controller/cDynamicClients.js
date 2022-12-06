@@ -30,10 +30,12 @@ Ext.define('Rd.controller.cDynamicClients', {
         'dynamicClients.pnlDynamicClientPhoto',
         'components.pnlUsageGraph',
         'dynamicClients.pnlDynamicClientGraphs',
+        'dynamicClients.pnlMikrotikApi',
+        'dynamicClients.gridMtHotspotActive',
         'components.cmbNasTypes'
     ],
-    stores: ['sDynamicClients', 'sUnknownDynamicClients', 'sNasTypes'],
-    models: [ 'mDynamicClient','mRealmForDynamicClientCloud', 'mUnknownDynamicClient','mDynamicClientState','mUserStat','mNasType' ],
+    stores: ['sDynamicClients', 'sUnknownDynamicClients', 'sNasTypes', 'sMtHotspotActives' ],
+    models: [ 'mDynamicClient','mRealmForDynamicClientCloud', 'mUnknownDynamicClient','mDynamicClientState','mUserStat','mNasType', 'mMtHotspotActive' ],
     selectedRecord: null,
     config: {
         urlExportCsv    : '/cake4/rd_cake/dynamic-clients/export_csv',
@@ -106,6 +108,10 @@ Ext.define('Rd.controller.cDynamicClients', {
             'gridDynamicClients #graph'   : {
                 click:      me.graph
             },
+            'gridDynamicClients #mikrotik_api'   : {
+                click:      me.mikrotik_api
+            },
+
             'gridDynamicClients #unknown_clients'   : {
                 click:      me.unknown_clients
             },
@@ -387,6 +393,17 @@ Ext.define('Rd.controller.cDynamicClients', {
         }else{
             if(tb.down('#delete') != null){
                 tb.down('#delete').setDisabled(true);
+            }
+        }
+
+        var mt = record.get('type');
+        if(mt == 'Mikrotik-API'){
+            if(tb.down('#mikrotik_api') != null){
+                tb.down('#mikrotik_api').setDisabled(false);
+            }
+        }else{
+            if(tb.down('#mikrotik_api') != null){
+                tb.down('#mikrotik_api').setDisabled(true);
             }
         }
     },
@@ -719,7 +736,44 @@ Ext.define('Rd.controller.cDynamicClients', {
             });
             tp.setActiveTab(tab_id); //Set focus on Add Tab 
         }
-    },   
+    },
+    mikrotik_api: function(){
+        var me = this;  
+        //Find out if there was something selected
+        if(me.getGrid().getSelectionModel().getCount() == 0){
+             Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{
+            //Check if the node is not already open; else open the node:
+            var tp      = me.getGrid().up('tabpanel');
+            var sr      = me.getGrid().getSelectionModel().getLastSelected();
+            var id      = sr.getId();
+            var tab_id  = 'dynamicClientTabMt_'+id;
+            var nt      = tp.down('#'+tab_id);
+            if(nt){
+                tp.setActiveTab(tab_id); //Set focus on  Tab
+                return;
+            }
+            var tab_name = sr.get('name');
+            //Tab not there - add one
+            tp.add({ 
+                title               : 'Mikrotik API '+tab_name,
+                itemId              : tab_id,
+                closable            : true,
+                glyph               : Rd.config.icnGears, 
+                xtype               : 'pnlMikrotikApi',
+                dynamic_client_id   : id,
+                tabConfig           : {
+                    ui : me.ui
+                }
+            });
+            tp.setActiveTab(tab_id); //Set focus on Add Tab 
+        }
+    },
     chkDataLimitActiveChange: function(chk){
         var me      = this;
         var form    = chk.up('form');
@@ -823,7 +877,12 @@ Ext.define('Rd.controller.cDynamicClients', {
         }
         if(action == 'delete'){
             me.del();
-        }     
+        }
+
+        if(action == 'mikrotik_api'){
+            me.mikrotik_api();
+        }  
+     
     }
     
 });

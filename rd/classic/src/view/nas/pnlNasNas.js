@@ -1,6 +1,10 @@
 Ext.define('Rd.view.nas.pnlNasNas', {
     extend      : 'Ext.form.Panel',
     alias       : 'widget.pnlNasNas',
+    requires    : [
+        'Rd.view.nas.vcNas'
+    ],
+    controller  : 'vcNas',
     realm_id    : null,
     autoScroll	: true,
     plain       : true,
@@ -34,6 +38,15 @@ Ext.define('Rd.view.nas.pnlNasNas', {
     initComponent: function(){
         var me      = this;
         var w_prim  = 550;
+        var w_sec   = w_prim - 30;
+
+        var store_proto = Ext.create('Ext.data.Store', {
+            fields: ['id', 'Name'],
+            data : [
+                {"id":"http", "name":"HTTP"},
+                {"id":"https", "name":"HTTPS"}
+            ]
+        });
 
         var hide_system = true;
         if(me.root){
@@ -59,6 +72,93 @@ Ext.define('Rd.view.nas.pnlNasNas', {
             displayField    : 'text',
             valueField      : 'id'
         });
+
+        var pnlMikrotik = {
+            xtype   : 'panel',
+            itemId  : 'pnlMikrotik',
+            hidden  : true,
+            disabled: true,
+            bodyStyle   : 'background: #e0ebeb',
+            items   : [
+                {
+                    xtype       : 'combobox',
+                    fieldLabel  : 'Protocol',
+                    store       : store_proto,
+                    queryMode   : 'local',
+                    name        : 'mt_proto',
+                    displayField: 'name',
+                    valueField  : 'id',
+                    value       : 'http',
+                    width       : w_sec
+                },
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : i18n('sIP_Address'),
+                    name        : 'mt_host',
+                    allowBlank  : false,
+                    blankText   : i18n("sSupply_a_value"),
+                    labelClsExtra: 'lblRdReq',
+                    width       : w_sec,
+                    vtype       : 'IPAddress'
+                },
+                {
+                    xtype           : 'numberfield',
+                    fieldLabel      : 'Port',
+                    name            : 'mt_port',
+                    width           : w_sec,
+                    value           : 8728,
+                    hideTrigger     : true,
+                    keyNavEnabled   : false,
+                    mouseWheelEnabled: false
+                },
+                {
+                    xtype           : 'textfield',
+                    fieldLabel      : 'Username',
+                    name            : 'mt_user',
+                    allowBlank      : false,
+                    blankText       : i18n('sSupply_a_value'),
+                    width           : w_sec,
+                    labelClsExtra   : 'lblRdReq'
+                },
+                {
+                    xtype           : 'rdPasswordfield',
+                    rdName          : 'mt_pass',
+                    width           : w_sec,
+                    rdLabel         : 'Password'
+                },
+                {
+                    xtype           : 'button',
+                    text            : 'Test API Connection',
+                    ui              : 'button-teal',
+                    itemId          : 'btnMikrotikTest',
+                    scale           : 'medium',
+                    width           : w_prim-25,
+                    padding         : 10,
+                    margin          : 10,
+                    listeners   : {
+                        click     : 'onMikrotikTestClick'
+                    }    
+                },
+                {
+                    xtype   : 'panel',
+                    itemId  : 'pnlMtReply',
+                    hidden  : true,
+                    tpl     : new Ext.XTemplate(
+                        '<div style="padding:10px;">',
+                            '<h4>API Connection Is Good</h4>', 
+                             '<dl>',
+                                '<tpl foreach=".">',
+                                    '<dt style="color:#c1c1c1">{$}</dt>', // the special **`{$}`** variable contains the property name
+                                    '<dd style="color:#014a8a; font-size:14px;">{.}</dd>', // within the loop, the **`{.}`** variable is set to the property value
+                                '</tpl>',
+                            '</dl>',
+                        '</div>'
+                    ),
+                    bodyStyle   : 'background: #ebffed',
+                    data    : {}
+                }         
+            ]
+        };
         
         var cntRequired  = {
             xtype       : 'container',
@@ -69,9 +169,10 @@ Ext.define('Rd.view.nas.pnlNasNas', {
             },
             items       : [
                 {
-                    xtype: 'textfield',
-                    name : "id",
-                    hidden: true
+                    xtype       : 'textfield',
+                    name        : "id",
+                    hidden      : true,
+                    itemId      : 'txtId'
                 },
                 {
                     itemId      : 'nasname',
@@ -100,8 +201,12 @@ Ext.define('Rd.view.nas.pnlNasNas', {
                     labelClsExtra: 'lblRdReq'
                 },
                 {
-                    xtype       : 'cmbNasTypes'
+                    xtype       : 'cmbNasTypes',
+                    listeners   : {
+		                change : 'onCmbNasTypesChange'
+			        } 
                 },
+                pnlMikrotik,  
                 {
                     xtype       : 'checkbox',      
                     fieldLabel  : 'System Wide',

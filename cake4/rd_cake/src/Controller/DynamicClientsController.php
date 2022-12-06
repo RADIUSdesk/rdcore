@@ -29,8 +29,7 @@ class DynamicClientsController extends AppController{
             'model' => 'DynamicClients'
         ]);                
         $this->loadComponent('JsonErrors'); 
-        $this->loadComponent('TimeCalculations');
-              
+        $this->loadComponent('TimeCalculations');            
         $this->loadComponent('MikrotikApi');
                
     }
@@ -38,7 +37,35 @@ class DynamicClientsController extends AppController{
     
     public function testMikrotik(){
     
-    	$response = $this->MikrotikApi->test();
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
+        $cquery     = $this->request->getQuery();
+        $id 		= $cquery['id'];       
+        $q_r 		= $this->{'DynamicClientSettings'}->find()->where(['DynamicClientSettings.dynamic_client_id' => $id])->all(); 
+        $mt_data 	= [];
+        foreach($q_r as $s){    
+			if(preg_match('/^mt_/',$s->name)){
+				$name = preg_replace('/^mt_/','',$s->name);
+				$value= $s->value;
+				if($name == 'port'){
+					$value = intval($value); //Requires integer 	
+				}
+				$mt_data[$name] = $value;				
+			}			        
+        }
+        
+        if($mt_data['proto'] == 'https'){
+        	$mt_data['ssl'] = true;
+        	if($mt_data['port'] ==8728){
+        		//Change it to Default SSL port 8729
+        		$mt_data['port'] = 8729;
+        	}
+        }         
+        unset($mt_data['proto']);              
+      	$response = $this->MikrotikApi->test($mt_data);
     	
     	//___ FINAL PART ___
         $this->set([

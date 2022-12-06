@@ -479,6 +479,20 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClients' ,{
 						handler: function(view, rowIndex, colIndex, item, e, record, row) {
                             this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'update');
                         }
+					},
+                    {  
+                        iconCls : 'txtBlue x-fa fa-gears',
+                        tooltip : 'Mikrotik API',
+                        isDisabled: function (grid, rowIndex, colIndex, items, record) {
+                                if (record.get('type') == 'Mikrotik-API') {
+                                     return false;
+                                } else {
+                                    return true;
+                                }
+                        },
+						handler: function(view, rowIndex, colIndex, item, e, record, row) {
+                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'mikrotik_api');
+                        }
 					}
 				]
             }            
