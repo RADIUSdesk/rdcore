@@ -30,8 +30,8 @@ Ext.define('Rd.controller.cDynamicClients', {
         'dynamicClients.pnlDynamicClientPhoto',
         'components.pnlUsageGraph',
         'dynamicClients.pnlDynamicClientGraphs',
-        'dynamicClients.pnlMikrotikApi',
-        'dynamicClients.gridMtHotspotActive',
+        'mikrotik.pnlMikrotikApi',
+        'mikrotik.gridMtHotspotActive',
         'components.cmbNasTypes'
     ],
     stores: ['sDynamicClients', 'sUnknownDynamicClients', 'sNasTypes', 'sMtHotspotActives' ],

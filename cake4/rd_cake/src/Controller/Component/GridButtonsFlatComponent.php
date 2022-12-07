@@ -607,7 +607,17 @@ class GridButtonsFlatComponent extends Component {
             $a  = $this->_fetchNas();
             $menu = [$b,$a];
         }
-                            
+        
+        
+        if($type == 'ReloadDelete'){
+            $b = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+                $this->btnReload,
+                $this->btnDelete
+            ]];
+            $menu = $b; 
+        }
+       
+                                   
         return $menu;
     }
     

@@ -33,6 +33,45 @@ class DynamicClientsController extends AppController{
         $this->loadComponent('MikrotikApi');
                
     }
+        
+    public function deleteHotspotActive(){
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
+        $cdata = $this->request->getData();        
+        if(isset($cdata[0])){
+        	$first 		= $cdata[0];
+        	$mt_data 	= $this->_getMtData($first['dynamic_client_id']);
+        	foreach($cdata as $a){
+        		$id = $a['id'];       	
+        		$this->MikrotikApi->kickRadiusId($mt_data,$id);
+        	}       	  
+        }          
+         $this->set([
+            'success' 		=> true,
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);       
+    }
+    
+    public function mtHotspotActive(){
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
+        $mt_data 	= $this->_getMtData();            
+      	$response 	= $this->MikrotikApi->getHotspotActive($mt_data);
+      	       
+        //___ FINAL PART ___
+        $this->set([
+        	'items'	 		=> $response,
+            'success' 		=> true,
+            'totalCount' 	=> count($response)
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);      
+    }
     
     
     public function testMikrotik(){
@@ -465,6 +504,22 @@ class DynamicClientsController extends AppController{
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
+    
+    public function menuForGridMtHsActive(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+         
+        $menu = $this->GridButtonsFlat->returnButtons(false, 'ReloadDelete'); 
+        $this->set([
+            'items' => $menu,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);    
+    }
+    
  
     private function _add_dynamic_client_realm($dynamic_client_id,$realm_id){
 
@@ -494,6 +549,38 @@ class DynamicClientsController extends AppController{
         }
            
         return $total_data;
+    }
+    
+    
+    private function _getMtData($id = false){
+    
+    	if(!$id){
+    		$cquery     = $this->request->getQuery();
+        	$id 		= $cquery['id'];   	
+    	}
+         
+        $q_r 		= $this->{'DynamicClientSettings'}->find()->where(['DynamicClientSettings.dynamic_client_id' => $id])->all();            
+        $mt_data 	= [];
+        foreach($q_r as $s){    
+			if(preg_match('/^mt_/',$s->name)){
+				$name = preg_replace('/^mt_/','',$s->name);
+				$value= $s->value;
+				if($name == 'port'){
+					$value = intval($value); //Requires integer 	
+				}
+				$mt_data[$name] = $value;				
+			}			        
+        }
+        
+        if($mt_data['proto'] == 'https'){
+        	$mt_data['ssl'] = true;
+        	if($mt_data['port'] ==8728){
+        		//Change it to Default SSL port 8729
+        		$mt_data['port'] = 8729;
+        	}
+        }         
+        unset($mt_data['proto']);       
+        return $mt_data;  
     }
         
 }

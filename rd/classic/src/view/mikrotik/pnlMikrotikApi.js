@@ -1,4 +1,4 @@
-Ext.define('Rd.view.dynamicClients.pnlMikrotikApi', {
+Ext.define('Rd.view.mikrotik.pnlMikrotikApi', {
     extend              : 'Ext.tab.Panel',
     alias               : 'widget.pnlMikrotikApi',
     border              : false,

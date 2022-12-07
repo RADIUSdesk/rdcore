@@ -1,4 +1,4 @@
-Ext.define('Rd.view.dynamicClients.gridMtHotspotActive' ,{
+Ext.define('Rd.view.mikrotik.gridMtHotspotActive' ,{
     extend		:'Ext.grid.Panel',
     alias 		: 'widget.gridMtHotspotActive',
     multiSelect	: true,
@@ -9,8 +9,10 @@ Ext.define('Rd.view.dynamicClients.gridMtHotspotActive' ,{
     requires	: [
         'Rd.view.components.ajaxToolbar',
         'Ext.toolbar.Paging',
-        'Ext.ux.ProgressBarPager'
+        'Ext.ux.ProgressBarPager',
+        'Rd.view.mikrotik.vcMtHotspotActive',
     ],
+    controller  : 'vcMtHotspotActive',
     viewConfig  : {
         loadMask    :true
     },
@@ -18,6 +20,10 @@ Ext.define('Rd.view.dynamicClients.gridMtHotspotActive' ,{
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
         var me  = this;
+        me.store   = Ext.create('Rd.store.sMtHotspotActives');
+        me.store.getProxy().setExtraParams({ 'id' : me.dynamic_client_id });
+        me.store.load();
+
         me.bbar = [{
             xtype       : 'pagingtoolbar',
             store       : me.store,
@@ -26,10 +32,6 @@ Ext.define('Rd.view.dynamicClients.gridMtHotspotActive' ,{
                 'ux-progressbarpager': true
             }
         }];
-
-        me.store   = Ext.create('Rd.store.sMtHotspotActives');
-        me.store.getProxy().setExtraParams({ 'id' : me.dynamic_client_id });
-        me.store.load();
 
 		me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 		
