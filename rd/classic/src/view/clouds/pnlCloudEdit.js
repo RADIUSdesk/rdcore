@@ -6,12 +6,17 @@ Ext.define('Rd.view.clouds.pnlCloudEdit', {
     cls     : 'subTab',
     requires: [
         'Rd.view.settings.pnlSettingsEmail',
-        'Rd.view.settings.pnlSettingsSms'
+        'Rd.view.settings.pnlSettingsSms',
+        'Rd.view.clouds.pnlCloudDetail',
     ],
     initComponent: function(){
-        var me      = this;
-        
+        var me      = this;     
         me.items = [
+         { 
+            title   : 'Detail',
+            xtype   : 'pnlCloudDetail',
+            cloud_id: me.cloud_id
+        },
         { 
             title   : 'Email',
             xtype   : 'pnlSettingsEmail',

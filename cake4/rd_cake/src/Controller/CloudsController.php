@@ -1017,6 +1017,44 @@ class CloudsController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
     
+    public function view(){
+    
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+        
+        $data   = $this->request->getQuery();
+        
+        $cloud_id=false; 
+        
+        if(isset($data['edit_cloud_id'])){
+        	$edit_cloud_id = $data['edit_cloud_id'];
+    		if(preg_match("/^Clouds_/", $edit_cloud_id)){
+				$cloud_id = preg_replace('/^Clouds_/', '', $edit_cloud_id);
+			}
+    	}
+    	$qr = [];
+    	if($cloud_id){    	
+    		$qr = $this->{'Clouds'}->find()->where(['Clouds.id' => $cloud_id])->contain(['CloudAdmins.Users'])->first();    	
+    	}
+    	
+    	$qr['admins'] = [];
+    	
+    	foreach($qr->cloud_admins as $ca){
+    		array_push($qr['admins'],$ca->user_id);
+    	}
+    	
+    	unset($qr->cloud_admins);
+            
+    	$this->set([
+    		'data'	=> $qr,
+            'success' => true
+        ]);
+     	$this->viewBuilder()->setOption('serialize', true);
+    
+    }
+    
     public function add(){
  
         $user = $this->Aa->user_for_token($this);
@@ -1058,7 +1096,47 @@ class CloudsController extends AppController {
             }    
         }
     }
-    
+      
+     public function saveCloud(){
+
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+        $req_d		= $this->request->getData();       
+        if ($this->request->is('post')) { 
+            $level 		= 'Clouds';    
+            $node_id 	= $req_d['id'];          
+            $entity 	= $this->{$level}->find()->where(['id' =>$node_id])->first();            
+            if($entity){
+                $this->{$level}->patchEntity($entity, $req_d); 
+                if ($this->{$level}->save($entity)) {                
+                	if($level == $this->tree_level_0){
+		            	$this->{'CloudAdmins'}->deleteAll(['CloudAdmins.cloud_id' => $node_id]);
+		            	if (array_key_exists('admins', $req_d)) {
+				            if(!empty($req_d['admins'])){
+				                foreach($req_d['admins'] as $e){
+				                    if($e != ''){
+				                        $e_ca = $this->{'CloudAdmins'}->newEntity(['cloud_id' => $node_id,'user_id' => $e]);
+				        				$this->{'CloudAdmins'}->save($e_ca);
+				                    }    
+				                }
+				            }
+				        }
+		          	}
+		          	                
+                    $this->set([
+                        'success' => true
+                    ]);
+                    $this->viewBuilder()->setOption('serialize', true);
+                } else {
+                    $message = __('Could not update item');
+                    $this->JsonErrors->entityErros($entity,$message);
+                }   
+            }
+        }
+    }
+        
     public function edit(){
 
         $user = $this->Aa->user_for_token($this);

@@ -13,6 +13,19 @@ Ext.define('Rd.store.sMtHotspotActives', {
             messageProperty : 'message',
             totalProperty   : 'totalCount' //Required for dynamic paging
         },
+        listeners: { 
+            exception: function(proxy, response, options) {
+                var jsonData = response.responseJson;
+                Ext.Msg.show({
+                    title       : "Error",
+                    msg         : response.request.url + '<br>' + response.status + ' ' + response.statusText+"<br>"+jsonData.message,
+                    modal       : true,
+                    buttons     : Ext.Msg.OK,
+                    icon        : Ext.Msg.ERROR,
+                    closeAction : 'destroy'
+                });
+            }
+        },
         simpleSortMode: true //This will only sort on one column (sort) and a direction(dir) value ASC or DESC
     },
     autoLoad: false
