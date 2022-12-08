@@ -21,6 +21,20 @@ class MikrotikApiComponent extends Component {
 		return $response[0];  
     }
     
+    public function kickPppoeId($config,$id){
+    	$client 	= new Client($config);
+    	$q  = new Query('/ppp/active/remove');
+		$q->equal('.id', $id);
+		$r  = $client->query($q)->read(); 
+    }
+    
+    public function kickHotspotId($config,$id){
+    	$client 	= new Client($config);
+    	$q  = new Query('/ip/hotspot/active/remove');
+		$q->equal('.id', $id);
+		$r  = $client->query($q)->read(); 
+    }
+      
     public function kickRadiusId($config,$id){
     	$client 	= new Client($config);
     	$q  = new Query('/ip/hotspot/active/remove');
@@ -35,13 +49,30 @@ class MikrotikApiComponent extends Component {
     	$called_station_id 	= $ent->calledstationid;
     	$mac_minus			= $ent->callingstationid;
     	$mac_colon			= str_replace("_",":",$mac_minus);
+    	$servicetype		= $ent->servicetype;
+    	$framedprotocol		= $ent->framedprotocol;
+    	
+    	//=== If they connected using the PPPoE server the following will be in the accounting record
+    	if(($servicetype == 'Framed-User' )&&($framedprotocol == 'PPP' )){
+    	
+			$query 		=  (new Query('/ppp/active/print'))
+						->where('mac-address', $mac_colon);
+												
+			$response = $client->query($query)->read();
+			foreach($response as $r){
+				$id = $r[".id"];
+				$q  = new Query('/ppp/active/remove');
+				$q->equal('.id', $id);
+				$r  = $client->query($q)->read(); 
+			}  	 	
+    	}
+    	  	
     	
     	//=== If they connected using the captive portal / hotspot
     	if(preg_match('/^hotspot/',$called_station_id)){ //We only look at calledstationid since the hotspot can potentially also be used through the LAN
     	
-    		$query 		= new Query('/system/resource/print');
 			$query 		=  (new Query('/ip/hotspot/active/print'))
-						->where('mac-address', '0C:C6:FD:7B:8B:AA');
+						->where('mac-address', $mac_colon);
 						
 			$response = $client->query($query)->read();
 			foreach($response as $r){
