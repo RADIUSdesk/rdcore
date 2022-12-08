@@ -46,7 +46,7 @@ class DynamicClientsController extends AppController{
         	$mt_data 	= $this->_getMtData($first['dynamic_client_id']);
         	foreach($cdata as $a){
         		$id = $a['id'];       	
-        		$this->MikrotikApi->kickRadiusId($mt_data,$id);
+        		$this->MikrotikApi->kickHotspotId($mt_data,$id);
         	}       	  
         }          
          $this->set([
@@ -63,6 +63,47 @@ class DynamicClientsController extends AppController{
         
         $mt_data 	= $this->_getMtData();            
       	$response 	= $this->MikrotikApi->getHotspotActive($mt_data);
+      	       
+        //___ FINAL PART ___
+        $this->set([
+        	'items'	 		=> $response,
+            'success' 		=> true,
+            'totalCount' 	=> count($response)
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);      
+    }
+    
+    public function deletePppoeActive(){
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
+        $cdata = $this->request->getData();        
+        if(isset($cdata[0])){
+        	$first 		= $cdata[0];
+        	$mt_data 	= $this->_getMtData($first['dynamic_client_id']);
+        	foreach($cdata as $a){
+        		$id = $a['id'];       	
+        		$this->MikrotikApi->kickPppoeId($mt_data,$id);
+        	}       	  
+        }          
+         $this->set([
+            'success' 		=> true,
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);       
+    }
+    
+    
+    
+    public function mtPppoeActive(){
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
+        $mt_data 	= $this->_getMtData();            
+      	$response 	= $this->MikrotikApi->getPppoeActive($mt_data);
       	       
         //___ FINAL PART ___
         $this->set([

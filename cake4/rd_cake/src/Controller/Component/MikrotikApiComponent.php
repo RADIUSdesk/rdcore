@@ -34,13 +34,6 @@ class MikrotikApiComponent extends Component {
 		$q->equal('.id', $id);
 		$r  = $client->query($q)->read(); 
     }
-      
-    public function kickRadiusId($config,$id){
-    	$client 	= new Client($config);
-    	$q  = new Query('/ip/hotspot/active/remove');
-		$q->equal('.id', $id);
-		$r  = $client->query($q)->read(); 
-    }
     
     public function kickRadius($ent,$config){
     	$client 	= new Client($config);
@@ -84,6 +77,13 @@ class MikrotikApiComponent extends Component {
     }
     
     public function getHotspotActive($config){
+    	$client 	= new Client($config);		
+		$query 		= new Query('/ip/hotspot/active/print');
+		$response 	= $client->query($query)->read();
+		return $response;      
+    }
+    
+    public function getPppoeActive($config){
     	$client 	= new Client($config);		
 		$query 		= new Query('/ip/hotspot/active/print');
 		$response 	= $client->query($query)->read();
