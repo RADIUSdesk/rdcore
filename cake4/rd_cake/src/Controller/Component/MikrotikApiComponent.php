@@ -48,7 +48,7 @@ class MikrotikApiComponent extends Component {
     	//We need to guess what connection the user used based on cetrain fields in the $ent record
     	$called_station_id 	= $ent->calledstationid;
     	$mac_minus			= $ent->callingstationid;
-    	$mac_colon			= str_replace("_",":",$mac_minus);
+    	$mac_colon			= str_replace("-",":",$mac_minus);
     	$servicetype		= $ent->servicetype;
     	$framedprotocol		= $ent->framedprotocol;
     	
@@ -56,8 +56,7 @@ class MikrotikApiComponent extends Component {
     	if(($servicetype == 'Framed-User' )&&($framedprotocol == 'PPP' )){
     	
 			$query 		=  (new Query('/ppp/active/print'))
-						->where('mac-address', $mac_colon);
-												
+						->where('caller-id', $mac_colon); //here the mac address is called the 'caller-id'												
 			$response = $client->query($query)->read();
 			foreach($response as $r){
 				$id = $r[".id"];
@@ -72,8 +71,7 @@ class MikrotikApiComponent extends Component {
     	if(preg_match('/^hotspot/',$called_station_id)){ //We only look at calledstationid since the hotspot can potentially also be used through the LAN
     	
 			$query 		=  (new Query('/ip/hotspot/active/print'))
-						->where('mac-address', $mac_colon);
-						
+						->where('mac-address', $mac_colon);						
 			$response = $client->query($query)->read();
 			foreach($response as $r){
 				$id = $r[".id"];
