@@ -1,17 +1,17 @@
-Ext.define('Rd.view.mikrotik.vcMtHotspotActive', {
+Ext.define('Rd.view.mikrotik.vcMtPppoeActive', {
     extend  : 'Ext.app.ViewController',
-    alias   : 'controller.vcMtHotspotActive',
+    alias   : 'controller.vcMtPppoeActive',
     init    : function() {
     
     },
     config: {
-        urlDelete       : '/cake4/rd_cake/dynamic-clients/delete-hotspot-active.json',
+        urlDelete       : '/cake4/rd_cake/dynamic-clients/delete-pppoe-active.json',
     },
     control: {
-        'gridMtHotspotActive #reload': {
+        'gridMtPppoeActive #reload': {
             click   : 'reload'
         },     
-        'gridMtHotspotActive #delete': {
+        'gridMtPppoeActive #delete': {
             click   : 'del'
         }
     },

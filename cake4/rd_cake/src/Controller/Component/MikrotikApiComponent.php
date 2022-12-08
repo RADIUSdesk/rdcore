@@ -85,7 +85,7 @@ class MikrotikApiComponent extends Component {
     
     public function getPppoeActive($config){
     	$client 	= new Client($config);		
-		$query 		= new Query('/ip/hotspot/active/print');
+		$query 		= new Query('/ppp/active/print');
 		$response 	= $client->query($query)->read();
 		return $response;      
     }

@@ -1,18 +1,18 @@
-Ext.define('Rd.view.mikrotik.gridMtHotspotActive' ,{
+Ext.define('Rd.view.mikrotik.gridMtPppoeActive' ,{
     extend		:'Ext.grid.Panel',
-    alias 		: 'widget.gridMtHotspotActive',
+    alias 		: 'widget.gridMtPppoeActive',
     multiSelect	: true,
     stateful	: true,
-    stateId		: 'MtHsActive',
+    stateId		: 'MtPpActive',
     stateEvents	:['groupclick','columnhide'],
     border		: false,
     requires	: [
         'Rd.view.components.ajaxToolbar',
         'Ext.toolbar.Paging',
         'Ext.ux.ProgressBarPager',
-        'Rd.view.mikrotik.vcMtHotspotActive',
+        'Rd.view.mikrotik.vcMtPppoeActive',
     ],
-    controller  : 'vcMtHotspotActive',
+    controller  : 'vcMtPppoeActive',
     viewConfig  : {
         loadMask    :true
     },
@@ -23,7 +23,7 @@ Ext.define('Rd.view.mikrotik.gridMtHotspotActive' ,{
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
         var me  = this;
-        me.store   = Ext.create('Rd.store.sMtHotspotActives');
+        me.store   = Ext.create('Rd.store.sMtPppoeActives');
         me.store.getProxy().setExtraParams({ 'id' : me.dynamic_client_id });
         me.store.load();
 

@@ -19,7 +19,7 @@ Ext.define('Rd.view.mikrotik.pnlMikrotikApi', {
             {
                 title               : 'PPPoE Active',
                 itemId              : 'tabMtPppoeActive',
-              //  xtype               : 'gridMtPppoeActive',
+                xtype               : 'gridMtPppoeActive',
                 dynamic_client_id   : me.dynamic_client_id,
                 padding             : Rd.config.gridSlim
             }

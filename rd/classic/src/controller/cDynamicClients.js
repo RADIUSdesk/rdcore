@@ -32,10 +32,11 @@ Ext.define('Rd.controller.cDynamicClients', {
         'dynamicClients.pnlDynamicClientGraphs',
         'mikrotik.pnlMikrotikApi',
         'mikrotik.gridMtHotspotActive',
+        'mikrotik.gridMtPppoeActive',
         'components.cmbNasTypes'
     ],
-    stores: ['sDynamicClients', 'sUnknownDynamicClients', 'sNasTypes', 'sMtHotspotActives' ],
-    models: [ 'mDynamicClient','mRealmForDynamicClientCloud', 'mUnknownDynamicClient','mDynamicClientState','mUserStat','mNasType', 'mMtHotspotActive' ],
+    stores: ['sDynamicClients', 'sUnknownDynamicClients', 'sNasTypes', 'sMtHotspotActives','sMtPppoeActives' ],
+    models: [ 'mDynamicClient','mRealmForDynamicClientCloud', 'mUnknownDynamicClient','mDynamicClientState','mUserStat','mNasType', 'mMtHotspotActive', 'mMtPppoeActive'  ],
     selectedRecord: null,
     config: {
         urlExportCsv    : '/cake4/rd_cake/dynamic-clients/export_csv',
