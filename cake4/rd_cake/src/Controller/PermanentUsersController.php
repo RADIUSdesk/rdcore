@@ -227,11 +227,6 @@ class PermanentUsersController extends AppController{
         $check_items = [
 			'active'
 		];
-		
-		//Default for account active if not in POST data
-		if(!$this->request->getData('active')){
-		    $req_d['active'] = 1;
-		}
 
         foreach($check_items as $i){
             if(isset($req_d[$i])){

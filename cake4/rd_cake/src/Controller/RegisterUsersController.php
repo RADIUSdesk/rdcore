@@ -14,6 +14,7 @@ class RegisterUsersController extends AppController {
         $this->loadModel('Profiles');
         $this->loadModel('Realms');
         $this->loadModel('PermanentUsers');
+        $this->loadModel('PermanentUserOtps');
         $this->loadModel('DynamicDetails');
         $this->loadModel('UserSettings');
         $this->loadModel('Clouds');
@@ -52,6 +53,7 @@ class RegisterUsersController extends AppController {
 			$this->viewBuilder()->setOption('serialize', true);
 			return; 
 		}
+		
 		
 
 		//--Do the MAC test --
@@ -193,6 +195,11 @@ class RegisterUsersController extends AppController {
             $postData['time_cap_type'] = $time_cap_in_profile;
         }
         
+        //== Dec 2022==
+        //We add OTP functinality reg_otp_sms or reg_otp_email
+        if(($q_r->reg_otp_sms)||($q_r->reg_otp_email)){
+        	unset($postData['active']); //With OTP user is disabled by default       
+        }
      
         $response = $this->_create_permanent_user($url, $postData);
 
@@ -214,7 +221,22 @@ class RegisterUsersController extends AppController {
 			if($q_r->reg_email){
 				$this->_email_user_detail($username,$password);
 			}
-						
+			
+			//IF we need to do OTP add an antry for the newly created (and disabled user in the PermanentUserOtps table)
+			if(($q_r->reg_otp_sms)||($q_r->reg_otp_email)){
+				$d_otp 			= [];
+				$d_otp['value']	= mt_rand(1111,9999);
+				$d_otp['permanent_user_id'] = $responseData['data']['id'];
+				$e_utp 			= $this->{'PermanentUserOtps'}->newEntity($d_otp);
+				$this->{'PermanentUserOtps'}->save($e_utp);
+				
+				$postData['otp_show'] = true; //**This will be the cue for the login page to pop-up the OTP Screen**
+				if($q_r->reg_otp_sms){
+					$this->_email_otp($username,$d_otp['value']);
+					$this->_sms_otp($username,$d_otp['value']);
+				}				
+			}
+									
 			//============== SMALL HACK 26 MAY 2022 ===============
 			//==== USE THIS TO ADD THE INITIAL DATA / TIME FOR USER REGISTRATION WITH **TOP-UP** PROFILES ====
 			//=====================================================
@@ -244,6 +266,13 @@ class RegisterUsersController extends AppController {
 		    ]);
 		    $this->viewBuilder()->setOption('serialize', true);
 		}
+	}
+	
+	public function otpSubmit(){	
+		$this->set([
+        'success'   => false,
+	    ]);
+	    $this->viewBuilder()->setOption('serialize', true);	
 	}
 
 	public function lostPassword(){
@@ -485,6 +514,16 @@ class RegisterUsersController extends AppController {
         }
         curl_close($ch);
         return $response;	
+	}
+	
+	private function _email_otp($username,$otp){
+	
+	
+	}
+	
+	private function _sms_otp($username,$otp){
+	
+	
 	}
 
 }

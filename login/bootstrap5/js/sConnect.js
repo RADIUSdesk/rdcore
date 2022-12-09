@@ -55,6 +55,7 @@ var sConnect = (function () {
         //!!!!  
 	    var urlAdd			= location.protocol+'//'+h+'/cake4/rd_cake/register-users/new-permanent-user.json';
 		var urlLostPw		= location.protocol+'//'+h+'/cake4/rd_cake/register-users/lost-password.json';
+		var urlOtp			= location.protocol+'//'+h+'/cake4/rd_cake/register-users/otp-submit.json';
 		//!!!!
         
         var req_class       = 'p-1 bg-secondary border';
@@ -89,6 +90,7 @@ var sConnect = (function () {
             $('#btnLostPwd').on('click',onBtnLostPwdClick);
             $('#btnLostPwdSms').on('click',onBtnLostPwdClickSms);   
             $('#btnCustInfo').on('click',onBtnCustInfoClick);
+            $('#btnOtp').on('click',onBtnOtpClick);
             
             //Social Login things
             if($('#btnFacebook') != undefined){
@@ -316,7 +318,7 @@ var sConnect = (function () {
         }
         
         var showCustInfo = function(){       
-            $("#myModal").modal('hide');      
+            $("#modalLogin").modal('hide');      
             if(!$("#pnlCustInfo").data('populate')){
                 populateCustInfo();
             }
@@ -689,9 +691,14 @@ var sConnect = (function () {
                 $.ajax({url: add_mac, method: "POST", dataType: "json",timeout: 3000,data: formData,processData: false,contentType: false})
                 .done(function(j){
                     if(j.success == true){ 
-                        $("#modalCustInfo").modal('hide');           
-                        $("#myModal").modal('show');
-                        onBtnClickToConnectClick(event); 
+                        $("#modalCustInfo").modal('hide');
+                        //FIXME THIS IS FOR ctc
+                        if(j.data.otp_show == true){
+                        	$("#modalOtp").modal('show');
+                        }else{           
+                        	$("#modalLogin").modal('show');
+                        	onBtnClickToConnectClick(event);
+                        }                         
                     }else{
                         console.log("PROBLEMS POSTING INFOR FOR MAC");
                           
@@ -1691,7 +1698,7 @@ var sConnect = (function () {
         }
         
         var onRegisterClick = function(){
-            $("#myModal").modal('hide');
+            $("#modalLogin").modal('hide');
             $("#modalRegister").modal('show');
             if(!$("#divRegister").data('populate')){
                 populateRegister();
@@ -1781,9 +1788,15 @@ var sConnect = (function () {
                         var r_password = data.data.password;
                         $("#txtUsername").val(r_username);
                         $("#txtPassword").val(r_password);
-                        //Hide reg / show login
+                        
+                        //Hide reg / show login OR otp modal
                         $("#modalRegister").modal('hide');
-                        $("#myModal").modal('show');               
+                        
+                        if(data.data.otp_show == true){
+                        	$("#modalOtp").modal('show');
+                        }else{                                               
+                        	$("#modalLogin").modal('show');
+                        }               
                     }else{
                         if(data.errors !== undefined){
                             msg = '';
@@ -1801,7 +1814,7 @@ var sConnect = (function () {
         }
                
         var onLostPasswordClick = function(){          
-            $("#myModal").modal('hide');
+            $("#modalLogin").modal('hide');
             if(cDynamicData.settings.lost_password_method == 'sms'){
                 //console.log("BB");
                 $("#modalLostPwdSms").modal('show');
@@ -1876,7 +1889,7 @@ var sConnect = (function () {
                     if(data.success){
                         //Hide reg / show login
                         $("#modalLostPwd").modal('hide');
-                        $("#myModal").modal('show');             
+                        $("#modalLogin").modal('show');             
                     }else{
                         $('#alertWarnLostPwd').html(data.message);
                         $('#alertWarnLostPwd').addClass('show');
@@ -1914,7 +1927,7 @@ var sConnect = (function () {
                         if(data.success){
                             //Hide reg / show login
                             $("#modalLostPwdSms").modal('hide');
-                            $("#myModal").modal('show');             
+                            $("#modalLogin").modal('show');             
                         }else{
                             $('#alertWarnLostPwdSms').html(data.message);
                             $('#alertWarnLostPwdSms').addClass('show');
@@ -1924,6 +1937,42 @@ var sConnect = (function () {
             form.classList.add('was-validated');
         }
         
+        var onBtnOtpClick = function(){
+            var form    = document.querySelector('#frmOtp');
+            $('#alertWarnOtp').addClass('hide');
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }else{ 
+                $('#btnOtp').button('loading');
+                $('#btnOtp').button('reset');
+            /*                       
+                var formData = {
+                    email   : $("#txtOtp").val()
+                };
+                             
+                $.ajax({
+                    type      : "POST",
+                    url       : urlOtp,
+                    data      : formData,
+                    dataType  : "json",
+                    encode    : true,
+                })
+                .done(function (data) {
+                    $('#btnOtp').button('reset');
+                    if(data.success){
+                        //Hide reg / show login
+                        $("#modalOtp").modal('hide');
+                        $("#modalLogin").modal('show');             
+                    }else{
+                        $('#alertWarnOtp').html(data.message);
+                        $('#alertWarnOtp').addClass('show');
+                    }
+                });*/
+            }
+            form.classList.add('was-validated');
+        }
+               
         var execRedirect    = function (redir_url) {
             if (redir_url != '' && redir_url != undefined) {
                 window.location = redir_url;

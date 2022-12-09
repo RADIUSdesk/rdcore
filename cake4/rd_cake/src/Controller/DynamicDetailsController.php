@@ -618,7 +618,10 @@ class DynamicDetailsController extends AppController{
             'show_logo',
 			'show_name',
 			'chilli_json_unavailable',
-			'chilli_use_chap'
+			'chilli_use_chap',
+			'reg_otp_sms',
+			'reg_otp_email'
+			
 	    ];
 	    
         foreach($check_items as $i){

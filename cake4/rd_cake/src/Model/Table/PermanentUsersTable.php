@@ -36,7 +36,9 @@ class PermanentUsersTable extends Table
             'cascadeCallbacks' =>true,
             'foreignKey' => 'username',
             'bindingKey' => 'username'
-        ]);        
+        ]);
+               
+        $this->hasOne('PermanentUserOtps', [ 'dependent' => true]);       
     }
     
     public function validationDefault(Validator $validator): Validator{

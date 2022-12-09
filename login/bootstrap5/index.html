@@ -77,7 +77,7 @@
         </main>
         
           
-        <div id='myModal' class="modal fade" data-bs-backdrop="static" tabindex="-1">
+        <div id='modalLogin' class="modal fade" data-bs-backdrop="static" tabindex="-1">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content"> 
                     <div class="modal-header">
@@ -256,6 +256,39 @@
           </div>
         </div>
         
+        <div class="modal fade" data-bs-backdrop="static" id="modalOtp" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" data-translate="sOtp">OTP</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form role="form" data-toggle="validator" id='frmOtp' class="requires-validation" novalidate>
+                  <div class="modal-body">                 
+                    <div class="container-fluid p-0" id='pnlOtp' data-populate="false">
+                        <div class="mb-3">
+                          <div class="alert alert-warning collapse" id='alertWarnOtp'>
+                             
+                          </div>
+                        </div>
+                        <!--We will dynamically APPEND components from here onwards programatically-->                         
+                        <div class="mb-3 p-1 bg-secondary border">
+		                    <input type="text" placeholder="OTP" class="form-control" id="txtOtp" minlength="4" pattern="^[0-9]{4}$" name="otp" required >
+		                    <div class="invalid-feedback">
+		                        OTP = 4 Digits
+		                    </div>
+                    	</div>`   
+                    </div> 
+                    <div class="d-grid gap-2 pt-2">
+                        <button type="button" class="btn btn-primary btn-block btn-lg" data-loading-text="sSubmit_Otp" id='btnOtp'><i class='bi-check'></i> <span data-translate="sSubmitOtp">Submit OTP</span></button>                   
+                    </div>    
+                  </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+
              
          <div class="modal fade" data-bs-backdrop="static" id="modalLostPwd" tabindex="-1">
           <div class="modal-dialog modal-dialog-centered">

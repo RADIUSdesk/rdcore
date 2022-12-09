@@ -71,12 +71,16 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailSettings', {
             pnl.down('#chkRegMacCheck').setDisabled(false);
             pnl.down('#chkRegAutoAdd').setDisabled(false);
             pnl.down('#chkRegEmail').setDisabled(false);
+            pnl.down('#chkRegOtpSms').setDisabled(false);
+            pnl.down('#chkRegOtpEmail').setDisabled(false);
          }else{
             pnl.down('cmbRealm').setDisabled(true);
             pnl.down('cmbProfile').setDisabled(true);
             pnl.down('#chkRegMacCheck').setDisabled(true);
             pnl.down('#chkRegAutoAdd').setDisabled(true);
             pnl.down('#chkRegEmail').setDisabled(true);
+            pnl.down('#chkRegOtpSms').setDisabled(true);
+            pnl.down('#chkRegOtpEmail').setDisabled(true);
          }  
     },
     onChkRegAutoSuffixChange: function(chk){

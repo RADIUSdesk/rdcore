@@ -63,8 +63,8 @@ var sDynamic = (function () {
                             }
                             stripe = ! stripe;
                         });
-                        $("#myModal .modal-body").html(item_string);
-                        $("#myModal").modal('show');
+                        $("#modalLogin .modal-body").html(item_string);
+                        $("#modalLogin").modal('show');
                     
                     }
                 })
@@ -117,8 +117,8 @@ var sDynamic = (function () {
         };
         
         function showLogin() {       
-            var myModal = new bootstrap.Modal(document.getElementById('myModal'));
-            myModal.show();
+            var modalLogin = new bootstrap.Modal(document.getElementById('modalLogin'));
+            modalLogin.show();
         }
         
         var eventBindings = function(){        

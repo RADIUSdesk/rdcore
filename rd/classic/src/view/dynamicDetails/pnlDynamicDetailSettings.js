@@ -449,7 +449,28 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailSettings', {
                     disabled    : true,
                     checked     : false,
                     cls         : 'lblRd'
-                }      
+                },
+                {
+                    xtype       : 'checkbox',      
+                    boxLabel    : 'OTP Using SMS',
+                    itemId      : 'chkRegOtpSms',
+                    name        : 'reg_otp_sms',
+                    inputValue  : 'reg_otp_sms',
+                    disabled    : true,
+                    checked     : false,
+                    cls         : 'lblRd'
+                },
+                {
+                    xtype       : 'checkbox',      
+                    boxLabel    : 'OTP Using Email',
+                    itemId      : 'chkRegOtpEmail',
+                    name        : 'reg_otp_email',
+                    inputValue  : 'reg_otp_email',
+                    disabled    : true,
+                    checked     : false,
+                    cls         : 'lblRd'
+                }
+    
             ]     
         }
         
