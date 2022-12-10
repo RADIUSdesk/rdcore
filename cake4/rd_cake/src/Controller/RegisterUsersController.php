@@ -5,6 +5,7 @@ namespace App\Controller;
 use Cake\Core\Configure;
 use Cake\Mailer\Mailer;
 use Cake\Http\Client;
+use Cake\I18n\FrozenTime;
 
 class RegisterUsersController extends AppController {
 
@@ -231,9 +232,12 @@ class RegisterUsersController extends AppController {
 				$this->{'PermanentUserOtps'}->save($e_utp);
 				
 				$postData['otp_show'] = true; //**This will be the cue for the login page to pop-up the OTP Screen**
-				if($q_r->reg_otp_sms){
+				$postData['id']		  = $responseData['data']['id']; //Send the ID of the newly created user in the reply
+				if($q_r->reg_email_sms){
 					$this->_email_otp($username,$d_otp['value']);
-					$this->_sms_otp($username,$d_otp['value']);
+				}
+				if($q_r->reg_otp_sms){
+					$this->_sms_otp($this->request->getData('phone'),$d_otp['value']);
 				}				
 			}
 									
@@ -268,9 +272,88 @@ class RegisterUsersController extends AppController {
 		}
 	}
 	
-	public function otpSubmit(){	
+	public function otpSubmit(){
+	
+		$p_data 	= $this->request->getData();		
+		$success 	= false;
+		$message	= "";
+				
+		if(isset($p_data['permanent_user_id'])){
+			$user_id 	= $p_data['permanent_user_id'];
+			$otp		= $p_data['otp'];
+			$q_r 		= $this->{'PermanentUserOtps'}->find()->where(['PermanentUserOtps.permanent_user_id' => $user_id])->first(); //There is supposed to be only one
+			if($q_r){			
+				$time = FrozenTime::now();
+				if($time > $q_r->modified->addMinutes(2)){ //We expire the OTP after two minutes
+					$message = "OTP Expired - Request New One Please";
+				}else{			
+					if($otp == $q_r->value){
+						$success = true;
+						$this->{'PermanentUserOtps'}->patchEntity($q_r, ['status' => 'otp_confirmed']);
+						$this->{'PermanentUserOtps'}->save($q_r);
+						//Activate the permanent user account
+						$q_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' =>$user_id])->first();
+						if($q_pu){
+							$this->{'PermanentUsers'}->patchEntity($q_pu, ['active' => 1]);
+							$this->{'PermanentUsers'}->save($q_pu);
+						} 					
+					}else{
+						$message = "OTP Mismatch - Try again";
+					}					
+				}
+			}
+		}
+			
 		$this->set([
-        'success'   => false,
+        'success'   => $success,
+        'message'	=> $message
+	    ]);
+	    $this->viewBuilder()->setOption('serialize', true);	
+	}
+	
+	public function otpRequest(){	
+		$p_data 	= $this->request->getData();
+		$message 	= '';
+		 		
+		if(isset($p_data['permanent_user_id'])){
+		
+			$user_id = $p_data['permanent_user_id'];
+			$dd_id   = $p_data['login_page_id'];
+			 
+			$value   = mt_rand(1111,9999);
+			//-> 1.) Update the OTP value
+			$q_r 	 = $this->{'PermanentUserOtps'}->find()->where(['PermanentUserOtps.permanent_user_id' => $user_id])->first();
+			if($q_r){
+				$this->{'PermanentUserOtps'}->patchEntity($q_r, ['value' => $value]);
+				$this->{'PermanentUserOtps'}->save($q_r);
+			}
+			//-> 2.) Get the way to send the OTP
+			$q_dd 	= $this->{'DynamicDetails'}->find()->where(['DynamicDetails.id' => $dd_id])->first();
+			if($q_dd){
+			
+				//Get the Permanent User's Detail
+				$q_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' =>$user_id])->first();
+				if($q_pu){
+				
+					$email = $q_pu->email;
+					$phone = $q_pu->phone;
+					
+								
+					if($q_dd->reg_email_sms){
+						$this->_email_otp($email,$d_otp['value']);
+						$message = "OTP sent to email";
+					}
+					if($q_dd->reg_otp_sms){
+						$this->_sms_otp($phone,$d_otp['value']);
+						$message = $message."<br>"."OTP sent with SMS";
+					}
+				}		
+			}			
+		}
+			
+		$this->set([
+        'success'   => true,
+        'message'	=> $message
 	    ]);
 	    $this->viewBuilder()->setOption('serialize', true);	
 	}
