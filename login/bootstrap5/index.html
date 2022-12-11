@@ -295,6 +295,47 @@
             </div>
           </div>
         </div>
+        
+        
+        <div class="modal fade" data-bs-backdrop="static" id="modalOtpCtc" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" data-translate="sOtpCtc">OTP Click To Connect</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <form role="form" data-toggle="validator" id='frmOtpCtc' class="requires-validation" novalidate>
+                  <div class="modal-body">                 
+                    <div class="container-fluid p-0" id='pnlOtpCtc' data-populate="false">
+                        <div class="mb-3">
+                          <div class="alert alert-warning collapse" id='alertWarnOtpCtc'>
+                             
+                          </div>
+                        </div>
+                        <div class="mb-3">
+                          <div class="alert alert-info collapse" id='alertInfoOtpCtc'>
+                             
+                          </div>
+                        </div>
+                        <!--We will dynamically APPEND components from here onwards programatically-->                         
+                        <div class="mb-3 p-1 bg-secondary border">
+		                    <input type="text" placeholder="OTP" class="form-control" id="txtOtpCtc" minlength="4" pattern="^[0-9]{4}$" name="otp" required >
+		                    <div class="invalid-feedback">
+		                        OTP = 4 Digits
+		                    </div>
+                    	</div>
+                    	<div class="pm-1" id='divReqOtpCtc'>
+                            <a class="p-0" id='aReqOtpCtc' href="#" data-translate='sRequestNewOtpCtc'>Request New Otp</a>
+                        </div> 
+                    </div> 
+                    <div class="d-grid gap-2 pt-2">
+                        <button type="button" class="btn btn-primary btn-block btn-lg" data-loading-text="sSubmit_Otp" id='btnOtp'><i class='bi-check'></i> <span data-translate="sSubmitOtp">Submit OTP</span></button>                   
+                    </div>    
+                  </div>
+              </form>
+            </div>
+          </div>
+        </div>
 
 
              
@@ -425,11 +466,11 @@
         <script src="js/sDynamic.js"></script>
         <script>
         
-        console.log(Cookies.get('i18n'));
-        if(Cookies.get('i18n') !== undefined){
-            i18n = Cookies.get('i18n');
+        console.log(Cookies.get('s_i18n'));
+        if(Cookies.get('s_i18n') !== undefined){
+            s_i18n = Cookies.get('s_i18n');
         }else{
-            var i18n = 'en_GB';
+            var s_i18n = 'en_GB';
             function getByName(name) {
                name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
                var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -438,13 +479,13 @@
             }
             var i    = getByName('i18n');
             if(i !== ''){
-                i18n = i;
+                s_i18n = i;
             }
         }
         
          $(document).ready(function(){
          
-            if(i18n == 'ar_AR'){
+            if(s_i18n == 'ar_AR'){
                 $('#htmlMain').attr('dir','rtl');
                 $('#htmlMain').attr('lang','ar');
                 //RTL Stylesheet
@@ -464,7 +505,7 @@
                 */              
             }
                
-             $.getScript( "js/rd_i18n/"+i18n+".js").done(function( script, textStatus ) {
+             $.getScript( "js/rd_i18n/"+s_i18n+".js").done(function( script, textStatus ) {
                 //Load the rest - The phrases are in                
                 $.getScript( "js/i18n.js").done(function( script, textStatus ) {
                     var d = sDynamic({});

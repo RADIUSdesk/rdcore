@@ -12,7 +12,8 @@ class DataCollectorsTable extends Table
         $this->belongsTo('DynamicDetails', [
             'className' => 'DynamicDetails',
             'foreignKey' => 'dynamic_detail_id'
-        ]);  
+        ]);
+        $this->hasOne('DataCollectorOtps', [ 'dependent' => true]);     
     }
        
 }

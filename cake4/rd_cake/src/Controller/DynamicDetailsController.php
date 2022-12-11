@@ -731,6 +731,8 @@ class DynamicDetailsController extends AppController{
 			'ci_custom2_required',
 			'ci_custom3',
 			'ci_custom3_required',
+			'ci_phone_otp',
+			'ci_email_otp'			
 		];
         foreach($check_items as $i){
             if(isset($req_d[$i])){

@@ -16,6 +16,12 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailClickToConnect', {
         },
         '#chkCustInfo' : {
             change: 'chkCustInfoChange'    
+        },
+        '#chkCtcPhoneOtp' : {
+            change:  'chkCtcPhoneOtpChange' 
+        },
+        '#chkCtcEmailOtp' : {
+            change:  'chkCtcEmailOtpChange' 
         }
     },
     onViewActivate: function(){
@@ -63,11 +69,6 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailClickToConnect', {
         var value   = chk.getValue();     
         pnl.query('field').forEach(function(item){
             var n   = item.getName();
-            //var cmp = pnl.query("[name='ci_email_required']");
-            //console.log(cmp);
-            //if(cmp[0]){
-            //    cmp[0].setDisabled(true);
-           //}
             if(value){ 
                 item.setDisabled(false);     
             }else{
@@ -152,5 +153,25 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailClickToConnect', {
 		        pnlC.down('#pnlCustom3').setDisabled(false);   
 		    }		    
 		}
-	}
+	},
+    chkCtcPhoneOtpChange: function(chk){
+        var me      = this;
+        var form    = chk.up('form');
+        var value   = chk.getValue();
+        var pnl     = form.down('#Phone');
+        var req     = pnl.down('#sldrRequire');
+        if(value){
+            req.setValue(true); //Make it required if not already made required
+        }
+    },
+    chkCtcEmailOtpChange: function(chk){
+        var me      = this;
+        var form    = chk.up('form');
+        var value   = chk.getValue();
+        var pnl     = form.down('#Email');
+        var req     = pnl.down('#sldrRequire');
+        if(value){
+            req.setValue(true); //Make it required if not already made required
+        }
+    }
 });

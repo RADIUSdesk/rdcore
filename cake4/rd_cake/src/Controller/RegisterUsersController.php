@@ -316,10 +316,9 @@ class RegisterUsersController extends AppController {
 		$message 	= '';
 		 		
 		if(isset($p_data['permanent_user_id'])){
-		
+			
 			$user_id = $p_data['permanent_user_id'];
-			$dd_id   = $p_data['login_page_id'];
-			 
+			$dd_id   = $p_data['login_page_id'];		 
 			$value   = mt_rand(1111,9999);
 			//-> 1.) Update the OTP value
 			$q_r 	 = $this->{'PermanentUserOtps'}->find()->where(['PermanentUserOtps.permanent_user_id' => $user_id])->first();
@@ -330,22 +329,21 @@ class RegisterUsersController extends AppController {
 			//-> 2.) Get the way to send the OTP
 			$q_dd 	= $this->{'DynamicDetails'}->find()->where(['DynamicDetails.id' => $dd_id])->first();
 			if($q_dd){
-			
+					
 				//Get the Permanent User's Detail
 				$q_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' =>$user_id])->first();
 				if($q_pu){
 				
 					$email = $q_pu->email;
-					$phone = $q_pu->phone;
-					
+					$phone = $q_pu->phone;					
 								
-					if($q_dd->reg_email_sms){
-						$this->_email_otp($email,$d_otp['value']);
-						$message = "OTP sent to email";
+					if($q_dd->reg_otp_email){
+						$this->_email_otp($email,$value);
+						$message = "New OTP sent to email";
 					}
 					if($q_dd->reg_otp_sms){
-						$this->_sms_otp($phone,$d_otp['value']);
-						$message = $message."<br>"."OTP sent with SMS";
+						$this->_sms_otp($phone,$value);
+						$message = $message."<br>"."New OTP sent with SMS";
 					}
 				}		
 			}			

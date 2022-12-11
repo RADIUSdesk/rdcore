@@ -15,7 +15,8 @@ class DataCollectorsController extends AppController{
   
     public function initialize():void{  
         parent::initialize(); 
-        $this->loadModel($this->main_model);   
+        $this->loadModel($this->main_model);
+        $this->loadModel('DataCollectorOtps'); 
         $this->loadModel('DynamicDetails');
         $this->loadModel('DynamicPairs');      
         $this->loadComponent('Aa');
@@ -42,20 +43,41 @@ class DataCollectorsController extends AppController{
             $data['dd_id']  = $dd_id;          
             if($q_r->dynamic_detail->dynamic_detail_ctc->cust_info_check == true){
             
+            	$ci_phone_otp = $q_r->dynamic_detail->dynamic_detail_ctc->ci_phone_otp;
+            	$ci_email_otp = $q_r->dynamic_detail->dynamic_detail_ctc->ci_email_otp;
+            
                 if($dd_resuply_int == -1){
                     $data['ci_required'] = true; // Every time == -1 //No need to check if expired
                 }else{       
                     $q_dd = $this->{$this->main_model}->find()
                         ->where([$this->main_model.'.dynamic_detail_id' => $dd_id,$this->main_model.'.mac' => $data['mac']])
-                        ->order(['modified' => 'DESC']) //Get the most recent one 
+                        ->order([$this->main_model.'.modified' => 'DESC']) //Get the most recent one 
+                        ->contain(['DataCollectorOtps'])
                         ->first();
                     if($q_dd){
+                    
+                    	if(($ci_phone_otp)||($ci_email_otp)){
+                    		if($q_dd->data_collector_otp){
+                    			if($q_dd->data_collector_otp->status == 'otp_awaiting'){ //If it was not confirmed yed
+                    				$data['otp_show'] 			= true;
+                    				$data['data_collector_id'] 	= $q_dd->data_collector_otp->data_collector_id;
+                    			}
+                    		}
+                    	}                    
+                    
                         if($dd_resuply_int > 0){ //This has an expiry date lets compare           
                             $expiry_time    = $q_dd->modified->toUnixString()+($dd_resuply_int * 24 * 60 *60);
                             $now            = new FrozenTime();
                             if($expiry_time < $now->toUnixString()){
                                 //It already expired ask for a new one
                                 $data['ci_required'] = true;
+                                //Unset these since we actually need new input from the user so OTP not relevant any more
+                                if(isset($data['otp_show'])){
+                                	unset($data['otp_show']);
+                                }
+                                if(isset($data['data_collector_id'])){
+                                	unset($data['data_collector_id']);
+                                }
                             }   
                         }
                     }else{
@@ -81,7 +103,8 @@ class DataCollectorsController extends AppController{
             }
             $req_d		= $this->request->getData();
             $dd 		= $this->_find_dynamic_detail_id();
-            
+            $ctc		= $dd->dynamic_detail->dynamic_detail_ctc;
+                        
             if(!$dd){
                 $this->set([
                     'errors'    => ['email' => "Dynamic Login Page Not Found"],
@@ -97,24 +120,33 @@ class DataCollectorsController extends AppController{
             $req_d['public_ip'] = $this->request->clientIp();
             $req_d['is_mobile'] = $this->request->isMobile();
             
-            //See if there are not perhaps one already that just needs refreshing
-            //== Record EVERY TIME ==
-          /*  $q_dd = $this->{$this->main_model}->find()
-                    ->where([
-                        $this->main_model.'.dynamic_detail_id' => $dd->dynamic_detail->id,
-                        $this->main_model.'.mac' => $req_d['mac']
-                    ])
-                    ->first();
-            if($q_dd){
-                $this->{$this->main_model}->patchEntity($q_dd, $req_d);
-                $this->{$this->main_model}->save($q_dd);
-            }else{ */     
-                $entity = $this->{$this->main_model}->newEntity($req_d);
-                $this->{$this->main_model}->save($entity);
-          //  }
+            //== Record EVERY TIME == 
+            $entity = $this->{$this->main_model}->newEntity($req_d);
+            $this->{$this->main_model}->save($entity);
             
+            //--OTP Related --- 
+            $data     			= [];
+            $data['otp_show'] 	= false;
+            
+            if(($ctc->ci_phone_otp)||($ctc->email_otp)){
+            	$value = mt_rand(1111,9999);
+            	$d_otp = [
+            		'data_collector_id'	=> $entity->id,
+            		'value'				=> $value           			
+            	];
+            	$e_otp 	= $this->{'DataCollectorOtps'}->newEntity($d_otp);
+				$this->{'DataCollectorOtps'}->save($e_otp);
+				$data['otp_show'] 	= true;
+				$data['data_collector_id'] = $entity->id;
+				
+            	//FIXME SEND OTP VIA EMAIL OR SMS
+            
+            }          
+            //-- END OTP Related ---
+          
             $this->set([
-                'success' => true
+                'success' 	=> true,
+                'data'		=> $data
             ]);
             $this->viewBuilder()->setOption('serialize', true);
         }    

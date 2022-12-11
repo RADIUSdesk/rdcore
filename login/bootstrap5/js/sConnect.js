@@ -80,6 +80,8 @@ var sConnect = (function () {
                 };
             }(jQuery));
             //--END Plugin for button--
+
+            console.log(i18n);
                 
             $('#frmLogin').on('keyup',onFrmLoginKeydown);           
             $("#btnConnect").on("click", onBtnConnectClick );
@@ -303,8 +305,10 @@ var sConnect = (function () {
                 $.ajax({url: email_check, method: "POST", dataType: "json",timeout: 3000,data: {'mac': mac_address, 'nasid': nasid}})
                 .done(function(j){
                     if(j.success == true){
-                        if(j.data.ci_required == true){
-                            console.log("Gooi hom");
+                        if(j.data.otp_show == true){
+                            $("#modalLogin").modal('hide');
+                        	$("#modalOtpCtc").modal('show');
+                        }else if(j.data.ci_required == true){
                             showCustInfo();
                         }else{
                             onBtnClickToConnectClick(event);
@@ -690,21 +694,23 @@ var sConnect = (function () {
                 if(ssid !== ''){
                     formData.append('ssid',ssid);
                 }
+
+                formData.append('i18n',s_i18n);
             
-                $.ajax({url: add_mac, method: "POST", dataType: "json",timeout: 3000,data: formData,processData: false,contentType: false})
-                .done(function(j){
+                $.ajax({
+                    url: add_mac, method: "POST", dataType: "json",timeout: 3000,data: formData,processData: false,contentType: false
+                }).done(function(j){
                     if(j.success == true){ 
                         $("#modalCustInfo").modal('hide');
                         //FIXME THIS IS FOR ctc
                         if(j.data.otp_show == true){
-                        	$("#modalOtp").modal('show');
+                        	$("#modalOtpCtc").modal('show');
                         }else{           
                         	$("#modalLogin").modal('show');
-                        	onBtnClickToConnectClick(event);
+                        	onBtnClickToConnectClick(event); //Fire the click to Connect Button's Click event
                         }                         
                     }else{
-                        console.log("PROBLEMS POSTING INFOR FOR MAC");
-                          
+                        console.log("PROBLEMS POSTING INFOR FOR MAC");                          
                     }         
                 })
                 .fail(function(){

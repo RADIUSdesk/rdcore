@@ -197,7 +197,8 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailClickToConnect', {
                         xtype       : 'pnlDynamicDetailCustomerItem',
                         name        : 'ci_email',
                         stripe      : stripe,
-                        itemName    : 'Email' 
+                        itemName    : 'Email',
+                        itemId      : 'Email' 
                     },
                     {
                         xtype       : 'panel',
@@ -212,6 +213,14 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailClickToConnect', {
                         //bodyStyle   : 'background: #d1e0e0', //NO stripe
                         bodyPadding : 0,
                         items       : [
+                            {
+                                xtype       : 'checkbox',      
+                                fieldLabel  : 'Confirm with OTP',
+                                itemId      : 'chkCtcEmailOtp',
+                                name        : 'ci_email_otp',
+                                inputValue  : 'ci_email_otp',
+                                checked     : false
+                            },
                             {
                                 xtype       : 'checkbox',      
                                 fieldLabel  : 'Show Email Opt-In',
@@ -272,7 +281,8 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailClickToConnect', {
                         xtype       : 'pnlDynamicDetailCustomerItem',
                         name        : 'ci_phone',
                         stripe      : !stripe,
-                        itemName    : 'Phone' 
+                        itemName    : 'Phone',
+                        itemId      : 'Phone' 
                     },
                     {
                         xtype       : 'panel',
@@ -287,6 +297,14 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailClickToConnect', {
                         bodyStyle   : 'background: #d1e0e0', //NO stripe
                         bodyPadding : 0,
                         items       : [
+                            {
+                                xtype       : 'checkbox',      
+                                fieldLabel  : 'Confirm with OTP',
+                                itemId      : 'chkCtcPhoneOtp',
+                                name        : 'ci_phone_otp',
+                                inputValue  : 'ci_phone_otp',
+                                checked     : false
+                            },
                             {
                                 xtype       : 'checkbox',      
                                 fieldLabel  : 'Show SMS Opt-In',

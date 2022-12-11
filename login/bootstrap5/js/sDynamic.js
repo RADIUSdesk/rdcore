@@ -146,7 +146,7 @@ var sDynamic = (function () {
                     var ci = $($di);
                     ci.on("click",function(e,f,g){
                         //console.log($( e.target ).attr("data-language-id"));
-                        Cookies.set('i18n', $( e.target ).attr("data-language-id"));
+                        Cookies.set('s_i18n', $( e.target ).attr("data-language-id"));
 					    location.reload();
                     });
                     $menu_item.append(ci);                                
