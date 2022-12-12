@@ -58,9 +58,20 @@ class DataCollectorsController extends AppController{
                     
                     	if(($ci_phone_otp)||($ci_email_otp)){
                     		if($q_dd->data_collector_otp){
-                    			if($q_dd->data_collector_otp->status == 'otp_awaiting'){ //If it was not confirmed yed
+                    			if($q_dd->data_collector_otp->status == 'otp_awaiting'){ //If it was not confirmed yet
+                    			
+                    				$message = '';
+                    				//Construct the message
+                    				if($ci_phone_otp){
+                    					$message = "OTP Sent to ".$q_dd->phone."<br>";
+                    				}
+                    				if($ci_email_otp){
+                    					$message = $message."OTP Sent to ".$q_dd->email;
+                    				}
+                    			
                     				$data['otp_show'] 			= true;
                     				$data['data_collector_id'] 	= $q_dd->data_collector_otp->data_collector_id;
+                    				$data['message']			= $message;
                     			}
                     		}
                     	}                    
@@ -139,6 +150,14 @@ class DataCollectorsController extends AppController{
 				$data['otp_show'] 	= true;
 				$data['data_collector_id'] = $entity->id;
 				
+				if($ctc->ci_phone_otp){
+					$message = "OTP Sent to ".$entity->phone."<br>";
+				}
+				if($ctc->ci_email_otp){
+					$message = $message."OTP Sent to ".$entity->email;
+				}
+				$data['message'] = $message;
+				
             	//FIXME SEND OTP VIA EMAIL OR SMS
             
             }          
@@ -151,6 +170,85 @@ class DataCollectorsController extends AppController{
             $this->viewBuilder()->setOption('serialize', true);
         }    
     }
+    
+    public function otpSubmit(){
+	
+		$p_data 	= $this->request->getData();		
+		$success 	= false;
+		$message	= "";
+				
+		if(isset($p_data['data_collector_id'])){
+			$data_id 	= $p_data['data_collector_id'];
+			$otp		= $p_data['otp'];
+			$q_r 		= $this->{'DataCollectorOtps'}->find()->where(['DataCollectorOtps.data_collector_id' => $data_id])->first(); //There is supposed to be only one
+			if($q_r){		
+				$time = FrozenTime::now();
+				if($time > $q_r->modified->addMinutes(2)){ //We expire the OTP after two minutes
+					$message = "OTP Expired - Request New One Please";
+				}else{			
+					if($otp == $q_r->value){
+						$success = true;
+						$this->{'DataCollectorOtps'}->patchEntity($q_r, ['status' => 'otp_confirmed']);
+						$this->{'DataCollectorOtps'}->save($q_r);					
+					}else{
+						$message = "OTP Mismatch - Try again";
+					}					
+				}
+			}
+		}			
+		$this->set([
+        'success'   => $success,
+        'message'	=> $message
+	    ]);
+	    $this->viewBuilder()->setOption('serialize', true);	
+	}
+	
+	public function otpRequest(){	
+		$p_data 	= $this->request->getData();
+		$message 	= '';
+		 		
+		if(isset($p_data['data_collector_id'])){
+			
+			$data_id = $p_data['data_collector_id'];
+			$dd_id   = $p_data['login_page_id'];		 
+			$value   = mt_rand(1111,9999);
+			//-> 1.) Update the OTP value
+			$q_r 	 = $this->{'DataCollectorOtps'}->find()->where(['DataCollectorOtps.data_collector_id' => $data_id])->first();
+			if($q_r){
+				$this->{'DataCollectorOtps'}->patchEntity($q_r, ['value' => $value]);
+				$this->{'DataCollectorOtps'}->save($q_r);
+			}
+			//-> 2.) Get the way to send the OTP
+			/*$q_dd 	= $this->{'DynamicDetails'}->find()->where(['DynamicDetails.id' => $dd_id])->first();
+			if($q_dd){
+					
+				//Get the Permanent User's Detail
+				$q_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' =>$user_id])->first();
+				if($q_pu){
+				
+					$email = $q_pu->email;
+					$phone = $q_pu->phone;					
+								
+					if($q_dd->reg_otp_email){
+						$this->_email_otp($email,$value);
+						$message = "New OTP sent to email";
+					}
+					if($q_dd->reg_otp_sms){
+						$this->_sms_otp($phone,$value);
+						$message = $message."<br>"."New OTP sent with SMS";
+					}
+				}		
+			}*/
+			$message = $message."<br>"."New OTP sent with SMS";			
+		}
+			
+		$this->set([
+        'success'   => true,
+        'message'	=> $message
+	    ]);
+	    $this->viewBuilder()->setOption('serialize', true);	
+	}
+	
     
      public function exportCsv(){
 

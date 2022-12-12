@@ -57,7 +57,10 @@ var sConnect = (function () {
 		var urlLostPw		= location.protocol+'//'+h+'/cake4/rd_cake/register-users/lost-password.json';
 		var urlOtp			= location.protocol+'//'+h+'/cake4/rd_cake/register-users/otp-submit.json';
 		var urlReqOtp	    = location.protocol+'//'+h+'/cake4/rd_cake/register-users/otp-request.json';
+        var urlOtpCtc		= location.protocol+'//'+h+'/cake4/rd_cake/data-collectors/otp-submit.json';
+		var urlReqOtpCtc    = location.protocol+'//'+h+'/cake4/rd_cake/data-collectors/otp-request.json';
 		var regUserId		= undefined;
+        var dataColId       = undefined;
 		//!!!!
         
         var req_class       = 'p-1 bg-secondary border';
@@ -80,9 +83,7 @@ var sConnect = (function () {
                 };
             }(jQuery));
             //--END Plugin for button--
-
-            console.log(i18n);
-                
+              
             $('#frmLogin').on('keyup',onFrmLoginKeydown);           
             $("#btnConnect").on("click", onBtnConnectClick );
             $("#btnDisconnect").on("click", onBtnDisconnectClick );
@@ -95,7 +96,9 @@ var sConnect = (function () {
             $('#btnLostPwdSms').on('click',onBtnLostPwdClickSms);   
             $('#btnCustInfo').on('click',onBtnCustInfoClick);
             $('#btnOtp').on('click',onBtnOtpClick);
-            $("#aReqOtp").on("click", onReqOtpClick)
+            $("#aReqOtp").on("click", onReqOtpClick);
+            $('#btnOtpCtc').on('click',onBtnOtpCtcClick);
+            $("#aReqOtpCtc").on("click", onReqOtpCtcClick)
             
             //Social Login things
             if($('#btnFacebook') != undefined){
@@ -307,7 +310,10 @@ var sConnect = (function () {
                     if(j.success == true){
                         if(j.data.otp_show == true){
                             $("#modalLogin").modal('hide');
+                            $('#alertInfoOtpCtc').html(j.data.message);
+                            $('#alertInfoOtpCtc').addClass('show');
                         	$("#modalOtpCtc").modal('show');
+                            dataColId = j.data.data_collector_id; //Set the DataCollectorId so we can submit the OTP for correct item
                         }else if(j.data.ci_required == true){
                             showCustInfo();
                         }else{
@@ -704,7 +710,10 @@ var sConnect = (function () {
                         $("#modalCustInfo").modal('hide');
                         //FIXME THIS IS FOR ctc
                         if(j.data.otp_show == true){
+                            $('#alertInfoOtpCtc').html(j.data.message);
+                            $('#alertInfoOtpCtc').addClass('show');
                         	$("#modalOtpCtc").modal('show');
+                            dataColId = j.data.data_collector_id; //Set the DataCollectorId so we can submit the OTP for correct item
                         }else{           
                         	$("#modalLogin").modal('show');
                         	onBtnClickToConnectClick(event); //Fire the click to Connect Button's Click event
@@ -1948,6 +1957,7 @@ var sConnect = (function () {
             form.classList.add('was-validated');
         }
         
+        //== Register Users OTP==
         var onBtnOtpClick = function(){
             var form    = document.querySelector('#frmOtp');
             $('#alertWarnOtp').addClass('hide');
@@ -1955,12 +1965,11 @@ var sConnect = (function () {
                 event.preventDefault()
                 event.stopPropagation()
             }else{ 
-                $('#btnOtp').button('loading');
-                $('#btnOtp').button('reset');
-                                   
+                $('#btnOtp').button('loading');                                  
                 var formData = {
                     otp   				: $("#txtOtp").val(),
-                    permanent_user_id 	: regUserId
+                    permanent_user_id 	: regUserId,
+                    i18n                : s_i18n
                 };
                              
                 $.ajax({
@@ -1989,7 +1998,8 @@ var sConnect = (function () {
         	console.log("Request OTP Clicked");
         	var formData = {
                 permanent_user_id 	: regUserId,
-                login_page_id 		: cDynamicData.detail.id //We send it along so we can determine how send the OTP (sms or email)
+                login_page_id 		: cDynamicData.detail.id, //We send it along so we can determine how send the OTP (sms or email)
+                i18n                : s_i18n
             };       	
         	$.ajax({
                 type      : "POST",
@@ -2009,7 +2019,73 @@ var sConnect = (function () {
                 }
             });            
         }
-                       
+
+        //== CTC OTP ==
+        var onBtnOtpCtcClick = function(){
+            var form    = document.querySelector('#frmOtpCtc');
+            $('#alertWarnOtpCtc').addClass('hide');
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }else{ 
+                $('#btnOtpCtc').button('loading');                                  
+                var formData = {
+                    otp   				: $("#txtOtpCtc").val(),
+                    data_collector_id 	: dataColId,
+                    i18n                : s_i18n
+                };
+                             
+                $.ajax({
+                    type      : "POST",
+                    url       : urlOtpCtc,
+                    data      : formData,
+                    dataType  : "json",
+                    encode    : true,
+                })
+                .done(function (data) {
+                    $('#btnOtpCtc').button('reset');
+                    if(data.success){
+                        //Hide reg / show login
+                        $("#modalOtpCtc").modal('hide');
+                        $("#modalLogin").modal('show');
+                        //FIXME submit the click to connect again              
+                    }else{
+                        $('#alertWarnOtpCtc').html(data.message);
+                        $('#alertWarnOtpCtc').addClass('show');
+                        $('#alertInfoOtpCtc').removeClass('show');
+                    }
+                });
+            }
+            form.classList.add('was-validated');
+        }
+
+        var onReqOtpCtcClick = function(){               
+        	console.log("Request OTP Ctc Clicked");
+        	var formData = {
+                data_collector_id 	: dataColId,
+                login_page_id 		: cDynamicData.detail.id, //We send it along so we can determine how send the OTP (sms or email)
+                i18n                : s_i18n
+            };       	
+        	$.ajax({
+                type      : "POST",
+                url       : urlReqOtpCtc,
+                data      : formData,
+                dataType  : "json",
+                encode    : true,
+            })
+            .done(function (data) {
+                if(data.success){
+                    //Hide reg / show login
+                    $('#alertWarnOtpCtc').removeClass('show');
+            		$('#alertInfoOtpCtc').html(data.message);
+                    $('#alertInfoOtpCtc').addClass('show');
+                }else{
+                    $('#alertWarnOtpCtc').html(data.message);
+                    $('#alertWarnOtpCtc').addClass('show');
+                }
+            });            
+        }
+                      
         var execRedirect    = function (redir_url) {
             if (redir_url != '' && redir_url != undefined) {
                 window.location = redir_url;
