@@ -1,0 +1,661 @@
+# LANGUAGE translation of CakePHP Application
+# Copyright YEAR NAME <EMAIL@ADDRESS>
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"POT-Creation-Date: 2022-12-12 11:28+0000\n"
+"PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
+"Last-Translator: NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: ./src/Controller/AccessProvidersController.php:235
+#: ./src/Controller/AccessProvidersController.php:438
+#: ./src/Controller/ApProfilesController.php:147
+#: ./src/Controller/ApProfilesController.php:263
+#: ./src/Controller/ApProfilesController.php:660
+#: ./src/Controller/ApProfilesController.php:1868
+#: ./src/Controller/ApProfilesController.php:2230
+#: ./src/Controller/DevicesController.php:249
+#: ./src/Controller/DevicesController.php:435
+#: ./src/Controller/DynamicDetailsController.php:558
+#: ./src/Controller/DynamicDetailsController.php:1322
+#: ./src/Controller/MeshesController.php:326
+#: ./src/Controller/MeshesController.php:937
+#: ./src/Controller/MeshesController.php:2144
+#: ./src/Controller/PermanentUsersController.php:251
+#: ./src/Controller/PermanentUsersController.php:493
+#: ./src/Controller/ProfileComponentsController.php:145
+#: ./src/Controller/ProfileComponentsController.php:162
+#: ./src/Controller/RadpostauthsController.php:203
+#: ./src/Controller/RealmsController.php:233
+#: ./src/Controller/TopUpsController.php:221
+#: ./src/Controller/VouchersController.php:659
+msgid "Could not create item"
+msgstr ""
+
+#: ./src/Controller/AlertsController.php:172
+#: ./src/Controller/AlertsController.php:222
+#: ./src/Controller/ApActionsController.php:242
+#: ./src/Controller/ApProfilesController.php:184
+#: ./src/Controller/DataCollectorsController.php:488
+#: ./src/Controller/DevicesController.php:479
+#: ./src/Controller/DynamicDetailTranslationsController.php:667
+#: ./src/Controller/NaStatesController.php:172
+#: ./src/Controller/NodeActionsController.php:238
+#: ./src/Controller/OpenvpnServersController.php:269
+#: ./src/Controller/PermanentUsersController.php:556
+#: ./src/Controller/PredefinedCommandsController.php:227
+#: ./src/Controller/ProfileComponentsController.php:317
+#: ./src/Controller/RadacctsController.php:383
+#: ./src/Controller/RadpostauthsController.php:237
+#: ./src/Controller/SchedulesController.php:208
+#: ./src/Controller/SchedulesController.php:390
+#: ./src/Controller/TopUpsController.php:264
+#: ./src/Controller/VouchersController.php:702
+msgid "Could not delete some items"
+msgstr ""
+
+#: ./src/Controller/ApActionsController.php:164
+#: ./src/Controller/ApActionsController.php:208
+#: ./src/Controller/ApProfilesController.php:596
+#: ./src/Controller/ApProfilesController.php:771
+#: ./src/Controller/ApProfilesController.php:1248
+#: ./src/Controller/ApsController.php:198
+#: ./src/Controller/ApsController.php:213
+#: ./src/Controller/CloudsController.php:1094
+#: ./src/Controller/CloudsController.php:1133
+#: ./src/Controller/CloudsController.php:1179
+#: ./src/Controller/Component/UnknownsComponent.php:99
+#: ./src/Controller/DataCollectorsController.php:454
+#: ./src/Controller/DevicesController.php:418
+#: ./src/Controller/DynamicDetailTranslationsController.php:529
+#: ./src/Controller/DynamicDetailTranslationsController.php:586
+#: ./src/Controller/DynamicDetailTranslationsController.php:919
+#: ./src/Controller/DynamicDetailTranslationsController.php:947
+#: ./src/Controller/DynamicDetailsController.php:592
+#: ./src/Controller/DynamicDetailsController.php:675
+#: ./src/Controller/DynamicDetailsController.php:773
+#: ./src/Controller/DynamicDetailsController.php:1366
+#: ./src/Controller/HardwaresController.php:218
+#: ./src/Controller/MeshesController.php:190
+#: ./src/Controller/MeshesController.php:616
+#: ./src/Controller/MeshesController.php:661
+#: ./src/Controller/MeshesController.php:874
+#: ./src/Controller/MeshesController.php:1157
+#: ./src/Controller/MeshesController.php:2467
+#: ./src/Controller/NodeActionsController.php:159
+#: ./src/Controller/NodeActionsController.php:204
+#: ./src/Controller/NodesController.php:158
+#: ./src/Controller/NodesController.php:176
+#: ./src/Controller/OpenvpnServersController.php:237
+#: ./src/Controller/PermanentUsersController.php:403
+#: ./src/Controller/PermanentUsersController.php:460
+#: ./src/Controller/PredefinedCommandsController.php:195
+#: ./src/Controller/ProfileComponentsController.php:411
+#: ./src/Controller/ProfilesController.php:322
+#: ./src/Controller/ProfilesController.php:443
+#: ./src/Controller/SchedulesController.php:172
+#: ./src/Controller/SchedulesController.php:255
+#: ./src/Controller/SchedulesController.php:290
+#: ./src/Controller/SchedulesController.php:351
+#: ./src/Controller/VouchersController.php:579
+#: ./src/Controller/WifiChartsController.php:86
+msgid "Could not update item"
+msgstr ""
+
+#: ./src/Controller/ApProfilesController.php:1829
+#: ./src/Controller/ApProfilesController.php:1841
+#: ./src/Controller/ApProfilesController.php:1854
+#: ./src/Controller/MeshesController.php:2091
+#: ./src/Controller/MeshesController.php:2103
+#: ./src/Controller/MeshesController.php:2117
+#: ./src/Controller/MeshesController.php:2132
+msgid "Could not add item"
+msgstr ""
+
+#: ./src/Controller/ApProfilesController.php:2424
+#: ./src/Controller/ApsController.php:691
+msgid "orphaned"
+msgstr ""
+
+#: ./src/Controller/Component/AaComponent.php:87
+msgid "Token in wrong format"
+msgstr ""
+
+#: ./src/Controller/Component/AaComponent.php:93
+msgid "Token missing"
+msgstr ""
+
+#: ./src/Controller/Component/AaComponent.php:112
+msgid "Cloud ID Missing"
+msgstr ""
+
+#: ./src/Controller/Component/AaComponent.php:165
+msgid "No user for token"
+msgstr ""
+
+#: ./src/Controller/Component/AaComponent.php:170
+msgid "Account disabled"
+msgstr ""
+
+#: ./src/Controller/Component/AaComponent.php:184
+msgid "You do not have rights for this action"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:62
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:70
+#: ./src/Controller/NodeReportsController.php:282
+#: ./src/Controller/PermanentUsersController.php:758
+#: ./src/Controller/RadacctsController.php:492
+#: ./src/Controller/RadpostauthsController.php:274
+#: ./src/Controller/RadpostauthsController.php:317
+msgid "Reload"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:75
+#: ./src/Controller/NodeReportsController.php:286
+#: ./src/Controller/RadacctsController.php:497
+msgid "30 seconds"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:76
+#: ./src/Controller/NodeReportsController.php:287
+#: ./src/Controller/RadacctsController.php:498
+msgid "1 minute"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:77
+#: ./src/Controller/NodeReportsController.php:288
+#: ./src/Controller/RadacctsController.php:499
+msgid "5 minutes"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:78
+#: ./src/Controller/NodeReportsController.php:289
+#: ./src/Controller/RadacctsController.php:500
+msgid "Stop auto reload"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:87
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:790
+msgid "Add"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:96
+msgid "Edit"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:105
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:807
+#: ./src/Controller/NodeReportsController.php:295
+msgid "Delete"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:114
+msgid "Add notes"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:123
+#: ./src/Controller/DynamicDetailsController.php:1700
+#: ./src/Controller/RadacctsController.php:541
+#: ./src/Controller/RadpostauthsController.php:296
+#: ./src/Controller/RadpostauthsController.php:338
+msgid "Export CSV"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:132
+msgid "Change Password"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:141
+msgid "Enable / Disable"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:150
+msgid "Test RADIUS"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:159
+msgid "Graphs"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:168
+msgid "e-Mail voucher"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:177
+msgid "Export to PDF"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:186
+msgid "Add To Mesh"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:195
+msgid "Add To AP Profile"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:205
+msgid "Attach"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:214
+msgid "Redirect"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:223
+msgid "Change Device Mode"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:232
+msgid "Map"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:242
+msgid "Manage tags"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:251
+msgid "Policies"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:260
+msgid "Users"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:268
+msgid "Preferences"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:276
+msgid "BYOD"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:285
+msgid "Profile Components"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:294
+msgid "Unknown Clients"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:303
+msgid "Advanced Edit"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:312
+msgid "View"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:321
+msgid "Execute"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:330
+msgid "View execute history"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:339
+msgid "Restart"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:348
+msgid "Detect Rogue Access Points"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:357
+msgid "View Availability History"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:366
+msgid "Acknowlege Alert"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:389
+msgid "Action"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:422
+msgid "Edit Photo"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:658
+msgid "Predefined Commands"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:685
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:705
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:833
+msgid "Document"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:725
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:744
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:765
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:852
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:883
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:905
+msgid "Extra Actions"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:795
+msgid "Single field"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:796
+msgid "Username and Password"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:797
+msgid "Import CSV List"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:812
+msgid "Simple Delete"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:813
+msgid "Bulk Delete"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:924
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:937
+msgid "Preview"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:947
+msgid "Data Collection"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:962
+msgid "Email Addresses"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:969
+msgid "Translated Phrases"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:1007
+msgid "API Reply Preview"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:1018
+msgid "More"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:1033
+msgid "Edit logo"
+msgstr ""
+
+#: ./src/Controller/Component/GridButtonsFlatComponent.php:1059
+msgid "Maps"
+msgstr ""
+
+#: ./src/Controller/DashboardController.php:113
+#: ./src/Controller/DashboardController.php:175
+msgid "Confirm this name"
+msgstr ""
+
+#: ./src/Controller/DashboardController.php:113
+#: ./src/Controller/DashboardController.php:175
+msgid "Type the password again"
+msgstr ""
+
+#: ./src/Controller/DashboardController.php:115
+#: ./src/Controller/DashboardController.php:177
+msgid "Authentication failed"
+msgstr ""
+
+#: ./src/Controller/DashboardController.php:122
+msgid "Required"
+msgstr ""
+
+#: ./src/Controller/DashboardController.php:124
+msgid "HTTP POST Required -> Authentication failed"
+msgstr ""
+
+#: ./src/Controller/DataCollectorsController.php:237
+msgid "New OTP sent to email"
+msgstr ""
+
+#: ./src/Controller/DataCollectorsController.php:241
+msgid "New OTP sent with SMS"
+msgstr ""
+
+#: ./src/Controller/DevicesController.php:141
+#: ./src/Controller/DevicesController.php:148
+#: ./src/Controller/PermanentUsersController.php:135
+#: ./src/Controller/PermanentUsersController.php:142
+#: ./src/Controller/VouchersController.php:286
+#: ./src/Controller/VouchersController.php:324
+#: ./src/Controller/VouchersController.php:331
+msgid "Never"
+msgstr ""
+
+#: ./src/Controller/DevicesController.php:392
+#: ./src/Controller/PermanentUsersController.php:374
+#: ./src/Controller/VouchersController.php:544
+msgid "profile or profile_id not found in DB or not supplied"
+msgstr ""
+
+#: ./src/Controller/DevicesController.php:459
+#: ./src/Controller/PermanentUsersController.php:536
+#: ./src/Controller/ProfileComponentsController.php:193
+#: ./src/Controller/ProfileComponentsController.php:215
+#: ./src/Controller/ProfileComponentsController.php:242
+#: ./src/Controller/ProfileComponentsController.php:268
+#: ./src/Controller/VouchersController.php:682
+msgid "Could not edit item"
+msgstr ""
+
+#: ./src/Controller/DynamicClientsController.php:527
+#: ./src/Controller/DynamicDetailsController.php:945
+#: ./src/Controller/DynamicDetailsController.php:1011
+#: ./src/Controller/HardwaresController.php:352
+#: ./src/Controller/RealmsController.php:355
+#: ./src/Controller/WizardsController.php:702
+msgid "Problem uploading photo"
+msgstr ""
+
+#: ./src/Controller/DynamicDetailTranslationsController.php:511
+#: ./src/Controller/DynamicDetailTranslationsController.php:563
+msgid "Could Not Create Item"
+msgstr ""
+
+#: ./src/Controller/DynamicDetailsController.php:1639
+msgid "ManageTranslations"
+msgstr ""
+
+#: ./src/Controller/FreeRadiusController.php:36
+msgid "Accepted"
+msgstr ""
+
+#: ./src/Controller/FreeRadiusController.php:39
+msgid "Rejected"
+msgstr ""
+
+#: ./src/Controller/FreeRadiusController.php:44
+#: ./src/Controller/FreeRadiusController.php:94
+msgid "Responses"
+msgstr ""
+
+#: ./src/Controller/FreeRadiusController.php:48
+msgid "Challenges"
+msgstr ""
+
+#: ./src/Controller/FreeRadiusController.php:52
+#: ./src/Controller/FreeRadiusController.php:97
+msgid "Duplicates"
+msgstr ""
+
+#: ./src/Controller/FreeRadiusController.php:56
+#: ./src/Controller/FreeRadiusController.php:101
+msgid "Invalid"
+msgstr ""
+
+#: ./src/Controller/FreeRadiusController.php:60
+#: ./src/Controller/FreeRadiusController.php:105
+msgid "Malformed"
+msgstr ""
+
+#: ./src/Controller/FreeRadiusController.php:64
+#: ./src/Controller/FreeRadiusController.php:109
+msgid "Bad Signature"
+msgstr ""
+
+#: ./src/Controller/FreeRadiusController.php:68
+#: ./src/Controller/FreeRadiusController.php:113
+msgid "Dropped"
+msgstr ""
+
+#: ./src/Controller/FreeRadiusController.php:72
+#: ./src/Controller/FreeRadiusController.php:117
+msgid "Unknown types"
+msgstr ""
+
+#: ./src/Controller/FreeRadiusController.php:76
+msgid "Bad Authenticator"
+msgstr ""
+
+#: ./src/Controller/NodeReportsController.php:285
+#: ./src/Controller/RadacctsController.php:495
+msgid "Reload every"
+msgstr ""
+
+#: ./src/Controller/NodeReportsController.php:294
+msgid "Start Scan"
+msgstr ""
+
+#: ./src/Controller/PermanentUsersController.php:363
+#: ./src/Controller/VouchersController.php:533
+msgid "realm or realm_id not found in DB or not supplied"
+msgstr ""
+
+#: ./src/Controller/PermanentUsersController.php:719
+msgid "Could not change password"
+msgstr ""
+
+#: ./src/Controller/RadacctsController.php:523
+msgid "Show only currently connected"
+msgstr ""
+
+#: ./src/Controller/RadacctsController.php:542
+msgid "Usage graph"
+msgstr ""
+
+#: ./src/Controller/RadacctsController.php:545
+msgid "Kick user off"
+msgstr ""
+
+#: ./src/Controller/RadacctsController.php:546
+msgid "Close session"
+msgstr ""
+
+#: ./src/Controller/VouchersController.php:734
+msgid "Cannot change the password of a single field voucher"
+msgstr ""
+
+#: ./src/Controller/VouchersController.php:744
+#: ./src/Controller/VouchersController.php:749
+msgid "Could not change Password this time"
+msgstr ""
+
+#: ./src/Controller/WizardsController.php:557
+#: ./src/Controller/WizardsController.php:575
+msgid "Problem uploading Logo"
+msgstr ""
+
+#: ./src/Shell/HelloShell.php:77
+#: ./src/Shell/RdShell.php:52
+msgid "RADIUSdesk console for various tasks"
+msgstr ""
+
+#: ./src/Template/Layout/error.php:35
+msgid "Error"
+msgstr ""
+
+#: ./src/Template/Layout/error.php:43
+#: ./templates/layout/error.php:38
+msgid "Back"
+msgstr ""
+
+#: ./src/Template/Vouchers/export_pdf.php:24
+#: ./src/Template/Vouchers/export_pdf.php:25
+#: ./src/Template/Vouchers/export_pdf.php:26
+#: ./src/Template/Vouchers/export_pdf.php:28
+#: ./src/Template/Vouchers/export_pdf_wip.php:513
+#: ./src/Template/Vouchers/export_pdf_wip.php:514
+#: ./src/Template/Vouchers/export_pdf_wip.php:515
+#: ./src/Template/Vouchers/export_pdf_wip.php:517
+#: ./templates/Vouchers/export_pdf.php:24
+#: ./templates/Vouchers/export_pdf.php:25
+#: ./templates/Vouchers/export_pdf.php:26
+#: ./templates/Vouchers/export_pdf.php:28
+#: ./templates/Vouchers/export_pdf_wip.php:513
+#: ./templates/Vouchers/export_pdf_wip.php:514
+#: ./templates/Vouchers/export_pdf_wip.php:515
+#: ./templates/Vouchers/export_pdf_wip.php:517
+msgid "Internet Access Voucher"
+msgstr ""
+
+#: ./src/Template/Vouchers/export_pdf_wip.php:247
+#: ./templates/Vouchers/export_pdf_wip.php:247
+msgid "Address"
+msgstr ""
+
+#: ./src/Template/Vouchers/export_pdf_wip.php:256
+#: ./templates/Vouchers/export_pdf_wip.php:256
+msgid "Contact Detail"
+msgstr ""
+
+#: ./src/Template/Vouchers/export_pdf_wip.php:275
+#: ./templates/Vouchers/export_pdf_wip.php:275
+msgid "phone"
+msgstr ""
+
+#: ./src/Template/Vouchers/export_pdf_wip.php:281
+#: ./templates/Vouchers/export_pdf_wip.php:281
+msgid "fax"
+msgstr ""
+
+#: ./src/Template/Vouchers/export_pdf_wip.php:287
+#: ./templates/Vouchers/export_pdf_wip.php:287
+msgid "cell"
+msgstr ""
+
+#: ./src/Template/Vouchers/export_pdf_wip.php:388
+#: ./templates/Vouchers/export_pdf_wip.php:388
+msgid "Voucher"
+msgstr ""
+
+#: ./src/Template/Vouchers/export_pdf_wip.php:396
+#: ./templates/Vouchers/export_pdf_wip.php:396
+msgid "Username"
+msgstr ""
+
+#: ./src/Template/Vouchers/export_pdf_wip.php:404
+#: ./templates/Vouchers/export_pdf_wip.php:404
+msgid "Password"
+msgstr ""
+
+#: ./src/Template/Vouchers/export_pdf_wip.php:415
+#: ./templates/Vouchers/export_pdf_wip.php:415
+msgid "Profile"
+msgstr ""
+
+#: ./src/Template/Vouchers/export_pdf_wip.php:426
+#: ./templates/Vouchers/export_pdf_wip.php:426
+msgid "Valid for"
+msgstr ""
+
+#: ./src/Template/Vouchers/export_pdf_wip.php:436
+#: ./templates/Vouchers/export_pdf_wip.php:436
+msgid "Expiry date"
+msgstr ""
+

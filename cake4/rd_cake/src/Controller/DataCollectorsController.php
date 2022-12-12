@@ -8,6 +8,7 @@ use Cake\Core\Configure\Engine\PhpConfig;
 use Cake\I18n\FrozenTime;
 
 use Cake\Utility\Inflector;
+use Cake\I18n\I18n;
 
 class DataCollectorsController extends AppController{
 
@@ -212,6 +213,9 @@ class DataCollectorsController extends AppController{
 			$data_id = $p_data['data_collector_id'];
 			$dd_id   = $p_data['login_page_id'];		 
 			$value   = mt_rand(1111,9999);
+			
+			I18n::setLocale($p_data['i18n']);
+			
 			//-> 1.) Update the OTP value
 			$q_r 	 = $this->{'DataCollectorOtps'}->find()->where(['DataCollectorOtps.data_collector_id' => $data_id])->first();
 			if($q_r){
@@ -219,27 +223,25 @@ class DataCollectorsController extends AppController{
 				$this->{'DataCollectorOtps'}->save($q_r);
 			}
 			//-> 2.) Get the way to send the OTP
-			/*$q_dd 	= $this->{'DynamicDetails'}->find()->where(['DynamicDetails.id' => $dd_id])->first();
-			if($q_dd){
-					
+			$q_dd 	= $this->{'DynamicDetails'}->find()->where(['DynamicDetails.id' => $dd_id])->first();
+			if($q_dd){					
 				//Get the Permanent User's Detail
-				$q_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' =>$user_id])->first();
-				if($q_pu){
+				$q_dc = $this->{'DataCollectors'}->find()->where(['DataCollectors.id' =>$data_id])->first();
+				if($q_dc){
 				
-					$email = $q_pu->email;
-					$phone = $q_pu->phone;					
+					$email = $q_dc->email;
+					$phone = $q_dc->phone;					
 								
 					if($q_dd->reg_otp_email){
 						$this->_email_otp($email,$value);
-						$message = "New OTP sent to email";
+						$message = __("New OTP sent to email");
 					}
 					if($q_dd->reg_otp_sms){
 						$this->_sms_otp($phone,$value);
-						$message = $message."<br>"."New OTP sent with SMS";
+						$message = $message."<br>".__("New OTP sent with SMS");
 					}
 				}		
-			}*/
-			$message = $message."<br>"."New OTP sent with SMS";			
+			}	
 		}
 			
 		$this->set([
@@ -454,7 +456,7 @@ class DataCollectorsController extends AppController{
         }
 	}
 	
-	 public function delete() {
+	public function delete() {
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
@@ -492,5 +494,15 @@ class DataCollectorsController extends AppController{
             ]);
             $this->viewBuilder()->setOption('serialize', true);
         }
+	}
+	
+	private function _email_otp($username,$otp){
+	
+	
+	}
+	
+	private function _sms_otp($username,$otp){
+	
+	
 	}
 }
