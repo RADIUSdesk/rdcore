@@ -91,6 +91,27 @@ class FormatterComponent extends Component {
         } 
         return $ret_val;
     }
+    
+    public function hide_email($email) {
+	    // extract email text before @ symbol
+	    $em = explode("@", $email);
+	    //$name = implode(array_slice($em, 0, count($em) - 1), '@');
+	    $name = $em[0];
+
+	    // count half characters length to hide
+	    $length = floor(strlen($name) / 2);
+
+	    // Replace half characters with * symbol
+	    return substr($name, 0, $length) . str_repeat('*', $length) . "@" . end($em);
+	}
+	
+	public function hide_phone($phone) {
+	    // count half characters length to hide
+	    $length = floor(strlen($phone) / 2);	    
+	    // Replace half characters with * symbol
+	    return substr($phone, 0, $length) . str_repeat('*', $length);
+	}
+	
 
     private function _sec2hms ($sec, $padHours = false){
 
@@ -133,7 +154,7 @@ class FormatterComponent extends Component {
         // done!
         return $hms.$negative;
     }
-
+    
 
 }
 

@@ -15,25 +15,29 @@ class MailTransportComponent extends Component {
     }
         
     public function setTransport($user,$cloud_id = false){
-    
-    	if($cloud_id != false){
-    	
-    		$q_r = $this->{'CloudSettings'}->find()->where(['CloudSettings.cloud_id' => $cloud_id ])->all();
-    		
-    	}else{
-    	  
-        	$q_r = $this->{'UserSettings'}->find()->where(['UserSettings.user_id' => -1 ])->all();
-        	
-        }
-        
+    	  		
+    	//Get system wide settings first 
+       	$q_r = $this->{'UserSettings'}->find()->where(['UserSettings.user_id' => -1 ])->all();   
         $email_config = [];
         foreach($q_r as $i){
             if(preg_match('/^email_/',$i->name)){
                 $email_config[$i->name] = $i->value;
             }  
-        } 
-
-        //==Later we will make this more fancy so that the settings can be per Access Provider (if set for them/by them)
+        }
+        
+        //Override with cloud settings (if present)
+        if($cloud_id != false){ 
+        	$q_c = $this->{'CloudSettings'}->find()->where(['CloudSettings.cloud_id' => $cloud_id ])->all();
+        	if($q_c){      	
+        		$email_config = [];
+				foreach($q_c as $i){
+				    if(preg_match('/^email_/',$i->name)){
+				        $email_config[$i->name] = $i->value;
+				    }  
+				}   	
+        	}       
+        }
+         
         //These should be: email_server email_port email_ssl email_username email_password and (optional email_sendername) 
         $host = $email_config['email_server'];
         if($email_config['email_ssl'] == '1'){

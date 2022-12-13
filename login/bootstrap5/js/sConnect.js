@@ -2021,7 +2021,7 @@ var sConnect = (function () {
         }
 
         //== CTC OTP ==
-        var onBtnOtpCtcClick = function(){
+        var onBtnOtpCtcClick = function(event){
             var form    = document.querySelector('#frmOtpCtc');
             $('#alertWarnOtpCtc').addClass('hide');
             if (!form.checkValidity()) {
@@ -2048,7 +2048,7 @@ var sConnect = (function () {
                         //Hide reg / show login
                         $("#modalOtpCtc").modal('hide');
                         $("#modalLogin").modal('show');
-                        //FIXME submit the click to connect again              
+                        onBtnClickToConnectClick(event); //Fire the click to Connect Button's Click event            
                     }else{
                         $('#alertWarnOtpCtc').html(data.message);
                         $('#alertWarnOtpCtc').addClass('show');

@@ -742,6 +742,15 @@ class DynamicDetailsController extends AppController{
             }
         }
         
+        if($req_d['ci_phone'] == 0){
+        	$req_d['ci_phone_otp'] = 0; //Kill phone otp flag
+        }
+        
+        if($req_d['ci_email'] == 0){
+        	$req_d['ci_email_otp'] = 0; //Kill email otp flag
+        }
+        
+        
         $entity = $this->{'DynamicDetailCtcs'}->find()->where(['dynamic_detail_id' =>$req_d['dynamic_detail_id']])->first();
         if(!$entity){
              $entity = $this->{'DynamicDetailCtcs'}->newEntity($req_d); 
