@@ -183,7 +183,8 @@ class RegisterUsersController extends AppController {
         $language   = '4_4';     
         $url        = 'http://127.0.0.1/cake4/rd_cake/permanent-users/add.json'; 
         $username	= $this->request->getData('username');
-		$password	= $this->request->getData('password');	
+		$password	= $this->request->getData('password');
+		$email		= $this->request->getData('username');	
 		
 		//--- ADD ON ---- Expire them after 30 days
 		/*
@@ -250,11 +251,19 @@ class RegisterUsersController extends AppController {
         		if($q_pu){
 					if($q_pu->permanent_user_otp){
 		    			if($q_pu->permanent_user_otp->status == 'otp_awaiting'){
+		    				$message = '';
+		    				if($q_r->reg_otp_sms){
+								$message = __("OTP sent to").' '.$this->Formatter->hide_phone($this->request->getData('phone'))."<br>";
+							}
+							if($q_r->reg_otp_email){
+								$message = $message.__("OTP sent to").' '.$this->Formatter->hide_email($username);					
+							}
+		    			
 		    				$this->set([
 								'success'   => true,
 								'data'		=> [
-									'message'	=> "Bla Bla Bla",
-									'id'		=> $q_u->id,
+									'message'	=> $message,
+									'id'		=> $q_pu->id,
 									'otp_show'  => true
 								]
 							]);
@@ -416,7 +425,7 @@ class RegisterUsersController extends AppController {
 					}
 					
 					if($q_dd->reg_otp_email){
-						$message = $message.__("New OTP sent to").' '.$this->Formatter->hide_phone($email);
+						$message = $message.__("New OTP sent to").' '.$this->Formatter->hide_email($email);
 						$this->_email_otp($email,$value,$q_dd->cloud_id);
 					}
 				}		
@@ -672,7 +681,7 @@ class RegisterUsersController extends AppController {
 	}
 	
 	private function _email_otp($email,$otp,$cloud_id){	
-		//$this->Otp->sendEmail($email,$otp,$cloud_id);
+		$this->Otp->sendEmail($email,$otp,$cloud_id);
 	}
 	
 	private function _sms_otp($phone,$otp,$cloud_id){
