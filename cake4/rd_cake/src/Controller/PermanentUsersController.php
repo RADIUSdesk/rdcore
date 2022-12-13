@@ -248,8 +248,13 @@ class PermanentUsersController extends AppController{
             ));
             $this->viewBuilder()->setOption('serialize', true);
         }else{
+        	$additional = [];
+        	if($entity->getInvalidField('username')){
+        		$additional['invalid_username'] = $entity->getInvalidField('username');
+        	}
+        	        
             $message = __('Could not create item');
-            $this->JsonErrors->entityErros($entity,$message);
+            $this->JsonErrors->entityErros($entity,$message,$additional);
         }      
     }
 

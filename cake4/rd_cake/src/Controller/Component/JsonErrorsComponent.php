@@ -21,7 +21,7 @@ class JsonErrorsComponent extends Component {
         $controller->viewBuilder()->setOption('serialize', true);
     }
    
-    public function entityErros($entity,$message="An error has occured"){      
+    public function entityErros($entity,$message="An error has occured",$additional = []){      
             $errors     = $entity->getErrors();  
             $a          = [];
             $m_add      = '';
@@ -36,14 +36,22 @@ class JsonErrorsComponent extends Component {
                 $m_add = $m_add."<br>".$detail_string;
             }
 
-            $message = $message.$m_add; 
+            $message = $message.$m_add;             
+            $controller = $this->getController(); 
             
-            $controller = $this->getController();       
-			$controller->set([
+            $data = [
 		    	'errors'    => $a,
                 'success'   => false,
+                'username'	=> $entity->username,
                 'message'   => $message
-		    ]);
+            ];
+            
+            //Add the additional ones
+            foreach(array_keys($additional) as $key){		    	
+		    	$data[$key] = $additional[$key];
+		    }
+                  
+			$controller->set($data);		    
 			$controller->viewBuilder()->setOption('serialize', true);
     }
 

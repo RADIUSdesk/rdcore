@@ -305,7 +305,7 @@ var sConnect = (function () {
                 mac_address     = mac_address.replace(/:/g, '-');
                 console.log("MAC IS "+mac_address);
                 var nasid       = getParameterByName('nasid');
-                $.ajax({url: email_check, method: "POST", dataType: "json",timeout: 3000,data: {'mac': mac_address, 'nasid': nasid}})
+                $.ajax({url: email_check, method: "POST", dataType: "json",timeout: 3000,data: {'mac': mac_address, 'nasid': nasid, i18n : s_i18n }})
                 .done(function(j){
                     if(j.success == true){
                         if(j.data.otp_show == true){
@@ -1776,7 +1776,8 @@ var sConnect = (function () {
                     surname       : $("#txtrSurname").val(),
                     username      : $("#txtrEmail").val(),
                     password      : $("#txtrPassword").val(),
-                    phone         : $("#txtrCell").val()
+                    phone         : $("#txtrCell").val(),
+                    i18n          : s_i18n
                 };
                   
 /*  
@@ -1813,11 +1814,14 @@ var sConnect = (function () {
                         $("#modalRegister").modal('hide');
                         
                         if(data.data.otp_show == true){
-                        	$("#modalOtp").modal('show');
+                        	$("#modalOtp").modal('show');                            
+                            $('#alertInfoOtp').html(data.data.message);
+                            $('#alertInfoOtp').addClass('show');
                         }else{                                               
                         	$("#modalLogin").modal('show');
                         }               
                     }else{
+
                         if(data.errors !== undefined){
                             msg = '';
                             Object.keys(data.errors).forEach(key => {
@@ -1986,6 +1990,7 @@ var sConnect = (function () {
                         $("#modalOtp").modal('hide');
                         $("#modalLogin").modal('show');             
                     }else{
+                        $('#alertInfoOtp').removeClass('show');
                         $('#alertWarnOtp').html(data.message);
                         $('#alertWarnOtp').addClass('show');
                     }
@@ -2013,6 +2018,7 @@ var sConnect = (function () {
                     //Hide reg / show login
             		$('#alertInfoOtp').html(data.message);
                     $('#alertInfoOtp').addClass('show');
+                    $('#alertWarnOtp').removeClass('show');
                 }else{
                     $('#alertWarnOtp').html(data.message);
                     $('#alertWarnOtp').addClass('show');

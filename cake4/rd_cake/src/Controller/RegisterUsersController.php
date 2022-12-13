@@ -6,6 +6,7 @@ use Cake\Core\Configure;
 use Cake\Mailer\Mailer;
 use Cake\Http\Client;
 use Cake\I18n\FrozenTime;
+use Cake\I18n\I18n;
 
 class RegisterUsersController extends AppController {
 
@@ -21,6 +22,8 @@ class RegisterUsersController extends AppController {
         $this->loadModel('Clouds');
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('MailTransport');
+        $this->loadComponent('Otp'); 
+        $this->loadComponent('Formatter');
     }
     
     public function newPermanentUser(){
@@ -75,9 +78,31 @@ class RegisterUsersController extends AppController {
 			        return;
 				}
 
-				$q = $this->PermanentUsers->find()->where(['PermanentUsers.extra_name' 	=> 'mac', 'PermanentUsers.extra_value' => $mac,])->first();
+				$q = $this->PermanentUsers->find()
+					->where(['PermanentUsers.extra_name' 	=> 'mac', 'PermanentUsers.extra_value' => $mac,])
+					->contain(['PermanentUserOtps'])
+					->first();
 
 				if($q){
+				
+					//FIXME WIP
+					if($q->permanent_user_otp){
+						if($q->permanent_user_otp->status == 'otp_awaiting'){
+						
+							$postData['otp_show'] = true; //**This will be the cue for the login page to pop-up the OTP Screen**
+							$postData['id']		  = $responseData['data']['id']; //Send the ID of the newly created user in the reply
+						
+							$this->set([
+								'success'   => true,
+								'message'	=> "Bla Bla Bla",
+								'id'		=> $q->id,
+								'otp_show'  => true
+							]);
+							$this->viewBuilder()->setOption('serialize', true);
+							return;						
+						}					
+					}
+				
 					$already_username = $q->username;
 					$this->set([
 						'success'   => false,
@@ -116,6 +141,11 @@ class RegisterUsersController extends AppController {
 		//-- Case stude e.g. we want to give a user that specified a certain thing e.g. certain provider for mobile phone a better profile ---
 		
 		$p_data = $this->request->getData();
+		
+		if(isset($p_data['i18n'])){
+			I18n::setLocale($p_data['i18n']);
+		}
+		 
 		if((array_key_exists('other_profile_id',$p_data))||(array_key_exists('other_profile_name',$p_data))){
 			if(array_key_exists('other_profile_name',$p_data)){			
 				$e_other_profile = $this->{'Profiles'}->find()->where(['Profiles.name' => $p_data['other_profile_name']])->first();
@@ -207,13 +237,41 @@ class RegisterUsersController extends AppController {
 		$responseData = json_decode($response, true);
 		//print_r($responseData);
 
-        if($responseData['success'] == false){     
+        if($responseData['success'] == false){  
+        
+        	//Check here if the invalid_username is set 
+        	if(isset($responseData['invalid_username'])){    	
+        		$existing_check = $responseData['invalid_username'];
+        		$q_pu = $this->{'PermanentUsers'}->find()
+        			->where(['PermanentUsers.username' => $existing_check])
+        			->contain(['PermanentUserOtps'])
+        			->first();
+        		
+        		if($q_pu){
+					if($q_pu->permanent_user_otp){
+		    			if($q_pu->permanent_user_otp->status == 'otp_awaiting'){
+		    				$this->set([
+								'success'   => true,
+								'data'		=> [
+									'message'	=> "Bla Bla Bla",
+									'id'		=> $q_u->id,
+									'otp_show'  => true
+								]
+							]);
+							$this->viewBuilder()->setOption('serialize', true);
+							return;        			
+		    			}
+		    		}        		
+        		}       	
+        	}
+           
 			$this->set([
-            'success'   => $responseData['success'],
+	        'success'   => $responseData['success'],
 			'errors'	=> $responseData['errors'],
 			'message'	=> $responseData['message']
-		    ]);
-		    $this->viewBuilder()->setOption('serialize', true);
+			]);
+			$this->viewBuilder()->setOption('serialize', true);
+
 		}
 
 		if($responseData['success'] == true){
@@ -233,12 +291,18 @@ class RegisterUsersController extends AppController {
 				
 				$postData['otp_show'] = true; //**This will be the cue for the login page to pop-up the OTP Screen**
 				$postData['id']		  = $responseData['data']['id']; //Send the ID of the newly created user in the reply
-				if($q_r->reg_email_sms){
-					$this->_email_otp($username,$d_otp['value']);
-				}
+				
+				$message = '';
+				
 				if($q_r->reg_otp_sms){
-					$this->_sms_otp($this->request->getData('phone'),$d_otp['value']);
-				}				
+					$this->_sms_otp($this->request->getData('phone'),$d_otp['value'],$q_r->cloud_id);
+					$message = __("OTP sent to").' '.$this->Formatter->hide_phone($this->request->getData('phone'))."<br>";
+				}
+				if($q_r->reg_otp_email){
+					$this->_email_otp($username,$d_otp['value'],$q_r->cloud_id);
+					$message = $message.__("OTP sent to").' '.$this->Formatter->hide_email($username);					
+				}
+				$postData['message'] = $message;				
 			}
 									
 			//============== SMALL HACK 26 MAY 2022 ===============
@@ -279,13 +343,18 @@ class RegisterUsersController extends AppController {
 		$message	= "";
 				
 		if(isset($p_data['permanent_user_id'])){
+		
+			if(isset($p_data['i18n'])){
+				I18n::setLocale($p_data['i18n']);
+			}
+		
 			$user_id 	= $p_data['permanent_user_id'];
 			$otp		= $p_data['otp'];
 			$q_r 		= $this->{'PermanentUserOtps'}->find()->where(['PermanentUserOtps.permanent_user_id' => $user_id])->first(); //There is supposed to be only one
 			if($q_r){			
 				$time = FrozenTime::now();
 				if($time > $q_r->modified->addMinutes(2)){ //We expire the OTP after two minutes
-					$message = "OTP Expired - Request New One Please";
+					$message = __("OTP expired - Request new one please");
 				}else{			
 					if($otp == $q_r->value){
 						$success = true;
@@ -298,7 +367,7 @@ class RegisterUsersController extends AppController {
 							$this->{'PermanentUsers'}->save($q_pu);
 						} 					
 					}else{
-						$message = "OTP Mismatch - Try again";
+						$message = __("OTP mismatch - Try again");
 					}					
 				}
 			}
@@ -316,6 +385,10 @@ class RegisterUsersController extends AppController {
 		$message 	= '';
 		 		
 		if(isset($p_data['permanent_user_id'])){
+		
+			if(isset($p_data['i18n'])){
+				I18n::setLocale($p_data['i18n']);
+			}
 			
 			$user_id = $p_data['permanent_user_id'];
 			$dd_id   = $p_data['login_page_id'];		 
@@ -336,14 +409,15 @@ class RegisterUsersController extends AppController {
 				
 					$email = $q_pu->email;
 					$phone = $q_pu->phone;					
-								
-					if($q_dd->reg_otp_email){
-						$this->_email_otp($email,$value);
-						$message = "New OTP sent to email";
-					}
+													
 					if($q_dd->reg_otp_sms){
-						$this->_sms_otp($phone,$value);
-						$message = $message."<br>"."New OTP sent with SMS";
+						$message = __("New OTP sent to").' '.$this->Formatter->hide_phone($phone)."<br>";
+						$this->_sms_otp($phone,$value,$q_dd->cloud_id);
+					}
+					
+					if($q_dd->reg_otp_email){
+						$message = $message.__("New OTP sent to").' '.$this->Formatter->hide_phone($email);
+						$this->_email_otp($email,$value,$q_dd->cloud_id);
 					}
 				}		
 			}			
@@ -597,12 +671,11 @@ class RegisterUsersController extends AppController {
         return $response;	
 	}
 	
-	private function _email_otp($username,$otp){
-	
-	
+	private function _email_otp($email,$otp,$cloud_id){	
+		//$this->Otp->sendEmail($email,$otp,$cloud_id);
 	}
 	
-	private function _sms_otp($username,$otp){
+	private function _sms_otp($phone,$otp,$cloud_id){
 	
 	
 	}

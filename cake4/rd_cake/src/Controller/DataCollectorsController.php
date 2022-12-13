@@ -33,9 +33,11 @@ class DataCollectorsController extends AppController{
         $q_r    = $this->_find_dynamic_detail_id();
         
         $data['ci_required']  = false; // By defaul don't ask for customer info;
-                 
+        if(isset($data['i18n'])){ 
+        	I18n::setLocale($data['i18n']);
+        } 
+                   
         if($q_r){
-
             //Once we found the Dynamic Login Page; We need to figure out if we need pop up the require customer info dialog
             //For that we need to look for a combo **dynamic_detail_id** and **mac**
             //IF found look at the modify timestamp and if it 'expired' ask for it again
@@ -116,6 +118,8 @@ class DataCollectorsController extends AppController{
                 }
             }
             $req_d		= $this->request->getData();
+            I18n::setLocale($req_d['i18n']);
+            
             $dd 		= $this->_find_dynamic_detail_id();
             $ctc		= $dd->dynamic_detail->dynamic_detail_ctc;
                         
@@ -155,11 +159,11 @@ class DataCollectorsController extends AppController{
 				
 				if($ctc->ci_phone_otp){
 					$message = __("OTP sent to").' '.$this->Formatter->hide_phone($entity->phone)."<br>";
-					$this->_sms_otp($entity->phone,$value);
+					$this->_sms_otp($entity->phone,$value,$dd->dynamic_detail->cloud_id);
 				}
 				if($ctc->ci_email_otp){
 					$message = __("OTP sent to").' '.$this->Formatter->hide_email($entity->email);
-					$this->_email_otp($entity->email,$value);
+					$this->_email_otp($entity->email,$value,$dd->dynamic_detail->cloud_id);
 				}
 				$data['message'] = $message;
 				
@@ -181,6 +185,8 @@ class DataCollectorsController extends AppController{
 		$message	= "";
 				
 		if(isset($p_data['data_collector_id'])){
+		
+			I18n::setLocale($p_data['i18n']);
 			$data_id 	= $p_data['data_collector_id'];
 			$otp		= $p_data['otp'];
 			$q_r 		= $this->{'DataCollectorOtps'}->find()->where(['DataCollectorOtps.data_collector_id' => $data_id])->first(); //There is supposed to be only one
@@ -237,13 +243,14 @@ class DataCollectorsController extends AppController{
 				
 					$email = $q_dc->email;
 					$phone = $q_dc->phone;							
-					if($ctc->ci_email_otp){
-						$this->_email_otp($email,$value);
-						$message = __("New OTP sent to").' '.$this->Formatter->hide_email($q_dc->email)."<br>";
-					}
+										
 					if($ctc->ci_phone_otp){
-						$this->_sms_otp($phone,$value);
-						$message = $message.__("New OTP sent to").' '.$this->Formatter->hide_phone($q_dc->phone);
+						$this->_sms_otp($phone,$value,$q_dd->cloud_id);
+						$message = $message.__("New OTP sent to").' '.$this->Formatter->hide_phone($q_dc->phone)."<br>";
+					}
+					if($ctc->ci_email_otp){
+						$this->_email_otp($email,$value,$q_dd->cloud_id);
+						$message = __("New OTP sent to").' '.$this->Formatter->hide_email($q_dc->email);
 					}
 				}		
 			}	
@@ -501,12 +508,12 @@ class DataCollectorsController extends AppController{
         }
 	}
 	
-	private function _email_otp($username,$otp){
-
-		//$this->Otp->sendEmail($username,$otp);
+	private function _email_otp($email,$otp,$cloud_id){
+	
+		//$this->Otp->sendEmail($email,$otp,$cloud_id);
 	}
 	
-	private function _sms_otp($username,$otp){
+	private function _sms_otp($phone,$otp,$cloud_id){
 	
 	
 	}

@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
-"POT-Creation-Date: 2022-12-12 11:28+0000\n"
+"POT-Creation-Date: 2022-12-13 11:27+0000\n"
 "PO-Revision-Date: YYYY-mm-DD HH:MM+ZZZZ\n"
 "Last-Translator: NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <EMAIL@ADDRESS>\n"
@@ -24,7 +24,7 @@ msgstr ""
 #: ./src/Controller/DevicesController.php:249
 #: ./src/Controller/DevicesController.php:435
 #: ./src/Controller/DynamicDetailsController.php:558
-#: ./src/Controller/DynamicDetailsController.php:1322
+#: ./src/Controller/DynamicDetailsController.php:1331
 #: ./src/Controller/MeshesController.php:326
 #: ./src/Controller/MeshesController.php:937
 #: ./src/Controller/MeshesController.php:2144
@@ -43,7 +43,7 @@ msgstr ""
 #: ./src/Controller/AlertsController.php:222
 #: ./src/Controller/ApActionsController.php:242
 #: ./src/Controller/ApProfilesController.php:184
-#: ./src/Controller/DataCollectorsController.php:488
+#: ./src/Controller/DataCollectorsController.php:493
 #: ./src/Controller/DevicesController.php:479
 #: ./src/Controller/DynamicDetailTranslationsController.php:667
 #: ./src/Controller/NaStatesController.php:172
@@ -72,7 +72,7 @@ msgstr ""
 #: ./src/Controller/CloudsController.php:1133
 #: ./src/Controller/CloudsController.php:1179
 #: ./src/Controller/Component/UnknownsComponent.php:99
-#: ./src/Controller/DataCollectorsController.php:454
+#: ./src/Controller/DataCollectorsController.php:459
 #: ./src/Controller/DevicesController.php:418
 #: ./src/Controller/DynamicDetailTranslationsController.php:529
 #: ./src/Controller/DynamicDetailTranslationsController.php:586
@@ -80,8 +80,8 @@ msgstr ""
 #: ./src/Controller/DynamicDetailTranslationsController.php:947
 #: ./src/Controller/DynamicDetailsController.php:592
 #: ./src/Controller/DynamicDetailsController.php:675
-#: ./src/Controller/DynamicDetailsController.php:773
-#: ./src/Controller/DynamicDetailsController.php:1366
+#: ./src/Controller/DynamicDetailsController.php:782
+#: ./src/Controller/DynamicDetailsController.php:1375
 #: ./src/Controller/HardwaresController.php:218
 #: ./src/Controller/MeshesController.php:190
 #: ./src/Controller/MeshesController.php:616
@@ -202,7 +202,7 @@ msgid "Add notes"
 msgstr ""
 
 #: ./src/Controller/Component/GridButtonsFlatComponent.php:123
-#: ./src/Controller/DynamicDetailsController.php:1700
+#: ./src/Controller/DynamicDetailsController.php:1709
 #: ./src/Controller/RadacctsController.php:541
 #: ./src/Controller/RadpostauthsController.php:296
 #: ./src/Controller/RadpostauthsController.php:338
@@ -420,13 +420,25 @@ msgstr ""
 msgid "HTTP POST Required -> Authentication failed"
 msgstr ""
 
-#: ./src/Controller/DataCollectorsController.php:237
-msgid "New OTP sent to email"
-msgstr "Nouveau OTP envoyé par e-mail"
+#: ./src/Controller/DataCollectorsController.php:69
+#: ./src/Controller/DataCollectorsController.php:72
+#: ./src/Controller/DataCollectorsController.php:157
+#: ./src/Controller/DataCollectorsController.php:161
+msgid "OTP sent to"
+msgstr "OTP envoyé à"
 
-#: ./src/Controller/DataCollectorsController.php:241
-msgid "New OTP sent with SMS"
-msgstr "Nouveau OTP envoyé par SMS"
+#: ./src/Controller/DataCollectorsController.php:190
+msgid "OTP expired - Request new one please"
+msgstr "OTP expiré - Demandez-en un nouveau s'il vous plaît"
+
+#: ./src/Controller/DataCollectorsController.php:197
+msgid "OTP mismatch - Try again"
+msgstr "Non-concordance OTP - Réessayez"
+
+#: ./src/Controller/DataCollectorsController.php:242
+#: ./src/Controller/DataCollectorsController.php:246
+msgid "New OTP sent to"
+msgstr "Nouvel OTP envoyé à"
 
 #: ./src/Controller/DevicesController.php:141
 #: ./src/Controller/DevicesController.php:148
@@ -455,8 +467,8 @@ msgid "Could not edit item"
 msgstr ""
 
 #: ./src/Controller/DynamicClientsController.php:527
-#: ./src/Controller/DynamicDetailsController.php:945
-#: ./src/Controller/DynamicDetailsController.php:1011
+#: ./src/Controller/DynamicDetailsController.php:954
+#: ./src/Controller/DynamicDetailsController.php:1020
 #: ./src/Controller/HardwaresController.php:352
 #: ./src/Controller/RealmsController.php:355
 #: ./src/Controller/WizardsController.php:702
@@ -468,7 +480,7 @@ msgstr ""
 msgid "Could Not Create Item"
 msgstr ""
 
-#: ./src/Controller/DynamicDetailsController.php:1639
+#: ./src/Controller/DynamicDetailsController.php:1648
 msgid "ManageTranslations"
 msgstr ""
 

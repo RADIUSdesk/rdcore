@@ -25,8 +25,8 @@ class OtpComponent extends Component {
         $this->CloudSettings 	= TableRegistry::get('CloudSettings');     
     }
 
-    public function sendEmail($email_adr,$otp){  
-    	$from       = $this->MailTransport->setTransport(-1);	    	
+    public function sendEmail($email_adr,$otp,$cloud_id){  
+    	$from       = $this->MailTransport->setTransport(-1,$cloud_id);	    	
     	$username	= $email_adr;
     	$password	= $otp;  	           
         $success    = false;            
