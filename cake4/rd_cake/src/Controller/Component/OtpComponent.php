@@ -25,20 +25,39 @@ class OtpComponent extends Component {
         $this->CloudSettings 	= TableRegistry::get('CloudSettings');     
     }
 
-    public function sendEmail($email_adr,$otp,$cloud_id){  
+    public function sendEmailUserReg($email_adr,$otp,$cloud_id){  
     	$from       = $this->MailTransport->setTransport(-1,$cloud_id);	    	
-    	$username	= $email_adr;
-    	$password	= $otp;  	           
+    	$username	= $email_adr;	           
         $success    = false;            
         if($from !== false){         
             $email = new Mailer(['transport'   => 'mail_rd']);
             $email->setFrom($from)
-            	->setSubject('Lost Password Retrieval')
+            	->setSubject(__("User registration OTP"))
             	->setTo($email_adr)
-            	->setViewVars(compact( 'username', 'password'))
+            	->setViewVars(compact( 'username', 'otp'))
             	->setEmailFormat('html')
              	->viewBuilder()
-                    	->setTemplate('user_detail')
+                    	->setTemplate('otp_permanent_user')
+                		->setLayout('user_notify');   
+            $email->deliver();
+            $success  = true;
+        }	
+	    return $success;     
+    }
+    
+    public function sendEmailClickToConnect($email_adr,$otp,$cloud_id){  
+    	$from       = $this->MailTransport->setTransport(-1,$cloud_id);	    	
+    	$username	= $email_adr;	           
+        $success    = false;            
+        if($from !== false){         
+            $email = new Mailer(['transport'   => 'mail_rd']);
+            $email->setFrom($from)
+            	->setSubject(__("Click To Connect - OTP"))
+            	->setTo($email_adr)
+            	->setViewVars(compact( 'username', 'otp'))
+            	->setEmailFormat('html')
+             	->viewBuilder()
+                    	->setTemplate('otp_click_to_connect')
                 		->setLayout('user_notify');   
             $email->deliver();
             $success  = true;

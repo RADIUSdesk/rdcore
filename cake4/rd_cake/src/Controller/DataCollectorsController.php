@@ -13,6 +13,7 @@ use Cake\I18n\I18n;
 class DataCollectorsController extends AppController{
 
     protected $main_model = 'DataCollectors';
+    protected $valid_minutes = 2; //The time that an OTP will be valid (in minutes)
   
     public function initialize():void{  
         parent::initialize(); 
@@ -192,7 +193,7 @@ class DataCollectorsController extends AppController{
 			$q_r 		= $this->{'DataCollectorOtps'}->find()->where(['DataCollectorOtps.data_collector_id' => $data_id])->first(); //There is supposed to be only one
 			if($q_r){		
 				$time = FrozenTime::now();
-				if($time > $q_r->modified->addMinutes(2)){ //We expire the OTP after two minutes
+				if($time > $q_r->modified->addMinutes($this->valid_minutes)){ //We expire the OTP after two minutes
 					$message = __("OTP expired - Request new one please");
 				}else{			
 					if($otp == $q_r->value){
@@ -508,9 +509,8 @@ class DataCollectorsController extends AppController{
         }
 	}
 	
-	private function _email_otp($email,$otp,$cloud_id){
-	
-		//$this->Otp->sendEmail($email,$otp,$cloud_id);
+	private function _email_otp($email,$otp,$cloud_id){	
+		$this->Otp->sendEmailClickToConnect($email,$otp,$cloud_id);
 	}
 	
 	private function _sms_otp($phone,$otp,$cloud_id){

@@ -649,7 +649,7 @@ msgstr ""
 #: ./src/Template/Vouchers/export_pdf_wip.php:396
 #: ./templates/Vouchers/export_pdf_wip.php:396
 msgid "Username"
-msgstr ""
+msgstr "Nom d'utilisateur"
 
 #: ./src/Template/Vouchers/export_pdf_wip.php:404
 #: ./templates/Vouchers/export_pdf_wip.php:404
@@ -670,4 +670,24 @@ msgstr ""
 #: ./templates/Vouchers/export_pdf_wip.php:436
 msgid "Expiry date"
 msgstr ""
+
+# Additional entries
+
+msgid "Click To Connect - OTP"
+msgstr "Cliquez pour vous connecter - OTP"
+
+msgid "Email supplied"
+msgstr "E-mail fourni"
+
+msgid "Notification email"
+msgstr "Notification par e-mail"
+
+msgid "Please do not reply on this e-mail"
+msgstr "Merci de ne pas répondre sur cet e-mail"
+
+msgid "User registration OTP"
+msgstr "Enregistrement de l'utilisateur OTP"
+
+
+
 
