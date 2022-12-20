@@ -11,19 +11,33 @@ Ext.define('Rd.view.profiles.vcFupComponent', {
 
         var t_start = pnl.down('#timeStart');
         var t_end   = pnl.down('#timeEnd');
-        var amount  = pnl.down('#amount')
-        var unit    = pnl.down('#unit'); 
+        var amount  = pnl.down('#dataAmount')
+        var unit    = pnl.down('#dataUnit'); 
 
         if(value == 'time_of_day'){
             t_start.show();
+            t_start.enable();
             t_end.show();
-            amount.hide(); 
+            t_end.enable();
+
+            amount.hide();
+            amount.disable();
             unit.hide();
+            unit.disable();
         }else{
             t_start.hide();
+            t_start.disable();
             t_end.hide();
+            t_end.disable();
+
             amount.show();
+            amount.enable();
             unit.show();
+            unit.enable();
         }
-    }
+    },
+    delComponent: function(){
+        var me = this;
+        me.getView().destroy();
+	}
 });

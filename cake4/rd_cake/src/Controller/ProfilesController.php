@@ -253,6 +253,7 @@ class ProfilesController extends AppController
         $this->viewBuilder()->setOption('serialize', true);
 	}
 	
+	//== SIMPLE ITEMS ==
 	public function simpleAdd(){
 	
 	    if (!$this->request->is('post')) {
@@ -479,6 +480,30 @@ class ProfilesController extends AppController
 	    $this->set([
             'success' => true,
             'data' => $data
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+	}
+	
+	//== FUP ITEMS ==
+	
+	public function fupView(){
+	
+	    //__ Authentication + Authorization __
+        $user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+       
+        if($this->request->getQuery('profile_id')){
+            $profile_id = $this->request->getQuery('profile_id');     
+            $ent = $this->{$this->main_model}->find()
+                ->where(['Profiles.id' => $profile_id])
+                ->first();   
+        } 
+	
+	    $this->set([
+            'success' 	=> true,
+            'data' 		=> $ent
         ]);
         $this->viewBuilder()->setOption('serialize', true);
 	}

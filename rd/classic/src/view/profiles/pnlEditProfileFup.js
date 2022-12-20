@@ -14,8 +14,8 @@ Ext.define('Rd.view.profiles.pnlEditProfileFup', {
         labelAlign      : 'left',
         labelSeparator  : '',
         labelWidth      : Rd.config.labelWidth,
-        margin          : Rd.config.fieldMargin,
-        labelClsExtra   : 'lblRdReq'
+        //margin          : Rd.config.fieldMargin,
+        labelClsExtra   : 'lblRd'
     },
     requires: [
       
@@ -33,6 +33,7 @@ Ext.define('Rd.view.profiles.pnlEditProfileFup', {
                 text    : 'SAVE',
                 scale   : 'large',
                 formBind: true,
+                itemId  : 'save',
                 glyph   : Rd.config.icnYes,
                 margin  : Rd.config.buttonMargin,
                 ui      : 'button-teal'
@@ -51,8 +52,14 @@ Ext.define('Rd.view.profiles.pnlEditProfileFup', {
 					    name        : "name",
 					    allowBlank  : false,
 					    blankText   : i18n("sSupply_a_value"),
-					    width       : w_prim
+					    width       : w_prim,
+                        margin      : Rd.config.fieldMargin
 				    },
+                    {
+                        xtype       : 'textfield',
+                        hidden      : true,
+                        name        : 'id'
+                    },
                  /*   {
                         itemId      : 'pnlPppoe',
                         ui          : 'panel-blue',

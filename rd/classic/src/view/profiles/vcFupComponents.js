@@ -2,14 +2,14 @@ Ext.define('Rd.view.profiles.vcFupComponents', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcFupComponents',
     init    : function() {
-        var me = this;
+        var me   = this;
+        me.count = 0;
     },
     addComponent: function(){
-		console.log("Add FUP Component");
+		console.log('Add FUP Component');
         var me = this;
-        me.getView().add({xtype : 'pnlFupComponent',ui : 'panel-blue',title: 'New FUP Component 1'});
-	},
-    delComponent: function(){
-		console.log("DEL FUP Component");
+        me.count = me.count+1;
+        console.log(me.count);
+        me.getView().add({xtype : 'pnlFupComponent',ui : 'panel-blue',title: 'New FUP Component '+me.count,count: me.count, action: 'add'});
 	}
 });

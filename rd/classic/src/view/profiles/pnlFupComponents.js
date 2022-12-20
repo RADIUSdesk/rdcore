@@ -18,8 +18,8 @@ Ext.define('Rd.view.profiles.pnlFupComponents', {
         var me      = this;
         var w_sec   = 350;
         var w_rd    = 68;
-        me.width    = 760;
-        me.padding  = 5;      
+        me.width    = 750;
+        me.padding  = 0;      
         this.callParent(arguments);
     }
 });

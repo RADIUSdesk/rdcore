@@ -19,12 +19,12 @@ Ext.define('Rd.controller.cProfileFup', {
         me.inited = true;
             
         me.control({
-       /*     'pnlAddEditProfile #addsave' : {
-                click:  me.btnAddProfileSave
+            'pnlEditProfileFup' : {
+                activate:  me.pnlActivate
             },
-            'pnlAddEditProfile #editsave': {
-                click: me.btnEditProfileSave
-            } */
+            'pnlEditProfileFup #save': {
+                click: me.btnSave
+            } 
         });
     },
     actionIndex: function(profile_id,params){
@@ -52,10 +52,10 @@ Ext.define('Rd.controller.cProfileFup', {
         }    
         tp.setActiveTab(newTab);    
    },
-   btnEditProfileSave:  function(button){
+   btnSave:  function(button){
         var me      = this;
         var form    = button.up("form");
-        var pnl     = button.up('pnlAddEditProfile');              
+        var pnl     = button.up('pnlEditProfileFup');              
         form.submit({
             clientValidation: true,
             url: me.getUrlEditProfile(),
@@ -71,5 +71,18 @@ Ext.define('Rd.controller.cProfileFup', {
             scope       : me,
             failure     : Ext.ux.formFail
         });       
+    },
+    pnlActivate: function(pnl){
+        var me = this;
+        pnl.getForm().load({
+            url     : me.getUrlViewProfile(),
+            method  : 'GET',
+            params  : {
+                profile_id   : pnl.profileId
+            },
+            failure : function(form, action) {
+                Ext.Msg.alert(action.response.statusText, action.response.responseText);
+            }
+        });
     }
 });
