@@ -36,6 +36,26 @@ Ext.define('Rd.view.profiles.vcFupComponent', {
             unit.enable();
         }
     },
+    cmbActionChange : function(cmb){
+        var me      = this;
+        var value   = cmb.getValue();
+        var pnl     = cmb.up('panel');
+
+        var a       = pnl.down('#nrActionAmount');
+        var b       = pnl.down('#lblPercent');
+        if(value == 'block'){
+            a.hide();
+            a.disable();
+            b.hide();
+            b.disable();
+        }else{
+            a.show();
+            a.enable();
+            b.show();
+            b.enable();
+        }
+
+    },
     delComponent: function(){
         var me = this;
         me.getView().destroy();

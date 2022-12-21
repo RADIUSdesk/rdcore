@@ -80,9 +80,25 @@ Ext.define('Rd.controller.cProfileFup', {
             params  : {
                 profile_id   : pnl.profileId
             },
+            success : function(a,b){
+                var me = this;
+                if(b.result.data.profile_fup_components){
+                    me.loadFupComponents(pnl,b.result.data.profile_fup_components);
+                }    
+            },
+            scope   : me,
             failure : function(form, action) {
                 Ext.Msg.alert(action.response.statusText, action.response.responseText);
             }
         });
+    },
+    loadFupComponents: function(pnl,list){
+        var me = this;
+        var pnlComponents = pnl.down('pnlFupComponents');
+        
+        Ext.Array.forEach(list,function(item){
+            console.log(item);
+            pnlComponents.add({xtype : 'pnlFupComponent',ui : 'panel-blue',title: item.name ,count: item.id, action: 'edit',d:item});
+        });        
     }
 });

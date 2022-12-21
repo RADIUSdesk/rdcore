@@ -20,7 +20,55 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
         var me      = this;
         var w_prim  = 450;
         me.width    = 750;
-        prefix      = me.action+'_'+me.count+'_';     
+        prefix      = me.action+'_'+me.count+'_';
+
+        var val_name    = '';
+        var val_if      = 'time_of_day';
+        var t_start     = '';
+        var t_end       = '';
+        var d_amount    = 1;
+        var d_unit      = 'gb';
+        var action      = 'decrease_speed';
+        var a_amount    = 1;
+        var time_hidden = true;
+        var data_hidden = true;
+        var block_hidden= true;
+
+        if(me.d){
+            val_name = me.d.name;
+            val_if   = me.d.if_condition;
+
+            if(val_if == 'time_of_day'){
+                time_hidden = false;
+            }else{
+                data_hidden = false;
+            }
+
+            action = me.d.action;
+            if(action != 'block'){
+                block_hidden = false;
+            }
+
+            if(me.d.time_start){
+                t_start = me.d.time_start;              
+            }
+            if(me.d.time_end){
+                t_end = me.d.time_end;
+            }
+            if(me.d.data_amount){
+                d_amount = me.d.data_amount;               
+            }
+            if(me.d.data_unit){
+                d_unit = me.d.data_unit;
+            }
+            
+            if(me.d.action_amount){
+                a_amount = me.d.action_amount;
+            }
+        }else{
+            time_hidden = false;//New one = default show time
+        }
+     
         me.items    = [
              
             {
@@ -30,7 +78,8 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
 			    allowBlank  : false,
 			    blankText   : i18n("sSupply_a_value"),
 			    width       : w_prim,
-                margin      : Rd.config.fieldMargin
+                margin      : Rd.config.fieldMargin,
+                value       : val_name
 		    },
             {
                 xtype       : 'container',
@@ -46,7 +95,7 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
                         width       : 156,
                         fieldLabel  : 'If',
                         labelWidth  : 10,
-                        value       : 'time_of_day', 
+                        value       : val_if, 
                         store: [
                             { id  : 'day_usage',   name: 'daily usage'   },
                             { id  : 'week_usage',  name: 'weekly usage'  },
@@ -73,6 +122,9 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
                         format      : 'H:i',
                         width       : 135,
                         margin      : '10 2 0 2',
+                        value       : t_start,
+                        hidden      : time_hidden,
+                        disabled    : time_hidden
                     },
                     {
                         xtype       : 'timefield',
@@ -89,6 +141,9 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
                         format      : 'H:i',
                         width       : 135,
                         margin      : '10 2 0 2',
+                        value       : t_end,
+                        hidden      : time_hidden,
+                        disabled    : time_hidden
                     },
                     {
                         fieldLabel  : '>',
@@ -99,23 +154,25 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
                         width       : 80,
                         margin      : '10 2 0 2',
                         padding     : 0,
-                        value       : 1,
+                        value       : d_amount,
                         hideTrigger : true,
-                        hidden      : true,
                         keyNavEnabled: false,
-                        mouseWheelEnabled: false
+                        mouseWheelEnabled: false,
+                        hidden      : data_hidden,
+                        disabled    : data_hidden
                     },
                     {
                         xtype       : 'combobox',
                         margin      : '10 2 0 2',
                         name        : prefix+'data_unit',
                         itemId      : 'dataUnit',
-                        hidden      : true,
+                        hidden      : data_hidden,
+                        disabled    : data_hidden,
                         queryMode   : 'local',
                         displayField: 'name',
                         valueField  : 'id',
                         width       : 80,
-                        value       : 'gb', //Default Gb
+                        value       : d_unit, //Default Gb
                          store: [
                              { id  : 'mb', name: 'Mb' },
                              { id  : 'gb', name: 'Gb' },
@@ -124,19 +181,22 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
                     {
                         xtype       : 'combobox',
                         fieldLabel  : ':',
-                        margin      : '10 2 0 2',
+                        margin      : '10 2 10 2',//Make bottom 10 here else it 'falls flat' on 'block'
                         labelWidth  : 5,
                         queryMode   : 'local',
                         displayField: 'name',
                         valueField  : 'id',
                         width       : 170,
-                        value       : 'decrease_speed',
+                        value       : action,
                         name        : prefix+'action', 
                         store: [
                             { id  : 'increase_speed',   name: 'increase speed' },
                             { id  : 'decrease_speed',   name: 'decrease speed' },
                             { id  : 'block',            name: 'block traffic' }
-                         ]
+                         ],
+                         listeners   : {
+		                    change  : 'cmbActionChange'
+	                    }
                     },
                     {
                         fieldLabel  : 'by',
@@ -145,16 +205,21 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
                         width       : 80,
                         margin      : '10 2 0 2',
                         padding     : 0,
-                        value       : 1,
+                        value       : a_amount,
                         name        : prefix+'action_amount',
                         hideTrigger : true,
                         keyNavEnabled: false,
-                        mouseWheelEnabled: false
+                        mouseWheelEnabled: false,
+                        itemId      : 'nrActionAmount',
+                        hidden      : block_hidden,
+                        disabled    : block_hidden
                     },
                     {
                         fieldLabel  : '%',
                         xtype       : 'displayfield',
-                        margin      : '10 2 0 2'
+                        margin      : '10 2 0 2',
+                        itemId      : 'lblPercent',
+                        hidden      : block_hidden
                     }
                 ]
             }

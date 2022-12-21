@@ -31,6 +31,7 @@ class ProfilesController extends AppController
         $this->loadModel('Groups');
         
         $this->loadModel('ProfileComponents');
+        $this->loadModel('ProfileFupComponents');
         $this->loadModel('Radusergroups');
         
         $this->loadModel('Radgroupchecks');
@@ -497,6 +498,7 @@ class ProfilesController extends AppController
         if($this->request->getQuery('profile_id')){
             $profile_id = $this->request->getQuery('profile_id');     
             $ent = $this->{$this->main_model}->find()
+            	->contain(['ProfileFupComponents'])
                 ->where(['Profiles.id' => $profile_id])
                 ->first();   
         } 
@@ -504,6 +506,91 @@ class ProfilesController extends AppController
 	    $this->set([
             'success' 	=> true,
             'data' 		=> $ent
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+	}
+	
+	
+	public function fupEdit(){
+	
+	    if (!$this->request->is('post')) {
+			throw new MethodNotAllowedException();
+		}
+		
+		$this->reqData	= $this->request->getData();
+
+        $check_items = [
+//			'data_limit_mac',
+
+		];
+        foreach($check_items as $i){
+            if(isset($this->reqData[$i])){
+                $this->reqData[$i] = 1;
+            }else{
+                $this->reqData[$i] = 0;
+            }
+        }
+        
+        $add_numbers 	= [];
+        $edit_numbers 	= [];
+        
+        foreach(array_keys($this->reqData) as $key){      
+        	if(preg_match("/^add_.+_name/",  $key)){
+        		//Get the number
+        		$add_nr = str_replace('add_','', $key);
+        		$add_nr = preg_replace('/_.*/', '', $add_nr);
+        		array_push($add_numbers,$add_nr);
+        	}
+        	if(preg_match("/^edit_.+_name/",  $key)){
+        		//Get the number
+        		$edit_nr = str_replace('edit_','', $key);
+        		$edit_nr = preg_replace('/_.*/', '', $edit_nr);
+        		array_push($edit_numbers,$edit_nr);
+        	}        
+        }
+        
+        
+		
+		//Now we have our edit items we can edit them...
+        foreach($edit_numbers as $en){
+        	$edit_data = [];
+		    foreach(array_keys($this->reqData) as $key){ 
+		    	if(preg_match("/^edit_".$en."_/",  $key)){
+		    		$item = str_replace('edit_'.$en.'_','', $key);
+		    		$edit_data[$item] = $this->reqData[$key];		    	
+		    	}		    
+		    }
+		    $edit_e = $this->{'ProfileFupComponents'}->find()->where(['ProfileFupComponents.id' => $en])->first();
+		    if($edit_e){
+		    	$this->{'ProfileFupComponents'}->patchEntity($edit_e, $edit_data);
+		    	$this->{'ProfileFupComponents'}->save($edit_e);      
+		    }              
+		}
+		
+		//We also need to loop through the existing ones and if its not in the edit list - delete it
+		$existing = $this->{'ProfileFupComponents'}->find()->where(['ProfileFupComponents.profile_id' => $this->reqData['id']])->all();
+		foreach($existing as $ex){
+			if(!in_array($ex->id,$edit_numbers)){
+				$this->{'ProfileFupComponents'}->delete($ex);
+			}		
+		}
+		
+		//Now we have our add items we can add them...
+        foreach($add_numbers as $an){
+        	$add_data = [];
+        	$add_data['profile_id'] = $this->reqData['id'];
+		    foreach(array_keys($this->reqData) as $key){ 
+		    	if(preg_match("/^add_".$an."_/",  $key)){
+		    		$item = str_replace('add_'.$an.'_','', $key);
+		    		$add_data[$item] = $this->reqData[$key];		    	
+		    	}		    
+		    }
+		    $ne = $this->{'ProfileFupComponents'}->newEntity($add_data);
+            $this->{'ProfileFupComponents'}->save($ne);    
+		}		
+				           
+        $this->set([
+            'success' 	=> true
         ]);
         $this->viewBuilder()->setOption('serialize', true);
 	}

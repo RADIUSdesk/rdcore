@@ -22,10 +22,16 @@ class ProfilesTable extends Table
             'sort'          => ['Radusergroups.priority' => 'ASC'],
             'dependent'     => true
         ]);
+       
+       //FIXME Dec 2022 Think this might cause troubles 
+       // $this->hasMany('PermanentUsers',[
+       //     'dependent' => true
+      //  ]);
         
-        $this->hasMany('PermanentUsers',[
+        $this->hasMany('ProfileFupComponents',[
             'dependent' => true
         ]);
+        
     }
     
     public function validationDefault(Validator $validator):Validator{

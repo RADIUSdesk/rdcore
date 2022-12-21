@@ -10,6 +10,6 @@ Ext.define('Rd.view.profiles.vcFupComponents', {
         var me = this;
         me.count = me.count+1;
         console.log(me.count);
-        me.getView().add({xtype : 'pnlFupComponent',ui : 'panel-blue',title: 'New FUP Component '+me.count,count: me.count, action: 'add'});
+        me.getView().add({xtype : 'pnlFupComponent',ui : 'panel-green',title: 'New FUP Component '+me.count,count: me.count, action: 'add'});
 	}
 });
