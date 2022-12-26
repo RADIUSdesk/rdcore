@@ -21,6 +21,7 @@ class ProfilesController extends AppController
     protected $owner_tree 	= [];
     protected $main_model 	= 'Profiles';
     protected $profCompPrefix = 'SimpleAdd_';
+    protected $profCompPrefixFup = 'FupAdd_';
     protected $reqData		= [];
 
     public function initialize():void{
@@ -502,6 +503,14 @@ class ProfilesController extends AppController
                 ->where(['Profiles.id' => $profile_id])
                 ->first();   
         } 
+        
+        $pc_name 	= $this->profCompPrefixFup.$ent->id;
+       	$data       = $this->_getRadiusFup($pc_name);
+       	
+       	foreach(array_keys($data) as $k){
+       		$ent->{$k} = $data[$k];
+       	}             
+        
 	
 	    $this->set([
             'success' 	=> true,
@@ -519,18 +528,36 @@ class ProfilesController extends AppController
 		
 		$this->reqData	= $this->request->getData();
 
-        $check_items = [
-//			'data_limit_mac',
-
+        $t_f_settings = [
+			'fup_enabled',
 		];
-        foreach($check_items as $i){
-            if(isset($this->reqData[$i])){
+		
+		foreach($t_f_settings as $i){
+            if($this->reqData[$i] === 'true'){
                 $this->reqData[$i] = 1;
             }else{
                 $this->reqData[$i] = 0;
             }
         }
         
+        $pc_name 		= $this->profCompPrefixFup.$this->reqData['id'];
+		$pc_name_simple =  $this->profCompPrefix.$this->reqData['id'];
+        
+        if($this->reqData['fup_enabled'] == 0){
+        	//Delete all the FUP Components
+        	$this->{'ProfileComponents'}->deleteAll(['ProfileComponents.name' => $pc_name, 'ProfileComponents.cloud_id' =>$this->reqData['cloud_id']]);
+        	$this->{'Radusergroups'}->deleteAll(['Radusergroups.groupname' =>$pc_name]);
+        	$this->{'Radgroupchecks'}->deleteAll(['groupname'  => $pc_name]);
+        	$this->{'Radgroupreplies'}->deleteAll(['groupname' => $pc_name]);      	
+        	$this->{'ProfileFupComponents'}->deleteAll(['ProfileFupComponents.profile_id' => $this->reqData['id']]);
+        	$this->set([
+		        'success' 	=> true
+		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);
+		    return;
+        }
+        
+        //=== FUP Components ===
         $add_numbers 	= [];
         $edit_numbers 	= [];
         
@@ -547,9 +574,7 @@ class ProfilesController extends AppController
         		$edit_nr = preg_replace('/_.*/', '', $edit_nr);
         		array_push($edit_numbers,$edit_nr);
         	}        
-        }
-        
-        
+        }       
 		
 		//Now we have our edit items we can edit them...
         foreach($edit_numbers as $en){
@@ -587,16 +612,55 @@ class ProfilesController extends AppController
 		    }
 		    $ne = $this->{'ProfileFupComponents'}->newEntity($add_data);
             $this->{'ProfileFupComponents'}->save($ne);    
-		}		
-				           
-        $this->set([
-            'success' 	=> true
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);
+		}
+		
+		//===Find the count of FupComponents
+		$fup_comp_count = $this->{'ProfileFupComponents'}->find()->where(['ProfileFupComponents.profile_id' => $this->reqData['id']])->count();
+		
+		
+		
+		//===The RADIUS side===
+		//Also add a profile component (Our Convention will have it contain 'FupAdd_'+<profile_ID>)
+		//First check if it is not already added
+		$e_pc		= $this->{'ProfileComponents'}->find()
+			->where(['ProfileComponents.name' => $pc_name, 'ProfileComponents.cloud_id' =>$this->reqData['cloud_id']])
+			->first();
+		if(!$e_pc){
+			$e_pc       = $this->{'ProfileComponents'}->newEntity(['name' => $pc_name,'cloud_id' => $this->reqData['cloud_id']]);
+        	$this->{'ProfileComponents'}->save($e_pc);
+        }
+        
+        $this->{'ProfileComponents'}->deleteAll(['ProfileComponents.name' => $pc_name_simple, 'ProfileComponents.cloud_id' =>$this->reqData['cloud_id']]);
+        $this->{'Radgroupchecks'}->deleteAll(['groupname'  => $pc_name_simple]);
+        $this->{'Radgroupreplies'}->deleteAll(['groupname' => $pc_name_simple]);
+        $this->{'Radusergroups'}->deleteAll(['Radusergroups.groupname' =>$pc_name_simple]);
+        
+		$this->{'Radusergroups'}->deleteAll(['Radusergroups.groupname' =>$pc_name]);		
+        $ne = $this->{'Radusergroups'}->newEntity(
+            [
+                'username'  => $this->reqData['name'],
+                'groupname' => $pc_name,
+                'priority'  => 5
+            ]
+        );
+        $this->{'Radusergroups'}->save($ne);
+                		
+		$entity =  $this->{$this->main_model}->find()->where(['Profiles.id' => $this->reqData['id']])->first();
+		$this->{$this->main_model}->patchEntity($entity, $this->reqData); 		
+		if ($this->{$this->main_model}->save($entity)) {
+            $this->_doRadiusFup($pc_name,$fup_comp_count);     
+            $this->set(array(
+                'success' => true
+            ));
+            $this->viewBuilder()->setOption('serialize', true);
+        } else {
+            $message = __('Could not update item');
+            $this->JsonErrors->entityErros($entity,$message);
+        }
 	}
 	
-    public function menuForGrid()
-    {
+    public function menuForGrid(){
+
         $user = $this->Aa->user_for_token($this);
         if (!$user) {   //If not a valid user
             return;
@@ -608,6 +672,75 @@ class ProfilesController extends AppController
             'success' => true
         ]);
         $this->viewBuilder()->setOption('serialize', true);
+    }
+    
+    private function _doRadiusFup($groupname,$count=0){
+    
+    	//Clear any posible left-overs
+        $this->{'Radgroupchecks'}->deleteAll(['groupname' => $groupname]);
+        $this->{'Radgroupreplies'}->deleteAll(['groupname' => $groupname]);
+        
+        if($this->reqData['fup_enabled']){ //IF it is there    
+            $speed_upload_amount    = $this->reqData['fup_upload_amount'];
+            $speed_upload_unit      = $this->reqData['fup_upload_unit'];
+            $speed_upload           = $speed_upload_amount * 1024; //Default is kbps
+            if($speed_upload_unit == 'mbps'){
+                $speed_upload = $speed_upload * 1024;   
+            }
+            
+            $d_up = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Fup-Bw-Up',
+                'op'        => ':=',
+                'value'     => $speed_upload,
+                'comment'   => 'FupProfile'
+            ];
+            
+            $e_up = $this->{'Radgroupchecks'}->newEntity($d_up);
+            $this->{'Radgroupchecks'}->save($e_up);
+            
+            $speed_download_amount  = $this->reqData['fup_download_amount'];
+            $speed_download_unit    = $this->reqData['fup_download_unit'];
+            $speed_download         = $speed_download_amount * 1024; //Default is kbps
+            if($speed_download_unit == 'mbps'){
+                $speed_download = $speed_download * 1024;   
+            }
+            
+            $d_down = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Fup-Bw-Down',
+                'op'        => ':=',
+                'value'     => $speed_download,
+                'comment'   => 'FupProfile'
+            ];
+            
+            $e_down = $this->{'Radgroupchecks'}->newEntity($d_down);
+            $this->{'Radgroupchecks'}->save($e_down);
+            
+             $d_count = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Fup-Comp-Count',
+                'op'        => ':=',
+                'value'     => $count,
+                'comment'   => 'FupProfile'
+            ];
+            
+            $e_count = $this->{'Radgroupchecks'}->newEntity($d_count);
+            $this->{'Radgroupchecks'}->save($e_count);
+                        
+        }
+        
+        //Fall Through      
+        $d_fall_through = [
+            'groupname' => $groupname,
+            'attribute' => 'Fall-Through',
+            'op'        => ':=',
+            'value'     => 'Yes',
+            'comment'   => 'FupProfile'        
+        ];
+        $e_ff = $this->{'Radgroupreplies'}->newEntity($d_fall_through );
+        $this->{'Radgroupreplies'}->save($e_ff );       
+                    
     }
     
     private function _doRadius($groupname){
@@ -950,6 +1083,51 @@ class ProfilesController extends AppController
         ];
         $e_ff = $this->{'Radgroupreplies'}->newEntity($d_fall_through );
         $this->{'Radgroupreplies'}->save($e_ff );       
+    }
+    
+    private function _getRadiusFup($groupname){
+    
+   		$data 	= [
+            'fup_enabled'   => false
+        ]; 
+    
+    	$e_list = $this->{'Radgroupchecks'}->find()->where(['Radgroupchecks.groupname' => $groupname])->all();  
+    	
+    	$bw_up_check    = false;
+        $bw_down_check  = false;
+           
+        foreach($e_list as $e){
+
+            if($e->attribute == 'Rd-Fup-Bw-Up'){
+                $bw_up_check = true;
+                if(intval($e->value) >= 1048576){
+                    $speed_upload_amount = $e->value / 1024 / 1024;
+                    $speed_upload_unit   = 'mbps';
+                }else{
+                    $speed_upload_amount = $e->value / 1024;
+                    $speed_upload_unit   = 'kbps';
+                }
+            }
+            if($e->attribute == 'Rd-Fup-Bw-Down'){
+                $bw_down_check = true;
+                if(intval($e->value) >= 1048576){
+                    $speed_download_amount = $e->value / 1024 / 1024;
+                    $speed_download_unit   = 'mbps';
+                }else{
+                    $speed_download_amount = $e->value / 1024;
+                    $speed_download_unit   = 'kbps';
+                }
+            }   
+        }
+    
+        if(($bw_up_check)&&($bw_down_check)){ 
+            unset($data['fup_enabled']);
+            $data['fup_upload_amount']    = $speed_upload_amount;
+            $data['fup_upload_unit']      = $speed_upload_unit;
+            $data['fup_download_amount']  = $speed_download_amount;
+            $data['fup_download_unit']    = $speed_download_unit;
+        }   	   
+    	return $data;
     }
     
     

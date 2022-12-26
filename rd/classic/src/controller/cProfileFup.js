@@ -43,7 +43,6 @@ Ext.define('Rd.controller.cProfileFup', {
                 glyph   		: Rd.config.icnHandshakeO, 
                 title   		: "FUP Edit "+name,
                 closable		: true,
-                layout  		: 'auto',
                 xtype   		: 'pnlEditProfileFup',
                 itemId  		: id,
                 profileId       : profile_id,
@@ -95,6 +94,8 @@ Ext.define('Rd.controller.cProfileFup', {
     loadFupComponents: function(pnl,list){
         var me = this;
         var pnlComponents = pnl.down('pnlFupComponents');
+        //Clear the panel first
+        pnlComponents.removeAll(true); 
         
         Ext.Array.forEach(list,function(item){
             console.log(item);

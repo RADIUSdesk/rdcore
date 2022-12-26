@@ -28,7 +28,7 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
         var t_end       = '';
         var d_amount    = 1;
         var d_unit      = 'gb';
-        var action      = 'decrease_speed';
+        var action      = 'block';
         var a_amount    = 1;
         var time_hidden = true;
         var data_hidden = true;

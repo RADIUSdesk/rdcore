@@ -13,15 +13,15 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
         var me      = this;
         var w_sec   = 350;
         var w_rd    = 68;
-        me.width    = 550;
-        me.padding  = 5;
+        me.width    = 750;
+        me.padding  = '0 0 10 0';
         me.items    = [
 			{
 			    xtype       : 'sldrToggle',
 			    fieldLabel  : 'Enabled',
 			    userCls     : 'sldrDark',
-			    name        : 'pppoe_enabled',
-			    itemId      : 'pppoe_enabled',
+			    name        : 'fup_enabled',
+			    itemId      : 'fup_enabled',
 			    value       : 1,
 			    listeners   : {
 					change  : 'sldrToggleChange'
@@ -30,22 +30,23 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
 			{ 
 			    xtype       : 'container',
 			    itemId      : 'cntDetail',
+                
 			    items       : [
 			        {
 			            xtype       : 'rdSliderSpeed',
-			            sliderName  : 'pppoe_upload',
+			            sliderName  : 'fup_upload',
 			            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up"
 			        },
                     {
 			            xtype       : 'rdSliderSpeed',
-			            sliderName  : 'pppoe_download',
+			            sliderName  : 'fup_download',
 			            fieldLabel  : "<i class='fa fa-arrow-down'></i> Down",
 			        },
                     {
                         xtype       : 'checkbox',
                         itemId      : 'chkBurstEnable',
                         fieldLabel  : 'Enable Bursting',
-                        name        : 'pppoe_bursting_on',
+                        name        : 'fup_bursting_on',
                         margin      : '0 0 0 15'
                     },
                     {
@@ -54,7 +55,7 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
                         value       : 100,
                         maxValue    : 1,
                         minValue    : 200,
-                        name        : 'pppoe_burst_limit',
+                        name        : 'fup_burst_limit',
                         hideTrigger : true,
                         disabled    : true
                     },
@@ -64,7 +65,7 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
                         value       : 100,
                         maxValue    : 1,
                         minValue    : 600,
-                        name        : 'pppoe_burst_time',
+                        name        : 'fup_burst_time',
                         hideTrigger : true,
                         disabled    : true
                     },
@@ -74,7 +75,7 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
                         value       : 100,
                         maxValue    : 1,
                         minValue    : 200,
-                        name        : 'pppoe_burst_threshold',
+                        name        : 'fup_burst_threshold',
                         hideTrigger : true,
                         disabled    : true
                     }
