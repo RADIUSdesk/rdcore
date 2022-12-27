@@ -4,6 +4,11 @@ Ext.define('Rd.view.profiles.vcPppoe', {
     init    : function() {
         var me = this;
     },
+    control: {
+        '#chkBurstEnable' : {
+            change : 'onChkBurstEnableChange'
+        }
+    },
     sldrToggleChange: function(sldr){
 		var me 		    = this;
 		var pnl    	    = sldr.up('panel');
@@ -19,5 +24,18 @@ Ext.define('Rd.view.profiles.vcPppoe', {
 		    cnt.show();
             components.enable();
 		}
-	}
+	},
+    onChkBurstEnableChange : function(chk){
+        var me      = this;
+        var form    = chk.up('form');
+        if(chk.getValue()){
+            form.down('#nrFupBurstLimit').enable();
+            form.down('#nrFupBurstTime').enable();
+            form.down('#nrFupBurstThreshold').enable();       
+        }else{
+            form.down('#nrFupBurstLimit').disable();
+            form.down('#nrFupBurstTime').disable();
+            form.down('#nrFupBurstThreshold').disable();    
+        }
+    }
 });

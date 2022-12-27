@@ -53,31 +53,34 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
                         xtype       : 'numberfield',
                         fieldLabel  : 'Burst Limit(%)',
                         value       : 100,
-                        maxValue    : 1,
-                        minValue    : 200,
+                        maxValue    : 200,
+                        minValue    : 1,
                         name        : 'fup_burst_limit',
                         hideTrigger : true,
-                        disabled    : true
+                        disabled    : true,
+                        itemId      : 'nrFupBurstLimit'
                     },
                     {
                         xtype       : 'numberfield',
                         fieldLabel  : 'Burst Time (Seconds)',
                         value       : 100,
-                        maxValue    : 1,
-                        minValue    : 600,
+                        maxValue    : 600,
+                        minValue    : 1,
                         name        : 'fup_burst_time',
                         hideTrigger : true,
-                        disabled    : true
+                        disabled    : true,
+                        itemId      : 'nrFupBurstTime'
                     },
                     {
                         xtype       : 'numberfield',
                         fieldLabel  : 'Burst Threshold(%)',
                         value       : 100,
-                        maxValue    : 1,
-                        minValue    : 200,
+                        maxValue    : 200,
+                        minValue    : 1,
                         name        : 'fup_burst_threshold',
                         hideTrigger : true,
-                        disabled    : true
+                        disabled    : true,
+                        itemId      : 'nrFupBurstThreshold'
                     }
                 ]
             }

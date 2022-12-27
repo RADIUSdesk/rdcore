@@ -540,8 +540,9 @@ class ProfilesController extends AppController
             }
         }
         
-        $pc_name 		= $this->profCompPrefixFup.$this->reqData['id'];
-		$pc_name_simple =  $this->profCompPrefix.$this->reqData['id'];
+        $profile_id		= $this->reqData['id'];
+        $pc_name 		= $this->profCompPrefixFup.$profile_id;
+		$pc_name_simple = $this->profCompPrefix.$profile_id;
         
         if($this->reqData['fup_enabled'] == 0){
         	//Delete all the FUP Components
@@ -549,7 +550,7 @@ class ProfilesController extends AppController
         	$this->{'Radusergroups'}->deleteAll(['Radusergroups.groupname' =>$pc_name]);
         	$this->{'Radgroupchecks'}->deleteAll(['groupname'  => $pc_name]);
         	$this->{'Radgroupreplies'}->deleteAll(['groupname' => $pc_name]);      	
-        	$this->{'ProfileFupComponents'}->deleteAll(['ProfileFupComponents.profile_id' => $this->reqData['id']]);
+        	$this->{'ProfileFupComponents'}->deleteAll(['ProfileFupComponents.profile_id' => $profile_id]);
         	$this->set([
 		        'success' 	=> true
 		    ]);
@@ -593,7 +594,7 @@ class ProfilesController extends AppController
 		}
 		
 		//We also need to loop through the existing ones and if its not in the edit list - delete it
-		$existing = $this->{'ProfileFupComponents'}->find()->where(['ProfileFupComponents.profile_id' => $this->reqData['id']])->all();
+		$existing = $this->{'ProfileFupComponents'}->find()->where(['ProfileFupComponents.profile_id' => $profile_id])->all();
 		foreach($existing as $ex){
 			if(!in_array($ex->id,$edit_numbers)){
 				$this->{'ProfileFupComponents'}->delete($ex);
@@ -603,7 +604,7 @@ class ProfilesController extends AppController
 		//Now we have our add items we can add them...
         foreach($add_numbers as $an){
         	$add_data = [];
-        	$add_data['profile_id'] = $this->reqData['id'];
+        	$add_data['profile_id'] = $profile_id;
 		    foreach(array_keys($this->reqData) as $key){ 
 		    	if(preg_match("/^add_".$an."_/",  $key)){
 		    		$item = str_replace('add_'.$an.'_','', $key);
@@ -615,7 +616,7 @@ class ProfilesController extends AppController
 		}
 		
 		//===Find the count of FupComponents
-		$fup_comp_count = $this->{'ProfileFupComponents'}->find()->where(['ProfileFupComponents.profile_id' => $this->reqData['id']])->count();
+		$fup_comp_count = $this->{'ProfileFupComponents'}->find()->where(['ProfileFupComponents.profile_id' => $profile_id])->count();
 		
 		
 		
@@ -645,10 +646,10 @@ class ProfilesController extends AppController
         );
         $this->{'Radusergroups'}->save($ne);
                 		
-		$entity =  $this->{$this->main_model}->find()->where(['Profiles.id' => $this->reqData['id']])->first();
+		$entity =  $this->{$this->main_model}->find()->where(['Profiles.id' => $profile_id])->first();
 		$this->{$this->main_model}->patchEntity($entity, $this->reqData); 		
 		if ($this->{$this->main_model}->save($entity)) {
-            $this->_doRadiusFup($pc_name,$fup_comp_count);     
+            $this->_doRadiusFup($pc_name,$profile_id,$fup_comp_count);     
             $this->set(array(
                 'success' => true
             ));
@@ -674,7 +675,7 @@ class ProfilesController extends AppController
         $this->viewBuilder()->setOption('serialize', true);
     }
     
-    private function _doRadiusFup($groupname,$count=0){
+    private function _doRadiusFup($groupname,$profile_id,$count=0){
     
     	//Clear any posible left-overs
         $this->{'Radgroupchecks'}->deleteAll(['groupname' => $groupname]);
@@ -727,8 +728,54 @@ class ProfilesController extends AppController
             
             $e_count = $this->{'Radgroupchecks'}->newEntity($d_count);
             $this->{'Radgroupchecks'}->save($e_count);
-                        
+            
+            $d_p_id = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Fup-Profile-Id',
+                'op'        => ':=',
+                'value'     => $profile_id,
+                'comment'   => 'FupProfile'
+            ];
+            
+            $e_p_id = $this->{'Radgroupchecks'}->newEntity($d_p_id);
+            $this->{'Radgroupchecks'}->save($e_p_id);                                       
         }
+        
+        if(isset($this->reqData['fup_bursting_on'])){ //IF bursting
+        
+        	$d_bl = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Fup-Burst-Limit',
+                'op'        => ':=',
+                'value'     => $this->reqData['fup_burst_limit'],
+                'comment'   => 'FupProfile'
+            ];
+            
+            $e_bl = $this->{'Radgroupchecks'}->newEntity($d_bl);
+            $this->{'Radgroupchecks'}->save($e_bl); 
+            
+            $d_bt = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Fup-Burst-Time',
+                'op'        => ':=',
+                'value'     => $this->reqData['fup_burst_time'],
+                'comment'   => 'FupProfile'
+            ];
+            
+            $e_bt = $this->{'Radgroupchecks'}->newEntity($d_bt);
+            $this->{'Radgroupchecks'}->save($e_bt);
+            
+            $d_bth = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Fup-Burst-Threshold',
+                'op'        => ':=',
+                'value'     => $this->reqData['fup_burst_threshold'],
+                'comment'   => 'FupProfile'
+            ];
+            
+            $e_bth = $this->{'Radgroupchecks'}->newEntity($d_bth);
+            $this->{'Radgroupchecks'}->save($e_bth);                  
+        } 
         
         //Fall Through      
         $d_fall_through = [
@@ -1088,7 +1135,8 @@ class ProfilesController extends AppController
     private function _getRadiusFup($groupname){
     
    		$data 	= [
-            'fup_enabled'   => false
+            'fup_enabled'   	=> false,
+            'fup_bursting_on'   => false
         ]; 
     
     	$e_list = $this->{'Radgroupchecks'}->find()->where(['Radgroupchecks.groupname' => $groupname])->all();  
@@ -1117,7 +1165,21 @@ class ProfilesController extends AppController
                     $speed_download_amount = $e->value / 1024;
                     $speed_download_unit   = 'kbps';
                 }
-            }   
+            }
+            
+            if($e->attribute == 'Rd-Fup-Burst-Limit'){
+            	$data['fup_bursting_on']    = true;
+            	$data['fup_burst_limit']    = intval($e->value);           
+            }
+            
+            
+            if($e->attribute == 'Rd-Fup-Burst-Time'){
+            	$data['fup_burst_time']    = intval($e->value);           
+            }
+            
+            if($e->attribute == 'Rd-Fup-Burst-Threshold'){
+            	$data['fup_burst_threshold']    = intval($e->value);           
+            }                 
         }
     
         if(($bw_up_check)&&($bw_down_check)){ 

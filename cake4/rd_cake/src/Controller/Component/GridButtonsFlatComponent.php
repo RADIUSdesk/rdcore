@@ -426,7 +426,7 @@ class GridButtonsFlatComponent extends Component {
         }
         
          if($type == 'profiles'){
-            $b  = $this->_fetchBasic();
+            $b  = $this->_fetchProfiles();
             $a  = $this->_fetchProfilesExtras();
             $menu = array($b,$a);
         }
@@ -661,6 +661,34 @@ class GridButtonsFlatComponent extends Component {
         ]];    
 	    $menu = [$b,$c];
         return $menu;    
+    }
+    
+    private function _fetchProfiles(){
+    
+    	$edit = [
+            'xtype' 	=> 'splitbutton',   
+            'glyph' 	=> Configure::read('icnEdit'),    
+            'scale' 	=> $this->scale, 
+            'itemId' 	=> 'edit',      
+            'tooltip'	=> __('Edit'),
+            'ui'        => $this->btnUiEdit,
+            'menu'      => [
+                    'items' => [
+                        [ 'text'  => __('Simple Edit'),      		'itemId'    => 'addSingle', 'group' => 'add', 'checked' => true ],
+                        [ 'text'  => __('FUP Edit'),   'itemId'    => 'addDouble', 'group' => 'add' ,'checked' => false], 
+                        [ 'text'  => __('Advanced Edit'),         'itemId'    => 'addCsvList','group' => 'add' ,'checked' => false],  
+                    ]
+            ]
+        ];
+    
+    	 $menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+                $this->btnReload,
+                $this->btnAdd,
+                $this->btnDelete,
+				$edit
+            ]
+        ];     
+        return $menu;  
     }
    
   	private function _fetchBasic($with_reload_timer=false){       
