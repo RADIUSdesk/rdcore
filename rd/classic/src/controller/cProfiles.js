@@ -28,7 +28,8 @@ Ext.define('Rd.controller.cProfiles', {
     config: {
         urlDelete:          '/cake4/rd_cake/profiles/delete.json',
         urlExportCsv:       '/cake4/rd_cake/profiles/export-csv',
-        urlManageComponents:'/cake4/rd_cake/profiles/manage-components.json'
+        urlManageComponents:'/cake4/rd_cake/profiles/manage-components.json',
+        editOption  : 'simple'
     },
     refs: [
         {  ref: 'grid',  selector:   'gridProfiles'}       
@@ -54,6 +55,9 @@ Ext.define('Rd.controller.cProfiles', {
             },
             'gridProfiles #edit'   : {
                 click:      me.edit
+            },
+            'gridProfiles #edit menuitem[group=edit]'   : {
+                click:      me.editOptionClick
             },
             'gridProfiles #csv'  : {
                 click:      me.csvExport
@@ -160,7 +164,7 @@ Ext.define('Rd.controller.cProfiles', {
                         url: me.getUrlDelete(),
                         method: 'POST',          
                         jsonData: list,
-                        success: function(batch,options){console.log('success');
+                        success: function(batch,options){
                             Ext.ux.Toaster.msg(
                                 i18n('sItem_deleted'),
                                 i18n('sItem_deleted_fine'),
@@ -184,9 +188,23 @@ Ext.define('Rd.controller.cProfiles', {
             });
         }
     },
-    edit: function(){
-      
-        var me      = this;    
+    editOptionClick: function(menu_item){
+		var me = this;
+		var n  = menu_item.getItemId();	
+		me.setEditOption(n);
+	},
+    edit: function(){     
+        var me  = this; 
+
+        if(me.getEditOption()=='fup'){
+            me.fupEdit();
+            return;
+        }
+        if(me.getEditOption()=='advanced'){
+            me.advanced_edit();
+            return;
+        }
+   
         var store   = me.getGrid().getStore();
         var tp      = me.getGrid().up('tabpanel'); 
         if(me.getGrid().getSelectionModel().getCount() == 0){
@@ -321,7 +339,6 @@ Ext.define('Rd.controller.cProfiles', {
         }
     },
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
-        //console.log("Action Item "+action+" Clicked");
         var me = this;
         var grid = view.up('grid');
         grid.setSelection(record);
@@ -344,7 +361,6 @@ Ext.define('Rd.controller.cProfiles', {
         }
 
         if(action == 'fup'){
-            console.log("Klap FUP Pappie");
             me.fupEdit();
         }
 

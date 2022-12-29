@@ -427,8 +427,7 @@ class GridButtonsFlatComponent extends Component {
         
          if($type == 'profiles'){
             $b  = $this->_fetchProfiles();
-            $a  = $this->_fetchProfilesExtras();
-            $menu = array($b,$a);
+            $menu = [$b];
         }
         
         if($type == 'DynamicClients'){      
@@ -674,9 +673,9 @@ class GridButtonsFlatComponent extends Component {
             'ui'        => $this->btnUiEdit,
             'menu'      => [
                     'items' => [
-                        [ 'text'  => __('Simple Edit'),      		'itemId'    => 'addSingle', 'group' => 'add', 'checked' => true ],
-                        [ 'text'  => __('FUP Edit'),   'itemId'    => 'addDouble', 'group' => 'add' ,'checked' => false], 
-                        [ 'text'  => __('Advanced Edit'),         'itemId'    => 'addCsvList','group' => 'add' ,'checked' => false],  
+                        [ 'text'  => __('Simple Edit'),  	'itemId'    => 'simple', 	'group' => 'edit', 'checked' => true, 	'glyph' => Configure::read('icnEdit') ],
+                        [ 'text'  => __('FUP Edit'),   		'itemId'    => 'fup', 		'group' => 'edit' ,'checked' => false, 	'glyph' => Configure::read('icnHandshake')], 
+                        [ 'text'  => __('Advanced Edit'),   'itemId'    => 'advanced',	'group' => 'edit' ,'checked' => false, 	'glyph' => Configure::read('icnGears')],  
                     ]
             ]
         ];
@@ -685,7 +684,8 @@ class GridButtonsFlatComponent extends Component {
                 $this->btnReload,
                 $this->btnAdd,
                 $this->btnDelete,
-				$edit
+				$edit,
+				$this->btnProfComp
             ]
         ];     
         return $menu;  

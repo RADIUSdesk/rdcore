@@ -7,7 +7,7 @@ Ext.define('Rd.controller.cProfileComponents', {
         });
         
         if (!tab){
-            tab = tp.insert(1,{
+            tab = tp.insert(3,{
                 xtype   : 'gridProfileComponents',
                 padding : Rd.config.gridSlim,
                 border  : false,
