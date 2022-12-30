@@ -775,6 +775,19 @@ class ProfilesController extends AppController
             
             $e_bth = $this->{'Radgroupchecks'}->newEntity($d_bth);
             $this->{'Radgroupchecks'}->save($e_bth);                  
+        }
+        
+        if((isset($this->reqData['fup_ip_pool']))&&($this->reqData['fup_ip_pool'] !== '')){ //IP Pool
+        	$d_ip = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Fup-Ip-Pool',
+                'op'        => ':=',
+                'value'     => $this->reqData['fup_ip_pool'],
+                'comment'   => 'FupProfile'
+            ];
+            
+            $e_ip = $this->{'Radgroupchecks'}->newEntity($d_ip);
+            $this->{'Radgroupchecks'}->save($e_ip);        
         } 
         
         //Fall Through      
@@ -1179,7 +1192,11 @@ class ProfilesController extends AppController
             
             if($e->attribute == 'Rd-Fup-Burst-Threshold'){
             	$data['fup_burst_threshold']    = intval($e->value);           
-            }                 
+            }
+             
+            if($e->attribute == 'Rd-Fup-Ip-Pool'){
+            	$data['fup_ip_pool']    = $e->value;           
+            }                  
         }
     
         if(($bw_up_check)&&($bw_down_check)){ 

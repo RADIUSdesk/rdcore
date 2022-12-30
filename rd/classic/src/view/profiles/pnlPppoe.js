@@ -81,7 +81,14 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
                         hideTrigger : true,
                         disabled    : true,
                         itemId      : 'nrFupBurstThreshold'
-                    }
+                    },
+                    {
+			            xtype       : 'textfield',
+			            fieldLabel  : 'IP Pool (Optional)',
+			            name        : 'fup_ip_pool',
+			            allowBlank  : true,
+			            blankText   : i18n("sSupply_a_value")
+		            }
                 ]
             }
         ];       

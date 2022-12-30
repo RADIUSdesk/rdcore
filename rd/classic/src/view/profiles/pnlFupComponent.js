@@ -33,6 +33,7 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
         var time_hidden = true;
         var data_hidden = true;
         var block_hidden= true;
+        var val_ip_pool = '';
 
         if(me.d){
             val_name = me.d.name;
@@ -64,6 +65,9 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
             
             if(me.d.action_amount){
                 a_amount = me.d.action_amount;
+            }
+            if(me.d.ip_pool){
+                val_ip_pool = me.d.ip_pool;
             }
         }else{
             time_hidden = false;//New one = default show time
@@ -222,7 +226,17 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
                         hidden      : block_hidden
                     }
                 ]
-            }
+            },
+            {
+			    xtype       : 'textfield',
+			    fieldLabel  : 'IP Pool (Optional)',
+			    name        : prefix+'ip_pool',
+			    allowBlank  : true,
+			    blankText   : i18n("sSupply_a_value"),
+			    width       : w_prim,
+                margin      : Rd.config.fieldMargin,
+                value       : val_ip_pool
+		    }
             
         ];       
         this.callParent(arguments);
