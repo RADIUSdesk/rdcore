@@ -10,6 +10,9 @@ use Cake\Console\ConsoleOptionParser;
 
 use Cake\Datasource\ConnectionManager;
 
+use Cake\I18n\FrozenTime;
+use Cake\I18n\Time;
+
 
 /*
 /ip firewall filter
@@ -29,6 +32,7 @@ class FupShell extends Shell {
         $this->loadModel('Vouchers');
         $this->loadModel('PermanentUsers');
         $this->loadModel('Devices');
+        $this->loadModel('AppliedFupComponents');
     }
 
     public function main(){
@@ -86,8 +90,7 @@ class FupShell extends Shell {
     
     private function getTimezone($nasid){
     
-    	$timezone = $this->timezone;    
-
+    	$timezone = $this->timezone;
    		$sql_dynamic = "SELECT IFNULL((SELECT tz.name FROM dynamic_clients c LEFT JOIN timezones tz ON tz.id = c.timezone where c.nasidentifier=:nasid),'timezone_not_found') as timezone";
    		$sql_system  = "SELECT IFNULL((SELECT tz.name FROM user_settings us LEFT JOIN timezones tz ON tz.id = us.value where us.name='timezone' AND us.user_id=-1 LIMIT 1),'timezone_not_found') as timezone" ; 
    		
@@ -112,19 +115,161 @@ class FupShell extends Shell {
     
     	#Get the current active applied_fup_component for the user (Then compare it with the one which SHOULD apply)
     	#If different you then issue a disconnect request
-    	
-    
-    	foreach($this->fupProfiles[$profile_id] as $c){
-    	
+    	$current_applied = 0; //Default is none applied (even if it might not be recorded)
+    	$e_applied = $this->{'AppliedFupComponents'}->find()->where(['AppliedFupComponents.username' => $username])->first();
+    	if($e_applied){
+    		$current_applied = $e_applied->profile_fup_component_id;
+    	}
+
+		$should_apply 	= 0;
+		$limits			= [];
+  
+    	foreach($this->fupProfiles[$profile_id] as $c){   	
     		if($c->if_condition == 'time_of_day'){
-    		
-    		
-    		}else{
-    		
-    		    		
+				$return_action = $this->check_time_of_day($c,$timezone);
+				if($return_action == 'block'){
+					$should_apply = $c->id;
+					break;				
+				}
+				if($return_action == 'limit'){				
+					$limits[$c->id] = $c;
+				}   		
+    		}else{    		
+    			#These are day_usage week_usage or month_usage limits
+    			$return_usage = $this->check_usage($username,$c,$timezone);
+    			if($return_usage == 'block'){
+					$should_apply = $c->id;
+					break;				
+				}
+				if($return_usage == 'limit'){				
+					$limits[$c->id] = $c;
+				}     				    		
     		}   	
-    	}   
+    	}
+    	
+    	if($should_apply !== 0){
+    		$this->out("<info>Block Actvie </info>");
+    	}
+
+    	
+    	$most_decrease 	= null;
+    	$least_increase = null;    	
+    	foreach($limits as $val){
+    		
+    		#Decrease Speed
+            if($most_decrease){
+                if($val->{'action'} == 'decrease_speed'){
+                    if($val->{'action_amount'} >$most_decrease->{'action_amount'}){
+                        $most_decrease = $val;
+                    } 
+                }
+            }else{
+                if($val->{'action'} == 'decrease_speed'){
+                    $most_decrease = $val;
+                }
+            }
+
+            #Increase Speed
+            if($least_increase){
+                if($val->{'action'} == 'increase_speed'){
+                    if($val->{'action_amount'} <$least_increase->{'action_amount'}){
+                        $least_increase = $val;
+                    } 
+                }
+            }else{
+                if($val->{'action'} == 'increase_speed'){
+                    $least_increase = $val;
+                }
+            }  	
+    	}
+    	
+    	if($most_decrease){
+        	$should_apply = $most_decrease->{'id'};
+		}else{
+		    if($least_increase){
+		    	$should_apply = $least_decrease->{'id'};      
+		    }
+		}
+
+		$this->out("<info>Current Applied $current_applied</info>");
+    	$this->out("<info>Should Apply $should_apply</info>");
+    	   	   
     }
+    
+    private function check_time_of_day($row,$timezone) {
+    
+    	$dt  		= new FrozenTime();
+    	$dt			= $dt->setTimezone($timezone);
+    	
+    	$dt_start  	= new FrozenTime();
+    	$dt_start  	= $dt_start->setTimezone($timezone);
+    	
+    	$dt_end  	= new FrozenTime();
+    	$dt_end  	= $dt_end->setTimezone($timezone);
+    	
+    	$time_start = explode(':', $row->time_start);
+    	$dt_start   = $dt_start->hour($time_start[0])->minute($time_start[1])->second(00);
+
+		$time_end 	= explode(':', $row->time_end);
+		$dt_end     = $dt_end->hour($time_end[0])->minute($time_end[1])->second(00);
+
+		//$this->out("<info>".$dt_start->nice()."</info>");
+		//$this->out("<info>".$dt->nice()."</info>");
+		//$this->out("<info>".$dt_end->nice()."</info>");
+		if(($dt >= $dt_start)&&($dt <= $dt_end)){
+			if($row->{'action'} == 'block'){
+				//$this->out("<info>BLOCK</info>");
+				return 'block';
+			}else{
+				//$this->out("<info>LIMIT</info>");			
+				return 'limit';
+			}
+		}
+		return 'noop';
+	}
+	
+	private function check_usage($username,$row,$timezone){
+
+    	$time_start = $this->get_start_of($row->{'if_condition'},$timezone);
+    	$sql_usage 	= "SELECT IFNULL(SUM(acctinputoctets)+SUM(acctoutputoctets),0) AS data_used FROM user_stats WHERE username=:username AND timestamp >=:timestamp";
+    	$connection = ConnectionManager::get('default');          
+      	$results = $connection
+    		->execute($sql_usage , ['username' => $username,'timestamp'=>$time_start])
+    		->fetchAll('assoc');
+    	$data_used 	= $results[0]['data_used'];
+   		$trigger  	= $row->{'data_amount'};
+		if($row->{'data_unit'} == 'mb'){
+		    $trigger = $trigger * 1024 * 1024;
+		}
+		if($row->{'data_unit'} == 'gb'){
+		    $trigger = $trigger * 1024 * 1024 * 1024;
+		}
+
+		if($data_used > $trigger){
+		    if($row->{'action'} == 'block'){
+		        return 'block';
+		    }
+		    return 'limit';
+		}
+    	return 'noop';  
+	}
+
+	private function get_start_of($when,$timezone){
+		#'day_usage' is default of current day
+		$dt = new FrozenTime();
+    	$dt = $dt->setTimezone($timezone);
+    	$dt = $dt->hour(00)->minute(00)->second(00);
+		if($when == 'week_usage'){
+		    $dt = $dt->startOfWeek();
+		}
+
+		if($when == 'month_usage'){
+		    $dt = $dt->startOfMonth();
+		}   
+
+		return $dt;
+	}
+	     
     
 /*
 sub fup {
@@ -205,39 +350,6 @@ sub fup {
     }
 }
 
-sub check_time_of_day {
-    my($row) = @_;
-    if(exists($RAD_CHECK{'Rd-Client-Timezone'})){   
-        if($RAD_CHECK{'Rd-Client-Timezone'} ne 'timezone_not_found'){
-            $default_tz = $RAD_CHECK{'Rd-Client-Timezone'};
-        } 
-    }
-
-    my $dt          = DateTime->now( time_zone => $default_tz);
-    my $dt_start    = DateTime->now( time_zone => $default_tz);
-    my $dt_end      = DateTime->now( time_zone => $default_tz);
-
-    #Determine if we fall within the timeslot of the time_of_day span
-    my @time_start = split(':', $row->{'time_start'});
-    $dt_start->set_hour($time_start[0]);
-    $dt_start->set_minute($time_start[1]);
-    $dt_start->set_second(00);
-
-    my @time_end = split(':', $row->{'time_end'});
-    $dt_end->set_hour($time_end[0]);
-    $dt_end->set_minute($time_end[1]);
-    $dt_end->set_second(00);
-    if(($dt->epoch >= $dt_start->epoch)&&($dt->epoch <= $dt_end->epoch)){
-        if($row->{'action'} eq 'block'){
-            $RAD_REPLY{'Reply-Message'} = "Not Available To Use On ".$dt->day_name." at ".$dt->hms(':');
-            $return                     = RLM_MODULE_USERLOCK;
-        }
-        return 1;
-    }else{
-        return undef;
-    }
-}
-
 sub check_usage {
     my($row)        = @_;
     my $time_start  = get_start_of($row->{'if_condition'});
@@ -266,33 +378,7 @@ sub check_usage {
     
 }
 
-sub get_start_of {
-    my ($when) = @_;
-    if(exists($RAD_CHECK{'Rd-Client-Timezone'})){   
-        if($RAD_CHECK{'Rd-Client-Timezone'} ne 'timezone_not_found'){
-            $default_tz = $RAD_CHECK{'Rd-Client-Timezone'};
-        } 
-    }
 
-    #'day_usage' is default of current day
-    my $dt = DateTime->now( time_zone => $default_tz);
-    $dt->set_hour(00);
-    $dt->set_minute(00);
-    $dt->set_second(00);
-
-    if($when eq 'week_usage'){
-        while($dt->day_of_week > 1){
-            #say $dt->day_of_week;
-            $dt->subtract( days => 1 );
-        }      
-    }
-
-    if($when eq 'month_usage'){
-        $dt->set_day(1);
-    }   
-    say $dt;
-    return $dt;
-}
 */    
     
     
