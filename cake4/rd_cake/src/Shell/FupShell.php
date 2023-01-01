@@ -12,12 +12,7 @@ use Cake\Datasource\ConnectionManager;
 
 use Cake\I18n\FrozenTime;
 use Cake\I18n\Time;
-
-
-/*
-/ip firewall filter
-add action=accept chain=input dst-port=8728 protocol=tcp
-*/
+use Cake\Http\Client;
 
 class FupShell extends Shell {
 
@@ -33,10 +28,11 @@ class FupShell extends Shell {
         $this->loadModel('PermanentUsers');
         $this->loadModel('Devices');
         $this->loadModel('AppliedFupComponents');
+        $this->loadModel('Clouds');
+        $this->loadModel('Users');
     }
 
     public function main(){
-        $this->out('Hello world.');  
         $this->findFupProfiles();
         if(!empty($this->fupProfiles)){
         	//There is FUP Profiles lets see if some are with the current active users
@@ -64,10 +60,40 @@ class FupShell extends Shell {
     				$timezone 	= $this->getTimezone($ra->nasidentifier);
     				$profile_id = $e_pu->profile_id;
     				$username	= $ra->username;
-    				$this->fup($username,$profile_id,$timezone);
+    				$this->fup($username,$profile_id,$timezone,$e_pu->cloud_id);
     			}
     		}
-    	}   
+    	}
+    	
+    	if($type == 'voucher'){  	
+    		$e_v = $this->{'Vouchers'}->find()->where(['Vouchers.name' => $ra->username])->first();
+    		if($e_v){
+    			if(isset($this->fupProfiles[$e_v->profile_id])){
+    				$this->out("<info>Found FUP Profile for voucher</info>");
+    				$timezone 	= $this->getTimezone($ra->nasidentifier);
+    				$profile_id = $e_v->profile_id;
+    				$username	= $ra->username;
+    				$this->fup($username,$profile_id,$timezone,$e_v->cloud_id);
+    			}
+    		}
+    	}
+    	
+    	if($type == 'device'){  	
+    		$e_d = $this->{'Devices'}->find()->where(['Devices.name' => $ra->username])->first();
+    		if($e_d){
+    			if(isset($this->fupProfiles[$e_d->profile_id])){
+    				$this->out("<info>Found FUP Profile for device</info>");
+    				$timezone 	= $this->getTimezone($ra->nasidentifier);
+    				$profile_id = $e_v->profile_id;
+    				$username	= $ra->username;
+    				//Need to find the Permanet User
+    				$e_pu_d = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' => $e_d->permanent_user_id])->first();
+    				if($e_pu_d){
+    					$this->fup($username,$profile_id,$timezone,$e_pu_d->cloud_id);
+    				}
+    			}
+    		}
+    	}    	    	     
     }
     
     private function findFupProfiles(){    
@@ -111,7 +137,7 @@ class FupShell extends Shell {
     	return $timezone;    
     }
     
-    private function fup($username,$profile_id,$timezone){
+    private function fup($username,$profile_id,$timezone,$cloud_id){
     
     	#Get the current active applied_fup_component for the user (Then compare it with the one which SHOULD apply)
     	#If different you then issue a disconnect request
@@ -193,7 +219,25 @@ class FupShell extends Shell {
 
 		$this->out("<info>Current Applied $current_applied</info>");
     	$this->out("<info>Should Apply $should_apply</info>");
-    	   	   
+    	if($current_applied !== $should_apply){
+    		$e_cloud = $this->{'Clouds'}->find()->where(['Clouds.id' => $cloud_id])->first();
+    		if($e_cloud){
+    			$user_id = $e_cloud->user_id;
+    			$e_user = $this->{'Users'}->find()->where(['Users.id' => $user_id])->first();
+    			if($e_user){
+    				$token = $e_user->token;
+    				$http  = new Client();
+					$response = $http->get(
+					  'http://127.0.0.1/cake4/rd_cake/radaccts/kick-active-username.json',
+					  ['cloud_id' => $cloud_id,'username' => $username,'token' => $token],
+					  ['type' => 'json']
+					);
+					$reply          = $response->getStringBody();
+					print($reply);
+    			
+    			}    		
+    		}
+    	}  	   
     }
     
     private function check_time_of_day($row,$timezone) {
@@ -269,120 +313,7 @@ class FupShell extends Shell {
 
 		return $dt;
 	}
-	     
-    
-/*
-sub fup {
-    $stmt_fup_comps->execute($RAD_CONFIG{'Rd-Fup-Profile-Id'});
-    my %limits;
-    while(my $row = $stmt_fup_comps->fetchrow_hashref()){
-        if($row->{'if_condition'} eq 'time_of_day'){
-            if(check_time_of_day($row)){
-                #Block action always stop everything further
-                if($return == RLM_MODULE_USERLOCK){
-                    #say $RAD_REPLY{'Reply-Message'};
-                    last; #We do not need to do anything else
-                }
-                $limits{$row->{'id'}} = $row;               
-            }
-        }else{
-
-            #These are day_usage week_usage or month_usage limits
-            if(check_usage($row)){
-                #Block action always stop everything further
-                if($return == RLM_MODULE_USERLOCK){
-                    #say $RAD_REPLY{'Reply-Message'};
-                    last; #We do not need to do anything else
-                }
-                #Action is increase_speed or decrease_speed
-                $limits{$row->{'id'}} = $row;
-            }
-        }
-
-    }       
-    $stmt_fup_comps->finish();
-    my $most_decrease = undef;
-    my $least_increase  = undef;
-    if($return != RLM_MODULE_USERLOCK){ #Determine the 'winner'
-        while (my($key, $val) = each (%limits)){
-            # do whatever you want with $key and $value here ...
-            $val = $limits{$key};
-
-            #Decrease Speed
-            if($most_decrease){
-                if($most_decrease->{'action'} eq 'decrease_speed'){
-                    if($val->{'action_amount'} >$most_decrease->{'action_amount'}){
-                        $most_decrease = $val;
-                    } 
-                }
-            }else{
-                if($val->{'action'} eq 'decrease_speed'){
-                    $most_decrease = $val;
-                }
-            }
-
-            #Increase Speed
-            if($least_increase){
-                if($least_increase->{'action'} eq 'increase_speed'){
-                    if($val->{'action_amount'} <$least_increase->{'action_amount'}){
-                        $least_increase = $val;
-                    } 
-                }
-            }else{
-                if($val->{'action'} eq 'increase_speed'){
-                    $least_increase = $val;
-                }
-            }
-        }
-    }
-
-    if($most_decrease){
-        #print(Dumper($most_decrease));
-        formulate_reply($most_decrease)
-    }else{
-        if($least_increase){      
-            #print(Dumper($least_increase));
-            formulate_reply($least_increase);
-        }else{
-            #say "No FUP Speed Adjustment";
-            formulate_reply();
-        }
-    }
-}
-
-sub check_usage {
-    my($row)        = @_;
-    my $time_start  = get_start_of($row->{'if_condition'});
-    #print($time_start);
-    $stmt_data_used->execute($RAD_REQUEST{'User-Name'},$time_start);
-    my $result      = $stmt_data_used->fetchrow_hashref();
-    $stmt_data_used->finish();
-
-    my $trigger     = $row->{'data_amount'};
-    if($row->{'data_unit'} eq 'mb'){
-        $trigger = $trigger * 1024 * 1024;
-    }
-    if($row->{'data_unit'} eq 'gb'){
-        $trigger = $trigger * 1024 * 1024 * 1024;
-    }
-
-    if($result->{'data_used'} > $trigger){
-        if($row->{'action'} eq 'block'){
-            $RAD_REPLY{'Reply-Message'} = "$row->{'if_condition'} of $row->{'data_amount'}$row->{'data_unit'} reached";
-            $return                     = RLM_MODULE_USERLOCK;
-        }
-        return 1;
-    }else{
-        return undef;
-    }
-    
-}
-
-
-*/    
-    
-    
-		
+	     		
 }
 
 ?>

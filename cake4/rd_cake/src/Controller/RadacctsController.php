@@ -390,6 +390,34 @@ class RadacctsController extends AppController {
             $this->viewBuilder()->setOption('serialize', true);
         }
 	}
+	
+	
+	public function kickActiveUsername(){
+		//__ Authentication + Authorization __
+        $user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
+        //It should have a token if it made it to here :-)
+        $q_data		= $this->request->getQuery();
+        $token 		= $q_data['token'];
+        $username 	= $q_data['username'];
+		$data		= [];
+		
+		
+		$e_username = $this->{$this->main_model}->find()->where(['Radaccts.username' => $username,'Radaccts.acctstoptime IS NULL'])->all();
+		foreach($e_username as $ent){
+			$data = $this->Kicker->kick($ent,$token); //Sent it to the Kicker (We include the token in order to make API calls if needed
+		}	
+		$this->set([
+            'success'       => true,
+            'data'          => $data
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+	
+	}
+	
 
     public function kickActive(){
     
