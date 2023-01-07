@@ -24,7 +24,8 @@ Ext.define('Rd.view.settings.vcSettingsEmail', {
             form.down('#txtEmailUsername').enable();
             form.down('#txtEmailPassword').enable();
             form.down('#txtEmailSendername').enable(); 
-            form.down('#btnEmailTest').enable();       
+            form.down('#btnEmailTest').enable();
+            form.down('#btnEmailHistory').enable();        
         }else{
             form.down('#chkEmailSsl').disable();
             form.down('#txtEmailServer').disable();
@@ -32,7 +33,8 @@ Ext.define('Rd.view.settings.vcSettingsEmail', {
             form.down('#txtEmailUsername').disable();
             form.down('#txtEmailPassword').disable();
             form.down('#txtEmailSendername').disable(); 
-            form.down('#btnEmailTest').disable();     
+            form.down('#btnEmailTest').disable();
+            form.down('#btnEmailHistory').disable();     
         }
     },
     onViewActivate: function(pnl){
@@ -92,5 +94,27 @@ Ext.define('Rd.view.settings.vcSettingsEmail', {
             },
             failure  : Ext.ux.formFail
         });       
-    }    
+    },
+    onEmailHistoryClick : function(btn){
+        var me      = this;
+        var tp      = btn.up('tabpanel');
+        var tab_id  = 'emailHistoryTab';
+        var nt      = tp.down('#'+tab_id);
+        if(nt){
+            tp.setActiveTab(tab_id); //Set focus on  Tab
+            return;
+        }
+
+        var tab_name    = 'Email History';
+        //Tab not there - add one
+        tp.add({ 
+            title       : tab_name,
+            itemId      : tab_id,
+            closable    : true,
+            xtype       : 'gridEmailHistories',
+            glyph       : Rd.config.icnView,
+            cloud_id    : me.getView().cloud_id
+        });
+        tp.setActiveTab(tab_id); //Set focus on Add Tab    
+    },    
 });

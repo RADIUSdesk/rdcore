@@ -32,7 +32,8 @@ Ext.define('Rd.view.settings.pnlSettingsEmail', {
         }
     ],
     requires: [
-        'Rd.view.settings.vcSettingsEmail'
+        'Rd.view.settings.vcSettingsEmail',
+        'Rd.view.settigs.gridEmailHistories'
     ],
     controller  : 'vcSettingsEmail',
     listeners       : {
@@ -138,7 +139,21 @@ Ext.define('Rd.view.settings.pnlSettingsEmail', {
                     listeners   : {
                         click     : 'onEmailTestClick'
                     }    
-                }        
+                },
+                {
+                    xtype           : 'button',
+                    text            : 'Show Sent Histry',
+                    glyph           : Rd.config.icnHistory,
+                    ui              : 'button-teal',
+                    itemId          : 'btnEmailHistory',
+                    scale           : 'large',
+                    padding         : 5,
+                    margin          : 5,
+                    disabled        : true,
+                    listeners   : {
+                        click     : 'onEmailHistoryClick'
+                    }    
+                }               
             ]
         }
                       
