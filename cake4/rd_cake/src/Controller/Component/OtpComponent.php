@@ -26,11 +26,13 @@ class OtpComponent extends Component {
     }
 
     public function sendEmailUserReg($email_adr,$otp,$cloud_id){  
-    	$from       = $this->MailTransport->setTransport(-1,$cloud_id);	    	
+    	$meta_data  = $this->MailTransport->setTransport($cloud_id);
+    		    	
     	$username	= $email_adr;	           
         $success    = false;            
-        if($from !== false){         
+        if($meta_data !== false){         
             $email = new Mailer(['transport'   => 'mail_rd']);
+            $from  = $meta_data['from'];
             $email->setFrom($from)
             	->setSubject(__("User registration OTP"))
             	->setTo($email_adr)
@@ -51,11 +53,12 @@ class OtpComponent extends Component {
     }
     
     public function sendEmailClickToConnect($email_adr,$otp,$cloud_id){  
-    	$from       = $this->MailTransport->setTransport(-1,$cloud_id);	    	
+    	$meta_data  = $this->MailTransport->setTransport($cloud_id);	    	
     	$username	= $email_adr;	           
         $success    = false;            
-        if($from !== false){         
+        if($meta_data !== false){          
             $email = new Mailer(['transport'   => 'mail_rd']);
+            $from  = $meta_data['from'];
             $email->setFrom($from)
             	->setSubject(__("Click To Connect - OTP"))
             	->setTo($email_adr)

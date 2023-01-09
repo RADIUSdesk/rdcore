@@ -92,8 +92,8 @@ class RegisterUsersController extends AppController {
 					if($q->permanent_user_otp){
 						if($q->permanent_user_otp->status == 'otp_awaiting'){
 						
-							$postData['otp_show'] = true; //**This will be the cue for the login page to pop-up the OTP Screen**
-							$postData['id']		  = $responseData['data']['id']; //Send the ID of the newly created user in the reply
+							//$postData['otp_show'] = true; //**This will be the cue for the login page to pop-up the OTP Screen**
+							//$postData['id']		  = $responseData['data']['id']; //Send the ID of the newly created user in the reply
 						
 							$this->set([
 								'success'   => true,
@@ -542,8 +542,7 @@ class RegisterUsersController extends AppController {
                 $config = $config_2;
             }     
         }
-     
-           
+                
         if(($active_config == 1)||($active_config == 2)){
         
             $nr         = $active_config;      
