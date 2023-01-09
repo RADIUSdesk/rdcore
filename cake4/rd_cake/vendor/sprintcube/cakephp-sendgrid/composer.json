@@ -1,0 +1,70 @@
+{
+    "name": "sprintcube/cakephp-sendgrid",
+    "description": "SendGrid plugin for CakePHP 4 - Send emails using SendGrid API",
+    "type": "cakephp-plugin",
+    "license": "MIT",
+    "keywords": [
+        "CakePHP",
+        "Email",
+        "SendGrid"
+    ],
+    "authors": [
+        {
+            "name": "SprintCube",
+            "homepage": "https://www.sprintcube.com",
+            "role": "Author"
+        },
+        {
+            "name": "Narendra Vaghela",
+            "homepage": "https://www.sprintcube.com",
+            "role": "Author"
+        },
+        {
+            "name": "Community",
+            "homepage": "https://github.com/sprintcube/cakephp-sendgrid/graphs/contributors"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/sprintcube/cakephp-sendgrid",
+        "issues": "https://github.com/sprintcube/cakephp-sendgrid/issues"
+    },
+    "require": {
+        "php": ">=7.2",
+        "cakephp/cakephp": "^4.0.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^8.5 || ^9.3",
+        "cakephp/cakephp-codesniffer": "^4.0",
+        "phpstan/phpstan": "^0.12",
+        "codacy/coverage": "^1.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "SendGrid\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SendGrid\\Test\\": "tests/",
+            "Cake\\Test\\": "vendor/cakephp/cakephp/tests/"
+        }
+    },
+    "scripts": {
+        "check": [
+            "@test",
+            "@cs-check"
+        ],
+        "cs-check": "phpcs --colors -p src/ tests/TestCase/",
+        "cs-fix": "phpcbf --colors src/ tests/TestCase/",
+        "psalm": "psalm",
+        "stan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan:^0.12 vimeo/psalm:~4.1.0 && mv composer.backup composer.json",
+        "phpstan": "phpstan analyze --level 1 src/",
+        "test": "phpunit --colors=always"
+    },
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

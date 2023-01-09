@@ -33,7 +33,8 @@ Ext.define('Rd.view.settings.pnlSettingsEmail', {
     ],
     requires: [
         'Rd.view.settings.vcSettingsEmail',
-        'Rd.view.settigs.gridEmailHistories'
+        'Rd.view.settigs.gridEmailHistories',
+        'Rd.view.components.cmbMailTransports'
     ],
     controller  : 'vcSettingsEmail',
     listeners       : {
@@ -66,6 +67,9 @@ Ext.define('Rd.view.settings.pnlSettingsEmail', {
                     labelClsExtra   : 'lblRdReq',
                     checked         : false, 
                     xtype           : 'checkbox'
+                },
+                {
+                    xtype           : 'cmbMailTransports'
                 },
                 { 
                     fieldLabel      : 'SSL', 
@@ -117,6 +121,37 @@ Ext.define('Rd.view.settings.pnlSettingsEmail', {
                     itemId          : 'txtEmailPassword',
                     disabled        : true
                 },
+                { 
+                    fieldLabel      : 'API Key', 
+                    name            : 'email_sg_api',
+                    itemId          : 'txtEmailSgApi',
+                    labelClsExtra   : 'lblRdReq',
+                    xtype           : 'textfield',
+                    disabled        : true,
+                    hidden          : true
+                },
+                {
+                    xtype           : 'textfield',
+                    fieldLabel      : 'Sender Name',
+                    name            : 'email_sg_sendername',
+                    itemId          : 'email_sg_sendername',
+                    allowBlank      : false,
+                    itemId          : 'txtEmailSgSendername',
+                    labelClsExtra   : 'lblRdReq',
+                    disabled        : true,
+                    hidden          : true
+                },
+                {
+                    xtype           : 'textfield',
+                    fieldLabel      : 'Template',
+                    name            : 'email_sg_template',
+                    itemId          : 'email_sg_template',
+                    allowBlank      : true,
+                    itemId          : 'txtEmailSgTemplate',
+                    labelClsExtra   : 'lblRd',
+                    disabled        : true,
+                    hidden          : true
+                },
                 {
                     xtype           : 'textfield',
                     fieldLabel      : 'Sender Name',
@@ -139,21 +174,7 @@ Ext.define('Rd.view.settings.pnlSettingsEmail', {
                     listeners   : {
                         click     : 'onEmailTestClick'
                     }    
-                },
-                {
-                    xtype           : 'button',
-                    text            : 'Show Sent Histry',
-                    glyph           : Rd.config.icnHistory,
-                    ui              : 'button-teal',
-                    itemId          : 'btnEmailHistory',
-                    scale           : 'large',
-                    padding         : 5,
-                    margin          : 5,
-                    disabled        : true,
-                    listeners   : {
-                        click     : 'onEmailHistoryClick'
-                    }    
-                }               
+                }                        
             ]
         }
                       
@@ -170,6 +191,42 @@ Ext.define('Rd.view.settings.pnlSettingsEmail', {
                 },
                 bodyPadding : 10,
                 items       : cntEmail				
+            },
+            {
+                xtype       : 'panel',
+                title       : "History Of Emails",
+                glyph       : Rd.config.icnHistory,
+                ui          : 'panel-green',
+                layout      : {
+                  type  : 'vbox',
+                  align : 'start',
+                  pack  : 'start'
+                },
+                bodyPadding : 10,
+                items       : {
+                    xtype       : 'container',
+                    width       : w_prim,
+                    layout      : 'anchor',
+                    defaults    : {
+                        anchor  : '100%'
+                    },
+                    defaultType : 'textfield',
+                    items       : [
+                        {
+                            xtype           : 'button',
+                            text            : 'Show Sent History',
+                            glyph           : Rd.config.icnHistory,
+                            ui              : 'button-teal',
+                            itemId          : 'btnEmailHistory',
+                            scale           : 'large',
+                            padding         : 5,
+                            margin          : 5,
+                            listeners   : {
+                                click     : 'onEmailHistoryClick'
+                            }    
+                        }                   
+                    ]			
+                }
             }
         ];    
         me.callParent(arguments);

@@ -18,7 +18,7 @@ use Cake\Mailer\Mailer;
 class OtpComponent extends Component {
 
     protected $ap_action_add 	= 'http://127.0.0.1/cake4/rd_cake/ap-actions/add.json';    
-    protected $components 		= ['MailTransport'];
+    protected $components 		= ['MailTransport','RdLogger'];
       
     public function initialize(array $config):void{
         $this->UserSettings   	= TableRegistry::get('UserSettings');
@@ -40,6 +40,11 @@ class OtpComponent extends Component {
                     	->setTemplate('otp_permanent_user')
                 		->setLayout('user_notify');   
             $email->deliver();
+            
+            //These two goes together
+            $settings_cloud_id = $this->MailTransport->getCloudId();
+            $this->RdLogger->addEmailHistory($settings_cloud_id,$email_adr,'user_register_otp',$otp);
+            
             $success  = true;
         }	
 	    return $success;     
@@ -61,6 +66,11 @@ class OtpComponent extends Component {
                 		->setLayout('user_notify');   
             $email->deliver();
             $success  = true;
+            
+            //These two goes together
+            $settings_cloud_id = $this->MailTransport->getCloudId();
+            $this->RdLogger->addEmailHistory($settings_cloud_id,$email_adr,'click_to_connect_otp',$otp);
+            
         }	
 	    return $success;     
     }

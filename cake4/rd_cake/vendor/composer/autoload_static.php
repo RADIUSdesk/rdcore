@@ -27,13 +27,13 @@ class ComposerStaticInitabb2ba0c71883bd4afbcadc9405415a6
         'cc8e14526dc240491e17a838cb78508c' => __DIR__ . '/..' . '/laminas/laminas-diactoros/src/functions/normalize_server.legacy.php',
         '786bf90caabc9e09b6ad4cc5ca8f0e30' => __DIR__ . '/..' . '/laminas/laminas-diactoros/src/functions/normalize_uploaded_files.legacy.php',
         '751a5a3f463e4be759be31748b61737c' => __DIR__ . '/..' . '/laminas/laminas-diactoros/src/functions/parse_cookie_header.legacy.php',
-        '8825ede83f2f289127722d4e842cf7e8' => __DIR__ . '/..' . '/symfony/polyfill-intl-grapheme/bootstrap.php',
-        'e69f7f6ee287b969198c3c9d6777bd38' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/bootstrap.php',
         'c720f792236cd163ece8049879166850' => __DIR__ . '/..' . '/cakephp/cakephp/src/Core/functions.php',
         'ede59e3a405fb689cd1cebb7bb1db3fb' => __DIR__ . '/..' . '/cakephp/cakephp/src/Collection/functions.php',
         '90236b492da7ca2983a2ad6e33e4152e' => __DIR__ . '/..' . '/cakephp/cakephp/src/I18n/functions.php',
         '2cb76c05856dfb60ada40ef54138d49a' => __DIR__ . '/..' . '/cakephp/cakephp/src/Routing/functions.php',
         'b1fc73705e1bec51cd2b20a32cf1c60a' => __DIR__ . '/..' . '/cakephp/cakephp/src/Utility/bootstrap.php',
+        '8825ede83f2f289127722d4e842cf7e8' => __DIR__ . '/..' . '/symfony/polyfill-intl-grapheme/bootstrap.php',
+        'e69f7f6ee287b969198c3c9d6777bd38' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/bootstrap.php',
         'b6b991a57620e2fb6b2f66f03fe9ddc2' => __DIR__ . '/..' . '/symfony/string/Resources/functions.php',
         'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
         '7b11c4dc42b3b3023073cb14e519683c' => __DIR__ . '/..' . '/ralouphie/getallheaders/src/getallheaders.php',
@@ -72,6 +72,7 @@ class ComposerStaticInitabb2ba0c71883bd4afbcadc9405415a6
             'Symfony\\Component\\Console\\' => 26,
             'Symfony\\Component\\Config\\' => 25,
             'SlevomatCodingStandard\\' => 23,
+            'SendGrid\\' => 9,
             'Seld\\Signal\\' => 12,
             'Seld\\PharUtils\\' => 15,
             'Seld\\JsonLint\\' => 14,
@@ -231,6 +232,10 @@ class ComposerStaticInitabb2ba0c71883bd4afbcadc9405415a6
         'SlevomatCodingStandard\\' => 
         array (
             0 => __DIR__ . '/..' . '/slevomat/coding-standard/SlevomatCodingStandard',
+        ),
+        'SendGrid\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/sprintcube/cakephp-sendgrid/src',
         ),
         'Seld\\Signal\\' => 
         array (

@@ -9,5 +9,6 @@ return [
         'CsvView' => $baseDir . '/vendor/friendsofcake/cakephp-csvview/',
         'DebugKit' => $baseDir . '/vendor/cakephp/debug_kit/',
         'Migrations' => $baseDir . '/vendor/cakephp/migrations/',
+        'SendGrid' => $baseDir . '/vendor/sprintcube/cakephp-sendgrid/',
     ],
 ];

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" colors="true" bootstrap="tests/bootstrap.php" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage>
+    <include>
+      <directory suffix=".php">src/</directory>
+    </include>
+  </coverage>
+  <php>
+    <ini name="memory_limit" value="-1"/>
+    <ini name="apc.enable_cli" value="1"/>
+  </php>
+  <!-- Add any additional test suites you want to run here -->
+  <testsuites>
+    <testsuite name="CakePHP SendGrid">
+      <directory>tests/TestCase/</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>

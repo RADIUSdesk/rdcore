@@ -28,7 +28,8 @@ class AlertsController extends AppController{
         $this->loadComponent('GridButtonsFlat');  
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');
-        $this->loadComponent('MailTransport');     
+        $this->loadComponent('MailTransport');
+        $this->loadComponent('RdLogger');     
     }
     
      //____ BASIC CRUD Manager ________
@@ -315,19 +316,30 @@ class AlertsController extends AppController{
 		
 		foreach(array_keys($alerts_cluster) as $k){
 		    $u          = $alerts_cluster[$k]['user'];
-		    $from       = $this->MailTransport->setTransport($u);  
-		    $e          = $alerts_cluster[$k]['email'];
-		    $base_msg   = 'Test Email Config';
-            $subject    = 'Test Email Config';   
-		    $email_a    = new Email(['transport'   => 'mail_rd']);
-		    $a          = $alerts_cluster[$k]['alerts'];
-            $email_a->from($from)
-                ->to($e)
-                ->subject("$subject")
-                ->template('alert_template', 'alert_notify')
-                ->viewVars(['alerts'=> $a])
-                ->emailFormat('html')
-                ->send();
+		    $meta_data  = $this->MailTransport->setTransport();  
+		    
+		    
+		    if($meta_data !== false){ 
+		    
+		    	$e          = $alerts_cluster[$k]['email'];
+		    	$base_msg   = 'Test Email Config';
+            	$subject    = 'Test Email Config';   
+		    	$email_a    = new Email(['transport'   => 'mail_rd']);
+		    	$a          = $alerts_cluster[$k]['alerts'];
+		    	$from   	= $meta_data['from'];
+		    			    
+		        $email_a->from($from)
+		            ->to($e)
+		            ->subject("$subject")
+		            ->template('alert_template', 'alert_notify')
+		            ->viewVars(['alerts'=> $a])
+		            ->emailFormat('html')
+		            ->send();
+		            
+		    	$settings_cloud_id = $this->MailTransport->getCloudId();
+            	$this->RdLogger->addEmailHistory($settings_cloud_id,$e,'alerts_email',"==Alerts Cluster==");        
+		            
+		   	}
 		}		
 	    $items = [];
 	    $this->set([

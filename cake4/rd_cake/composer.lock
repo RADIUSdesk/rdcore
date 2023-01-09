@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e8a48bc14a4aa802216df528a193368c",
+    "content-hash": "cb260ac16b2620d4551493b4c344f27f",
     "packages": [
         {
             "name": "ben-menking/routeros-api",
@@ -2222,6 +2222,68 @@
                 "source": "https://github.com/cakephp/phinx/tree/0.12.13"
             },
             "time": "2022-10-03T04:57:40+00:00"
+        },
+        {
+            "name": "sprintcube/cakephp-sendgrid",
+            "version": "4.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sprintcube/cakephp-sendgrid.git",
+                "reference": "0a7282742ac2d2d9eb944f8e69228a2b7a9d5b41"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sprintcube/cakephp-sendgrid/zipball/0a7282742ac2d2d9eb944f8e69228a2b7a9d5b41",
+                "reference": "0a7282742ac2d2d9eb944f8e69228a2b7a9d5b41",
+                "shasum": ""
+            },
+            "require": {
+                "cakephp/cakephp": "^4.0.0",
+                "php": ">=7.2"
+            },
+            "require-dev": {
+                "cakephp/cakephp-codesniffer": "^4.0",
+                "codacy/coverage": "^1.4",
+                "phpstan/phpstan": "^0.12",
+                "phpunit/phpunit": "^8.5 || ^9.3"
+            },
+            "type": "cakephp-plugin",
+            "autoload": {
+                "psr-4": {
+                    "SendGrid\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "SprintCube",
+                    "homepage": "https://www.sprintcube.com",
+                    "role": "Author"
+                },
+                {
+                    "name": "Narendra Vaghela",
+                    "homepage": "https://www.sprintcube.com",
+                    "role": "Author"
+                },
+                {
+                    "name": "Community",
+                    "homepage": "https://github.com/sprintcube/cakephp-sendgrid/graphs/contributors"
+                }
+            ],
+            "description": "SendGrid plugin for CakePHP 4 - Send emails using SendGrid API",
+            "keywords": [
+                "cakephp",
+                "email",
+                "sendgrid"
+            ],
+            "support": {
+                "issues": "https://github.com/sprintcube/cakephp-sendgrid/issues",
+                "source": "https://github.com/sprintcube/cakephp-sendgrid"
+            },
+            "time": "2022-04-20T05:40:04+00:00"
         },
         {
             "name": "symfony/config",

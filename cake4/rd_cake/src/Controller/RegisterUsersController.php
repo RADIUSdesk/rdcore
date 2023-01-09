@@ -24,6 +24,7 @@ class RegisterUsersController extends AppController {
         $this->loadModel('Clouds');
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('MailTransport');
+        $this->loadComponent('RdLogger');
         $this->loadComponent('Otp'); 
         $this->loadComponent('Formatter');
     }
@@ -289,7 +290,7 @@ class RegisterUsersController extends AppController {
 
 			//Check if we need to email them
 			if($q_r->reg_email){
-				$this->_email_user_detail($username,$password);
+				$this->_email_user_detail($cloud_id,$username,$password);
 			}
 			
 			//IF we need to do OTP add an antry for the newly created (and disabled user in the PermanentUserOtps table)
@@ -600,11 +601,12 @@ class RegisterUsersController extends AppController {
 	    return $success;	
 	}
 		
-	private function _email_lost_password($username,$password){	
-	    $from       = $this->MailTransport->setTransport(-1);           
+	private function _email_lost_password($cloud_id,$username,$password){	
+	    $meta_data 	= $this->MailTransport->setTransport($cloud_id);           
         $success    = false;            
-        if($from !== false){         
-            $email = new Mailer(['transport'   => 'mail_rd']);
+        if($meta_data !== false){          
+            $email 	= new Mailer(['transport'   => 'mail_rd']);
+            $from   = $meta_data['from'];
             $email->setFrom($from)
             	->setSubject('Lost Password Retrieval')
             	->setTo($this->request->getData('email'))
@@ -614,16 +616,21 @@ class RegisterUsersController extends AppController {
                     	->setTemplate('user_detail')
                 		->setLayout('user_notify');   
             $email->deliver();
+            
+            $settings_cloud_id = $this->MailTransport->getCloudId();
+            $this->RdLogger->addEmailHistory($cloud_id,$this->request->getData('email'),'lost_password',"$username $password");
+            
             $success  = true;
         }	
 	    return $success;   
 	}
 
-	private function _email_user_detail($username,$password){
-        $from       = $this->MailTransport->setTransport(-1);           
+	private function _email_user_detail($cloud_id,$username,$password){
+        $meta_data = $this->MailTransport->setTransport($cloud_id);           
         $success    = false;            
-        if($from !== false){       
-		    $email = new Mailer(['transport'   => 'mail_rd']);
+        if($meta_data !== false){       
+		    $email  = new Mailer(['transport'   => 'mail_rd']);
+		    $from   = $meta_data['from'];
             $email->setFrom($from)
             	->setSubject('New user registration')
             	->setTo($this->request->getData('username'))
@@ -633,6 +640,9 @@ class RegisterUsersController extends AppController {
                     	->setTemplate('user_detail')
                 		->setLayout('user_notify'); 
             $email->deliver();
+            
+            $settings_cloud_id = $this->MailTransport->getCloudId();
+            $this->RdLogger->addEmailHistory($cloud_id,$this->request->getData('username'),'register_user_detail',"$username $password");           
             $success  = true;
         }
         return $success;

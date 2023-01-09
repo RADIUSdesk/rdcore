@@ -3,7 +3,7 @@
         'name' => 'cakephp/app',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => '1eac7d0bbc32a6817973c6dd2052d699a9273f73',
+        'reference' => '1bcdbcec54934755f0b2022dd0efb9cb7a97b239',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -31,7 +31,7 @@
         'cakephp/app' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => '1eac7d0bbc32a6817973c6dd2052d699a9273f73',
+            'reference' => '1bcdbcec54934755f0b2022dd0efb9cb7a97b239',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
@@ -891,6 +891,15 @@
             'install_path' => __DIR__ . '/../slevomat/coding-standard',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'sprintcube/cakephp-sendgrid' => array(
+            'pretty_version' => '4.0.1',
+            'version' => '4.0.1.0',
+            'reference' => '0a7282742ac2d2d9eb944f8e69228a2b7a9d5b41',
+            'type' => 'cakephp-plugin',
+            'install_path' => __DIR__ . '/../sprintcube/cakephp-sendgrid',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'squizlabs/php_codesniffer' => array(
             'pretty_version' => '3.7.1',

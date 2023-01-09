@@ -17,6 +17,7 @@
         "guzzlehttp/guzzle": "^7.0",
         "hybridauth/hybridauth": "~3.0",
         "mobiledetect/mobiledetectlib": "^2.8",
+        "sprintcube/cakephp-sendgrid": "^4.0",
         "tecnickcom/tcpdf": "^6.5"
     },
     "require-dev": {

@@ -34,7 +34,8 @@ Ext.define('Rd.view.settings.pnlSettingsSms', {
     ],
     requires: [
         'Rd.view.settings.vcSettingsSms',
-        'Rd.view.settings.winSettingsSmsTest'
+        'Rd.view.settings.winSettingsSmsTest',
+        'Rd.view.settigs.gridSmsHistories'
     ],
     controller  : 'vcSettingsSms',
     listeners       : {
@@ -182,7 +183,7 @@ Ext.define('Rd.view.settings.pnlSettingsSms', {
             },
             {
                 xtype       : 'panel',
-                title       : "Test Settions",
+                title       : "Test Settings",
                 glyph       : Rd.config.icnGears,
                 ui          : 'panel-green',
                 layout      : {
@@ -212,6 +213,44 @@ Ext.define('Rd.view.settings.pnlSettingsSms', {
                             disabled        : false,
                             listeners   : {
                                 click     : 'onSmsTestClick'
+                            }    
+                        }        
+                    
+                    ]			
+                }
+            },
+            {
+                xtype       : 'panel',
+                title       : "History Of SMSs",
+                glyph       : Rd.config.icnHistory,
+                ui          : 'panel-green',
+                layout      : {
+                  type  : 'vbox',
+                  align : 'start',
+                  pack  : 'start'
+                },
+                bodyPadding : 10,
+                items       : {
+                    xtype       : 'container',
+                    width       : w_prim,
+                    layout      : 'anchor',
+                    defaults    : {
+                        anchor  : '100%'
+                    },
+                    defaultType : 'textfield',
+                    items       : [
+                        {
+                            xtype           : 'button',
+                            text            : 'Show Sent History',
+                            ui              : 'button-teal',
+                            itemId          : 'btnSmsHistory',
+                            glyph           : Rd.config.icnHistory,
+                            scale           : 'large',
+                            padding         : 5,
+                            margin          : 5,
+                            disabled        : false,
+                            listeners   : {
+                                click     : 'onSmsHistoryClick'
                             }    
                         }        
                     

@@ -32,7 +32,8 @@ class VouchersController extends AppController{
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('VoucherGenerator'); 
         $this->loadComponent('TimeCalculations');
-        $this->loadComponent('MailTransport');      
+        $this->loadComponent('MailTransport');
+        $this->loadComponent('RdLogger');       
     }
 
     public function exportCsv(){
@@ -772,11 +773,12 @@ class VouchersController extends AppController{
             $extra_name     = $entity->extra_name;
             $extra_value    = $entity->extra_value;
                  
-            $from           = $this->MailTransport->setTransport($user);           
+            $meta_data      = $this->MailTransport->setTransport($data['cloud_id']);           
             $success        = false;
                       
-            if($from !== false){         
-                $email      = new Mailer(['transport'   => 'mail_rd']);
+            if($meta_data !== false){         
+                $email 	= new Mailer(['transport'   => 'mail_rd']);
+                $from   = $meta_data['from'];
                 $email->setSubject('Your voucher detail')
                     ->setFrom($from)
                     ->setTo($to)
@@ -787,6 +789,10 @@ class VouchersController extends AppController{
                 		->setLayout('voucher_notify');                   
 
                 $email->deliver();
+               
+                $settings_cloud_id = $this->MailTransport->getCloudId();
+            	$this->RdLogger->addEmailHistory($settings_cloud_id,$to,'voucher_detail',"$username $password $message");
+               
                 $success    = true;
                 $this->set([
                     'data'          => $data,
@@ -808,27 +814,27 @@ class VouchersController extends AppController{
 		Configure::load('Vouchers'); 
         $data  = Configure::read('voucher_dafaults'); //Read the defaults
 
-		$this->set(array(
+		$this->set([
             'data'     => $data,
             'success'   => true
-        ));
+        ]);
         $this->viewBuilder()->setOption('serialize', true); 
 	}
 
     public function pdfVoucherFormats(){
         Configure::load('Vouchers'); 
         $data  = Configure::read('voucher_formats'); //Read the defaults
-        $items = array();
+        $items = [];
         foreach($data as $i){
             if($i['active']){
                 array_push($items, $i);
             }
         }
 
-        $this->set(array(
+        $this->set([
             'items' => $items,
             'success' => true
-        ));
+        ]);
         $this->viewBuilder()->setOption('serialize', true); 
     }
 

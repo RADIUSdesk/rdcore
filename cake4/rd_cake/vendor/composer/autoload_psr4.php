@@ -23,6 +23,7 @@ return array(
     'Symfony\\Component\\Console\\' => array($vendorDir . '/symfony/console'),
     'Symfony\\Component\\Config\\' => array($vendorDir . '/symfony/config'),
     'SlevomatCodingStandard\\' => array($vendorDir . '/slevomat/coding-standard/SlevomatCodingStandard'),
+    'SendGrid\\' => array($vendorDir . '/sprintcube/cakephp-sendgrid/src'),
     'Seld\\Signal\\' => array($vendorDir . '/seld/signal-handler/src'),
     'Seld\\PharUtils\\' => array($vendorDir . '/seld/phar-utils/src'),
     'Seld\\JsonLint\\' => array($vendorDir . '/seld/jsonlint/src/Seld/JsonLint'),

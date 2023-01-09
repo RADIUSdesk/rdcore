@@ -44,6 +44,10 @@ $config['nas_types'][0]     = ['name' => 'Other',            	'id' => 'other',  
 $config['nas_types'][1]     = ['name' => 'Coova-On-Meshdesk',	'id' => 'CoovaMeshdesk',   	'active' => true];
 $config['nas_types'][2]     = ['name' => 'Mikrotik-API',	    'id' => 'Mikrotik-API',   	'active' => true];
 
+//Define Email Transport types
+$config['mail_transports'][0]	= ['name' => 'Smtp',        'id' => 'smtp',		'className' => 'Smtp'];
+$config['mail_transports'][1]   = ['name' => 'Sendgrid',	'id' => 'sendgrid',	'className' => 'SendGrid.SendGrid'];
+
 
 $config['paths']['wallpaper_location']  = "/rd/resources/images/wallpapers/";
 $config['paths']['dynamic_photos']      = "/cake4/rd_cake/img/dynamic_photos/";   

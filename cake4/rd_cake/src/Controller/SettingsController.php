@@ -17,8 +17,13 @@ class SettingsController extends AppController{
         parent::initialize(); 
         $this->loadModel($this->main_model);
         $this->loadModel($this->cloud_model);
+        $this->loadModel('EmailHistories');
+        $this->loadModel('SmsHistories');
         $this->loadComponent('Aa');
         $this->loadComponent('MailTransport');
+        $this->loadComponent('RdLogger');
+        $this->loadComponent('GridButtonsFlat');
+        $this->loadComponent('TimeCalculations');
     }
     
     //===== SMS =====
@@ -130,7 +135,7 @@ class SettingsController extends AppController{
         }
     }
     
-     public function testSms(){
+   	public function testSms(){
     
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
@@ -407,7 +412,7 @@ class SettingsController extends AppController{
         }
     }
     
-     public function testEmail(){
+   	public function testEmail(){
     
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
             return;
@@ -423,28 +428,32 @@ class SettingsController extends AppController{
             $message    = $data['message'];
             $base_msg   = $base_msg."\n".$message;
             
-            $from       = $this->MailTransport->setTransport($user); 
-
-            
+            $meta_data 	= $this->MailTransport->setTransport(); 
+                    
             if(isset($data['edit_cloud_id'])){
             	$edit_cloud_id = $data['edit_cloud_id'];
             	if($data['edit_cloud_id'] == -1){
-            		//$this->MailTransport->setTransport($user); Do nothing  
+            		//do nothing
             	}else{
             		if(preg_match("/^Clouds_/", $edit_cloud_id)){
 						$cloud_id = preg_replace('/^Clouds_/', '', $edit_cloud_id);
-						$from     = $this->MailTransport->setTransport($user,$cloud_id); 
+						$meta_data     = $this->MailTransport->setTransport($cloud_id); 
 					}
             	}     	
         	}
                                        
             $success    = false;            
-            if($from !== false){         
+            if($meta_data !== false){         
                 $email = new Mailer(['transport'   => 'mail_rd']);
+                $from  = $meta_data['from'];
                 $email->setFrom($from)
                     ->setTo($email_to)
                     ->setSubject("$subject")
                     ->deliver("$base_msg");
+                
+                $settings_cloud_id = $this->MailTransport->getCloudId();
+            	$this->RdLogger->addEmailHistory($settings_cloud_id,$email_to,'test_email',$base_msg);
+                               
                 $success    = true;
                 $this->set([
                     'data'          => $data,
@@ -460,8 +469,120 @@ class SettingsController extends AppController{
                 $this->viewBuilder()->setOption('serialize', true);
             }            
         }
-    } 
-      
+    }
+    
+    public function emailHistoriesIndex(){
+    
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+        
+        $req_q    = $this->request->getQuery();    
+       	
+       	
+       	if(isset($req_q['edit_cloud_id'])){
+            $cloud_id = $req_q['edit_cloud_id'];
+            if(preg_match("/^Clouds_/", $cloud_id)){
+            	$cloud_id = preg_replace('/^Clouds_/', '', $cloud_id);
+            }
+       	}
+        $query 	  = $this->{'EmailHistories'}->find()->where(['EmailHistories.cloud_id' => $cloud_id]);
+
+        $limit  = 50;   //Defaults
+        $page   = 1;
+        $offset = 0;
+        if(isset($req_q['limit'])){
+            $limit  = $req_q['limit'];
+            $page   = $req_q['page'];
+            $offset = $req_q['start'];
+        }
+        
+        $query->page($page);
+        $query->limit($limit);
+        $query->offset($offset);
+
+        $total      = $query->count();       
+        $q_r        = $query->all();
+        $items      = [];
+        
+   		foreach ($q_r as $i){ 
+   		
+   			$fields     = $this->{'EmailHistories'}->getSchema()->columns();
+            foreach($fields as $field){
+                $row["$field"]= $i->{"$field"};
+                
+                if($field == 'created'){
+                    $row['created_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
+                }
+                if($field == 'modified'){
+                    $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
+                }   
+            }
+   		
+   			array_push($items, $row);
+   		}
+    
+    	$this->set([
+            'items' 		=> $items,
+            'success' 		=> true,
+            'totalCount' 	=> $total
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+       
+    }
+    
+   	public function emailHistoriesDelete(){
+    
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+    
+		if (!$this->request->is('post')) {
+			throw new MethodNotAllowedException();
+		}
+		
+		$req_d		= $this->request->getData();	
+		$ap_flag 	= true;		
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
+        
+	    if(isset($req_d['id'])){   
+            $entity     = $this->{'EmailHistories'}->get($req_d['id']);          
+            if(($entity->cloud_id == -1)&&($ap_flag == true)){
+	    		$this->set([
+					'message' 	=> 'Not enough rights for action',
+					'success'	=> false
+				]);
+				$this->viewBuilder()->setOption('serialize', true);
+				return;
+	    	}          
+            $this->{'EmailHistories'}->delete($entity);
+
+        }else{ 
+            foreach($req_d as $d){
+                $entity     = $this->{'EmailHistories'}->get($d['id']);
+                if(($entity->cloud_id == -1)&&($ap_flag == true)){
+					$this->set([
+							'message' 	=> 'Not enough rights for action',
+							'success'	=> false
+						]);
+						$this->viewBuilder()->setOption('serialize', true);
+					return;
+				}      
+                $this->{'EmailHistories'}->delete($entity);
+            }
+        }
+ 
+        $this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+	}
+     
+             
    	public function saveMqtt(){
     
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
@@ -533,5 +654,50 @@ class SettingsController extends AppController{
         $this->viewBuilder()->setOption('serialize', true);  
     }
     
-   
+    function menuForEmailHistories(){
+
+       $user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+        
+        $menu = $this->GridButtonsFlat->returnButtons(false,'ReloadDelete');
+        $this->set([
+            'items'         => $menu,
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    }
+    
+    function menuForSmsHistories(){
+
+       $user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+        
+        $menu = $this->GridButtonsFlat->returnButtons(false,'ReloadDelete');
+        $this->set([
+            'items'         => $menu,
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    }
+    
+    public function mailTransports(){
+        $items = [];
+        $ct = Configure::read('mail_transports');
+        foreach($ct as $i){
+
+        	array_push($items, $i);
+
+        }
+        
+        $this->set([
+            'items' 	=> $items,
+            'success' 	=> true
+        ]);      
+        $this->viewBuilder()->setOption('serialize', true);
+    }
+     
 }

@@ -58,6 +58,14 @@ class CloudsTable extends Table {
             'dependent' => true
         ]);
         
+        $this->hasMany('EmailHistories',[
+            'dependent' => true
+        ]);
+        
+        $this->hasMany('SmsHistories',[
+            'dependent' => true
+        ]);
+        
         $this->hasMany('CloudAdmins'); //Not dependent!!!
     }
 }

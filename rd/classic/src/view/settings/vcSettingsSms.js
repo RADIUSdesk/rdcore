@@ -97,5 +97,28 @@ Ext.define('Rd.view.settings.vcSettingsSms', {
             },
             failure  : Ext.ux.formFail
         });       
-    }    
+    },
+    onSmsHistoryClick : function(btn){
+        var me      = this;
+        var tp      = btn.up('tabpanel');
+        var tab_id  = 'smsHistoryTab_'+me.getView().nr;
+        var nt      = tp.down('#'+tab_id);
+        if(nt){
+            tp.setActiveTab(tab_id); //Set focus on  Tab
+            return;
+        }
+
+        var tab_name    = 'SMS '+me.getView().nr +' History';
+        //Tab not there - add one
+        tp.add({ 
+            title           : tab_name,
+            itemId          : tab_id,
+            closable        : true,
+            xtype           : 'gridSmsHistories',
+            glyph           : Rd.config.icnView,
+            edit_cloud_id   : me.getView().cloud_id,
+            nr              : me.getView().nr
+        });
+        tp.setActiveTab(tab_id); //Set focus on Add Tab    
+    }     
 });

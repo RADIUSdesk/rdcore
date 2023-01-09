@@ -514,7 +514,6 @@ class DataCollectorsController extends AppController{
 	}
 	
 	private function _sms_otp($phone,$otp,$cloud_id){
-	
-	
+		//$this->Otp->sendSmsClickToConnect($phone,$otp,$cloud_id);	
 	}
 }

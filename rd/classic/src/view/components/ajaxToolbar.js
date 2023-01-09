@@ -9,6 +9,17 @@ Ext.define('Rd.view.components.ajaxToolbar', {
             url: me.url,
             method: 'GET',
             success: me.buildToolbar,
+            failure: function (response, options) {
+                var jsonData = Ext.JSON.decode(response.responseText);
+                Ext.Msg.show({
+                    title       : "Error",
+                    msg         : response.request.url + '<br>' + response.status + ' ' + response.statusText+"<br>"+jsonData.message,
+                    modal       : true,
+                    buttons     : Ext.Msg.OK,
+                    icon        : Ext.Msg.ERROR,
+                    closeAction : 'destroy'
+                });
+            },
             scope: me
         });
         me.callParent(arguments);
