@@ -28,6 +28,7 @@ if not exists (select * from information_schema.columns
       `recipient` varchar(100) DEFAULT NULL,
       `reason` varchar(25) DEFAULT NULL,
       `message` varchar(255) DEFAULT NULL,
+      `reply` varchar(255) DEFAULT NULL,
       `sms_provider` int(2) DEFAULT '1',
       `created` datetime NOT NULL,
       `modified` datetime NOT NULL,

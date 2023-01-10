@@ -34,12 +34,12 @@ Ext.define('Rd.view.settings.vcSmsHistories', {
             Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
                 if(val== 'yes'){
                     var selected    = me.getView().getSelectionModel().getSelection();
-                    var edit_cloud_id = me.getView().edit_cloud_id;
                     var list        = [];
                     Ext.Array.forEach(selected,function(item){
-                        var id = item.get('.id');
-                        Ext.Array.push(list,{'id' : id,'edit_cloud_id': edit_cloud_id});
+                        var id = item.getId();
+                        Ext.Array.push(list,{'id' : id});
                     });
+
                     Ext.Ajax.request({
                         url: me.getUrlDelete(),
                         method: 'POST',          

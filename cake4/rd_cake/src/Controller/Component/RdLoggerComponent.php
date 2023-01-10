@@ -12,8 +12,17 @@ class RdLoggerComponent extends Component {
         $this->EmailHistories 	= TableRegistry::get('EmailHistories'); 
     }
         
-    public function addSmsHistory($cloud_id,$to,$for,$message){
-    
+    public function addSmsHistory($cloud_id,$to,$for,$message,$reply,$nr){
+    	$d	= [
+    		'cloud_id' 	=> $cloud_id,
+    		'recipient'	=> $to,
+    		'reason'	=> $for,
+    		'message'	=> $message,
+    		'reply'		=> $reply,
+    		'sms_provider'	=> $nr		
+    	];
+    	$e 			= $this->{'SmsHistories'}->newEntity($d);
+		$this->{'SmsHistories'}->save($e);
     
     }
     

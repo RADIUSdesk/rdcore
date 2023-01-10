@@ -39,7 +39,35 @@ Ext.define('Rd.view.settigs.gridSmsHistories' ,{
             }  
         ];
         
-        me.columns  = [
+          me.columns  = [
+            { 
+                text        : 'Recipient',               
+                dataIndex   : 'recipient',  
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridSmsHist1'
+            },
+            { 
+                text        : 'Reason',               
+                dataIndex   : 'reason',  
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridSmsHist2'
+            },
+            { 
+                text        : 'Message',               
+                dataIndex   : 'message',  
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridSmsHist3'
+            },
+            { 
+                text        : 'Reply',               
+                dataIndex   : 'reply',  
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridSmsHist4'
+            },
             { 
                 text        : 'Created',
                 dataIndex   : 'created', 
@@ -48,7 +76,7 @@ Ext.define('Rd.view.settigs.gridSmsHistories' ,{
                 tpl         : new Ext.XTemplate(
                     "<div class=\"fieldBlue\">{created_in_words}</div>"
                 ),
-                stateId     : 'StateGridSmsHist10',
+                stateId     : 'StateGridSmsHist5',
                 format      : 'Y-m-d H:i:s',
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
                 width       : 200
@@ -57,14 +85,14 @@ Ext.define('Rd.view.settigs.gridSmsHistories' ,{
                 text        : 'Modified',
                 dataIndex   : 'modified', 
                 tdCls       : 'gridTree',
-                hidden      : false, 
+                hidden      : true, 
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
                     "<div class=\"fieldBlue\">{modified_in_words}</div>"
                 ),
                 flex        : 1,
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
-                stateId     : 'StateGridSmsHist11'
+                stateId     : 'StateGridSmsHist5'
             }
         ]; 
         me.callParent(arguments);

@@ -21,6 +21,7 @@ class SettingsController extends AppController{
         $this->loadModel('SmsHistories');
         $this->loadComponent('Aa');
         $this->loadComponent('MailTransport');
+        $this->loadComponent('RdSms');
         $this->loadComponent('RdLogger');
         $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('TimeCalculations');
@@ -147,88 +148,147 @@ class SettingsController extends AppController{
             $nr         = $this->request->getData('nr');
             $phone      = $this->request->getData('phone');
             $message    = $this->request->getData('message');            
-            $data		= $this->request->getData();          
-            $config     = [];
+            $data		= $this->request->getData();
+            $cloud_id	= -1;
             
-           	if(isset($data['edit_cloud_id'])){
+            if(isset($data['edit_cloud_id'])){
 				$edit_cloud_id = $data['edit_cloud_id'];
 				if(preg_match("/^Clouds_/", $edit_cloud_id)){
 					$cloud_id = preg_replace('/^Clouds_/', '', $edit_cloud_id);
-				}			
-				$model = $this->main_model;
-
-				//System is (cloud_id -1) UserSettings
-				if($edit_cloud_id == -1){             
-					$q_r   = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_'.$nr.'_%' ])->all();
-		   		}else{ 		
-		   			$q_r   = $this->{$this->cloud_model}->find()->where(['CloudSettings.cloud_id' => $cloud_id, 'CloudSettings.name LIKE' => 'sms_'.$nr.'_%'])->all();
-		   		}		   		
-		   		 foreach($q_r as $ent){
-		            $config[$ent->name] = $ent->value; 
-		        }		   		 	    		         
+				}   		 	    		         
 			}
-		                       
-            //===Query Items===
-            $query_items = [];
-            
-            $url        = $config['sms_'.$nr.'_url'];
-            $sender_p   = $config['sms_'.$nr.'_sender_parameter'];
-            $sender_v   = $config['sms_'.$nr.'_sender_value'];
-            if($sender_p !== ''){
-                $query_items[$sender_p] = $sender_v;
-            }
-            
-            $message_p  = $config['sms_'.$nr.'_message_parameter'];
-            $query_items[$message_p] = $message;
-            
-            $key_p   = $config['sms_'.$nr.'_key_parameter'];
-            $key_v   = $config['sms_'.$nr.'_key_value'];
-            if($key_p !== ''){
-                $query_items[$key_p] = $key_v;
-            }
-            
-            $rec_p  = $config['sms_'.$nr.'_receiver_parameter'];
-            $query_items[$rec_p] = $phone;
-            
-            //==Client Options==
-            $options = [];
-            $v_peer = $config['sms_'.$nr.'_ssl_verify_peer'];
-            $v_host = $config['sms_'.$nr.'_ssl_verify_host'];
-            if($v_peer == '0'){ //Default is true
-                $options['ssl_verify_peer'] = false;
-            }
-            if($v_host == '0'){ //Default is true
-                $options['ssl_verify_host'] = false;
-            }
-            
-            if($config['sms_'.$nr.'_header_content_type'] !== ''){
-                $options['type'] = $config['sms_'.$nr.'_header_content_type'];
-            }
-            
-            if($config['sms_'.$nr.'_header_authorization'] !== ''){
-                $basic_pwd = $config['sms_'.$nr.'_header_authorization'];
-                $options['auth'] = ['type' => 'basic','username' => 'SMS Placeholder', 'password' => $basic_pwd];
-            }
-                
-            $http = new Client();
-
-            // Simple get
-            $response = $http->get($url,$query_items,$options);
-            
-            $data['url']    = $url;
-            $data['query']  = http_build_query($query_items);
-            
-            $reply          = $response->getStringBody();
-            $data['reply']  = $reply;        
+                       
+            $retval = $this->RdSms->sendSms($phone,$message,$nr,$cloud_id,'test_settings');
+    		if($retval){
+    			$this->set([
+				    'success' 	=> true,
+				    'data'		=> $retval
+				]);   	
+			}else{
+				$this->set([
+				    'success' 	=> false
+				]);       	
+			}			   
+		    $this->viewBuilder()->setOption('serialize', true);                   
+        }          
+    }
+    
+     public function smsHistoriesIndex(){
+    
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
         }
-            
-        $this->set([
-            'data'          => $data,
-            'success'       => true
+        
+        $req_q    = $this->request->getQuery();    
+       	
+       	
+       	if(isset($req_q['edit_cloud_id'])){
+            $cloud_id = $req_q['edit_cloud_id'];
+            if(preg_match("/^Clouds_/", $cloud_id)){
+            	$cloud_id = preg_replace('/^Clouds_/', '', $cloud_id);
+            }
+       	}
+       	$nr		  = 1;
+       	if(isset($req_q['nr'])){
+       	 $nr = $req_q['nr'];
+       	}
+       	
+       	
+        $query 	  = $this->{'SmsHistories'}->find()->where(['SmsHistories.cloud_id' => $cloud_id,'SmsHistories.sms_provider' => $nr]);
+
+        $limit  = 50;   //Defaults
+        $page   = 1;
+        $offset = 0;
+        if(isset($req_q['limit'])){
+            $limit  = $req_q['limit'];
+            $page   = $req_q['page'];
+            $offset = $req_q['start'];
+        }
+        
+        $query->page($page);
+        $query->limit($limit);
+        $query->offset($offset);
+
+        $total      = $query->count();       
+        $q_r        = $query->all();
+        $items      = [];
+        
+   		foreach ($q_r as $i){ 
+   		
+   			$fields     = $this->{'SmsHistories'}->getSchema()->columns();
+            foreach($fields as $field){
+                $row["$field"]= $i->{"$field"};
+                
+                if($field == 'created'){
+                    $row['created_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
+                }
+                if($field == 'modified'){
+                    $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
+                }   
+            }
+   		
+   			array_push($items, $row);
+   		}
+    
+    	$this->set([
+            'items' 		=> $items,
+            'success' 		=> true,
+            'totalCount' 	=> $total
         ]);
-        $this->viewBuilder()->setOption('serialize', true); 
-          
-    } 
+        $this->viewBuilder()->setOption('serialize', true);
+       
+    }
+    
+   	public function smsHistoriesDelete(){
+    
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+    
+		if (!$this->request->is('post')) {
+			throw new MethodNotAllowedException();
+		}
+		
+		$req_d		= $this->request->getData();	
+		$ap_flag 	= true;		
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
+        
+	    if(isset($req_d['id'])){   
+            $entity     = $this->{'SmsHistories'}->get($req_d['id']);          
+            if(($entity->cloud_id == -1)&&($ap_flag == true)){
+	    		$this->set([
+					'message' 	=> 'Not enough rights for action',
+					'success'	=> false
+				]);
+				$this->viewBuilder()->setOption('serialize', true);
+				return;
+	    	}          
+            $this->{'SmsHistories'}->delete($entity);
+
+        }else{ 
+            foreach($req_d as $d){
+                $entity     = $this->{'SmsHistories'}->get($d['id']);
+                if(($entity->cloud_id == -1)&&($ap_flag == true)){
+					$this->set([
+							'message' 	=> 'Not enough rights for action',
+							'success'	=> false
+						]);
+						$this->viewBuilder()->setOption('serialize', true);
+					return;
+				}      
+                $this->{'SmsHistories'}->delete($entity);
+            }
+        }
+ 
+        $this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+	}
            
     public function view(){
         if(!$this->Aa->admin_check($this)){   //Only for admin users!
@@ -698,6 +758,28 @@ class SettingsController extends AppController{
             'success' 	=> true
         ]);      
         $this->viewBuilder()->setOption('serialize', true);
+    }
+    
+    public function wip(){
+    
+    	
+    	$retval = $this->RdSms->sendSms('0725963050',"Gooi Hom",0,-1,"WippieEnSnippie");
+    	if($retval){
+    		$this->set([
+		        'success' 	=> true,
+		        'data'		=> $retval
+		    ]); 
+    	
+    	}else{
+    		$this->set([
+		        'success' 	=> false
+		    ]);       	
+    	}
+    	$this->set([
+            'success' 	=> true
+        ]);      
+        $this->viewBuilder()->setOption('serialize', true);
+    
     }
      
 }
