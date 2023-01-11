@@ -92,7 +92,7 @@ Ext.define('Rd.view.settigs.gridSmsHistories' ,{
                 ),
                 flex        : 1,
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
-                stateId     : 'StateGridSmsHist5'
+                stateId     : 'StateGridSmsHist6'
             }
         ]; 
         me.callParent(arguments);

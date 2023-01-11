@@ -25,7 +25,8 @@ class RegisterUsersController extends AppController {
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('MailTransport');
         $this->loadComponent('RdLogger');
-        $this->loadComponent('Otp'); 
+        $this->loadComponent('Otp');
+        $this->loadComponent('RdSms'); 
         $this->loadComponent('Formatter');
     }
     
@@ -97,9 +98,12 @@ class RegisterUsersController extends AppController {
 						
 							$this->set([
 								'success'   => true,
-								'message'	=> "Bla Bla Bla",
-								'id'		=> $q->id,
-								'otp_show'  => true
+								'data'		=> [
+									'id'		=> $q->id,
+									'otp_show'  => true,
+									//'message'	=> "Bla Bla Bla"
+									'message'	=> "Supply OTP Please"
+								]
 							]);
 							$this->viewBuilder()->setOption('serialize', true);
 							return;						
@@ -307,7 +311,7 @@ class RegisterUsersController extends AppController {
 				$message = '';
 				
 				if($q_r->reg_otp_sms){
-					$this->_sms_otp($this->request->getData('phone'),$d_otp['value'],$q_r->cloud_id);
+					$this->_sms_otp($this->request->getData('phone'),$d_otp['value'],$q_r->cloud_id,'user_registration');
 					$message = __("OTP sent to").' '.$this->Formatter->hide_phone($this->request->getData('phone'))."<br>";
 				}
 				if($q_r->reg_otp_email){
@@ -424,7 +428,7 @@ class RegisterUsersController extends AppController {
 													
 					if($q_dd->reg_otp_sms){
 						$message = __("New OTP sent to").' '.$this->Formatter->hide_phone($phone)."<br>";
-						$this->_sms_otp($phone,$value,$q_dd->cloud_id);
+						$this->_sms_otp($phone,$value,$q_dd->cloud_id,'user_registration_two');
 					}
 					
 					if($q_dd->reg_otp_email){
@@ -445,6 +449,7 @@ class RegisterUsersController extends AppController {
 	public function lostPassword(){
 	
 	    $success = false;
+	    $message = 'User Not Found';
 	    if(array_key_exists('email',$this->request->getData())){
 	    
 	        $username = $this->request->getData('email');
@@ -468,6 +473,7 @@ class RegisterUsersController extends AppController {
 	                    }
                         $this->_email_lost_password($un,$password);
                         $success = true;
+                        $message = "Email Sent";
                         break;
                     }
 	            }
@@ -482,12 +488,14 @@ class RegisterUsersController extends AppController {
 	        $password   = false;
 
 	        if($q_r){
+	        	$cloud_id   = $q_r->cloud_id;
 	            foreach($q_r->radchecks as $rc){
                     if($rc->attribute == 'Cleartext-Password'){
                         $un         = $rc->username;
                         $password   = $rc->value;
                         $message    = "Username: $un\nPassword: $password";
-                        $success    = $this->_sms_lost_password($phone,$message);
+                        $success    = $this->_sms_lost_password($phone,$message,$cloud_id);
+                        $message    = "SMS Sent";
                         break;
                     }
 	            }
@@ -496,108 +504,18 @@ class RegisterUsersController extends AppController {
 
 		$this->set([
         'success'   => $success,
-		'message'   => 'User Not Found'
+		'message'   => $message
 	    ]);
 	    $this->viewBuilder()->setOption('serialize', true);
 	}
 	
-	public function wipSms(){	
-	    $success = true;
-	    //$this->_sms_lost_password('27725963050',"Ussername: dirkvanderwalt@gmail.com@vt\nPassword: 12345678");	    
-	    $this->set([
-        'success'   => $success,
-		'message'   => 'User Not Found'
-	    ]);
-	    $this->viewBuilder()->setOption('serialize', true);
-	}
+	private function _sms_lost_password($phone,$message,$cloud_id){
 	
-	private function _sms_lost_password($phone,$message){
-	
-	    $success    = false; 	       
-	    $config_1   = [];
-	    $config_2   = [];  
-	    $q_r_1      = $this->{'UserSettings'}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_1_%'])->all();
-	    foreach($q_r_1 as $ent){
-            $config_1[$ent->name] = $ent->value; 
-        }
-              
-        $q_r_2      = $this->{'UserSettings'}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_2_%'])->all();
-	    foreach($q_r_2 as $ent){
-            $config_2[$ent->name] = $ent->value; 
-        } 
-        
-        $active_config  = 0;
-        $config         = [];  
-        
-        if(isset($config_1['sms_1_enabled'])){
-            if($config_1['sms_1_enabled'] == 1){          
-                $active_config = 1;
-                $config = $config_1;
-            }     
-        }
-        
-        if(isset($config_2['sms_2_enabled'])){
-            if($config_2['sms_2_enabled'] == 1){          
-                $active_config = 2;
-                $config = $config_2;
-            }     
-        }
-                
-        if(($active_config == 1)||($active_config == 2)){
-        
-            $nr         = $active_config;      
-            $url        = $config['sms_'.$nr.'_url'];
-            $sender_p   = $config['sms_'.$nr.'_sender_parameter'];
-            $sender_v   = $config['sms_'.$nr.'_sender_value'];
-            if($sender_p !== ''){
-                $query_items[$sender_p] = $sender_v;
-            }
-            
-            $message_p  = $config['sms_'.$nr.'_message_parameter'];
-            $query_items[$message_p] = $message;
-            
-            $key_p   = $config['sms_'.$nr.'_key_parameter'];
-            $key_v   = $config['sms_'.$nr.'_key_value'];
-            if($key_p !== ''){
-                $query_items[$key_p] = $key_v;
-            }
-            
-            $rec_p  = $config['sms_'.$nr.'_receiver_parameter'];
-            $query_items[$rec_p] = $phone;
-            
-            //==Client Options==
-            $options = [];
-            $v_peer = $config['sms_'.$nr.'_ssl_verify_peer'];
-            $v_host = $config['sms_'.$nr.'_ssl_verify_host'];
-            if($v_peer == '0'){ //Default is true
-                $options['ssl_verify_peer'] = false;
-            }
-            if($v_host == '0'){ //Default is true
-                $options['ssl_verify_host'] = false;
-            }
-            
-            if($config['sms_'.$nr.'_header_content_type'] !== ''){
-                $options['type'] = $config['sms_'.$nr.'_header_content_type'];
-            }
-            
-            if($config['sms_'.$nr.'_header_authorization'] !== ''){
-                $basic_pwd = $config['sms_'.$nr.'_header_authorization'];
-                $options['auth'] = ['type' => 'basic','username' => 'SMS Placeholder', 'password' => $basic_pwd];
-            }
-            
-            $http           = new Client();
-            
-            // Simple get
-            $response       = $http->get($url,$query_items,$options);        
-            $data['url']    = $url;
-            $data['query']  = http_build_query($query_items);
-            
-            $reply          = $response->getStringBody();
-            $data['reply']  = $reply;
-            $success        = true;      
-        
-        }	     
-	    return $success;	
+		$retval = $this->RdSms->sendSms($phone,$message,0,$cloud_id,"lost_password");
+		if($retval){
+			return true;
+		}
+	    return $retval;	
 	}
 		
 	private function _email_lost_password($cloud_id,$username,$password){	
@@ -695,8 +613,9 @@ class RegisterUsersController extends AppController {
 		$this->Otp->sendEmailUserReg($email,$otp,$cloud_id);
 	}
 	
-	private function _sms_otp($phone,$otp,$cloud_id){
-	
+	private function _sms_otp($phone,$otp,$cloud_id,$reason){
+		// public function sendSms($phone,$message,$nr,$cloud_id,$reason='test_settings'){
+		$this->RdSms->sendSms($phone,$otp,0,$cloud_id,$reason);
 	
 	}
 

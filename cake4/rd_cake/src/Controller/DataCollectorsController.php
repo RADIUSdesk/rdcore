@@ -24,7 +24,8 @@ class DataCollectorsController extends AppController{
         $this->loadComponent('Aa');
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');
-        $this->loadComponent('Otp'); 
+        $this->loadComponent('Otp');
+        $this->loadComponent('RdSms'); 
         $this->loadComponent('Formatter');         
     }
     
@@ -160,7 +161,7 @@ class DataCollectorsController extends AppController{
 				
 				if($ctc->ci_phone_otp){
 					$message = __("OTP sent to").' '.$this->Formatter->hide_phone($entity->phone)."<br>";
-					$this->_sms_otp($entity->phone,$value,$dd->dynamic_detail->cloud_id);
+					$this->_sms_otp($entity->phone,$value,$dd->dynamic_detail->cloud_id,'click_to_connect');
 				}
 				if($ctc->ci_email_otp){
 					$message = __("OTP sent to").' '.$this->Formatter->hide_email($entity->email);
@@ -246,7 +247,7 @@ class DataCollectorsController extends AppController{
 					$phone = $q_dc->phone;							
 										
 					if($ctc->ci_phone_otp){
-						$this->_sms_otp($phone,$value,$q_dd->cloud_id);
+						$this->_sms_otp($phone,$value,$q_dd->cloud_id,'click_to_connect_two');
 						$message = $message.__("New OTP sent to").' '.$this->Formatter->hide_phone($q_dc->phone)."<br>";
 					}
 					if($ctc->ci_email_otp){
@@ -513,7 +514,9 @@ class DataCollectorsController extends AppController{
 		$this->Otp->sendEmailClickToConnect($email,$otp,$cloud_id);
 	}
 	
-	private function _sms_otp($phone,$otp,$cloud_id){
-		//$this->Otp->sendSmsClickToConnect($phone,$otp,$cloud_id);	
+	private function _sms_otp($phone,$otp,$cloud_id,$reason){
+		// public function sendSms($phone,$message,$nr,$cloud_id,$reason='test_settings'){
+		$this->RdSms->sendSms($phone,$otp,0,$cloud_id,$reason);
+	
 	}
 }
