@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.6.7-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.6.11-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: rd
 -- ------------------------------------------------------
--- Server version	10.6.7-MariaDB-2ubuntu1.1
+-- Server version	10.6.11-MariaDB-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -31,7 +31,7 @@ CREATE TABLE `actions` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -64,7 +64,7 @@ CREATE TABLE `alerts` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -93,7 +93,7 @@ CREATE TABLE `ap_actions` (
   `modified` datetime NOT NULL,
   `reply` text DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -121,7 +121,7 @@ CREATE TABLE `ap_connection_settings` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -153,7 +153,7 @@ CREATE TABLE `ap_loads` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -196,7 +196,7 @@ CREATE TABLE `ap_profile_entries` (
   `default_vlan` int(10) NOT NULL DEFAULT 100,
   `default_key` varchar(255) NOT NULL DEFAULT '12345678',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -222,7 +222,7 @@ CREATE TABLE `ap_profile_exit_ap_profile_entries` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=115 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=115 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -270,7 +270,7 @@ CREATE TABLE `ap_profile_exit_captive_portals` (
   `ap_profile_exit_upstream_id` int(11) DEFAULT NULL,
   `softflowd_enabled` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -297,7 +297,7 @@ CREATE TABLE `ap_profile_exit_settings` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -335,7 +335,7 @@ CREATE TABLE `ap_profile_exits` (
   `dns_1` varchar(50) NOT NULL DEFAULT '',
   `dns_2` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -389,7 +389,7 @@ CREATE TABLE `ap_profile_settings` (
   `vlan_end` int(10) NOT NULL DEFAULT 101,
   `vlan_list` varchar(255) NOT NULL DEFAULT '100',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -416,7 +416,7 @@ CREATE TABLE `ap_profile_specifics` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -444,7 +444,7 @@ CREATE TABLE `ap_profiles` (
   `enable_alerts` tinyint(1) NOT NULL DEFAULT 1,
   `enable_overviews` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -492,7 +492,7 @@ CREATE TABLE `ap_stations` (
   KEY `idx_ap_stations_ap_id` (`ap_id`),
   KEY `idx_ap_stations_ap_profile_entry_id` (`ap_profile_entry_id`),
   KEY `idx_ap_stations_modified` (`modified`)
-) ENGINE=InnoDB AUTO_INCREMENT=583 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=583 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -520,7 +520,7 @@ CREATE TABLE `ap_systems` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7741 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=7741 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -548,7 +548,7 @@ CREATE TABLE `ap_uptm_histories` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -575,7 +575,7 @@ CREATE TABLE `ap_wifi_settings` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=228 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=228 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -585,6 +585,32 @@ CREATE TABLE `ap_wifi_settings` (
 LOCK TABLES `ap_wifi_settings` WRITE;
 /*!40000 ALTER TABLE `ap_wifi_settings` DISABLE KEYS */;
 /*!40000 ALTER TABLE `ap_wifi_settings` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `applied_fup_components`
+--
+
+DROP TABLE IF EXISTS `applied_fup_components`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `applied_fup_components` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) DEFAULT NULL,
+  `profile_fup_component_id` int(11) NOT NULL,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `applied_fup_components`
+--
+
+LOCK TABLES `applied_fup_components` WRITE;
+/*!40000 ALTER TABLE `applied_fup_components` DISABLE KEYS */;
+/*!40000 ALTER TABLE `applied_fup_components` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -621,7 +647,7 @@ CREATE TABLE `aps` (
   `enable_schedules` tinyint(1) NOT NULL DEFAULT 0,
   `schedule_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -668,7 +694,7 @@ CREATE TABLE `ar_mesh_daily_summaries` (
   KEY `idx_ar_mesh_daily_summaries_tree_tag_id` (`tree_tag_id`),
   KEY `idx_ar_mesh_daily_summaries_the_date` (`the_date`),
   KEY `idx_ar_mesh_daily_summaries_mesh_name` (`mesh_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -719,7 +745,7 @@ CREATE TABLE `ar_node_ibss_connections` (
   KEY `idx_ar_node_ibss_connections_station_node_id` (`station_node_id`),
   KEY `idx_ar_node_ibss_connections_modified` (`modified`),
   KEY `idx_ar_node_ibss_connections_mac` (`mac`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -770,7 +796,7 @@ CREATE TABLE `ar_node_stations` (
   KEY `idx_ar_node_stations_mesh_entry_id` (`mesh_entry_id`),
   KEY `idx_ar_node_stations_modified` (`modified`),
   KEY `idx_ar_node_stations_mac` (`mac`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -803,7 +829,7 @@ CREATE TABLE `ar_node_uptm_histories` (
   KEY `idx_ar_node_uptm_histories_node_state` (`node_state`),
   KEY `idx_ar_node_uptm_histories_state_datetime` (`state_datetime`),
   KEY `idx_ar_node_uptm_histories_report_datetime` (`report_datetime`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -826,7 +852,7 @@ CREATE TABLE `auto_devices` (
   `mac` varchar(17) NOT NULL,
   `username` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`mac`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -852,7 +878,7 @@ CREATE TABLE `checks` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -878,7 +904,7 @@ CREATE TABLE `cloud_admins` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -906,7 +932,7 @@ CREATE TABLE `cloud_settings` (
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_cloud_settings_cloud_id` (`cloud_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -935,7 +961,7 @@ CREATE TABLE `clouds` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -965,7 +991,7 @@ CREATE TABLE `coa_requests` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -991,7 +1017,7 @@ CREATE TABLE `countries` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=246 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=246 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1002,6 +1028,33 @@ LOCK TABLES `countries` WRITE;
 /*!40000 ALTER TABLE `countries` DISABLE KEYS */;
 INSERT INTO `countries` VALUES (1,'Afghanistan','AF','2020-06-02 08:25:01','2020-06-02 08:25:01'),(2,'Aland Islands','AX','2020-06-02 08:25:01','2020-06-02 08:25:01'),(3,'Albania','AL','2020-06-02 08:25:01','2020-06-02 08:25:01'),(4,'Algeria','DZ','2020-06-02 08:25:01','2020-06-02 08:25:01'),(5,'American Samoa','AS','2020-06-02 08:25:01','2020-06-02 08:25:01'),(6,'Andorra','AD','2020-06-02 08:25:01','2020-06-02 08:25:01'),(7,'Angola','AO','2020-06-02 08:25:01','2020-06-02 08:25:01'),(8,'Anguilla','AI','2020-06-02 08:25:01','2020-06-02 08:25:01'),(9,'Antarctica','AQ','2020-06-02 08:25:01','2020-06-02 08:25:01'),(10,'Antigua And Barbuda','AG','2020-06-02 08:25:01','2020-06-02 08:25:01'),(11,'Argentina','AR','2020-06-02 08:25:01','2020-06-02 08:25:01'),(12,'Armenia','AM','2020-06-02 08:25:01','2020-06-02 08:25:01'),(13,'Aruba','AW','2020-06-02 08:25:01','2020-06-02 08:25:01'),(14,'Australia','AU','2020-06-02 08:25:01','2020-06-02 08:25:01'),(15,'Austria','AT','2020-06-02 08:25:01','2020-06-02 08:25:01'),(16,'Azerbaijan','AZ','2020-06-02 08:25:01','2020-06-02 08:25:01'),(17,'Bahamas','BS','2020-06-02 08:25:01','2020-06-02 08:25:01'),(18,'Bahrain','BH','2020-06-02 08:25:01','2020-06-02 08:25:01'),(19,'Bangladesh','BD','2020-06-02 08:25:01','2020-06-02 08:25:01'),(20,'Barbados','BB','2020-06-02 08:25:01','2020-06-02 08:25:01'),(21,'Belarus','BY','2020-06-02 08:25:01','2020-06-02 08:25:01'),(22,'Belgium','BE','2020-06-02 08:25:01','2020-06-02 08:25:01'),(23,'Belize','BZ','2020-06-02 08:25:01','2020-06-02 08:25:01'),(24,'Benin','BJ','2020-06-02 08:25:01','2020-06-02 08:25:01'),(25,'Bermuda','BM','2020-06-02 08:25:01','2020-06-02 08:25:01'),(26,'Bhutan','BT','2020-06-02 08:25:01','2020-06-02 08:25:01'),(27,'Bolivia','BO','2020-06-02 08:25:01','2020-06-02 08:25:01'),(28,'Bosnia And Herzegovina','BA','2020-06-02 08:25:01','2020-06-02 08:25:01'),(29,'Botswana','BW','2020-06-02 08:25:01','2020-06-02 08:25:01'),(30,'Bouvet Island','BV','2020-06-02 08:25:01','2020-06-02 08:25:01'),(31,'Brazil','BR','2020-06-02 08:25:01','2020-06-02 08:25:01'),(32,'British Indian Ocean Territory','IO','2020-06-02 08:25:01','2020-06-02 08:25:01'),(33,'Brunei Darussalam','BN','2020-06-02 08:25:01','2020-06-02 08:25:01'),(34,'Bulgaria','BG','2020-06-02 08:25:01','2020-06-02 08:25:01'),(35,'Burkina Faso','BF','2020-06-02 08:25:01','2020-06-02 08:25:01'),(36,'Burundi','BI','2020-06-02 08:25:01','2020-06-02 08:25:01'),(37,'Cambodia','KH','2020-06-02 08:25:01','2020-06-02 08:25:01'),(38,'Cameroon','CM','2020-06-02 08:25:01','2020-06-02 08:25:01'),(39,'Canada','CA','2020-06-02 08:25:01','2020-06-02 08:25:01'),(40,'Cape Verde','CV','2020-06-02 08:25:01','2020-06-02 08:25:01'),(41,'Cayman Islands','KY','2020-06-02 08:25:01','2020-06-02 08:25:01'),(42,'Central African Republic','CF','2020-06-02 08:25:01','2020-06-02 08:25:01'),(43,'Chad','TD','2020-06-02 08:25:01','2020-06-02 08:25:01'),(44,'Chile','CL','2020-06-02 08:25:01','2020-06-02 08:25:01'),(45,'China','CN','2020-06-02 08:25:01','2020-06-02 08:25:01'),(46,'Christmas Island','CX','2020-06-02 08:25:01','2020-06-02 08:25:01'),(47,'Cocos (Keeling) Islands','CC','2020-06-02 08:25:01','2020-06-02 08:25:01'),(48,'Colombia','CO','2020-06-02 08:25:01','2020-06-02 08:25:01'),(49,'Comoros','KM','2020-06-02 08:25:01','2020-06-02 08:25:01'),(50,'Congo','CG','2020-06-02 08:25:01','2020-06-02 08:25:01'),(51,'Congo, Democratic Republic','CD','2020-06-02 08:25:01','2020-06-02 08:25:01'),(52,'Cook Islands','CK','2020-06-02 08:25:01','2020-06-02 08:25:01'),(53,'Costa Rica','CR','2020-06-02 08:25:01','2020-06-02 08:25:01'),(54,'Cote D\'Ivoire','CI','2020-06-02 08:25:01','2020-06-02 08:25:01'),(55,'Croatia','HR','2020-06-02 08:25:01','2020-06-02 08:25:01'),(56,'Cuba','CU','2020-06-02 08:25:01','2020-06-02 08:25:01'),(57,'Cyprus','CY','2020-06-02 08:25:01','2020-06-02 08:25:01'),(58,'Czech Republic','CZ','2020-06-02 08:25:01','2020-06-02 08:25:01'),(59,'Denmark','DK','2020-06-02 08:25:01','2020-06-02 08:25:01'),(60,'Djibouti','DJ','2020-06-02 08:25:01','2020-06-02 08:25:01'),(61,'Dominica','DM','2020-06-02 08:25:01','2020-06-02 08:25:01'),(62,'Dominican Republic','DO','2020-06-02 08:25:01','2020-06-02 08:25:01'),(63,'Ecuador','EC','2020-06-02 08:25:01','2020-06-02 08:25:01'),(64,'Egypt','EG','2020-06-02 08:25:01','2020-06-02 08:25:01'),(65,'El Salvador','SV','2020-06-02 08:25:01','2020-06-02 08:25:01'),(66,'Equatorial Guinea','GQ','2020-06-02 08:25:01','2020-06-02 08:25:01'),(67,'Eritrea','ER','2020-06-02 08:25:01','2020-06-02 08:25:01'),(68,'Estonia','EE','2020-06-02 08:25:01','2020-06-02 08:25:01'),(69,'Ethiopia','ET','2020-06-02 08:25:01','2020-06-02 08:25:01'),(70,'Falkland Islands (Malvinas)','FK','2020-06-02 08:25:01','2020-06-02 08:25:01'),(71,'Faroe Islands','FO','2020-06-02 08:25:01','2020-06-02 08:25:01'),(72,'Fiji','FJ','2020-06-02 08:25:01','2020-06-02 08:25:01'),(73,'Finland','FI','2020-06-02 08:25:01','2020-06-02 08:25:01'),(74,'France','FR','2020-06-02 08:25:01','2020-06-02 08:25:01'),(75,'French Guiana','GF','2020-06-02 08:25:01','2020-06-02 08:25:01'),(76,'French Polynesia','PF','2020-06-02 08:25:01','2020-06-02 08:25:01'),(77,'French Southern Territories','TF','2020-06-02 08:25:01','2020-06-02 08:25:01'),(78,'Gabon','GA','2020-06-02 08:25:01','2020-06-02 08:25:01'),(79,'Gambia','GM','2020-06-02 08:25:01','2020-06-02 08:25:01'),(80,'Georgia','GE','2020-06-02 08:25:01','2020-06-02 08:25:01'),(81,'Germany','DE','2020-06-02 08:25:01','2020-06-02 08:25:01'),(82,'Ghana','GH','2020-06-02 08:25:01','2020-06-02 08:25:01'),(83,'Gibraltar','GI','2020-06-02 08:25:01','2020-06-02 08:25:01'),(84,'Greece','GR','2020-06-02 08:25:01','2020-06-02 08:25:01'),(85,'Greenland','GL','2020-06-02 08:25:01','2020-06-02 08:25:01'),(86,'Grenada','GD','2020-06-02 08:25:01','2020-06-02 08:25:01'),(87,'Guadeloupe','GP','2020-06-02 08:25:01','2020-06-02 08:25:01'),(88,'Guam','GU','2020-06-02 08:25:01','2020-06-02 08:25:01'),(89,'Guatemala','GT','2020-06-02 08:25:01','2020-06-02 08:25:01'),(90,'Guernsey','GG','2020-06-02 08:25:01','2020-06-02 08:25:01'),(91,'Guinea','GN','2020-06-02 08:25:01','2020-06-02 08:25:01'),(92,'Guinea-Bissau','GW','2020-06-02 08:25:01','2020-06-02 08:25:01'),(93,'Guyana','GY','2020-06-02 08:25:01','2020-06-02 08:25:01'),(94,'Haiti','HT','2020-06-02 08:25:01','2020-06-02 08:25:01'),(95,'Heard Island & Mcdonald Islands','HM','2020-06-02 08:25:01','2020-06-02 08:25:01'),(96,'Holy See (Vatican City State)','VA','2020-06-02 08:25:01','2020-06-02 08:25:01'),(97,'Honduras','HN','2020-06-02 08:25:01','2020-06-02 08:25:01'),(98,'Hong Kong','HK','2020-06-02 08:25:01','2020-06-02 08:25:01'),(99,'Hungary','HU','2020-06-02 08:25:01','2020-06-02 08:25:01'),(100,'Iceland','IS','2020-06-02 08:25:01','2020-06-02 08:25:01'),(101,'India','IN','2020-06-02 08:25:01','2020-06-02 08:25:01'),(102,'Indonesia','ID','2020-06-02 08:25:01','2020-06-02 08:25:01'),(103,'Iran, Islamic Republic Of','IR','2020-06-02 08:25:01','2020-06-02 08:25:01'),(104,'Iraq','IQ','2020-06-02 08:25:01','2020-06-02 08:25:01'),(105,'Ireland','IE','2020-06-02 08:25:01','2020-06-02 08:25:01'),(106,'Isle Of Man','IM','2020-06-02 08:25:01','2020-06-02 08:25:01'),(107,'Israel','IL','2020-06-02 08:25:01','2020-06-02 08:25:01'),(108,'Italy','IT','2020-06-02 08:25:01','2020-06-02 08:25:01'),(109,'Jamaica','JM','2020-06-02 08:25:01','2020-06-02 08:25:01'),(110,'Japan','JP','2020-06-02 08:25:01','2020-06-02 08:25:01'),(111,'Jersey','JE','2020-06-02 08:25:01','2020-06-02 08:25:01'),(112,'Jordan','JO','2020-06-02 08:25:02','2020-06-02 08:25:02'),(113,'Kazakhstan','KZ','2020-06-02 08:25:02','2020-06-02 08:25:02'),(114,'Kenya','KE','2020-06-02 08:25:02','2020-06-02 08:25:02'),(115,'Kiribati','KI','2020-06-02 08:25:02','2020-06-02 08:25:02'),(116,'Korea','KR','2020-06-02 08:25:02','2020-06-02 08:25:02'),(117,'Kuwait','KW','2020-06-02 08:25:02','2020-06-02 08:25:02'),(118,'Kyrgyzstan','KG','2020-06-02 08:25:02','2020-06-02 08:25:02'),(119,'Lao People\'s Democratic Republic','LA','2020-06-02 08:25:02','2020-06-02 08:25:02'),(120,'Latvia','LV','2020-06-02 08:25:02','2020-06-02 08:25:02'),(121,'Lebanon','LB','2020-06-02 08:25:02','2020-06-02 08:25:02'),(122,'Lesotho','LS','2020-06-02 08:25:02','2020-06-02 08:25:02'),(123,'Liberia','LR','2020-06-02 08:25:02','2020-06-02 08:25:02'),(124,'Libyan Arab Jamahiriya','LY','2020-06-02 08:25:02','2020-06-02 08:25:02'),(125,'Liechtenstein','LI','2020-06-02 08:25:02','2020-06-02 08:25:02'),(126,'Lithuania','LT','2020-06-02 08:25:02','2020-06-02 08:25:02'),(127,'Luxembourg','LU','2020-06-02 08:25:02','2020-06-02 08:25:02'),(128,'Macao','MO','2020-06-02 08:25:02','2020-06-02 08:25:02'),(129,'Macedonia','MK','2020-06-02 08:25:02','2020-06-02 08:25:02'),(130,'Madagascar','MG','2020-06-02 08:25:02','2020-06-02 08:25:02'),(131,'Malawi','MW','2020-06-02 08:25:02','2020-06-02 08:25:02'),(132,'Malaysia','MY','2020-06-02 08:25:02','2020-06-02 08:25:02'),(133,'Maldives','MV','2020-06-02 08:25:02','2020-06-02 08:25:02'),(134,'Mali','ML','2020-06-02 08:25:02','2020-06-02 08:25:02'),(135,'Malta','MT','2020-06-02 08:25:02','2020-06-02 08:25:02'),(136,'Marshall Islands','MH','2020-06-02 08:25:02','2020-06-02 08:25:02'),(137,'Martinique','MQ','2020-06-02 08:25:02','2020-06-02 08:25:02'),(138,'Mauritania','MR','2020-06-02 08:25:02','2020-06-02 08:25:02'),(139,'Mauritius','MU','2020-06-02 08:25:02','2020-06-02 08:25:02'),(140,'Mayotte','YT','2020-06-02 08:25:02','2020-06-02 08:25:02'),(141,'Mexico','MX','2020-06-02 08:25:02','2020-06-02 08:25:02'),(142,'Micronesia, Federated States Of','FM','2020-06-02 08:25:02','2020-06-02 08:25:02'),(143,'Moldova','MD','2020-06-02 08:25:02','2020-06-02 08:25:02'),(144,'Monaco','MC','2020-06-02 08:25:02','2020-06-02 08:25:02'),(145,'Mongolia','MN','2020-06-02 08:25:02','2020-06-02 08:25:02'),(146,'Montenegro','ME','2020-06-02 08:25:02','2020-06-02 08:25:02'),(147,'Montserrat','MS','2020-06-02 08:25:02','2020-06-02 08:25:02'),(148,'Morocco','MA','2020-06-02 08:25:02','2020-06-02 08:25:02'),(149,'Mozambique','MZ','2020-06-02 08:25:02','2020-06-02 08:25:02'),(150,'Myanmar','MM','2020-06-02 08:25:02','2020-06-02 08:25:02'),(151,'Namibia','NA','2020-06-02 08:25:02','2020-06-02 08:25:02'),(152,'Nauru','NR','2020-06-02 08:25:02','2020-06-02 08:25:02'),(153,'Nepal','NP','2020-06-02 08:25:02','2020-06-02 08:25:02'),(154,'Netherlands','NL','2020-06-02 08:25:02','2020-06-02 08:25:02'),(155,'Netherlands Antilles','AN','2020-06-02 08:25:02','2020-06-02 08:25:02'),(156,'New Caledonia','NC','2020-06-02 08:25:02','2020-06-02 08:25:02'),(157,'New Zealand','NZ','2020-06-02 08:25:02','2020-06-02 08:25:02'),(158,'Nicaragua','NI','2020-06-02 08:25:02','2020-06-02 08:25:02'),(159,'Niger','NE','2020-06-02 08:25:02','2020-06-02 08:25:02'),(160,'Nigeria','NG','2020-06-02 08:25:02','2020-06-02 08:25:02'),(161,'Niue','NU','2020-06-02 08:25:02','2020-06-02 08:25:02'),(162,'Norfolk Island','NF','2020-06-02 08:25:02','2020-06-02 08:25:02'),(163,'Northern Mariana Islands','MP','2020-06-02 08:25:02','2020-06-02 08:25:02'),(164,'Norway','NO','2020-06-02 08:25:02','2020-06-02 08:25:02'),(165,'Oman','OM','2020-06-02 08:25:02','2020-06-02 08:25:02'),(166,'Pakistan','PK','2020-06-02 08:25:02','2020-06-02 08:25:02'),(167,'Palau','PW','2020-06-02 08:25:02','2020-06-02 08:25:02'),(168,'Palestinian Territory, Occupied','PS','2020-06-02 08:25:02','2020-06-02 08:25:02'),(169,'Panama','PA','2020-06-02 08:25:02','2020-06-02 08:25:02'),(170,'Papua New Guinea','PG','2020-06-02 08:25:02','2020-06-02 08:25:02'),(171,'Paraguay','PY','2020-06-02 08:25:02','2020-06-02 08:25:02'),(172,'Peru','PE','2020-06-02 08:25:02','2020-06-02 08:25:02'),(173,'Philippines','PH','2020-06-02 08:25:02','2020-06-02 08:25:02'),(174,'Pitcairn','PN','2020-06-02 08:25:02','2020-06-02 08:25:02'),(175,'Poland','PL','2020-06-02 08:25:02','2020-06-02 08:25:02'),(176,'Portugal','PT','2020-06-02 08:25:02','2020-06-02 08:25:02'),(177,'Puerto Rico','PR','2020-06-02 08:25:02','2020-06-02 08:25:02'),(178,'Qatar','QA','2020-06-02 08:25:02','2020-06-02 08:25:02'),(179,'Reunion','RE','2020-06-02 08:25:02','2020-06-02 08:25:02'),(180,'Romania','RO','2020-06-02 08:25:02','2020-06-02 08:25:02'),(181,'Russian Federation','RU','2020-06-02 08:25:02','2020-06-02 08:25:02'),(182,'Rwanda','RW','2020-06-02 08:25:02','2020-06-02 08:25:02'),(183,'Saint Barthelemy','BL','2020-06-02 08:25:03','2020-06-02 08:25:03'),(184,'Saint Helena','SH','2020-06-02 08:25:03','2020-06-02 08:25:03'),(185,'Saint Kitts And Nevis','KN','2020-06-02 08:25:03','2020-06-02 08:25:03'),(186,'Saint Lucia','LC','2020-06-02 08:25:03','2020-06-02 08:25:03'),(187,'Saint Martin','MF','2020-06-02 08:25:03','2020-06-02 08:25:03'),(188,'Saint Pierre And Miquelon','PM','2020-06-02 08:25:03','2020-06-02 08:25:03'),(189,'Saint Vincent And Grenadines','VC','2020-06-02 08:25:03','2020-06-02 08:25:03'),(190,'Samoa','WS','2020-06-02 08:25:03','2020-06-02 08:25:03'),(191,'San Marino','SM','2020-06-02 08:25:03','2020-06-02 08:25:03'),(192,'Sao Tome And Principe','ST','2020-06-02 08:25:03','2020-06-02 08:25:03'),(193,'Saudi Arabia','SA','2020-06-02 08:25:03','2020-06-02 08:25:03'),(194,'Senegal','SN','2020-06-02 08:25:03','2020-06-02 08:25:03'),(195,'Serbia','RS','2020-06-02 08:25:03','2020-06-02 08:25:03'),(196,'Seychelles','SC','2020-06-02 08:25:03','2020-06-02 08:25:03'),(197,'Sierra Leone','SL','2020-06-02 08:25:03','2020-06-02 08:25:03'),(198,'Singapore','SG','2020-06-02 08:25:03','2020-06-02 08:25:03'),(199,'Slovakia','SK','2020-06-02 08:25:03','2020-06-02 08:25:03'),(200,'Slovenia','SI','2020-06-02 08:25:03','2020-06-02 08:25:03'),(201,'Solomon Islands','SB','2020-06-02 08:25:03','2020-06-02 08:25:03'),(202,'Somalia','SO','2020-06-02 08:25:03','2020-06-02 08:25:03'),(203,'South Africa','ZA','2020-06-02 08:25:03','2020-06-02 08:25:03'),(204,'South Georgia And Sandwich Isl.','GS','2020-06-02 08:25:03','2020-06-02 08:25:03'),(205,'Spain','ES','2020-06-02 08:25:03','2020-06-02 08:25:03'),(206,'Sri Lanka','LK','2020-06-02 08:25:03','2020-06-02 08:25:03'),(207,'Sudan','SD','2020-06-02 08:25:03','2020-06-02 08:25:03'),(208,'Suriname','SR','2020-06-02 08:25:03','2020-06-02 08:25:03'),(209,'Svalbard And Jan Mayen','SJ','2020-06-02 08:25:03','2020-06-02 08:25:03'),(210,'Swaziland','SZ','2020-06-02 08:25:03','2020-06-02 08:25:03'),(211,'Sweden','SE','2020-06-02 08:25:03','2020-06-02 08:25:03'),(212,'Switzerland','CH','2020-06-02 08:25:03','2020-06-02 08:25:03'),(213,'Syrian Arab Republic','SY','2020-06-02 08:25:03','2020-06-02 08:25:03'),(214,'Taiwan','TW','2020-06-02 08:25:03','2020-06-02 08:25:03'),(215,'Tajikistan','TJ','2020-06-02 08:25:03','2020-06-02 08:25:03'),(216,'Tanzania','TZ','2020-06-02 08:25:03','2020-06-02 08:25:03'),(217,'Thailand','TH','2020-06-02 08:25:03','2020-06-02 08:25:03'),(218,'Timor-Leste','TL','2020-06-02 08:25:03','2020-06-02 08:25:03'),(219,'Togo','TG','2020-06-02 08:25:03','2020-06-02 08:25:03'),(220,'Tokelau','TK','2020-06-02 08:25:03','2020-06-02 08:25:03'),(221,'Tonga','TO','2020-06-02 08:25:03','2020-06-02 08:25:03'),(222,'Trinidad And Tobago','TT','2020-06-02 08:25:03','2020-06-02 08:25:03'),(223,'Tunisia','TN','2020-06-02 08:25:03','2020-06-02 08:25:03'),(224,'Turkey','TR','2020-06-02 08:25:03','2020-06-02 08:25:03'),(225,'Turkmenistan','TM','2020-06-02 08:25:03','2020-06-02 08:25:03'),(226,'Turks And Caicos Islands','TC','2020-06-02 08:25:03','2020-06-02 08:25:03'),(227,'Tuvalu','TV','2020-06-02 08:25:03','2020-06-02 08:25:03'),(228,'Uganda','UG','2020-06-02 08:25:03','2020-06-02 08:25:03'),(229,'Ukraine','UA','2020-06-02 08:25:03','2020-06-02 08:25:03'),(230,'United Arab Emirates','AE','2020-06-02 08:25:03','2020-06-02 08:25:03'),(231,'United Kingdom','GB','2020-06-02 08:25:03','2020-06-02 08:25:03'),(232,'United States','US','2020-06-02 08:25:03','2020-06-02 08:25:03'),(233,'United States Outlying Islands','UM','2020-06-02 08:25:03','2020-06-02 08:25:03'),(234,'Uruguay','UY','2020-06-02 08:25:03','2020-06-02 08:25:03'),(235,'Uzbekistan','UZ','2020-06-02 08:25:03','2020-06-02 08:25:03'),(236,'Vanuatu','VU','2020-06-02 08:25:03','2020-06-02 08:25:03'),(237,'Venezuela','VE','2020-06-02 08:25:03','2020-06-02 08:25:03'),(238,'Viet Nam','VN','2020-06-02 08:25:03','2020-06-02 08:25:03'),(239,'Virgin Islands, British','VG','2020-06-02 08:25:03','2020-06-02 08:25:03'),(240,'Virgin Islands, U.S.','VI','2020-06-02 08:25:03','2020-06-02 08:25:03'),(241,'Wallis And Futuna','WF','2020-06-02 08:25:03','2020-06-02 08:25:03'),(242,'Western Sahara','EH','2020-06-02 08:25:03','2020-06-02 08:25:03'),(243,'Yemen','YE','2020-06-02 08:25:03','2020-06-02 08:25:03'),(244,'Zambia','ZM','2020-06-02 08:25:03','2020-06-02 08:25:03'),(245,'Zimbabwe','ZW','2020-06-02 08:25:03','2020-06-02 08:25:03');
 /*!40000 ALTER TABLE `countries` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `data_collector_otps`
+--
+
+DROP TABLE IF EXISTS `data_collector_otps`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `data_collector_otps` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `data_collector_id` int(11) NOT NULL,
+  `status` enum('otp_awaiting','otp_confirmed') DEFAULT 'otp_awaiting',
+  `value` varchar(255) NOT NULL,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `data_collector_otps`
+--
+
+LOCK TABLES `data_collector_otps` WRITE;
+/*!40000 ALTER TABLE `data_collector_otps` DISABLE KEYS */;
+/*!40000 ALTER TABLE `data_collector_otps` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1040,7 +1093,7 @@ CREATE TABLE `data_collectors` (
   `custom2` char(50) NOT NULL DEFAULT '',
   `custom3` char(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1087,7 +1140,7 @@ CREATE TABLE `devices` (
   `from_date` datetime DEFAULT NULL,
   `to_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1113,7 +1166,7 @@ CREATE TABLE `dynamic_client_realms` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1123,6 +1176,33 @@ CREATE TABLE `dynamic_client_realms` (
 LOCK TABLES `dynamic_client_realms` WRITE;
 /*!40000 ALTER TABLE `dynamic_client_realms` DISABLE KEYS */;
 /*!40000 ALTER TABLE `dynamic_client_realms` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `dynamic_client_settings`
+--
+
+DROP TABLE IF EXISTS `dynamic_client_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dynamic_client_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `dynamic_client_id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `value` varchar(255) NOT NULL,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `dynamic_client_settings`
+--
+
+LOCK TABLES `dynamic_client_settings` WRITE;
+/*!40000 ALTER TABLE `dynamic_client_settings` DISABLE KEYS */;
+/*!40000 ALTER TABLE `dynamic_client_settings` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1139,7 +1219,7 @@ CREATE TABLE `dynamic_client_states` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1194,8 +1274,9 @@ CREATE TABLE `dynamic_clients` (
   `daily_data_used` bigint(20) DEFAULT NULL,
   `default_vlan` int(10) NOT NULL DEFAULT 100,
   `default_key` varchar(255) NOT NULL DEFAULT '12345678',
+  `type` varchar(30) DEFAULT 'other',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1261,8 +1342,10 @@ CREATE TABLE `dynamic_detail_ctcs` (
   `ci_custom3_txt` char(50) NOT NULL DEFAULT 'Custom Three',
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
+  `ci_phone_otp` tinyint(1) NOT NULL DEFAULT 0,
+  `ci_email_otp` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1289,7 +1372,7 @@ CREATE TABLE `dynamic_detail_languages` (
   `created` datetime DEFAULT NULL,
   `modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1325,7 +1408,7 @@ CREATE TABLE `dynamic_detail_mobiles` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1353,7 +1436,7 @@ CREATE TABLE `dynamic_detail_prelogins` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1388,7 +1471,7 @@ CREATE TABLE `dynamic_detail_social_logins` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1414,7 +1497,7 @@ CREATE TABLE `dynamic_detail_trans_keys` (
   `created` datetime DEFAULT NULL,
   `modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1442,7 +1525,7 @@ CREATE TABLE `dynamic_detail_translations` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1531,8 +1614,10 @@ CREATE TABLE `dynamic_details` (
   `ctc_email_opt_in_txt` varchar(200) NOT NULL DEFAULT 'Send Promotional Email',
   `chilli_json_unavailable` tinyint(1) NOT NULL DEFAULT 0,
   `chilli_use_chap` tinyint(1) NOT NULL DEFAULT 0,
+  `reg_otp_sms` tinyint(1) NOT NULL DEFAULT 0,
+  `reg_otp_email` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1561,7 +1646,7 @@ CREATE TABLE `dynamic_pages` (
   `dynamic_detail_language_id` int(11) DEFAULT NULL,
   `language` varchar(20) DEFAULT 'en',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1589,7 +1674,7 @@ CREATE TABLE `dynamic_pairs` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1617,7 +1702,7 @@ CREATE TABLE `dynamic_photo_translations` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1653,7 +1738,7 @@ CREATE TABLE `dynamic_photos` (
   `include_description` tinyint(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `title` (`title`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1663,6 +1748,34 @@ CREATE TABLE `dynamic_photos` (
 LOCK TABLES `dynamic_photos` WRITE;
 /*!40000 ALTER TABLE `dynamic_photos` DISABLE KEYS */;
 /*!40000 ALTER TABLE `dynamic_photos` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `email_histories`
+--
+
+DROP TABLE IF EXISTS `email_histories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `email_histories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cloud_id` int(11) NOT NULL,
+  `recipient` varchar(100) DEFAULT NULL,
+  `reason` varchar(25) DEFAULT NULL,
+  `message` varchar(255) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `email_histories`
+--
+
+LOCK TABLES `email_histories` WRITE;
+/*!40000 ALTER TABLE `email_histories` DISABLE KEYS */;
+/*!40000 ALTER TABLE `email_histories` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1680,7 +1793,7 @@ CREATE TABLE `email_messages` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1706,7 +1819,7 @@ CREATE TABLE `forward_lookups` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1731,7 +1844,7 @@ CREATE TABLE `groups` (
   `created` datetime DEFAULT NULL,
   `modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1771,7 +1884,7 @@ CREATE TABLE `hardware_radios` (
   `mode` enum('a','g','n','ac','ax') DEFAULT 'n',
   `width` enum('20','40','80','160') DEFAULT '20',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1807,7 +1920,7 @@ CREATE TABLE `hardwares` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1835,7 +1948,7 @@ CREATE TABLE `languages` (
   `created` datetime DEFAULT NULL,
   `modified` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1863,7 +1976,7 @@ CREATE TABLE `mac_aliases` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1893,7 +2006,7 @@ CREATE TABLE `mac_usages` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1940,7 +2053,7 @@ CREATE TABLE `mesh_daily_summaries` (
   KEY `idx_mesh_daily_summaries_tree_tag_id` (`tree_tag_id`),
   KEY `idx_mesh_daily_summaries_the_date` (`the_date`),
   KEY `idx_mesh_daily_summaries_mesh_name` (`mesh_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=119 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1986,7 +2099,7 @@ CREATE TABLE `mesh_entries` (
   PRIMARY KEY (`id`),
   KEY `idx_mesh_entries_mesh_id` (`mesh_id`),
   KEY `idx_mesh_entries_name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2035,7 +2148,7 @@ CREATE TABLE `mesh_exit_captive_portals` (
   `softflowd_enabled` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `idx_mesh_exit_captive_portals_mesh_exit_id` (`mesh_exit_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2063,7 +2176,7 @@ CREATE TABLE `mesh_exit_mesh_entries` (
   PRIMARY KEY (`id`),
   KEY `idx_mesh_exit_mesh_entries_mesh_exit_id` (`mesh_exit_id`),
   KEY `idx_mesh_exit_mesh_entries_mesh_entry_id` (`mesh_entry_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=163 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=163 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2090,7 +2203,7 @@ CREATE TABLE `mesh_exit_settings` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2127,7 +2240,7 @@ CREATE TABLE `mesh_exits` (
   `dns_2` varchar(50) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `idx_mesh_exits_mesh_id` (`mesh_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2164,7 +2277,7 @@ CREATE TABLE `mesh_settings` (
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_mesh_settings_mesh_id` (`mesh_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2192,7 +2305,7 @@ CREATE TABLE `mesh_specifics` (
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_mesh_specifics_mesh_id` (`mesh_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2226,7 +2339,7 @@ CREATE TABLE `meshes` (
   PRIMARY KEY (`id`),
   KEY `idx_meshes_name` (`name`),
   KEY `idx_meshes_modified` (`modified`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2252,7 +2365,7 @@ CREATE TABLE `na_realms` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2262,6 +2375,33 @@ CREATE TABLE `na_realms` (
 LOCK TABLES `na_realms` WRITE;
 /*!40000 ALTER TABLE `na_realms` DISABLE KEYS */;
 /*!40000 ALTER TABLE `na_realms` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `na_settings`
+--
+
+DROP TABLE IF EXISTS `na_settings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `na_settings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `na_id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `value` varchar(255) NOT NULL,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `na_settings`
+--
+
+LOCK TABLES `na_settings` WRITE;
+/*!40000 ALTER TABLE `na_settings` DISABLE KEYS */;
+/*!40000 ALTER TABLE `na_settings` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2278,7 +2418,7 @@ CREATE TABLE `na_states` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2329,7 +2469,7 @@ CREATE TABLE `nas` (
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `nasname` (`nasname`)
-) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2357,7 +2497,7 @@ CREATE TABLE `networks` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2380,7 +2520,7 @@ CREATE TABLE `new_accountings` (
   `mac` varchar(17) NOT NULL,
   `username` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`mac`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2411,7 +2551,7 @@ CREATE TABLE `node_actions` (
   PRIMARY KEY (`id`),
   KEY `idx_node_actions_node_id` (`node_id`),
   KEY `idx_node_actions_modified` (`modified`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2439,7 +2579,7 @@ CREATE TABLE `node_connection_settings` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2487,7 +2627,7 @@ CREATE TABLE `node_ibss_connections` (
   PRIMARY KEY (`id`),
   KEY `idx_node_ibss_connections_node_id` (`node_id`),
   KEY `idx_node_ibss_connections_station_node_id` (`station_node_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2522,7 +2662,7 @@ CREATE TABLE `node_ibss_connections_dailies` (
   `signal_avg` int(6) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2556,7 +2696,7 @@ CREATE TABLE `node_loads` (
   PRIMARY KEY (`id`),
   KEY `idx_node_loads_node_id` (`node_id`),
   KEY `idx_node_loads_modified` (`modified`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2584,7 +2724,7 @@ CREATE TABLE `node_mesh_entries` (
   PRIMARY KEY (`id`),
   KEY `idx_node_mesh_entries_node_id` (`node_id`),
   KEY `idx_node_mesh_entries_mesh_entry_id` (`mesh_entry_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2612,7 +2752,7 @@ CREATE TABLE `node_mesh_exits` (
   PRIMARY KEY (`id`),
   KEY `idx_node_mesh_exits_node_id` (`node_id`),
   KEY `idx_node_mesh_exits_mesh_exit_id` (`mesh_exit_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2640,7 +2780,7 @@ CREATE TABLE `node_mp_settings` (
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_node_mp_settings_node_id` (`node_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2673,7 +2813,7 @@ CREATE TABLE `node_neighbors` (
   KEY `idx_node_neighbors_gateway` (`gateway`),
   KEY `idx_node_neighbors_neighbor_id` (`neighbor_id`),
   KEY `idx_node_neighbors_modified` (`modified`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2700,7 +2840,7 @@ CREATE TABLE `node_scans` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2764,7 +2904,7 @@ CREATE TABLE `node_settings` (
   PRIMARY KEY (`id`),
   KEY `idx_node_settings_mesh_id` (`mesh_id`),
   KEY `idx_node_settings_modified` (`modified`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2812,7 +2952,7 @@ CREATE TABLE `node_stations` (
   KEY `idx_node_stations_node_id` (`node_id`),
   KEY `idx_node_stations_mesh_entry_id` (`mesh_entry_id`),
   KEY `idx_node_stations_modified` (`modified`)
-) ENGINE=InnoDB AUTO_INCREMENT=328 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=328 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2847,7 +2987,7 @@ CREATE TABLE `node_stations_dailies` (
   `signal_avg` int(6) NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2878,7 +3018,7 @@ CREATE TABLE `node_systems` (
   KEY `idx_node_systems_node_id` (`node_id`),
   KEY `idx_node_systems_name` (`name`),
   KEY `idx_node_systems_modified` (`modified`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2909,7 +3049,7 @@ CREATE TABLE `node_uptm_histories` (
   KEY `idx_node_uptm_histories_node_id` (`node_id`),
   KEY `idx_node_uptm_histories_modified` (`modified`),
   KEY `idx_node_uptm_histories_node_state` (`node_state`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2937,7 +3077,7 @@ CREATE TABLE `node_wifi_settings` (
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_node_wifi_settings_node_id` (`node_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=107 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=107 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2999,7 +3139,7 @@ CREATE TABLE `nodes` (
   KEY `idx_nodes_mac` (`mac`),
   KEY `idx_nodes_last_contact` (`last_contact`),
   KEY `idx_nodes_modified` (`modified`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3040,7 +3180,7 @@ CREATE TABLE `notifications` (
   KEY `idx_notification_notification_code` (`notification_code`),
   KEY `idx_notification_item_id` (`item_id`),
   KEY `idx_notification_item_table` (`item_table`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3070,7 +3210,7 @@ CREATE TABLE `openvpn_clients` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3104,7 +3244,7 @@ CREATE TABLE `openvpn_server_clients` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3142,7 +3282,7 @@ CREATE TABLE `openvpn_servers` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3176,7 +3316,7 @@ CREATE TABLE `permanent_user_notifications` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3186,6 +3326,33 @@ CREATE TABLE `permanent_user_notifications` (
 LOCK TABLES `permanent_user_notifications` WRITE;
 /*!40000 ALTER TABLE `permanent_user_notifications` DISABLE KEYS */;
 /*!40000 ALTER TABLE `permanent_user_notifications` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `permanent_user_otps`
+--
+
+DROP TABLE IF EXISTS `permanent_user_otps`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `permanent_user_otps` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `permanent_user_id` int(11) NOT NULL,
+  `status` enum('otp_awaiting','otp_confirmed') DEFAULT 'otp_awaiting',
+  `value` varchar(255) NOT NULL,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `permanent_user_otps`
+--
+
+LOCK TABLES `permanent_user_otps` WRITE;
+/*!40000 ALTER TABLE `permanent_user_otps` DISABLE KEYS */;
+/*!40000 ALTER TABLE `permanent_user_otps` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3203,7 +3370,7 @@ CREATE TABLE `permanent_user_settings` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3264,7 +3431,7 @@ CREATE TABLE `permanent_users` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3292,7 +3459,7 @@ CREATE TABLE `pptp_clients` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3320,7 +3487,7 @@ CREATE TABLE `predefined_commands` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3346,7 +3513,7 @@ CREATE TABLE `profile_components` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3356,6 +3523,40 @@ CREATE TABLE `profile_components` (
 LOCK TABLES `profile_components` WRITE;
 /*!40000 ALTER TABLE `profile_components` DISABLE KEYS */;
 /*!40000 ALTER TABLE `profile_components` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `profile_fup_components`
+--
+
+DROP TABLE IF EXISTS `profile_fup_components`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `profile_fup_components` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `profile_id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `if_condition` enum('day_usage','week_usage','month_usage','time_of_day') DEFAULT 'day_usage',
+  `time_start` varchar(255) DEFAULT NULL,
+  `time_end` varchar(255) DEFAULT NULL,
+  `data_amount` int(10) DEFAULT NULL,
+  `data_unit` enum('mb','gb') DEFAULT 'mb',
+  `action` enum('increase_speed','decrease_speed','block') DEFAULT 'block',
+  `action_amount` int(10) DEFAULT NULL,
+  `ip_pool` varchar(255) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `profile_fup_components`
+--
+
+LOCK TABLES `profile_fup_components` WRITE;
+/*!40000 ALTER TABLE `profile_fup_components` DISABLE KEYS */;
+/*!40000 ALTER TABLE `profile_fup_components` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -3372,7 +3573,7 @@ CREATE TABLE `profiles` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3432,7 +3633,7 @@ CREATE TABLE `radacct` (
   KEY `acctstoptime` (`acctstoptime`),
   KEY `nasipaddress` (`nasipaddress`),
   KEY `nasidentifier` (`nasidentifier`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3460,7 +3661,7 @@ CREATE TABLE `radcheck` (
   PRIMARY KEY (`id`),
   KEY `username` (`username`(32)),
   KEY `FK_radcheck_ref_vouchers` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=10623 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=10623 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3490,7 +3691,7 @@ CREATE TABLE `radgroupcheck` (
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `groupname` (`groupname`(32))
-) ENGINE=InnoDB AUTO_INCREMENT=142 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=142 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3520,7 +3721,7 @@ CREATE TABLE `radgroupreply` (
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `groupname` (`groupname`(32))
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3560,7 +3761,7 @@ CREATE TABLE `radippool` (
   KEY `radippool_poolname_expire` (`pool_name`,`expiry_time`),
   KEY `framedipaddress` (`framedipaddress`),
   KEY `radippool_nasip_poolkey_ipaddress` (`nasipaddress`,`pool_key`,`framedipaddress`)
-) ENGINE=InnoDB AUTO_INCREMENT=169 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=169 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3588,7 +3789,7 @@ CREATE TABLE `radpostauth` (
   `nasname` varchar(128) NOT NULL DEFAULT '',
   `authdate` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3616,7 +3817,7 @@ CREATE TABLE `radreply` (
   PRIMARY KEY (`id`),
   KEY `username` (`username`(32)),
   KEY `FK_radreply_ref_vouchers` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3642,7 +3843,7 @@ CREATE TABLE `radusergroup` (
   `priority` int(11) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `username` (`username`(32))
-) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3691,7 +3892,7 @@ CREATE TABLE `realms` (
   `suffix_vouchers` tinyint(1) NOT NULL DEFAULT 0,
   `suffix_devices` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3722,7 +3923,7 @@ CREATE TABLE `registration_requests` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3748,7 +3949,7 @@ CREATE TABLE `reverse_lookups` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=322 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=322 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3793,7 +3994,7 @@ CREATE TABLE `rolling_last_day` (
   PRIMARY KEY (`mesh_id`),
   KEY `idx_rolling_last_day_tree_tag_id` (`tree_tag_id`),
   KEY `idx_rolling_last_day_mesh_name` (`mesh_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3838,7 +4039,7 @@ CREATE TABLE `rolling_last_hour` (
   PRIMARY KEY (`mesh_id`),
   KEY `idx_rolling_last_hour_tree_tag_id` (`tree_tag_id`),
   KEY `idx_rolling_last_hour_tree_mesh_name` (`mesh_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3883,7 +4084,7 @@ CREATE TABLE `rolling_last_ninety_days` (
   PRIMARY KEY (`mesh_id`),
   KEY `idx_rolling_last_ninety_days_tree_tag_id` (`tree_tag_id`),
   KEY `idx_rolling_last_ninety_days_mesh_name` (`mesh_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3928,7 +4129,7 @@ CREATE TABLE `rolling_last_seven_days` (
   PRIMARY KEY (`mesh_id`),
   KEY `idx_rolling_last_seven_days_tree_tag_id` (`tree_tag_id`),
   KEY `idx_rolling_last_seven_days_mesh_name` (`mesh_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -3973,7 +4174,7 @@ CREATE TABLE `rolling_last_sixty_days` (
   PRIMARY KEY (`mesh_id`),
   KEY `idx_rolling_last_sixty_days_tree_tag_id` (`tree_tag_id`),
   KEY `idx_rolling_last_sixty_days_mesh_name` (`mesh_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4018,7 +4219,7 @@ CREATE TABLE `rolling_last_thirty_days` (
   PRIMARY KEY (`mesh_id`),
   KEY `idx_rolling_last_thirty_days_tree_tag_id` (`tree_tag_id`),
   KEY `idx_rolling_last_thirty_days_mesh_name` (`mesh_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4055,7 +4256,7 @@ CREATE TABLE `schedule_entries` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4081,7 +4282,7 @@ CREATE TABLE `schedules` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4109,7 +4310,7 @@ CREATE TABLE `sites` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4119,6 +4320,36 @@ CREATE TABLE `sites` (
 LOCK TABLES `sites` WRITE;
 /*!40000 ALTER TABLE `sites` DISABLE KEYS */;
 /*!40000 ALTER TABLE `sites` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sms_histories`
+--
+
+DROP TABLE IF EXISTS `sms_histories`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sms_histories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cloud_id` int(11) NOT NULL,
+  `recipient` varchar(100) DEFAULT NULL,
+  `reason` varchar(25) DEFAULT NULL,
+  `message` varchar(255) DEFAULT NULL,
+  `reply` varchar(255) DEFAULT NULL,
+  `sms_provider` int(2) DEFAULT 1,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sms_histories`
+--
+
+LOCK TABLES `sms_histories` WRITE;
+/*!40000 ALTER TABLE `sms_histories` DISABLE KEYS */;
+/*!40000 ALTER TABLE `sms_histories` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -4135,7 +4366,7 @@ CREATE TABLE `social_login_user_realms` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4173,7 +4404,7 @@ CREATE TABLE `social_login_users` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4211,7 +4442,7 @@ CREATE TABLE `softflows` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4251,7 +4482,7 @@ CREATE TABLE `temp_flow_logs` (
   `finish` datetime NOT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4282,7 +4513,7 @@ CREATE TABLE `temp_proxy_logs` (
   `full_url` text DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2072 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=2072 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4310,7 +4541,7 @@ CREATE TABLE `temp_reports` (
   `report` text DEFAULT NULL,
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1020 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=1020 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4336,7 +4567,7 @@ CREATE TABLE `timezones` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=397 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=397 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4370,7 +4601,7 @@ CREATE TABLE `top_up_transactions` (
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4401,7 +4632,7 @@ CREATE TABLE `top_ups` (
   `modified` datetime NOT NULL,
   `type` enum('data','time','days_to_use') DEFAULT 'data',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4431,7 +4662,7 @@ CREATE TABLE `unknown_dynamic_clients` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `nasidentifier` (`nasidentifier`),
   UNIQUE KEY `calledstationid` (`calledstationid`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4467,7 +4698,7 @@ CREATE TABLE `unknown_nodes` (
   `new_mode` enum('ap','mesh') DEFAULT NULL,
   `new_mode_status` enum('awaiting','fetched','replied') DEFAULT 'awaiting',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4495,7 +4726,7 @@ CREATE TABLE `user_settings` (
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_user_settings_user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=483 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=483 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4524,7 +4755,7 @@ CREATE TABLE `user_ssids` (
   KEY `username` (`username`(32)),
   KEY `idx_user_ssids_username` (`username`),
   KEY `idx_user_ssids_ssidname` (`ssidname`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4560,7 +4791,7 @@ CREATE TABLE `user_stats` (
   KEY `us_username_timestamp` (`username`,`timestamp`),
   KEY `us_nasidentifier_timestamp` (`nasidentifier`,`timestamp`),
   KEY `us_callingstationid_timestamp` (`callingstationid`,`timestamp`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4594,7 +4825,7 @@ CREATE TABLE `user_stats_dailies` (
   KEY `usd_username_timestamp` (`username`,`timestamp`),
   KEY `usd_nasidentifier_timestamp` (`nasidentifier`,`timestamp`),
   KEY `usd_callingstationid_timestamp` (`callingstationid`,`timestamp`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4632,7 +4863,7 @@ CREATE TABLE `users` (
   `timezone_id` int(11) DEFAULT 316,
   PRIMARY KEY (`id`),
   KEY `idx_users_group_id` (`group_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4682,7 +4913,7 @@ CREATE TABLE `vouchers` (
   `time_cap` int(12) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `ak_vouchers` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -4703,4 +4934,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-11-25 12:30:33
+-- Dump completed on 2023-01-12 14:08:46

@@ -31,34 +31,48 @@ class RdSmsComponent extends Component {
     	$success    = false; 	       
 	    $config_1   = [];
 	    $config_2   = [];
+	    $cloud_1	= -1;
+	    $cloud_2	= -1;
+
+	    	    
+	    if(($nr == 0)||($nr == 1)){ 
 	    
-	    if(($nr == 0)||($nr == 1)){ 	    
-			if($cloud_id == -1){             
-				$q_r_1   = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_1_%' ])->all();	
-			}else{ 		
-			   	$q_r_1   = $this->{$this->cloud_model}->find()->where(['CloudSettings.cloud_id' => $cloud_id, 'CloudSettings.name LIKE' => 'sms_1_%'])->all();
-			}			
+	    	//Prime it with system wide settings       
+			$q_r_1   = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_1_%' ])->all();			
 			foreach($q_r_1 as $ent){
 		        $config_1[$ent->name] = $ent->value; 
 		    }
+		    
+		    //See if there are cloud specific ones to override
+		    $q_c_enabled = $this->{$this->cloud_model}->find()->where(['CloudSettings.cloud_id' => $cloud_id,  'CloudSettings.name' => 'sms_1_enabled', 'CloudSettings.value' => '1' ])->count();
+		    if($q_c_enabled){
+		    	$cloud_1 = $cloud_id;
+		    	$q_r_1   = $this->{$this->cloud_model}->find()->where(['CloudSettings.cloud_id' => $cloud_id, 'CloudSettings.name LIKE' => 'sms_1_%'])->all();  	
+	    		foreach($q_r_1 as $ent){
+					$config_1[$ent->name] = $ent->value; 
+				}	
+		   	}
 		}
 		
-		if(($nr == 0)||($nr == 2)){ 	    
-			if($cloud_id == -1){             
-				$q_r_2   = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_2_%' ])->all();	
-			}else{ 		
-			   	$q_r_2   = $this->{$this->cloud_model}->find()->where(['CloudSettings.cloud_id' => $cloud_id, 'CloudSettings.name LIKE' => 'sms_2_%'])->all();
-			}			
+		if(($nr == 0)||($nr == 2)){ 
+	
+			//Prime it with system wide settings       
+			$q_r_2   = $this->{$this->main_model}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_2_%' ])->all();			
 			foreach($q_r_2 as $ent){
 		        $config_2[$ent->name] = $ent->value; 
 		    }
+		    
+			//See if there are cloud specific ones to override
+		    $q_c_enabled = $this->{$this->cloud_model}->find()->where(['CloudSettings.cloud_id' => $cloud_id,  'CloudSettings.name' => 'sms_2_enabled', 'CloudSettings.value' => '1' ])->count();
+		    if($q_c_enabled){
+		    	$cloud_2 = $cloud_id;
+		    	$q_r_2   = $this->{$this->cloud_model}->find()->where(['CloudSettings.cloud_id' => $cloud_id, 'CloudSettings.name LIKE' => 'sms_2_%'])->all();    	
+	    		foreach($q_r_2 as $ent){
+					$config_2[$ent->name] = $ent->value; 
+				}	
+		   	}
 		}
-              
-        $q_r_2      = $this->{'UserSettings'}->find()->where(['UserSettings.user_id' => -1, 'UserSettings.name LIKE' => 'sms_2_%'])->all();
-	    foreach($q_r_2 as $ent){
-            $config_2[$ent->name] = $ent->value; 
-        } 
-        
+		                      
         $active_config  = 0;
         $config         = [];  
         
@@ -75,7 +89,7 @@ class RdSmsComponent extends Component {
                 $config = $config_2;
             }     
         }
-        
+              
         if(($active_config == 1)||($active_config == 2)){
         
             $nr         = $active_config;      
@@ -129,14 +143,16 @@ class RdSmsComponent extends Component {
             $data['reply']  = $reply;
          
          	//Log the action
-         	$this->RdLogger->addSmsHistory($cloud_id,$phone,$reason,$message,$reply,$active_config);
-         
+         	$cloud_active = $cloud_1;
+         	if($active_config !== 1){
+         		$cloud_active = $cloud_2;
+         	}
+         	         	        	
+         	$this->RdLogger->addSmsHistory($cloud_active,$phone,$reason,$message,$reply,$active_config);
             return $data;      
         
         }	         	
     	return $success;        
-    }
-
-     
+    }    
 }
 
