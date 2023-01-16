@@ -661,20 +661,24 @@ class ApHelper22Component extends Component {
                         array_push($interfaces,$br_int);    
                     }
                     
-                    array_push($network,
-	                    [
-	                        "device"    => "br-$if_name",
-	                        "options"   => [
-	                        	"name"		=> "br-$if_name",
-	                            "type"      => "bridge",
-	                            'stp'       => 1,
-	                       	],
-	                       	'lists'	=> [
-	                       		'ports'	=> $interfaces
-	                       	]                          
-	                    ]
-	                );
-                                                       
+                    $nat_bridge = [
+                        "device"    => "br-$if_name",
+                        "options"   => [
+                        	"name"		=> "br-$if_name",
+                            "type"      => "bridge",
+                            'stp'       => 1,
+                       	],
+                       	'lists'	=> [
+                       		'ports'	=> $interfaces
+                       	]                          
+                    ];
+		          	if(count($interfaces)==0){	//Remove if empty 	          	
+		          		unset($nat_bridge['lists']);
+		          	}
+                    
+                    array_push($network,$nat_bridge);
+	                
+	                                                                      
                     array_push($network,
                         [
                             "interface"    => "$if_name",
@@ -810,8 +814,7 @@ class ApHelper22Component extends Component {
                         ];
                     }
                     
-                    array_push($network,
-		                [
+                    $cp_bridge = [
 		                    "device"    => "br-$if_name",
 		                    "options"   => [
 		                    	"name"		=> "br-$if_name",
@@ -821,8 +824,12 @@ class ApHelper22Component extends Component {
 		                   	'lists'	=> [
 		                   		'ports'	=> $cp_interfaces
 		                   	]                          
-		                ]
-		            ); 
+		                ];
+		          	if(count($cp_interfaces)==0){	//Remove if empty 	          	
+		          		unset($cp_bridge['lists']);
+		          	}
+                    
+                    array_push($network,$cp_bridge); 
 		            
 		            $options_cp['device'] = "br-$if_name";     
                     

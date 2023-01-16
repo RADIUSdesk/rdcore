@@ -33,6 +33,16 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailClickToConnect', {
             params  : {
                 dynamic_detail_id   : dd_id
             },
+            success : function(a,b){  
+				if(b.result.data.permanent_user_username != undefined){
+                    console.log("Lekker Gooi");
+                    console.log(b.result.data.permanent_user_username);
+                    var pu = me.getView().down("#cmbCtcTempUser");
+                    var mr = Ext.create('Rd.model.mPermanentUser', {username: b.result.data.permanent_user_username, id: b.result.data.permanent_user_id});
+                    pu.getStore().loadData([mr],false);
+                    pu.setValue(b.result.data.permanent_user_id);
+                }
+            },
             failure : function(form, action) {
                 Ext.Msg.alert(action.response.statusText, action.response.responseText);
             }
@@ -170,8 +180,12 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailClickToConnect', {
         var value   = chk.getValue();
         var pnl     = form.down('#Email');
         var req     = pnl.down('#sldrRequire');
+        var pu      = me.getView().down("#cmbCtcTempUser");
         if(value){
+            pu.setDisabled(false); 
             req.setValue(true); //Make it required if not already made required
+        }else{
+            pu.setDisabled(true);
         }
     }
 });

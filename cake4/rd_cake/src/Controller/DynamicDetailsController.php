@@ -681,11 +681,15 @@ class DynamicDetailsController extends AppController{
     public function viewClickToConnect(){
 
         $data = [];
-        $entity = $this->{'DynamicDetailCtcs'}->find()->where(['dynamic_detail_id' =>$this->request->getQuery('dynamic_detail_id')])->first();
+        $entity = $this->{'DynamicDetailCtcs'}->find()->where(['dynamic_detail_id' =>$this->request->getQuery('dynamic_detail_id')])->contain(['PermanentUsers'])->first();
         if($entity){
             $data = $entity->toArray();
         }
-                   
+        if(isset($data['permanent_user'])){
+        	$data['permanent_user_username'] = $data['permanent_user']['username'];
+        }
+        unset($data['permanent_user']);
+                  
         $this->set([
             'data'     => $data,
             'success'   => true

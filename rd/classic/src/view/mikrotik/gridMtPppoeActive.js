@@ -36,30 +36,86 @@ Ext.define('Rd.view.mikrotik.gridMtPppoeActive' ,{
             }
         }];
 
-		me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
-		
+		me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});	
         me.columns  = [
- 		//	{xtype: 'rownumberer',stateId: 'StateGridUdc1'},
             { 
-				text		: 'User',      
-				dataIndex	: 'user',     
+				text		: 'Name',      
+				dataIndex	: 'name',     
+				tdCls		: 'gridMain', 
+				flex		: 1,
+				stateId		: 'MtPppActive1'
+			},
+            { 
+				text		: 'Service',      
+				dataIndex	: 'service',     
 				tdCls		: 'gridTree', 
 				flex		: 1,
-				stateId		: 'MtHsActive2'
+				stateId		: 'MtPppActive2',
+                hidden      : true
 			},
 			{ 
+				text		: 'Caller-Id',      
+				dataIndex	: 'caller-id',     
+				tdCls		: 'gridTree', 
+				flex		: 1,
+				stateId		: 'MtPppActive3',
+                hidden      : false
+			},
+            { 
 				text		: 'Address',      
 				dataIndex	: 'address',     
 				tdCls		: 'gridTree', 
 				flex		: 1,
-				stateId		: 'MtHsActive3'
+				stateId		: 'MtPppActive4',
+                hidden      : false
 			},
             { 
 				text		: 'Uptime',      
 				dataIndex	: 'uptime',     
 				tdCls		: 'gridTree', 
 				flex		: 1,
-				stateId		: 'MtHsActive4'
+				stateId		: 'MtPppActive5',
+                hidden      : false
+			},
+            { 
+				text		: 'Encoding',      
+				dataIndex	: 'encoding',     
+				tdCls		: 'gridTree', 
+				flex		: 1,
+				stateId		: 'MtPppActive6',
+                hidden      : true
+			},
+            { 
+				text		: 'Session-Id',      
+				dataIndex	: 'session-id',     
+				tdCls		: 'gridTree', 
+				flex		: 1,
+				stateId		: 'MtPppActive7',
+                hidden      : true
+			},
+            { 
+				text		: 'In Limit',      
+				dataIndex	: 'limit-bytes-in',     
+				tdCls		: 'gridTree', 
+				flex		: 1,
+				stateId		: 'MtPppActive8',
+                hidden      : true
+			},
+            { 
+				text		: 'Out Limit',      
+				dataIndex	: 'limit-bytes-out',     
+				tdCls		: 'gridTree', 
+				flex		: 1,
+				stateId		: 'MtPppActive9',
+                hidden      : true
+			},
+            { 
+				text		: 'Radius',      
+				dataIndex	: 'radius',     
+				tdCls		: 'gridTree', 
+				flex		: 1,
+				stateId		: 'MtPppActive10',
+                hidden      : true
 			}
         ];
         me.callParent(arguments);

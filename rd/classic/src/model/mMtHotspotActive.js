@@ -6,8 +6,6 @@ Ext.define('Rd.model.mMtHotspotActive', {
         {name: 'address',   type: 'string'  },
         {name: 'uptime',    type: 'string'  },
         {name: 'server',    type: 'string'  },
-        {name: 'user',      type: 'string'  },
-        {name: 'address',   type: 'string'  },
         {name: 'mac-address',type: 'string'  },
         {name: 'login-by',type: 'string'  },
         {name: 'uptime',    type: 'string'  },

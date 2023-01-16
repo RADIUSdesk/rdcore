@@ -8,6 +8,7 @@ use Cake\ORM\Table;
 class DynamicDetailCtcsTable extends Table{
     public function initialize(array $config):void{  
         $this->addBehavior('Timestamp');       
-        $this->belongsTo('DynamicDetails'); 
+        $this->belongsTo('DynamicDetails');
+        $this->belongsTo('PermanentUsers');
     }     
 }

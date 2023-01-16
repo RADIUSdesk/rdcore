@@ -42,6 +42,12 @@ if not exists (select * from information_schema.columns
 end if;
 
 if not exists (select * from information_schema.columns
+    where column_name = 'permanent_user_id' and table_name = 'dynamic_detail_ctcs' and table_schema = 'rd') then
+    alter table dynamic_detail_ctcs add column `permanent_user_id` int(11) NOT NULL DEFAULT '0';
+end if;
+
+
+if not exists (select * from information_schema.columns
     where table_name = 'data_collector_otps' and table_schema = 'rd') then
 	CREATE TABLE `data_collector_otps` (
       `id` int(11) NOT NULL AUTO_INCREMENT,

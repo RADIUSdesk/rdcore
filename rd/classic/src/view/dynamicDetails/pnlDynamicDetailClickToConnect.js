@@ -222,6 +222,14 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailClickToConnect', {
                                 checked     : false
                             },
                             {
+					            xtype       : 'cmbPermanentUser',
+					            fieldLabel  : 'Temp login user',
+					            allowBlank  : false,
+					            name		: 'permanent_user_id',
+					            itemId		: 'cmbCtcTempUser',
+                                disabled    : true
+				            },
+                            {
                                 xtype       : 'checkbox',      
                                 fieldLabel  : 'Show Email Opt-In',
                                 itemId      : 'chkCtcEmailOptIn',
