@@ -514,8 +514,7 @@ var rdConnect = (function () {
             var dat_o   = bytes(j.bytes_out);
             var t       = parseInt(j.bytes_out) + parseInt(j.bytes_in);
             var dat_t   = bytes(t);      
-            $$('propertySession').setValues({acct_un:j.username,acct_up:j.uptime,acct_di:dat_i,acct_do:dat_o,acct_dt:dat_t});
-             
+            $$('propertySession').setValues({acct_un:j.username,acct_up:j.uptime,acct_di:dat_i,acct_do:dat_o,acct_dt:dat_t});          
         }
 	    
 	    var refreshStatusCoova = function(j){

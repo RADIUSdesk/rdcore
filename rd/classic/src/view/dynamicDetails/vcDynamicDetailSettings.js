@@ -24,6 +24,12 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailSettings', {
                     profile.getStore().loadData([mp],false);
                     profile.setValue(b.result.data.profile_id);
                 }
+                if(b.result.data.permanent_user_username != undefined){
+                    var pu = me.getView().down("cmbPermanentUser");
+                    var mr = Ext.create('Rd.model.mPermanentUser', {username: b.result.data.permanent_user_username, id: b.result.data.permanent_user_id});
+                    pu.getStore().loadData([mr],false);
+                    pu.setValue(b.result.data.permanent_user_id);
+                }
             },
             failure : function(form, action) {
                 Ext.Msg.alert(action.response.statusText, action.response.responseText);
@@ -33,7 +39,6 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailSettings', {
     onCmbThemesChange: function(cmb){
         var me       = this;
         me.theme     = cmb.getValue();
-        console.log("The Theme is now "+me.theme);
         var pnl = cmb.up('panel');
         if(me.theme == 'Custom'){
         
@@ -73,6 +78,9 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailSettings', {
             pnl.down('#chkRegEmail').setDisabled(false);
             pnl.down('#chkRegOtpSms').setDisabled(false);
             pnl.down('#chkRegOtpEmail').setDisabled(false);
+            if(!pnl.down('#chkRegOtpEmail').getValue()){ //If NOT (!) selected; disable the user selector
+                pnl.down('#cmbRegTempUser').setDisabled(true);
+            }
          }else{
             pnl.down('cmbRealm').setDisabled(true);
             pnl.down('cmbProfile').setDisabled(true);
@@ -81,6 +89,7 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailSettings', {
             pnl.down('#chkRegEmail').setDisabled(true);
             pnl.down('#chkRegOtpSms').setDisabled(true);
             pnl.down('#chkRegOtpEmail').setDisabled(true);
+            pnl.down('#cmbRegTempUser').setDisabled(true);
          }  
     },
     onChkRegAutoSuffixChange: function(chk){
@@ -158,5 +167,14 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailSettings', {
             disabled = false;       
         }    
         form.down('#clrNameColour').setDisabled(disabled);    
+    },
+    chkRegOtpEmailChange: function(chk){
+        var me          = this;
+        var cnt       = chk.up('#cntRegister');
+        var disabled    = true;
+        if(chk.getValue()){   
+            disabled = false;       
+        }    
+        cnt.down('#cmbRegTempUser').setDisabled(disabled);
     }
 });

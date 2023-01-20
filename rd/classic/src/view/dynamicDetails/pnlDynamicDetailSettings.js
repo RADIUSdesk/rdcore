@@ -389,6 +389,7 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailSettings', {
             xtype       : 'container',
             width       : w_prim,
             layout      : 'anchor',
+            itemId      : 'cntRegister',
             defaults    : {
                 anchor  : '100%'
             },
@@ -468,9 +469,19 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailSettings', {
                     inputValue  : 'reg_otp_email',
                     disabled    : true,
                     checked     : false,
-                    cls         : 'lblRd'
-                }
-    
+                    cls         : 'lblRd',
+                    listeners   : {
+                        change : 'chkRegOtpEmailChange'
+                    }	
+                },
+                {
+		            xtype       : 'cmbPermanentUser',
+		            fieldLabel  : 'Temp login user',
+		            allowBlank  : false,
+		            name		: 'permanent_user_id',
+		            itemId		: 'cmbRegTempUser',
+                    disabled    : true
+	            }   
             ]     
         }
         

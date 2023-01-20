@@ -852,6 +852,7 @@ class DynamicDetailsController extends AppController{
 
             $q_r = $this->{$this->main_model}->find()
                 ->where(['DynamicDetails.id' => $req_q['dynamic_detail_id'] ])
+                ->contain(['PermanentUsers'])
                 ->first();
             if($q_r){
             
@@ -890,7 +891,14 @@ class DynamicDetailsController extends AppController{
 		        }
 		        
                 $items['realm']     = $realm;
-                $items['profile']   = $profile;               
+                $items['profile']   = $profile;
+                
+                if($q_r->permanent_user != null){
+                
+                	$items['permanent_user_username'] = $q_r->permanent_user->username;
+                }
+                
+                               
             }
         }
         

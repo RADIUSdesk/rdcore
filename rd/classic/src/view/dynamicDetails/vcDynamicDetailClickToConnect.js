@@ -35,7 +35,6 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailClickToConnect', {
             },
             success : function(a,b){  
 				if(b.result.data.permanent_user_username != undefined){
-                    console.log("Lekker Gooi");
                     console.log(b.result.data.permanent_user_username);
                     var pu = me.getView().down("#cmbCtcTempUser");
                     var mr = Ext.create('Rd.model.mPermanentUser', {username: b.result.data.permanent_user_username, id: b.result.data.permanent_user_id});
@@ -79,14 +78,21 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailClickToConnect', {
         var value   = chk.getValue();     
         pnl.query('field').forEach(function(item){
             var n   = item.getName();
-            if(value){ 
-                item.setDisabled(false);     
+            console.log(value);
+            console.log(n);
+            if(value){
+                item.setDisabled(false);                      
             }else{
                 if(item.getName() !== 'cust_info_check'){
                     item.setDisabled(true);   
                 }        
            }                 
         });
+
+        //Special after-thought
+        if(!pnl.down('#chkCtcEmailOtp').getValue()){
+            pnl.down('#cmbCtcTempUser').setDisabled(true);
+        }
     },
     chkCtcEmailOptInChange: function(chk){
         var me      = this;

@@ -52,9 +52,21 @@ class OtpComponent extends Component {
 	    return $success;     
     }
     
-    public function sendEmailClickToConnect($email_adr,$otp,$cloud_id){  
+    public function sendEmailClickToConnect($email_adr,$otp,$cloud_id,$data_id){  
     	$meta_data  = $this->MailTransport->setTransport($cloud_id);	    	
-    	$username	= $email_adr;	           
+    	$username	= $email_adr;
+    	
+    	if (isset($_SERVER['HTTPS']) &&
+			($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) ||
+			isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+			$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+		  $protocol = 'https://';
+		}
+		else {
+		  $protocol = 'http://';
+		}
+    	  	
+    	$url 		= $protocol.$this->getController()->getRequest()->host()."/cake4/rd_cake/data-collectors/otp-confirm.json?data_id=$data_id&otp=$otp";          
         $success    = false;            
         if($meta_data !== false){          
             $email = new Mailer(['transport'   => 'mail_rd']);
@@ -62,7 +74,7 @@ class OtpComponent extends Component {
             $email->setFrom($from)
             	->setSubject(__("Click To Connect - OTP"))
             	->setTo($email_adr)
-            	->setViewVars(compact( 'username', 'otp'))
+            	->setViewVars(compact( 'username', 'otp','url'))
             	->setEmailFormat('html')
              	->viewBuilder()
                     	->setTemplate('otp_click_to_connect')

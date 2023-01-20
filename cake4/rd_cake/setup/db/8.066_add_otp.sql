@@ -15,6 +15,11 @@ if not exists (select * from information_schema.columns
     alter table dynamic_details add column `reg_otp_email` tinyint(1) NOT NULL DEFAULT '0';
 end if;
 
+if not exists (select * from information_schema.columns
+    where column_name = 'permanent_user_id' and table_name = 'dynamic_details' and table_schema = 'rd') then
+    alter table dynamic_details add column `permanent_user_id` int(11) NOT NULL DEFAULT '0';
+end if;
+
 
 if not exists (select * from information_schema.columns
     where table_name = 'permanent_user_otps' and table_schema = 'rd') then

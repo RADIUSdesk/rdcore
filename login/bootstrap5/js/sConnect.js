@@ -314,6 +314,12 @@ var sConnect = (function () {
                             $('#alertInfoOtpCtc').addClass('show');
                         	$("#modalOtpCtc").modal('show');
                             dataColId = j.data.data_collector_id; //Set the DataCollectorId so we can submit the OTP for correct item
+                            //--Check if its email otp
+                            if(j.data.temp_username){
+                                var un = j.data.temp_username;
+                                var pw = j.data.temp_password;
+                                connectWith(un,pw);
+                            }
                         }else if(j.data.ci_required == true){
                             showCustInfo();
                         }else{
@@ -714,6 +720,12 @@ var sConnect = (function () {
                             $('#alertInfoOtpCtc').addClass('show');
                         	$("#modalOtpCtc").modal('show');
                             dataColId = j.data.data_collector_id; //Set the DataCollectorId so we can submit the OTP for correct item
+                            //--Check if its email otp
+                            if(j.data.temp_username){
+                                var un = j.data.temp_username;
+                                var pw = j.data.temp_password;
+                                connectWith(un,pw);
+                            }
                         }else{           
                         	$("#modalLogin").modal('show');
                         	onBtnClickToConnectClick(event); //Fire the click to Connect Button's Click event
@@ -1132,6 +1144,22 @@ var sConnect = (function () {
             }
         }        
         //=== END SOCIAL COOVACHILLI ===
+
+        //--use this to temporary connect users--
+        var connectWith = function(un,pw){
+            console.log("Connecting With ",un,pw);
+            userName 			= un;
+            password 			= pw;
+            if (isMikroTik) {
+                login();
+            } else {
+                getLatestChallenge(); 
+            }
+        }
+
+        var tempDisconnect = function(){
+            onBtnDisconnectClick();
+        }
             
         var onBtnClickToConnectClick = function(event){
             event.preventDefault();
@@ -2054,6 +2082,11 @@ var sConnect = (function () {
                         //Hide reg / show login
                         $("#modalOtpCtc").modal('hide');
                         $("#modalLogin").modal('show');
+
+                        //--First disconnect (if we are connected we probably connected with temp user)
+                        tempDisconnect();
+
+
                         onBtnClickToConnectClick(event); //Fire the click to Connect Button's Click event            
                     }else{
                         $('#alertWarnOtpCtc').html(data.message);

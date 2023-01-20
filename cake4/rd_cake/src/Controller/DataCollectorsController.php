@@ -20,7 +20,9 @@ class DataCollectorsController extends AppController{
         $this->loadModel($this->main_model);
         $this->loadModel('DataCollectorOtps'); 
         $this->loadModel('DynamicDetails');
-        $this->loadModel('DynamicPairs');      
+        $this->loadModel('DynamicPairs');
+        $this->loadModel('PermanentUsers');
+        $this->loadModel('Radchecks');      
         $this->loadComponent('Aa');
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');
@@ -52,6 +54,7 @@ class DataCollectorsController extends AppController{
             
             	$ci_phone_otp = $q_r->dynamic_detail->dynamic_detail_ctc->ci_phone_otp;
             	$ci_email_otp = $q_r->dynamic_detail->dynamic_detail_ctc->ci_email_otp;
+            	$pu_id		  = $q_r->dynamic_detail->dynamic_detail_ctc->permanent_user_id;	
             
                 if($dd_resuply_int == -1){
                     $data['ci_required'] = true; // Every time == -1 //No need to check if expired
@@ -73,7 +76,20 @@ class DataCollectorsController extends AppController{
                     					$message = __("OTP sent to").' '.$this->Formatter->hide_phone($q_dd->phone)."<br>";
                     				}
                     				if($ci_email_otp){
-                    					$message = $message.__("OTP sent to").' '.$this->Formatter->hide_email($q_dd->email);
+                    					$message = $message.__("OTP sent to").' '.$this->Formatter->hide_email($q_dd->email)."<br><b>Temporary Intenet Access Given To Retrieve OTP Trough Email</b>";
+                    				}
+                    				
+                    				if($ci_email_otp){ //Send info to the login page can connect with temp user
+                    					if($pu_id != 0){
+                    						$e_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' => $pu_id])->first();
+                    						if($e_pu){
+                    							$e_rd = $this->{'Radchecks'}->find()->where(['Radchecks.username' => $e_pu->username,'Radchecks.attribute' => 'Cleartext-Password'])->first();
+                    							if($e_rd){
+                    								$data['temp_username'] 			= $e_pu->username;
+                    								$data['temp_password'] 			= $e_rd->value;
+                    							}
+                    						}                   						
+                    					}
                     				}
                     			
                     				$data['otp_show'] 			= true;
@@ -124,6 +140,7 @@ class DataCollectorsController extends AppController{
             
             $dd 		= $this->_find_dynamic_detail_id();
             $ctc		= $dd->dynamic_detail->dynamic_detail_ctc;
+            $pu_id		= $dd->dynamic_detail->dynamic_detail_ctc->permanent_user_id;
                         
             if(!$dd){
                 $this->set([
@@ -164,9 +181,23 @@ class DataCollectorsController extends AppController{
 					$this->_sms_otp($entity->phone,$value,$dd->dynamic_detail->cloud_id,'click_to_connect');
 				}
 				if($ctc->ci_email_otp){
-					$message = __("OTP sent to").' '.$this->Formatter->hide_email($entity->email);
-					$this->_email_otp($entity->email,$value,$dd->dynamic_detail->cloud_id);
+					$message = __("OTP sent to").' '.$this->Formatter->hide_email($entity->email)."<br><b>Temporary Intenet Access Given To Retrieve OTP Trough Email</b>";
+					$this->_email_otp($entity->email,$value,$dd->dynamic_detail->cloud_id,$e_otp->id);
 				}
+				
+				if($ctc->ci_email_otp){ //Send info to the login page can connect with temp user
+					if($pu_id != 0){
+						$e_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' => $pu_id])->first();
+						if($e_pu){
+							$e_rd = $this->{'Radchecks'}->find()->where(['Radchecks.username' => $e_pu->username,'Radchecks.attribute' => 'Cleartext-Password'])->first();
+							if($e_rd){
+								$data['temp_username'] 			= $e_pu->username;
+								$data['temp_password'] 			= $e_rd->value;
+							}
+						}                   						
+					}
+				}
+								
 				$data['message'] = $message;
 				
             }          
@@ -217,6 +248,7 @@ class DataCollectorsController extends AppController{
 	public function otpRequest(){	
 		$p_data 	= $this->request->getData();
 		$message 	= '';
+		$data		= [];
 		 		
 		if(isset($p_data['data_collector_id'])){
 			
@@ -241,6 +273,7 @@ class DataCollectorsController extends AppController{
 				//Get the Permanent User's Detail
 				$ctc	= $q_dd->dynamic_detail_ctc;
 				$q_dc 	= $this->{'DataCollectors'}->find()->where(['DataCollectors.id' =>$data_id])->first();
+				$pu_id  = $q_dd->dynamic_detail_ctc->permanent_user_id;
 				if($q_dc){
 				
 					$email = $q_dc->email;
@@ -251,18 +284,74 @@ class DataCollectorsController extends AppController{
 						$message = $message.__("New OTP sent to").' '.$this->Formatter->hide_phone($q_dc->phone)."<br>";
 					}
 					if($ctc->ci_email_otp){
-						$this->_email_otp($email,$value,$q_dd->cloud_id);
+						$this->_email_otp($email,$value,$q_dd->cloud_id,$q_r->id);
 						$message = __("New OTP sent to").' '.$this->Formatter->hide_email($q_dc->email);
 					}
+					
+					if($ctc->ci_email_otp){ //Send info to the login page can connect with temp user
+    					if($pu_id != 0){
+    						$e_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' => $pu_id])->first();
+    						if($e_pu){
+    							$e_rd = $this->{'Radchecks'}->find()->where(['Radchecks.username' => $e_pu->username,'Radchecks.attribute' => 'Cleartext-Password'])->first();
+    							if($e_rd){
+    								$data['temp_username'] 			= $e_pu->username;
+    								$data['temp_password'] 			= $e_rd->value;
+    							}
+    						}                   						
+    					}
+    				}
+										
 				}		
 			}	
 		}
 			
 		$this->set([
         'success'   => true,
+        'data'		=> $data,
         'message'	=> $message
 	    ]);
 	    $this->viewBuilder()->setOption('serialize', true);	
+	}
+	
+	public function otpConfirm(){
+	
+		$success	= false;
+		$req_q 		= $this->request->getQuery();
+				
+		if(isset($req_q['data_id'])){
+
+			$data_id 	= $req_q['data_id'];
+			$otp		= $req_q['otp'];
+			$q_r 		= $this->{'DataCollectorOtps'}->find()->where(['DataCollectorOtps.id' => $data_id])->first(); //There is supposed to be only one
+			if($q_r){		
+				$time = FrozenTime::now();
+				if($time > $q_r->modified->addMinutes($this->valid_minutes)->addMinutes($this->valid_minutes)){ //We expire the OTP after two minutes
+					$message = __("OTP expired - Request new one please");
+				}else{			
+					if($otp == $q_r->value){
+						$success = true;
+						$this->{'DataCollectorOtps'}->patchEntity($q_r, ['status' => 'otp_confirmed']);
+						$this->{'DataCollectorOtps'}->save($q_r);
+						
+						$this->response = $this->response->withHeader('Location', "http://1.0.0.0"); //For Coova Log User Out
+        			
+        			return $this->response;
+											
+					}else{
+						$message = __("OTP mismatch - Try again");
+					}					
+				}
+			}
+		}
+		
+		$this->set([
+        'success'   => true,
+        'message'	=> $message
+	    ]);
+	    $this->viewBuilder()->setOption('serialize', true);				 
+		
+		//	
+	
 	}
 	
     
@@ -510,8 +599,8 @@ class DataCollectorsController extends AppController{
         }
 	}
 	
-	private function _email_otp($email,$otp,$cloud_id){	
-		$this->Otp->sendEmailClickToConnect($email,$otp,$cloud_id);
+	private function _email_otp($email,$otp,$cloud_id,$data_id){	
+		$this->Otp->sendEmailClickToConnect($email,$otp,$cloud_id,$data_id);
 	}
 	
 	private function _sms_otp($phone,$otp,$cloud_id,$reason){
