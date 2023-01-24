@@ -17,7 +17,12 @@
 			<td>
 				<span style="color:#696969;"><span style="font-family:arial,helvetica,sans-serif;"><?php echo $otp ?></span></span></td>
 		</tr>
-
+		<tr>
+			<td>
+				<span style="color:#0066cc;"><strong><span style="font-family:arial,helvetica,sans-serif;"><?php echo __('Link To Confirm OTP'); ?></span></strong></span></td>
+			<td>
+				<span style="color:#696969;"><span style="font-family:arial,helvetica,sans-serif;"><a href="<?php echo $url; ?>"><?php echo __('CONFIRM'); ?></a> </span></span></td>
+		</tr>
 	</tbody>
 </table>
 

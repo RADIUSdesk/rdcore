@@ -1807,6 +1807,18 @@ var sConnect = (function () {
                     phone         : $("#txtrCell").val(),
                     i18n          : s_i18n
                 };
+
+/*
+                //=== Proof of Concept Hack ===
+                //=== other_profile_name = 'Dev_Super_Register'
+                var other_profile_name = 'Dev';
+                //var other_profile_id = 56; //Alternative
+                var phone   = $("#txtrCell").val();
+                if(/^89\d{6}$/.test(phone)){
+                    formData['other_profile_name']  = other_profile_name;
+                    //formData['other_profile_id']    = other_profile_id;
+                }
+                //=== END Proof of Concept Hack ===
                   
 /*  
                 //=== Proof of Concept Hack ===
@@ -1845,6 +1857,13 @@ var sConnect = (function () {
                         	$("#modalOtp").modal('show');                            
                             $('#alertInfoOtp').html(data.data.message);
                             $('#alertInfoOtp').addClass('show');
+                            //--Check if its email otp
+                            if(data.data.temp_username){
+                                var un = data.data.temp_username;
+                                var pw = data.data.temp_password;
+                                connectWith(un,pw);
+                            }
+
                         }else{                                               
                         	$("#modalLogin").modal('show');
                         }               
@@ -2050,6 +2069,12 @@ var sConnect = (function () {
                 }else{
                     $('#alertWarnOtp').html(data.message);
                     $('#alertWarnOtp').addClass('show');
+                    //--Check if its email otp
+                    if(j.data.temp_username){
+                        var un = j.data.temp_username;
+                        var pw = j.data.temp_password;
+                        connectWith(un,pw);
+                    }
                 }
             });            
         }

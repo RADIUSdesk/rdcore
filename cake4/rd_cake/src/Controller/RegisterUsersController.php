@@ -18,6 +18,7 @@ class RegisterUsersController extends AppController {
         $this->loadModel('Profiles');
         $this->loadModel('Realms');
         $this->loadModel('PermanentUsers');
+        $this->loadModel('Radchecks');
         $this->loadModel('PermanentUserOtps');
         $this->loadModel('DynamicDetails');
         $this->loadModel('UserSettings');
@@ -89,21 +90,30 @@ class RegisterUsersController extends AppController {
 
 				if($q){
 				
-					//FIXME WIP
 					if($q->permanent_user_otp){
-						if($q->permanent_user_otp->status == 'otp_awaiting'){
-						
-							//$postData['otp_show'] = true; //**This will be the cue for the login page to pop-up the OTP Screen**
-							//$postData['id']		  = $responseData['data']['id']; //Send the ID of the newly created user in the reply
+						if($q->permanent_user_otp->status == 'otp_awaiting'){						
+							$data_awaiting = [
+								'id'		=> $q->id,
+								'otp_show'  => true,
+								'message'	=> "Supply OTP Please"
+							];
+							$pu_id   = $q_r->permanent_user_id;
+							if(($pu_id != 0)&($q_r->reg_otp_email)){
+								$e_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' => $pu_id])->first();
+								if($e_pu){
+									$e_rd = $this->{'Radchecks'}->find()->where(['Radchecks.username' => $e_pu->username,'Radchecks.attribute' => 'Cleartext-Password'])->first();
+									if($e_rd){
+										$message = __("OTP sent to").' '.$this->Formatter->hide_email($q->email)."<br><b>Temporary Internet Access Given To Retrieve OTP Through Email</b>";
+										$data_awaiting['temp_username'] 	= $e_pu->username;
+										$data_awaiting['temp_password'] 	= $e_rd->value;
+										$data_awaiting['message'] 			= $message;
+									}
+								}                   						
+							}								
 						
 							$this->set([
 								'success'   => true,
-								'data'		=> [
-									'id'		=> $q->id,
-									'otp_show'  => true,
-									//'message'	=> "Bla Bla Bla"
-									'message'	=> "Supply OTP Please"
-								]
+								'data'		=> $data_awaiting
 							]);
 							$this->viewBuilder()->setOption('serialize', true);
 							return;						
@@ -259,20 +269,32 @@ class RegisterUsersController extends AppController {
 					if($q_pu->permanent_user_otp){
 		    			if($q_pu->permanent_user_otp->status == 'otp_awaiting'){
 		    				$message = '';
+		    				$data    = [];
 		    				if($q_r->reg_otp_sms){
 								$message = __("OTP sent to").' '.$this->Formatter->hide_phone($this->request->getData('phone'))."<br>";
 							}
 							if($q_r->reg_otp_email){
-								$message = $message.__("OTP sent to").' '.$this->Formatter->hide_email($username);					
+								$message = $message.__("OTP sent to").' '.$this->Formatter->hide_email($username)."<br><b>Temporary Internet Access Given To Retrieve OTP Through Email</b>";
+								$pu_id   = $q_r->permanent_user_id;
+								if($pu_id != 0){
+									$e_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' => $pu_id])->first();
+									if($e_pu){
+										$e_rd = $this->{'Radchecks'}->find()->where(['Radchecks.username' => $e_pu->username,'Radchecks.attribute' => 'Cleartext-Password'])->first();
+										if($e_rd){
+											$data['temp_username'] 			= $e_pu->username;
+											$data['temp_password'] 			= $e_rd->value;
+										}
+									}                   						
+								}					
 							}
-		    			
+							
+							$data['message'] 	= $message;
+							$data['otp_show']  	= true;
+							$data['id']			= $q_pu->id;
+									    			
 		    				$this->set([
 								'success'   => true,
-								'data'		=> [
-									'message'	=> $message,
-									'id'		=> $q_pu->id,
-									'otp_show'  => true
-								]
+								'data'		=> $data
 							]);
 							$this->viewBuilder()->setOption('serialize', true);
 							return;        			
@@ -315,8 +337,21 @@ class RegisterUsersController extends AppController {
 					$message = __("OTP sent to").' '.$this->Formatter->hide_phone($this->request->getData('phone'))."<br>";
 				}
 				if($q_r->reg_otp_email){
-					$this->_email_otp($username,$d_otp['value'],$q_r->cloud_id);
-					$message = $message.__("OTP sent to").' '.$this->Formatter->hide_email($username);					
+					$this->_email_otp($username,$d_otp['value'],$q_r->cloud_id,$e_utp->id);
+					$message = $message.__("OTP sent to").' '.$this->Formatter->hide_email($username)."<br><b>Temporary Internet Access Given To Retrieve OTP Through Email</b>";
+					
+					$pu_id   = $q_r->permanent_user_id;
+					if($pu_id != 0){
+						$e_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' => $pu_id])->first();
+						if($e_pu){
+							$e_rd = $this->{'Radchecks'}->find()->where(['Radchecks.username' => $e_pu->username,'Radchecks.attribute' => 'Cleartext-Password'])->first();
+							if($e_rd){
+								$postData['temp_username'] 	= $e_pu->username;
+								$postData['temp_password'] 	= $e_rd->value;
+							}
+						}                   						
+					}	
+										
 				}
 				$postData['message'] = $message;				
 			}
@@ -433,7 +468,7 @@ class RegisterUsersController extends AppController {
 					
 					if($q_dd->reg_otp_email){
 						$message = $message.__("New OTP sent to").' '.$this->Formatter->hide_email($email);
-						$this->_email_otp($email,$value,$q_dd->cloud_id);
+						$this->_email_otp($email,$value,$q_dd->cloud_id,$q_r->id);
 					}
 				}		
 			}			
@@ -444,6 +479,50 @@ class RegisterUsersController extends AppController {
         'message'	=> $message
 	    ]);
 	    $this->viewBuilder()->setOption('serialize', true);	
+	}
+	
+	//This is the link URL from the email the user get when sending an OTP via email
+	public function otpConfirm(){
+	
+		$success	= false;
+		$req_q 		= $this->request->getQuery();
+				
+		if(isset($req_q['data_id'])){
+
+			$data_id 	= $req_q['data_id'];
+			$otp		= $req_q['otp'];
+			$q_r 		= $this->{'PermanentUserOtps'}->find()->where(['PermanentUserOtps.id' => $data_id])->first(); //There is supposed to be only one
+			if($q_r){		
+				$time = FrozenTime::now();
+				if($time > $q_r->modified->addMinutes($this->valid_minutes)->addMinutes($this->valid_minutes)){ //We expire the OTP after two minutes x2 for email
+					$message = __("OTP expired - Request new one please");
+				}else{			
+					if($otp == $q_r->value){
+						$success = true;
+						$this->{'PermanentUserOtps'}->patchEntity($q_r, ['status' => 'otp_confirmed']);
+						$this->{'PermanentUserOtps'}->save($q_r);
+						$user_id = $q_r->permanent_user_id;
+						$q_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' =>$user_id])->first();
+						if($q_pu){
+							$this->{'PermanentUsers'}->patchEntity($q_pu, ['active' => 1]);
+							$this->{'PermanentUsers'}->save($q_pu);
+						} 								
+						$this->response = $this->response->withHeader('Location', "http://1.0.0.0"); //For Coova Log User Out FIXME We still have to figure out how to handle Mikrotik since it does not have this feature
+        			
+        			return $this->response;
+											
+					}else{
+						$message = __("OTP mismatch - Try again");
+					}					
+				}
+			}
+		}
+		
+		$this->set([
+        'success'   => true,
+        'message'	=> $message
+	    ]);
+	    $this->viewBuilder()->setOption('serialize', true);				 	
 	}
 
 	public function lostPassword(){
@@ -609,8 +688,8 @@ class RegisterUsersController extends AppController {
         return $response;	
 	}
 	
-	private function _email_otp($email,$otp,$cloud_id){	
-		$this->Otp->sendEmailUserReg($email,$otp,$cloud_id);
+	private function _email_otp($email,$otp,$cloud_id,$data_id){	
+		$this->Otp->sendEmailUserReg($email,$otp,$cloud_id,$data_id);
 	}
 	
 	private function _sms_otp($phone,$otp,$cloud_id,$reason){

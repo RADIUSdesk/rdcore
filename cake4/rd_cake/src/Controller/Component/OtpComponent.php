@@ -25,17 +25,32 @@ class OtpComponent extends Component {
         $this->CloudSettings 	= TableRegistry::get('CloudSettings');     
     }
 
-    public function sendEmailUserReg($email_adr,$otp,$cloud_id){  
+    public function sendEmailUserReg($email_adr,$otp,$cloud_id,$data_id){  
     	$meta_data  = $this->MailTransport->setTransport($cloud_id);
     		    	
     	$username	= $email_adr;	           
-        $success    = false;            
+        $success    = false;
+        
+        if (isset($_SERVER['HTTPS']) &&
+			($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) ||
+			isset($_SERVER['HTTP_X_FORWARDED_PROTO']) &&
+			$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+		  $protocol = 'https://';
+		}
+		else {
+		  $protocol = 'http://';
+		}
+    	  	
+    	$url 	= $protocol.$this->getController()->getRequest()->host()."/cake4/rd_cake/register-users/otp-confirm.json?data_id=$data_id&otp=$otp"; 
+        
+                    
         if($meta_data !== false){         
             $email = new Mailer(['transport'   => 'mail_rd']);
             $from  = $meta_data['from'];
             $email->setFrom($from)
             	->setSubject(__("User registration OTP"))
             	->setTo($email_adr)
+            	->setViewVars(compact( 'username', 'otp','url'))
             	->setViewVars(compact( 'username', 'otp'))
             	->setEmailFormat('html')
              	->viewBuilder()

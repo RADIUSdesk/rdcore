@@ -76,7 +76,7 @@ class DataCollectorsController extends AppController{
                     					$message = __("OTP sent to").' '.$this->Formatter->hide_phone($q_dd->phone)."<br>";
                     				}
                     				if($ci_email_otp){
-                    					$message = $message.__("OTP sent to").' '.$this->Formatter->hide_email($q_dd->email)."<br><b>Temporary Intenet Access Given To Retrieve OTP Trough Email</b>";
+                    					$message = $message.__("OTP sent to").' '.$this->Formatter->hide_email($q_dd->email)."<br><b>Temporary Internet Access Given To Retrieve OTP Through Email</b>";
                     				}
                     				
                     				if($ci_email_otp){ //Send info to the login page can connect with temp user
@@ -181,7 +181,7 @@ class DataCollectorsController extends AppController{
 					$this->_sms_otp($entity->phone,$value,$dd->dynamic_detail->cloud_id,'click_to_connect');
 				}
 				if($ctc->ci_email_otp){
-					$message = __("OTP sent to").' '.$this->Formatter->hide_email($entity->email)."<br><b>Temporary Intenet Access Given To Retrieve OTP Trough Email</b>";
+					$message = __("OTP sent to").' '.$this->Formatter->hide_email($entity->email)."<br><b>Temporary Internet Access Given To Retrieve OTP Through Email</b>";
 					$this->_email_otp($entity->email,$value,$dd->dynamic_detail->cloud_id,$e_otp->id);
 				}
 				
@@ -313,6 +313,7 @@ class DataCollectorsController extends AppController{
 	    $this->viewBuilder()->setOption('serialize', true);	
 	}
 	
+	//This is the link URL from the email the user get when sending an OTP via email
 	public function otpConfirm(){
 	
 		$success	= false;
@@ -333,7 +334,7 @@ class DataCollectorsController extends AppController{
 						$this->{'DataCollectorOtps'}->patchEntity($q_r, ['status' => 'otp_confirmed']);
 						$this->{'DataCollectorOtps'}->save($q_r);
 						
-						$this->response = $this->response->withHeader('Location', "http://1.0.0.0"); //For Coova Log User Out
+						$this->response = $this->response->withHeader('Location', "http://1.0.0.0"); //For Coova Log User Out FIXME We still have to figure out how to handle Mikrotik since it does not have this feature
         			
         			return $this->response;
 											
@@ -348,10 +349,7 @@ class DataCollectorsController extends AppController{
         'success'   => true,
         'message'	=> $message
 	    ]);
-	    $this->viewBuilder()->setOption('serialize', true);				 
-		
-		//	
-	
+	    $this->viewBuilder()->setOption('serialize', true);				 	
 	}
 	
     
