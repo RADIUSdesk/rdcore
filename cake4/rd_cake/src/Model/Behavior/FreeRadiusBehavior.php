@@ -365,6 +365,9 @@ class FreeRadiusBehavior extends Behavior {
     private function _forVouchersBeforeSave($entity){
 
         $request = Router::getRequest();
+        if(!$request){ //the Shell does not have request
+        	return;
+        }
         $req_d   = $request->getData();
         if($request){
             if(isset($req_d['days_valid'])){
@@ -467,17 +470,19 @@ class FreeRadiusBehavior extends Behavior {
             }  
         }
         
-        $request = Router::getRequest();
-        $req_d   = $request->getData();
+        $request = Router::getRequest(); //Request is missing with Cron Shell!
         if($request){
-            if(!(isset($req_d['days_valid']))){
-                $this->_remove_radcheck_item($username,$this->vChecks["time_valid"]);
-            }
-            //If always_active is selected remove fr->dates
-            if(isset($req_d['never_expire'])){
-                $this->_remove_radcheck_item($username,$this->vChecks["expire"]);
-            }
-        }      
+		    $req_d   = $request->getData();
+		    if($request){
+		        if(!(isset($req_d['days_valid']))){
+		            $this->_remove_radcheck_item($username,$this->vChecks["time_valid"]);
+		        }
+		        //If always_active is selected remove fr->dates
+		        if(isset($req_d['never_expire'])){
+		            $this->_remove_radcheck_item($username,$this->vChecks["expire"]);
+		        }
+		    }
+		}      
     }
 
     private function _forDeviceEdit($entity){
@@ -522,7 +527,11 @@ class FreeRadiusBehavior extends Behavior {
         }
        
         //If always_active is selected remove fr->dates
-        $request = Router::getRequest();
+        
+        $request = Router::getRequest(); //the Shell does not have request
+        if(!$request){
+        	return;
+        }
         $req_d   = $request->getData();
         if(isset($req_d['always_active'])){
             foreach($this->fr_dates as $d){
@@ -584,7 +593,11 @@ class FreeRadiusBehavior extends Behavior {
         }
 
         //If always_active is selected remove fr->dates
-        $request = Router::getRequest();
+        $request = Router::getRequest(); //Request is not present in the Shell
+        if(!$request){
+        	return;
+        }
+        
         $req_d   = $request->getData();
         if(isset($req_d['always_active'])){
             foreach($this->fr_dates as $d){
@@ -653,7 +666,7 @@ class FreeRadiusBehavior extends Behavior {
                 $this->_add_radcheck_item($username,$this->puChecks["$key"],$value);
             }
         }
-        $request = Router::getRequest(); //FIXME It looks like the newer version of CakePHP does not include added values to $request (28July2019)
+
         $this->_add_radcheck_item($username,'Rd-Device-Owner',$entity->rd_device_owner);
         //This is probably not even needed any more
         $this->_add_radcheck_item($username,'Rd-User-Type','device');    
