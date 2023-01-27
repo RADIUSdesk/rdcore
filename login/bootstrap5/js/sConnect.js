@@ -309,16 +309,24 @@ var sConnect = (function () {
                 .done(function(j){
                     if(j.success == true){
                         if(j.data.otp_show == true){
-                            $("#modalLogin").modal('hide');
-                            $('#alertInfoOtpCtc').html(j.data.message);
-                            $('#alertInfoOtpCtc').addClass('show');
-                        	$("#modalOtpCtc").modal('show');
+                            //$("#modalLogin").modal('hide');
+                            //$('#alertInfoOtpCtc').html(j.data.message);
+                            //$('#alertInfoOtpCtc').addClass('show');
+                        	//$("#modalOtpCtc").modal('show');
                             dataColId = j.data.data_collector_id; //Set the DataCollectorId so we can submit the OTP for correct item
                             //--Check if its email otp
                             if(j.data.temp_username){
                                 var un = j.data.temp_username;
                                 var pw = j.data.temp_password;
                                 connectWith(un,pw);
+                                $('#alertTempConnect').html(j.data.message);
+                                $('#alertTempConnect').addClass('show');
+                                $("#modalLogin").modal('show'); 
+                            }else{
+                                $("#modalLogin").modal('hide');
+                                $('#alertInfoOtpCtc').html(j.data.message);
+                                $('#alertInfoOtpCtc').addClass('show');
+                        	    $("#modalOtpCtc").modal('show');
                             }
                         }else if(j.data.ci_required == true){
                             showCustInfo();
@@ -715,16 +723,20 @@ var sConnect = (function () {
                     if(j.success == true){ 
                         $("#modalCustInfo").modal('hide');
                         //FIXME THIS IS FOR ctc
-                        if(j.data.otp_show == true){
-                            $('#alertInfoOtpCtc').html(j.data.message);
-                            $('#alertInfoOtpCtc').addClass('show');
-                        	$("#modalOtpCtc").modal('show');
+                        if(j.data.otp_show == true){                            
                             dataColId = j.data.data_collector_id; //Set the DataCollectorId so we can submit the OTP for correct item
                             //--Check if its email otp
                             if(j.data.temp_username){
                                 var un = j.data.temp_username;
                                 var pw = j.data.temp_password;
                                 connectWith(un,pw);
+                                $('#alertTempConnect').html(j.data.message);
+                                $('#alertTempConnect').addClass('show');
+                                $("#modalLogin").modal('show'); 
+                            }else{
+                                $('#alertInfoOtpCtc').html(j.data.message);
+                                $('#alertInfoOtpCtc').addClass('show');
+                        	    $("#modalOtpCtc").modal('show');
                             }
                         }else{           
                         	$("#modalLogin").modal('show');
@@ -1853,17 +1865,21 @@ var sConnect = (function () {
                         //Hide reg / show login OR otp modal
                         $("#modalRegister").modal('hide');
                         
-                        if(data.data.otp_show == true){
-                        	$("#modalOtp").modal('show');                            
-                            $('#alertInfoOtp').html(data.data.message);
-                            $('#alertInfoOtp').addClass('show');
+                        if(data.data.otp_show == true){                        	                            
+                            
                             //--Check if its email otp
                             if(data.data.temp_username){
                                 var un = data.data.temp_username;
                                 var pw = data.data.temp_password;
                                 connectWith(un,pw);
+                                $('#alertTempConnect').html(data.data.message);
+                                $('#alertTempConnect').addClass('show');
+                                $("#modalLogin").modal('show'); 
+                            }else{
+                                $('#alertInfoOtp').html(data.data.message);
+                                $('#alertInfoOtp').addClass('show');
+                                $("#modalOtp").modal('show');
                             }
-
                         }else{                                               
                         	$("#modalLogin").modal('show');
                         }               
@@ -2110,7 +2126,6 @@ var sConnect = (function () {
 
                         //--First disconnect (if we are connected we probably connected with temp user)
                         tempDisconnect();
-
 
                         onBtnClickToConnectClick(event); //Fire the click to Connect Button's Click event            
                     }else{
