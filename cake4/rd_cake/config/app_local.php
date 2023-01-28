@@ -55,6 +55,32 @@ return [
             'log'	=> false,
             'url' => env('DATABASE_URL', null),
         ],
+        /*
+        	The CakePHPv3 database with the old structure
+        	create database rd_cake3;
+			GRANT ALL PRIVILEGES ON rd_cake3.* to 'rd_cake3'@'127.0.0.1' IDENTIFIED BY 'rd_cake3';
+			GRANT ALL PRIVILEGES ON rd_cake3.* to 'rd_cake3'@'localhost' IDENTIFIED BY 'rd_cake3';
+			exit;
+        
+        */
+        
+        'cake3' => [
+            'host' => 'localhost',
+            'className' => 'Cake\Database\Connection',
+            'driver' => 'Cake\Database\Driver\Mysql',
+            'persistent' => false,
+            'username' => 'rd_cake3',
+            'password' => 'rd_cake3',
+            'database' => 'rd_cake3',
+            // Comment out the line below if you are using PostgreSQL
+            ////'encoding' => 'utf8mb4',
+         	'encoding' => 'utf8',
+            'timezone' => 'UTC',
+            'cacheMetadata' => true,
+            'log'	=> false,
+            'url' => env('DATABASE_URL', null),
+        ],
+        
 
         /*
          * The test connection is used during the test suite.
