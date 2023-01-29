@@ -696,7 +696,7 @@ class PermanentUsersController extends AppController{
         }
 
 		$req_d      = $this->request->getData();
-        unset($req_d);
+        unset($req_d['token']);
 
         //Set the date and time
         $extDateSelects = [
