@@ -162,12 +162,25 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
 				items : [{
                     xtype   : 'container',
                     style   : { 'background' : '#323d4d' },
-                    items:	tl
+                    layout	: {
+                    	type: 'vbox'
+                    },
+                    items:	[
+                    	{
+                    		xtype 	: 'container',
+                    		flex	: 1
+                    	},                   	
+                    	tl,
+                    	{
+                    		xtype 	: 'container',
+                    		flex	: 1
+                    	}  
+                    ]
                    /* items : {
                             xtype   : 'dashboardTreeList',
                             itemId  : 'tlNav'
                         }*/
-                    }
+					}
 				]	
 			},
 			{
