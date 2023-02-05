@@ -47,13 +47,15 @@ Ext.define('Rd.view.meshes.pnlMeshView', {
                 title   : 'Node &#8660; Nodes',
                 itemId  : 'tabMeshViewNodeNodes',
 			    xtype   : 'gridMeshViewNodeNodes',
-                meshId  : me.mesh_id
+                meshId  : me.mesh_id,
+                padding : Rd.config.gridSlim
             },
 		    {
                 title   : i18n("sNodes"),
                 itemId  : 'tabMeshViewNodeDetails',
 			    xtype   : 'gridMeshViewNodeDetails',
-                meshId  : me.mesh_id
+                meshId  : me.mesh_id,
+                padding : Rd.config.gridSlim
             },
             {
                 title   : i18n("sOverview"),

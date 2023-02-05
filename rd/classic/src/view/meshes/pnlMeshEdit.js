@@ -40,7 +40,8 @@ Ext.define('Rd.view.meshes.pnlMeshEdit', {
                 title   : i18n("sEntry_points"),
                 itemId  : 'tabEntryPoints',
                 xtype   : 'gridMeshEntries',
-                meshId  : me.meshId
+                meshId  : me.meshId,
+                padding : Rd.config.gridSlim
             },
             {
                 title   :  i18n("sMesh_settings"),
@@ -52,7 +53,8 @@ Ext.define('Rd.view.meshes.pnlMeshEdit', {
                 title   :  i18n("sExit_points"),
                 itemId  : 'tabExitPoints',
                 xtype   : 'gridMeshExits',
-                meshId  : me.meshId
+                meshId  : me.meshId,
+                padding : Rd.config.gridSlim
             },
             {
                 title   : i18n("sNode_settings"),
@@ -64,7 +66,8 @@ Ext.define('Rd.view.meshes.pnlMeshEdit', {
                 title   : i18n("sNodes"),
                 itemId  : 'tabNodes',
                 xtype   : 'gridNodes',
-                meshId  : me.meshId    
+                meshId  : me.meshId,
+                padding : Rd.config.gridSlim   
             }
         ];
         me.callParent(arguments);

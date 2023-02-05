@@ -280,28 +280,48 @@ Ext.define('Rd.controller.cAccessPointEdits', {
                     cmb.getStore().loadData([rec],false);
                     cmb.setValue(b.result.data.permanent_user_id);
                 }
+                
+                if(b.result.data.chk_schedule){
+                	console.log(b.result.data.schedule)
+                	win.down('gridSchedule').getStore().loadData(b.result.data.schedule);
+                }
+                
             }
         });  
     },
     btnEditEntrySave:  function(button){
         var me      = this;
         var win     = button.up("winAccessPointEditEntry");
-        var form    = win.down('form');
-        form.submit({
-            clientValidation: true,
+        var form    = win.down('form');             
+        var sch		= win.down('gridSchedule');
+        var store	= sch.getStore();
+        var f_vals  = form.getValues();
+        var schedules = [];
+        store.each(function(record){
+        	schedules.push(record.getData());  
+        });
+                      
+        f_vals.schedules = schedules;
+                   
+        Ext.Ajax.request({
             url: me.getUrlEditEntry(),
-            success: function(form, action) {
-                win.close();
-                win.store.load();
-                Ext.ux.Toaster.msg(
-                        i18n("sItem_updated_fine"),
-                        i18n("sItem_updated_fine"),
-                        Ext.ux.Constants.clsInfo,
-                        Ext.ux.Constants.msgInfo
-                );
+            method	: 'POST',
+			jsonData: Ext.JSON.encode(f_vals),
+            success: function(response){
+                var jsonData    = Ext.JSON.decode(response.responseText);
+                if(jsonData.success){     
+                   	win.close();
+                	win.store.load();
+		            Ext.ux.Toaster.msg(
+		                    i18n("sItem_updated_fine"),
+		                    i18n("sItem_updated_fine"),
+		                    Ext.ux.Constants.clsInfo,
+		                    Ext.ux.Constants.msgInfo
+		            );
+                }   
             },
-            scope       : me,
-            failure     : Ext.ux.formFail
+			failure: Ext.ux.formFail,
+			scope: me
         });
     },
     delEntry:   function(button){

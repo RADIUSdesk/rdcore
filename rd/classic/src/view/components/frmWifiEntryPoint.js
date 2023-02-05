@@ -19,6 +19,7 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
         margin          : Rd.config.fieldMargin
     },
     defaultType : 'textfield',
+    jsonSubmit	: true,
     buttons     : [
         {
             itemId  : 'save',
@@ -33,7 +34,6 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
     initComponent: function() {
         var me      = this;
         var w_rd    = 80;
-
         me.items    = [
             {
                 xtype   : 'tabpanel',
@@ -327,7 +327,7 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                             {
                             	xtype		: 'gridSchedule',
                             	flex		: 1,
-                            	//disabled	: true                          
+                            	disabled	: true                          
                             }
                         ]
                     }

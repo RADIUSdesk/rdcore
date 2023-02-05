@@ -19,13 +19,15 @@ Ext.define('Rd.view.aps.pnlAccessPointEdit', {
                 title       :  'SSIDs',
                 itemId      : 'tabEntryPoints',
                 xtype       : 'gridAccessPointEntries',
-                apProfileId : me.ap_profile_id
+                apProfileId : me.ap_profile_id,
+                padding     : Rd.config.gridSlim
             },
             {
                 title       :  i18n("sExit_points"),
                 itemId      : 'tabExitPoints',
                 xtype       : 'gridAccessPointExits',
-                apProfileId : me.ap_profile_id
+                apProfileId : me.ap_profile_id,
+                padding     : Rd.config.gridSlim
             },
             {
                 title       : 'Common Settings',
@@ -37,7 +39,8 @@ Ext.define('Rd.view.aps.pnlAccessPointEdit', {
                 title       : 'Devices',
                 itemId      : 'tabAccessPointAps',
                 xtype       : 'gridAccessPointAps',
-                apProfileId : me.ap_profile_id    
+                apProfileId : me.ap_profile_id,
+                padding     : Rd.config.gridSlim    
             }
         ];
         me.callParent(arguments);

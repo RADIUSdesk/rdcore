@@ -13,6 +13,9 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
         },
         'cmbMacFilter': {
             change: 'cmbMacFilterChange'
+        },
+        '#chk_schedule' : {
+        	change: 'chkScheduleChange'
         }
     },
     init    : function() {
@@ -171,5 +174,8 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
             nasid.setVisible(false);
             nasid.setDisabled(true);
         }
-    }   
+    },
+    chkScheduleChange: function(chk){
+   		this.getView().down('gridSchedule').setDisabled(!chk.getValue());
+    } 
 });
