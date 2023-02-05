@@ -3,7 +3,8 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
     alias           : 'widget.frmWifiEntryPoint',
     requires: [
         'Rd.view.components.cmbEncryptionOptions',
-        'Rd.view.components.vcWifiEntryPoint'
+        'Rd.view.components.vcWifiEntryPoint',
+        'Rd.view.components.gridSchedule'
     ],
     controller  : 'vcWifiEntryPoint',
     border      : false,
@@ -301,6 +302,33 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                                 hidden      : true,
                                 disabled    : true
                             }     
+                        ]
+                    },
+                    { 
+                        title     	: 'Schedule',
+                        layout      : {
+                        	type	: 'vbox',
+                        	align	: 'stretch',
+                        	pack	: 'start'	
+                        },
+                        itemId      : 'tabSchedule',
+                        autoScroll	:true,
+                        items       : [ 
+                            {
+                                xtype       : 'checkbox',      
+                                fieldLabel  : 'Enable',
+                                name        : 'chk_schedule',
+                                inputValue  : 'chk_schedule',
+                                checked     : false,
+                                labelClsExtra: 'lblRd',
+                                itemId      : 'chk_schedule',
+                                labelWidth  : Rd.config.labelWidth,
+                            },
+                            {
+                            	xtype		: 'gridSchedule',
+                            	flex		: 1,
+                            	//disabled	: true                          
+                            }
                         ]
                     }
                 ]
