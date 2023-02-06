@@ -17,42 +17,32 @@ Ext.define('Rd.view.components.gridSchedule' ,{
         var me  = this;       
         var store = Ext.create('Ext.data.Store', {
 		   fields: [
-			   {name: 'id',   type: 'int'},
-			   {name: 'time', type: 'string'},
-			   {name: 'mon', type: 'boolean'},
-			   {name: 'tue', type: 'boolean'},
-			   {name: 'wed', type: 'boolean'},
-			   {name: 'thu', type: 'boolean'},
-			   {name: 'fri', type: 'boolean'},
-			   {name: 'sat', type: 'boolean'},
-			   {name: 'sun', type: 'boolean'}
+			   {name: 'id',   	type: 'int'},
+			   {name: 'begin',	type: 'int'},
+			   {name: 'end',  	type: 'int'},
+			   {name: 'time', 	type: 'string'},
+			   {name: 'mo', 	type: 'boolean'},
+			   {name: 'tu', 	type: 'boolean'},
+			   {name: 'we', 	type: 'boolean'},
+			   {name: 'th', 	type: 'boolean'},
+			   {name: 'fr', 	type: 'boolean'},
+			   {name: 'sa', 	type: 'boolean'},
+			   {name: 'su', 	type: 'boolean'}
 		   ],
-		   data: [
-			   { id: 0,  time : 'Midnight-1AM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 1,  time : '1AM-2AM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 2,  time : '2AM-3AM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 3,  time : '3AM-4AM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 4,  time : '4AM-5AM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 5,  time : '5AM-6AM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 6,  time : '6AM-7AM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 7,  time : '7AM-8AM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 8,  time : '8AM-9AM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 9,  time : '9AM-10AM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 10, time : '10AM-11AM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 11, time : '11AM-Midday', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 12, time : 'Midday-1PM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 13, time : '1PM-2PM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 14, time : '2PM-3PM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 15, time : '3PM-4PM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 16, time : '4PM-5PM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 17, time : '5PM-6PM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 18, time : '6PM-7PM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 19, time : '7PM-8PM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 20, time : '8PM-9PM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 21, time : '9PM-10PM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 22, time : '10PM-11PM', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true },
-			   { id: 23, time : '11PM-Midnight', mon: true,tue: true,wed: true,thu:true,fri:true,sat:true,sun:true }
-		   ]
+		   proxy: {
+				    type    : 'ajax',
+				    format  : 'json',
+				    batchActions: true, 
+				    url     : '/cake4/rd_cake/schedules/default-schedule.json',
+				    reader: {
+				        type            : 'json',
+				        rootProperty    : 'items',
+				        messageProperty : 'message',
+				        totalProperty   : 'totalCount' //Required for dynamic paging
+				    },
+				    simpleSortMode: true //This will only sort on one column (sort) and a direction(dir) value ASC or DESC
+			},
+			autoLoad: true
 		});
 		
 		me.store = store;
@@ -75,11 +65,11 @@ Ext.define('Rd.view.components.gridSchedule' ,{
 				text		: 'Mon',
 				sortable	: false,
 				hideable	: false,      
-				dataIndex	: 'mon',     
+				dataIndex	: 'mo',     
 				flex		: 1,
                 renderer	: function (val, metadata, record) {
 					metadata.style = 'cursor: pointer;';
-					var v = record.get('mon');
+					var v = record.get('mo');
 					if(v){
 						return s_true;
 					}else{
@@ -94,11 +84,11 @@ Ext.define('Rd.view.components.gridSchedule' ,{
 				text		: 'Tue',
 				sortable	: false,
 				hideable	: false,      
-				dataIndex	: 'tue',     
+				dataIndex	: 'tu',     
 				flex		: 1,
 				renderer	: function (val, metadata, record) {
 					metadata.style = 'cursor: pointer;';
-					var v = record.get('tue');
+					var v = record.get('tu');
 					if(v){
 						return s_true;
 					}else{
@@ -113,11 +103,11 @@ Ext.define('Rd.view.components.gridSchedule' ,{
 				text		: 'Wed',
 				sortable	: false,
 				hideable	: false,      
-				dataIndex	: 'wed',     
+				dataIndex	: 'we',     
 				flex		: 1,
 				renderer	: function (val, metadata, record) {
 					metadata.style = 'cursor: pointer;';
-					var v = record.get('wed');
+					var v = record.get('we');
 					if(v){
 						return s_true;
 					}else{
@@ -132,11 +122,11 @@ Ext.define('Rd.view.components.gridSchedule' ,{
 				text		: 'Thu',
 				sortable	: false,
 				hideable	: false,      
-				dataIndex	: 'thu',     
+				dataIndex	: 'th',     
 				flex		: 1,
 				renderer	: function (val, metadata, record) {
 					metadata.style = 'cursor: pointer;';
-					var v = record.get('thu');
+					var v = record.get('th');
 					if(v){
 						return s_true;
 					}else{
@@ -151,11 +141,11 @@ Ext.define('Rd.view.components.gridSchedule' ,{
 				text		: 'Fri',
 				sortable	: false,
 				hideable	: false,      
-				dataIndex	: 'fri',     
+				dataIndex	: 'fr',     
 				flex		: 1,
 				renderer	: function (val, metadata, record) {
 					metadata.style = 'cursor: pointer;';
-					var v = record.get('fri');
+					var v = record.get('fr');
 					if(v){
 						return s_true;
 					}else{
@@ -170,11 +160,11 @@ Ext.define('Rd.view.components.gridSchedule' ,{
 				text		: 'Sat',
 				sortable	: false,
 				hideable	: false,     
-				dataIndex	: 'sat',     
+				dataIndex	: 'sa',     
 				flex		: 1,
 				renderer	: function (val, metadata, record) {
 					metadata.style = 'cursor: pointer;';
-					var v = record.get('sat');
+					var v = record.get('sa');
 					if(v){
 						return "<div style='background:#34eb34; margin: 0px 0px 0px 0px;padding: 0px 0px 8px 0px;'></div>";
 					}else{
@@ -189,11 +179,11 @@ Ext.define('Rd.view.components.gridSchedule' ,{
 				text		: 'Sun',
 				sortable	: false,
 				hideable	: false,      
-				dataIndex	: 'sun',     
+				dataIndex	: 'su',     
 				flex		: 1,
 				renderer	: function (val, metadata, record) {
 					metadata.style = 'cursor: pointer;';
-					var v = record.get('sun');
+					var v = record.get('su');
 					if(v){
 						return s_true;
 					}else{

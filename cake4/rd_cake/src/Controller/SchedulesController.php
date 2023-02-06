@@ -412,4 +412,20 @@ class SchedulesController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
     
+    public function defaultSchedule(){
+    
+    	$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        }
+        
+        Configure::load('MESHdesk');
+        $schedule   = Configure::read('MESHdesk.schedule'); //Read the defaults       
+        $this->set([
+            'items'         => $schedule,
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);  
+    }
+    
 }

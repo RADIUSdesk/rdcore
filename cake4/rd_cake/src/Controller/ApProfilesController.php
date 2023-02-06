@@ -24,6 +24,7 @@ class ApProfilesController extends AppController {
         $this->loadModel('OpenvpnServerClients');
         $this->loadModel('ApProfileEntries');
         $this->loadModel('ApProfileSettings');
+        $this->loadModel('ApProfileEntrySchedules');
         
         //New change May2021
         $this->loadModel('Networks');
@@ -305,6 +306,185 @@ class ApProfilesController extends AppController {
             $this->viewBuilder()->setOption('serialize', true);
         } 
     }
+    
+    
+    public function wip(){
+    
+    	Configure::load('MESHdesk');
+        $schedule   = Configure::read('MESHdesk.schedule'); //Read the defaults
+        
+        $id = 34;
+        
+ /*       
+        CREATE TABLE `ap_profile_entry_schedules` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `ap_profile_entry_id` int(11) DEFAULT NULL,
+      `action` enum('off','on') DEFAULT 'off',
+      `mo` tinyint(1) NOT NULL DEFAULT 0,
+      `tu` tinyint(1) NOT NULL DEFAULT 0,
+      `we` tinyint(1) NOT NULL DEFAULT 0,
+      `th` tinyint(1) NOT NULL DEFAULT 0,
+      `fr` tinyint(1) NOT NULL DEFAULT 0,
+      `sa` tinyint(1) NOT NULL DEFAULT 0,
+      `su` tinyint(1) NOT NULL DEFAULT 0,
+      `event_time` varchar(10) NOT NULL DEFAULT '',*/
+        
+        //Default is on
+        $day_defaults  = ['mo' => true, 'tu' => true, 'we' => true, 'th' => true, 'fr' => true, 'sa' => true, 'su' => true ];
+        
+        foreach($schedule as $s){
+        	foreach(array_keys($day_defaults) as $key){
+        		if($s[$key] != $day_defaults[$key]){
+        			$d = [];
+        			if($s[$key]){
+		    			$d['action'] = 'on';
+		    		}else{
+		    			$d['action'] = 'off';
+		    		}
+        			$d['event_time'] = $s['begin'];
+        			$d['ap_profile_entry_id'] = $id;
+        			$d[$key] = true;
+        			$day_defaults[$key] = $s[$key];
+        			
+        			$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        			$this->ApProfileEntrySchedules->save($e_s);       			      		
+        		}       		       	
+        	}
+        }
+        
+        foreach($schedule as $s){
+        	
+        	//if end of day, check status of next day if we need to turn it off or on
+			if($s['end'] == 1440){			
+				$next_day = $schedule[0];			
+				if($next_day['mo'] !== $next_day['tu']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['tu']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['tu'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}				
+				}
+				
+				if($next_day['tu'] !== $next_day['we']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['we']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['we'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}				
+				}
+				
+				if($next_day['we'] !== $next_day['th']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['th']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['th'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}		
+				}
+				
+				if($next_day['th'] !== $next_day['fr']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['fr']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['fr'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}				
+				}
+				
+				if($next_day['fr'] !== $next_day['sa']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['sa']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['sa'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}				
+				}
+				
+				if($next_day['sa'] !== $next_day['su']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['su']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['su'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}			
+				}
+				
+				if($next_day['su'] !== $next_day['mo']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['mo']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['mo'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}					
+				}	       			
+			}       	      	
+        }       
+    
+    	$this->set([
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);   
+    
+    
+    }
 
     public function apProfileSsidsView(){  
         $user = $this->_ap_right_check();
@@ -360,272 +540,10 @@ class ApProfilesController extends AppController {
         
         $q_r->chk_schedule = true;
         
-        $q_r->schedule = [
-  [
-    'id' => 0,
-    'time' => 'Midnight-1AM',
-    'mon' => false,
-    'tue' => true,
-    'wed' => false,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 1,
-    'time' => '1AM-2AM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 2,
-    'time' => '2AM-3AM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 3,
-    'time' => '3AM-4AM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 4,
-    'time' => '4AM-5AM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 5,
-    'time' => '5AM-6AM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 6,
-    'time' => '6AM-7AM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 7,
-    'time' => '7AM-8AM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 8,
-    'time' => '8AM-9AM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 9,
-    'time' => '9AM-10AM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 10,
-    'time' => '10AM-11AM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 11,
-    'time' => '11AM-Midday',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 12,
-    'time' => 'Midday-1PM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 13,
-    'time' => '1PM-2PM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 14,
-    'time' => '2PM-3PM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 15,
-    'time' => '3PM-4PM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 16,
-    'time' => '4PM-5PM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 17,
-    'time' => '5PM-6PM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 18,
-    'time' => '6PM-7PM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 19,
-    'time' => '7PM-8PM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 20,
-    'time' => '8PM-9PM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 21,
-    'time' => '9PM-10PM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 22,
-    'time' => '10PM-11PM',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-  [
-    'id' => 23,
-    'time' => '11PM-Midnight',
-    'mon' => true,
-    'tue' => true,
-    'wed' => true,
-    'thu' => true,
-    'fri' => true,
-    'sat' => true,
-    'sun' => true,
-  ],
-];
+        Configure::load('MESHdesk');
+        $schedule   = Configure::read('MESHdesk.schedule'); //Read the defaults       
+        
+        $q_r->schedule = $schedule;
 
         $this->set([
             'data'     => $q_r,

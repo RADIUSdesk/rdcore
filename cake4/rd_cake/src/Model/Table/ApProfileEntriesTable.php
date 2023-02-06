@@ -13,5 +13,6 @@ class ApProfileEntriesTable extends Table {
             'foreignKey' => 'ap_profile_id'
         ]);
         $this->hasMany('ApProfileExitApProfileEntries', ['dependent' => true]);
+        $this->hasMany('ApProfileEntrySchedules', ['dependent' => true]);
     }
 }

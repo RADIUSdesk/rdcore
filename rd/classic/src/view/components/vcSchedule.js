@@ -13,35 +13,35 @@ Ext.define('Rd.view.components.vcSchedule', {
     },
     cellClick: function(gridView,htmlElement,columnIndex,record){
 		if(columnIndex == 0){
-			var val = !record.get('mon')
-			record.set('mon',val);
-			record.set('tue',val);
-			record.set('wed',val);
-			record.set('thu',val);
-			record.set('fri',val);
-			record.set('sat',val);
-			record.set('sun',val);
+			var val = !record.get('mo')
+			record.set('mo',val);
+			record.set('tu',val);
+			record.set('we',val);
+			record.set('th',val);
+			record.set('fr',val);
+			record.set('sa',val);
+			record.set('su',val);
 		}
 		if(columnIndex == 1){
-			record.set('mon',!record.get('mon'));
+			record.set('mo',!record.get('mo'));
 		}
 		if(columnIndex == 2){
-			record.set('tue',!record.get('tue'));
+			record.set('tu',!record.get('tu'));
 		}
 		if(columnIndex == 3){
-			record.set('wed',!record.get('wed'));
+			record.set('we',!record.get('we'));
 		}
 		if(columnIndex == 4){
-			record.set('thu',!record.get('thu'));
+			record.set('th',!record.get('th'));
 		}
 		if(columnIndex == 5){
-			record.set('fri',!record.get('fri'));
+			record.set('fr',!record.get('fr'));
 		}
 		if(columnIndex == 6){
-			record.set('sat',!record.get('sat'));
+			record.set('sa',!record.get('sa'));
 		}
 		if(columnIndex == 7){
-			record.set('sun',!record.get('sun'));
+			record.set('su',!record.get('su'));
 		}
 		record.commit();
 	}

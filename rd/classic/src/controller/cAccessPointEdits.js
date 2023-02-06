@@ -216,21 +216,37 @@ Ext.define('Rd.controller.cAccessPointEdits', {
         var me      = this;
         var win     = button.up("winAccessPointAddEntry");
         var form    = win.down('form');
-        form.submit({
-            clientValidation: true,
-            url: me.getUrlAddEntry(),
-            success: function(form, action) {
-                win.store.load();
-                win.close();
-                Ext.ux.Toaster.msg(
-                        i18n("sItem_added_fine"),
-                        i18n('New Access Point SSID created fine'),
-                        Ext.ux.Constants.clsInfo,
-                        Ext.ux.Constants.msgInfo
-                );
+        var sch		= win.down('gridSchedule');
+        var store	= sch.getStore();
+        var f_vals  = form.getValues();
+        
+        if(f_vals.chk_schedule){
+		    var schedules = [];
+		    store.each(function(record){
+		    	schedules.push(record.getData());  
+		    });	                  
+		    f_vals.schedules = schedules;
+		}
+        
+        Ext.Ajax.request({
+            url		: me.getUrlAddEntry(),
+            method	: 'POST',
+			jsonData: Ext.JSON.encode(f_vals),
+            success	: function(response){
+                var jsonData    = Ext.JSON.decode(response.responseText);
+                if(jsonData.success){     
+                   	win.close();
+                	win.store.load();
+		            Ext.ux.Toaster.msg(
+	                    i18n("sItem_added_fine"),
+	                    i18n('New Access Point SSID created fine'),
+	                    Ext.ux.Constants.clsInfo,
+	                    Ext.ux.Constants.msgInfo
+		            );
+                }   
             },
-            scope       : me,
-            failure     : 'formFailure'
+			failure: Ext.ux.formFail,
+			scope: me
         });
     },
     editEntry: function(button){  
@@ -279,13 +295,10 @@ Ext.define('Rd.controller.cAccessPointEdits', {
                     var rec     = Ext.create('Rd.model.mPermanentUser', {username: b.result.data.username, id: b.result.data.permanent_user_id});
                     cmb.getStore().loadData([rec],false);
                     cmb.setValue(b.result.data.permanent_user_id);
-                }
-                
+                }                
                 if(b.result.data.chk_schedule){
-                	console.log(b.result.data.schedule)
                 	win.down('gridSchedule').getStore().loadData(b.result.data.schedule);
-                }
-                
+                }                
             }
         });  
     },
@@ -296,18 +309,20 @@ Ext.define('Rd.controller.cAccessPointEdits', {
         var sch		= win.down('gridSchedule');
         var store	= sch.getStore();
         var f_vals  = form.getValues();
-        var schedules = [];
-        store.each(function(record){
-        	schedules.push(record.getData());  
-        });
-                      
-        f_vals.schedules = schedules;
+        
+        if(f_vals.chk_schedule){
+		    var schedules = [];
+		    store.each(function(record){
+		    	schedules.push(record.getData());  
+		    });	                  
+		    f_vals.schedules = schedules;
+		}
                    
         Ext.Ajax.request({
-            url: me.getUrlEditEntry(),
+            url		: me.getUrlEditEntry(),
             method	: 'POST',
 			jsonData: Ext.JSON.encode(f_vals),
-            success: function(response){
+            success	: function(response){
                 var jsonData    = Ext.JSON.decode(response.responseText);
                 if(jsonData.success){     
                    	win.close();
