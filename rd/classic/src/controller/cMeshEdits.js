@@ -512,9 +512,11 @@ Ext.define('Rd.controller.cMeshEdits', {
                     cmb.getStore().loadData([rec],false);
                     cmb.setValue(b.result.data.permanent_user_id);
                 }
+                if(b.result.data.chk_schedule){
+                	win.down('gridSchedule').getStore().loadData(b.result.data.schedule);
+                }   
             }
-        });  
-        
+        });         
     },
     btnEditEntrySave:  function(button){
         var me      = this;

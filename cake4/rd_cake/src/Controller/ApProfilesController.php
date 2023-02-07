@@ -323,22 +323,8 @@ class ApProfilesController extends AppController {
             $this->viewBuilder()->setOption('serialize', true);
         } 
     }
-    
-    
-    public function wip(){
-    
-    	Configure::load('MESHdesk');
-        $schedule   = Configure::read('MESHdesk.schedule'); //Read the defaults       
-        $id = 34;        
-        $this->_entry_schedule($id,$schedule);
-           
-    	$this->set([
-            'success'   => true
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);   
-       
-    }
-
+   
+   
     public function apProfileSsidsView(){  
         $user = $this->_ap_right_check();
         if(!$user){
@@ -2889,11 +2875,7 @@ class ApProfilesController extends AppController {
         			}					
 				}	       			
 			}       	      	
-        }       
-    
-    
-    
-    
+        }            
     }
     
 }
