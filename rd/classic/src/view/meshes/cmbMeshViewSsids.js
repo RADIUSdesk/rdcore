@@ -12,7 +12,18 @@ Ext.define('Rd.view.meshes.cmbMeshViewSsids', {
     multiSelect     : false,
     allowBlank      : false,
     value           : -1,
-    meshId          : null,  
+    meshId          : null,
+    tpl	            : Ext.create('Ext.XTemplate',
+        '<tpl for=".">',
+            '<div  class="x-boundlist-item">',
+                '<tpl if="chk_schedule">',
+        			'<div>{name} <i class="fa  fa-calendar" style="color:#1272c7"></i></div>',
+        		'<tpl else>',
+        			'<div>{name}</div>',
+        		'</tpl>',
+        	'</div>',
+        '</tpl>'
+    ),  
     initComponent: function(){
         var me      = this;
         var s       = Ext.create('Ext.data.Store', {

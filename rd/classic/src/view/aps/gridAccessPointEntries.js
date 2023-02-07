@@ -23,7 +23,21 @@ Ext.define('Rd.view.aps.gridAccessPointEntries' ,{
         
         me.columns  = [
          //   {xtype: 'rownumberer', stateId: 'StateGridAccessPointEntries1'},
-            { text: i18n("sSSID"),                 dataIndex: 'name',          tdCls: 'gridTree', flex: 1, stateId: 'StateGridAccessPointEntries2'},
+            { 
+            	text		: i18n("sSSID"),
+            	dataIndex	: 'name',
+            	tdCls		: 'gridTree',
+            	flex		: 1, 
+            	stateId		: 'StateGridAccessPointEntries2',
+            	xtype       :  'templatecolumn',
+            	tpl        	:  new Ext.XTemplate(
+            		'<tpl if="chk_schedule">',
+            			'<div>{name} <i class="fa  fa-calendar" style="color:#1272c7"></i></div>',
+            		'<tpl else>',
+            			'<div>{name}</div>',
+            		'</tpl>'
+            	)          	
+            },
             { 
                 text        : i18n("sEncryption"),   
                 dataIndex   : 'encryption',  

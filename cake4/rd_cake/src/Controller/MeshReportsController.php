@@ -703,7 +703,7 @@ class MeshReportsController extends AppController {
         //Find all the entries for this mesh
         $mesh_id = $this->request->getQuery('mesh_id');
 
-        $q_r = $this->MeshEntries->find()->where(['MeshEntries.mesh_id' => $mesh_id])->all();
+        $q_r = $this->MeshEntries->find()->where(['MeshEntries.mesh_id' => $mesh_id])->contain(['MeshEntrySchedules'])->all();
 
         //Create a lookup of all the nodes for this mesh
         $q_nodes = $this->Nodes->find()->where(['Nodes.mesh_id' => $mesh_id])->all();
@@ -721,6 +721,9 @@ class MeshReportsController extends AppController {
         foreach ($q_r as $i) {
             $mesh_entry_id  = $i->id;
             $entry_name     = $i->name;
+            if(count($i->mesh_entry_schedules) > 0){
+            	$entry_name     = $i->name.' <i class="fa  fa-calendar" style="color:#1272c7"></i>';
+            }
 
             $q_s = $this->NodeStations->find()
                 ->select(['mac'])

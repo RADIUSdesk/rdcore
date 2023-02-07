@@ -480,7 +480,7 @@ class ApReportsController extends AppController {
 		$ap_id      = $this->request->getQuery('ap_id');
 		$id         = 1;
 
-		$q_ap       = $this->Aps->find()->contain(['ApProfiles.ApProfileEntries'])->where(['Aps.id' => $ap_id])->first();
+		$q_ap       = $this->Aps->find()->contain(['ApProfiles.ApProfileEntries'=>'ApProfileEntrySchedules'])->where(['Aps.id' => $ap_id])->first();
 
 		if($q_ap){
 
@@ -488,7 +488,10 @@ class ApReportsController extends AppController {
             
                 $ap_profile_entry_id = $entry->id;
                 $entry_name          = $entry->name;
-                
+		        if(count($entry->ap_profile_entry_schedules) > 0){
+		        	$entry_name     = $entry->name.' <i class="fa  fa-calendar" style="color:#1272c7"></i>';
+		        }
+               
                 $q_s = $this->{'ApStations'}->find()->select(['mac'])->distinct(['mac'])->where([
                     'ApStations.ap_id'               => $ap_id,
                     'ApStations.ap_profile_entry_id' => $ap_profile_entry_id,

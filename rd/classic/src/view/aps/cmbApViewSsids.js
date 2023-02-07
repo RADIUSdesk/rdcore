@@ -13,12 +13,24 @@ Ext.define('Rd.view.aps.cmbApViewSsids', {
     allowBlank      : false,
     value           : -1,
     apId            : null,  //We sent it the apId (not the AP Profile ID)
+    tpl	            : Ext.create('Ext.XTemplate',
+        '<tpl for=".">',
+            '<div  class="x-boundlist-item">',
+                '<tpl if="chk_schedule">',
+        			'<div>{name} <i class="fa  fa-calendar" style="color:#1272c7"></i></div>',
+        		'<tpl else>',
+        			'<div>{name}</div>',
+        		'</tpl>',
+        	'</div>',
+        '</tpl>'
+    ),
     initComponent: function(){
         var me      = this;
         var s       = Ext.create('Ext.data.Store', {
             fields: [
-                {name: 'id',    type: 'string'},
-                {name: 'name',  type: 'string'}
+                {name: 'id',    		type: 'string'},
+                {name: 'name',  		type: 'string'},
+                {name: 'chk_schedule',  type: 'bool'}
             ],
             proxy: {
                     type            : 'ajax',

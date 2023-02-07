@@ -249,13 +249,19 @@ class MeshesController extends AppController{
         $total      = 0;
 
         $mesh_id    = $this->request->getQuery('mesh_id');
-        $q_r        = $this->MeshEntries->find()->contain(['MeshExitMeshEntries'])->where(['MeshEntries.mesh_id' => $mesh_id])->all();
+        $q_r        = $this->MeshEntries->find()->contain(['MeshExitMeshEntries','MeshEntrySchedules'])->where(['MeshEntries.mesh_id' => $mesh_id])->all();
 
         foreach($q_r as $m){
             $connected_to_exit = true;
+            $chk_schedule = true;
             if(count($m->mesh_exit_mesh_entries) == 0){
                 $connected_to_exit = false;
             }
+            
+            if(count($m->mesh_entry_schedules) == 0){
+                $chk_schedule = false;
+            }
+            
             array_push($items,array(
                 'id'            => $m->id,
                 'mesh_id'       => $m->mesh_id,
@@ -269,7 +275,8 @@ class MeshesController extends AppController{
                 'auth_secret'   => $m->auth_secret,
                 'dynamic_vlan'  => $m->dynamic_vlan,
                 'frequency_band'=> $m->frequency_band,
-                'connected_to_exit' => $connected_to_exit
+                'connected_to_exit' => $connected_to_exit,
+                'chk_schedule'	=> $chk_schedule
             ));
         }
         //___ FINAL PART ___
@@ -402,11 +409,17 @@ class MeshesController extends AppController{
         $this->loadModel('MeshEntries');
         $query  = $this->{'MeshEntries'}->find()
                     ->where(['MeshEntries.mesh_id' => $mesh_id])
+                    ->contain(['MeshEntrySchedules'])
                     ->order(['MeshEntries.name']);                   
         $q_r      = $query->all();
-        array_push($items,['id' => -1,'name'=> '** ALL SSIDs **']);
+        array_push($items,['id' => -1,'name'=> '** ALL SSIDs **','chk_schedule' => false]);
         foreach ($q_r as $i) {
-            array_push($items,['id' => $i->id,'name'=> $i->name]);
+        	$chk_schedule = false;
+        	if(count($i->mesh_entry_schedules) > 0){
+            	$chk_schedule  = true;
+            }
+        
+            array_push($items,['id' => $i->id,'name'=> $i->name,'chk_schedule' => $chk_schedule]);
         }
         
         $this->set(array(

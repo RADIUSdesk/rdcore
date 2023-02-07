@@ -204,12 +204,17 @@ class ApProfilesController extends AppController {
         $items          = [];
         $total          = 0;
         $ap_profile_id  = $this->request->getQuery('ap_profile_id');
-        $q_r = $this->ApProfileEntries->find()->contain(['ApProfileExitApProfileEntries'])->where(['ApProfileEntries.ap_profile_id' => $ap_profile_id])->all();
+        $q_r = $this->ApProfileEntries->find()->contain(['ApProfileExitApProfileEntries','ApProfileEntrySchedules'])->where(['ApProfileEntries.ap_profile_id' => $ap_profile_id])->all();
 
         foreach($q_r as $m){
-            $connected_to_exit = true;   
+            $connected_to_exit = true;
+            $chk_schedule = true;   
             if(count($m->ap_profile_exit_ap_profile_entries) == 0){
                 $connected_to_exit = false;
+            }
+            
+            if(count($m->ap_profile_entry_schedules) == 0){
+                $chk_schedule = false;
             }
    
             array_push($items,array( 
@@ -224,7 +229,8 @@ class ApProfilesController extends AppController {
                 'auth_secret'   => $m->auth_secret,
                 'dynamic_vlan'  => $m->dynamic_vlan,
                 'frequency_band'  => $m->frequency_band,
-                'connected_to_exit' => $connected_to_exit
+                'connected_to_exit' => $connected_to_exit,
+                'chk_schedule'	=> $chk_schedule
             ));
         }
         //___ FINAL PART ___
@@ -343,11 +349,16 @@ class ApProfilesController extends AppController {
         $this->loadModel('ApProfileEntries');
         $query  = $this->{'ApProfileEntries'}->find()
                     ->where(['ApProfileEntries.ap_profile_id' => $ap_profile_id])
+                    ->contain(['ApProfileEntrySchedules'])
                     ->order(['ApProfileEntries.name']);                   
         $q_r      = $query->all();
-        array_push($items,['id' => -1,'name'=> '** ALL SSIDs **']);
+        array_push($items,['id' => -1,'name'=> '** ALL SSIDs **','chk_schedule' => false]);
         foreach ($q_r as $i) {
-            array_push($items,['id' => $i->id,'name'=> $i->name]);
+        	$chk_schedule = false;
+        	if(count($i->ap_profile_entry_schedules) > 0){
+            	$chk_schedule  = true;
+            }        
+            array_push($items,['id' => $i->id,'name'=> $i->name,'chk_schedule' => $chk_schedule]);
         }
         
         $this->set(array(
