@@ -34,6 +34,7 @@ class MeshesController extends AppController{
         $this->loadModel('Timezones');   
         $this->loadModel('Hardwares');       
         $this->loadModel('NodeSettings');
+        $this->loadModel('MeshEntrySchedules');
                  
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat'); 

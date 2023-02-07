@@ -252,7 +252,14 @@ class ApProfilesController extends AppController {
                 $ap_profile_name_underscored = strtolower($ap_profile_name_underscored);
                 $nasid = $ap_profile_name_underscored.'_apeap_'.$id;
                 $entry->saveField("nasid","$nasid");
-            } 
+            }
+            
+            $id = $entryEntity->id;            
+            if($this->request->getData('chk_schedule')){            	
+            	$schedule 	= $this->request->getData('schedules'); 
+            	$this->_entry_schedule($id,$schedule);
+            }
+                  
             $this->set([
                 'success' => true
             ]);
@@ -287,7 +294,7 @@ class ApProfilesController extends AppController {
                 $cdata['nasid'] = $ap_profile_name_underscored.'_apeap_'.$this->request->getData('id');
             }
 
-            $check_items = ['hidden','isolate','apply_to_all','chk_maxassoc','accounting','auto_nasid'];
+            $check_items = ['hidden','isolate','apply_to_all','chk_maxassoc','accounting','auto_nasid','chk_schedule'];
             foreach($check_items as $i){
                 if(isset($cdata[$i])){
                     $cdata[$i] = 1;
@@ -303,6 +310,16 @@ class ApProfilesController extends AppController {
                     'success' => true
                 ]);
             }
+            
+            $id 		= $cdata['id'];            
+            if($cdata['chk_schedule'] == 1){
+            	
+            	$schedule 	= $cdata['schedules']; 
+            	$this->_entry_schedule($id,$schedule);
+            }else{
+            	$this->ApProfileEntrySchedules->deleteAll(['ApProfileEntrySchedules.ap_profile_entry_id' => $id]); 
+            }
+                       
             $this->viewBuilder()->setOption('serialize', true);
         } 
     }
@@ -311,179 +328,15 @@ class ApProfilesController extends AppController {
     public function wip(){
     
     	Configure::load('MESHdesk');
-        $schedule   = Configure::read('MESHdesk.schedule'); //Read the defaults
-        
-        $id = 34;
-        
- /*       
-        CREATE TABLE `ap_profile_entry_schedules` (
-      `id` int(11) NOT NULL AUTO_INCREMENT,
-      `ap_profile_entry_id` int(11) DEFAULT NULL,
-      `action` enum('off','on') DEFAULT 'off',
-      `mo` tinyint(1) NOT NULL DEFAULT 0,
-      `tu` tinyint(1) NOT NULL DEFAULT 0,
-      `we` tinyint(1) NOT NULL DEFAULT 0,
-      `th` tinyint(1) NOT NULL DEFAULT 0,
-      `fr` tinyint(1) NOT NULL DEFAULT 0,
-      `sa` tinyint(1) NOT NULL DEFAULT 0,
-      `su` tinyint(1) NOT NULL DEFAULT 0,
-      `event_time` varchar(10) NOT NULL DEFAULT '',*/
-        
-        //Default is on
-        $day_defaults  = ['mo' => true, 'tu' => true, 'we' => true, 'th' => true, 'fr' => true, 'sa' => true, 'su' => true ];
-        
-        foreach($schedule as $s){
-        	foreach(array_keys($day_defaults) as $key){
-        		if($s[$key] != $day_defaults[$key]){
-        			$d = [];
-        			if($s[$key]){
-		    			$d['action'] = 'on';
-		    		}else{
-		    			$d['action'] = 'off';
-		    		}
-        			$d['event_time'] = $s['begin'];
-        			$d['ap_profile_entry_id'] = $id;
-        			$d[$key] = true;
-        			$day_defaults[$key] = $s[$key];
-        			
-        			$e_s = $this->ApProfileEntrySchedules->newEntity($d);
-        			$this->ApProfileEntrySchedules->save($e_s);       			      		
-        		}       		       	
-        	}
-        }
-        
-        foreach($schedule as $s){
-        	
-        	//if end of day, check status of next day if we need to turn it off or on
-			if($s['end'] == 1440){			
-				$next_day = $schedule[0];			
-				if($next_day['mo'] !== $next_day['tu']){
-					$d =[];
-					$d['event_time'] = 0;
-					$d['ap_profile_entry_id'] = $id;
-					if($next_day['tu']){
-						$d['action'] = 'on';
-					}else{
-						$d['action'] = 'off';
-					}
-					$d['tu'] = true;
-					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
-					if(!$e_s){
-						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
-        				$this->ApProfileEntrySchedules->save($e_s);
-        			}				
-				}
-				
-				if($next_day['tu'] !== $next_day['we']){
-					$d =[];
-					$d['event_time'] = 0;
-					$d['ap_profile_entry_id'] = $id;
-					if($next_day['we']){
-						$d['action'] = 'on';
-					}else{
-						$d['action'] = 'off';
-					}
-					$d['we'] = true;
-					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
-					if(!$e_s){
-						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
-        				$this->ApProfileEntrySchedules->save($e_s);
-        			}				
-				}
-				
-				if($next_day['we'] !== $next_day['th']){
-					$d =[];
-					$d['event_time'] = 0;
-					$d['ap_profile_entry_id'] = $id;
-					if($next_day['th']){
-						$d['action'] = 'on';
-					}else{
-						$d['action'] = 'off';
-					}
-					$d['th'] = true;
-					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
-					if(!$e_s){
-						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
-        				$this->ApProfileEntrySchedules->save($e_s);
-        			}		
-				}
-				
-				if($next_day['th'] !== $next_day['fr']){
-					$d =[];
-					$d['event_time'] = 0;
-					$d['ap_profile_entry_id'] = $id;
-					if($next_day['fr']){
-						$d['action'] = 'on';
-					}else{
-						$d['action'] = 'off';
-					}
-					$d['fr'] = true;
-					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
-					if(!$e_s){
-						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
-        				$this->ApProfileEntrySchedules->save($e_s);
-        			}				
-				}
-				
-				if($next_day['fr'] !== $next_day['sa']){
-					$d =[];
-					$d['event_time'] = 0;
-					$d['ap_profile_entry_id'] = $id;
-					if($next_day['sa']){
-						$d['action'] = 'on';
-					}else{
-						$d['action'] = 'off';
-					}
-					$d['sa'] = true;
-					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
-					if(!$e_s){
-						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
-        				$this->ApProfileEntrySchedules->save($e_s);
-        			}				
-				}
-				
-				if($next_day['sa'] !== $next_day['su']){
-					$d =[];
-					$d['event_time'] = 0;
-					$d['ap_profile_entry_id'] = $id;
-					if($next_day['su']){
-						$d['action'] = 'on';
-					}else{
-						$d['action'] = 'off';
-					}
-					$d['su'] = true;
-					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
-					if(!$e_s){
-						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
-        				$this->ApProfileEntrySchedules->save($e_s);
-        			}			
-				}
-				
-				if($next_day['su'] !== $next_day['mo']){
-					$d =[];
-					$d['event_time'] = 0;
-					$d['ap_profile_entry_id'] = $id;
-					if($next_day['mo']){
-						$d['action'] = 'on';
-					}else{
-						$d['action'] = 'off';
-					}
-					$d['mo'] = true;
-					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
-					if(!$e_s){
-						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
-        				$this->ApProfileEntrySchedules->save($e_s);
-        			}					
-				}	       			
-			}       	      	
-        }       
-    
+        $schedule   = Configure::read('MESHdesk.schedule'); //Read the defaults       
+        $id = 34;        
+        $this->_entry_schedule($id,$schedule);
+           
     	$this->set([
             'success'   => true
         ]);
         $this->viewBuilder()->setOption('serialize', true);   
-    
-    
+       
     }
 
     public function apProfileSsidsView(){  
@@ -538,13 +391,60 @@ class ApProfilesController extends AppController {
             }
         }
         
-        $q_r->chk_schedule = true;
-        
-        Configure::load('MESHdesk');
-        $schedule   = Configure::read('MESHdesk.schedule'); //Read the defaults       
-        
-        $q_r->schedule = $schedule;
-
+        $ent_schedules = $this->ApProfileEntrySchedules->find()->where(['ApProfileEntrySchedules.ap_profile_entry_id' => $id])->all(); 
+        if(count($ent_schedules)>0){
+        	$q_r->chk_schedule = true;
+        	Configure::load('MESHdesk');
+        	$schedule   	= Configure::read('MESHdesk.schedule'); //Read the defaults
+        	$new_schedule 	= [];
+        	$days	= ['mo','tu','we','th','fr','sa','su'];
+        	$currently_off = [];
+        	foreach($schedule as $s){
+        		//Start with everything 'on'
+        		foreach($days as $day){
+        			$s[$day] = true;
+        		}
+        		
+        		//Is there some we need to set 'off'?
+        		$ent_off = $this->ApProfileEntrySchedules->find()
+        			->where(['ApProfileEntrySchedules.ap_profile_entry_id' => $id,'event_time' => $s['begin'],'action' => 'off'])
+        			->all();
+        		foreach($ent_off as $off){
+        			foreach($days as $day){
+        				if($off->{$day}){
+        					$currently_off[$day]=true; // Add them to the current on list
+        				}
+        			}
+        		}
+        		
+        		//Is there some that needs to stay off?
+        		foreach($days as $day){
+        			if(isset($currently_off[$day])){
+        				$s[$day] = false;
+        			}
+        		}
+        		
+        		//Is there some we need to turn on again
+        		$ent_on = $this->ApProfileEntrySchedules->find()
+        			->where(['ApProfileEntrySchedules.ap_profile_entry_id' => $id,'event_time' => $s['begin'],'action' => 'on'])
+        			->all();
+        		foreach($ent_on as $on){
+        			foreach($days as $day){
+        				if($on->{$day}){
+        					$s[$day] = false;
+        					unset($currently_off[$day]);
+        					$s[$day] = true;
+        				}
+        			}
+        		}
+        		       		
+        		//See if there is any 'offs' for this slot
+        		array_push($new_schedule,$s);       		        		
+        	}        	
+        	$q_r->schedule = $new_schedule; 
+        	       	        	
+        }
+           
         $this->set([
             'data'     => $q_r,
             'success'   => true
@@ -2835,6 +2735,165 @@ class ApProfilesController extends AppController {
             }
         }    
         return 0;//Default = radio0;
+    }
+    
+    private function _entry_schedule($id,$schedule){
+    
+    	//Delete any old entries;
+    	$this->ApProfileEntrySchedules->deleteAll(['ApProfileEntrySchedules.ap_profile_entry_id' => $id]); 
+    	   
+    	//Default is on
+        $day_defaults  = ['mo' => true, 'tu' => true, 'we' => true, 'th' => true, 'fr' => true, 'sa' => true, 'su' => true ];
+        
+        foreach($schedule as $s){
+        	foreach(array_keys($day_defaults) as $key){
+        		if($s[$key] != $day_defaults[$key]){
+        			$d = [];
+        			if($s[$key]){
+		    			$d['action'] = 'on';
+		    		}else{
+		    			$d['action'] = 'off';
+		    		}
+        			$d['event_time'] = $s['begin'];
+        			$d['ap_profile_entry_id'] = $id;
+        			$d[$key] = true;
+        			$day_defaults[$key] = $s[$key];
+        			
+        			$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        			$this->ApProfileEntrySchedules->save($e_s);       			      		
+        		}       		       	
+        	}
+        }
+        
+        foreach($schedule as $s){
+        	
+        	//if end of day, check status of next day if we need to turn it off or on
+			if($s['end'] == 1440){			
+				$next_day = $schedule[0];			
+				if($next_day['mo'] !== $next_day['tu']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['tu']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['tu'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}				
+				}
+				
+				if($next_day['tu'] !== $next_day['we']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['we']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['we'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}				
+				}
+				
+				if($next_day['we'] !== $next_day['th']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['th']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['th'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}		
+				}
+				
+				if($next_day['th'] !== $next_day['fr']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['fr']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['fr'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}				
+				}
+				
+				if($next_day['fr'] !== $next_day['sa']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['sa']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['sa'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}				
+				}
+				
+				if($next_day['sa'] !== $next_day['su']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['su']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['su'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}			
+				}
+				
+				if($next_day['su'] !== $next_day['mo']){
+					$d =[];
+					$d['event_time'] = 0;
+					$d['ap_profile_entry_id'] = $id;
+					if($next_day['mo']){
+						$d['action'] = 'on';
+					}else{
+						$d['action'] = 'off';
+					}
+					$d['mo'] = true;
+					$e_s = $this->ApProfileEntrySchedules->find()->where($d)->first();
+					if(!$e_s){
+						$e_s = $this->ApProfileEntrySchedules->newEntity($d);
+        				$this->ApProfileEntrySchedules->save($e_s);
+        			}					
+				}	       			
+			}       	      	
+        }       
+    
+    
+    
+    
     }
     
 }
