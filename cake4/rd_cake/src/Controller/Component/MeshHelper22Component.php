@@ -29,6 +29,9 @@ class MeshHelper22Component extends Component {
     protected $WbwActive        = false;
     protected $QmiActive        = false;   
     protected $Schedules        = false;
+    protected $WifiSchedules    = [];
+    protected $week_days 	    = [ 1 => 'mo',2 => 'tu',3 => 'we',4 => 'th',5 => 'fr',6 => 'sa',7 => 'su'];
+    
     protected $ppsk_flag		= false;
 
     public function initialize(array $config):void{
@@ -67,7 +70,9 @@ class MeshHelper22Component extends Component {
                     ->where(['Meshes.id' => $mesh_id])
                     ->contain([
                         'MeshExits.MeshExitMeshEntries', 
-                        'MeshEntries',
+                        'MeshEntries' => [ 
+                        	'MeshEntrySchedules'
+                        ],
                         'NodeSettings' => [
                             'Schedules' => [
                                 'ScheduleEntries' => [
@@ -198,10 +203,13 @@ class MeshHelper22Component extends Component {
                         $arr_shedule_entries = [];
                         foreach($ent_node->schedule->schedule_entries as $ent_se){
                             if($ent_se->predefined_command !== null){
-                                $ent_se->command = $ent_se->predefined_command->command;
-                                unset($ent_se->predefined_command);
-                                array_push($arr_shedule_entries,$ent_se);
+                                $ent_se->command = $ent_se->predefined_command->command;                          
                             }
+                            unset($ent_se->predefined_command);
+                            unset($ent_se->predefined_command_id);
+                            unset($ent_se->created);
+                            unset($ent_se->modified);
+                            array_push($arr_shedule_entries,$ent_se);
                         }
                         $this->Schedules = $arr_shedule_entries;  
                     }
@@ -218,9 +226,13 @@ class MeshHelper22Component extends Component {
                         foreach($ent_mesh->node_setting->schedule->schedule_entries as $ent_se){
                             if($ent_se->predefined_command !== null){
                                 $ent_se->command = $ent_se->predefined_command->command;
-                                unset($ent_se->predefined_command);
-                                array_push($arr_shedule_entries,$ent_se);
+                                unset($ent_se->predefined_command);                                
                             }
+                            unset($ent_se->predefined_command);
+                            unset($ent_se->predefined_command_id);
+                            unset($ent_se->created);
+                            unset($ent_se->modified);
+                            array_push($arr_shedule_entries,$ent_se);
                         }
                         $this->Schedules = $arr_shedule_entries;
                     }              
@@ -229,7 +241,15 @@ class MeshHelper22Component extends Component {
         }
 			
 		if($this->Schedules !== false){
-		    $json['config_settings']['schedules'] = $this->Schedules;
+			if(count($this->WifiSchedules) > 0){
+		    	$json['config_settings']['schedules'] = array_merge($this->Schedules,$this->WifiSchedules);
+		    }else{
+		    	$json['config_settings']['schedules'] = $this->Schedules;
+		    }
+		}else{
+			if(count($this->WifiSchedules) > 0){
+				$json['config_settings']['schedules'] = array_merge($this->Schedules,$this->WifiSchedules);
+			}
 		}
 				
 
@@ -1457,12 +1477,29 @@ class MeshHelper22Component extends Component {
         //Check if we need to add this wireless VAP
         foreach($ent_mesh->mesh_entries as $me){ 
             $entry_id   = $me->id;
+            
             if($me->apply_to_all == 1){
-
+            
                 //Check if it is assigned to an exit point
                 foreach($entry_point_data as $epd){
 
                     if($epd['entry_id'] == $entry_id){ //We found our man :-) This means the Entry has been 'connected' to an exit point
+                    
+                    	$ssid_name = $me->name;
+		                $script    = "/etc/MESHdesk/utils/ssid_on_off.lua";
+		                
+		                $start_disabled = $this->_scheduleStartDisabledTest($ent_mesh,$me->mesh_entry_schedules);		                
+		                
+		                foreach($me->mesh_entry_schedules as $sch){
+		                	$sch->command 	= "$script '$ssid_name' '$sch->action'";
+		                	$sch->type		= 'command';
+		                	unset($sch->action);
+		                   	unset($sch->ap_profile_entry_id);
+		                    unset($sch->created);
+		                    unset($sch->modified);
+		                    array_push($this->WifiSchedules,$sch);                    
+		                }
+                    
                     
                         //Loop through all the radios
                         for ($y = 0; $y < $radio_count; $y++){
@@ -1491,6 +1528,12 @@ class MeshHelper22Component extends Component {
                                 ($this->RadioSettings[$y]['radio'.$y.'_ap']) //And if we allow mesh on the radio
                             ){ 
                             
+                            	//If it is NOT disabled in hardware BUT we have to diesable it on the schedule ($start_disabled) then make it disabled
+                            	$disabled = $this->RadioSettings[$y]['radio'.$y.'_disabled'];
+                            	if(($start_disabled)&&(!$disabled)){
+                            		$disabled = $start_disabled;
+                            	}
+                            
                             
                                 if(($me->frequency_band == 'both')||($me->frequency_band == $band)){
                                     $if_name    = $this->_number_to_word($start_number);
@@ -1514,7 +1557,8 @@ class MeshHelper22Component extends Component {
                                         "hidden"        => $me->hidden,
                                         "isolate"       => $me->isolate,
                                         "auth_server"   => $me->auth_server,
-                                        "auth_secret"   => $me->auth_secret
+                                        "auth_secret"   => $me->auth_secret,
+                                        "disabled"      => $disabled
                                     );
                                         
                                     if($me->chk_maxassoc){
@@ -1559,6 +1603,7 @@ class MeshHelper22Component extends Component {
                                 }
                             }    
                         }
+                                               
                         break; //No need to go further
                     }
                 }
@@ -1574,6 +1619,21 @@ class MeshHelper22Component extends Component {
                                     //We have a hit; we have to  add this entry                                   
                                     if($epd['entry_id'] == $entry_id){ //We found our man :-)
                                     
+                                    	$ssid_name = $me->name;
+										$script    = "/etc/MESHdesk/utils/ssid_on_off.lua";
+																				
+										$start_disabled = $this->_scheduleStartDisabledTest($ent_mesh,$me->mesh_entry_schedules);		                
+										
+										foreach($me->mesh_entry_schedules as $sch){
+											$sch->command 	= "$script '$ssid_name' '$sch->action'";
+											$sch->type		= 'command';
+											unset($sch->action);
+										   	unset($sch->ap_profile_entry_id);
+										    unset($sch->created);
+										    unset($sch->modified);
+										    array_push($this->WifiSchedules,$sch);                    
+										}
+                                                                       
                                         //Loop through all the radios
                                         for ($y = 0; $y < $radio_count; $y++){
                                         
@@ -1611,6 +1671,12 @@ class MeshHelper22Component extends Component {
                                                     ){
                                                         $epd['network'] = $this->if_wbw_nat_br;
                                                     }
+                                                    
+                                                    //If it is NOT disabled in hardware BUT we have to diesable it on the schedule ($start_disabled) then make it disabled
+                            						$disabled = $this->RadioSettings[$y]['radio'.$y.'_disabled'];
+                            						if(($start_disabled)&&(!$disabled)){
+                            							$disabled = $start_disabled;
+                            						}
                                                                             
                                                     $base_array = array(
                                                         "device"        => "radio".$y,
@@ -1623,7 +1689,8 @@ class MeshHelper22Component extends Component {
                                                         "hidden"        => $me->hidden,
                                                         "isolate"       => $me->isolate,
                                                         "auth_server"   => $me->auth_server,
-                                                        "auth_secret"   => $me->auth_secret
+                                                        "auth_secret"   => $me->auth_secret,
+                                                        "disabled"      => $disabled
                                                     );
                                                     
                                                     if($me->chk_maxassoc){
@@ -1669,12 +1736,13 @@ class MeshHelper22Component extends Component {
                                             
                                                 }
                                             }  
-                                        }           
+                                        }
+                                                                                                                                 
                                         break;
                                     }
                                 }
                             }
-                        }
+                        }                       
                         break;
                     }
                 }
@@ -1918,5 +1986,42 @@ class MeshHelper22Component extends Component {
         }
         return $if_data;
     }
+    
+    private function _scheduleStartDisabledTest($ent_mesh,$schedules){
+	
+		$default_data = $this->_getDefaultSettings();
+		//Timezone
+        if($ent_mesh->node_setting !== null && $ent_mesh->node_setting->tz_value != ''){
+            $tz_name   	= $ent_mesh->node_setting->tz_name;
+        }else{
+            $tz_name   	= $default_data['tz_name'];
+        }
+              
+        //Get the timezone the device will be set to
+        $now    	= FrozenTime::now()->setTimezone($tz_name);
+        $day_start  = $now->startOfDay();
+        $minute_now = $now->diffInMinutes($day_start);
+        $day_of_week= $this->week_days[$now->dayOfWeek];
+        
+        $last_action_time= -1;
+        $last_action;
+              	
+		foreach($schedules as $s){
+			if(($s->event_time <= $minute_now)&&($s->{"$day_of_week"} == true)){			
+				if($s->event_time > $last_action_time){ //Get the most recent action
+					$last_action_time = $s->event_time;
+					$last_action = $s->action;
+				}		
+			}		
+		}
+		
+		if($last_action_time > -1){
+			if($last_action == 'off'){ //It needs to start up DISABLED based on the last action
+				return true;
+			}
+		}
+						
+		return false; // Default is NOT disabled	
+	}
        
 }

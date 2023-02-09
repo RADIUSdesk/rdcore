@@ -2099,23 +2099,16 @@ class MeshesController extends AppController{
                 }               
             }
                              
-            if (array_key_exists('static_entries', $req_d)) {
 
+            
+            if (array_key_exists('static_entries', $req_d)) {
                 foreach($req_d['static_entries'] as $e){
-                    if($req_d['static_entries'][$count] == 0){
-                        $empty_flag = true;
-                        break;
-                    }else{
-                    	if(is_int($req_d['static_entries'][$count])){ //The empty text causes troubles (which is not integer)
-                        	array_push($entry_ids,$req_d['static_entries'][$count]);
-                       	}else{
-                       		$empty_flag = true;
-                        	break;
-                       	}
-                    }
-                    $count++;
+                	if(is_numeric($e)){
+                		array_push($entry_ids,$e);
+                	}                
                 }
             }
+            
 
             //Only if empty was not specified
             if((!$empty_flag)&&(count($entry_ids)>0)){  
@@ -2300,24 +2293,16 @@ class MeshesController extends AppController{
                 $count      = 0;
                 $entry_ids  = [];
                 $empty_flag = false;
-
+                
+                
                 if (array_key_exists('static_entries', $req_d)) {
                     foreach($req_d['static_entries'] as $e){
-                        if($req_d['static_entries'][$count] == 0){
-                            $empty_flag = true;
-                            break;
-                        }else{
-                        	if(is_int($req_d['static_entries'][$count])){ //The empty text causes troubles (which is not integer)
-                            	array_push($entry_ids,$req_d['static_entries'][$count]);
-                           	}else{
-                           		$empty_flag = true;
-                            	break;
-                           	}
-                        }
-                        $count++;
+                    	if(is_numeric($e)){
+                    		array_push($entry_ids,$e);
+                    	}                
                     }
                 }
-
+                
                 //Only if empty was not specified
                 if((!$empty_flag)&&(count($entry_ids)>0)){
                     foreach($entry_ids as $id){
