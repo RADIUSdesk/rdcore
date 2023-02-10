@@ -39,6 +39,7 @@ class ApProfilesController extends AppController {
         $this->loadComponent('GridFilter');
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('JsonErrors');
+        $this->loadComponent('Schedule');
         
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'ApProfiles'
@@ -391,8 +392,7 @@ class ApProfilesController extends AppController {
         $ent_schedules = $this->ApProfileEntrySchedules->find()->where(['ApProfileEntrySchedules.ap_profile_entry_id' => $id])->all(); 
         if(count($ent_schedules)>0){
         	$q_r->chk_schedule = true;
-        	Configure::load('MESHdesk');
-        	$schedule   	= Configure::read('MESHdesk.schedule'); //Read the defaults
+        	$schedule   	= $this->Schedule->getSchedule(30);
         	$new_schedule 	= [];
         	$days	= ['mo','tu','we','th','fr','sa','su'];
         	$currently_off = [];

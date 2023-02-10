@@ -21,3 +21,7 @@
 
 #FUP Run every minute 
 * * * * * www-data cd /var/www/html/cake4/rd_cake && bin/cake fup >> /dev/null 2>&1
+
+#OTP Cleanup  
+*/5 * * * * www-data cd /var/www/html/cake4/rd_cake && bin/cake otp_cleanup >> /dev/null 2>&1
+

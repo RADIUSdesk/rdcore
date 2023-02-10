@@ -33,6 +33,7 @@ class SchedulesController extends AppController {
         $this->loadComponent('GridButtonsFlat');    
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');
+        $this->loadComponent('Schedule');
     }
     
     public function indexCombo(){
@@ -418,11 +419,9 @@ class SchedulesController extends AppController {
         if(!$user){   //If not a valid user
             return;
         }
-        
-        Configure::load('MESHdesk');
-        $schedule   = Configure::read('MESHdesk.schedule'); //Read the defaults       
+           
         $this->set([
-            'items'         => $schedule,
+            'items'			=> $this->Schedule->getSchedule(30),
             'success'       => true
         ]);
         $this->viewBuilder()->setOption('serialize', true);  

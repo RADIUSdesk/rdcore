@@ -44,6 +44,7 @@ class MeshesController extends AppController{
                
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');
+        $this->loadComponent('Schedule');
         
         Configure::load('MESHdesk');  //Load it during initialize       
     }
@@ -482,8 +483,7 @@ class MeshesController extends AppController{
         $ent_schedules = $this->MeshEntrySchedules->find()->where(['MeshEntrySchedules.mesh_entry_id' => $id])->all(); 
         if(count($ent_schedules)>0){
         	$entity->chk_schedule = true;
-        	Configure::load('MESHdesk');
-        	$schedule   	= Configure::read('MESHdesk.schedule'); //Read the defaults
+        	$schedule   	= $this->Schedule->getSchedule(30);
         	$new_schedule 	= [];
         	$days			= ['mo','tu','we','th','fr','sa','su'];
         	$currently_off = [];
