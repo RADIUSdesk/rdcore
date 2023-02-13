@@ -65,6 +65,8 @@ var sConnect = (function () {
         
         var req_class       = 'p-1 bg-secondary border';
         var req_attr        = 'required';
+        
+        var modalOtp		= '#modalOtp';
                
         var init = function(){
         
@@ -98,7 +100,10 @@ var sConnect = (function () {
             $('#btnOtp').on('click',onBtnOtpClick);
             $("#aReqOtp").on("click", onReqOtpClick);
             $('#btnOtpCtc').on('click',onBtnOtpCtcClick);
-            $("#aReqOtpCtc").on("click", onReqOtpCtcClick)
+            $("#aReqOtpCtc").on("click", onReqOtpCtcClick);
+            
+            $("#btnShowModalOtp").on('click', onShowModalOtpClick);
+            
             
             //Social Login things
             if($('#btnFacebook') != undefined){
@@ -295,6 +300,12 @@ var sConnect = (function () {
             }               
         }
         
+        var onShowModalOtpClick = function(event){
+        	//event.preventDefault();
+        	$("#modalLogin").modal('hide'); 
+        	$(modalOtp).modal('show');               	
+        }
+        
         var onBtnClickToConnectClickPre = function(event){
             event.preventDefault();        
             if(cDynamicData.settings.click_to_connect.cust_info_check == false){          
@@ -321,6 +332,8 @@ var sConnect = (function () {
                                 connectWith(un,pw);
                                 $('#alertTempConnect').html(j.data.message);
                                 $('#alertTempConnect').addClass('show');
+                                $('#btnShowModalOtp').addClass('show');
+                                modalOtp = "#modalOtpCtc"; //Set the modal OTP to CTC
                                 $("#modalLogin").modal('show'); 
                             }else{
                                 $("#modalLogin").modal('hide');
@@ -732,6 +745,8 @@ var sConnect = (function () {
                                 connectWith(un,pw);
                                 $('#alertTempConnect').html(j.data.message);
                                 $('#alertTempConnect').addClass('show');
+                                $('#btnShowModalOtp').addClass('show');
+                                modalOtp = "#modalOtpCtc"; //Set the modal OTP to CTC
                                 $("#modalLogin").modal('show'); 
                             }else{
                                 $('#alertInfoOtpCtc').html(j.data.message);
@@ -1865,8 +1880,7 @@ var sConnect = (function () {
                         //Hide reg / show login OR otp modal
                         $("#modalRegister").modal('hide');
                         
-                        if(data.data.otp_show == true){                        	                            
-                            
+                        if(data.data.otp_show == true){                           
                             //--Check if its email otp
                             if(data.data.temp_username){
                                 var un = data.data.temp_username;
@@ -1874,6 +1888,7 @@ var sConnect = (function () {
                                 connectWith(un,pw);
                                 $('#alertTempConnect').html(data.data.message);
                                 $('#alertTempConnect').addClass('show');
+                                $('#btnShowModalOtp').addClass('show');
                                 $("#modalLogin").modal('show'); 
                             }else{
                                 $('#alertInfoOtp').html(data.data.message);

@@ -151,10 +151,24 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                                 tooltip : 'Create Alias',
                                 itemId  : 'toolAlias',
                                 glyph   : Rd.config.icnEdit
+                            },
+                            {
+                                tooltip : 'Block Device',
+                                itemId  : 'toolBlock',
+                                glyph   : Rd.config.icnBan
                             }
                         ],
                         columns: [
-                            { text: 'Alias / MAC Address',  dataIndex: 'name',   flex: 1,  hidden: false},
+                            { 
+                            	text		: 'Alias / MAC Address',
+                            	dataIndex	: 'name',
+                            	flex		: 1,
+                            	hidden		: false,
+                            	renderer	: function(value){
+                                    //return ('<div style="background: #1e66d2;color: #ffffff;margin:0px;padding:5px 0px 5px 10px;"><i class="fa fa-fire"></i> '+' '+value+'</div>');    
+                                     return ('<i class="fa fa-ban"></i> '+' '+value);            
+                                }
+                            },
                             { text: 'Vendor',               dataIndex: 'vendor', flex: 1,  hidden: true},
                             { text: 'MAC',                  dataIndex: 'mac',    flex: 1,  hidden: true},
                             { text: 'Data In',   dataIndex: 'data_in',  hidden: true, renderer: function(value){

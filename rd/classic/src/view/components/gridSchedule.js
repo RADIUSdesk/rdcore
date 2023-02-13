@@ -10,11 +10,17 @@ Ext.define('Rd.view.components.gridSchedule' ,{
         loadMask    :true
     },
     selModel: 'cellmodel',
+    mode	: 'add',
     listeners : {
 		cellclick : 'cellClick'
 	},
     initComponent: function(){
-        var me  = this;       
+        var me  = this;
+        var auto_load = false;
+        if(me.mode == 'add'){
+        	auto_load = true;
+        }
+               
         var store = Ext.create('Ext.data.Store', {
 		   fields: [
 			   {name: 'id',   	type: 'int'},
@@ -42,7 +48,7 @@ Ext.define('Rd.view.components.gridSchedule' ,{
 				    },
 				    simpleSortMode: true //This will only sort on one column (sort) and a direction(dir) value ASC or DESC
 			},
-			autoLoad: true
+			autoLoad: auto_load // add mode must auto load else leave it for load action on window (edit)
 		});
 		
 		me.store = store;

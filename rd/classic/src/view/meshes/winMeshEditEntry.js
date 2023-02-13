@@ -22,7 +22,8 @@ Ext.define('Rd.view.meshes.winMeshEditEntry', {
         var me      = this;
         me.items    = {
             xtype                   : 'frmWifiEntryPoint',
-            hide_apply_to_all_nodes : false
+            hide_apply_to_all_nodes : false,
+            mode					: 'edit'
         };
         me.callParent(arguments);
     }

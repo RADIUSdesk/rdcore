@@ -21,7 +21,8 @@ Ext.define('Rd.view.aps.winAccessPointEditEntry', {
     initComponent: function() {
         var me      = this;
         me.items    = {
-            xtype       : 'frmWifiEntryPoint'
+            xtype 	: 'frmWifiEntryPoint',
+            mode	: 'edit'
         };
         me.callParent(arguments);
     }

@@ -22,7 +22,8 @@ Ext.define('Rd.view.aps.winAccessPointAddEntry', {
         var me      = this;
         me.items    = {
             xtype       : 'frmWifiEntryPoint',
-            apProfileId : me.apProfileId
+            apProfileId : me.apProfileId,
+            mode	    : 'add'
         };
         me.callParent(arguments);
     }

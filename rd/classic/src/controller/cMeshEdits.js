@@ -514,7 +514,9 @@ Ext.define('Rd.controller.cMeshEdits', {
                 }
                 if(b.result.data.chk_schedule){
                 	win.down('gridSchedule').getStore().loadData(b.result.data.schedule);
-                }   
+                }else{
+                	win.down('gridSchedule').getStore().reload();
+                }  
             }
         });         
     },

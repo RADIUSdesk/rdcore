@@ -23,7 +23,8 @@ Ext.define('Rd.view.meshes.winMeshAddEntry', {
         me.items    = {
             xtype                   : 'frmWifiEntryPoint',
             meshId                  : me.meshId,
-            hide_apply_to_all_nodes : false
+            hide_apply_to_all_nodes : false,
+            mode					: 'add'
         };
         me.callParent(arguments);
     }

@@ -248,7 +248,7 @@ class MeshHelper22Component extends Component {
 		    }
 		}else{
 			if(count($this->WifiSchedules) > 0){
-				$json['config_settings']['schedules'] = array_merge($this->Schedules,$this->WifiSchedules);
+				$json['config_settings']['schedules'] = $this->WifiSchedules;
 			}
 		}
 				

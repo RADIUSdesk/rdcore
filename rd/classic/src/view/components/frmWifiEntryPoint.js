@@ -10,6 +10,7 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
     border      : false,
     layout      : 'fit',
     autoScroll  : true,
+    mode		: 'add', //mode = add or edit
     fieldDefaults: {
         msgTarget       : 'under',
         labelClsExtra   : 'lblRd',
@@ -326,6 +327,7 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                             },
                             {
                             	xtype		: 'gridSchedule',
+                            	mode		: me.mode,
                             	flex		: 1,
                             	disabled	: true                          
                             }
