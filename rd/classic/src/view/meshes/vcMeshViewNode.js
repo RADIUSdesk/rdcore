@@ -81,11 +81,21 @@ Ext.define('Rd.view.meshes.vcMeshViewNode', {
     showGraph: function(button){
         var me = this;
         me.getView().getLayout().setActiveItem(0);
+        me.getView().down('#tbsepTools').hide();
+        me.getView().down('#alias').hide();
+        me.getView().down('#firewall').hide();
+        me.getView().down('#limit').hide();
+        me.getView().down('#block').hide();
         me.reload();
     },
     showList: function(button){
         var me = this;
         me.getView().getLayout().setActiveItem(1);
+        me.getView().down('#tbsepTools').show();
+        me.getView().down('#alias').show();
+        me.getView().down('#firewall').show();
+        me.getView().down('#limit').show();
+        me.getView().down('#block').show();
         me.reload();
     },
     fetchDataUsage: function(){

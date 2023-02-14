@@ -45,7 +45,8 @@ Ext.define('Rd.view.realms.gridRealms' ,{
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
         
 
-        me.columns  = [        
+        me.columns  = [
+        	{ text: 'ID',              dataIndex: 'id',        flex: 1, stateId: 'StateGridRealms0', hidden : true},      
             { text: i18n('sName'),     dataIndex: 'name',      tdCls: 'gridMain', flex: 1, filter: {type: 'string'},stateId: 'StateGridRealms3'},
             { text: i18n('sPhone'),    dataIndex: 'phone',     tdCls: 'gridTree', flex: 1, filter: {type: 'string'},   hidden: true,stateId: 'StateGridRealms4'},
             { text: i18n('sFax'),      dataIndex: 'fax',       tdCls: 'gridTree', flex: 1, filter: {type: 'string'},   hidden: true,stateId: 'StateGridRealms5'},

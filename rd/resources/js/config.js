@@ -184,6 +184,7 @@ Rd.config = {
     'icnHandshakeO' : 'xf2b5@FontAwesome',
     'icnHddO'       : 'xf0a0@FontAwesome',
     'icnExchange'   : 'xf0ec@FontAwesome',
-    'icnFire'       : 'xf06d@FontAwesome'  
+    'icnFire'       : 'xf06d@FontAwesome',
+    'icnCalendar'	: 'xf073@FontAwesome' 
 }
 

@@ -48,9 +48,6 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                     '<li><i class="fa-li fa fa-link"></i>Last connection from <b>{newest_station}</b> which was <b>{newest_time}</b> ({newest_vendor}).</li>',
                      "<li style='color:blue;'><i class='fa-li fa fa-info-circle'></i>LAN IP: {lan_ip} LAN Gateway: {lan_gw}  ({lan_proto}) </li>",
                         '</ul>',
-
-
-
                 "</div>"
             )
         }

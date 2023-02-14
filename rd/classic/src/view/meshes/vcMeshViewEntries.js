@@ -42,6 +42,12 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
         '#toolAlias': {
             click: 'onClickToolAlias'         
         },
+        '#toolLimit': {
+        	click: 'onClickToolLimit'
+        },
+        '#toolBlock': {
+        	click: 'onClickToolBlock'
+        },
         'winMeshEditMacAlias #chkRemoveAlias' : {
             change: 'onChkRemoveAliasChange'
         },
@@ -114,11 +120,21 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
     showGraph: function(button){
         var me = this;
         me.getView().getLayout().setActiveItem(0);
+        me.getView().down('#tbsepTools').hide();
+        me.getView().down('#alias').hide();
+        me.getView().down('#firewall').hide();
+        me.getView().down('#limit').hide();
+        me.getView().down('#block').hide();
         me.reload();
     },
     showList: function(button){
         var me = this;
         me.getView().getLayout().setActiveItem(1);
+        me.getView().down('#tbsepTools').show();
+        me.getView().down('#alias').show();
+        me.getView().down('#firewall').show();
+        me.getView().down('#limit').show();
+        me.getView().down('#block').show();
         me.reload();
     },
     fetchDataUsage: function(){
@@ -265,6 +281,42 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
             var vendor  = sr.get('vendor');  			
 			if(!Ext.WindowManager.get('winMeshEditMacAliasId')){
                 var w = Ext.widget('winMeshEditMacAlias',{id:'winMeshEditMacAliasId',mac:mac,alias:alias,vendor:vendor});
+                me.getView().add(w); 
+                w.show();           
+            }
+        }
+    },
+    onClickToolLimit: function(btn){
+        var me = this;
+        if(me.getView().down("#gridTopTen").getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );          
+        }else{
+           console.log("Show Limit Window");
+           if(!Ext.WindowManager.get('winMeshEditMacLimitId')){
+                var w = Ext.widget('winMeshEditMacLimit',{id:'winMeshEditMacLimitId'});
+                me.getView().add(w); 
+                w.show();           
+            }
+        }
+    },
+    onClickToolBlock: function(btn){
+        var me = this;
+        if(me.getView().down("#gridTopTen").getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );          
+        }else{
+           console.log("Show Block Window");
+           if(!Ext.WindowManager.get('winMeshEditMacBlockId')){
+                var w = Ext.widget('winMeshEditMacBlock',{id:'winMeshEditMacBlockId'});
                 me.getView().add(w); 
                 w.show();           
             }

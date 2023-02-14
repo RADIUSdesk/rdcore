@@ -146,11 +146,22 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                         border  : true,       
                         store   : s,
                         emptyText: 'No Devices',
+						multiSelect	: true,
                         tools   : [
                             {
                                 tooltip : 'Create Alias',
                                 itemId  : 'toolAlias',
                                 glyph   : Rd.config.icnEdit
+                            },
+                            {
+                                tooltip : 'Advance Firewall',
+                                itemId  : 'toolFirewall',
+                                glyph   : Rd.config.icnFire
+                            },
+                            {
+                                tooltip : 'Limit Speed',
+                                itemId  : 'toolLimit',
+                                glyph   : Rd.config.icnSpeed
                             },
                             {
                                 tooltip : 'Block Device',

@@ -40,7 +40,7 @@ Ext.define('Rd.view.meshes.gridMeshViewEntries' ,{
         me.columns  = [
         //    { xtype: 'rownumberer',                                                         stateId: 'StateGridMeshViewEntries1'},
             { text: i18n("sSSID"),      dataIndex: 'name',      tdCls: 'gridTree', flex: 1, stateId: 'StateGridMeshViewEntries2'},     
-            { text: 'MAC Address',      dataIndex: 'mac',       tdCls: 'gridTree', flex: 1, stateId: 'StateGridMeshViewEntries3',
+            { text: 'MAC Address / Alias',      dataIndex: 'mac',       tdCls: 'gridTree', flex: 1, stateId: 'StateGridMeshViewEntries3',
                 summaryType     : 'count',
                 summaryRenderer : function(value, summaryData) {
                     var tx_bytes =summaryData.txBytes; 

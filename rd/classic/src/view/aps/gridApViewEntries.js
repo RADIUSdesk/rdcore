@@ -41,7 +41,7 @@ Ext.define('Rd.view.aps.gridApViewEntries' ,{
         me.columns  = [
          //   { xtype: 'rownumberer',                                                         stateId: 'StateGridApViewEntries1'},
             { text: i18n("sSSID"),         dataIndex: 'name',      tdCls: 'gridMain', flex: 1, stateId: 'StateGridApViewEntries2'},     
-            { text: i18n("sMAC_address"),  dataIndex: 'mac',       tdCls: 'gridTree', flex: 1, stateId: 'StateGridApViewEntries3',
+            { text: 'MAC Address / Alias',  dataIndex: 'mac',       tdCls: 'gridTree', flex: 1, stateId: 'StateGridApViewEntries3',
                 summaryType     : 'count',
                 summaryRenderer : function(value, summaryData) {
                     var tx_bytes =summaryData.txBytes; 

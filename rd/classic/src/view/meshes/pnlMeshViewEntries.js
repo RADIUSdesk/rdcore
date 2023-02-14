@@ -10,7 +10,9 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntries', {
         'Rd.view.meshes.vcMeshViewEntries',
         'Rd.view.meshes.gridMeshViewEntries',
         'Rd.view.meshes.pnlMeshViewEntriesGraph',
-        'Rd.view.meshes.winMeshEditMacAlias'
+        'Rd.view.meshes.winMeshEditMacAlias',
+        'Rd.view.meshes.winMeshEditMacLimit',
+        'Rd.view.meshes.winMeshEditMacBlock'
     ],
     listeners       : {
         activate : 'onPnlActivate' //Trigger a load of the settings (This is only on the initial load)
@@ -83,7 +85,6 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntries', {
                 ui          : 'button-metal',
                 glyph       : Rd.config.icnTable
             },
-           // '->',
             { 
                 scale       : 'small',
                 itemId      : 'btnBack',
@@ -91,7 +92,40 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntries', {
                 text        : 'Back',
                 hidden      : true,
                 ui          : 'button-pink'
-            }       
+            },
+            {
+            	xtype		: 'tbseparator',
+            	itemId		: 'tbsepTools',
+            	hidden		: true 
+            },
+            {
+            	scale		: 'small',
+            	itemId		: 'alias',
+            	hidden		: true,
+            	glyph		: Rd.config.icnEdit,
+            	tooltip 	: 'Create Alias'
+            },
+            {
+            	scale		: 'small',
+            	itemId		: 'firewall',
+            	hidden		: true,
+            	glyph		: Rd.config.icnFire,
+            	tooltip 	: 'Advance Firewall'
+            },
+            {
+            	scale		: 'small',
+            	itemId		: 'limit',
+            	hidden		: true,
+            	glyph		: Rd.config.icnSpeed,
+            	tooltip 	: 'Limit Speed'
+            },
+            {
+            	scale		: 'small',
+            	itemId		: 'block',
+            	hidden		: true,
+            	glyph		: Rd.config.icnBan,
+            	tooltip 	: 'Block Device'
+            }         
         ];
              
         me.items = [
