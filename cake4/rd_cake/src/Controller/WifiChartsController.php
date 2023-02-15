@@ -35,7 +35,11 @@ class WifiChartsController extends AppController{
         $this->loadModel('Timezones');
         $this->loadModel('MacAliases'); 
         $this->loadModel('NodeStations');
-        $this->loadModel('ApStations');   
+        $this->loadModel('ApStations');
+        
+        $this->loadModel('MacActions');
+        $this->loadModel('ClientMacs');
+          
         $this->loadComponent('Aa');
         $this->loadComponent('MacVendors');      
         $this->loadComponent('JsonErrors'); 
@@ -49,6 +53,70 @@ class WifiChartsController extends AppController{
         if (!$user) {
             return;
         }
+        
+        $req_d = $this->request->getData();
+        $req_q = $this->request->getQuery();    
+       	$cloud_id 	= $req_q['cloud_id'];
+       	$ap_profile_id = false;
+       	if(isset($req_d['ap_profile_id'])){
+       		$ap_profile_id	= $req_d['ap_profile_id'];
+       	}
+       	
+       	$mesh_id = false;
+       	if(isset($req_d['mesh_id'])){
+       		$mesh_id	= $req_d['mesh_id'];
+       	}
+       	
+       	//Remove old entries to start with
+       	foreach($req_d['items'] as $item){
+			$mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
+			if($mac){ 
+				$client_mac_id = $mac->id;
+				if($req_d['scope'] == 'cloud_wide'){ //This we only delete if it is specified ans cloud wide else we ignore it
+					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.cloud_id' => $cloud_id]);
+				}
+				//These we always remove to start clean
+				if($mesh_id){
+					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.mesh_id' => $mesh_id]);
+				}
+				if($ap_profile_id){
+					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.ap_profile_id' => $ap_profile_id]);
+				}
+			}			
+		}
+		
+		 //Do nothing else just remove things
+   		if(isset($req_d['remove_block'])){
+   			 $this->set([
+            'success' => true
+		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);
+		    return;	
+   		}
+		
+		foreach($req_d['items'] as $item){
+			$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
+			if(!$e_mac){			
+				$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $item['mac']]);
+				$this->{'ClientMacs'}->save($e_mac);
+			}
+			$d_action = [
+				'client_mac_id' => $e_mac->id,
+				'action'		=> 'block'	
+			];
+			if($req_d['scope'] == 'cloud_wide'){
+				$d_action['cloud_id'] = $cloud_id;
+			}else{
+				if($mesh_id){
+					$d_action['mesh_id'] = $mesh_id;
+				}
+				if($ap_profile_id){
+					$d_action['ap_profile_id'] = $ap_profile_id;
+				}
+			}
+			$e_ma = $this->{'MacActions'}->newEntity($d_action);
+			$this->{'MacActions'}->save($e_ma);	
+		}           
         
         $this->set([
             'success' => true

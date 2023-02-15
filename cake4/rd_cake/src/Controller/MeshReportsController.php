@@ -52,6 +52,9 @@ class MeshReportsController extends AppController {
         $this->loadModel('MeshExits');
         $this->loadModel('OpenvpnServerClients');
         
+        $this->loadModel('MacActions');
+        $this->loadModel('ClientMacs');
+        
         $this->loadModel('Hardwares');
         $this->loadModel('Timezones'); 
         
@@ -699,6 +702,9 @@ class MeshReportsController extends AppController {
         $items      = [];
         $id         = 1;
         $modified   = $this->_get_timespan();
+        
+        $req_q    	= $this->request->getQuery();
+        $cloud_id 	= $req_q['cloud_id'];
  
         //Find all the entries for this mesh
         $mesh_id = $this->request->getQuery('mesh_id');
@@ -737,7 +743,6 @@ class MeshReportsController extends AppController {
                 foreach ($q_s as $j) {
                     $mac = $j->mac;
                     //Get the sum of Bytes and avg of signal
-
                     $q_t = $this->NodeStations->find()->select($this->fields)->where([
                         'NodeStations.mac'           => $mac,
                         'NodeStations.mesh_entry_id' => $mesh_entry_id,
@@ -802,8 +807,35 @@ class MeshReportsController extends AppController {
                     if (array_key_exists($last_node_id,$this->node_lookup)){
                         $l_node = $this->node_lookup[$last_node_id];
                     }
+                    
+                    $block_flag = false;
+                    $limit_flag = false;
+                    $cloud_flag = false;
+                    
+                    
+                    $e_cm = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
+                    if($e_cm){
+                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.cloud_id' => $cloud_id ])->first();
+                    	if($e_ma){
+                    		$cloud_flag = true;
+                    		if($e_ma->action == 'block'){
+                    			$block_flag = true;
+                    			$cloud_flag = true;
+                    		}
+                    	}
+                    	//If there is an mesh level override
+                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->first();
+                    	if($e_ma){
+                    		$cloud_flag = false;
+                    		if($e_ma->action == 'block'){
+                    			$block_flag = true;
+                    		}
+                    	}                   
+                    }
+                    
+                    
 
-                    array_push($items, array(
+                    array_push($items, [
                         'id'                => $id,
                         'name'              => $entry_name,
                         'mesh_entry_id'     => $mesh_entry_id,
@@ -829,8 +861,11 @@ class MeshReportsController extends AppController {
                         'l_authorized'      => $lastCreated->authorized,
                         'l_tx_bytes'        => $lastCreated->tx_bytes,
                         'l_rx_bytes'        => $lastCreated->rx_bytes,
-                        'l_node'            => $l_node
-                    ));
+                        'l_node'            => $l_node,
+                        'block_flag'		=> $block_flag,
+                        'cloud_flag'		=> $cloud_flag,
+                        'limit_flag'		=> $limit_flag
+                    ]);
                     $id++;
                 }
             } else {

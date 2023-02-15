@@ -368,7 +368,8 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
         Ext.Array.forEach(selected,function(item){
             var mac = item.get('mac');
             Ext.Array.push(list,{'mac' : mac});
-        });     
+        });
+        values.mesh_id = me.getView().meshId;     
         values.items = list;    
         Ext.Ajax.request({
             url		: me.getUrlEditLimit(),
@@ -382,6 +383,7 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
                     Ext.ux.Constants.msgInfo
                 );
                 me.reload(); //Reload from server
+                window.close();
             },                                    
             failure: function(batch,options){
                 Ext.ux.Toaster.msg(
@@ -391,6 +393,7 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
                     Ext.ux.Constants.msgWarn
                 );
                 me.reload(); //Reload from server
+                window.close();
             }
         });    
     
@@ -441,7 +444,8 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
         Ext.Array.forEach(selected,function(item){
             var mac = item.get('mac');
             Ext.Array.push(list,{'mac' : mac});
-        });     
+        });
+        values.mesh_id = me.getView().meshId;    
         values.items = list;    
         Ext.Ajax.request({
             url		: me.getUrlEditBlock(),
@@ -455,6 +459,7 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
                     Ext.ux.Constants.msgInfo
                 );
                 me.reload(); //Reload from server
+                window.close();
             },                                    
             failure: function(batch,options){
                 Ext.ux.Toaster.msg(
@@ -464,6 +469,7 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
                     Ext.ux.Constants.msgWarn
                 );
                 me.reload(); //Reload from server
+                window.close();
             }
         });    
     },

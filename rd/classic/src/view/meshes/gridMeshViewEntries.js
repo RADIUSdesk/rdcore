@@ -40,8 +40,23 @@ Ext.define('Rd.view.meshes.gridMeshViewEntries' ,{
         me.columns  = [
         //    { xtype: 'rownumberer',                                                         stateId: 'StateGridMeshViewEntries1'},
             { text: i18n("sSSID"),      dataIndex: 'name',      tdCls: 'gridTree', flex: 1, stateId: 'StateGridMeshViewEntries2'},     
-            { text: 'MAC Address / Alias',      dataIndex: 'mac',       tdCls: 'gridTree', flex: 1, stateId: 'StateGridMeshViewEntries3',
-                summaryType     : 'count',
+            { 
+            	text		: 'MAC Address / Alias',
+            	dataIndex	: 'mac',
+            	tdCls		: 'gridTree',
+            	flex		: 1,
+            	stateId		: 'StateGridMeshViewEntries3',
+            	xtype       : 'templatecolumn',
+                tpl         : new Ext.XTemplate(
+                    '<tpl if="wbw_active == true">',
+                        '<div class=\"fieldBlue\"><i class="fa fa-wifi"></i> {mac}</div>',
+                    '<tpl elseif="qmi_active == true">',
+                        '<div class=\"fieldGreen\"><i class="fa fa-signal"></i> {mac}</div>',
+                    '<tpl else>',
+                        '<div class=\"fieldGrey\">{mac}</div>',
+                    '</tpl>'
+                ),   
+                summaryType : 'count',
                 summaryRenderer : function(value, summaryData) {
                     var tx_bytes =summaryData.txBytes; 
                     if(tx_bytes == 0){
