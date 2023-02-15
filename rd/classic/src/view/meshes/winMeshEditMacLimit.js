@@ -5,9 +5,8 @@ Ext.define('Rd.view.meshes.winMeshEditMacLimit', {
     draggable   : true,
     resizable   : true,
     title       : 'Speed Limit for MAC Address',
-    width       : 500,
-   // height      : 370,
-    height      : 350,
+    width       : 550,
+    height      : 430,
     plain       : true,
     border      : false,
     layout      : 'fit',
@@ -16,7 +15,8 @@ Ext.define('Rd.view.meshes.winMeshEditMacLimit', {
     defaults: {
             border: false
     },
-    requires: [
+    requires    : [
+        'Rd.view.components.rdSliderSpeed'
     ],
     initComponent: function() {
         var me      = this;
@@ -48,6 +48,26 @@ Ext.define('Rd.view.meshes.winMeshEditMacLimit', {
                 }
             ],
             items: [
+            	{
+					xtype		: 'radiogroup',
+					columns		: 2,
+					fieldLabel  : 'Scope',
+					vertical	: false,
+					items		: [
+						{ boxLabel: 'Cloud Wide', name: 'scope', inputValue: 'cloud_wide' },
+						{ boxLabel: 'Mesh Only',  name: 'scope', inputValue: 'network_only', checked: true}
+					]
+				},
+				{
+		            xtype       : 'rdSliderSpeed',
+		            sliderName  : 'limit_upload',
+		            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up"
+		        },
+                {
+		            xtype       : 'rdSliderSpeed',
+		            sliderName  : 'limit_download',
+		            fieldLabel  : "<i class='fa fa-arrow-down'></i> Down",
+		        },
                 {
                     xtype       : 'checkbox',      
                     boxLabel    : 'Remove Limit',

@@ -42,6 +42,33 @@ class WifiChartsController extends AppController{
         $this->loadComponent('TimeCalculations');    
     }
     
+    
+    public function editMacBlock(){
+    	//__ Authentication + Authorization __
+        $user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+        
+        $this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);    
+    }
+    
+    public function editMacLimit(){
+    	//__ Authentication + Authorization __
+        $user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+        
+        $this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);    
+    } 
+    
     public function editMacAlias(){   
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();

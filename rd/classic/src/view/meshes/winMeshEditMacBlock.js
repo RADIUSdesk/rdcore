@@ -48,6 +48,16 @@ Ext.define('Rd.view.meshes.winMeshEditMacBlock', {
                 }
             ],
             items: [
+            	{
+					xtype		: 'radiogroup',
+					columns		: 2,
+					fieldLabel  : 'Scope',
+					vertical	: false,
+					items		: [
+						{ boxLabel: 'Cloud Wide', name: 'scope', inputValue: 'cloud_wide' },
+						{ boxLabel: 'Mesh Only',  name: 'scope', inputValue: 'network_only', checked: true}
+					]
+				},
                 {
                     xtype       : 'checkbox',      
                     boxLabel    : 'Remove Block',
