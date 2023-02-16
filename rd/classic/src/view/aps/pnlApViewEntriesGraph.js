@@ -169,7 +169,30 @@ Ext.define('Rd.view.aps.pnlApViewEntriesGraph', {
                             }
                         ],
                         columns: [
-                            { text: 'Alias / MAC Address',  dataIndex: 'name',   flex: 1,  hidden: false},
+                            { 
+                            	text		: 'Alias / MAC Address',
+                            	dataIndex	: 'name',
+                            	flex		: 1,
+                            	hidden		: false,
+                            	xtype       : 'templatecolumn',
+								tpl         : new Ext.XTemplate(
+								    '<tpl if="cloud_flag & block_flag">',
+								    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
+								        '<br><span style="font-size:75%;color:#cc6600;"><i class="fa fa-cloud"></i>  <i class="fa fa-ban"></i></span>',
+								    '<tpl elseif="cloud_flag & limit_flag">',
+								    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
+								    	'<br><span style="font-size:75%;color:#cc6600;"><i class="fa fa-cloud"></i>  <span style="font-family:FontAwesome;">&#xf0e4;</span> (<i class="fa fa-arrow-circle-down"></i> {bw_down} / <i class="fa fa-arrow-circle-up"></i> {bw_up} )</span>',
+								    '<tpl elseif="block_flag">',
+								    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
+								        '<br><span style="font-size:75%;color:#cc6600;"><i class="fa fa-ban"></i></span>',
+								    '<tpl elseif="limit_flag">',
+								    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
+								        '<br><span style="font-size:75%;color:#cc6600;"><span style="font-family:FontAwesome;">&#xf0e4;</span> (<i class="fa fa-arrow-circle-down"></i> {bw_down} / <i class="fa fa-arrow-circle-up"></i> {bw_up} )</span>',
+								    '<tpl else>',
+								        '<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
+								    '</tpl>'
+								)   
+                            }, 
                             { text: 'Vendor',               dataIndex: 'vendor', flex: 1,  hidden: true},
                             { text: 'MAC',                  dataIndex: 'mac',    flex: 1,  hidden: true},
                             { text: 'Data In',   dataIndex: 'data_in',  hidden: true, renderer: function(value){

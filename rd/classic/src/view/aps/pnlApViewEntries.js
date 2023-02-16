@@ -10,7 +10,9 @@ Ext.define('Rd.view.aps.pnlApViewEntries', {
         'Rd.view.aps.vcApViewEntries',
         'Rd.view.aps.gridApViewEntries',
         'Rd.view.aps.pnlApViewEntriesGraph',
-        'Rd.view.aps.winApEditMacAlias'  
+        'Rd.view.aps.winApEditMacAlias',
+        'Rd.view.aps.winApEditMacLimit',
+        'Rd.view.aps.winApEditMacBlock'  
     ],
     controller  : 'vcApViewEntries',
     initComponent: function() {

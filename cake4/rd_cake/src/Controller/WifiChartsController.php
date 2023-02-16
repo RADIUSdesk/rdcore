@@ -21,6 +21,7 @@ class WifiChartsController extends AppController{
     protected $ssid         = '';
     protected $node         = '';
     protected $mac          = '';
+    protected $ap_profile_id = false;
       
     protected $fields       = [
         'data_in'       => 'sum(tx_bytes)',
@@ -36,6 +37,7 @@ class WifiChartsController extends AppController{
         $this->loadModel('MacAliases'); 
         $this->loadModel('NodeStations');
         $this->loadModel('ApStations');
+        $this->loadModel('Aps');
         
         $this->loadModel('MacActions');
         $this->loadModel('ClientMacs');
@@ -58,8 +60,11 @@ class WifiChartsController extends AppController{
         $req_q = $this->request->getQuery();    
        	$cloud_id 	= $req_q['cloud_id'];
        	$ap_profile_id = false;
-       	if(isset($req_d['ap_profile_id'])){
-       		$ap_profile_id	= $req_d['ap_profile_id'];
+       	if(isset($req_d['ap_id'])){      	
+       		$e_ap 			= $this->{'Aps'}->find()->where(['Aps.id' => $req_d['ap_id']])->first();
+       		if($e_ap){  	
+       			$ap_profile_id	= $e_ap->ap_profile_id;
+       		}
        	}
        	
        	$mesh_id = false;
@@ -149,10 +154,13 @@ class WifiChartsController extends AppController{
         $req_q = $this->request->getQuery();    
        	$cloud_id 	= $req_q['cloud_id'];
        	$ap_profile_id = false;
-       	if(isset($req_d['ap_profile_id'])){
-       		$ap_profile_id	= $req_d['ap_profile_id'];
+       	if(isset($req_d['ap_id'])){      	
+       		$e_ap 			= $this->{'Aps'}->find()->where(['Aps.id' => $req_d['ap_id']])->first();
+       		if($e_ap){  	
+       			$ap_profile_id	= $e_ap->ap_profile_id;
+       		}
        	}
-       	
+       	     	
        	$mesh_id = false;
        	if(isset($req_d['mesh_id'])){
        		$mesh_id	= $req_d['mesh_id'];
@@ -301,7 +309,8 @@ class WifiChartsController extends AppController{
         $q_ap  = $this->{'Aps'}->find()
             ->where(['Aps.id' => $ap_id])
             ->contain(['ApProfiles' => 'ApProfileEntries'])->first();    
-        if($q_ap){       
+        if($q_ap){
+        	$this->ap_profile_id = $q_ap->ap_profile_id;      
             $ap_profile_entries_list = [];
             foreach($q_ap->ap_profile->ap_profile_entries as $e){
                 if($ap_entry_id == -1){ //Everyone
@@ -681,6 +690,7 @@ class WifiChartsController extends AppController{
         $req_q    		= $this->request->getQuery();    
        	$cloud_id 		= $req_q['cloud_id'];
        	$mesh_id        = $this->request->getQuery('mesh_id');
+       	$ap_profile_id  = false;
         
         if(($this->graph_item == 'ap')||($this->graph_item == 'ap_device')){
             $table = 'ApStations';
@@ -747,30 +757,60 @@ class WifiChartsController extends AppController{
             		}
             	}
             	//If there is an mesh level override
-            	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->first();
-            	if($e_ma){
-            		$cloud_flag = false;
-            		if($e_ma->action == 'block'){
-            			$block_flag = true;
-            		}
-            		if($e_ma->action == 'limit'){
-            			$limit_flag = true;
-            			$bw_up_suffix = 'kbps';
-            			$bw_up = ($e_ma->bw_up * 8);
-            			if($bw_up >= 1000){
-            				$bw_up = $bw_up / 1000;
-            				$bw_up_suffix = 'mbps';
-            			}
-            			$bw_up = $bw_up.' '.$bw_up_suffix;
-            			$bw_down_suffix = 'kbps';
-            			$bw_down = ($e_ma->bw_down * 8);
-            			if($bw_down >= 1000){
-            				$bw_down = $bw_down / 1000;
-            				$bw_down_suffix = 'mbps';
-            			}
-            			$bw_down = $bw_down.' '.$bw_down_suffix;
-            		}
-            	}                   
+            	if($mesh_id){
+		        	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->first();
+		        	if($e_ma){
+		        		$cloud_flag = false;
+		        		if($e_ma->action == 'block'){
+		        			$block_flag = true;
+		        		}
+		        		if($e_ma->action == 'limit'){
+		        			$limit_flag = true;
+		        			$bw_up_suffix = 'kbps';
+		        			$bw_up = ($e_ma->bw_up * 8);
+		        			if($bw_up >= 1000){
+		        				$bw_up = $bw_up / 1000;
+		        				$bw_up_suffix = 'mbps';
+		        			}
+		        			$bw_up = $bw_up.' '.$bw_up_suffix;
+		        			$bw_down_suffix = 'kbps';
+		        			$bw_down = ($e_ma->bw_down * 8);
+		        			if($bw_down >= 1000){
+		        				$bw_down = $bw_down / 1000;
+		        				$bw_down_suffix = 'mbps';
+		        			}
+		        			$bw_down = $bw_down.' '.$bw_down_suffix;
+		        		}
+		        	}
+		        }
+		        
+		        //If there is an AP Profile level override 
+		        if($this->ap_profile_id){
+		        	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.ap_profile_id' => $this->ap_profile_id ])->first();
+		        	if($e_ma){
+		        		$cloud_flag = false;
+		        		if($e_ma->action == 'block'){
+		        			$block_flag = true;
+		        		}
+		        		if($e_ma->action == 'limit'){
+		        			$limit_flag = true;
+		        			$bw_up_suffix = 'kbps';
+		        			$bw_up = ($e_ma->bw_up * 8);
+		        			if($bw_up >= 1000){
+		        				$bw_up = $bw_up / 1000;
+		        				$bw_up_suffix = 'mbps';
+		        			}
+		        			$bw_up = $bw_up.' '.$bw_up_suffix;
+		        			$bw_down_suffix = 'kbps';
+		        			$bw_down = ($e_ma->bw_down * 8);
+		        			if($bw_down >= 1000){
+		        				$bw_down = $bw_down / 1000;
+		        				$bw_down_suffix = 'mbps';
+		        			}
+		        			$bw_down = $bw_down.' '.$bw_down_suffix;
+		        		}
+		        	}
+		        }                 
             }
                       
             array_push($top_ten, 

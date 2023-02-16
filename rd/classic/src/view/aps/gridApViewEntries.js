@@ -41,7 +41,30 @@ Ext.define('Rd.view.aps.gridApViewEntries' ,{
         me.columns  = [
          //   { xtype: 'rownumberer',                                                         stateId: 'StateGridApViewEntries1'},
             { text: i18n("sSSID"),         dataIndex: 'name',      tdCls: 'gridMain', flex: 1, stateId: 'StateGridApViewEntries2'},     
-            { text: 'MAC Address / Alias',  dataIndex: 'mac',       tdCls: 'gridTree', flex: 1, stateId: 'StateGridApViewEntries3',
+            {           	
+            	text		: 'Alias / MAC Address',
+            	dataIndex	: 'mac',
+            	tdCls		: 'gridTree',
+            	flex		: 1,
+            	stateId		: 'StateGridApViewEntries3',
+            	xtype       : 'templatecolumn',
+                tpl         : new Ext.XTemplate(
+                    '<tpl if="cloud_flag & block_flag">',
+                    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
+                        '<br><span style="font-size:75%;color:#cc6600;"><i class="fa fa-cloud"></i>  <i class="fa fa-ban"></i></span>',
+                    '<tpl elseif="cloud_flag & limit_flag">',
+                    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
+                    	'<br><span style="font-size:75%;color:#cc6600;"><i class="fa fa-cloud"></i>  <span style="font-family:FontAwesome;">&#xf0e4;</span> (<i class="fa fa-arrow-circle-down"></i> {bw_down} / <i class="fa fa-arrow-circle-up"></i> {bw_up} )</span>',
+                    '<tpl elseif="block_flag">',
+                    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
+                        '<br><span style="font-size:75%;color:#cc6600;"><i class="fa fa-ban"></i></span>',
+                    '<tpl elseif="limit_flag">',
+                    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
+                        '<br><span style="font-size:75%;color:#cc6600;"><span style="font-family:FontAwesome;">&#xf0e4;</span> (<i class="fa fa-arrow-circle-down"></i> {bw_down} / <i class="fa fa-arrow-circle-up"></i> {bw_up} )</span>',
+                    '<tpl else>',
+                        '<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
+                    '</tpl>'
+                ),               	
                 summaryType     : 'count',
                 summaryRenderer : function(value, summaryData) {
                     var tx_bytes =summaryData.txBytes; 

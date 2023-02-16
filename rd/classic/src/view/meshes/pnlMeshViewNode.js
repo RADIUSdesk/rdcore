@@ -10,7 +10,9 @@ Ext.define('Rd.view.meshes.pnlMeshViewNode', {
         'Rd.view.meshes.vcMeshViewEntries',
         'Rd.view.meshes.gridMeshViewNodes',
         'Rd.view.meshes.pnlMeshViewEntriesGraph',
-        'Rd.view.meshes.winMeshEditMacAlias'  
+        'Rd.view.meshes.winMeshEditMacAlias',
+        'Rd.view.meshes.winMeshEditMacLimit',
+        'Rd.view.meshes.winMeshEditMacBlock'  
     ],
     listeners       : {
         activate : 'onPnlActivate' //Trigger a load of the settings (This is only on the initial load)

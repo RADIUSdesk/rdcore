@@ -31,7 +31,11 @@ class ApReportsController extends AppController {
         $this->loadModel('ApProfileSettings');
 		$this->loadModel('ApUptmHistories');
 		
-		$this->loadModel('Hardwares');         
+		$this->loadModel('MacActions');
+        $this->loadModel('ClientMacs');
+		
+		$this->loadModel('Hardwares');
+		$this->loadModel('MacAliases');         
 		
         $this->loadComponent('Aa');
         $this->loadComponent('MacVendors');
@@ -478,6 +482,10 @@ class ApReportsController extends AppController {
         $items  	= [];
 		$modified 	= $this->_get_timespan();
 		$ap_id      = $this->request->getQuery('ap_id');
+		
+		$req_q      = $this->request->getQuery();
+		$cloud_id 	= $req_q['cloud_id'];
+		
 		$id         = 1;
 
 		$q_ap       = $this->Aps->find()->contain(['ApProfiles.ApProfileEntries'=>'ApProfileEntrySchedules'])->where(['Aps.id' => $ap_id])->first();
@@ -544,7 +552,70 @@ class ApReportsController extends AppController {
                         if($signal > -35){
                             $signal_bar = 1;
                         }
-
+                        
+                        $block_flag = false;
+		                $limit_flag = false;
+		                $cloud_flag = false;
+		                $bw_up		= '';
+		                $bw_down	= '';
+		                $alias		= $this->_find_alias($mac);
+                                        
+		                $e_cm = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
+		                if($e_cm){
+		                	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.cloud_id' => $cloud_id ])->first();
+		                	if($e_ma){
+		                		$cloud_flag = true;
+		                		if($e_ma->action == 'block'){
+		                			$block_flag = true;
+		                			$cloud_flag = true;
+		                		}
+		                		if($e_ma->action == 'limit'){
+		                			$limit_flag = true;
+		                			$cloud_flag = true;
+		                			$limit_flag = true;
+		                			$bw_up_suffix = 'kbps';
+		                			$bw_up = ($e_ma->bw_up * 8);
+		                			if($bw_up >= 1000){
+		                				$bw_up = $bw_up / 1000;
+		                				$bw_up_suffix = 'mbps';
+		                			}
+		                			$bw_up = $bw_up.' '.$bw_up_suffix;
+		                			$bw_down_suffix = 'kbps';
+		                			$bw_down = ($e_ma->bw_down * 8);
+		                			if($bw_down >= 1000){
+		                				$bw_down = $bw_down / 1000;
+		                				$bw_down_suffix = 'mbps';
+		                			}
+		                			$bw_down = $bw_down.' '.$bw_down_suffix;
+		                		}
+		                	}
+		                	//If there is an ap profile level override
+		                	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.ap_profile_id' => $q_ap->ap_profile_id])->first();
+		                	if($e_ma){
+		                		$cloud_flag = false;
+		                		if($e_ma->action == 'block'){
+		                			$block_flag = true;
+		                		}
+		                		if($e_ma->action == 'limit'){
+		                			$limit_flag = true;
+		                			$bw_up_suffix = 'kbps';
+		                			$bw_up = ($e_ma->bw_up * 8);
+		                			if($bw_up >= 1000){
+		                				$bw_up = $bw_up / 1000;
+		                				$bw_up_suffix = 'mbps';
+		                			}
+		                			$bw_up = $bw_up.' '.$bw_up_suffix;
+		                			$bw_down_suffix = 'kbps';
+		                			$bw_down = ($e_ma->bw_down * 8);
+		                			if($bw_down >= 1000){
+		                				$bw_down = $bw_down / 1000;
+		                				$bw_down_suffix = 'mbps';
+		                			}
+		                			$bw_down = $bw_down.' '.$bw_down_suffix;
+		                		}
+		                	}                   
+		                }
+                        
                         array_push($items, [
                             'id'                => $id,
                             'name'              => $entry_name,
@@ -569,7 +640,13 @@ class ApReportsController extends AppController {
                             'l_authenticated'   => $lastCreated->authenticated,
                             'l_authorized'      => $lastCreated->authorized,
                             'l_tx_bytes'        => $lastCreated->tx_bytes,
-                            'l_rx_bytes'        => $lastCreated->rx_bytes
+                            'l_rx_bytes'        => $lastCreated->rx_bytes,
+                            'block_flag'		=> $block_flag,
+		                    'cloud_flag'		=> $cloud_flag,
+		                    'limit_flag'		=> $limit_flag,
+		                    'bw_up'				=> $bw_up,
+		                    'bw_down'			=> $bw_down,
+		                    'alias'				=> $alias
                         ]);
                         $id++;
                     }
@@ -1168,5 +1245,18 @@ class ApReportsController extends AppController {
 		    ->where(['Hardwares.fw_id' => $fw_id,'Hardwares.for_ap' => true])
 		    ->first();    
         return $hw;
+    }
+    
+   	private function _find_alias($mac){
+    
+    	$req_q    = $this->request->getQuery();    
+       	$cloud_id = $req_q['cloud_id'];
+      
+        $alias = false;
+        $qr = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id'=> $cloud_id])->first();
+        if($qr){
+        	$alias = $qr->alias;
+        } 
+        return $alias;
     }
 }

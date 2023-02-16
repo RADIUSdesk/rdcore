@@ -6,7 +6,9 @@ Ext.define('Rd.view.aps.vcApViewEntries', {
         mac             : false,
         span            : 'hour', //hour, day, week
         urlApUsageForSsid : '/cake4/rd_cake/wifi-charts/ap-usage-for-ssid.json',
-        urlEditAlias    : '/cake4/rd_cake/wifi-charts/edit-mac-alias.json'
+        urlEditAlias    : '/cake4/rd_cake/wifi-charts/edit-mac-alias.json',
+        urlEditLimit    : '/cake4/rd_cake/wifi-charts/edit-mac-limit.json',
+        UrlEditBlock	: '/cake4/rd_cake/wifi-charts/edit-mac-block.json'
     }, 
     control: {
         'pnlApViewEntriesGraph' : {
@@ -39,8 +41,29 @@ Ext.define('Rd.view.aps.vcApViewEntries', {
         '#btnBack':{
             click: 'onBtnBackClick'
         },
+     	'#alias'	: {
+        	click	: 'onClickAlias'
+        },
+        '#limit'	: {
+        	click	: 'onClickLimit'
+        },
+        '#block'	: {
+        	click	: 'onClickBlock'
+        },
         '#toolAlias': {
             click: 'onClickToolAlias'         
+        },
+        '#toolLimit': {
+        	click: 'onClickToolLimit'
+        },
+        'winApEditMacLimit #save': {
+            click: 'limitSave'
+        },
+        '#toolBlock': {
+        	click: 'onClickToolBlock'
+        },
+        'winApEditMacBlock #save': {
+            click: 'blockSave'
         },
         'winApEditMacAlias #chkRemoveAlias' : {
             change: 'onChkRemoveAliasChange'
@@ -236,6 +259,33 @@ Ext.define('Rd.view.aps.vcApViewEntries', {
         me.getView().down('gridApViewNodes').getStore().getProxy().setExtraParam('timespan',me.getSpan());
         me.getView().down('gridApViewNodes').getStore().reload();   
     },
+    onClickAlias: function(btn){
+    	var me = this;
+    	if(me.getView().down("gridApViewEntries")){
+    		var grid = me.getView().down("gridApViewEntries")
+    	}
+        if(grid.getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );          
+        }else{
+            var sr      = grid.getSelectionModel().getLastSelected();
+            var mac     = sr.get('mac');
+            var alias   = sr.get('alias');
+            if(alias == false){
+            	alias = '';
+            }
+            var vendor  = sr.get('vendor');  			
+			if(!Ext.WindowManager.get('winApEditMacAliasId')){
+                var w = Ext.widget('winApEditMacAlias',{id:'winApEditMacAliasId',mac:mac,alias:alias,vendor:vendor});
+                me.getView().add(w); 
+                w.show();           
+            }
+        }           
+    },
     onClickToolAlias: function(btn){
         var me = this;
         if(me.getView().down("#gridTopTen").getSelectionModel().getCount() == 0){
@@ -256,6 +306,161 @@ Ext.define('Rd.view.aps.vcApViewEntries', {
                 w.show();           
             }
         }
+    },
+    onClickLimit: function(btn){
+    	var me = this;
+    	if(me.getView().down("gridApViewEntries")){
+    		var grid = me.getView().down("gridApViewEntries")
+    	}
+        if(grid.getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );          
+        }else{
+           if(!Ext.WindowManager.get('winApEditMacLimitId')){
+                var w = Ext.widget('winApEditMacLimit',{id:'winApEditMacLimitId','grid' : grid});
+                me.getView().add(w); 
+                w.show();           
+            }
+        }   
+    },
+    onClickToolLimit: function(btn){
+        var me = this;
+        if(me.getView().down("#gridTopTen").getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );          
+        }else{
+           console.log("Show Limit Window");
+           if(!Ext.WindowManager.get('winApEditMacLimitId')){
+                var w = Ext.widget('winApEditMacLimit',{id:'winApEditMacLimitId','grid' : me.getView().down("#gridTopTen")});
+                me.getView().add(w); 
+                w.show();           
+            }
+        }
+    },
+    limitSave: function(btn){
+    	var me = this;
+        var form    = btn.up('form');
+        var window  = form.up('window');
+        var selected= window.grid.getSelectionModel().getSelection();
+        var list    = [];
+        var values 	= form.getForm().getValues();
+        Ext.Array.forEach(selected,function(item){
+            var mac = item.get('mac');
+            Ext.Array.push(list,{'mac' : mac});
+        });
+        values.ap_id = me.getView().apId;     
+        values.items = list;    
+        Ext.Ajax.request({
+            url		: me.getUrlEditLimit(),
+            method	: 'POST',          
+            jsonData: values,
+            success	: function(batch,options){
+                Ext.ux.Toaster.msg(
+                    'Block Action',
+                    'Block Action Completed',
+                    Ext.ux.Constants.clsInfo,
+                    Ext.ux.Constants.msgInfo
+                );
+                me.reload(); //Reload from server
+                window.close();
+            },                                    
+            failure: function(batch,options){
+                Ext.ux.Toaster.msg(
+                    'Problems Blocking Devices',
+                    batch.proxy.getReader().rawData.message.message,
+                    Ext.ux.Constants.clsWarn,
+                    Ext.ux.Constants.msgWarn
+                );
+                me.reload(); //Reload from server
+                window.close();
+            }
+        }); 
+    },
+    onClickBlock: function(btn){
+    	var me = this;
+    	if(me.getView().down("gridApViewEntries")){
+    		var grid = me.getView().down("gridApViewEntries")
+    	}
+        if(grid.getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );          
+        }else{
+           console.log("Show Block Window");
+           if(!Ext.WindowManager.get('winApEditMacBlockId')){
+                var w = Ext.widget('winApEditMacBlock',{id:'winApEditMacBlockId','grid' : grid});
+                me.getView().add(w); 
+                w.show();           
+            }
+        }           
+    },
+    onClickToolBlock: function(btn){
+        var me = this;
+        if(me.getView().down("#gridTopTen").getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );          
+        }else{
+           console.log("Show Block Window");
+           if(!Ext.WindowManager.get('winApEditMacBlockId')){
+                var w = Ext.widget('winApEditMacBlock',{id:'winApEditMacBlockId','grid' : me.getView().down("#gridTopTen")});
+                me.getView().add(w); 
+                w.show();           
+            }
+        }
+    },
+    blockSave: function(btn){
+    	var me = this;
+        var form    = btn.up('form');
+        var window  = form.up('window');
+        var selected= window.grid.getSelectionModel().getSelection();        
+        var list    = [];
+        var values 	= form.getForm().getValues();
+        Ext.Array.forEach(selected,function(item){
+            var mac = item.get('mac');
+            Ext.Array.push(list,{'mac' : mac});
+        });
+        values.ap_id = me.getView().apId;    
+        values.items = list;    
+        Ext.Ajax.request({
+            url		: me.getUrlEditBlock(),
+            method	: 'POST',          
+            jsonData: values,
+            success	: function(batch,options){
+                Ext.ux.Toaster.msg(
+                    'Block Action',
+                    'Block Action Completed',
+                    Ext.ux.Constants.clsInfo,
+                    Ext.ux.Constants.msgInfo
+                );
+                me.reload(); //Reload from server
+                window.close();
+            },                                    
+            failure: function(batch,options){
+                Ext.ux.Toaster.msg(
+                    'Problems Blocking Devices',
+                    batch.proxy.getReader().rawData.message.message,
+                    Ext.ux.Constants.clsWarn,
+                    Ext.ux.Constants.msgWarn
+                );
+                me.reload(); //Reload from server
+                window.close();
+            }
+        });    
     },
     onChkRemoveAliasChange: function(chk){
         var me      = this;
