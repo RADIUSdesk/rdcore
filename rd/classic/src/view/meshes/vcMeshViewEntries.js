@@ -284,7 +284,13 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
     },
     onClickAlias: function(btn){
     	var me = this;
-        if(me.getView().down("gridMeshViewEntries").getSelectionModel().getCount() == 0){
+    	if(me.getView().down("gridMeshViewEntries")){
+    		var grid = me.getView().down("gridMeshViewEntries")
+    	}
+    	if(me.getView().down("gridMeshViewNodes")){
+    		var grid = me.getView().down("gridMeshViewNodes")
+    	}
+        if(grid.getSelectionModel().getCount() == 0){
             Ext.ux.Toaster.msg(
                         i18n('sSelect_an_item'),
                         i18n('sFirst_select_an_item'),
@@ -292,9 +298,15 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
                         Ext.ux.Constants.msgWarn
             );          
         }else{
-           console.log("Show Block Window");
-           if(!Ext.WindowManager.get('winMeshEditMacAliasId')){
-                var w = Ext.widget('winMeshEditMacAlias',{id:'winMeshEditMacAlias','grid' : me.getView().down("gridMeshViewEntries")});
+            var sr      = grid.getSelectionModel().getLastSelected();
+            var mac     = sr.get('mac');
+            var alias   = sr.get('alias');
+            if(alias == false){
+            	alias = '';
+            }
+            var vendor  = sr.get('vendor');  			
+			if(!Ext.WindowManager.get('winMeshEditMacAliasId')){
+                var w = Ext.widget('winMeshEditMacAlias',{id:'winMeshEditMacAliasId',mac:mac,alias:alias,vendor:vendor});
                 me.getView().add(w); 
                 w.show();           
             }
@@ -323,7 +335,13 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
     },
     onClickLimit: function(btn){
     	var me = this;
-        if(me.getView().down("gridMeshViewEntries").getSelectionModel().getCount() == 0){
+    	if(me.getView().down("gridMeshViewEntries")){
+    		var grid = me.getView().down("gridMeshViewEntries")
+    	}
+    	if(me.getView().down("gridMeshViewNodes")){
+    		var grid = me.getView().down("gridMeshViewNodes")
+    	}
+        if(grid.getSelectionModel().getCount() == 0){
             Ext.ux.Toaster.msg(
                         i18n('sSelect_an_item'),
                         i18n('sFirst_select_an_item'),
@@ -333,7 +351,7 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
         }else{
            console.log("Show Limit Window");
            if(!Ext.WindowManager.get('winMeshEditMacLimitId')){
-                var w = Ext.widget('winMeshEditMacLimit',{id:'winMeshEditMacLimitId','grid' : me.getView().down("gridMeshViewEntries")});
+                var w = Ext.widget('winMeshEditMacLimit',{id:'winMeshEditMacLimitId','grid' : grid});
                 me.getView().add(w); 
                 w.show();           
             }
@@ -400,7 +418,13 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
     },
     onClickBlock: function(btn){
     	var me = this;
-        if(me.getView().down("gridMeshViewEntries").getSelectionModel().getCount() == 0){
+    	if(me.getView().down("gridMeshViewEntries")){
+    		var grid = me.getView().down("gridMeshViewEntries")
+    	}
+    	if(me.getView().down("gridMeshViewNodes")){
+    		var grid = me.getView().down("gridMeshViewNodes")
+    	}
+        if(grid.getSelectionModel().getCount() == 0){
             Ext.ux.Toaster.msg(
                         i18n('sSelect_an_item'),
                         i18n('sFirst_select_an_item'),
@@ -410,7 +434,7 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
         }else{
            console.log("Show Block Window");
            if(!Ext.WindowManager.get('winMeshEditMacBlockId')){
-                var w = Ext.widget('winMeshEditMacBlock',{id:'winMeshEditMacBlockId','grid' : me.getView().down("gridMeshViewEntries")});
+                var w = Ext.widget('winMeshEditMacBlock',{id:'winMeshEditMacBlockId','grid' : grid});
                 me.getView().add(w); 
                 w.show();           
             }

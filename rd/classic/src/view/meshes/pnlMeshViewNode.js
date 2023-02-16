@@ -90,7 +90,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewNode', {
                 hidden      : true,
                 ui          : 'button-pink'
             },
-            {
+             {
             	xtype		: 'tbseparator',
             	itemId		: 'tbsepTools',
             	hidden		: true 
@@ -122,7 +122,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewNode', {
             	hidden		: true,
             	glyph		: Rd.config.icnBan,
             	tooltip 	: 'Block Device'
-            }            
+            }
         ];
              
         me.items = [

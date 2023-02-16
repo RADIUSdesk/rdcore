@@ -57,6 +57,7 @@ class MeshReportsController extends AppController {
         
         $this->loadModel('Hardwares');
         $this->loadModel('Timezones'); 
+        $this->loadModel('MacAliases');
         
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'Meshes'
@@ -811,6 +812,9 @@ class MeshReportsController extends AppController {
                     $block_flag = false;
                     $limit_flag = false;
                     $cloud_flag = false;
+                    $bw_up		= '';
+                    $bw_down	= '';
+                    $alias		= $this->_find_alias($mac);
                     
                     
                     $e_cm = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
@@ -822,6 +826,25 @@ class MeshReportsController extends AppController {
                     			$block_flag = true;
                     			$cloud_flag = true;
                     		}
+                    		if($e_ma->action == 'limit'){
+                    			$limit_flag = true;
+                    			$cloud_flag = true;
+                    			$limit_flag = true;
+                    			$bw_up_suffix = 'kbps';
+                    			$bw_up = ($e_ma->bw_up * 8);
+                    			if($bw_up >= 1000){
+                    				$bw_up = $bw_up / 1000;
+                    				$bw_up_suffix = 'mbps';
+                    			}
+                    			$bw_up = $bw_up.' '.$bw_up_suffix;
+                    			$bw_down_suffix = 'kbps';
+                    			$bw_down = ($e_ma->bw_down * 8);
+                    			if($bw_down >= 1000){
+                    				$bw_down = $bw_down / 1000;
+                    				$bw_down_suffix = 'mbps';
+                    			}
+                    			$bw_down = $bw_down.' '.$bw_down_suffix;
+                    		}
                     	}
                     	//If there is an mesh level override
                     	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->first();
@@ -830,11 +853,26 @@ class MeshReportsController extends AppController {
                     		if($e_ma->action == 'block'){
                     			$block_flag = true;
                     		}
+                    		if($e_ma->action == 'limit'){
+                    			$limit_flag = true;
+                    			$bw_up_suffix = 'kbps';
+                    			$bw_up = ($e_ma->bw_up * 8);
+                    			if($bw_up >= 1000){
+                    				$bw_up = $bw_up / 1000;
+                    				$bw_up_suffix = 'mbps';
+                    			}
+                    			$bw_up = $bw_up.' '.$bw_up_suffix;
+                    			$bw_down_suffix = 'kbps';
+                    			$bw_down = ($e_ma->bw_down * 8);
+                    			if($bw_down >= 1000){
+                    				$bw_down = $bw_down / 1000;
+                    				$bw_down_suffix = 'mbps';
+                    			}
+                    			$bw_down = $bw_down.' '.$bw_down_suffix;
+                    		}
                     	}                   
                     }
                     
-                    
-
                     array_push($items, [
                         'id'                => $id,
                         'name'              => $entry_name,
@@ -864,7 +902,10 @@ class MeshReportsController extends AppController {
                         'l_node'            => $l_node,
                         'block_flag'		=> $block_flag,
                         'cloud_flag'		=> $cloud_flag,
-                        'limit_flag'		=> $limit_flag
+                        'limit_flag'		=> $limit_flag,
+                        'bw_up'				=> $bw_up,
+                        'bw_down'			=> $bw_down,
+                        'alias'				=> $alias
                     ]);
                     $id++;
                 }
@@ -917,6 +958,9 @@ class MeshReportsController extends AppController {
         $items      = [];
         $id         = 1;
         $modified   = $this->_get_timespan();
+        
+        $req_q    	= $this->request->getQuery();
+        $cloud_id 	= $req_q['cloud_id'];
         
         $vendor_file       = APP."StaticData".DS."mac_lookup.txt";
         $this->vendor_list  = file($vendor_file);
@@ -1023,6 +1067,72 @@ class MeshReportsController extends AppController {
                     } else {
                         $client_state = 'up';
                     }
+                    
+                    $block_flag = false;
+                    $limit_flag = false;
+                    $cloud_flag = false;
+                    $bw_up		= '';
+                    $bw_down	= '';
+                    $alias		= $this->_find_alias($mac);
+                    
+                    
+                    $e_cm = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
+                    if($e_cm){
+                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.cloud_id' => $cloud_id ])->first();
+                    	if($e_ma){
+                    		$cloud_flag = true;
+                    		if($e_ma->action == 'block'){
+                    			$block_flag = true;
+                    			$cloud_flag = true;
+                    		}
+                    		if($e_ma->action == 'limit'){
+                    			$limit_flag = true;
+                    			$cloud_flag = true;
+                    			$limit_flag = true;
+                    			$bw_up_suffix = 'kbps';
+                    			$bw_up = ($e_ma->bw_up * 8);
+                    			if($bw_up >= 1000){
+                    				$bw_up = $bw_up / 1000;
+                    				$bw_up_suffix = 'mbps';
+                    			}
+                    			$bw_up = $bw_up.' '.$bw_up_suffix;
+                    			$bw_down_suffix = 'kbps';
+                    			$bw_down = ($e_ma->bw_down * 8);
+                    			if($bw_down >= 1000){
+                    				$bw_down = $bw_down / 1000;
+                    				$bw_down_suffix = 'mbps';
+                    			}
+                    			$bw_down = $bw_down.' '.$bw_down_suffix;
+                    		}
+                    	}
+                    	//If there is an mesh level override
+                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->first();
+                    	if($e_ma){
+                    		$cloud_flag = false;
+                    		if($e_ma->action == 'block'){
+                    			$block_flag = true;
+                    		}
+                    		if($e_ma->action == 'limit'){
+                    			$limit_flag = true;
+                    			$bw_up_suffix = 'kbps';
+                    			$bw_up = ($e_ma->bw_up * 8);
+                    			if($bw_up >= 1000){
+                    				$bw_up = $bw_up / 1000;
+                    				$bw_up_suffix = 'mbps';
+                    			}
+                    			$bw_up = $bw_up.' '.$bw_up_suffix;
+                    			$bw_down_suffix = 'kbps';
+                    			$bw_down = ($e_ma->bw_down * 8);
+                    			if($bw_down >= 1000){
+                    				$bw_down = $bw_down / 1000;
+                    				$bw_down_suffix = 'mbps';
+                    			}
+                    			$bw_down = $bw_down.' '.$bw_down_suffix;
+                    		}
+                    	}                   
+                    }
+                    
+                    
                    
                     array_push($items, array(
                         'id'                => $id,
@@ -1053,7 +1163,13 @@ class MeshReportsController extends AppController {
                         'l_contact'         => $l_contact,
                         'l_contact_human'   => $l_contact_human,
                         'state'             => $state,
-                        'client_state'      => $client_state
+                        'client_state'      => $client_state,
+                        'block_flag'		=> $block_flag,
+                        'cloud_flag'		=> $cloud_flag,
+                        'limit_flag'		=> $limit_flag,
+                        'bw_up'				=> $bw_up,
+                        'bw_down'			=> $bw_down,
+                        'alias'				=> $alias
                     ));
                     $id++;
                 }
@@ -2507,6 +2623,19 @@ class MeshReportsController extends AppController {
             // Fail silently
             return false;
         }
+    }
+    
+    private function _find_alias($mac){
+    
+    	$req_q    = $this->request->getQuery();    
+       	$cloud_id = $req_q['cloud_id'];
+      
+        $alias = false;
+        $qr = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id'=> $cloud_id])->first();
+        if($qr){
+        	$alias = $qr->alias;
+        } 
+        return $alias;
     }
 
 }
