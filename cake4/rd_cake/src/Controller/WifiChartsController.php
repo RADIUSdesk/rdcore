@@ -22,6 +22,8 @@ class WifiChartsController extends AppController{
     protected $node         = '';
     protected $mac          = '';
     protected $ap_profile_id = false;
+    protected $cloud_wide   = false;
+    protected $fw_command   = '/etc/MESHdesk/utils/fetch_firewall.lua';
       
     protected $fields       = [
         'data_in'       => 'sum(tx_bytes)',
@@ -41,6 +43,11 @@ class WifiChartsController extends AppController{
         
         $this->loadModel('MacActions');
         $this->loadModel('ClientMacs');
+        $this->loadModel('NodeActions');
+        $this->loadModel('ApActions');
+        $this->loadModel('Nodes');
+        $this->loadModel('Aps');
+        $this->loadModel('ApProfiles'); 
           
         $this->loadComponent('Aa');
         $this->loadComponent('MacVendors');      
@@ -72,12 +79,18 @@ class WifiChartsController extends AppController{
        		$mesh_id	= $req_d['mesh_id'];
        	}
        	
+       	if(isset($req_d['scope'])){
+       		if($req_d['scope'] == 'cloud_wide'){
+       			$this->cloud_wide = true;
+       		}
+       	}
+       	
        	//Remove old entries to start with
        	foreach($req_d['items'] as $item){
 			$mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
 			if($mac){ 
 				$client_mac_id = $mac->id;
-				if($req_d['scope'] == 'cloud_wide'){ //This we only delete if it is specified ans cloud wide else we ignore it
+				if($this->cloud_wide){ //This we only delete if it is specified ans cloud wide else we ignore it
 					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.cloud_id' => $cloud_id]);
 				}
 				//These we always remove to start clean
@@ -89,40 +102,46 @@ class WifiChartsController extends AppController{
 				}
 			}			
 		}
+			 		
+   		if(!isset($req_d['remove_block'])){
 		
-		 //Do nothing else just remove things
-   		if(isset($req_d['remove_block'])){
-   			 $this->set([
-            'success' => true
-		    ]);
-		    $this->viewBuilder()->setOption('serialize', true);
-		    return;	
-   		}
+			foreach($req_d['items'] as $item){
+				$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
+				if(!$e_mac){			
+					$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $item['mac']]);
+					$this->{'ClientMacs'}->save($e_mac);
+				}
+				$d_action = [
+					'client_mac_id' => $e_mac->id,
+					'action'		=> 'block'	
+				];
+				if($this->cloud_wide){
+					$d_action['cloud_id'] = $cloud_id;
+				}else{
+					if($mesh_id){
+						$d_action['mesh_id'] = $mesh_id;
+					}
+					if($ap_profile_id){
+						$d_action['ap_profile_id'] = $ap_profile_id;
+					}
+				}
+				$e_ma = $this->{'MacActions'}->newEntity($d_action);
+				$this->{'MacActions'}->save($e_ma);	
+			}			
+		}
 		
-		foreach($req_d['items'] as $item){
-			$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
-			if(!$e_mac){			
-				$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $item['mac']]);
-				$this->{'ClientMacs'}->save($e_mac);
+		//Action section
+		if($this->cloud_wide){
+			$this->_addActionsCloud($cloud_id);
+		}else{
+			if($mesh_id){
+				$this->_addActionsMesh($mesh_id);
 			}
-			$d_action = [
-				'client_mac_id' => $e_mac->id,
-				'action'		=> 'block'	
-			];
-			if($req_d['scope'] == 'cloud_wide'){
-				$d_action['cloud_id'] = $cloud_id;
-			}else{
-				if($mesh_id){
-					$d_action['mesh_id'] = $mesh_id;
-				}
-				if($ap_profile_id){
-					$d_action['ap_profile_id'] = $ap_profile_id;
-				}
+			if($ap_profile_id){
+				$this->_addActionsApProfile($ap_profile_id);
 			}
-			$e_ma = $this->{'MacActions'}->newEntity($d_action);
-			$this->{'MacActions'}->save($e_ma);	
-		}           
-        
+		}
+		      
         $this->set([
             'success' => true
         ]);
@@ -166,12 +185,18 @@ class WifiChartsController extends AppController{
        		$mesh_id	= $req_d['mesh_id'];
        	}
        	
+       	if(isset($req_d['scope'])){
+       		if($req_d['scope'] == 'cloud_wide'){
+       			$this->cloud_wide = true;
+       		}
+       	}
+       	
        	//Remove old entries to start with
        	foreach($req_d['items'] as $item){
 			$mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
 			if($mac){ 
 				$client_mac_id = $mac->id;
-				if($req_d['scope'] == 'cloud_wide'){ //This we only delete if it is specified ans cloud wide else we ignore it
+				if($this->cloud_wide){ //This we only delete if it is specified ans cloud wide else we ignore it
 					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.cloud_id' => $cloud_id]);
 				}
 				//These we always remove to start clean
@@ -183,61 +208,68 @@ class WifiChartsController extends AppController{
 				}
 			}			
 		}
-		
-		//Do nothing else just remove things
-   		if(isset($req_d['remove_limit'])){
-   			 $this->set([
-            'success' => true
-		    ]);
-		    $this->viewBuilder()->setOption('serialize', true);
-		    return;	
-   		}
+		 		
+   		if(!isset($req_d['remove_block'])){
    		
-   		//download
-   		$d_amount 	= $req_d['limit_download_amount'];
-   		$d_unit 	= $req_d['limit_download_unit'];
-   		if($d_unit == 'mbps'){
-   			$bw_down = ($d_amount * 1000) / 8;
-   		}
-   		if($d_unit == 'kbps'){
-   			$bw_down = $d_amount / 8;
-   		}
-   		//Upload
-   		$u_amount 	= $req_d['limit_upload_amount'];
-   		$u_unit 	= $req_d['limit_upload_unit'];
-   		if($u_unit == 'mbps'){
-   			$bw_up = ($u_amount * 1000) / 8;
-   		}
-   		if($u_unit == 'kbps'){
-   			$bw_up = $u_amount / 8;
-   		}
-   		   		
-   		foreach($req_d['items'] as $item){
-			$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
-			if(!$e_mac){			
-				$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $item['mac']]);
-				$this->{'ClientMacs'}->save($e_mac);
-			}
-			$d_action = [
-				'client_mac_id' => $e_mac->id,
-				'action'		=> 'limit',
-				'bw_up'			=> $bw_up,
-				'bw_down'		=> $bw_down	
-			];
-			if($req_d['scope'] == 'cloud_wide'){
-				$d_action['cloud_id'] = $cloud_id;
-			}else{
-				if($mesh_id){
-					$d_action['mesh_id'] = $mesh_id;
+	   		//download
+	   		$d_amount 	= $req_d['limit_download_amount'];
+	   		$d_unit 	= $req_d['limit_download_unit'];
+	   		if($d_unit == 'mbps'){
+	   			$bw_down = ($d_amount * 1000) / 8;
+	   		}
+	   		if($d_unit == 'kbps'){
+	   			$bw_down = $d_amount / 8;
+	   		}
+	   		//Upload
+	   		$u_amount 	= $req_d['limit_upload_amount'];
+	   		$u_unit 	= $req_d['limit_upload_unit'];
+	   		if($u_unit == 'mbps'){
+	   			$bw_up = ($u_amount * 1000) / 8;
+	   		}
+	   		if($u_unit == 'kbps'){
+	   			$bw_up = $u_amount / 8;
+	   		}
+	   		   		
+	   		foreach($req_d['items'] as $item){
+				$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
+				if(!$e_mac){			
+					$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $item['mac']]);
+					$this->{'ClientMacs'}->save($e_mac);
 				}
-				if($ap_profile_id){
-					$d_action['ap_profile_id'] = $ap_profile_id;
+				$d_action = [
+					'client_mac_id' => $e_mac->id,
+					'action'		=> 'limit',
+					'bw_up'			=> $bw_up,
+					'bw_down'		=> $bw_down	
+				];
+				if($this->cloud_wide){
+					$d_action['cloud_id'] = $cloud_id;
+				}else{
+					if($mesh_id){
+						$d_action['mesh_id'] = $mesh_id;
+					}
+					if($ap_profile_id){
+						$d_action['ap_profile_id'] = $ap_profile_id;
+					}
 				}
+				$e_ma = $this->{'MacActions'}->newEntity($d_action);
+				$this->{'MacActions'}->save($e_ma);	
+			}		
+		}
+		
+		//Action section
+		if($this->cloud_wide){
+			$this->_addActionsCloud($cloud_id);
+		}else{
+			if($mesh_id){
+				$this->_addActionsMesh($mesh_id);
 			}
-			$e_ma = $this->{'MacActions'}->newEntity($d_action);
-			$this->{'MacActions'}->save($e_ma);	
-		}           
-				               
+			if($ap_profile_id){
+				$this->_addActionsApProfile($ap_profile_id);
+			}
+		}
+		
+						               
         $this->set([
             'success' => true
         ]);
@@ -892,6 +924,53 @@ class WifiChartsController extends AppController{
                 $this->time_zone = $ent->name;
             }
         }
-    }    
+    }
+    
+    private function _addActionsApProfile($ap_profile_id){   
+    	$ap_list = $this->{'Aps'}->find()->where(['Aps.ap_profile_id' => $ap_profile_id])->all();
+    	foreach($ap_list as $ap){
+    		$aa = $this->{'ApActions'}->find()->where([
+    			'ApActions.action' 	=> 'execute',
+    			'ApActions.ap_id'   => $ap->id,
+    			'ApActions.command'	=> $this->fw_command,
+    			'ApActions.status'	=> 'awaiting'
+    		])->first(); 
+    		if(!$aa){
+    			$aa = $this->{'ApActions'}->newEntity(['ap_id' => $ap->id,'command' => $this->fw_command]);
+    			$this->{'ApActions'}->save($aa);   		
+    		}    	
+    	}
+    }
+    
+    private function _addActionsMesh($mesh_id){       
+    	$node_list = $this->{'Nodes'}->find()->where(['Nodes.mesh_id' => $mesh_id])->all();
+    	foreach($node_list as $node){
+    		$na = $this->{'NodeActions'}->find()->where([
+    			'NodeActions.action' 	=> 'execute',
+    			'NodeActions.node_id' 	=> $node->id,
+    			'NodeActions.command'	=> $this->fw_command,
+    			'NodeActions.status'	=> 'awaiting'
+    		])->first(); 
+    		if(!$na){
+    			$na = $this->{'NodeActions'}->newEntity(['node_id' => $node->id,'command' => $this->fw_command]);
+    			$this->{'NodeActions'}->save($na);   		
+    		}  	
+    	}   
+    }
+    
+    private function _addActionsCloud($cloud_id){
+    
+    	//Get a list of Meshes for this cloud
+    	$meshes = $this->{'Meshes'}->find()->where(['Meshes.cloud_id' => $cloud_id])->all();
+    	foreach($meshes as $mesh){
+    		$this->_addActionsMesh($mesh->id);
+    	}
+    	       	
+    	//Get a list of ApProfiles for this cloud
+    	$ap_profiles = $this->{'ApProfiles'}->find()->where(['ApProfiles.cloud_id' => $cloud_id])->all();
+    	foreach($ap_profiles as $ap_profile){
+    		$this->_addActionsApProfile($ap_profile->id);
+    	}   
+    }
     
 }
