@@ -13,11 +13,9 @@ class FirewallsController extends AppController {
 
     public function initialize():void{
         parent::initialize();
-        $this->loadModel('Nodes');
-        $this->loadModel('Aps');
         $this->loadComponent('Firewall');
     }
-    
+       
     public function getConfigForNode(){
          if($this->request->getQuery('mac')){
             $mac        = $this->request->getQuery('mac');

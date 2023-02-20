@@ -209,7 +209,7 @@ class WifiChartsController extends AppController{
 			}			
 		}
 		 		
-   		if(!isset($req_d['remove_block'])){
+   		if(!isset($req_d['remove_limit'])){
    		
 	   		//download
 	   		$d_amount 	= $req_d['limit_download_amount'];

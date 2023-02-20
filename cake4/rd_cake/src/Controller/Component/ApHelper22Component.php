@@ -19,6 +19,7 @@ use Cake\I18n\Time;
 
 class ApHelper22Component extends Component {
 
+	protected $components 	= ['Firewall'];
     protected $main_model   = 'Aps';
     protected $ApId     = '';
 	protected $Hardware = 'creatcomm_ta8h'; //Some default value
@@ -116,6 +117,12 @@ class ApHelper22Component extends Component {
                 
                           
                 $json = $this->_build_json($ap_profile);
+                
+                $firewall = $this->Firewall->JsonForMac($mac);
+            	if($firewall){
+            		$json['config_settings']['firewall'] = $firewall;
+            	}
+                               
                 return $json;
             }
     }

@@ -19,6 +19,7 @@ use Cake\I18n\Time;
 
 class MeshHelper22Component extends Component {
 
+	protected $components 		= ['Firewall'];
     protected $RadioSettings    = [];
     protected $l3_vlans         = []; //Layer three VLAN interfaces
     
@@ -102,6 +103,12 @@ class MeshHelper22Component extends Component {
             $this->ent_mesh = $ent_mesh;   
 			$this->_update_fetched_info($ent_node);
             $json = $this->_build_json($ent_mesh,$gw);
+            
+            $firewall = $this->Firewall->JsonForMac($ent_node->mac);
+            if($firewall){
+            	$json['config_settings']['firewall'] = $firewall;
+            }
+            
             return $json; 
         }
     }
