@@ -31,6 +31,7 @@ class GridButtonsFlatComponent extends Component {
     protected $btnUiMail    = 'default';
     protected $btnUiPdf     = 'default';
     protected $btnUiMap     = 'default';
+    protected $btnUiBan     = 'default';
     protected $btnUiUnknownClients = 'button-metal';
     protected $btnUiByod    = 'button-metal';
     
@@ -231,6 +232,15 @@ class GridButtonsFlatComponent extends Component {
             'itemId'    => 'map',   
             'tooltip'   => __('Map'),
             'ui'        => $this->btnUiMap
+        ];
+        
+        $this->btnBan   = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnBan'), 
+            'scale'     => $this->scale, 
+            'itemId'    => 'ban',   
+            'tooltip'   => 'Blocked and Speed Limited Devices',
+            'ui'        => $this->btnUiBan
         ];
       
 		
@@ -549,7 +559,8 @@ class GridButtonsFlatComponent extends Component {
         
          if($type == 'ApProfiles'){
             $b = $this->_fetchBasicApProfiles();
-            $menu = [$b]; 
+            $a = $this->_fetchExtrasApProfiles();
+            $menu = [$b,$a]; 
         }
         
         if($type == 'ApProfileEntries'){
@@ -1093,7 +1104,8 @@ class GridButtonsFlatComponent extends Component {
             'xtype' => 'buttongroup',
             'title' => $t, 
             'items' => [
-                $this->btnMap
+                $this->btnMap,
+                $this->btnBan
             ]
         ];             
         return $menu;
@@ -1173,6 +1185,17 @@ class GridButtonsFlatComponent extends Component {
             ]
         ];       
         return $menu;    
+    }
+    
+     private function _fetchExtrasApProfiles(){    
+        $menu = [
+            'xtype' => 'buttongroup',
+            'title' => null, 
+            'items' => [
+                $this->btnBan
+            ]
+        ];             
+        return $menu;
     }
     
     private function _fetchAps(){

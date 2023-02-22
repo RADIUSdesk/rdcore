@@ -44,6 +44,10 @@ class CommonQueryFlatComponent extends Component {
 		$query->where($where_clause);
     }
     
+    public function get_filter_conditions(){
+        return $this->_common_filter();
+    }
+    
     public function build_cloud_query($query,$cloud_id = 0,$contain_array = [], $model = null, $allowOverride = true, $sort = null){ 
     
     	$model  = is_null($model) ? $this->getConfig('model') : $model;
