@@ -593,9 +593,12 @@ class VouchersController extends AppController{
 			throw new MethodNotAllowedException();
 		}
 
-        $conditions = $this->CommonQueryFlat->get_filter_conditions();          
-        $this->{$this->main_model}->deleteAll($conditions);
-        
+        $conditions 		= $this->CommonQueryFlat->get_filter_conditions();      
+        $list_of_vouchers 	= $this->{$this->main_model}->find()->where($conditions)->all();
+        foreach($list_of_vouchers as $voucher){
+        	$this->{$this->main_model}->delete($voucher);
+        }
+               
         $this->set([
             'success' => true
         ]);
