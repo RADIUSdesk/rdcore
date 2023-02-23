@@ -86,6 +86,9 @@ Ext.define('Rd.controller.cAccessPoints', {
             'gridApProfiles #edit'   : {
                 click:      me.edit
             },
+            'gridApProfiles #ban': {
+                click: me.ban
+            },
             'gridApProfiles'  : {
                 select:      me.select
             },
@@ -588,7 +591,14 @@ Ext.define('Rd.controller.cAccessPoints', {
                 Ext.getApplication().runAction('cAccessPointEdits','Index',id,name); 
             }
         }
-    },    
+    },
+    
+    ban	: function(b){
+    	var me 			= this;
+    	var tabPanel 	= me.getGrid().up('tabpanel')
+		Ext.getApplication().runAction('cBans','Index',tabPanel,{});
+	},
+       
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");
         var me = this;

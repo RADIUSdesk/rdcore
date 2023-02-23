@@ -93,6 +93,9 @@ Ext.define('Rd.controller.cMeshes', {
             'gridMeshes #map': {
                 click: me.mapGetPref
             },
+            'gridMeshes #ban': {
+                click: me.ban
+            },
             'gridMeshes #xwf_filter': {
                 change : me.xwfFilterToggle
             },
@@ -664,6 +667,12 @@ Ext.define('Rd.controller.cMeshes', {
     },   
     //Redirecting
     
+    ban	: function(b){
+    	var me 			= this;
+    	var tabPanel 	= me.getGrid().up('tabpanel')
+		Ext.getApplication().runAction('cBans','Index',tabPanel,{});
+	},
+	   
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");
         var me = this;
