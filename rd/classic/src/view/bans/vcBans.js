@@ -5,9 +5,9 @@ Ext.define('Rd.view.bans.vcBans', {
     
     },
     config: {
-        urlDelete   : '/cake4/rd_cake/dynamic-clients/delete-pppoe-active.json',
-        UrlAdd		: '/cake4/rd_cake/ban/add.json',
-        UrlEdit		: '/cake4/rd_cake/ban/edit.json'
+    	UrlDelete	: '/cake4/rd_cake/bans/delete.json',
+        UrlAdd		: '/cake4/rd_cake/bans/add.json',
+        UrlEdit		: '/cake4/rd_cake/bans/edit.json'
     },
     control: {
         'gridBans #reload': {
@@ -45,11 +45,10 @@ Ext.define('Rd.view.bans.vcBans', {
             Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
                 if(val== 'yes'){
                     var selected    = me.getView().getSelectionModel().getSelection();
-                    var dynamic_client_id = me.getView().dynamic_client_id;
                     var list        = [];
                     Ext.Array.forEach(selected,function(item){
-                        var id = item.get('.id');
-                        Ext.Array.push(list,{'id' : id,'dynamic_client_id': dynamic_client_id});
+                        var id = item.get('id');
+                        Ext.Array.push(list,{'id' : id});
                     });
                     Ext.Ajax.request({
                         url: me.getUrlDelete(),
@@ -95,11 +94,21 @@ Ext.define('Rd.view.bans.vcBans', {
     },
     edit: function(btn){
     	var me = this;
-    	if(!Ext.WindowManager.get('winAddBanId')){
-            var w = Ext.widget('winAddBan',{id:'winAddBanId'});
-            me.getView().add(w); 
-            w.show();           
-        }  
+        if(me.getView().getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );          
+        }else{
+            var sr      = me.getView().getSelectionModel().getLastSelected();  			
+			if(!Ext.WindowManager.get('winEditBanId')){
+                var w = Ext.widget('winEditBan',{id:'winEditBanId',record: sr});
+                me.getView().add(w); 
+                w.show();           
+            }
+        }
     },
     rgrpScopeChange : function( rgrp,newValue, oldValue, eOpts){
 

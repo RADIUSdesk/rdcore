@@ -20,10 +20,12 @@ class BansController extends AppController {
         $this->loadModel('Meshes');
         $this->loadModel('ApProfiles');
         $this->loadModel('MacAliases');
+        $this->loadModel('ClientMacs');
         
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
-        $this->loadComponent('TimeCalculations');  
+        $this->loadComponent('TimeCalculations');
+        $this->loadComponent('JsonErrors');   
         
     }
        
@@ -46,7 +48,7 @@ class BansController extends AppController {
        		array_push($mesh_ids, $m->id);
        	}
        	
-       	$ap_profiles	= $this->{'Meshes'}->find()->where(['Meshes.cloud_id' => $cloud_id])->all();
+       	$ap_profiles	= $this->{'ApProfiles'}->find()->where(['ApProfiles.cloud_id' => $cloud_id])->all();
        	foreach($ap_profiles as $a){
        		array_push($ap_p_ids, $a->id);
        	}
@@ -158,7 +160,7 @@ class BansController extends AppController {
         	if($q->cloud_id == null){
         		$q->cloud_wide = false;
         	}
-        	if($q->ap_profile_idl){
+        	if($q->ap_profile_id){
         		$q->ap_profile_name = $q->ap_profile->name;
         	}
         	if($q->mesh_id){
@@ -169,6 +171,26 @@ class BansController extends AppController {
         	if($q_alias){
         		$q->alias = $q_alias->alias;
         	}
+        	
+        	if($q->action == 'limit'){
+    			$bw_up_suffix = 'kbps';
+    			$bw_up = ($q->bw_up * 8);
+    			if($bw_up >= 1000){
+    				$bw_up = $bw_up / 1000;
+    				$bw_up_suffix = 'mbps';
+    			}
+    			$q->bw_up_suffix = $bw_up_suffix;
+    			$q->bw_up = $bw_up;
+    			
+    			$bw_down_suffix = 'kbps';
+    			$bw_down = ($q->bw_down * 8);
+    			if($bw_down >= 1000){
+    				$bw_down = $bw_down / 1000;
+    				$bw_down_suffix = 'mbps';
+    			}
+    			$q->bw_down_suffix = $bw_down_suffix;
+    			$q->bw_down = $bw_down;
+    		}       	
         	
         	$q->created_in_words  = $this->TimeCalculations->time_elapsed_string($q->{"created"});
         	$q->modified_in_words = $this->TimeCalculations->time_elapsed_string($q->{"modified"});
@@ -184,6 +206,141 @@ class BansController extends AppController {
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
+    
+     public function add(){
+    	//__ Authentication + Authorization __
+        $user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+        
+        /*
+        	Mbps : Megabit per second (Mbit/s or Mb/s)
+			kB/s : Kilobyte per second
+			1 byte = 8 bits
+			1 bit  = (1/8) bytes
+			1 bit  = 0.125 bytes
+			1 kilobyte = 10001 bytes
+			1 megabit  = 10002 bits
+			1 megabit  = (1000 / 8) kilobytes
+			1 megabit  = 125 kilobytes
+			1 megabit/second = 125 kilobytes/second
+			1 Mbps = 125 kB/s
+        */
+        
+        $add_data	= [];
+        $req_d 		= $this->request->getData();
+       	$cloud_id 	= $req_d['cloud_id'];
+       	
+       	if($req_d['scope'] == 'cloud_wide'){
+   			$add_data['cloud_id']	= $cloud_id;
+   		}
+       	if(isset($req_d['ap_profile_id'])){      		
+       		$add_data['ap_profile_id']	= $req_d['ap_profile_id'];
+       	}       	     	
+       	if(isset($req_d['mesh_id'])){
+       		$add_data['mesh_id']	= $req_d['mesh_id'];      		
+       	}
+       	    	
+       	$mac = str_replace('-', ':', $req_d['mac']);
+       	$mac = strtoupper($mac);      	
+       	$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
+		if(!$e_mac){			
+			$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $mac]);
+			$this->{'ClientMacs'}->save($e_mac);
+		}       	
+       	$add_data['client_mac_id'] = $e_mac->id;
+
+  		$add_data['action'] = $req_d['action'];
+       	
+       	if($req_d['action'] == 'limit'){
+       	      	
+	   		$d_amount 	= $req_d['limit_download_amount'];
+	   		$d_unit 	= $req_d['limit_download_unit'];
+	   		if($d_unit == 'mbps'){
+	   			$bw_down = ($d_amount * 1000) / 8;
+	   		}
+	   		if($d_unit == 'kbps'){
+	   			$bw_down = $d_amount / 8;
+	   		}
+	   		$add_data['bw_down']	= $bw_down;
+	   		
+	   		//Upload
+	   		$u_amount 	= $req_d['limit_upload_amount'];
+	   		$u_unit 	= $req_d['limit_upload_unit'];
+	   		if($u_unit == 'mbps'){
+	   			$bw_up = ($u_amount * 1000) / 8;
+	   		}
+	   		if($u_unit == 'kbps'){
+	   			$bw_up = $u_amount / 8;
+	   		}
+	   		$add_data['bw_up']	= $bw_up;
+	   			   		
+	   	}
+	   	
+	   	//Now we also have to check if it not already there ....
+	   	
+	   	$e_mac_action = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_mac->id,'MacActions.cloud_id' => $cloud_id])->first();
+	   	if($e_mac_action){
+	   		$this->JsonErrors->errorMessage('Cloud Wide Entry Already Present');
+	   		return;
+	   	}
+	   	
+	   	if(isset($req_d['ap_profile_id'])){
+	   		$e_mac_action_ap_profile = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_mac->id,'MacActions.ap_profile_id' => $req_d['ap_profile_id']])->first();
+	   		if($e_mac_action_ap_profile){
+		   		$this->JsonErrors->errorMessage('AP Profile Entry Already Present');
+		   		return;
+		   	}
+	   	}
+	   	
+	   	if(isset($req_d['mesh_id'])){
+	   		$e_mac_action_mesh = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_mac->id,'MacActions.mesh_id' => $req_d['mesh_id']])->first();
+	   		if($e_mac_action_mesh){
+		   		$this->JsonErrors->errorMessage('Mesh Entry Already Present');
+		   		return;
+		   	}
+	   	}
+	   	
+	   	//If we reached here we can add it 
+	   	$e_ma = $this->{'MacActions'}->newEntity($add_data);
+	   	$this->{'MacActions'}->save($e_ma);
+	   	
+	   	$this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+        	   		   	   
+	}
+	
+	public function delete() {
+   	
+   		$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+   	
+		if (!$this->request->is('post')) {
+			throw new MethodNotAllowedException();
+		}
+		$req_d  = $this->request->getData();
+	    if(isset($req_d['id'])){   //Single item delete
+	           
+            $entity     = $this->{$this->main_model}->find()->where(['MacActions.id' => $req_d['id']])->first();     
+            $this->{$this->main_model}->delete($entity);
+   
+        }else{                          //Assume multiple item delete
+            foreach($req_d as $d){
+            	$entity =	$this->{$this->main_model}->find()->where(['MacActions.id' => $d['id']])->first();                 
+              	$this->{$this->main_model}->delete($entity);
+            }
+        }
+        $this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+	}
+    
     
      public function menuForGrid(){
     
