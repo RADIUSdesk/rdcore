@@ -66,7 +66,7 @@ Ext.define('Rd.view.bans.winAddBan', {
                     fieldLabel  : 'MAC',
                     allowBlank  : false,
                     blankText   : 'Specify A MAC Address',
-					vtype       : 'MacAddress',
+					vtype       : 'MacColon',
 					fieldStyle  : 'text-transform:uppercase',
                     itemId      : 'txtMac',
                     margin      : Rd.config.fieldMargin +5,

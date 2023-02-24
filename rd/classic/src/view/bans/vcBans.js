@@ -24,6 +24,9 @@ Ext.define('Rd.view.bans.vcBans', {
         },
         'winAddBan #save': {
             click: 'addSave'
+        },
+        'winEditBan #save': {
+            click: 'editSave'
         }
     },
     reload: function(){
@@ -89,7 +92,8 @@ Ext.define('Rd.view.bans.vcBans', {
     	if(!Ext.WindowManager.get('winAddBanId')){
             var w = Ext.widget('winAddBan',{id:'winAddBanId'});
             me.getView().add(w); 
-            w.show();           
+            let appBody = Ext.getBody();
+            w.showBy(appBody);           
         }  
     },
     edit: function(btn){
@@ -106,7 +110,8 @@ Ext.define('Rd.view.bans.vcBans', {
 			if(!Ext.WindowManager.get('winEditBanId')){
                 var w = Ext.widget('winEditBan',{id:'winEditBanId',record: sr});
                 me.getView().add(w); 
-                w.show();           
+                let appBody = Ext.getBody();
+                w.showBy(appBody);      
             }
         }
     },
@@ -187,8 +192,8 @@ Ext.define('Rd.view.bans.vcBans', {
             success         : function(form, action) {              
                 //FIXME reload store....
                 Ext.ux.Toaster.msg(
-                    'Item Added',
-                    'Item Added Fine',
+                    'Item Updated',
+                    'Item Updated Fine',
                     Ext.ux.Constants.clsInfo,
                     Ext.ux.Constants.msgInfo
                 );               

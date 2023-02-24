@@ -282,7 +282,8 @@ Ext.define('Rd.view.aps.vcApViewEntries', {
 			if(!Ext.WindowManager.get('winApEditMacAliasId')){
                 var w = Ext.widget('winApEditMacAlias',{id:'winApEditMacAliasId',mac:mac,alias:alias,vendor:vendor});
                 me.getView().add(w); 
-                w.show();           
+                let appBody = Ext.getBody();
+                w.showBy(appBody);           
             }
         }           
     },
@@ -303,7 +304,8 @@ Ext.define('Rd.view.aps.vcApViewEntries', {
 			if(!Ext.WindowManager.get('winApEditMacAliasId')){
                 var w = Ext.widget('winApEditMacAlias',{id:'winApEditMacAliasId',mac:mac,alias:alias,vendor:vendor});
                 me.getView().add(w); 
-                w.show();           
+                let appBody = Ext.getBody();
+                w.showBy(appBody);          
             }
         }
     },
@@ -323,7 +325,8 @@ Ext.define('Rd.view.aps.vcApViewEntries', {
            if(!Ext.WindowManager.get('winApEditMacLimitId')){
                 var w = Ext.widget('winApEditMacLimit',{id:'winApEditMacLimitId','grid' : grid});
                 me.getView().add(w); 
-                w.show();           
+                let appBody = Ext.getBody();
+                w.showBy(appBody);           
             }
         }   
     },
@@ -341,7 +344,8 @@ Ext.define('Rd.view.aps.vcApViewEntries', {
            if(!Ext.WindowManager.get('winApEditMacLimitId')){
                 var w = Ext.widget('winApEditMacLimit',{id:'winApEditMacLimitId','grid' : me.getView().down("#gridTopTen")});
                 me.getView().add(w); 
-                w.show();           
+                let appBody = Ext.getBody();
+                w.showBy(appBody);           
             }
         }
     },
@@ -401,7 +405,8 @@ Ext.define('Rd.view.aps.vcApViewEntries', {
            if(!Ext.WindowManager.get('winApEditMacBlockId')){
                 var w = Ext.widget('winApEditMacBlock',{id:'winApEditMacBlockId','grid' : grid});
                 me.getView().add(w); 
-                w.show();           
+                let appBody = Ext.getBody();
+                w.showBy(appBody);           
             }
         }           
     },
@@ -419,7 +424,8 @@ Ext.define('Rd.view.aps.vcApViewEntries', {
            if(!Ext.WindowManager.get('winApEditMacBlockId')){
                 var w = Ext.widget('winApEditMacBlock',{id:'winApEditMacBlockId','grid' : me.getView().down("#gridTopTen")});
                 me.getView().add(w); 
-                w.show();           
+                let appBody = Ext.getBody();
+                w.showBy(appBody);           
             }
         }
     },

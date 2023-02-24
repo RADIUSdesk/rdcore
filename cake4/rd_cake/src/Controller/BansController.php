@@ -313,6 +313,35 @@ class BansController extends AppController {
         	   		   	   
 	}
 	
+	public function edit(){
+    	//__ Authentication + Authorization __
+        $user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+        
+        $req_d 	= $this->request->getData();        
+        $id		= $req_d['id'];
+        
+        $current_ent = $this->{'MacActions'}->find()->where(['MacActions.id' => $id])->first();
+        if(!$current_ent){
+        	$this->JsonErrors->errorMessage('Item Not Found');
+		   	return;                     
+        }
+        
+      /*  if($current_ent->cloud_id){
+        	if($req_d['scope'] !== 'cloud_wide'){
+        	
+        	}
+        }*/
+           	
+	   	$this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+        	   		   	   
+	}
+	
 	public function delete() {
    	
    		$user = $this->_ap_right_check();

@@ -308,7 +308,8 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
 			if(!Ext.WindowManager.get('winMeshEditMacAliasId')){
                 var w = Ext.widget('winMeshEditMacAlias',{id:'winMeshEditMacAliasId',mac:mac,alias:alias,vendor:vendor});
                 me.getView().add(w); 
-                w.show();           
+                let appBody = Ext.getBody();
+            	w.showBy(appBody);             
             }
         }           
     },
@@ -329,7 +330,8 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
 			if(!Ext.WindowManager.get('winMeshEditMacAliasId')){
                 var w = Ext.widget('winMeshEditMacAlias',{id:'winMeshEditMacAliasId',mac:mac,alias:alias,vendor:vendor});
                 me.getView().add(w); 
-                w.show();           
+                let appBody = Ext.getBody();
+            	w.showBy(appBody);             
             }
         }
     },
@@ -353,7 +355,8 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
            if(!Ext.WindowManager.get('winMeshEditMacLimitId')){
                 var w = Ext.widget('winMeshEditMacLimit',{id:'winMeshEditMacLimitId','grid' : grid});
                 me.getView().add(w); 
-                w.show();           
+                let appBody = Ext.getBody();
+            	w.showBy(appBody);             
             }
         }   
     },
@@ -371,7 +374,8 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
            if(!Ext.WindowManager.get('winMeshEditMacLimitId')){
                 var w = Ext.widget('winMeshEditMacLimit',{id:'winMeshEditMacLimitId','grid' : me.getView().down("#gridTopTen")});
                 me.getView().add(w); 
-                w.show();           
+                let appBody = Ext.getBody();
+            	w.showBy(appBody);             
             }
         }
     },
@@ -436,7 +440,8 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
            if(!Ext.WindowManager.get('winMeshEditMacBlockId')){
                 var w = Ext.widget('winMeshEditMacBlock',{id:'winMeshEditMacBlockId','grid' : grid});
                 me.getView().add(w); 
-                w.show();           
+                let appBody = Ext.getBody();
+            	w.showBy(appBody);             
             }
         }           
     },
@@ -454,7 +459,8 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
            if(!Ext.WindowManager.get('winMeshEditMacBlockId')){
                 var w = Ext.widget('winMeshEditMacBlock',{id:'winMeshEditMacBlockId','grid' : me.getView().down("#gridTopTen")});
                 me.getView().add(w); 
-                w.show();           
+                let appBody = Ext.getBody();
+            	w.showBy(appBody);             
             }
         }
     },

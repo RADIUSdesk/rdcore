@@ -32,6 +32,24 @@ Ext.define('Rd.view.bans.winEditBan', {
 		    disabled	: true
 	    });
 	    
+	    var sldrUpload = Ext.create('Rd.view.components.rdSliderSpeed',{
+            xtype       : 'rdSliderSpeed',
+            sliderName  : 'limit_upload',
+            itemId		: 'bw_up',
+            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up",
+            hidden		: true,
+            disabled	: true
+        });
+        
+        var sldrDownload = Ext.create('Rd.view.components.rdSliderSpeed',{
+            xtype       : 'rdSliderSpeed',
+            sliderName  : 'limit_download',
+            itemId		: 'bw_down',
+            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up",
+            hidden		: true,
+            disabled	: true
+        });
+	    
 	    var cloud_id	= me.record.get('cloud_id');
 	    var mesh_id		= me.record.get('mesh_id');
 	    var ap_profile_id = me.record.get('ap_profile_id');
@@ -39,17 +57,43 @@ Ext.define('Rd.view.bans.winEditBan', {
 	    var rb_mesh		= false;
 	    var rb_ap_p		= false;
 	    
+	    var action		= me.record.get('action');
+	    var rb_block	= true;
+	    var rb_limit	= false;
+	    
+	    if(action == 'limit'){
+	    	rb_block	= false;
+	        rb_limit	= true;
+	        sldrUpload.setHidden(false);
+	    	sldrUpload.setDisabled(false);
+	        sldrDownload.setHidden(false);
+	    	sldrDownload.setDisabled(false);
+	    	
+	    	sldrUpload.down('numberfield').setValue(me.record.get('bw_up'));
+	    	sldrDownload.down('numberfield').setValue(me.record.get('bw_down'));
+	    	sldrUpload.down('combobox').setValue(me.record.get('bw_up_suffix'));
+	    	sldrDownload.down('combobox').setValue(me.record.get('bw_down_suffix'));
+	    	    	
+	    }   	    
 	    
 	    if(mesh_id > 0){
 	    	rb_cloud	= false;
 	    	rb_mesh		= true;
 	    	rb_ap_p		= false;
+	    	cmbMesh.setHidden(false);
+	    	cmbMesh.setDisabled(false);
+	    	cmbMesh.getStore().load();
+			cmbMesh.setValue(mesh_id);//Show it	 	
 	    }
 	    
 	    if(ap_profile_id > 0){
 	    	rb_cloud	= false;
 	    	rb_mesh		= false;
 	    	rb_ap_p		= true;
+	    	cmbApProfile.setHidden(false);
+	    	cmbApProfile.setDisabled(false);
+	    	cmbApProfile.getStore().load();
+			cmbApProfile.setValue(ap_profile_id);//Show it	    	
 	    }
                
         var frmData = Ext.create('Ext.form.Panel',{
@@ -92,7 +136,7 @@ Ext.define('Rd.view.bans.winEditBan', {
                     fieldLabel  : 'MAC',
                     allowBlank  : false,
                     blankText   : 'Specify A MAC Address',
-					vtype       : 'MacAddress',
+					vtype       : 'MacColon',
 					fieldStyle  : 'text-transform:uppercase',
                     itemId      : 'txtMac',
                     margin      : Rd.config.fieldMargin +5,
@@ -128,29 +172,15 @@ Ext.define('Rd.view.bans.winEditBan', {
 					columns		: 3,
 					vertical	: false,
 					items		: [
-						{ boxLabel: 'Block', 	   name: 'action', inputValue: 'block', checked: true ,margin: 2 },
-						{ boxLabel: 'Speed Limit', name: 'action', inputValue: 'limit',margin: 2 }
+						{ boxLabel: 'Block', 	   name: 'action', inputValue: 'block', checked: rb_block ,margin: 2 },
+						{ boxLabel: 'Speed Limit', name: 'action', inputValue: 'limit', checked: rb_limit ,margin: 2 }
 					],
 					listeners   : {
 				        change  : 'rgrpActionChange'
 			        }
 				},
-				{
-		            xtype       : 'rdSliderSpeed',
-		            sliderName  : 'limit_upload',
-		            itemId		: 'bw_up',
-		            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up",
-		            hidden		: true,
-		            disabled	: true
-		        },
-                {
-		            xtype       : 'rdSliderSpeed',
-		            sliderName  : 'limit_download',
-		            itemId		: 'bw_down',
-		            fieldLabel  : "<i class='fa fa-arrow-down'></i> Down",
-		            hidden		: true,
-		            disabled	: true
-		        }                
+				sldrUpload,
+                sldrDownload                
             ]
         });
         me.items = frmData; 

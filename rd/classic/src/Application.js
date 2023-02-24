@@ -149,6 +149,12 @@ Ext.define('Rd.Application', {
             },
             MacAddressMask: /[a-fA-F0-9\-]/,
             MacAddressText: i18n('sExample') + ': 01-23-45-67-89-AB',
+            
+            MacColon: function(v) {
+                return (/^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/).test(v);
+            },
+            MacColonMask: /[a-fA-F0-9\:]/,
+            MacColonText: i18n('sExample') + ': 01:23:45:67:89:AB',
          
             //__ Hostname __
             DnsName: function(v) {
