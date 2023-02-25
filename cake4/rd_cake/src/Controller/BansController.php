@@ -21,6 +21,7 @@ class BansController extends AppController {
         $this->loadModel('ApProfiles');
         $this->loadModel('MacAliases');
         $this->loadModel('ClientMacs');
+        $this->loadModel('MacAliases');
         
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -77,7 +78,12 @@ class BansController extends AppController {
      		
      		//Bools
             if($f->operator == '=='){
-                 array_push($where_clause,['MacActions.cloud_id' => $cloud_id]);
+            	if(($f->property == 'cloud_wide')&&($f->value == true)){
+                 	array_push($where_clause,['MacActions.cloud_id' => $cloud_id]);
+                }
+                if(($f->property == 'cloud_wide')&&($f->value == false)){
+                 	array_push($where_clause,['MacActions.cloud_id IS' => null]);
+                }
             }
             
             if(($f->operator == 'gt')||($f->operator == 'lt')||($f->operator == 'eq')){
@@ -230,7 +236,7 @@ class BansController extends AppController {
         
         $add_data	= [];
         $req_d 		= $this->request->getData();
-       	$cloud_id 	= $req_d['cloud_id'];
+       	$cloud_id 	= $req_d['cloud_id'];   	
        	
        	if($req_d['scope'] == 'cloud_wide'){
    			$add_data['cloud_id']	= $cloud_id;
@@ -243,7 +249,27 @@ class BansController extends AppController {
        	}
        	    	
        	$mac = str_replace('-', ':', $req_d['mac']);
-       	$mac = strtoupper($mac);      	
+       	$mac = strtoupper($mac);
+       	
+       	//Test the MAC Address
+       	if($req_d['alias'] == ''){
+        	$ad = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id' => $cloud_id])->first();
+        	if($ad){
+        		$this->{'MacAliases'}->delete($ad);
+        	}          	
+       	}
+       	     	
+       	if($req_d['alias'] !== ''){
+       		$alias = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id' => $cloud_id])->first();
+       		if($alias){
+       			$alias->alias = $req_d['alias'];//Update it
+       			$this->{'MacAliases'}->save($alias);
+       		}else{
+       			$a = $this->{'MacAliases'}->newEntity(['mac' => $mac,'cloud_id' => $cloud_id,'alias' => $req_d['alias']]);
+       			$this->{'MacAliases'}->save($a);
+       		}
+       	}       	      	
+       	      	
        	$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
 		if(!$e_mac){			
 			$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $mac]);
@@ -320,8 +346,10 @@ class BansController extends AppController {
             return;
         }
         
-        $req_d 	= $this->request->getData();        
-        $id		= $req_d['id'];
+        $req_d 		= $this->request->getData();        
+        $id			= $req_d['id'];
+        $cloud_id 	= $req_d['cloud_id'];
+        $scope		= $req_d['scope'];
         
         $current_ent = $this->{'MacActions'}->find()->where(['MacActions.id' => $id])->first();
         if(!$current_ent){
@@ -329,11 +357,121 @@ class BansController extends AppController {
 		   	return;                     
         }
         
-      /*  if($current_ent->cloud_id){
-        	if($req_d['scope'] !== 'cloud_wide'){
-        	
-        	}
-        }*/
+        $mac = str_replace('-', ':', $req_d['mac']);
+       	$mac = strtoupper($mac);
+        
+        
+        //Test the MAC Address
+        if($req_d['alias'] == ''){
+        	$a_delete = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id' => $cloud_id])->first();
+        	if($a_delete){
+        		$this->{'MacAliases'}->delete($a_delete);
+        	}          	
+       	}
+       	
+       	if($req_d['alias'] !== ''){     	
+       		$a_view = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id' => $cloud_id])->first();
+       		if($a_view){
+       			$a_view->alias = $req_d['alias'];//Update it
+       			$this->{'MacAliases'}->save($a_view);
+       		}else{
+       			$a_add = $this->{'MacAliases'}->newEntity(['mac' => $mac,'cloud_id' => $cloud_id,'alias' => $req_d['alias']]);
+       			$this->{'MacAliases'}->save($a_add);
+       		}
+       	}
+       	
+       	//Update / change of MAC Address
+       	$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
+		if(!$e_mac){			
+			$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $mac]);
+			$this->{'ClientMacs'}->save($e_mac);
+			$current_ent->client_mac_id = $e_mac->id;
+			$this->{'MacActions'}->save($current_ent);	
+		}else{
+			if($e_mac->id !== $current_ent->client_mac_id){
+				$current_ent->client_mac_id = $e_mac->id;
+				$this->{'MacActions'}->save($current_ent);		
+			}
+		}       
+       	           
+        //If the orig one has cloud ID and the new one has mesh_id
+        if(isset($req_d['mesh_id'])){
+       		if($current_ent->cloud_id){
+       			$current_ent->cloud_id = null;
+       			$current_ent->ap_profile_id = null;
+       			$current_ent->mesh_id =	$req_d['mesh_id'];
+       			$this->{'MacActions'}->save($current_ent);		
+       		}
+       		if($current_ent->ap_profile_id){
+       			$current_ent->ap_profile_id = null;
+       			$current_ent->cloud_id = null;
+       			$current_ent->mesh_id  = $req_d['mesh_id'];
+       			$this->{'MacActions'}->save($current_ent);		
+       		}      		
+       	}
+       	
+       	//If the origin one has cloud ID and the new one has ap profile
+       	if(isset($req_d['ap_profile_id'])){
+       		if($current_ent->cloud_id){
+       			$current_ent->cloud_id = null;
+       			$current_ent->mesh_id = null;
+       			$current_ent->ap_profile_id  =	$req_d['ap_profile_id'];
+       			$this->{'MacActions'}->save($current_ent);		
+       		}
+       		if($current_ent->mesh_id){
+       			$current_ent->mesh_id = null;
+       			$current_ent->cloud_id = null;
+       			$current_ent->ap_profile_id  =	$req_d['ap_profile_id'];
+       			$this->{'MacActions'}->save($current_ent);		
+       		}     		
+       	}
+       	
+       	if($scope == 'cloud_wide'){
+       		if($current_ent->mesh_id){
+       			$current_ent->mesh_id = null;
+       			$current_ent->cloud_id = $cloud_id;
+       			$this->{'MacActions'}->save($current_ent);
+       		}
+       		if($current_ent->ap_profile_id){
+       			$current_ent->ap_profile_id = null;
+       			$current_ent->cloud_id = $cloud_id;
+       			$this->{'MacActions'}->save($current_ent);
+       		}   	
+       	}
+       	
+       	if($req_d['action'] == 'limit'){ 
+       	  	      	
+	   		$d_amount 	= $req_d['limit_download_amount'];
+	   		$d_unit 	= $req_d['limit_download_unit'];
+	   		if($d_unit == 'mbps'){
+	   			$bw_down = ($d_amount * 1000) / 8;
+	   		}
+	   		if($d_unit == 'kbps'){
+	   			$bw_down = $d_amount / 8;
+	   		}
+	   		
+	   		$u_amount 	= $req_d['limit_upload_amount'];
+	   		$u_unit 	= $req_d['limit_upload_unit'];
+	   		if($u_unit == 'mbps'){
+	   			$bw_up = ($u_amount * 1000) / 8;
+	   		}
+	   		if($u_unit == 'kbps'){
+	   			$bw_up = $u_amount / 8;
+	   		}
+		
+	   		$current_ent->action = 'limit';
+	   		$current_ent->bw_up = $bw_up;
+	   		$current_ent->bw_down = $bw_down;
+	   		$this->{'MacActions'}->save($current_ent);	   			   		
+	   	}
+	   	
+	   	if($req_d['action'] == 'block'){
+	   		$current_ent->action = 'block';
+	   		$current_ent->bw_up = null;
+	   		$current_ent->bw_down = null;
+	   		$this->{'MacActions'}->save($current_ent);	   	
+	   	}
+          	
            	
 	   	$this->set([
             'success' => true

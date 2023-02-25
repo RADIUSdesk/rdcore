@@ -72,7 +72,7 @@ Ext.define('Rd.view.bans.gridBans' ,{
                        
         me.columns  = [
 			{ text: i18n('sMAC_address'),   dataIndex: 'mac',       tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridBan1'},
-			{ text: 'Alias',   				dataIndex: 'alias',     tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridBan2'},
+			{ text: 'Alias',   				dataIndex: 'alias',     tdCls: 'gridTree', flex: 1,stateId: 'StateGridBan2'},
 			{ 
 				text		: 'Cloud Wide',
 				dataIndex	: 'cloud_wide',
@@ -80,8 +80,8 @@ Ext.define('Rd.view.bans.gridBans' ,{
 				flex		: 1,
 				xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<tpl if='cloud_wide == true'><div class=\"fieldGreen\"><i class=\"fa fa-check-circle\"></i> "+i18n("sYes")+"</div></tpl>",
-                    "<tpl if='cloud_wide == false'><div class=\"fieldGrey\"><i class=\"fa fa-times-circle\"></i> "+i18n("sNo")+"</div></tpl>"
+                    "<tpl if='cloud_wide == true'><div style='text-align:left;' class=\"fieldGreen\"><i class=\"fa fa-check-circle\"></i> "+i18n("sYes")+"</div></tpl>",
+                    "<tpl if='cloud_wide == false'><div style='text-align:left;' class=\"fieldGrey\"><i class=\"fa fa-times-circle\"></i> "+i18n("sNo")+"</div></tpl>"
                 ),
 				filter      : {
                     type            : 'boolean',
@@ -98,10 +98,10 @@ Ext.define('Rd.view.bans.gridBans' ,{
 				flex		: 1,
 				xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<tpl if='mesh_id'><div class=\"fieldGreen\"><span style='font-family:FontAwesome;'>&#xf20e;</span> {mesh_name}</div>",
+                    "<tpl if='mesh_id'><div style='text-align:left;' class=\"fieldGreen\"><span style='font-family:FontAwesome;'>&#xf20e;</span> {mesh_name}</div>",
                     "<tpl else>",
-                    	"<tpl if='cloud_wide == true'><div class=\"fieldGrey\"><i class=\"fa fa-info-circle\"></i> All Mesh Networks</div></tpl>",
-                    	"<tpl if='cloud_wide == false'><div class=\"fieldGrey\"><i class=\"fa fa-minus\"></i></div></tpl>",
+                    	"<tpl if='cloud_wide == true'><div style='text-align:left;' class=\"fieldGrey\"><i class=\"fa fa-info-circle\"></i> All Mesh Networks</div></tpl>",
+                    	"<tpl if='cloud_wide == false'><div style='text-align:left;' class=\"fieldGrey\"><i class=\"fa fa-minus\"></i></div></tpl>",
                     "</tpl>"
                 ),
 				filter: {type: 'string'},
@@ -114,10 +114,10 @@ Ext.define('Rd.view.bans.gridBans' ,{
 				flex		: 1,
 				xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<tpl if='ap_profile_id'><div class=\"fieldGreen\"><i class=\"fa fa-cubes\"></i> {ap_profile_name}</div>",
+                    "<tpl if='ap_profile_id'><div style='text-align:left;' class=\"fieldGreen\"><i class=\"fa fa-cubes\"></i> {ap_profile_name}</div>",
                     "<tpl else>",
-                    	"<tpl if='cloud_wide == true'><div class=\"fieldGrey\"><i class=\"fa fa-info-circle\"></i> All AP Profiles</div></tpl>",
-                    	"<tpl if='cloud_wide == false'><div class=\"fieldGrey\"><i class=\"fa fa-minus\"></i></div></tpl>",
+                    	"<tpl if='cloud_wide == true'><div style='text-align:left;' class=\"fieldGrey\"><i class=\"fa fa-info-circle\"></i> All AP Profiles</div></tpl>",
+                    	"<tpl if='cloud_wide == false'><div style='text-align:left;' class=\"fieldGrey\"><i class=\"fa fa-minus\"></i></div></tpl>",
                     "</tpl>"
                 ),
 				filter: {type: 'string'},
@@ -130,8 +130,8 @@ Ext.define('Rd.view.bans.gridBans' ,{
 				flex		: 1,
 				xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<tpl if='action == \"block\"'><div class=\"fieldRed\"><i class=\"fa fa-ban\"></i> Block</div></tpl>",
-                    "<tpl if='action == \"limit\"'><div class=\"fieldGreen\"><span style=\"font-family:FontAwesome;\">&#xf0e4;</span> <span style=\"font-size:75%;color:#cc6600;\">(<i class=\"fa fa-arrow-circle-down\"></i> {bw_down} {bw_down_suffix} / <i class=\"fa fa-arrow-circle-up\"></i> {bw_up} {bw_up_suffix} )</span></div></tpl>"                    
+                    "<tpl if='action == \"block\"'><div style='text-align:left;' class=\"fieldRed\"><i class=\"fa fa-ban\"></i> Block</div></tpl>",
+                    "<tpl if='action == \"limit\"'><div style='text-align:left;' class=\"fieldGreen\"><span style=\"font-family:FontAwesome;\">&#xf0e4;</span> <span style=\"font-size:75%;color:#cc6600;\">(<i class=\"fa fa-arrow-circle-down\"></i> {bw_down} {bw_down_suffix} / <i class=\"fa fa-arrow-circle-up\"></i> {bw_up} {bw_up_suffix} )</span></div></tpl>"                    
                 ),
 				stateId		: 'StateGridBan6'
 			},
