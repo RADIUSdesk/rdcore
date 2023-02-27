@@ -2066,7 +2066,8 @@ var sConnect = (function () {
                     if(data.success){
                         //Hide reg / show login
                         $("#modalOtp").modal('hide');
-                        $("#modalLogin").modal('show');             
+                        $("#modalLogin").modal('show');
+                        tempDisconnect();            
                     }else{
                         $('#alertInfoOtp').removeClass('show');
                         $('#alertWarnOtp').html(data.message);
