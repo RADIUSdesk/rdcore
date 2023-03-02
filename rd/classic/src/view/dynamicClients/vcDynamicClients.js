@@ -10,14 +10,26 @@ Ext.define('Rd.view.dynamicClients.vcDynamicClients', {
     onCmbNasTypesChange : function(cmb){
         var me      = this;
         var form    = cmb.up('form');
-        var cnt     = form.down('#pnlMikrotik');  
+        var cnt     = form.down('#pnlMikrotik');
+        var cntPsk  = form.down('#pnlPrivatePsk');
+        
+          
         if(cmb.getValue() == 'Mikrotik-API'){
             cnt.setHidden(false);
-            cnt.setDisabled(false); 
-        }else{
+            cnt.setDisabled(false);
+            cntPsk.setHidden(true);
+            cntPsk.setDisabled(true); 
+        }else if(cmb.getValue() == 'private_psk'){
+        	cntPsk.setHidden(false);
+            cntPsk.setDisabled(false); 
             cnt.setHidden(true);
             cnt.setDisabled(true);    
-        } 
+        }else{
+        	cnt.setHidden(true);
+            cnt.setDisabled(true);
+            cntPsk.setHidden(true);
+            cntPsk.setDisabled(true);  
+        }
     },
     onMikrotikTestClick : function(btn){
         var me      = this;

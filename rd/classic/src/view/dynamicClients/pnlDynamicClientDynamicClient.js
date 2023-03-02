@@ -246,6 +246,39 @@ Ext.define('Rd.view.dynamicClients.pnlDynamicClientDynamicClient', {
             ]
         };
         
+        var pnlPrivatePsk = {
+            xtype   : 'panel',
+            itemId  : 'pnlPrivatePsk',
+            hidden  : true,
+            disabled: true,
+            bodyStyle   : 'background: #e0ebeb',
+            items   : [
+                {
+                    xtype       	: 'textfield',
+                    fieldLabel  	: 'Default Key',
+                    name        	: 'ppsk_default_key',
+                    itemId      	: 'default_key',
+                    minLength   	: 8,
+                    width           : w_sec,
+                    allowBlank  	: false,  
+                    blankText   	: i18n("sSupply_a_value"),
+                    labelClsExtra	: 'lblRdReq'
+                },
+                {
+                    xtype           : 'numberfield',
+                    fieldLabel      : 'Default VLAN',
+                    name            : 'ppsk_default_vlan',
+                    width           : w_sec,
+                    value       	: 0,
+                    maxValue    	: 4094,
+                    minValue    	: 0,
+                    hideTrigger     : true,
+                    keyNavEnabled   : false,
+                    mouseWheelEnabled: false
+                }                  
+            ]
+        };
+                
         var cntRequired  = {
             xtype       : 'container',
             width       : w_prim,
@@ -288,7 +321,8 @@ Ext.define('Rd.view.dynamicClients.pnlDynamicClientDynamicClient', {
 		                change : 'onCmbNasTypesChange'
 			        } 
                 },
-                pnlMikrotik  
+                pnlMikrotik,
+                pnlPrivatePsk 
             ]
         }
         

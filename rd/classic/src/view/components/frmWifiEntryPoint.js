@@ -245,7 +245,10 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                                 minValue    : 0,
                                 labelClsExtra: 'lblRdReq',
                                 hidden      : true,
-                                disabled    : true
+                                disabled    : true,
+                                hideTrigger : true,
+                    			keyNavEnabled   	: false,
+                    			mouseWheelEnabled	: false
                             },
                             {
                                 xtype       : 'textfield',

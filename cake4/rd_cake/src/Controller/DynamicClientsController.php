@@ -408,7 +408,7 @@ class DynamicClientsController extends AppController{
            
             //See if there are Mikrotik specific settings that has to go to DynamicClientSettings
             foreach(array_keys($cdata) as $key){
-                if(preg_match('/^mt_/',$key)){
+                if(preg_match('/^(mt_)|(ppsk_)/',$key)){
                		$s_data 			= [];
                		$s_data['name'] 	= $key;
                		$s_data['value'] 	= $cdata[$key];
