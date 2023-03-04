@@ -90,6 +90,21 @@ if not exists (select * from information_schema.columns
     alter table dynamic_clients add column `default_key` varchar(255) NOT NULL DEFAULT '12345678';
 end if;
 
+if not exists (select * from information_schema.columns
+    where table_name = 'dynamic_client_macs' and table_schema = 'rd') then
+	CREATE TABLE `dynamic_client_macs` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `dynamic_client_id` int(11) DEFAULT NULL,
+      `client_mac_id` int(11) DEFAULT NULL,
+      `created` datetime NOT NULL,
+      `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`),
+      CONSTRAINT dc_mac UNIQUE (dynamic_client_id,client_mac_id)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
+end if;
+
+
 
 end//
 
