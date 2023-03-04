@@ -29,7 +29,8 @@ if not exists (select * from information_schema.columns
       `mac` varchar(17) DEFAULT NULL,
       `created` datetime NOT NULL,
       `modified` datetime NOT NULL,
-      PRIMARY KEY (`id`)
+      PRIMARY KEY (`id`),
+      UNIQUE (mac)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 end if;

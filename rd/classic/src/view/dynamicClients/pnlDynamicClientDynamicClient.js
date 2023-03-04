@@ -275,6 +275,12 @@ Ext.define('Rd.view.dynamicClients.pnlDynamicClientDynamicClient', {
                     hideTrigger     : true,
                     keyNavEnabled   : false,
                     mouseWheelEnabled: false
+                },
+                {
+                    xtype       	: 'checkbox',      
+                    fieldLabel  	: 'Log Client MAC',
+                    name        	: 'ppsk_record_mac',
+                    checked     	: false
                 }                  
             ]
         };

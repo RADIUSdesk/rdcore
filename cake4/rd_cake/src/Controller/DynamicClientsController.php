@@ -391,7 +391,7 @@ class DynamicClientsController extends AppController{
             //Unfortunately there are many check items which means they will not be in the POST if unchecked
             //so we have to check for them
             $check_items = [
-                'active', 'on_public_maps', 'session_auto_close','data_limit_active','daily_data_limit_active'
+                'active', 'on_public_maps', 'session_auto_close','data_limit_active','daily_data_limit_active','ppsk_record_mac'
             ];
 
             foreach($check_items as $i){
