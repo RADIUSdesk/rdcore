@@ -22,6 +22,8 @@ class DevicesController extends AppController{
         $this->loadModel('Users');
         $this->loadModel('Realms');
         $this->loadModel('Profiles');
+        $this->loadModel('DynamicClientMacs');
+        $this->loadModel('DynamicClients');
         
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -223,9 +225,10 @@ class DevicesController extends AppController{
             }  
         }
         
-        $check_items = array(
-			'active'
-		);
+        $check_items = [
+			'active',
+			'dynamic_client_mac'
+		];
 
         foreach($check_items as $i){
             if(isset($req_d[$i])){
@@ -241,9 +244,17 @@ class DevicesController extends AppController{
         $entity = $this->{$this->main_model}->newEntity($req_d);
          
         if($this->{$this->main_model}->save($entity)){
-            $this->set(array(
+        	
+        	if($req_d['dynamic_client_mac'] == 1){
+        		$cloud_id = $req_d['cloud_id'];      	
+        		$list_dcm = $this->{'DynamicClientMacs'}->find()->where(['DynamicClients.cloud_id' =>$cloud_id, 'ClientMacs.mac'=> $req_d['name']])->contain(['ClientMacs','DynamicClients'])->all();
+        		foreach($list_dcm as $dcm){
+        			$this->{'DynamicClientMacs'}->delete($dcm);
+        		}        	
+        	}        	      
+            $this->set([
                 'success' => true
-            ));
+            ]);
             $this->viewBuilder()->setOption('serialize', true);
         }else{
             $message = __('Could not create item');

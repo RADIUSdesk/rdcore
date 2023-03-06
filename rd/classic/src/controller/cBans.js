@@ -32,8 +32,6 @@ Ext.define('Rd.controller.cBans', {
         urlAdd          : '/cake4/rd_cake/bans/index.json',
     },
     refs: [
-     //   {  ref: 'gridNas',  selector:   'gridNas'},
-     //   {  ref: 'grid',     selector:   'gridNas'}
      	 {  ref: 'tabMeshes',        selector: '#tabMainNetworks' }        
     ],
     init: function() {
@@ -45,18 +43,5 @@ Ext.define('Rd.controller.cBans', {
         me.control({
            
         });
-    },
-    reload: function(){
-        var me =this;
-        if(me.getGrid() == undefined){   //Thw window is closed; exit
-            clearInterval(me.autoReload);
-            return;
-        }
-        me.getGrid().getSelectionModel().deselectAll(true);
-        me.getGrid().getStore().load();
-    },
-    gridActivate: function(g){
-        var me = this;
-        me.getGrid().getStore().load();
     }
 });

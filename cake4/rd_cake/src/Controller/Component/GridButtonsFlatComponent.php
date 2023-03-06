@@ -287,6 +287,15 @@ class GridButtonsFlatComponent extends Component {
             'ui'        => $this->btnUiByod
         ];
         
+        $this->btnUnknownDevices = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnQuestion'), 
+            'scale'     => $this->scale,
+            'itemId'    => 'unclaimed_devices',
+            'tooltip'   => __('Devices Without Owners'),
+            'ui'        => $this->btnUiUnknownClients
+        ];
+        
         $this->btnProfComp = [
             'xtype'     => 'button', 
             'glyph'     => Configure::read('icnComponent'), 
@@ -485,6 +494,20 @@ class GridButtonsFlatComponent extends Component {
             $a  = $this->_fetchPermanentUserExtras();
             $menu = [$b,$d,$a];
         }
+        
+        if($type == 'DynamicClientMacs'){
+        	$menu = [
+            'xtype' => 'buttongroup',
+            'title' => null, 
+            'items' => [
+		            $this->btnReload,
+		            $this->btnAttach,
+		            $this->btnDelete,
+		            $this->btnEdit,
+		        ]
+        	];
+        }
+        
         
          if($type == 'devices'){
             $b  = $this->_fetchBasic(true);
@@ -932,7 +955,8 @@ class GridButtonsFlatComponent extends Component {
                $this->btnEnable,
                $this->btnRadius,
                $this->btnGraph,
-               $this->btnByod
+               $this->btnByod,
+               $this->btnUnknownDevices
             ]
         ];                   
         return $menu;
