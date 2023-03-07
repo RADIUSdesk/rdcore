@@ -46,6 +46,8 @@ class ApHelper22Component extends Component {
     
     protected $ppsk_flag		= false;
     
+    protected $stp_dflt			= 0;
+    protected $acct_interval	= 300;
 
 
     public function initialize(array $config):void{
@@ -634,7 +636,7 @@ class ApHelper22Component extends Component {
 	                        "options"   => [
 	                        	"name"		=> "br-$interfaces",
 	                            "type"      => "bridge",
-	                            'stp'       => 1,
+	                            'stp'       => $this->stp_dflt,
 	                       	],
 	                       	'lists'	=> [
 	                       		'ports'	=> $interfaces
@@ -692,7 +694,7 @@ class ApHelper22Component extends Component {
                         "options"   => [
                         	"name"		=> "br-$if_name",
                             "type"      => "bridge",
-                            'stp'       => 1,
+                            'stp'       => $this->stp_dflt,
                        	],
                        	'lists'	=> [
                        		'ports'	=> $interfaces
@@ -743,7 +745,7 @@ class ApHelper22Component extends Component {
 		                        "options"   => [
 		                        	"name"		=> "br-$if_name",
 		                            "type"      => "bridge",
-		                            'stp'       => 1,
+		                            'stp'       => $this->stp_dflt,
 		                       	],
 		                       	'lists'	=> [
 		                       		'ports'	=> $interfaces
@@ -759,7 +761,7 @@ class ApHelper22Component extends Component {
                                     'ipaddr'    =>  "10.210.".(100+$start_number).".1",
                                     'netmask'   =>  "255.255.255.0",
                                     'proto'     => 'static',
-                                    'stp'       => 1,
+                                    'stp'       => $this->stp_dflt,
                                     'delegate'  => 0
                             ]]
                         );
@@ -845,7 +847,7 @@ class ApHelper22Component extends Component {
 		                    "options"   => [
 		                    	"name"		=> "br-$if_name",
 		                        "type"      => "bridge",
-		                        'stp'       => 1,
+		                        'stp'       => $this->stp_dflt,
 		                   	],
 		                   	'lists'	=> [
 		                   		'ports'	=> $cp_interfaces
@@ -1328,6 +1330,7 @@ class ApHelper22Component extends Component {
                             if($ap_profile_e->accounting){
                                 $base_array['acct_server']	= $ap_profile_e->auth_server;
                                 $base_array['acct_secret']	= $ap_profile_e->auth_secret;
+                                $base_array['acct_interval']= $this->acct_interval;
                             }
                             
                             //==OCT 2022== Private PSK Support ==
