@@ -758,13 +758,16 @@ var sConnect = (function () {
                         	onBtnClickToConnectClick(event); //Fire the click to Connect Button's Click event
                         }                         
                     }else{
-                        console.log("PROBLEMS POSTING INFOR FOR MAC");                          
+                   		console.log("PROBLEMS POSTING INFO FOR MAC"); 
+                        $('#alertWarnCustInfo').html(j.message);
+                        $('#alertWarnCustInfo').addClass('show');                       
                     }         
                 })
                 .fail(function(){
-                    console.log("ERROR -> Posting Info for MAC"); 
-                });    
-            
+                    console.log("ERROR -> Posting Info for MAC");
+                    $('#alertWarnCustInfo').html("ERROR -> Posting Info for MAC");
+                    $('#alertWarnCustInfo').addClass('show'); 
+                });            
             }
             form.classList.add('was-validated')          
         }
