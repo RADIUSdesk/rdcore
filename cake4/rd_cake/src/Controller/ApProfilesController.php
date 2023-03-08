@@ -248,21 +248,41 @@ class ApProfilesController extends AppController {
         if(!$user){
             return;
         }
-
-        $entryEntity = $this->ApProfileEntries->newEntity($this->request->getData());
+        
+        $cdata = $this->request->getData();
+        
+        $check_items = ['hidden','isolate','chk_maxassoc','accounting','auto_nasid','chk_schedule'];
+        foreach($check_items as $i){
+            if(isset($cdata[$i])){
+                $cdata[$i] = 1;
+            }else{
+                $cdata[$i] = 0;
+            }
+        }
+        
+        $entryEntity = $this->ApProfileEntries->newEntity($cdata);
         if ($this->ApProfileEntries->save($entryEntity)) {
             $id = $entryEntity->id;
-            if(null !== $this->request->getData('auto_nasid')){
-                $q_r = $this->ApProfiles->find()->where(['id' => $this->request->getData('ap_profile_id')])->first();
-                $app_name = $q_r->name;
-                $ap_profile_name_underscored = preg_replace('/\s+/', '_', $app_name);
-                $ap_profile_name_underscored = strtolower($ap_profile_name_underscored);
-                $nasid = $ap_profile_name_underscored.'_apeap_'.$id;
-                $entry->saveField("nasid","$nasid");
+            if($cdata['auto_nasid'] == 1){
+                $ssid_underscored = preg_replace('/\s+/', '_', $cdata['name']);
+                $ssid_underscored = strtolower($ssid_underscored);
+                $ssid_underscored = (strlen($ssid_underscored) > 5) ? substr($ssid_underscored,0,5): $ssid_underscored;//Not longer than 5 chars
+                $client_type = '_apeap_';
+                if($cdata['encryption'] == 'ppsk'){
+                	$client_type = '_apppsk_';
+                }
+                $cdata['nasid'] = $ssid_underscored.$client_type.$this->request->getData('id');
+                $client_type = '_apeap_';
+                if($cdata['encryption'] == 'ppsk'){
+                	$client_type = '_apppsk_';
+                }
+                $nasid = $ssid_underscored.$client_type.$id;
+                $entryEntity->nasid = $nasid;
+                $this->ApProfileEntries->save($entryEntity);
             }
             
             $id = $entryEntity->id;            
-            if($this->request->getData('chk_schedule')){            	
+            if($cdata['chk_schedule'] == 1){          	
             	$schedule 	= $this->request->getData('schedules'); 
             	$this->_entry_schedule($id,$schedule);
             }
@@ -289,27 +309,29 @@ class ApProfilesController extends AppController {
         }
 
         $cdata = $this->request->getData();
+        $check_items = ['hidden','isolate','apply_to_all','chk_maxassoc','accounting','auto_nasid','chk_schedule'];
+        foreach($check_items as $i){
+            if(isset($cdata[$i])){
+                $cdata[$i] = 1;
+            }else{
+                $cdata[$i] = 0;
+            }
+        }
 
         if ($this->request->is('post')) {
         
              //Check if we have to auto gen this nasid
-            if(null !== $this->request->getData('auto_nasid')){
-                $q_r = $this->ApProfiles->find()->where(['id' => $this->request->getData('ap_profile_id')])->first();
-                $app_name = $q_r->name;
-                $ap_profile_name_underscored = preg_replace('/\s+/', '_', $app_name);
-                $ap_profile_name_underscored = strtolower($ap_profile_name_underscored);
-                $cdata['nasid'] = $ap_profile_name_underscored.'_apeap_'.$this->request->getData('id');
-            }
-
-            $check_items = ['hidden','isolate','apply_to_all','chk_maxassoc','accounting','auto_nasid','chk_schedule'];
-            foreach($check_items as $i){
-                if(isset($cdata[$i])){
-                    $cdata[$i] = 1;
-                }else{
-                    $cdata[$i] = 0;
+            if($cdata['auto_nasid'] == 1){
+                $ssid_underscored = preg_replace('/\s+/', '_', $cdata['name']);
+                $ssid_underscored = strtolower($ssid_underscored);
+                $ssid_underscored = (strlen($ssid_underscored) > 5) ? substr($ssid_underscored,0,5): $ssid_underscored;//Not longer than 5 chars
+                $client_type = '_apeap_';
+                if($cdata['encryption'] == 'ppsk'){
+                	$client_type = '_apppsk_';
                 }
+                $cdata['nasid'] = $ssid_underscored.$client_type.$this->request->getData('id');
             }
-            
+        
             $entity = $this->{'ApProfileEntries'}->get($cdata['id']);
             $this->{'ApProfileEntries'}->patchEntity($entity, $cdata);
             if ($this->{'ApProfileEntries'}->save($entity)) {
@@ -317,16 +339,14 @@ class ApProfilesController extends AppController {
                     'success' => true
                 ]);
             }
-            
+                        
             $id 		= $cdata['id'];            
-            if($cdata['chk_schedule'] == 1){
-            	
+            if($cdata['chk_schedule'] == 1){         	
             	$schedule 	= $cdata['schedules']; 
             	$this->_entry_schedule($id,$schedule);
             }else{
             	$this->ApProfileEntrySchedules->deleteAll(['ApProfileEntrySchedules.ap_profile_entry_id' => $id]); 
-            }
-                       
+            }                       
             $this->viewBuilder()->setOption('serialize', true);
         } 
     }
