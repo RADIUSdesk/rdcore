@@ -56,7 +56,7 @@ class AutoAddDevicesShell extends Shell {
             //Find the Permanent user that this device belongs to:
             $q_r = $this->{'PermanentUsers'}->find()->contain(['Radchecks','Users'])->where(['PermanentUsers.username' => $username])->first();
             if($q_r){
-
+              
                 //Gather the relevant info (We only need the user_id and profile_id
                 $profile_id    = false;
                 foreach($q_r->radchecks as $rc){
@@ -82,10 +82,9 @@ class AutoAddDevicesShell extends Shell {
                     $d      = [];
                     $d['profile_id']  		    = $profile_id;
                     $d['profile']  		        = $profile;
-                    
+                    $d['cloud_id']				= $q_r->cloud_id;                    
                     $d['realm_id']              = $realm_id;
-                    $d['realm']                 = $realm;
-               
+                    $d['realm']                 = $realm;          
                     $d['permanent_user_id']     = $q_r->id;
                     $d['rd_device_owner']       = $username; //NB to have this
                     $d['name']        		    = $mac;
