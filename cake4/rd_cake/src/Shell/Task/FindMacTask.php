@@ -22,6 +22,7 @@ class FindMacTask extends Shell {
 
     private function _lookup_vendor($mac){
         $vendor_file = ROOT.DS."setup".DS."scripts".DS."mac_lookup.txt";
+               
         $this->out("<info>Looking up vendor from file: $vendor_file </info>");
 
         //Convert the MAC to be in the same format as the file 
@@ -58,6 +59,7 @@ class FindMacTask extends Shell {
             }
         }
         $vendor = "Unkown";
+        
     }
 
 }

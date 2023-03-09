@@ -54,7 +54,7 @@ class AutoAddDevicesShell extends Shell {
             $vendor = $this->FindMac->return_vendor_for_mac($mac);
             
             //Find the Permanent user that this device belongs to:
-            $q_r = $this->{'PermanentUsers'}->find()->contain(['Radchecks','Users'])->where(['PermanentUsers.username' => $username])->first();
+            $q_r = $this->{'PermanentUsers'}->find()->contain(['Radchecks','Clouds' => ['Users']])->where(['PermanentUsers.username' => $username])->first();
             if($q_r){
               
                 //Gather the relevant info (We only need the user_id and profile_id
@@ -78,8 +78,8 @@ class AutoAddDevicesShell extends Shell {
                 }
                 if($profile_id){
                 
-                    $token  = $q_r->user->token;
-                    $d      = [];
+                   $token  = $q_r->cloud->user->token;
+                    $d     = [];
                     $d['profile_id']  		    = $profile_id;
                     $d['profile']  		        = $profile;
                     $d['cloud_id']				= $q_r->cloud_id;                    
@@ -94,9 +94,10 @@ class AutoAddDevicesShell extends Shell {
                     $d['track_acct']  		    = true;
                     
                     $http = new Client();
-                    $baseUrl = Configure::read('App.fullBaseUrl');
-		            $response = $http->post($baseUrl."/cake4/rd_cake/devices/add.json?token=$token",$d);
-		            $this->out("<info>".$response->body."</info>");
+                    //$baseUrl = Configure::read('App.fullBaseUrl');
+                    
+		            $response = $http->post("http://127.0.0.1/cake4/rd_cake/devices/add.json?token=$token",$d);
+		            $this->out("<info>".$response->getBody()."</info>");
                     $this->out("<info>Added device $mac as Auto add ( $vendor )</info>");
                 }
 
