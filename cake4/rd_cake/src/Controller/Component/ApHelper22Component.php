@@ -632,9 +632,9 @@ class ApHelper22Component extends Component {
                 
                 	array_push($network,
 	                    [
-	                        "device"    => "br-$interfaces",
+	                        "device"    => "br-$if_name",
 	                        "options"   => [
-	                        	"name"		=> "br-$interfaces",
+	                        	"name"		=> "br-$if_name",
 	                            "type"      => "bridge",
 	                            'stp'       => $this->stp_dflt,
 	                       	],
@@ -643,15 +643,6 @@ class ApHelper22Component extends Component {
 	                       	]                          
 	                    ]
 	                );               		    
-
-                    array_push($network,
-                        [
-                            "interface"    => "$if_name",
-                            "options"   => [
-                                "device"    => "br-$interfaces",
-                                "type"      => "bridge"
-                        ]]
-                    );
                     $start_number++;
                     continue;   //We don't care about the other if's
                 }
