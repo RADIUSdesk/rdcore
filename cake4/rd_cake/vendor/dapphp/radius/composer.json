@@ -1,0 +1,36 @@
+{
+    "name": "dapphp/radius",
+    "description": "A pure PHP RADIUS client based on the SysCo/al implementation",
+    "type": "library",
+    "keywords": ["radius","authentication","authorization","pap","chap","ms-chap","ms-chap v2","rfc2865","rfc1994","rfc2284","rfc2869","rfc2759"],
+    "homepage": "https://github.com/dapphp/radius",
+    "require": {
+        "php": "^7.3 || ^8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5.13"
+    },
+    "suggest": {
+        "ext-openssl": "To support hashing required by Pear_CHAP"
+    },
+    "license": "LGPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Drew Phillips",
+            "email": "drew@drew-phillips.com",
+            "homepage": "https://drew-phillips.com/"
+        },
+        {
+            "name": "SysCo/al",
+            "homepage": "http://developer.sysco.ch/php/"
+        }
+    ],
+    "autoload": {
+        "psr-0": {
+            "Crypt_CHAP_": "lib/"
+        },
+        "psr-4": {
+            "Dapphp\\Radius\\": "src/"
+        }
+    }
+}
