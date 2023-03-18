@@ -457,7 +457,6 @@ class ApHelper22Component extends Component {
         }
         
         $wan_options = [
-            "ifname"    => "$wan_if",
             "proto"     => "dhcp"
         ];
                
@@ -642,7 +641,17 @@ class ApHelper22Component extends Component {
 	                       		'ports'	=> $interfaces
 	                       	]                          
 	                    ]
-	                );               		    
+	                );
+	                	                
+                    array_push($network,
+                        [
+                            "interface"    => "$if_name",
+                            "options"   => [
+                                "proto"		=> "none",
+                                "device"	=> "br-$if_name"
+                        ]]
+                    );
+                    	           	                               		    
                     $start_number++;
                     continue;   //We don't care about the other if's
                 }
