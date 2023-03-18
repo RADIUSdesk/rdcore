@@ -132,6 +132,7 @@ class ComposerStaticInitabb2ba0c71883bd4afbcadc9405415a6
             'DebugKit\\Test\\Fixture\\' => 22,
             'DebugKit\\' => 9,
             'Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\' => 55,
+            'Dapphp\\Radius\\' => 14,
         ),
         'C' => 
         array (
@@ -379,6 +380,10 @@ class ComposerStaticInitabb2ba0c71883bd4afbcadc9405415a6
         array (
             0 => __DIR__ . '/..' . '/dealerdirect/phpcodesniffer-composer-installer/src',
         ),
+        'Dapphp\\Radius\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/dapphp/radius/src',
+        ),
         'CsvView\\' => 
         array (
             0 => __DIR__ . '/..' . '/friendsofcake/cakephp-csvview/src',
@@ -475,6 +480,13 @@ class ComposerStaticInitabb2ba0c71883bd4afbcadc9405415a6
             'Detection' => 
             array (
                 0 => __DIR__ . '/..' . '/mobiledetect/mobiledetectlib/namespaced',
+            ),
+        ),
+        'C' => 
+        array (
+            'Crypt_CHAP_' => 
+            array (
+                0 => __DIR__ . '/..' . '/dapphp/radius/lib',
             ),
         ),
     );

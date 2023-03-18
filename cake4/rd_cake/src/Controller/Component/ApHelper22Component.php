@@ -48,6 +48,7 @@ class ApHelper22Component extends Component {
     
     protected $stp_dflt			= 0;
     protected $acct_interval	= 300;
+    protected $br_int			= 'eth0'; //bogus filler
 
 
     public function initialize(array $config):void{
@@ -443,6 +444,7 @@ class ApHelper22Component extends Component {
 
 
         $br_int     = $this->_wan_for($this->Hardware);
+        $this->br_int = $br_int;
         $version    = $this->getController()->getRequest()->getQuery('version');
         //SMALL HACK START 
 		$m = $this->getController()->getRequest()->getQuery('mac');
@@ -1356,7 +1358,7 @@ class ApHelper22Component extends Component {
 								$base_array['ppsk']			= '1';
 								$base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
 								$base_array['vlan_bridge']  = 'br-ex_vlan';
-								//$base_array['vlan_tagged_interface']  = 'lan1';//Is this needed
+								$base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
 								$base_array['vlan_naming']	= '0';
 								$base_array['nasid']		= $ap_profile_e->nasid;
 								
