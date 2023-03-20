@@ -39,9 +39,9 @@ class FupShell extends Shell {
         	$this->testActiveConnections();
         }else{
         	$this->out("<info>No FUP Profiles - Exit</info>");
-        }                  
+        }                 
     }
-    
+      
     private function testActiveConnections(){    
     	$e_ra = $this->{'Radaccts'}->find()->where(['Radaccts.acctstoptime IS NULL'])->all();
     	foreach($e_ra as $ra){ 
@@ -57,10 +57,14 @@ class FupShell extends Shell {
     		if($e_pu){
     			if(isset($this->fupProfiles[$e_pu->profile_id])){
     				$this->out("<info>Found FUP Profile for user</info>");
+    				$billing_cycle = false;	
+    				if(($e_pu->extra_name == 'BCStartDay')&&(intval($e_pu->extra_value) > 0)){
+    					$billing_cycle = $e_pu->extra_value;	
+    				}
     				$timezone 	= $this->getTimezone($ra->nasidentifier);
     				$profile_id = $e_pu->profile_id;
     				$username	= $ra->username;
-    				$this->fup($username,$profile_id,$timezone,$e_pu->cloud_id);
+    				$this->fup($username,$profile_id,$timezone,$e_pu->cloud_id,$billing_cycle);
     			}
     		}
     	}
@@ -137,7 +141,7 @@ class FupShell extends Shell {
     	return $timezone;    
     }
     
-    private function fup($username,$profile_id,$timezone,$cloud_id){
+    private function fup($username,$profile_id,$timezone,$cloud_id,$billing_cycle = false){
     
     	#Get the current active applied_fup_component for the user (Then compare it with the one which SHOULD apply)
     	#If different you then issue a disconnect request
@@ -162,7 +166,7 @@ class FupShell extends Shell {
 				}   		
     		}else{    		
     			#These are day_usage week_usage or month_usage limits
-    			$return_usage = $this->check_usage($username,$c,$timezone);
+    			$return_usage = $this->check_usage($username,$c,$timezone,$billing_cycle);
     			if($return_usage == 'block'){
 					$should_apply = $c->id;
 					break;				
@@ -174,7 +178,7 @@ class FupShell extends Shell {
     	}
     	
     	if($should_apply !== 0){
-    		$this->out("<info>Block Actvie </info>");
+    		$this->out("<info>Block Active </info>");
     	}
 
     	
@@ -272,15 +276,18 @@ class FupShell extends Shell {
 		return 'noop';
 	}
 	
-	private function check_usage($username,$row,$timezone){
+	private function check_usage($username,$row,$timezone, $billing_cycle=false){
 
-    	$time_start = $this->get_start_of($row->{'if_condition'},$timezone);
+    	$time_start = $this->get_start_of($row->{'if_condition'},$timezone,$billing_cycle);
+    	$nice = $time_start->toIso8601String();
+    	$this->out("<info>TIME START $nice </info>");
     	$sql_usage 	= "SELECT IFNULL(SUM(acctinputoctets)+SUM(acctoutputoctets),0) AS data_used FROM user_stats WHERE username=:username AND timestamp >=:timestamp";
     	$connection = ConnectionManager::get('default');          
       	$results = $connection
-    		->execute($sql_usage , ['username' => $username,'timestamp'=>$time_start])
+    		->execute($sql_usage , ['username' => $username,'timestamp' => $nice])
     		->fetchAll('assoc');
     	$data_used 	= $results[0]['data_used'];
+    	$this->out("<info>DATA USED $data_used</info>");
    		$trigger  	= $row->{'data_amount'};
 		if($row->{'data_unit'} == 'mb'){
 		    $trigger = $trigger * 1024 * 1024;
@@ -298,7 +305,7 @@ class FupShell extends Shell {
     	return 'noop';  
 	}
 
-	private function get_start_of($when,$timezone){
+	private function get_start_of($when,$timezone, $billing_cycle=false){
 		#'day_usage' is default of current day
 		$dt = new FrozenTime();
     	$dt = $dt->setTimezone($timezone);
@@ -308,11 +315,30 @@ class FupShell extends Shell {
 		}
 
 		if($when == 'month_usage'){
-		    $dt = $dt->startOfMonth();
-		}   
-
+			if($billing_cycle){
+				$dt = $this->findBillingCycleStart($timezone,$billing_cycle);	
+			}else{
+		    	$dt = $dt->startOfMonth();
+		   	}
+		}		
 		return $dt;
 	}
+	
+	private function findBillingCycleStart($timezone,$bc_day){
+
+    	$dt 		= new FrozenTime();
+    	$dt 		= $dt->setTimezone($timezone);
+    	$day_now 	= $dt->day;
+    	
+    	if(($bc_day > $day_now)&&($day_now < 28)){
+    		$bc_start = $dt->subMonth(1);
+			$bc_start = $bc_start->setDateTime($bc_start->year,$bc_start->month,$bc_day,0,0,0);   		
+    	}else{
+    		$bc_start = $dt->setDateTime($dt->year,$dt->month,$bc_day,0,0,0);
+    	}
+    	//$this->out("<info>Billing Cycle Start Time IS $bc_start</info>");   	
+    	return $bc_start;  
+    }
 	     		
 }
 
