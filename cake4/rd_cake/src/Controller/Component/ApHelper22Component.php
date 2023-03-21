@@ -520,6 +520,16 @@ class ApHelper22Component extends Component {
             }
         }
         
+        $e_vlan = $this->{'ApConnectionSettings'}->find()->where([
+            'ApConnectionSettings.ap_id'    => $this->ApId,
+            'ApConnectionSettings.grouping' => 'vlan_setting',
+            'ApConnectionSettings.name' 	=> 'vlan_admin',
+        ])->first();
+        
+        if($e_vlan){
+        	$wan_if = $wan_if.'.'.$e_vlan->value;
+        }
+        
       	array_push( $network,
             [
                 "device" => "br-lan",

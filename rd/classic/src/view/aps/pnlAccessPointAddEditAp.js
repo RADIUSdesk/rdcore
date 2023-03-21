@@ -751,7 +751,21 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
 	            cntWbW,
 	            pnlWifiStatic,
 	            pnlWifiPppoe,
-	            pnlQmi,  
+	            pnlQmi,
+	            {
+                    xtype       : 'numberfield',
+                    name        : 'vlan_admin',
+                    itemId      : 'vlan_admin',
+                    fieldLabel  : 'Admin VLAN',
+                    allowBlank  : true,
+                    maxValue    : 4094,
+                    minValue    : 1,
+                    labelClsExtra : 'lblRd',
+                    width       : w_prim,
+                    hideTrigger : true,
+                    keyNavEnabled  : false,
+                    mouseWheelEnabled	: false
+                }, 
                 {
                     xtype     : 'checkbox',
                     fieldLabel  : 'Controller Reboot',

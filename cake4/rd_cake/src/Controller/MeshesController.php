@@ -2003,7 +2003,18 @@ class MeshesController extends AppController{
             $count      = 0;
             $entry_ids  = [];
             $empty_flag = false;
-                 
+                       
+            //vlan_admin settings            
+            if($this->request->getData('vlan_admin') !== ''){
+            	$d_vlan = [];
+                $d_vlan['node_id']  = $new_id;
+                $d_vlan['grouping'] = 'vlan_setting';
+                $d_vlan['name']     = 'vlan_admin';
+                $d_vlan['value']    = $this->request->getData('vlan_admin');
+                $ent_vlan = $this->{'NodeConnectionSettings'}->newEntity($d_vlan);  
+                $this->{'NodeConnectionSettings'}->save($ent_vlan);                        
+            } 
+                            
             if($this->request->getData('internet_connection') == 'wifi'){
                 foreach(array_keys($req_d) as $key){
                     if(preg_match('/^wbw_/',$key)){
@@ -2345,6 +2356,22 @@ class MeshesController extends AppController{
                     }
                 }
                 
+                //vlan_admin settings
+		        $this->{'NodeConnectionSettings'}->deleteAll([
+		            'NodeConnectionSettings.node_id' => $new_id,
+		            'NodeConnectionSettings.grouping' => 'vlan_setting'
+		        ]); 
+		        
+		        if($this->request->getData('vlan_admin') !== ''){
+		        	$d_vlan = [];
+		            $d_vlan['node_id']  = $new_id;
+		            $d_vlan['grouping'] = 'vlan_setting';
+		            $d_vlan['name']     = 'vlan_admin';
+		            $d_vlan['value']    = $this->request->getData('vlan_admin');
+		            $ent_vlan = $this->{'NodeConnectionSettings'}->newEntity($d_vlan);  
+		            $this->{'NodeConnectionSettings'}->save($ent_vlan);                        
+		        }               
+                
                 //Check if we have web-by-wifi enabled
                 $this->{'NodeConnectionSettings'}->deleteAll([ //
                     'NodeConnectionSettings.node_id' => $new_id,
@@ -2646,6 +2673,10 @@ class MeshesController extends AppController{
                 $ws_n          = 'qmi_'.$ncs->name;
                 $q_r[$ws_n]    = $ncs->value;
             }
+            
+          	if($ncs->grouping == 'vlan_setting'){
+             	$q_r[$ncs->name]    = intval($ncs->value);
+          	}
             
             if($ncs->grouping == 'reboot_setting'){
                 if($ncs->name == 'controller_reboot_time'){

@@ -1802,6 +1802,17 @@ class ApProfilesController extends AppController {
 	        }
 	        //_______________________________________________________________________
 	        
+	        //vlan_admin settings                       
+            if($this->request->getData('vlan_admin') !== ''){
+            	$d_vlan = [];
+                $d_vlan['ap_id']   	= $new_id;
+                $d_vlan['grouping'] = 'vlan_setting';
+                $d_vlan['name']     = 'vlan_admin';
+                $d_vlan['value']    = $this->request->getData('vlan_admin');
+                $ent_vlan = $this->{'ApConnectionSettings'}->newEntity($d_vlan);  
+                $this->{'ApConnectionSettings'}->save($ent_vlan);                        
+            } 
+	        	        
 	        if($this->request->getData('internet_connection') == 'wifi'){
                 foreach(array_keys($cdata) as $key){
                     if(preg_match('/^wbw_/',$key)){
@@ -2134,7 +2145,24 @@ class ApProfilesController extends AppController {
 
                     if ($this->Aps->save($apEntity)) {
                         $new_id = $apEntity->id;
-                                           
+                        
+                        
+                        //vlan_admin settings
+                        $this->{'ApConnectionSettings'}->deleteAll([
+                            'ApConnectionSettings.ap_id' => $new_id,
+                            'ApConnectionSettings.grouping' => 'vlan_setting'
+                        ]); 
+                        
+                        if($this->request->getData('vlan_admin') !== ''){
+                        	$d_vlan = [];
+                            $d_vlan['ap_id']   	= $new_id;
+                            $d_vlan['grouping'] = 'vlan_setting';
+                            $d_vlan['name']     = 'vlan_admin';
+                            $d_vlan['value']    = $this->request->getData('vlan_admin');
+                            $ent_vlan = $this->{'ApConnectionSettings'}->newEntity($d_vlan);  
+                            $this->{'ApConnectionSettings'}->save($ent_vlan);                        
+                        } 
+                                                                  
                         //Check if we have web-by-wifi enabled
                         $this->{'ApConnectionSettings'}->deleteAll([
                             'ApConnectionSettings.ap_id' => $new_id,
@@ -2400,6 +2428,10 @@ class ApProfilesController extends AppController {
                     $data['internet_connection'] = 'qmi';
                     $ws_n           = 'qmi_'.$ncs->name;
                     $data[$ws_n]    = $ncs->value;
+                }
+                
+                if($ncs->grouping == 'vlan_setting'){
+                    $data[$ncs->name]    = intval($ncs->value);
                 }
                 
                 if($ncs->grouping == 'reboot_setting'){

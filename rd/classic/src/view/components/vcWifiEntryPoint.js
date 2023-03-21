@@ -119,7 +119,6 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
                 nasid.setVisible(true);
                 nasid.setDisabled(false);  
             }
-
             d_vlan.setHidden(false);
             d_vlan.setDisabled(false);
             d_key.setHidden(false);
@@ -160,7 +159,7 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
         var nasid   = form.down('#nasid');
         var acct    = form.down('#chk_accounting');
         var enc     =  form.down('cmbEncryptionOptions').getValue();
-        if((enc == 'wpa')|(enc == 'wpa2')){
+        if((enc == 'wpa')|(enc == 'wpa2')|(enc == 'ppsk')){
             if(acct){
                 if(chk.getValue()){
                     nasid.setVisible(false);
