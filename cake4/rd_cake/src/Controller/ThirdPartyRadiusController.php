@@ -34,24 +34,49 @@ class ThirdPartyRadiusController extends AppController {
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('JsonErrors');          
     }
+    
+    
+    public function authTest(){
+    
+      	$this->set([
+            'success' 	=> true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    
+    }
        
     public function test(){
     
     	$client = new Radius();
 
 		// set server, secret, and basic attributes
-		$client->setServer('127.0.0.1') // RADIUS server address
-			   ->setSecret('testing123')
-			   ->setNasIpAddress('127.0.0.1') // NAS server address
-			   ->setAttribute(32, 'login');  // NAS identifier
+		//https://www.rfc-editor.org/rfc/rfc2865.html
+		
+		$server_ip			= '10.0.2.15';
+		$secret				= 'testing123';
+		$nas_ip_address 	= '164.160.89.129';
+		$called_station_id 	= '00-25-82-00-92-30:AC-Devices';
+		$nas_identifier     = 'ac-de_apeap_55';
+		
+		$client->setServer($server_ip) // RADIUS server address
+			   ->setSecret($secret)
+			   ->setNasIpAddress($nas_ip_address) // NAS server address
+			   ->setAttribute(30, $called_station_id)  // Called-Station-Id
+			   ->setAttribute(61, 19)  // NAS-Port-Type 19 -> Wireless - IEEE 802.11
+			   ->setAttribute(32, $nas_identifier);  // NAS identifier		   
 
 		// PAP authentication; returns true if successful, false otherwise
-		//$authenticated = $client->accessRequest('dirk-ppsk', 'dirk-ppsk');
+		//$authenticated = $client->accessRequest('dirkvanderwalt@gmail.com@dev', 'qwerty');
 		
-		//$authenticated = $client->accessRequestEapMsChapV2('dirk-ppsk', 'dirk-ppsk');
+		$username = 'dirkvanderwalt@gmail.com@dev';
+		$password = 'qwerty';
 		
-		$client->setMSChapPassword('dirk-ppsk'); // set ms chap password (uses openssl or mcrypt)
-		$authenticated = $client->accessRequest('dirk-ppsk');
+		$client->setMSChapPassword($password); // set ms chap password (uses openssl or mcrypt)
+		$authenticated = $client->accessRequest($username);
+		
+		//$authenticated = $client->accessRequestEapMsChapV2($username, $password);
+		
+		//$authenticated = $client->accessRequest('tomerd', 'Occasion-Say-5');
 
 		if ($authenticated === false) {
 			// false returned on failure
