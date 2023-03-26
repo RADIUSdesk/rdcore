@@ -33,6 +33,11 @@ Ext.define('Rd.controller.cMainOther', {
 		    afterrender	: function(pnl){
 		        Ext.getApplication().runAction('cAccessProviders','Index',pnl);
 		    }
+	    },
+	    '#tabMainOther #cTestRadius' : {
+		    afterrender	: function(pnl){
+		        Ext.getApplication().runAction('cTestRadius','Index',pnl);
+		    }
 	    }
     },
     actionIndex: function(pnl,itemId){

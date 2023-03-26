@@ -14,12 +14,12 @@ Ext.define('Rd.controller.cDynamicClientMacs', {
                 padding : Rd.config.gridPadding,
                 border  : false,
                 itemId  : 'tabDynamicClientMacs',
-                glyph   : Rd.config.icnQuestion,
-                title   : 'Devices Without Owners',
+                glyph   : Rd.config.icnBus,
+                title   : 'New Arrivals - Devices',
                 plain	: true,
                 closable: true, 
                 tabConfig: {
-                    ui: me.ui
+                    ui: 'tab-blue'
                 }
             });
         }      

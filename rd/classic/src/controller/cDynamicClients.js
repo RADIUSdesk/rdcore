@@ -856,8 +856,8 @@ Ext.define('Rd.controller.cDynamicClients', {
                 xtype   : 'gridUnknownDynamicClients',
                 padding : Rd.config.gridSlim,
                 border  : false,
-                glyph   : Rd.config.icnQuestion,
-                title   : 'Unknown Clients',
+                glyph   : Rd.config.icnBus,
+                title   : 'New Arrivals - RADIUS',
                 plain	: true,
                 closable: true, 
                 tabConfig: {

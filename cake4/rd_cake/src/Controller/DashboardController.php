@@ -656,7 +656,7 @@ class DashboardController extends AppController{
         	$items = [
         		[
                     "title" => "RADIUS Clients",
-                    "glyph" => "xf1cb@FontAwesome",
+                    "glyph" => "xf1ce@FontAwesome",
                     "id"    => "cDynamicClients",
                     "layout"=> "fit",
                     "tabConfig"=> [
@@ -741,6 +741,14 @@ class DashboardController extends AppController{
                 "id"	=> "cHardwares",
                 "layout"=> "fit"
             ]);
+                       
+            array_push($items,[
+                "title"	=> "Test RADIUS",
+                "glyph"	=> "xf1ce@FontAwesome",
+                "id"	=> "cTestRadius",
+                "layout"=> "fit"
+            ]);
+                        
         }
         
         $this->set([
@@ -951,7 +959,7 @@ class DashboardController extends AppController{
 			[
 				'text'		=> 'RADIUS',
 				'leaf'		=> true,
-				'iconCls'	=> 'x-fa  fa-dot-circle-o',
+				'iconCls'	=> 'x-fa fa-circle-o-notch',
 				'controller'=> 'cMainRadius',
 				'id'		=> 'tabMainRadius',
 				'glyph'		=> 'xf0ac'

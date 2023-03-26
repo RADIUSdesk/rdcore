@@ -32,7 +32,7 @@ class GridButtonsFlatComponent extends Component {
     protected $btnUiPdf     = 'default';
     protected $btnUiMap     = 'default';
     protected $btnUiBan     = 'default';
-    protected $btnUiUnknownClients = 'button-metal';
+    protected $btnUiUnknownClients = 'button-green';
     protected $btnUiByod    = 'button-metal';
     
     protected $btnUiConfigure = 'default';
@@ -289,10 +289,10 @@ class GridButtonsFlatComponent extends Component {
         
         $this->btnUnknownDevices = [
             'xtype'     => 'button', 
-            'glyph'     => Configure::read('icnQuestion'), 
+            'glyph'     => Configure::read('icnBus'), 
             'scale'     => $this->scale,
             'itemId'    => 'unclaimed_devices',
-            'tooltip'   => __('Devices Without Owners'),
+            'tooltip'   => __('New Arrivals'),
             'ui'        => $this->btnUiUnknownClients
         ];
         
@@ -307,10 +307,10 @@ class GridButtonsFlatComponent extends Component {
         
         $this->btnUnknownClients = [
             'xtype'     => 'button', 
-            'glyph'     => Configure::read('icnQuestion'), 
+            'glyph'     => Configure::read('icnBus'), 
             'scale'     => $this->scale,
             'itemId'    => 'unknown_clients',
-            'tooltip'   => __('Unknown Clients'),
+            'tooltip'   => __('New Arrivals'),
             'ui'        => $this->btnUiUnknownClients
         ];
         

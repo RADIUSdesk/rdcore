@@ -44,6 +44,27 @@ class ThirdPartyRadiusController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     
     }
+    
+    public function view(){
+      
+      	$data	= [
+      		'radius_ip' => '164.160.89.129',
+      		'port'		=> '1812',
+      		'secret'	=> 'testing123',
+      		'auth_method' => 'pap',
+      		'username'	=> 'dirkvanderwalt',
+      		'password'	=> 'qwerty',
+      		'nas_identifier' => '00-25-82-00-92-30:AC-Devices',
+      		'called_station_id' => 'ac-de_apeap_55'
+      	];
+      
+    	$this->set([
+    		'data'		=> $data,
+            'success' 	=> true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    
+    }
        
     public function test(){
     

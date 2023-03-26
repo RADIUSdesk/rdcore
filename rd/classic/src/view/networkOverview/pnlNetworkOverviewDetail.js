@@ -81,7 +81,6 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverviewDetail', {
          xtype: 'polar',
          width: '100%',
          height: 200,
-
         interactions: ['rotate', 'itemhighlight'],
         innerPadding: 10,
         store: {
