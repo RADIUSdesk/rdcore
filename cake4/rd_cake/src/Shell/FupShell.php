@@ -334,7 +334,11 @@ class FupShell extends Shell {
     		$bc_start = $dt->subMonth(1);
 			$bc_start = $bc_start->setDateTime($bc_start->year,$bc_start->month,$bc_day,0,0,0);   		
     	}else{
-    		$bc_start = $dt->setDateTime($dt->year,$dt->month,$bc_day,0,0,0);
+    		if($day_now > 28){ //Roll over to next month after 28th (29,30,31 will use this)
+    			$bc_start = $dt->setDateTime($dt->year,$dt->month,29,0,0,0);	
+    		}else{
+    			$bc_start = $dt->setDateTime($dt->year,$dt->month,$bc_day,0,0,0);
+    		}
     	}
     	//$this->out("<info>Billing Cycle Start Time IS $bc_start</info>");   	
     	return $bc_start;  
