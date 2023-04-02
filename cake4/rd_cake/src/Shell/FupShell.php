@@ -63,8 +63,9 @@ class FupShell extends Shell {
     				}
     				$timezone 	= $this->getTimezone($ra->nasidentifier);
     				$profile_id = $e_pu->profile_id;
+    				$profile_name = $e_pu->profile;
     				$username	= $ra->username;
-    				$this->fup($username,$profile_id,$timezone,$e_pu->cloud_id,$billing_cycle);
+    				$this->fup($username,$profile_id,$timezone,$e_pu->cloud_id,$billing_cycle,$profile_name);
     			}
     		}
     	}
@@ -141,7 +142,7 @@ class FupShell extends Shell {
     	return $timezone;    
     }
     
-    private function fup($username,$profile_id,$timezone,$cloud_id,$billing_cycle = false){
+    private function fup($username,$profile_id,$timezone,$cloud_id,$billing_cycle = false,$profile_name = ''){
     
     	#Get the current active applied_fup_component for the user (Then compare it with the one which SHOULD apply)
     	#If different you then issue a disconnect request
@@ -152,13 +153,17 @@ class FupShell extends Shell {
     	}
 
 		$should_apply 	= 0;
+		$apply_record	= null;
 		$limits			= [];
+		$most_decrease 	= null;
+		$least_increase = null;
   
     	foreach($this->fupProfiles[$profile_id] as $c){   	
     		if($c->if_condition == 'time_of_day'){
 				$return_action = $this->check_time_of_day($c,$timezone);
 				if($return_action == 'block'){
 					$should_apply = $c->id;
+					$apply_record = $c;
 					break;				
 				}
 				if($return_action == 'limit'){				
@@ -169,6 +174,7 @@ class FupShell extends Shell {
     			$return_usage = $this->check_usage($username,$c,$timezone,$billing_cycle);
     			if($return_usage == 'block'){
 					$should_apply = $c->id;
+					$apply_record = $c;
 					break;				
 				}
 				if($return_usage == 'limit'){				
@@ -177,47 +183,49 @@ class FupShell extends Shell {
     		}   	
     	}
     	
-    	if($should_apply !== 0){
-    		$this->out("<info>Block Active </info>");
-    	}
-
+    	if($should_apply !== 0){ //Should apply is set on a 'block' if it is set we dont have to worry about throttle calculations
     	
-    	$most_decrease 	= null;
-    	$least_increase = null;    	
-    	foreach($limits as $val){
+    		$this->out("<info>Block Active </info>");
     		
-    		#Decrease Speed
-            if($most_decrease){
-                if($val->{'action'} == 'decrease_speed'){
-                    if($val->{'action_amount'} >$most_decrease->{'action_amount'}){
-                        $most_decrease = $val;
-                    } 
-                }
-            }else{
-                if($val->{'action'} == 'decrease_speed'){
-                    $most_decrease = $val;
-                }
-            }
+    	}else{	
+			
+			//Work out the biggest throttle value (if we are not blocking)  	
+			foreach($limits as $val){				
+				#Decrease Speed
+		        if($most_decrease){
+		            if($val->{'action'} == 'decrease_speed'){
+		                if($val->{'action_amount'} >$most_decrease->{'action_amount'}){
+		                    $most_decrease = $val;
+		                } 
+		            }
+		        }else{
+		            if($val->{'action'} == 'decrease_speed'){
+		                $most_decrease = $val;
+		            }
+		        }
 
-            #Increase Speed
-            if($least_increase){
-                if($val->{'action'} == 'increase_speed'){
-                    if($val->{'action_amount'} <$least_increase->{'action_amount'}){
-                        $least_increase = $val;
-                    } 
-                }
-            }else{
-                if($val->{'action'} == 'increase_speed'){
-                    $least_increase = $val;
-                }
-            }  	
-    	}
+		        #Increase Speed
+		        if($least_increase){
+		            if($val->{'action'} == 'increase_speed'){
+		                if($val->{'action_amount'} <$least_increase->{'action_amount'}){
+		                    $least_increase = $val;
+		                } 
+		            }
+		        }else{
+		            if($val->{'action'} == 'increase_speed'){
+		                $least_increase = $val;
+		            }
+		        }  	
+			}		
+		}
     	
     	if($most_decrease){
         	$should_apply = $most_decrease->{'id'};
+        	$apply_record = $most_decrease;
 		}else{
 		    if($least_increase){
-		    	$should_apply = $least_decrease->{'id'};      
+		    	$should_apply = $least_decrease->{'id'};
+		    	$apply_record = $least_decrease;    
 		    }
 		}
 
@@ -229,16 +237,52 @@ class FupShell extends Shell {
     			$user_id = $e_cloud->user_id;
     			$e_user = $this->{'Users'}->find()->where(['Users.id' => $user_id])->first();
     			if($e_user){
-    				$token = $e_user->token;
+    			
+    				$token 	 = $e_user->token;
+    				$url 	 = 'http://127.0.0.1/cake4/rd_cake/radaccts/kick-active-username.json';
+    				$request = ['cloud_id' => $cloud_id,'username' => $username,'token' => $token];
+    					
+    				//===================================================================	
+    				//-------------------------------------------------------------------
+    				//--- USE THIS BLOCK FOR CUSTOM SETUPS e.g. where you have ----------
+    				//--- Two different URLs to call when blocking vs decreasing speed --
+    				//--- Also when you need another URL to call when you restore things-
+    				//--- e.g. remove a limit -------------------------------------------
+    				//-------------------------------------------------------------------		
+    			   			
+    				if($should_apply !== 0){
+    				
+    					$ip_pool = $apply_record->ip_pool;
+    				
+						if($apply_record->action == 'block'){
+							$this->out("<info>Action is to BLOCK</info>");
+						}
+						
+						if($apply_record->action == 'increase_speed'){
+							$this->out("<info>Action is to INCREASE SPEED $ip_pool</info>");
+						}
+						
+						if($apply_record->action == 'decrease_speed'){
+							$this->out("<info>Action is to DECREASE SPEED $ip_pool</info>");
+						}
+						
+					}else{
+						$this->out("<info>NO LIMIT TO APPLY $profile_name</info>");
+									
+					}
+					    			
+    				//---------------------------------------------------------------------
+    				//=====================================================================
+    			   			 				
     				$http  = new Client();
 					$response = $http->get(
-					  'http://127.0.0.1/cake4/rd_cake/radaccts/kick-active-username.json',
-					  ['cloud_id' => $cloud_id,'username' => $username,'token' => $token],
+					  $url,
+					  $request,
 					  ['type' => 'json']
 					);
 					$reply          = $response->getStringBody();
 					print($reply);
-    			
+					    			
     			}    		
     		}
     	}  	   
