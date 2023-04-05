@@ -7,7 +7,9 @@
  */
 
 namespace App\Controller;
-use Dapphp\Radius\Radius;
+
+use Cake\Core\Configure;
+use Cake\Core\Configure\Engine\PhpConfig;
 
 class ThirdPartyRadiusController extends AppController {
 
@@ -45,28 +47,87 @@ class ThirdPartyRadiusController extends AppController {
     
     }
     
-    public function view(){
-      
-      	$data	= [
-      		'radius_ip' => '164.160.89.129',
-      		'port'		=> '1812',
-      		'secret'	=> 'testing123',
-      		'auth_method' => 'pap',
-      		'username'	=> 'dirkvanderwalt',
-      		'password'	=> 'qwerty',
-      		'nas_identifier' => '00-25-82-00-92-30:AC-Devices',
-      		'called_station_id' => 'ac-de_apeap_55'
-      	];
-      
+    public function testRadius(){
+    
+    	$req_q 	= $this->request->getQuery();
+    	$req_d	= $this->request->getData();
+    	
+    	if(($req_d['auth_method'] == 'pap')||($req_d['auth_method'] == 'chap')||($req_d['auth_method'] == 'ms_chap')){
+    	
+    		$exec_string = 'echo "User-Name='.$req_d['username'].',';
+    		
+    		if($req_d['auth_method'] == 'pap'){
+    			$exec_string = $exec_string.'User-Password='.$req_d['password'];
+    		}
+    		if($req_d['auth_method'] == 'chap'){
+    			$exec_string = $exec_string.'CHAP-Password='.$req_d['password'];
+    		}
+    		if($req_d['auth_method'] == 'ms_chap'){
+    			$exec_string = $exec_string.'MS-CHAP-Password='.$req_d['password'];
+    		}
+    		
+    		if($req_d['nas_ip_address'] !== ''){		
+    			$exec_string = $exec_string.',NAS-IP-Address='.$req_d['nas_ip_address'];
+    		}
+    		if($req_d['called_station_id'] !== ''){ 		
+    			$exec_string = $exec_string.',Called-Station-Id='.$req_d['called_station_id'];
+    		}   		
+    		if($req_d['nas_identifier'] !== ''){  		
+    			$exec_string = $exec_string.',NAS-Identifier='.$req_d['nas_identifier'];
+    		}
+    		$exec_string = $exec_string.'"';
+    		$exec_string = $exec_string.' | radclient -x -r 2 -t 2 '.$req_d['radius_ip'].':'.$req_d['port'].' auth '.$req_d['secret'];		
+    		$output = shell_exec($exec_string);    		
+    	}
+    	
+    	if(
+    		($req_d['auth_method'] == 'eap_md5')||
+    		($req_d['auth_method'] == 'eap_ttls_pap')||
+    		($req_d['auth_method'] == 'eap_ttls_mschap')||
+    		($req_d['auth_method'] == 'eap_peap')||
+    		($req_d['auth_method'] == 'eap_leap')
+    	){
+    	
+    		$eap_file = "network={
+					ssid=\"example\"
+					key_mgmt=WPA-EAP
+					eap=TTLS
+					identity=\"".$req_d['username']."\"
+					anonymous_identity=\"".$req_d['username']."\"
+					password=\"".$req_d['password']."\"
+					phase2=\"autheap=MSCHAPV2\"
+			}";
+			$myfile = fopen("/tmp/config.ttls", "w") or die("Unable to open file!");
+			fwrite($myfile, $eap_file);
+			fclose($myfile);
+			$exec_string = "eapol_test -c /tmp/config.ttls -N 32:s:".$req_d['nas_identifier']." -N 30:s:".$req_d['called_station_id']."  -a ".$req_d['radius_ip']." -s ".$req_d['secret'];
+			$output = shell_exec($exec_string);    
+    	}  
     	$this->set([
-    		'data'		=> $data,
+    		'data'		=> [
+    			'command' 	=> $exec_string,
+    			'output'	=> nl2br($output)
+    		],
             'success' 	=> true
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     
     }
+    
+    public function view(){ 
+    
+    	Configure::load('TestRadius','default'); 
+        $data = Configure::read('TestRadius.defaults');
+          
+    	$this->set([
+    		'data'		=> $data,
+            'success' 	=> true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);  
+    }
+   
        
-    public function test(){
+    public function testZ(){
     
     	$client = new Radius();
 
@@ -78,6 +139,7 @@ class ThirdPartyRadiusController extends AppController {
 		$nas_ip_address 	= '164.160.89.129';
 		$called_station_id 	= '00-25-82-00-92-30:AC-Devices';
 		$nas_identifier     = 'ac-de_apeap_55';
+
 		
 		$client->setServer($server_ip) // RADIUS server address
 			   ->setSecret($secret)

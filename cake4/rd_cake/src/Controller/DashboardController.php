@@ -615,7 +615,7 @@ class DashboardController extends AppController{
         	$items = [
         		[
                     "title" => "Permanent Users",
-                    "glyph" => "xf007@FontAwesome",
+                    "glyph" => "xf2c0@FontAwesome",
                     "id" => "cPermanentUsers",
                     "layout" => "fit",
                     "tabConfig" => [
@@ -954,7 +954,7 @@ class DashboardController extends AppController{
 				'iconCls'   => 'x-fa fa-user',
 				'controller'=> 'cMainUsers',
 				'id'		=> 'tabMainUsers',
-				'glyph'		=> 'xf007'
+				'glyph'		=> 'xf2c0'
 			],
 			[
 				'text'		=> 'RADIUS',
@@ -962,7 +962,7 @@ class DashboardController extends AppController{
 				'iconCls'	=> 'x-fa fa-circle-o-notch',
 				'controller'=> 'cMainRadius',
 				'id'		=> 'tabMainRadius',
-				'glyph'		=> 'xf0ac'
+				'glyph'		=> 'xf1ce'
 			],	
 			[
 				'text' 		=> 'NETWORK',
@@ -978,7 +978,7 @@ class DashboardController extends AppController{
 				'controller'=> 'cDynamicDetails',
 				'id'		=> 'tabDynamicCDetails',
 				'iconCls'	=> 'x-fa fa-arrow-circle-right',
-				'glyph'		=> 'xf090'
+				'glyph'		=> 'xf0a9'
 			],
 			[
 				'text' 		=> 'OTHER',
@@ -986,7 +986,7 @@ class DashboardController extends AppController{
 				'id'		=> 'tabMainOther',
 				'controller'=> 'cMainOther',
 				'iconCls'	=> 'x-fa fa-gears',
-				'glyph'		=> 'xf090'	
+				'glyph'		=> 'xf085'	
 			]  
     	];
     	

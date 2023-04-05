@@ -3,8 +3,12 @@ Ext.define('Rd.view.testRadius.vcTestRadius', {
     alias   : 'controller.vcTestRadius',
     config	: {
         urlView  : '/cake4/rd_cake/third-party-radius/view.json',
-        urlSave  : '/cake4/rd_cake/settings/save-email.json',
-        UrlEmail : '/cake4/rd_cake/settings/test-email.json'
+        urlTest  : '/cake4/rd_cake/third-party-radius/test-radius.json'
+    },
+    control: {
+        '#test': {
+            click   : 'test'
+        }
     },
     onViewActivate: function(pnl){
         var me = this;
@@ -15,5 +19,24 @@ Ext.define('Rd.view.testRadius.vcTestRadius', {
 		        me.getView().setLoading(false);
             }
 		});       
+    },
+    test: function(btn){
+    	var me 		= this;
+    	var form    = btn.up('form');
+        var window  = form.up('window'); 
+        me.getView().setLoading(true);
+        form.submit({
+            clientValidation: true,
+            url             : me.getUrlTest(),
+            success         : function(form, action) {              
+                //FIXME reload store....
+                console.log(action.result.data);
+                me.getView().down('#pnlResult').setData(action.result.data);
+                me.getView().setLoading(false);
+            	console.log("Test Done");
+            },
+            failure: Ext.ux.formFail,
+            scope: me
+        });    
     }
 });

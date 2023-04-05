@@ -4,14 +4,16 @@ Ext.define('Rd.controller.cTestRadius', {
     	var me = this;
         pnl.add({ 
             xtype   : 'pnlTestRadius',
+            
             border  : false,
-            plain   : true,
-            padding : Rd.config.gridSlim,
+            frame	: false,
+            plain   : false,
+            padding : 10,
             tabConfig   : {
                 ui : 'tab-brown'
             }   
         });
-        pnl.on({activate : me.onViewActivate,scope: me});   
+        pnl.on({activate : me.onViewActivate,scope: me});
     },
     config	: {
         urlView  : '/cake4/rd_cake/third-party-radius/view.json'

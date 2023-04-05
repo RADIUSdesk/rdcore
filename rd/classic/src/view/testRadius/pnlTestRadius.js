@@ -39,6 +39,35 @@ Ext.define('Rd.view.testRadius.pnlTestRadius', {
     controller  : 'vcTestRadius',
     initComponent: function(){
         var me 	 = this;
+        
+        var methods = Ext.create('Ext.data.Store', {
+            fields: ['id', 'name'],
+            data : [
+                {"id":"pap",           	"name":"PAP"},
+                {"id":"chap",          	"name":"CHAP"},
+                {"id":"ms_chap",    	"name":"MS CHAPv1"},
+            	{"id":"eap_md5",    	"name":"EAP-MD5"},
+            	{"id":"eap_ttls_pap",   "name":"EAP-TTLS-PAP"},
+            	{"id":"eap_ttls_mschap","name":"EAP-TTLS-MS-CHAPv2"},
+            	{"id":"eap_peap",		"name":"EAP-PEAP"},
+            	{"id":"eap_leap",		"name":"EAP-LEAP"}
+            ]
+        });
+
+        var cmbMethods = Ext.create('Ext.form.ComboBox', {
+            fieldLabel      : 'Auth Method',
+            store           : methods,
+            queryMode       : 'local',
+            displayField    : 'name',
+            valueField      : 'id',
+            name            : 'auth_method',
+            itemId          : 'cmbType',
+            labelClsExtra   : 'lblRdReq',
+            allowBlank      : false,
+            forceSelection  : true,
+            anchor			: '-5'
+        });
+              
 		me.items = [{
 			xtype		: 'panel',
 			bodyStyle   : 'background: #a2c3c3',
@@ -52,19 +81,26 @@ Ext.define('Rd.view.testRadius.pnlTestRadius', {
 				    xtype		: 'textfield',
 				    fieldLabel	: 'RADIUS server IP',
 				    anchor		: '-5',
-				    name		: 'radius_ip'
+				    name		: 'radius_ip',
+				    allowBlank  : false
 				}, 
 				{
-				    xtype		:'textfield',
-				    fieldLabel	: 'Port',
-				    anchor		: '-5',
-				    name		: 'port'
-				},
+				    xtype           : 'numberfield',
+				    fieldLabel		: 'Port',
+				    anchor			: '-5',
+				    name			: 'port',
+				    allowBlank  	: false,
+				    value           : 1812,
+				    hideTrigger     : true,
+                    keyNavEnabled   : false,
+                    mouseWheelEnabled: false
+				},				
 				{
 				    xtype		:'textfield',
 				    fieldLabel	: 'Secret',
 				    anchor		: '-5',
-				    name		: 'secret'
+				    name		: 'secret',
+				    allowBlank  : false
 				}
 		    ]
 		}, 
@@ -77,23 +113,20 @@ Ext.define('Rd.view.testRadius.pnlTestRadius', {
 				align   : 'stretch'
 			},	
 		    items: [
-		    	{
-				    xtype		: 'textfield',
-				    fieldLabel	: 'Auth Method',
-				    anchor		: '-5',
-				    name		: 'auth_method'
-				}, 
+		    	cmbMethods,
 				{
 				    xtype		:'textfield',
 				    fieldLabel	: 'Username',
 				    anchor		: '-5',
-				    name		: 'username'
+				    name		: 'username',
+				    allowBlank  : false
 				},
 				{
 				    xtype		:'textfield',
 				    fieldLabel	: 'Password',
 				    anchor		: '-5',
-				    name		: 'password'
+				    name		: 'password',
+				    allowBlank  : false
 				}		    
 		    ]
 		},
@@ -107,25 +140,41 @@ Ext.define('Rd.view.testRadius.pnlTestRadius', {
 			},	
 		    items: [
 		    	{
+				    xtype		:'textfield',
+				    fieldLabel	: 'NAS-IP-Address',
+				    anchor		: '-5',
+				    name		: 'nas_ip_address',
+				    labelClsExtra : 'lblRd'
+				},
+		    	{
 				    xtype		: 'textfield',
 				    fieldLabel	: 'NAS-Identifier',
 				    anchor		: '-5',
-				    name		: 'nas_identifier'
+				    name		: 'nas_identifier',
+				    labelClsExtra : 'lblRd'
 				}, 
 				{
 				    xtype		:'textfield',
 				    fieldLabel	: 'Called-Station-Id',
 				    anchor		: '-5',
-				    name		: 'called_station_id'
+				    name		: 'called_station_id',
+				    labelClsExtra : 'lblRd'
 				}	    
 		    ]
 		},
 		{
 			xtype		: 'panel',
-			bodyStyle   : 'background: #f0f0f5',
-			//height		: 200,
-			html		: '<h1>Gooihom</h1>'
-		}
+			itemId		: 'pnlResult',
+			bodyStyle   : 'background: #fff',
+			flex		: 1,
+			tpl			: new Ext.XTemplate(
+                "<div style='background-color:white; padding:5px;'>",
+                    '{output}',
+                "</div>"
+            ),
+            autoScroll  :true,
+            data		: {}
+        }
 		];
                               
         me.callParent(arguments);
