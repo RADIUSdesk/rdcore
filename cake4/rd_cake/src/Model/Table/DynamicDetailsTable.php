@@ -11,12 +11,7 @@ class DynamicDetailsTable extends Table
         $this->addBehavior('Timestamp'); 
          
         $this->belongsTo('Clouds');
-         
-        $this->belongsTo('PermanentUsers', [
-            'className' => 'PermanentUsers',
-            'foreignKey' => 'social_temp_permanent_user_id'
-        ]);
-        
+              
         $this->belongsTo('PermanentUsers');
         
         $this->hasMany('DynamicPhotos',['dependent' => true]); 

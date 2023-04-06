@@ -46,7 +46,7 @@ localizedStrings: {
     'sConnect_with': 'Connect with',
     'sConnect_With_Facebook': 'Connect with Facebook',
     'sConnect_With_Twitter': 'Connect with Twitter',
-    'sConnect_With_Google': 'Connect with Twitter',
+    'sConnect_With_Google': 'Connect with Google',
     'sSign_Up': 'Sign Up',
     'sLost_Password': 'Lost Password',
     'sConnected': 'Connected',

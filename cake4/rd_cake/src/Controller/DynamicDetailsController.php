@@ -27,6 +27,7 @@ class DynamicDetailsController extends AppController{
         $this->loadModel('DynamicPages');
         $this->loadModel('DynamicDetailSocialLogins'); 
         $this->loadModel('DynamicDetailCtcs');
+        $this->loadModel('PermanentUsers');
         
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -1418,10 +1419,11 @@ class DynamicDetailsController extends AppController{
         $req_q  = $this->request->getQuery();
         if(isset($req_q['dynamic_detail_id'])){
         
-            $dd_id = $req_q['dynamic_detail_id'];
+            $dd_id = $req_q['dynamic_detail_id'];                     
+            
             $q_r = $this->{$this->main_model}
                 ->find()
-                ->contain(['DynamicDetailSocialLogins' => ['Realms','Profiles'],'PermanentUsers'])
+                ->contain(['DynamicDetailSocialLogins' => ['Realms','Profiles']])
                 ->where(['DynamicDetails.id' => $dd_id])
                 ->first();
 
@@ -1432,10 +1434,14 @@ class DynamicDetailsController extends AppController{
 				$items['social_temp_permanent_user_id'] 	= $q_r->social_temp_permanent_user_id;
 				
 				$items['social_temp_permanent_user_name']   = '';
-				if($q_r->permanent_user){				
-				    $items['social_temp_permanent_user_name'] 	= $q_r->permanent_user->username;
-			    }
 				
+				if($q_r->social_temp_permanent_user_id){
+					$pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' => $q_r->social_temp_permanent_user_id])->first();
+					if($pu){
+						$items['social_temp_permanent_user_name'] 	= $pu->username;
+					}
+				}
+								
 				foreach($q_r->dynamic_detail_social_logins as $i){
 				
 				    if($i->name == 'Facebook'){

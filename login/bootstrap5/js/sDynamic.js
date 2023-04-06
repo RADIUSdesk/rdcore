@@ -280,7 +280,7 @@ var sDynamic = (function () {
 				        $('#btnTwitter').removeClass('d-none');
 			        }
 			        if(n == 'Google'){
-				        $('#btnTwitter').removeClass('d-none');
+				        $('#btnGoogle').removeClass('d-none');
 			        }
                 
                 });
