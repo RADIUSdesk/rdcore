@@ -7,17 +7,20 @@ Ext.define('Rd.controller.cSchedules', {
         if(!item){  
             pnl.add({
                 itemId : itemId,
-                xtype  : 'gridSchedules',
+             //   xtype  : 'gridSchedules',
+             	xtype  : 'pnlSchedules',
                 border : false,
                 plain  : true,
                 padding: '0 5 0 5'
             });
-            pnl.on({activate : me.gridActivate,scope: me});
+            //pnl.on({activate : me.gridActivate,scope: me});
+            pnl.on({activate : me.dvActivate,scope: me});
             added = true;
         }
         return added;      
     },
     views:  [
+    	'schedules.pnlSchedules',
         'schedules.gridSchedules',		
         'schedules.winScheduleAdd',
         'schedules.pnlScheduleDetail',
@@ -37,7 +40,8 @@ Ext.define('Rd.controller.cSchedules', {
 		urlDeleteEntry  : '/cake4/rd_cake/schedules/delete-schedule-entry.json'
     },
     refs: [
-        {  ref: 'grid',  selector: 'gridSchedules'}       
+        {  ref: 'grid',  selector: 'gridSchedules'} ,
+        {  ref: 'dv',    selector: '#dvSchedules'}       
     ],
     init: function() { 
 
@@ -50,6 +54,9 @@ Ext.define('Rd.controller.cSchedules', {
         me.control({
             'gridSchedules #predef_cmds' : {
                 click   : me.predefCmds
+            },
+            'pnlSchedules #predef_cmds' : {
+                click   : me.predefCmds
             }
         });
     },  
@@ -61,6 +68,10 @@ Ext.define('Rd.controller.cSchedules', {
         }else{
             g.getStore().reload();
         }        
+    },
+   	dvActivate: function(pnl){
+        var me = this;
+        me.getDv().getStore().reload();            
     },
     predefCmds: function(b){
         var me  = this;

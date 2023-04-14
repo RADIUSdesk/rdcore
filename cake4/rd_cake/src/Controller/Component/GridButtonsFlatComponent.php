@@ -667,16 +667,10 @@ class GridButtonsFlatComponent extends Component {
 
     
     private function _fetchSchedules(){
-        $cmb_options = [
-            'xtype'     => 'cmbScheduleOptions',
-            'margin'    => '5 0 5 0',
-            'isRoot'    => false,
-            'itemId'    => 'cmbScheduleOptions'  
-        ];
+       
         
         $b = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
-            $this->btnReload,
-            $cmb_options,         
+            $this->btnReload,       
             $this->btnAdd,
             $this->btnDelete,
             $this->btnEdit

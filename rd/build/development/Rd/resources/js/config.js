@@ -65,7 +65,7 @@ Rd.config = {
     'icnDelete'     : 'xf1f8@FontAwesome',
     'icnPdf'        : 'xf1c1@FontAwesome',
     'icnCsv'        : 'xf1c3@FontAwesome',
-    'icnRadius'     : 'xf10c@FontAwesome',
+    'icnRadius'     : 'xf1ce@FontAwesome',
     'icnLight'      : 'xf204@FontAwesome',
     'icnNote'       : 'xf08d@FontAwesome',
     'icnKey'        : 'xf084@FontAwesome',
@@ -142,7 +142,6 @@ Rd.config = {
     'icnWizard'     : 'xf0d0@FontAwesome',
     'icnVPN'        : 'xf10e@FontAwesome',
     'icnAdmin'      : 'xf19d@FontAwesome',
-    'icnRadius'     : 'xf140@FontAwesome',
     'icnBan'        : 'xf05e@FontAwesome',
     'icnHourStart'  : 'xf251@FontAwesome',
     'icnHourHalf'   : 'xf252@FontAwesome',
@@ -182,7 +181,10 @@ Rd.config = {
     'icnThermometer': 'xf2c9@FontAwesome',
     'icnListOl'     : 'xf0cb@FontAwesome',
     'icnHandshakeO' : 'xf2b5@FontAwesome',
-    'icnHddO'       : 'f0a0@FontAwesome',
-    'icnExchange'   : 'f0ec@FontAwesome'   
+    'icnHddO'       : 'xf0a0@FontAwesome',
+    'icnExchange'   : 'xf0ec@FontAwesome',
+    'icnFire'       : 'xf06d@FontAwesome',
+    'icnCalendar'	: 'xf073@FontAwesome',
+    'icnBus'		: 'xf207@FontAwesome'
 }
 

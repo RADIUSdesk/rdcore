@@ -1,6 +1,6 @@
-Ext.define('Rd.view.schedules.vcSchedules', {
+Ext.define('Rd.view.schedules.vcPnlSchedules', {
     extend  : 'Ext.app.ViewController',
-    alias   : 'controller.vcSchedules',
+    alias   : 'controller.vcPnlSchedules',
     init    : function() {
     
     },
@@ -14,21 +14,22 @@ Ext.define('Rd.view.schedules.vcSchedules', {
 		urlDeleteEntry  : '/cake4/rd_cake/schedules/delete-schedule-entry.json'
     },
     control: {
-        'gridSchedules #reload': {
+    	'pnlSchedules #reload': {
             click   : 'reload'
         },
-        'gridSchedules #add': {
+        'pnlSchedules #add': {
              click: 'add'
         },
-        'gridSchedules #edit': {
+        'pnlSchedules #edit': {
             click: 'edit'
         },       
-        'gridSchedules #delete': {
+        'pnlSchedules #delete': {
             click   : 'del'
         },
-        'gridSchedules actioncolumn' : {
-             itemClick  : 'onColumnItemClick'
-        },  
+        'pnlSchedules #dvSchedules' : {
+        	//select		: 'itemSelected',
+        	itemclick	: 'itemSelected'
+        },
         'winScheduleAdd #btnDataNext' : {
             click   : 'btnDataNext'
         },
@@ -43,61 +44,33 @@ Ext.define('Rd.view.schedules.vcSchedules', {
         },
         'winScheduleEntryEdit #save': {
             click   : 'btnEntryEditSave'
-        },
-        
-        'pnlSchedules #reload': {
-            click   : 'reload'
-        },
-        'pnlSchedules #add': {
-             click: 'add'
-        },
-        'pnlSchedules #edit': {
-            click: 'edit'
-        },       
-        'pnlSchedules #delete': {
-            click   : 'del'
-        }
-                 
+        }                 
+    },
+    itemSelected: function(dv,record){
+    	var me = this;
+    	//--Add Schedule Component--
+    	if(record.get('type') == 'add'){
+		    if(!Ext.WindowManager.get('winScheduleEntryAddId')){
+                var w = Ext.widget('winScheduleEntryAdd',{id:'winScheduleEntryAddId','schedule_id' : record.get('schedule_id'),'schedule_name' : record.get('schedule_name')});
+                me.getView().add(w); 
+                let appBody = Ext.getBody();
+                w.showBy(appBody);             
+            } 
+    	} 	
     },
     reload: function(){
-        var me      = this;
-        me.getView().getSelectionModel().deselectAll(true);
-        me.getView().getStore().load();
+        var me = this;
+        me.getView().down('#dvSchedules').getStore().reload(); 
     },
-    add: function(button) {
-	
+    add: function(button) {	
         var me      = this;
-        var option  = me.getView().down('#cmbScheduleOptions').getValue();
         var c_name 	= Rd.getApplication().getCloudName();
-        var c_id	= Rd.getApplication().getCloudId()
-             
-        if(option == 'schedule'){            
-            if(!Ext.WindowManager.get('winScheduleAddId')){
-                var w = Ext.widget('winScheduleAdd',{id:'winScheduleAddId',cloudId: c_id, cloudName: c_name});
-                this.getView().add(w);
-                let appBody = Ext.getBody();
-                w.showBy(appBody);        
-            }              
-        }
-         
-        if(option == 'schedule_entry'){       
-            if(me.getView().getSelectionModel().getCount() == 0){
-                 Ext.ux.Toaster.msg(
-                            i18n('sSelect_an_item'),
-                            'Select A Schedule To Add An Schedule Entry' ,
-                            Ext.ux.Constants.clsWarn,
-                            Ext.ux.Constants.msgWarn
-                );
-            }else{
-			    var sr   =  me.getView().getSelectionModel().getLastSelected();
-			    var id   =  sr.getId().split('_');
-			    if(!Ext.WindowManager.get('winScheduleEntryAddId')){
-                    var w = Ext.widget('winScheduleEntryAdd',{id:'winScheduleEntryAddId','schedule_id' : id[0],'schedule_name' : sr.get('name')});
-                    this.getView().add(w); 
-                    let appBody = Ext.getBody();
-                    w.showBy(appBody);             
-                } 
-            }            
+        var c_id	= Rd.getApplication().getCloudId()    
+        if(!Ext.WindowManager.get('winScheduleAddId')){
+            var w = Ext.widget('winScheduleAdd',{id:'winScheduleAddId',cloudId: c_id, cloudName: c_name});
+            this.getView().add(w);
+            let appBody = Ext.getBody();
+            w.showBy(appBody);        
         }
     },
     btnDataNext:  function(button){
@@ -122,48 +95,25 @@ Ext.define('Rd.view.schedules.vcSchedules', {
     },
     edit: function(button) {
         var me      = this;
-        var option  = me.getView().down('#cmbScheduleOptions').getValue();            
-        if(option == 'schedule'){
-            //Find out if there was something selected
-            if(me.getView().getSelectionModel().getCount() == 0){
-                 Ext.ux.Toaster.msg(
-                            i18n('sSelect_an_item'),
-                            i18n('sFirst_select_an_item_to_edit'),
-                            Ext.ux.Constants.clsWarn,
-                            Ext.ux.Constants.msgWarn
-                );
-            }else{
-			    var sr   =  me.getView().getSelectionModel().getLastSelected();
-			    var id   =  sr.getId().split('_');
-			    if(!Ext.WindowManager.get('winScheduleEditId')){
-                    var w = Ext.widget('winScheduleEdit',{id:'winScheduleEditId',record: sr, schedule_id: id[0]});
-                    this.getView().add(w);
-                    let appBody = Ext.getBody();
-                    w.showBy(appBody);            
-                }    
-            }
-        }
-        
-        if(option == 'schedule_entry'){
-            //Find out if there was something selected
-            if(me.getView().getSelectionModel().getCount() == 0){
-                 Ext.ux.Toaster.msg(
-                            i18n('sSelect_an_item'),
-                            i18n('sFirst_select_an_item_to_edit'),
-                            Ext.ux.Constants.clsWarn,
-                            Ext.ux.Constants.msgWarn
-                );
-            }else{
-			    var sr   =  me.getView().getSelectionModel().getLastSelected();
-			    var id   =  sr.getId().split('_');
-			    if(!Ext.WindowManager.get('winScheduleEntryEditId')){
-			        let appBody = Ext.getBody();
-                    var w = Ext.widget('winScheduleEntryEdit',{id:'winScheduleEntryEditId',record: sr, schedule_entry_id: id[1]});
-                    this.getView().add(w);
-                    w.showBy(appBody);     
-                }    
-            }
-        }         
+        //Find out if there was something selected
+        if(me.getView().down('#dvSchedules').getSelectionModel().getCount() == 0){
+             Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item_to_edit'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{
+		    var sr   =  me.getView().down('#dvSchedules').getSelectionModel().getLastSelected();
+		    if(sr.get('type') == 'schedule'){
+				if(!Ext.WindowManager.get('winScheduleEditId')){
+		            var w = Ext.widget('winScheduleEdit',{id:'winScheduleEditId',record: sr, schedule_id: sr.get('schedule_id')});
+		            this.getView().add(w);
+		            let appBody = Ext.getBody();
+		            w.showBy(appBody);            
+		        }
+		  	}   
+        }     
     },
     btnEditSave:function(button){
         var me      = this;
@@ -352,16 +302,5 @@ Ext.define('Rd.view.schedules.vcSchedules', {
                 }
             });
         }
-    },
-    onColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
-        //console.log("Action Item "+action+" Clicked");
-        var me = this;
-        me.getView().setSelection(record);
-        if(action == 'edit'){
-            me.edit()
-        }
-        if(action == 'delete'){
-            me.del();
-        }     
-    }  
+    }
 });

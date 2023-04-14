@@ -80,6 +80,92 @@ class SchedulesController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
     
+     public function indexDataView(){
+        //__ Authentication + Authorization __
+        $user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+
+        $req_q    = $this->request->getQuery();      
+       	$cloud_id = $req_q['cloud_id'];
+        $query 	  = $this->{$this->main_model}->find();      
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['ScheduleEntries']);
+
+
+        //===== PAGING (MUST BE LAST) ======
+        $limit = 50;   //Defaults
+        $page = 1;
+        $offset = 0;
+        if (isset($req_qy['limit'])) {
+            $limit  = $req_q['limit'];
+            $page   = $req_q['page'];
+            $offset = $req_q['start'];
+        }
+
+        $query->page($page);
+        $query->limit($limit);
+        $query->offset($offset);
+
+        $total  = $query->count();
+        $q_r    = $query->all();
+        $items  = [];
+
+        foreach ($q_r as $i) {
+       
+            $row            = [];       
+			$row['id']      = $i->id.'_0'; //Signifies Schedule
+			$row['name']	= $i->name;
+			$row['type']	= 'schedule';
+			$row['schedule_id'] = $i->id;
+			
+			array_push($items, $row);
+			
+			foreach($i->schedule_entries as $se){			
+				$se->type = 'schedule_entry';
+				array_push($items, $se);		
+			}
+			
+			
+			array_push($items,[ 'id' => '0_'.$i->id, 'type'	=> 'add','name' => 'Schedule Entry', 'schedule_id' =>  $i->id, 'schedule_name' => $i->name ]);
+			
+								
+			//$row['description'] = '';			
+			//$columns = ['description','type', 'command', 'mo', 'tu','we','th','fr','sa','su','event_time'];	
+			
+							
+			/*if(count($i->schedule_entries) > 0){
+			    foreach($i->schedule_entries as $se){
+			        $row['id']   = $i->id.'_'.$se->id;
+			        foreach($columns as $c){
+                        $row[$c] = $se->{$c};
+                    }
+			        array_push($items, $row);   
+			    }
+	        }else{
+	            array_push($items, $row);
+	        } */         
+        }
+        
+     /*   
+        $items = [
+        	[ 'id' => '1_0', 	'type' 	=> 'schedule', 			'name' => 'General One'		],
+        	[ 'id' => '1_1',	'type'	=> 'schedule_entry',	'name' => 'Reboot Every Day', 'everyday' => true ],  
+        	[ 'id' => '0',		'type'	=> 'add',				'name' => 'Schedule Entry' 	],
+        	      
+        ];
+        $total = 2;
+        */
+
+        //___ FINAL PART ___
+        $this->set([
+            'items'         => $items,
+            'success'       => true,
+            'totalCount'    => $total
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    }
+    
     
     
     public function index(){
