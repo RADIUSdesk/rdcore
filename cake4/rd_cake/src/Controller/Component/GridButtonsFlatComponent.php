@@ -685,8 +685,27 @@ class GridButtonsFlatComponent extends Component {
                 'tooltip'   =>  __('Predefined Commands'),
                 'ui'        => $this->btnUiProfComp
             ]                   
-        ]];    
-	    $menu = [$b,$c];
+        ]]; 
+        
+        $cmb_schedules = [
+            'xtype'     => 'cmbSchedule',
+            'margin'    => '5 0 5 0',
+            'width'		=> 230,
+            'itemId'    => 'cmbSchedule',
+            'fieldLabel'=> '',
+            'value'		=> 0,
+            'include_all_option' => true 
+        ];
+        
+        $d = [
+        	'xtype' => 'buttongroup', 
+        	'title' => $this->t,
+        	'items' => [
+        		$cmb_schedules                    
+        	]
+        ];  
+           
+	    $menu = [$b,$c,$d];
         return $menu;    
     }
     

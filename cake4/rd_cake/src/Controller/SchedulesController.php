@@ -66,6 +66,10 @@ class SchedulesController extends AppController {
         $total  = $query->count();
         $q_r    = $query->all();
         $items  = [];
+        
+        if($req_q['include_all_option'] == true){
+        	array_push($items, ['id' => 0,'name' => '**All Schedules**']);      
+        }
 
         foreach ($q_r as $i) {
 	        array_push($items, ['id' => $i->id,'name' => $i->name]);        
@@ -90,7 +94,13 @@ class SchedulesController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['ScheduleEntries']);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['ScheduleEntries'=>['PredefinedCommands']]);
+        
+        if($req_q['id']){
+        	if($req_q['id'] > 0){
+        		$query->where(['Schedules.id' => $req_q['id']]);
+        	}	   
+        }
 
 
         //===== PAGING (MUST BE LAST) ======
@@ -117,45 +127,28 @@ class SchedulesController extends AppController {
 			$row['id']      = $i->id.'_0'; //Signifies Schedule
 			$row['name']	= $i->name;
 			$row['type']	= 'schedule';
-			$row['schedule_id'] = $i->id;
-			
+			$row['schedule_id'] = $i->id;		
 			array_push($items, $row);
 			
-			foreach($i->schedule_entries as $se){			
+			foreach($i->schedule_entries as $se){
+				$se->command_type = $se->type;			
 				$se->type = 'schedule_entry';
+				$se->time_human = $this->timeFormat($se->event_time);
+				if($se->predefined_command){
+					$se->command = $se->predefined_command->command;
+				}
+				$se->everyday = false;
+				if($se->mo && $se->tu && $se->we && $se->th && $se->fr && $se->sa && $se->su){
+					$se->everyday = true;	
+				}
+				
 				array_push($items, $se);		
 			}
-			
-			
+					
 			array_push($items,[ 'id' => '0_'.$i->id, 'type'	=> 'add','name' => 'Schedule Entry', 'schedule_id' =>  $i->id, 'schedule_name' => $i->name ]);
 			
-								
-			//$row['description'] = '';			
-			//$columns = ['description','type', 'command', 'mo', 'tu','we','th','fr','sa','su','event_time'];	
-			
-							
-			/*if(count($i->schedule_entries) > 0){
-			    foreach($i->schedule_entries as $se){
-			        $row['id']   = $i->id.'_'.$se->id;
-			        foreach($columns as $c){
-                        $row[$c] = $se->{$c};
-                    }
-			        array_push($items, $row);   
-			    }
-	        }else{
-	            array_push($items, $row);
-	        } */         
         }
         
-     /*   
-        $items = [
-        	[ 'id' => '1_0', 	'type' 	=> 'schedule', 			'name' => 'General One'		],
-        	[ 'id' => '1_1',	'type'	=> 'schedule_entry',	'name' => 'Reboot Every Day', 'everyday' => true ],  
-        	[ 'id' => '0',		'type'	=> 'add',				'name' => 'Schedule Entry' 	],
-        	      
-        ];
-        $total = 2;
-        */
 
         //___ FINAL PART ___
         $this->set([
@@ -277,14 +270,12 @@ class SchedulesController extends AppController {
         $req_d 		= $this->request->getData();
 
 	    if(isset($req_d['id'])){   //Single item delete
-            $ids = explode("_", $req_d['id']);
-            $entity     = $this->{$this->main_model}->get($ids[0]);   
+            $entity     = $this->{$this->main_model}->get($req_d['id']);   
             $this->{$this->main_model}->delete($entity);
 
         }else{                          //Assume multiple item delete
             foreach($req_d as $d){
-                $ids        = explode("_", $d['id']);
-                $entity     = $this->{$this->main_model}->get($ids[0]);  
+                $entity     = $this->{$this->main_model}->get($d['id']);  
                 $this->{$this->main_model}->delete($entity);
             }
         }
@@ -457,16 +448,13 @@ class SchedulesController extends AppController {
         $req_d 		= $this->request->getData();
 
 	    if(isset($req_d['id'])){   //Single item delete
-            $message = "Single item ".$req_d['id'];
-            $ids = explode("_", $req_d['id']);
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:         
-            $entity     = $this->{'ScheduleEntries'}->get($ids[1]);   
+            $message = "Single item ".$req_d['id'];       
+            $entity     = $this->{'ScheduleEntries'}->get($req_d['id']);   
             $this->{'ScheduleEntries'}->delete($entity);
              
         }else{                          //Assume multiple item delete
             foreach($req_d as $d){
-                $ids        = explode("_", $d['id']);
-                $entity     = $this->{'ScheduleEntries'}->get($ids[1]);     
+                $entity     = $this->{'ScheduleEntries'}->get($d['id']);     
                 $this->{'ScheduleEntries'}->delete($entity);                
             }
         }
@@ -511,6 +499,15 @@ class SchedulesController extends AppController {
             'success'       => true
         ]);
         $this->viewBuilder()->setOption('serialize', true);  
+    }
+    
+    private function timeFormat($event_time){
+    
+    	$m       = $event_time % 60;
+        $h       = ($event_time-$m)/60;
+        $hrs_mins= $h.":".str_pad($m, 2, "0", STR_PAD_LEFT);
+        return $hrs_mins;
+    
     }
     
 }

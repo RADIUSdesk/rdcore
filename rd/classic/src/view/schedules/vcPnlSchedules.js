@@ -26,6 +26,9 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
         'pnlSchedules #delete': {
             click   : 'del'
         },
+        'pnlSchedules cmbSchedule': {
+           change   : 'cmbScheduleChange'
+        },
         'pnlSchedules #dvSchedules' : {
         	//select		: 'itemSelected',
         	itemclick	: 'itemSelected'
@@ -60,7 +63,7 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
     },
     reload: function(){
         var me = this;
-        me.getView().down('#dvSchedules').getStore().reload(); 
+        me.getView().down('#dvSchedules').getStore().reload();
     },
     add: function(button) {	
         var me      = this;
@@ -83,6 +86,7 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
             success: function(form, action) {
                 win.close();
                 me.reload();
+                me.reloadComboBox();
                 Ext.ux.Toaster.msg(
                     i18n('sNew_item_created'),
                     i18n('sItem_created_fine'),
@@ -112,7 +116,16 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
 		            let appBody = Ext.getBody();
 		            w.showBy(appBody);            
 		        }
-		  	}   
+		  	}
+		  	
+		  	 if(sr.get('type') == 'schedule_entry'){
+				if(!Ext.WindowManager.get('winScheduleEntryEditId')){
+			        let appBody = Ext.getBody();
+                    var w = Ext.widget('winScheduleEntryEdit',{id:'winScheduleEntryEditId',record: sr, schedule_entry_id: sr.get('id')});
+                    this.getView().add(w);
+                    w.showBy(appBody);     
+                }  
+		  	}	  			  		  	  
         }     
     },
     btnEditSave:function(button){
@@ -138,62 +151,61 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
     },  
     del: function(button) {
         var me      = this;
-        var option  = me.getView().down('#cmbScheduleOptions').getValue();
         
-        if(option == 'schedule'){
-            me.delSchedule()   
-        } 
-        
-        if(option == 'schedule_entry'){
-            me.delScheduleEntry();            
-        }        
-    },           
-    delSchedule:   function(){
-        var me      = this;     
-        //Find out if there was something selected
-        if(me.getView().getSelectionModel().getCount() == 0){
-             Ext.ux.Toaster.msg(
+        if(me.getView().down('#dvSchedules').getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
                         i18n('sSelect_an_item'),
                         i18n('sFirst_select_an_item_to_delete'),
                         Ext.ux.Constants.clsWarn,
                         Ext.ux.Constants.msgWarn
             );
         }else{
-            Ext.MessageBox.confirm(i18n('sConfirm'), 'This will DELETE the Schedule and ALL its Schedule Entries' , function(val){
-                if(val== 'yes'){
-                    var selected    = me.getView().getSelectionModel().getSelection();
-                    var list        = [];
-                    Ext.Array.forEach(selected,function(item){
-                        var id = item.getId();
-                        Ext.Array.push(list,{'id' : id});
-                    });
-                    Ext.Ajax.request({
-                        url: me.getUrlDelete(),
-                        method: 'POST',          
-                        jsonData: list,
-                        success: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sItem_deleted'),
-                                i18n('sItem_deleted_fine'),
-                                Ext.ux.Constants.clsInfo,
-                                Ext.ux.Constants.msgInfo
-                            );
-                            me.reload(); //Reload from server
-                        },                                    
-                        failure: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sProblems_deleting_item'),
-                                batch.proxy.getReader().rawData.message.message,
-                                Ext.ux.Constants.clsWarn,
-                                Ext.ux.Constants.msgWarn
-                            );
-                            me.reload(); //Reload from server
-                        }
-                    });
-
-                }
-            });
-        }
+        	var sr   =  me.getView().down('#dvSchedules').getSelectionModel().getLastSelected();
+		    if(sr.get('type') == 'schedule'){
+		    	 me.delSchedule();
+		    }
+		    
+		    if(sr.get('type') == 'schedule_entry'){
+		        me.delScheduleEntry();            
+		    }            
+        }      
+    },           
+    delSchedule:   function(){
+        var me      = this;     
+        Ext.MessageBox.confirm(i18n('sConfirm'), 'This will DELETE the Schedule and ALL its Schedule Entries' , function(val){
+            if(val== 'yes'){
+                var selected    = me.getView().down('#dvSchedules').getSelectionModel().getSelection();
+                var list        = [];
+                Ext.Array.forEach(selected,function(item){
+                    var id = item.get('schedule_id');
+                    Ext.Array.push(list,{'id' : id});
+                });
+                Ext.Ajax.request({
+                    url: me.getUrlDelete(),
+                    method: 'POST',          
+                    jsonData: list,
+                    success: function(batch,options){
+                        Ext.ux.Toaster.msg(
+                            i18n('sItem_deleted'),
+                            i18n('sItem_deleted_fine'),
+                            Ext.ux.Constants.clsInfo,
+                            Ext.ux.Constants.msgInfo
+                        );
+                        me.reload(); //Reload from server
+                        me.reloadComboBox();
+                    },                                    
+                    failure: function(batch,options){
+                        Ext.ux.Toaster.msg(
+                            i18n('sProblems_deleting_item'),
+                            batch.proxy.getReader().rawData.message.message,
+                            Ext.ux.Constants.clsWarn,
+                            Ext.ux.Constants.msgWarn
+                        );
+                        me.reload(); //Reload from server
+                    }
+                });
+            }
+        });
     },
     btnEntryAddSave : function(button){
         var me      = this;
@@ -260,47 +272,49 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
     delScheduleEntry:   function(){
         var me      = this;     
         //Find out if there was something selected
-        if(me.getView().getSelectionModel().getCount() == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item_to_delete'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            Ext.MessageBox.confirm(i18n('sConfirm'), 'This will DELETE the selected Schedule Entries' , function(val){
-                if(val== 'yes'){
-                    var selected    = me.getView().getSelectionModel().getSelection();
-                    var list        = [];
-                    Ext.Array.forEach(selected,function(item){
-                        var id = item.getId();
-                        Ext.Array.push(list,{'id' : id});
-                    });
-                    Ext.Ajax.request({
-                        url: me.getUrlDeleteEntry(),
-                        method: 'POST',          
-                        jsonData: list,
-                        success: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sItem_deleted'),
-                                i18n('sItem_deleted_fine'),
-                                Ext.ux.Constants.clsInfo,
-                                Ext.ux.Constants.msgInfo
-                            );
-                            me.reload(); //Reload from server
-                        },                                    
-                        failure: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sProblems_deleting_item'),
-                                batch.proxy.getReader().rawData.message.message,
-                                Ext.ux.Constants.clsWarn,
-                                Ext.ux.Constants.msgWarn
-                            );
-                            me.reload(); //Reload from server
-                        }
-                    });
-                }
-            });
-        }
+        Ext.MessageBox.confirm(i18n('sConfirm'), 'This will DELETE the selected Schedule Entries' , function(val){
+            if(val== 'yes'){
+                var selected    = me.getView().down('#dvSchedules').getSelectionModel().getSelection();
+                var list        = [];
+                Ext.Array.forEach(selected,function(item){
+                    var id = item.getId();
+                    Ext.Array.push(list,{'id' : id});
+                });
+                Ext.Ajax.request({
+                    url: me.getUrlDeleteEntry(),
+                    method: 'POST',          
+                    jsonData: list,
+                    success: function(batch,options){
+                        Ext.ux.Toaster.msg(
+                            i18n('sItem_deleted'),
+                            i18n('sItem_deleted_fine'),
+                            Ext.ux.Constants.clsInfo,
+                            Ext.ux.Constants.msgInfo
+                        );
+                        me.reload(); //Reload from server
+                    },                                    
+                    failure: function(batch,options){
+                        Ext.ux.Toaster.msg(
+                            i18n('sProblems_deleting_item'),
+                            batch.proxy.getReader().rawData.message.message,
+                            Ext.ux.Constants.clsWarn,
+                            Ext.ux.Constants.msgWarn
+                        );
+                        me.reload(); //Reload from server
+                    }
+                });
+            }
+        });
+    },
+    cmbScheduleChange: function(cmb,new_value){
+    	var me = this;
+    	console.log("Filter TO "+new_value);
+    	me.getView().down('#dvSchedules').getStore().getProxy().setExtraParams({id:new_value});
+ 		me.reload();
+    },
+    reloadComboBox: function(){  
+    	var me = this;
+    	me.getView().down('cmbSchedule').getStore().reload();
     }
+    
 });
