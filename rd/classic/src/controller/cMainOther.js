@@ -38,6 +38,11 @@ Ext.define('Rd.controller.cMainOther', {
 		    afterrender	: function(pnl){
 		        Ext.getApplication().runAction('cTestRadius','Index',pnl);
 		    }
+	    },
+	    '#tabMainOther #cFirewallProfiles' : {
+		    afterrender	: function(pnl){
+		        Ext.getApplication().runAction('cFirewallProfiles','Index',pnl);
+		    }
 	    }
     },
     actionIndex: function(pnl,itemId){

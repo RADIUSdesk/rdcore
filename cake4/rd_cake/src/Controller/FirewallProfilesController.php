@@ -2,7 +2,7 @@
 /**
  * Created by G-edit.
  * User: dirkvanderwalt
- * Date: 10/08/2021
+ * Date: 17/April/2023
  * Time: 00:00
  */
 
@@ -11,22 +11,22 @@ use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
 use Cake\I18n\FrozenTime;
 
-class SchedulesController extends AppController {
+class FirewallProfilesController extends AppController {
 
-    public $base            = "Access Providers/Controllers/Schedules/";
+    public $base            = "Access Providers/Controllers/FirewallProfiles/";
     protected $owner_tree   = [];
-    protected $main_model   = 'Schedules';
+    protected $main_model   = 'FirewallProfiles';
     
     public function initialize():void{
         parent::initialize();
         
         $this->loadModel($this->main_model);
         $this->loadModel('Users');
-        $this->loadModel('ScheduleEntries');
+        $this->loadModel('FirewallProfileEntries');
 
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
-            'model'     => 'Schedules',
-            'sort_by'   => 'Schedules.name'
+            'model'     => 'FirewallProfiles',
+            'sort_by'   => 'FirewallProfiles.name'
         ]);
         
         $this->loadComponent('Aa');

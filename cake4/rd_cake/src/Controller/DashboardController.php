@@ -736,6 +736,13 @@ class DashboardController extends AppController{
             ]);
             
             array_push($items,[
+                "title"	=> "Advanced Firewall",
+                "glyph"	=> "xf06d@FontAwesome",
+                "id"	=> "cFirewallProfiles",
+                "layout"=> "fit"
+            ]);
+            
+            array_push($items,[
                 "title"	=> "Hardwares",
                 "glyph"	=> "xf0a0@FontAwesome",
                 "id"	=> "cHardwares",
