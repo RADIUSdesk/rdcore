@@ -1231,7 +1231,7 @@ var sConnect = (function () {
             if($("#txtVoucher").length){ //It might not be there depending on the settings
                 if($("#txtVoucher").val() !== ''){
                      userName = $("#txtVoucher").val().toLowerCase();
-                     password = userName;
+                     password = $("#txtVoucher").val();
                 }
             }
             if($("#txtUsername").length){ //It might not be there depending on the settings
