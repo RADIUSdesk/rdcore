@@ -20,7 +20,8 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
     requires: [
         'Ext.form.Panel',
         'Ext.form.field.Text',
-        'Rd.view.firewallProfiles.vcFirewallProfileEntry'
+        'Rd.view.firewallProfiles.vcFirewallProfileEntry',
+        'Rd.view.firewallProfiles.cmbFwCategories'
     ],
     controller  : 'vcFirewallProfileEntry',
     initComponent: function() {
@@ -71,49 +72,60 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
                 },
                 {
                     xtype       : 'radiogroup',
-                    columns     : 2,
-                    vertical    : true,
+                    fieldLabel  : 'Action',
+                    labelClsExtra: 'lblRd',
+                    layout: {
+						type	: 'hbox',
+						align	: 'middle',
+						pack	: 'stretchmax',
+						padding	: 0,
+						margin	: 0
+					},
+                    defaultType: 'button',
+    				defaults: {
+						enableToggle: true,
+						toggleGroup: 'action',
+						allowDepress: false,					
+					},             
                     items: [
-                        { boxLabel: 'Predefined Command',   name: 'type',    inputValue: 'predefined_command',checked: true },
-                        { boxLabel: 'Execute Command',      name: 'type',    inputValue: 'command'},
-                    ],
+						{ text: 'Block', 		glyph: Rd.config.icnBan,   flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 0' },
+						{ text: 'Allow', 		glyph: Rd.config.icnStart, flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 5' },
+						{ text: 'Speed Limit', 	glyph: Rd.config.icnMeter, flex:1, ui : 'default-toolbar', 'margin' : '0 0 0 5' }
+					],
                     listeners   : {
                        change  : 'rgrpChange'
                     }
                 },
                 {
-				    xtype       : 'panel',
-                    layout      : 'hbox',
-                    itemId      : 'hbPredefinedCommand',
-                    bodyStyle   : 'background: #e0ebeb',
-                    padding     : '0 10 0 10',
-                    items       : [
-                        {
-                            xtype       : 'cmbPredefinedCommand',
-                            width       : 555
-                        }
-                    ]       
-                }, 
+                	xtype	: 'cmbFwCategories'
+                },
+                
                 {
-				    xtype       : 'panel',
-                    layout      : 'hbox',
-                    itemId      : 'hbCommand',
-                    hidden      : true,
-                    disabled    : true,
-                    bodyStyle   : 'background: #b5b5b5',
-                    padding     : '0 10 0 10',
-                    items       : [
-                        {
-                            xtype       : 'textfield',
-                        //    fieldLabel  : i18n('sCommand'),
-                            name        : "command",
-                            allowBlank  : false,
-                            blankText   : i18n('sSupply_a_value'),
-                            labelClsExtra: 'lblRdReq',
-                            flex        : 1
-                        }
-                    ]
-                },        
+                    xtype       : 'radiogroup',
+                    fieldLabel  : 'Schedule',
+                    labelClsExtra: 'lblRd',
+                    layout: {
+						type	: 'hbox',
+						align	: 'middle',
+						pack	: 'stretchmax',
+						padding	: 0,
+						margin	: 0
+					},
+                    defaultType: 'button',
+    				defaults: {
+						enableToggle: true,
+						toggleGroup: 'schedule',
+						allowDepress: false,					
+					},             
+                    items: [
+						{ text: 'Always', 	flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 0' },
+						{ text: 'Specify',  flex:1, ui : 'default-toolbar', 'margin' : '0 0 0 5' }
+					],
+                    listeners   : {
+                       change  : 'rgrpChange'
+                    }
+                },
+                
                 {
                     xtype       : 'checkboxgroup',
                     columns     : 4,
@@ -128,22 +140,22 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
                         { boxLabel: 'Saturday', name: 'sa', inputValue: '1',   checked: true },
                         { boxLabel: 'Sunday',   name: 'su', inputValue: '1',   checked: true }
                     ]
-                },                             
+                },
                 {
-                    xtype       : 'slider',
+                    xtype       : 'multislider',
                     width       : 500,
                     itemId      : 'slideTime',
-                    value       : 0,
+                    values		: [25, 50],
                     increment   : 5,
                     minValue    : 0,
                     maxValue    : 1439,
                     constrainThumbs: true,
-                    fieldLabel  : "Time",
+                    fieldLabel  : "Start & End",
                     useTips     : true,
                     html        : '<h1>Place Holder</h1>',
                     name        : 'event_time',
                     listeners   : {
-                        change  : 'onTimeSlideChange'
+                       // change  : 'onTimeSlideChange'
                     },
                     tipText     : 'onTipText'
                 },
@@ -153,7 +165,7 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
                     tpl         : '<div class="fieldBlue"><b>Time Of Event :</b> {start_time} <b></div>',
                     data        : {start_time : '00:00'},
                     padding     : '0 10 0 10',
-                }		
+                }	                                                        	
             ]
         });
         

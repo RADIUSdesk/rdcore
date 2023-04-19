@@ -34,7 +34,7 @@ Ext.define('Rd.view.firewallProfiles.pnlFirewallProfiles', {
                 '<div class="plain-wrap">',
                 	'<tpl if="type==\'firewall_profile\'">',
                 		'<div class="main">',
-                			'<i class="fa fa-calendar"></i> {name}',
+                			'<span style="font-family:FontAwesome;">&#xf06d;</span> {name}',
                 		'</div>', 
                 	'</tpl>',
                 	'<tpl if="type==\'firewall_profile_entry\'">',

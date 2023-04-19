@@ -1,6 +1,6 @@
 Ext.define('Rd.view.firewallProfiles.vcFirewallProfileEntry', {
     extend  : 'Ext.app.ViewController',
-    alias   : 'controller.vcFirewallProfileEntryEntry',
+    alias   : 'controller.vcFirewallProfileEntry',
     init    : function() {
     
     },

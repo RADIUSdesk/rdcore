@@ -94,11 +94,11 @@ class FirewallProfilesController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['ScheduleEntries'=>['PredefinedCommands']]);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['FirewallProfileEntries']);
         
         if(isset($req_q['id'])){
         	if($req_q['id'] > 0){
-        		$query->where(['Schedules.id' => $req_q['id']]);
+        		$query->where(['FirewallProfile.id' => $req_q['id']]);
         	}	   
         }
 
@@ -124,15 +124,15 @@ class FirewallProfilesController extends AppController {
         foreach ($q_r as $i) {
        
             $row            = [];       
-			$row['id']      = $i->id.'_0'; //Signifies Schedule
+			$row['id']      = $i->id.'_0'; //Signifies Firewall Profile
 			$row['name']	= $i->name;
-			$row['type']	= 'schedule';
-			$row['schedule_id'] = $i->id;		
+			$row['type']	= 'firewall_profile';
+			$row['firewall_profile_id'] = $i->id;		
 			array_push($items, $row);
 			
-			foreach($i->schedule_entries as $se){
+			foreach($i->firewall_profile_entries as $se){
 				$se->command_type = $se->type;			
-				$se->type = 'schedule_entry';
+				$se->type = 'firewall_profile_entry';
 				$se->time_human = $this->timeFormat($se->event_time);
 				if($se->predefined_command){
 					$se->command = $se->predefined_command->command;
@@ -145,7 +145,7 @@ class FirewallProfilesController extends AppController {
 				array_push($items, $se);		
 			}
 					
-			array_push($items,[ 'id' => '0_'.$i->id, 'type'	=> 'add','name' => 'Schedule Entry', 'schedule_id' =>  $i->id, 'schedule_name' => $i->name ]);
+			array_push($items,[ 'id' => '0_'.$i->id, 'type'	=> 'add','name' => 'Firewall Profile Entry', 'firewall_profile_id' =>  $i->id, 'firewall_profile_name' => $i->name ]);
 			
         }
         

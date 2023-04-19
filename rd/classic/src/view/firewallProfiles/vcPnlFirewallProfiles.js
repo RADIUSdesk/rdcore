@@ -69,7 +69,7 @@ Ext.define('Rd.view.firewallProfiles.vcPnlFirewallProfiles', {
         var c_name 	= Rd.getApplication().getCloudName();
         var c_id	= Rd.getApplication().getCloudId()    
         if(!Ext.WindowManager.get('winFirewallProfileAddId')){
-            var w = Ext.widget('winFirewallProfilesAdd',{id:'winFirewallProfilesAddId',cloudId: c_id, cloudName: c_name});
+            var w = Ext.widget('winFirewallProfileAdd',{id:'winFirewallProfileAddId',cloudId: c_id, cloudName: c_name});
             this.getView().add(w);
             let appBody = Ext.getBody();
             w.showBy(appBody);        

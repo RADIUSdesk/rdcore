@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.6.11-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.6.12-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: rd
 -- ------------------------------------------------------
--- Server version	10.6.11-MariaDB-0ubuntu0.22.04.1
+-- Server version	10.6.12-MariaDB-0ubuntu0.22.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -206,6 +206,40 @@ CREATE TABLE `ap_profile_entries` (
 LOCK TABLES `ap_profile_entries` WRITE;
 /*!40000 ALTER TABLE `ap_profile_entries` DISABLE KEYS */;
 /*!40000 ALTER TABLE `ap_profile_entries` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ap_profile_entry_schedules`
+--
+
+DROP TABLE IF EXISTS `ap_profile_entry_schedules`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ap_profile_entry_schedules` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ap_profile_entry_id` int(11) DEFAULT NULL,
+  `action` enum('off','on') DEFAULT 'off',
+  `mo` tinyint(1) NOT NULL DEFAULT 0,
+  `tu` tinyint(1) NOT NULL DEFAULT 0,
+  `we` tinyint(1) NOT NULL DEFAULT 0,
+  `th` tinyint(1) NOT NULL DEFAULT 0,
+  `fr` tinyint(1) NOT NULL DEFAULT 0,
+  `sa` tinyint(1) NOT NULL DEFAULT 0,
+  `su` tinyint(1) NOT NULL DEFAULT 0,
+  `event_time` varchar(10) NOT NULL DEFAULT '',
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ap_profile_entry_schedules`
+--
+
+LOCK TABLES `ap_profile_entry_schedules` WRITE;
+/*!40000 ALTER TABLE `ap_profile_entry_schedules` DISABLE KEYS */;
+/*!40000 ALTER TABLE `ap_profile_entry_schedules` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -891,6 +925,32 @@ LOCK TABLES `checks` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `client_macs`
+--
+
+DROP TABLE IF EXISTS `client_macs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `client_macs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `mac` varchar(17) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `mac` (`mac`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `client_macs`
+--
+
+LOCK TABLES `client_macs` WRITE;
+/*!40000 ALTER TABLE `client_macs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `client_macs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `cloud_admins`
 --
 
@@ -1153,6 +1213,33 @@ LOCK TABLES `devices` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `dynamic_client_macs`
+--
+
+DROP TABLE IF EXISTS `dynamic_client_macs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dynamic_client_macs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `dynamic_client_id` int(11) DEFAULT NULL,
+  `client_mac_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `dc_mac` (`dynamic_client_id`,`client_mac_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `dynamic_client_macs`
+--
+
+LOCK TABLES `dynamic_client_macs` WRITE;
+/*!40000 ALTER TABLE `dynamic_client_macs` DISABLE KEYS */;
+/*!40000 ALTER TABLE `dynamic_client_macs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `dynamic_client_realms`
 --
 
@@ -1344,6 +1431,7 @@ CREATE TABLE `dynamic_detail_ctcs` (
   `modified` datetime NOT NULL,
   `ci_phone_otp` tinyint(1) NOT NULL DEFAULT 0,
   `ci_email_otp` tinyint(1) NOT NULL DEFAULT 0,
+  `permanent_user_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1616,6 +1704,7 @@ CREATE TABLE `dynamic_details` (
   `chilli_use_chap` tinyint(1) NOT NULL DEFAULT 0,
   `reg_otp_sms` tinyint(1) NOT NULL DEFAULT 0,
   `reg_otp_email` tinyint(1) NOT NULL DEFAULT 0,
+  `permanent_user_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1806,6 +1895,69 @@ LOCK TABLES `email_messages` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `firewall_profile_entries`
+--
+
+DROP TABLE IF EXISTS `firewall_profile_entries`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `firewall_profile_entries` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `firewall_profile_id` int(11) DEFAULT NULL,
+  `description` varchar(255) NOT NULL DEFAULT '',
+  `type` enum('predefined_command','command') DEFAULT 'command',
+  `command` varchar(255) NOT NULL DEFAULT '',
+  `predefined_command_id` int(11) DEFAULT NULL,
+  `mo` tinyint(1) NOT NULL DEFAULT 0,
+  `tu` tinyint(1) NOT NULL DEFAULT 0,
+  `we` tinyint(1) NOT NULL DEFAULT 0,
+  `th` tinyint(1) NOT NULL DEFAULT 0,
+  `fr` tinyint(1) NOT NULL DEFAULT 0,
+  `sa` tinyint(1) NOT NULL DEFAULT 0,
+  `su` tinyint(1) NOT NULL DEFAULT 0,
+  `event_time` varchar(10) NOT NULL DEFAULT '',
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `firewall_profile_entries`
+--
+
+LOCK TABLES `firewall_profile_entries` WRITE;
+/*!40000 ALTER TABLE `firewall_profile_entries` DISABLE KEYS */;
+/*!40000 ALTER TABLE `firewall_profile_entries` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `firewall_profiles`
+--
+
+DROP TABLE IF EXISTS `firewall_profiles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `firewall_profiles` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` char(64) DEFAULT NULL,
+  `cloud_id` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `firewall_profiles`
+--
+
+LOCK TABLES `firewall_profiles` WRITE;
+/*!40000 ALTER TABLE `firewall_profiles` DISABLE KEYS */;
+/*!40000 ALTER TABLE `firewall_profiles` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `forward_lookups`
 --
 
@@ -1962,6 +2114,37 @@ INSERT INTO `languages` VALUES (4,'English','en',0,'2012-10-05 04:55:28','2012-1
 UNLOCK TABLES;
 
 --
+-- Table structure for table `mac_actions`
+--
+
+DROP TABLE IF EXISTS `mac_actions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `mac_actions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cloud_id` int(11) DEFAULT NULL,
+  `mesh_id` int(11) DEFAULT NULL,
+  `ap_profile_id` int(11) DEFAULT NULL,
+  `client_mac_id` int(11) DEFAULT NULL,
+  `action` enum('block','limit') DEFAULT 'block',
+  `bw_up` int(11) DEFAULT NULL,
+  `bw_down` int(11) DEFAULT NULL,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `mac_actions`
+--
+
+LOCK TABLES `mac_actions` WRITE;
+/*!40000 ALTER TABLE `mac_actions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `mac_actions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `mac_aliases`
 --
 
@@ -2109,6 +2292,40 @@ CREATE TABLE `mesh_entries` (
 LOCK TABLES `mesh_entries` WRITE;
 /*!40000 ALTER TABLE `mesh_entries` DISABLE KEYS */;
 /*!40000 ALTER TABLE `mesh_entries` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `mesh_entry_schedules`
+--
+
+DROP TABLE IF EXISTS `mesh_entry_schedules`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `mesh_entry_schedules` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `mesh_entry_id` int(11) DEFAULT NULL,
+  `action` enum('off','on') DEFAULT 'off',
+  `mo` tinyint(1) NOT NULL DEFAULT 0,
+  `tu` tinyint(1) NOT NULL DEFAULT 0,
+  `we` tinyint(1) NOT NULL DEFAULT 0,
+  `th` tinyint(1) NOT NULL DEFAULT 0,
+  `fr` tinyint(1) NOT NULL DEFAULT 0,
+  `sa` tinyint(1) NOT NULL DEFAULT 0,
+  `su` tinyint(1) NOT NULL DEFAULT 0,
+  `event_time` varchar(10) NOT NULL DEFAULT '',
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `mesh_entry_schedules`
+--
+
+LOCK TABLES `mesh_entry_schedules` WRITE;
+/*!40000 ALTER TABLE `mesh_entry_schedules` DISABLE KEYS */;
+/*!40000 ALTER TABLE `mesh_entry_schedules` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -4934,4 +5151,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-01-12 14:08:46
+-- Dump completed on 2023-04-19  8:08:06
