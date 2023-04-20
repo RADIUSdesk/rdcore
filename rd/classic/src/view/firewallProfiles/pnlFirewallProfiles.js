@@ -8,10 +8,7 @@ Ext.define('Rd.view.firewallProfiles.pnlFirewallProfiles', {
         align   : 'stretch'
     },
     store   : undefined,
-
- //   bodyStyle: {backgroundColor : Rd.config.panelGrey },
-    
-    requires    : [
+  	requires    : [
         'Rd.view.components.ajaxToolbar',
         'Rd.view.firewallProfiles.vcPnlFirewallProfiles',
         'Rd.view.firewallProfiles.winFirewallProfileAdd',
@@ -34,7 +31,11 @@ Ext.define('Rd.view.firewallProfiles.pnlFirewallProfiles', {
                 '<div class="plain-wrap">',
                 	'<tpl if="type==\'firewall_profile\'">',
                 		'<div class="main">',
-                			'<span style="font-family:FontAwesome;">&#xf06d;</span> {name}',
+                			'<span style="font-family:FontAwesome;">&#xf06d;</span>',
+                				'<tpl if="for_system">',
+                					'<i class="fa fa-umbrella"></i>',
+                				'</tpl>',
+                			' {name}',
                 		'</div>', 
                 	'</tpl>',
                 	'<tpl if="type==\'firewall_profile_entry\'">',
@@ -101,7 +102,7 @@ Ext.define('Rd.view.firewallProfiles.pnlFirewallProfiles', {
                 	'</tpl>',
                 	'<tpl if="type==\'add\'">',
                 		'<div style="margin-bottom:40px;padding:5px;cursor:move;font-size:18px;color:green;text-align:right;">',
-                			'<span style="padding:5px;border:1px solid #76cf15;" onMouseOver="this.style.background=\'#76cf15\'" onMouseOut="this.style.background=\'#FFF\'"><i class="fa fa-plus"></i> NEW PROFILE ENTRY</span>',
+                			'<span style="padding:5px;border:1px solid #76cf15;" onMouseOver="this.style.background=\'#76cf15\'" onMouseOut="this.style.background=\'#FFF\'"><i class="fa fa-plus"></i> NEW RULE</span>',
                 		'</div>', 
                 	'</tpl>',
                 '</div>',

@@ -4,6 +4,11 @@ Ext.define('Rd.view.firewallProfiles.vcFirewallProfileEntry', {
     init    : function() {
     
     },
+    control: {
+        'cmbFwSchedule': {
+           change   : 'cmbFwScheduleChange'
+        }        
+    },
     onTimeSlideChange : function( slider , newValue , thumb ){
         var me 		= this;
         var form    = slider.up('form');
@@ -52,23 +57,6 @@ Ext.define('Rd.view.firewallProfiles.vcFirewallProfileEntry', {
             slide.setValue([start,stop]);    
         }      
     },
-    rgrpChange: function(grp,new_val,old_val){
-        var me = this;
-        
-        if(new_val.type == 'predefined_command'){
-            me.getView().down('#hbPredefinedCommand').setDisabled(false);
-            me.getView().down('#hbPredefinedCommand').setVisible(true);
-            me.getView().down('#hbCommand').setDisabled(true);
-            me.getView().down('#hbCommand').setVisible(false);
-            
-        }
-        if(new_val.type == 'command'){
-            me.getView().down('#hbPredefinedCommand').setDisabled(true);
-            me.getView().down('#hbPredefinedCommand').setVisible(false); 
-            me.getView().down('#hbCommand').setDisabled(false);
-            me.getView().down('#hbCommand').setVisible(true);      
-        }
-    },   
     onTipText: function(thumb){
         var me = this;
         var f_val = me.timeFormat(thumb.value);
@@ -79,5 +67,26 @@ Ext.define('Rd.view.firewallProfiles.vcFirewallProfileEntry', {
         var h       = (newValue-m)/60;
         var hrs_mins= h.toString() + ":" + (m<10?"0":"") + m.toString();
         return hrs_mins;
+    },
+    cmbFwScheduleChange: function(cmb,new_value){
+    	var me = this;
+    	console.log("Change Schedule TO "+new_value);
+    	if((new_value == 'every_day')||(new_value == 'every_week')||(new_value == 'one_time')||(new_value == 'custom')){
+    		me.getView().down('#sldrStart').show();
+    		me.getView().down('#sldrEnd').show();
+    		me.getView().down('#cmpTimeDisplay').show();
+    	}else{
+    		me.getView().down('#sldrStart').hide();
+    		me.getView().down('#sldrEnd').hide();
+    		me.getView().down('#cmpTimeDisplay').hide();
+    	}
+    	
+    	if(new_value == 'every_week'){
+    		me.getView().down('#chkGrpWeekDays').show();
+    	}else{
+    		me.getView().down('#chkGrpWeekDays').hide();
+    	}
+    	
+    	    	   	
     }
 });

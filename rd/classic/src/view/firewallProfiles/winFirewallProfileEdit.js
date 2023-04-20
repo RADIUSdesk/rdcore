@@ -21,8 +21,15 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEdit', {
         'Ext.form.Panel',
         'Ext.form.field.Text'
     ],
+    root		: false,
     initComponent: function() {
         var me 		= this; 
+        
+        var hide_system = true;
+        if(me.root){
+            hide_system = false;
+        } 
+        
         var frmData = Ext.create('Ext.form.Panel',{
             border:     false,
             layout:     'anchor',
@@ -66,6 +73,16 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEdit', {
                     allowBlank  : false,
                     blankText   : i18n('sSupply_a_value'),
                     labelClsExtra: 'lblRdReq'
+                },
+                {
+                    xtype       : 'checkbox',      
+                    boxLabel    : 'System Wide',
+                    name        : 'for_system',
+                    inputValue  : 'for_system',
+                    cls         : 'lblRd',
+                    hidden      : hide_system,
+                    disabled    : hide_system,
+                    value		: me.record.get('for_system')
                 }
             ]
         });

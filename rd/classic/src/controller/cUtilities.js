@@ -53,7 +53,10 @@ Ext.define('Rd.controller.cUtilities', {
             },
             'pnlUtilities #btnFlows' : {
                 click   : me.openFlowsOverview
-            }
+            },
+            'pnlUtilities #btnTestRadius' : {
+				click 	: me.openTestRadius
+			},
         });
     },
     openDataUsage: function(btn){
@@ -145,5 +148,27 @@ Ext.define('Rd.controller.cUtilities', {
         
         });
         tp.setActiveTab('pnlFlowsOverview');
+    },
+    openTestRadius: function(btn){
+        var me  = this;
+        var pnl = me.getPnlUtilities();
+        var tp  = pnl.up('tabpanel');
+        var check_if_there = tp.down('#pnlTestRadius');     
+        if(check_if_there){
+            tp.setActiveTab('pnlTestRadius');
+            return;
+        }     
+        tp.add({
+             title   : 'Test RADIUS',
+             closable	: true,
+             xtype   : 'pnlTestRadius',
+             glyph   : Rd.config.icnRadius,
+             itemId  : 'pnlTestRadius',
+             padding : 5,
+	         tabConfig   : {
+	            ui : 'tab-brown'
+	        }         
+        });
+        tp.setActiveTab('pnlTestRadius');
     }
 });

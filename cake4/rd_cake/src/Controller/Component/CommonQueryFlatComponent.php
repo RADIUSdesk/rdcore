@@ -36,8 +36,8 @@ class CommonQueryFlatComponent extends Component {
     }
     
     public function cloud_with_system($query,$cloud_id,$contain_array = ['Users'], $model = null, $allowOverride = true, $sort = null){
-    
-    	$query->where(['OR'=>[['cloud_id' => -1],['cloud_id' => $cloud_id]]]);
+      
+    	$query->where(['OR'=>[["cloud_id" => -1],["cloud_id" => $cloud_id]]]);
     	$query->contain($contain_array);
     	$this->_common_sort($query, $this->sort_by, null, $allowOverride);
     	$where_clause = $this->_common_filter($model);

@@ -17,14 +17,6 @@ Ext.define('Rd.controller.cFirewallProfiles', {
         }
         return added;      
     },
-    views:  [
-    	'firewallProfiles.pnlFirewallProfiles',	
-        'firewallProfiles.winFirewallProfileAdd',
-        'firewallProfiles.winFirewallProfileEntryAdd',
-        'firewallProfiles.winFirewallProfileEntryEdit'
-    ],
-    stores: [],
-    models: [],
     refs: [
         {  ref: 'dv',    selector: '#dvFirewallProfiles'}       
     ],

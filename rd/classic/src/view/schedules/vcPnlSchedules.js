@@ -1,8 +1,14 @@
 Ext.define('Rd.view.schedules.vcPnlSchedules', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcPnlSchedules',
-    init    : function() {
-    
+    init    : function() { 
+    	var me = this;   
+    	var dd = Rd.getApplication().getDashboardData();
+    	//Set root to use later in the app in order to set 'for_system' (root)
+        me.root    = false;
+        if(dd.isRootUser){
+            me.root = true;   
+        }
     },
     config: {
         urlAdd          : '/cake4/rd_cake/schedules/add.json',
@@ -52,8 +58,11 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
     itemSelected: function(dv,record){
     	var me = this;
     	//--Add Schedule Component--
-    	if(record.get('type') == 'add'){
-		    if(!Ext.WindowManager.get('winScheduleEntryAddId')){
+    	if(record.get('type') == 'add'){    	
+    		if(!me.rightsCheck(record)){
+	    		return;
+	    	}  	  	  	
+		    if(!Ext.WindowManager.get('winScheduleEntryAddId')){	    	    
                 var w = Ext.widget('winScheduleEntryAdd',{id:'winScheduleEntryAddId','schedule_id' : record.get('schedule_id'),'schedule_name' : record.get('schedule_name')});
                 me.getView().add(w); 
                 let appBody = Ext.getBody();
@@ -68,9 +77,10 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
     add: function(button) {	
         var me      = this;
         var c_name 	= Rd.getApplication().getCloudName();
-        var c_id	= Rd.getApplication().getCloudId()    
+        var c_id	= Rd.getApplication().getCloudId() ;
+        var dd      = Rd.getApplication().getDashboardData();
         if(!Ext.WindowManager.get('winScheduleAddId')){
-            var w = Ext.widget('winScheduleAdd',{id:'winScheduleAddId',cloudId: c_id, cloudName: c_name});
+            var w = Ext.widget('winScheduleAdd',{id:'winScheduleAddId',cloudId: c_id, cloudName: c_name, root: me.root});
             this.getView().add(w);
             let appBody = Ext.getBody();
             w.showBy(appBody);        
@@ -109,16 +119,20 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
             );
         }else{
 		    var sr   =  me.getView().down('#dvSchedules').getSelectionModel().getLastSelected();
+		    if(!me.rightsCheck(sr)){
+	    		return;
+	    	}
+		    
 		    if(sr.get('type') == 'schedule'){
 				if(!Ext.WindowManager.get('winScheduleEditId')){
-		            var w = Ext.widget('winScheduleEdit',{id:'winScheduleEditId',record: sr, schedule_id: sr.get('schedule_id')});
+		            var w = Ext.widget('winScheduleEdit',{id:'winScheduleEditId',record: sr, schedule_id: sr.get('schedule_id'), root: me.root});
 		            this.getView().add(w);
 		            let appBody = Ext.getBody();
 		            w.showBy(appBody);            
 		        }
 		  	}
 		  	
-		  	 if(sr.get('type') == 'schedule_entry'){
+		  	if(sr.get('type') == 'schedule_entry'){		  			  	
 				if(!Ext.WindowManager.get('winScheduleEntryEditId')){
 			        let appBody = Ext.getBody();
                     var w = Ext.widget('winScheduleEntryEdit',{id:'winScheduleEntryEditId',record: sr, schedule_entry_id: sr.get('id')});
@@ -161,11 +175,16 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
             );
         }else{
         	var sr   =  me.getView().down('#dvSchedules').getSelectionModel().getLastSelected();
-		    if(sr.get('type') == 'schedule'){
-		    	 me.delSchedule();
+        	
+        	if(!me.rightsCheck(sr)){
+	    		return;
+	    	}
+	    		
+		    if(sr.get('type') == 'schedule'){ 	    		    
+		    	me.delSchedule();
 		    }
 		    
-		    if(sr.get('type') == 'schedule_entry'){
+		    if(sr.get('type') == 'schedule_entry'){	    
 		        me.delScheduleEntry();            
 		    }            
         }      
@@ -184,15 +203,25 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
                     url: me.getUrlDelete(),
                     method: 'POST',          
                     jsonData: list,
-                    success: function(batch,options){
-                        Ext.ux.Toaster.msg(
-                            i18n('sItem_deleted'),
-                            i18n('sItem_deleted_fine'),
-                            Ext.ux.Constants.clsInfo,
-                            Ext.ux.Constants.msgInfo
-                        );
-                        me.reload(); //Reload from server
-                        me.reloadComboBox();
+                    success: function(response){
+				        var jsonData    = Ext.JSON.decode(response.responseText);
+				        if(jsonData.success){
+				            Ext.ux.Toaster.msg(
+		                        i18n('sItem_deleted'),
+		                        i18n('sItem_deleted_fine'),
+		                        Ext.ux.Constants.clsInfo,
+		                        Ext.ux.Constants.msgInfo
+		                    );
+		                    me.reload(); //Reload from server
+		                    me.reloadComboBox();
+				        }else{
+				        	Ext.ux.Toaster.msg(
+		                        i18n('sProblems_deleting_item'),
+		                        jsonData.message,
+		                        Ext.ux.Constants.clsWarn,
+		                        Ext.ux.Constants.msgWarn
+		                    );			        
+				        }                         
                     },                                    
                     failure: function(batch,options){
                         Ext.ux.Toaster.msg(
@@ -243,7 +272,6 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
                     var rec    = Ext.create('Rd.model.mAp', {name: b.result.data.predefined_command_name, id: b.result.data.predefined_command_id});
                     cmb.getStore().loadData([rec],false);
                     cmb.setValue(b.result.data.predefined_command_id);
-                    console.log("Brannas");
                 }                          
             }
         });        
@@ -258,8 +286,8 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
             url                 : me.getUrlEditEntry(),
             success             : function(form, action) {
                 Ext.ux.Toaster.msg(
-                    'Item added Fine',
-                    'Item added Fine',
+                    i18n('sItems_modified'),
+                    i18n('sItems_modified_fine'),
                     Ext.ux.Constants.clsInfo,
                     Ext.ux.Constants.msgInfo
                 );
@@ -308,13 +336,24 @@ Ext.define('Rd.view.schedules.vcPnlSchedules', {
     },
     cmbScheduleChange: function(cmb,new_value){
     	var me = this;
-    	console.log("Filter TO "+new_value);
     	me.getView().down('#dvSchedules').getStore().getProxy().setExtraParams({id:new_value});
  		me.reload();
     },
     reloadComboBox: function(){  
     	var me = this;
     	me.getView().down('cmbSchedule').getStore().reload();
-    }
-    
+    },
+    rightsCheck: function(record){
+    	var me = this;
+    	if(record.get('for_system') && (!me.root)){
+			Ext.ux.Toaster.msg(
+                'No Rights',
+                'No Rights For This Action',
+                Ext.ux.Constants.clsWarn,
+                Ext.ux.Constants.msgWarn
+        	);
+			return false; //has no rights
+		}
+    	return true; //has rights    
+    }   
 });

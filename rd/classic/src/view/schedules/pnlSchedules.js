@@ -7,16 +7,10 @@ Ext.define('Rd.view.schedules.pnlSchedules', {
         type    : 'hbox',         
         align   : 'stretch'
     },
-    store   : undefined,
-
- //   bodyStyle: {backgroundColor : Rd.config.panelGrey },
-    
+    store   : undefined,   
     requires    : [
         'Rd.view.components.ajaxToolbar',
-        'Rd.store.sSchedules',
-        'Rd.model.mSchedule',
         'Rd.view.schedules.vcPnlSchedules',
-        'Rd.view.schedules.cmbScheduleOptions',
         'Rd.view.schedules.winScheduleAdd',
         'Rd.view.schedules.winScheduleEdit',
         'Rd.view.schedules.winScheduleEntryAdd',
@@ -37,7 +31,11 @@ Ext.define('Rd.view.schedules.pnlSchedules', {
                 '<div class="plain-wrap">',
                 	'<tpl if="type==\'schedule\'">',
                 		'<div class="main">',
-                			'<i class="fa fa-calendar"></i> {name}',
+                			'<i class="fa fa-calendar"></i>',
+                				'<tpl if="for_system">',
+                					'<i class="fa fa-umbrella"></i>',
+                				'</tpl>',
+                			' {name}',
                 		'</div>', 
                 	'</tpl>',
                 	'<tpl if="type==\'schedule_entry\'">',
@@ -112,7 +110,7 @@ Ext.define('Rd.view.schedules.pnlSchedules', {
         );
                    
         me.store = Ext.create(Ext.data.Store,{
-            model: 'Rd.model.mDynamicPhoto',
+            model: 'Rd.model.mSchedule',
             proxy: {
                 type        :'ajax',
                 url         : '/cake4/rd_cake/schedules/index-data-view.json',

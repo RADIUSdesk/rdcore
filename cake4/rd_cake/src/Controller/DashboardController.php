@@ -701,22 +701,21 @@ class DashboardController extends AppController{
                     "title"	=> "Settings",
                     "glyph"	=> "xf085@FontAwesome",
                     "id"	=> "cSettings",
-                    "layout"=> "fit"
+                    "layout"=> "fit",
+                    'tabConfig' =>  [
+			        	'ui' =>  'tab-teal'
+			    	]  
                 ]);	
        		}
-       		
-       		array_push($items,[
-                "title" => "OpenVPN Servers",
-                "glyph" => "xf10e@FontAwesome",
-                "id"	=> "cOpenvpnServers",
-                "layout"=> "fit"
-            ]);
-            
+       		        
             array_push($items,[
                 "title"	=> "Clouds",
                 "glyph"	=> "xf0c2@FontAwesome",
                 "id"	=> "cClouds",
-                "layout"=> "fit"
+                "layout"=> "fit",
+                'tabConfig' =>  [
+	            	'ui' =>  'tab-metal'
+	        	]  
             ]);
             
             if($isRootUser){
@@ -724,38 +723,53 @@ class DashboardController extends AppController{
                     "title"	=> "Admins",
                     "glyph"	=> "xf084@FontAwesome",
                     "id" 	=> "cAccessProviders",
-                    "layout"=> "fit"
+                    "layout"=> "fit",
+                    'tabConfig' =>  [
+			        	'ui' =>  'tab-metal'
+			    	]  
                 ]);	
        		}
        		
+       		array_push($items,[
+                "title"	=> "Hardware",
+                "glyph"	=> "xf0a0@FontAwesome",
+                "id"	=> "cHardwares",
+                "layout"=> "fit",
+                'tabConfig' =>  [
+	            	'ui' =>  'tab-brown'
+	        	]  
+            ]);
+                       
             array_push($items,[
                 "title"	=> "Schedules",
                 "glyph"	=> "xf133@FontAwesome",
                 "id"	=> "cSchedules",
-                "layout"=> "fit"
+                "layout"=> "fit",
+                'tabConfig' =>  [
+	            	'ui' =>  'tab-brown'
+	        	]  
             ]);
             
             array_push($items,[
                 "title"	=> "Firewall",
                 "glyph"	=> "xf06d@FontAwesome",
                 "id"	=> "cFirewallProfiles",
-                "layout"=> "fit"
+                "layout"=> "fit",
+                'tabConfig' =>  [
+	            	'ui' =>  'tab-brown'
+	        	]  
             ]);
-            
-            array_push($items,[
-                "title"	=> "Hardwares",
-                "glyph"	=> "xf0a0@FontAwesome",
-                "id"	=> "cHardwares",
-                "layout"=> "fit"
+       		
+       		array_push($items,[
+                "title" => "OpenVPN Servers",
+                "glyph" => "xf10e@FontAwesome",
+                "id"	=> "cOpenvpnServers",
+                "layout"=> "fit",
+                'tabConfig' =>  [
+	            	'ui' =>  'tab-brown'
+	        	]   
             ]);
-                       
-            array_push($items,[
-                "title"	=> "Test RADIUS",
-                "glyph"	=> "xf1ce@FontAwesome",
-                "id"	=> "cTestRadius",
-                "layout"=> "fit"
-            ]);
-                        
+       		                       
         }
         
         $this->set([
@@ -801,7 +815,16 @@ class DashboardController extends AppController{
                 'scale'   => 'large',
                 'itemId'  => 'btnFlows',
                 'textAlign' => $ta 
-            ]             
+            ],
+            [
+                'xtype'   => 'button',
+                'text'    => 'Test RADIUS',
+                'glyph'   => Configure::read('icnRadius'),
+                'scale'   => 'large',
+                'itemId'  => 'btnTestRadius',
+                'textAlign' => $ta 
+            ]
+                        
         ];      
         $this->set([
             'data'          => $data,

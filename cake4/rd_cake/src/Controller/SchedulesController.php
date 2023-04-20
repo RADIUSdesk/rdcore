@@ -46,7 +46,7 @@ class SchedulesController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,[]);
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,[]);
 
 
         //===== PAGING (MUST BE LAST) ======
@@ -67,9 +67,11 @@ class SchedulesController extends AppController {
         $q_r    = $query->all();
         $items  = [];
         
-        if($req_q['include_all_option'] == true){
-        	array_push($items, ['id' => 0,'name' => '**All Schedules**']);      
-        }
+        if(isset($req_q['include_all_option'])){
+		    if($req_q['include_all_option'] == true){
+		    	array_push($items, ['id' => 0,'name' => '**All Schedules**']);      
+		    }
+		}
 
         foreach ($q_r as $i) {
 	        array_push($items, ['id' => $i->id,'name' => $i->name]);        
@@ -94,8 +96,8 @@ class SchedulesController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['ScheduleEntries'=>['PredefinedCommands']]);
-        
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,['ScheduleEntries'=>['PredefinedCommands']]);
+              
         if(isset($req_q['id'])){
         	if($req_q['id'] > 0){
         		$query->where(['Schedules.id' => $req_q['id']]);
@@ -127,7 +129,14 @@ class SchedulesController extends AppController {
 			$row['id']      = $i->id.'_0'; //Signifies Schedule
 			$row['name']	= $i->name;
 			$row['type']	= 'schedule';
-			$row['schedule_id'] = $i->id;		
+			$row['schedule_id'] = $i->id;
+			
+			$for_system = false;
+            if($i->cloud_id == -1){
+            	$for_system = true;
+            }
+            $row['for_system']  = $for_system;
+								
 			array_push($items, $row);
 			
 			foreach($i->schedule_entries as $se){
@@ -141,15 +150,13 @@ class SchedulesController extends AppController {
 				if($se->mo && $se->tu && $se->we && $se->th && $se->fr && $se->sa && $se->su){
 					$se->everyday = true;	
 				}
-				
+				$se->for_system = $for_system;				
 				array_push($items, $se);		
-			}
-					
-			array_push($items,[ 'id' => '0_'.$i->id, 'type'	=> 'add','name' => 'Schedule Entry', 'schedule_id' =>  $i->id, 'schedule_name' => $i->name ]);
+			}					
+			array_push($items,[ 'id' => '0_'.$i->id, 'type'	=> 'add','name' => 'Schedule Entry', 'schedule_id' =>  $i->id, 'schedule_name' => $i->name, 'for_system' =>  $for_system]);
 			
         }
         
-
         //___ FINAL PART ___
         $this->set([
             'items'         => $items,
@@ -158,82 +165,7 @@ class SchedulesController extends AppController {
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
-    
-    
-    
-    public function index(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if (!$user) {
-            return;
-        }
-
-        $req_q    = $this->request->getQuery();      
-       	$cloud_id = $req_q['cloud_id'];
-        $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['ScheduleEntries']);
-
-
-        //===== PAGING (MUST BE LAST) ======
-        $limit = 50;   //Defaults
-        $page = 1;
-        $offset = 0;
-        if (isset($req_qy['limit'])) {
-            $limit  = $req_q['limit'];
-            $page   = $req_q['page'];
-            $offset = $req_q['start'];
-        }
-
-        $query->page($page);
-        $query->limit($limit);
-        $query->offset($offset);
-
-        $total  = $query->count();
-        $q_r    = $query->all();
-        $items  = [];
-
-        foreach ($q_r as $i) {
-       
-            $row            = [];
-            $fields         = $this->{$this->main_model}->getSchema()->columns();
-            foreach($fields as $field){
-                $row["$field"]= $i->{"$field"};
-                
-                if($field == 'created'){
-                    $row['created_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }
-                if($field == 'modified'){
-                    $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }   
-            } 
-                
-			$row['update']  = true;
-			$row['delete']  = true; 
-			$row['id']      = $row['id'].'_0'; //Signifies empty
-			$row['description'] = '';			
-			$columns = ['description','type', 'gpio_number', 'gpio_state','command', 'mo', 'tu','we','th','fr','sa','su','event_time'];					
-			if(count($i->schedule_entries) > 0){
-			    foreach($i->schedule_entries as $se){
-			        $row['id']   = $i->id.'_'.$se->id;
-			        foreach($columns as $c){
-                        $row[$c] = $se->{$c};
-                    }
-			        array_push($items, $row);   
-			    }
-	        }else{
-	            array_push($items, $row);
-	        }          
-        }
-
-        //___ FINAL PART ___
-        $this->set([
-            'items'         => $items,
-            'success'       => true,
-            'totalCount'    => $total
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);
-    }
-    
+      
     public function add(){
      
         $user = $this->_ap_right_check();
@@ -241,8 +173,13 @@ class SchedulesController extends AppController {
             return;
         }
            
-        if ($this->request->is('post')) {          
-            $entity = $this->{$this->main_model}->newEntity($this->request->getData()); 
+        if ($this->request->is('post')) { 
+        	$req_d	  = $this->request->getData();       	        	      
+        	if($this->request->getData('for_system')){
+        		$req_d['cloud_id'] = -1;
+		    }
+                 
+            $entity = $this->{$this->main_model}->newEntity($req_d); 
             if ($this->{$this->main_model}->save($entity)) {
                 $this->set([
                     'success' => true
@@ -268,14 +205,38 @@ class SchedulesController extends AppController {
 
         $fail_flag 	= false;
         $req_d 		= $this->request->getData();
+        $ap_flag 	= true;		
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
 
 	    if(isset($req_d['id'])){   //Single item delete
-            $entity     = $this->{$this->main_model}->get($req_d['id']);   
+            $entity     = $this->{$this->main_model}->get($req_d['id']);
+            
+            if(($entity->cloud_id == -1)&&($ap_flag == true)){
+	    		$this->set([
+					'message' 	=> 'Not enough rights for action',
+					'success'	=> false
+				]);
+				$this->viewBuilder()->setOption('serialize', true);
+				return;
+	    	} 
+	    	            
             $this->{$this->main_model}->delete($entity);
 
         }else{                          //Assume multiple item delete
             foreach($req_d as $d){
-                $entity     = $this->{$this->main_model}->get($d['id']);  
+                $entity     = $this->{$this->main_model}->get($d['id']);
+                
+                 if(($entity->cloud_id == -1)&&($ap_flag == true)){
+					$this->set([
+							'message' 	=> 'Not enough rights for action',
+							'success'	=> false
+						]);
+						$this->viewBuilder()->setOption('serialize', true);
+					return;
+				}  
+                  
                 $this->{$this->main_model}->delete($entity);
             }
         }
@@ -305,24 +266,30 @@ class SchedulesController extends AppController {
         if(!$user){
             return;
         }
-
+        
+        $ap_flag 	= true;	
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
+				   
         if ($this->request->is('post')) { 
-            $req_d  = $this->request->getData();        
-            $check_items = [
-			    'available_to_siblings'
-		    ];
-            foreach($check_items as $i){
-                if(isset($req_d[$i])){
-                    $req_d[$i] = 1;
-                }else{
-                    $req_d[$i] = 0;
-                }
-            }
+            $req_d  = $this->request->getData();
+                    
+		    if($this->request->getData('for_system')){
+        		$req_d['cloud_id'] = -1;
+		    }
+		    		    		    
             $ids            = explode("_", $this->request->getData('id'));  
             $req_d['id']    = $ids[0];
             $entity         = $this->{$this->main_model}->find()->where(['id' => $req_d['id']])->first();
             
             if($entity){
+            
+            	if($ap_flag && ($entity->cloud_id == -1)){
+            		$this->JsonErrors->errorMessage('Not enough rights for action');
+					return;          	
+            	}
+                        
                 $this->{$this->main_model}->patchEntity($entity, $req_d); 
                 if ($this->{$this->main_model}->save($entity)) {
                     $this->set(array(
@@ -343,7 +310,7 @@ class SchedulesController extends AppController {
         if(!$user){
             return;
         }
-          
+                 
         if ($this->request->is('post')) {       
             $req_data = $this->request->getData();
         

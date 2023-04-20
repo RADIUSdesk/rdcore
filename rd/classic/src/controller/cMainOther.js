@@ -34,11 +34,6 @@ Ext.define('Rd.controller.cMainOther', {
 		        Ext.getApplication().runAction('cAccessProviders','Index',pnl);
 		    }
 	    },
-	    '#tabMainOther #cTestRadius' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cTestRadius','Index',pnl);
-		    }
-	    },
 	    '#tabMainOther #cFirewallProfiles' : {
 		    afterrender	: function(pnl){
 		        Ext.getApplication().runAction('cFirewallProfiles','Index',pnl);

@@ -46,7 +46,7 @@ class FirewallProfilesController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,[]);
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,[]);
 
 
         //===== PAGING (MUST BE LAST) ======
@@ -67,9 +67,11 @@ class FirewallProfilesController extends AppController {
         $q_r    = $query->all();
         $items  = [];
         
-        if($req_q['include_all_option'] == true){
-        	array_push($items, ['id' => 0,'name' => '**All Schedules**']);      
-        }
+        if(isset($req_q['include_all_option'])){
+		    if($req_q['include_all_option'] == true){
+		    	array_push($items, ['id' => 0,'name' => '**All Firewall Profiles**']);      
+		    }
+		}
 
         foreach ($q_r as $i) {
 	        array_push($items, ['id' => $i->id,'name' => $i->name]);        
@@ -84,7 +86,22 @@ class FirewallProfilesController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
     
-     public function indexDataView(){
+    public function indexApps(){
+    
+    	$items = [
+			[	'id'	=> 1, 'name' => 'Facebook',	'glyph' => 'fa-facebook-square', 'description' => '<i class="fa fa-chevron-right"></i><b>Klap Hom<b>'	], 
+			[	'id'	=> 2, 'name' => 'Twitter',	'glyph' => 'fa-twitter', 'description' => '<i class="fa fa-twitter"></i><b>Klap Haar<b>'	] 	
+    	];
+    	
+    	$this->set([
+            'items'         => $items,
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+          
+    }
+        
+  	public function indexDataView(){
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
         if (!$user) {
@@ -94,14 +111,13 @@ class FirewallProfilesController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['FirewallProfileEntries']);
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,['FirewallProfileEntries']);
         
         if(isset($req_q['id'])){
         	if($req_q['id'] > 0){
         		$query->where(['FirewallProfile.id' => $req_q['id']]);
         	}	   
         }
-
 
         //===== PAGING (MUST BE LAST) ======
         $limit = 50;   //Defaults
@@ -127,7 +143,15 @@ class FirewallProfilesController extends AppController {
 			$row['id']      = $i->id.'_0'; //Signifies Firewall Profile
 			$row['name']	= $i->name;
 			$row['type']	= 'firewall_profile';
-			$row['firewall_profile_id'] = $i->id;		
+			$row['firewall_profile_id'] = $i->id;
+			
+			$for_system = false;
+            if($i->cloud_id == -1){
+            	$for_system = true;
+            }
+            $row['for_system']  = $for_system;
+			
+					
 			array_push($items, $row);
 			
 			foreach($i->firewall_profile_entries as $se){
@@ -140,16 +164,13 @@ class FirewallProfilesController extends AppController {
 				$se->everyday = false;
 				if($se->mo && $se->tu && $se->we && $se->th && $se->fr && $se->sa && $se->su){
 					$se->everyday = true;	
-				}
-				
+				}				
+				$se->for_system = $for_system;				
 				array_push($items, $se);		
-			}
-					
-			array_push($items,[ 'id' => '0_'.$i->id, 'type'	=> 'add','name' => 'Firewall Profile Entry', 'firewall_profile_id' =>  $i->id, 'firewall_profile_name' => $i->name ]);
-			
+			}					
+			array_push($items,[ 'id' => '0_'.$i->id, 'type'	=> 'add','name' => 'Firewall Profile Entry', 'firewall_profile_id' =>  $i->id, 'firewall_profile_name' => $i->name, 'for_system' =>  $for_system ]);			
         }
         
-
         //___ FINAL PART ___
         $this->set([
             'items'         => $items,
@@ -158,82 +179,7 @@ class FirewallProfilesController extends AppController {
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
-    
-    
-    
-    public function index(){
-        //__ Authentication + Authorization __
-        $user = $this->_ap_right_check();
-        if (!$user) {
-            return;
-        }
-
-        $req_q    = $this->request->getQuery();      
-       	$cloud_id = $req_q['cloud_id'];
-        $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['ScheduleEntries']);
-
-
-        //===== PAGING (MUST BE LAST) ======
-        $limit = 50;   //Defaults
-        $page = 1;
-        $offset = 0;
-        if (isset($req_qy['limit'])) {
-            $limit  = $req_q['limit'];
-            $page   = $req_q['page'];
-            $offset = $req_q['start'];
-        }
-
-        $query->page($page);
-        $query->limit($limit);
-        $query->offset($offset);
-
-        $total  = $query->count();
-        $q_r    = $query->all();
-        $items  = [];
-
-        foreach ($q_r as $i) {
-       
-            $row            = [];
-            $fields         = $this->{$this->main_model}->getSchema()->columns();
-            foreach($fields as $field){
-                $row["$field"]= $i->{"$field"};
-                
-                if($field == 'created'){
-                    $row['created_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }
-                if($field == 'modified'){
-                    $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }   
-            } 
-                
-			$row['update']  = true;
-			$row['delete']  = true; 
-			$row['id']      = $row['id'].'_0'; //Signifies empty
-			$row['description'] = '';			
-			$columns = ['description','type', 'gpio_number', 'gpio_state','command', 'mo', 'tu','we','th','fr','sa','su','event_time'];					
-			if(count($i->schedule_entries) > 0){
-			    foreach($i->schedule_entries as $se){
-			        $row['id']   = $i->id.'_'.$se->id;
-			        foreach($columns as $c){
-                        $row[$c] = $se->{$c};
-                    }
-			        array_push($items, $row);   
-			    }
-	        }else{
-	            array_push($items, $row);
-	        }          
-        }
-
-        //___ FINAL PART ___
-        $this->set([
-            'items'         => $items,
-            'success'       => true,
-            'totalCount'    => $total
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);
-    }
-    
+      
     public function add(){
      
         $user = $this->_ap_right_check();
@@ -241,8 +187,13 @@ class FirewallProfilesController extends AppController {
             return;
         }
            
-        if ($this->request->is('post')) {          
-            $entity = $this->{$this->main_model}->newEntity($this->request->getData()); 
+        if ($this->request->is('post')) {         
+        	$req_d	  = $this->request->getData();       	        	      
+        	if($this->request->getData('for_system')){
+        		$req_d['cloud_id'] = -1;
+		    }
+                 
+            $entity = $this->{$this->main_model}->newEntity($req_d); 
             if ($this->{$this->main_model}->save($entity)) {
                 $this->set([
                     'success' => true

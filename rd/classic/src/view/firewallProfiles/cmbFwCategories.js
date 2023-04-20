@@ -11,7 +11,7 @@ Ext.define('Rd.view.firewallProfiles.cmbFwCategories', {
     allowBlank      : false,
     mode            : 'local',
     name            : 'category',
-    value           : 'none',
+    value           : 'app',
     initComponent   : function() {
         var me= this;
         var s = Ext.create('Ext.data.Store', {

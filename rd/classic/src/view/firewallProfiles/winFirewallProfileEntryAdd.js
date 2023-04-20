@@ -4,7 +4,7 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
     closable    : true,
     draggable   : true,
     resizable   : true,
-    title       : 'Add Firewall Profile Entry',
+    title       : 'Add Rule',
     width       : 600,
     height      : 500,
     plain       : true,
@@ -21,12 +21,14 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
         'Ext.form.Panel',
         'Ext.form.field.Text',
         'Rd.view.firewallProfiles.vcFirewallProfileEntry',
-        'Rd.view.firewallProfiles.cmbFwCategories'
+        'Rd.view.firewallProfiles.cmbFwCategories',
+        'Rd.view.firewallProfiles.cmbFwSchedule',
+        'Rd.view.firewallProfiles.tagFwApps'
     ],
     controller  : 'vcFirewallProfileEntry',
     initComponent: function() {
         var me 		= this; 
-        me.setTitle('Add Firewall Profile Entry For '+me.firewall_profile_name);
+        me.setTitle('Add Rule For '+me.firewall_profile_name);
         var frmData = Ext.create('Ext.form.Panel',{
             border:     false,
             layout:     'anchor',
@@ -63,14 +65,6 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
                     hidden  : true
                 },
                 {
-                    xtype       : 'textfield',
-                    fieldLabel  : i18n('sDescription'),
-                    name        : "description",
-                    allowBlank  : false,
-                    blankText   : i18n('sSupply_a_value'),
-                    labelClsExtra: 'lblRdReq'
-                },
-                {
                     xtype       : 'radiogroup',
                     fieldLabel  : 'Action',
                     labelClsExtra: 'lblRd',
@@ -88,7 +82,7 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
 						allowDepress: false,					
 					},             
                     items: [
-						{ text: 'Block', 		glyph: Rd.config.icnBan,   flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 0' },
+						{ text: 'Block', 		glyph: Rd.config.icnBan,   flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 0', pressed: true },
 						{ text: 'Allow', 		glyph: Rd.config.icnStart, flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 5' },
 						{ text: 'Speed Limit', 	glyph: Rd.config.icnMeter, flex:1, ui : 'default-toolbar', 'margin' : '0 0 0 5' }
 					],
@@ -99,68 +93,69 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
                 {
                 	xtype	: 'cmbFwCategories'
                 },
-                
                 {
-                    xtype       : 'radiogroup',
-                    fieldLabel  : 'Schedule',
-                    labelClsExtra: 'lblRd',
-                    layout: {
-						type	: 'hbox',
-						align	: 'middle',
-						pack	: 'stretchmax',
-						padding	: 0,
-						margin	: 0
-					},
-                    defaultType: 'button',
-    				defaults: {
-						enableToggle: true,
-						toggleGroup: 'schedule',
-						allowDepress: false,					
-					},             
-                    items: [
-						{ text: 'Always', 	flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 0' },
-						{ text: 'Specify',  flex:1, ui : 'default-toolbar', 'margin' : '0 0 0 5' }
-					],
-                    listeners   : {
-                       change  : 'rgrpChange'
-                    }
+                	xtype	: 'tagFwApps'
                 },
-                
+                {
+                	xtype	: 'cmbFwSchedule'
+                },              
                 {
                     xtype       : 'checkboxgroup',
-                    columns     : 4,
+                    columns     : 7,
                     vertical    : false,
+                    hidden		: true,
                     itemId      : 'chkGrpWeekDays',
                     items: [
-                        { boxLabel: 'Monday',   name: 'mo', inputValue: '1',   checked: true },
-                        { boxLabel: 'Tuesday',  name: 'tu', inputValue: '1',   checked: true },
-                        { boxLabel: 'Wednesday',name: 'we', inputValue: '1',   checked: true },
-                        { boxLabel: 'Thursday', name: 'th', inputValue: '1',   checked: true },
-                        { boxLabel: 'Friday',   name: 'fr', inputValue: '1',   checked: true },
-                        { boxLabel: 'Saturday', name: 'sa', inputValue: '1',   checked: true },
-                        { boxLabel: 'Sunday',   name: 'su', inputValue: '1',   checked: true }
+                        { boxLabel: 'Mo',   name: 'mo', inputValue: '1',   checked: true },
+                        { boxLabel: 'Tu',  	name: 'tu', inputValue: '1',   checked: true },
+                        { boxLabel: 'We',	name: 'we', inputValue: '1',   checked: true },
+                        { boxLabel: 'Th', 	name: 'th', inputValue: '1',   checked: true },
+                        { boxLabel: 'Fr',   name: 'fr', inputValue: '1',   checked: true },
+                        { boxLabel: 'Sa', 	name: 'sa', inputValue: '1',   checked: true },
+                        { boxLabel: 'Su',   name: 'su', inputValue: '1',   checked: true }
                     ]
                 },
                 {
-                    xtype       : 'multislider',
+                    xtype       : 'slider',
+                    hidden		: true,
                     width       : 500,
-                    itemId      : 'slideTime',
-                    values		: [25, 50],
+                    itemId      : 'sldrStart',
+                    value		: 0,
                     increment   : 5,
                     minValue    : 0,
                     maxValue    : 1439,
                     constrainThumbs: true,
-                    fieldLabel  : "Start & End",
+                    fieldLabel  : "Start Time",
                     useTips     : true,
                     html        : '<h1>Place Holder</h1>',
-                    name        : 'event_time',
+                    name        : 'start_time',
                     listeners   : {
                        // change  : 'onTimeSlideChange'
                     },
                     tipText     : 'onTipText'
                 },
                 {
-                    xtype       : 'component',
+                    xtype       : 'slider',
+                    hidden		: true,
+                    width       : 500,
+                    itemId      : 'sldrEnd',
+                    value		: 0,
+                    increment   : 5,
+                    minValue    : 0,
+                    maxValue    : 1439,
+                    constrainThumbs: true,
+                    fieldLabel  : "End Time",
+                    useTips     : true,
+                    html        : '<h1>Place Holder</h1>',
+                    name        : 'end_time',
+                    listeners   : {
+                       // change  : 'onTimeSlideChange'
+                    },
+                    tipText     : 'onTipText'
+                },
+                {
+                    xtype       : 'container',
+                    hidden		: true,
                     itemId      : 'cmpTimeDisplay',
                     tpl         : '<div class="fieldBlue"><b>Time Of Event :</b> {start_time} <b></div>',
                     data        : {start_time : '00:00'},

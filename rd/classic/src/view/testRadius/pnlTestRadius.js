@@ -34,7 +34,7 @@ Ext.define('Rd.view.testRadius.pnlTestRadius', {
         'Rd.view.testRadius.vcTestRadius'
     ],
     listeners       : {
-        focus  : 'onViewActivate'
+        activate  : 'onViewActivate'
     },
     controller  : 'vcTestRadius',
     initComponent: function(){
