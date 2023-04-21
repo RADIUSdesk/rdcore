@@ -23,17 +23,18 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
         'Rd.view.firewallProfiles.vcFirewallProfileEntry',
         'Rd.view.firewallProfiles.cmbFwCategories',
         'Rd.view.firewallProfiles.cmbFwSchedule',
-        'Rd.view.firewallProfiles.tagFwApps'
+        'Rd.view.firewallProfiles.tagFwApps',
+        'Rd.view.components.rdSliderSpeed'
     ],
     controller  : 'vcFirewallProfileEntry',
     initComponent: function() {
         var me 		= this; 
-        me.setTitle('Add Rule For '+me.firewall_profile_name);
+        me.setTitle('Add Rule For '+me.firewall_profile_name);        
         var frmData = Ext.create('Ext.form.Panel',{
-            border:     false,
-            layout:     'anchor',
-            autoScroll: true,
-            defaults: {
+            border		: false,      
+            layout		: 'anchor',
+            autoScroll	: true,
+            defaults	: {
                 anchor: '100%'
             },
             fieldDefaults: {
@@ -42,8 +43,8 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
                 labelAlign      : 'left',
                 labelSeparator  : '',
                 labelClsExtra   : 'lblRd',
-                labelWidth      : Rd.config.labelWidth,
-                margin          : 10
+                labelWidth      : Rd.config.labelWidth-30,
+                margin          : 15
             },
             defaultType: 'textfield',
             buttons : [
@@ -82,14 +83,25 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
 						allowDepress: false,					
 					},             
                     items: [
-						{ text: 'Block', 		glyph: Rd.config.icnBan,   flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 0', pressed: true },
-						{ text: 'Allow', 		glyph: Rd.config.icnStart, flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 5' },
-						{ text: 'Speed Limit', 	glyph: Rd.config.icnMeter, flex:1, ui : 'default-toolbar', 'margin' : '0 0 0 5' }
-					],
-                    listeners   : {
-                       change  : 'rgrpChange'
-                    }
+						{ text: 'Block', 		itemId: 'btnBlock', glyph: Rd.config.icnBan,   flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 0', pressed: true },
+						{ text: 'Allow', 		itemId: 'btnAllow', glyph: Rd.config.icnStart, flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 5' },
+						{ text: 'Speed Limit', 	itemId: 'btnLimit', glyph: Rd.config.icnMeter, flex:1, ui : 'default-toolbar', 'margin' : '0 0 0 5' }
+					]
                 },
+                {
+		            xtype       : 'rdSliderSpeed',
+		            sliderName  : 'limit_upload',
+		            itemId		: 'bw_up',
+		            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up",
+		            hidden		: true
+		        },
+                {
+		            xtype       : 'rdSliderSpeed',
+		            sliderName  : 'limit_download',
+		            itemId		: 'bw_down',
+		            fieldLabel  : "<i class='fa fa-arrow-down'></i> Down",
+		            hidden		: true
+		        },
                 {
                 	xtype	: 'cmbFwCategories'
                 },
@@ -130,7 +142,7 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
                     html        : '<h1>Place Holder</h1>',
                     name        : 'start_time',
                     listeners   : {
-                       // change  : 'onTimeSlideChange'
+                        change  : 'onTimeSlideChange'
                     },
                     tipText     : 'onTipText'
                 },
@@ -149,16 +161,16 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
                     html        : '<h1>Place Holder</h1>',
                     name        : 'end_time',
                     listeners   : {
-                       // change  : 'onTimeSlideChange'
+                        change  : 'onTimeSlideChange'
                     },
                     tipText     : 'onTipText'
                 },
                 {
-                    xtype       : 'container',
+                    xtype       : 'panel',
                     hidden		: true,
                     itemId      : 'cmpTimeDisplay',
-                    tpl         : '<div class="fieldBlue"><b>Time Of Event :</b> {start_time} <b></div>',
-                    data        : {start_time : '00:00'},
+                    tpl         : new Ext.XTemplate('<div style="margin-left:8px;margin-bottom:20px;font-size:18px;color:#287160"> {start_time}  to  {end_time} ({timespan})</div>'),
+                    data        : {start_time : '00:00', end_time : '00:05', timespan : '5 Minutes'},
                     padding     : '0 10 0 10',
                 }	                                                        	
             ]

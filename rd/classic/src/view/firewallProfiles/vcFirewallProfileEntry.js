@@ -7,14 +7,37 @@ Ext.define('Rd.view.firewallProfiles.vcFirewallProfileEntry', {
     control: {
         'cmbFwSchedule': {
            change   : 'cmbFwScheduleChange'
-        }        
+        },
+        '#btnAllow': {
+        	click	: 'onBtnAllowClick'
+        },
+        '#btnBlock': {
+        	click	: 'onBtnBlockClick'
+        },
+        '#btnLimit': {
+        	click	: 'onBtnLimitClick'
+        }         
     },
     onTimeSlideChange : function( slider , newValue , thumb ){
         var me 		= this;
-        var form    = slider.up('form');
-        var cmp     = form.down('#cmpTimeDisplay');
-        var hrs_mins= me.timeFormat(newValue);
-        cmp.setData({start_time: hrs_mins});     
+        var start   = me.getView().down('#sldrStart').getValue();
+        var end		= me.getView().down('#sldrEnd').getValue();
+        var human_span = '0 minutes';
+        if(start > end){
+        	var span 		= (1440- start) + end; //Whats left from the first day PLUS second day
+        	var human_span 	= me.forHumans(span);        
+        }
+             
+        if(start < end){
+        	var span 		= end - start;
+        	var human_span 	= me.forHumans(span);
+        }
+
+        
+        var cmp     = me.getView().down('#cmpTimeDisplay');
+        var hm_start= me.timeFormat(start);
+        var hm_end	= me.timeFormat(end);
+        cmp.setData({start_time: hm_start,end_time: hm_end,timespan: human_span});     
     },
     onAfterEditRender : function(window){
         var me      = this;
@@ -85,8 +108,27 @@ Ext.define('Rd.view.firewallProfiles.vcFirewallProfileEntry', {
     		me.getView().down('#chkGrpWeekDays').show();
     	}else{
     		me.getView().down('#chkGrpWeekDays').hide();
-    	}
-    	
-    	    	   	
-    }
+    	}  	    	   	
+    },
+    onBtnAllowClick: function(btn){
+    	var me = this;
+    	me.getView().down('#bw_up').hide();
+    	me.getView().down('#bw_down').hide();
+    },
+    onBtnBlockClick: function(btn){
+    	var me = this;
+    	me.getView().down('#bw_up').hide();
+    	me.getView().down('#bw_down').hide();
+    },
+    onBtnLimitClick: function(btn){
+    	var me = this;
+    	me.getView().down('#bw_up').show();
+    	me.getView().down('#bw_down').show();
+    },
+    forHumans: function( minutes ) {
+		var milliseconds = minutes * 60 * 1000;
+		var mydate = new Date(milliseconds);
+		var humandate = mydate.getUTCHours()+" hours, "+mydate.getUTCMinutes()+" minutes";
+		return humandate;
+	}
 });

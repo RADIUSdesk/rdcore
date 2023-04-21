@@ -18,13 +18,13 @@ Ext.define('Rd.view.firewallProfiles.cmbFwCategories', {
             fields: ['id', 'text'],
             data : [
                 {'id':"app",      		"text": 'App'},
-                {"id":"app_group",		"text": 'App Group'},
+          //      {"id":"app_group",		"text": 'App Group'},
                 {"id":"domain",     	"text": 'Domain Name'},
                 {"id":"ip_address", 	"text": 'IP Address'},
-                {"id":"region", 		"text": 'Region'},
+            //    {"id":"region", 		"text": 'Region'},
                 {"id":"internet", 		"text": 'Internet'},
                 {"id":"local_network", 	"text": 'Local Network'},
-                {"id":"protocol",       "text": 'Protocol'}           
+             //   {"id":"protocol",       "text": 'Protocol'}           
             ]
         });
         me.store = s;

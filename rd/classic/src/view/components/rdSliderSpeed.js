@@ -38,7 +38,8 @@ Ext.define('Rd.view.components.rdSliderSpeed', {
                 maxValue    : me.maxValue,
                 listeners   : {
 	                change  : 'sldrAmountChange'
-                }
+                },
+                flex		: 1
             },
             {
                 xtype       : 'numberfield',
