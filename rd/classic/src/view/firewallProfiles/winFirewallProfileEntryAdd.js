@@ -52,7 +52,6 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
                     itemId  :  'save',
                     text    : i18n('sOK'),
                     scale   : 'large',
-                    iconCls : 'b-btn_ok',
                     glyph   : Rd.config.icnYes,
                     formBind: true,
                     margin  : Rd.config.buttonMargin
@@ -63,6 +62,12 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
                     xtype   : 'textfield',
                     name    : 'firewall_profile_id',
                     value   : me.firewall_profile_id,
+                    hidden  : true
+                },
+                {
+                    xtype   : 'textfield',
+                    name    : 'action',
+                    itemId	: 'txtAction',
                     hidden  : true
                 },
                 {
@@ -107,6 +112,30 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
                 },
                 {
                 	xtype	: 'tagFwApps'
+                },
+                {
+                    xtype           : 'textfield',
+                    fieldLabel      : 'Domain',
+                    name            : 'domain',
+                    itemId          : 'txtDomain',
+                    allowBlank      : false,
+                    blankText       : i18n('sSupply_a_value'),
+                    labelClsExtra   : 'lblRdReq',
+                    vtype           : 'DnsName',
+                    disabled        : true,
+                    hidden			: true
+                },
+                {
+                	xtype           : 'textfield',
+                    fieldLabel      : 'IP Address',
+                    name            : 'ip_address',
+                    itemId          : 'txtIpAddress',
+                    allowBlank      : false,
+                    blankText       : i18n('sSupply_a_value'),
+                    labelClsExtra   : 'lblRdReq',
+                    vtype           : 'IPAddress',
+                    disabled        : true,
+                    hidden			: true              	
                 },
                 {
                 	xtype	: 'cmbFwSchedule'

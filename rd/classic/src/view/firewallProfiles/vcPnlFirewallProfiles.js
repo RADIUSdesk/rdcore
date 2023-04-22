@@ -50,7 +50,7 @@ Ext.define('Rd.view.firewallProfiles.vcPnlFirewallProfiles', {
         'winFirewallProfileEntryEdit': {
             show   : 'winFirewallProfileEntryEditShow'
         },
-        'winFirewallProfilesEntryEdit #save': {
+        'winFirewallProfileEntryEdit #save': {
             click   : 'btnEntryEditSave'
         }                 
     },
@@ -248,14 +248,25 @@ Ext.define('Rd.view.firewallProfiles.vcPnlFirewallProfiles', {
             method      :'GET',
             params      :{firewall_profile_entry_id:entryId},
             success     : function(a,b,c){
-                form.down('#slideTime').setValue(b.result.data.event_time);       
+            
+            	if(b.result.data.action == 'block'){
+            		form.down('#btnBlock').click();	
+            	}
+            	if(b.result.data.action == 'allow'){
+            		form.down('#btnAllow').click();	
+            	}
+            	if(b.result.data.action == 'limit'){
+            		form.down('#btnLimit').click();	
+            	}
+            
+                /*form.down('#slideTime').setValue(b.result.data.event_time);       
                 if(b.result.data.type == 'predefined_command'){
                     var cmb    = form.down("cmbPredefinedCommand");
                     var rec    = Ext.create('Rd.model.mAp', {name: b.result.data.predefined_command_name, id: b.result.data.predefined_command_id});
                     cmb.getStore().loadData([rec],false);
                     cmb.setValue(b.result.data.predefined_command_id);
                     console.log("Brannas");
-                }                          
+                }*/                          
             }
         });        
     },

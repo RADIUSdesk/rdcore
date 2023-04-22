@@ -90,7 +90,7 @@ class FirewallProfilesController extends AppController {
     
     	$items = [
 			[	'id'	=> 1, 'name' => 'Facebook',	'glyph' => 'fa-facebook-square', 'description' => '<i class="fa fa-chevron-right"></i><b>Klap Hom<b>'	], 
-			[	'id'	=> 2, 'name' => 'Twitter',	'glyph' => 'fa-twitter', 'description' => '<i class="fa fa-twitter"></i><b>Klap Haar<b>'	] 	
+			[	'id'	=> 2, 'name' => 'Twitter',	'glyph' => 'fa-twitter', 'description' => '<i class="fa fa-chevron-right"></i><b>Klap Haar<b>'	] 	
     	];
     	
     	$this->set([
@@ -288,7 +288,7 @@ class FirewallProfilesController extends AppController {
         }
     }
     
-    public function addScheduleEntry(){
+    public function addFirewallProfileEntry(){
      
         $user = $this->_ap_right_check();
         if(!$user){
@@ -309,20 +309,20 @@ class FirewallProfilesController extends AppController {
                 }
             }
             
-            $entity = $this->{'ScheduleEntries'}->newEntity($req_data); 
-            if ($this->{'ScheduleEntries'}->save($entity)) {
+            $entity = $this->{'FirewallProfileEntries'}->newEntity($req_data); 
+            if ($this->{'FirewallProfileEntries'}->save($entity)) {
                 $this->set([
                     'success' => true
                 ]);
                 $this->viewBuilder()->setOption('serialize', true);
             } else {
-                $message = __('Could not update item');
+                $message = __('Could not add item');
                 $this->JsonErrors->entityErros($entity,$message);
             }    
         }
     }
     
-    public function viewScheduleEntry(){
+    public function viewFirewallProfileEntry(){
      
         $user = $this->_ap_right_check();
         if(!$user){
@@ -330,14 +330,11 @@ class FirewallProfilesController extends AppController {
         }
         
         $req_q      = $this->request->getQuery();
-        $id         = $req_q['schedule_entry_id'];  
+        $id         = $req_q['firewall_profile_entry_id'];  
         $data       = [];
-        $entity     = $this->{'ScheduleEntries'}->find()->where(['ScheduleEntries.id' => $id])->contain(['PredefinedCommands'])->first();
+        $entity     = $this->{'FirewallProfileEntries'}->find()->where(['FirewallProfileEntries.id' => $id])->contain([])->first();
         if($entity){
             $data       =  $entity->toArray();
-            if($entity->predefined_command !== null){
-                $data['predefined_command_name'] = $entity->predefined_command->name;
-            }
         }
         $this->set([
             'data'      => $data,
@@ -346,7 +343,7 @@ class FirewallProfilesController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
     
-    public function editScheduleEntry(){
+    public function editFirewallProfileEntry(){
      
         $user = $this->_ap_right_check();
         if(!$user){
@@ -366,12 +363,12 @@ class FirewallProfilesController extends AppController {
                     $req_data[$i] = 0;
                 }
             }
-            $id = $req_data['schedule_entry_id'];
+            $id = $req_data['firewall_profile_entry_id'];
             
-            $entity = $this->{'ScheduleEntries'}->find()->where(['ScheduleEntries.id' => $id])->first();
+            $entity = $this->{'FirewallProfileEntries'}->find()->where(['FirewallProfileEntries.id' => $id])->first();
             if($entity){
-                $this->{'ScheduleEntries'}->patchEntity($entity, $req_data);  
-                if ($this->{'ScheduleEntries'}->save($entity)) {
+                $this->{'FirewallProfileEntries'}->patchEntity($entity, $req_data);  
+                if ($this->{'FirewallProfileEntries'}->save($entity)) {
                     $this->set([
                         'success' => true
                     ]);
