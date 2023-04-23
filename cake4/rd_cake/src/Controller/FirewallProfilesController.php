@@ -89,8 +89,9 @@ class FirewallProfilesController extends AppController {
     public function indexApps(){
     
     	$items = [
-			[	'id'	=> 1, 'name' => 'Facebook',	'glyph' => 'fa-facebook-square', 'description' => '<i class="fa fa-chevron-right"></i><b>Klap Hom<b>'	], 
-			[	'id'	=> 2, 'name' => 'Twitter',	'glyph' => 'fa-twitter', 'description' => '<i class="fa fa-chevron-right"></i><b>Klap Haar<b>'	] 	
+			[	'id'	=> 1, 'name' => 'Facebook',	'glyph' => 'fa-facebook', 'description' => '<span style="font-family:FontAwesome;">&#xf09a;</span> Facebook'	], 
+			[	'id'	=> 2, 'name' => 'Twitter',	'glyph' => 'fa-twitter', 'description' => '<span style="font-family:FontAwesome;">&#xf099;</span> Twitter'	],
+			[	'id'	=> 3, 'name' => 'YouTube',	'glyph' => 'fa-twitter', 'description' => '<span style="font-family:FontAwesome;">&#xf167;</span> YouTube'	],  	
     	];
     	
     	$this->set([
@@ -115,7 +116,7 @@ class FirewallProfilesController extends AppController {
         
         if(isset($req_q['id'])){
         	if($req_q['id'] > 0){
-        		$query->where(['FirewallProfile.id' => $req_q['id']]);
+        		$query->where(['FirewallProfiles.id' => $req_q['id']]);
         	}	   
         }
 
@@ -154,19 +155,49 @@ class FirewallProfilesController extends AppController {
 					
 			array_push($items, $row);
 			
-			foreach($i->firewall_profile_entries as $se){
-				$se->command_type = $se->type;			
-				$se->type = 'firewall_profile_entry';
-				$se->time_human = $this->timeFormat($se->event_time);
-				if($se->predefined_command){
-					$se->command = $se->predefined_command->command;
+			foreach($i->firewall_profile_entries as $fp_e){
+			
+				if($fp_e->action == 'limit'){
+					$bw_up_suffix = 'kbps';
+					$bw_up = ($fp_e->bw_up * 8);
+					if($bw_up >= 1000){
+						$bw_up = $bw_up / 1000;
+						$bw_up_suffix = 'mbps';
+					}
+					$fp_e->bw_up_suffix = $bw_up_suffix;
+					$fp_e->bw_up = $bw_up;
+					
+					$bw_down_suffix = 'kbps';
+					$bw_down = ($fp_e->bw_down * 8);
+					if($bw_down >= 1000){
+						$bw_down = $bw_down / 1000;
+						$bw_down_suffix = 'mbps';
+					}
+					$fp_e->bw_down_suffix = $bw_down_suffix;
+					$fp_e->bw_down = $bw_down;
 				}
-				$se->everyday = false;
-				if($se->mo && $se->tu && $se->we && $se->th && $se->fr && $se->sa && $se->su){
-					$se->everyday = true;	
-				}				
-				$se->for_system = $for_system;				
-				array_push($items, $se);		
+				
+				if($fp_e->schedule !== 'always'){
+				
+					$human_span = '0 minutes';
+					if($fp_e->start_time > $fp_e->end_time){
+						$span 		= (1440- $fp_e->start_time) + $fp_e->end_time; //Whats left from the first day PLUS second day
+						$human_span = $this->forHumans($span,'%02d hours, %02d minutes');        
+					}
+						 
+					if($fp_e->start_time < $fp_e->end_time){
+						$span 			= $fp_e->end_time - $fp_e->start_time;
+						$human_span 	= $this->forHumans($span,'%02d hours, %02d minutes');
+					}     
+				
+					$fp_e->start_time_human = $this->timeFormat($fp_e->start_time);
+					$fp_e->end_time_human 	= $this->timeFormat($fp_e->end_time);
+					$fp_e->human_span 		= $human_span;	
+				}
+			
+				$fp_e->type 		= 'firewall_profile_entry';			
+				$fp_e->for_system 	= $for_system;				
+				array_push($items, $fp_e);		
 			}					
 			array_push($items,[ 'id' => '0_'.$i->id, 'type'	=> 'add','name' => 'Firewall Profile Entry', 'firewall_profile_id' =>  $i->id, 'firewall_profile_name' => $i->name, 'for_system' =>  $for_system ]);			
         }
@@ -219,14 +250,38 @@ class FirewallProfilesController extends AppController {
 
         $fail_flag 	= false;
         $req_d 		= $this->request->getData();
+        $ap_flag 	= true;		
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
 
 	    if(isset($req_d['id'])){   //Single item delete
-            $entity     = $this->{$this->main_model}->get($req_d['id']);   
+            $entity     = $this->{$this->main_model}->get($req_d['id']);
+            
+            if(($entity->cloud_id == -1)&&($ap_flag == true)){
+	    		$this->set([
+					'message' 	=> 'Not enough rights for action',
+					'success'	=> false
+				]);
+				$this->viewBuilder()->setOption('serialize', true);
+				return;
+	    	} 
+	    	            
             $this->{$this->main_model}->delete($entity);
 
         }else{                          //Assume multiple item delete
             foreach($req_d as $d){
-                $entity     = $this->{$this->main_model}->get($d['id']);  
+                $entity     = $this->{$this->main_model}->get($d['id']);
+                
+                 if(($entity->cloud_id == -1)&&($ap_flag == true)){
+					$this->set([
+							'message' 	=> 'Not enough rights for action',
+							'success'	=> false
+						]);
+						$this->viewBuilder()->setOption('serialize', true);
+					return;
+				}  
+                  
                 $this->{$this->main_model}->delete($entity);
             }
         }
@@ -244,8 +299,8 @@ class FirewallProfilesController extends AppController {
             $this->viewBuilder()->setOption('serialize', true);
         }
 	}
-	
-    public function edit(){
+    	
+	public function edit(){
 	   
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
@@ -256,24 +311,30 @@ class FirewallProfilesController extends AppController {
         if(!$user){
             return;
         }
-
+        
+        $ap_flag 	= true;	
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
+				   
         if ($this->request->is('post')) { 
-            $req_d  = $this->request->getData();        
-            $check_items = [
-			    'available_to_siblings'
-		    ];
-            foreach($check_items as $i){
-                if(isset($req_d[$i])){
-                    $req_d[$i] = 1;
-                }else{
-                    $req_d[$i] = 0;
-                }
-            }
+            $req_d  = $this->request->getData();
+                    
+		    if($this->request->getData('for_system')){
+        		$req_d['cloud_id'] = -1;
+		    }
+		    		    		    
             $ids            = explode("_", $this->request->getData('id'));  
             $req_d['id']    = $ids[0];
             $entity         = $this->{$this->main_model}->find()->where(['id' => $req_d['id']])->first();
             
             if($entity){
+            
+            	if($ap_flag && ($entity->cloud_id == -1)){
+            		$this->JsonErrors->errorMessage('Not enough rights for action');
+					return;          	
+            	}
+                        
                 $this->{$this->main_model}->patchEntity($entity, $req_d); 
                 if ($this->{$this->main_model}->save($entity)) {
                     $this->set(array(
@@ -287,14 +348,28 @@ class FirewallProfilesController extends AppController {
             }
         }
     }
-    
+	    
     public function addFirewallProfileEntry(){
      
         $user = $this->_ap_right_check();
         if(!$user){
             return;
         }
-          
+        
+        /*
+        	Mbps : Megabit per second (Mbit/s or Mb/s)
+			kB/s : Kilobyte per second
+			1 byte = 8 bits
+			1 bit  = (1/8) bytes
+			1 bit  = 0.125 bytes
+			1 kilobyte = 10001 bytes
+			1 megabit  = 10002 bits
+			1 megabit  = (1000 / 8) kilobytes
+			1 megabit  = 125 kilobytes
+			1 megabit/second = 125 kilobytes/second
+			1 Mbps = 125 kB/s
+        */
+              
         if ($this->request->is('post')) {       
             $req_data = $this->request->getData();
         
@@ -309,6 +384,34 @@ class FirewallProfilesController extends AppController {
                 }
             }
             
+            //--Speed Calculations--
+            if($req_data['action'] == 'limit'){       	      	
+		   		$d_amount 	= $req_data['limit_download_amount'];
+		   		$d_unit 	= $req_data['limit_download_unit'];
+		   		if($d_unit == 'mbps'){
+		   			$bw_down = ($d_amount * 1000) / 8;
+		   		}
+		   		if($d_unit == 'kbps'){
+		   			$bw_down = $d_amount / 8;
+		   		}
+		   		$req_data['bw_down']	= $bw_down;
+		   		
+		   		//Upload
+		   		$u_amount 	= $req_data['limit_upload_amount'];
+		   		$u_unit 	= $req_data['limit_upload_unit'];
+		   		if($u_unit == 'mbps'){
+		   			$bw_up = ($u_amount * 1000) / 8;
+		   		}
+		   		if($u_unit == 'kbps'){
+		   			$bw_up = $u_amount / 8;
+		   		}
+		   		$req_data['bw_up']	= $bw_up;		   			   		
+		   	}
+		   	
+		   	if($req_data['schedule'] == 'one_time'){			   	
+		   		$req_data['one_time_date'] = new FrozenTime($req_data['one_time_date']." 00:00:00");			   	
+		   	}
+                                                      
             $entity = $this->{'FirewallProfileEntries'}->newEntity($req_data); 
             if ($this->{'FirewallProfileEntries'}->save($entity)) {
                 $this->set([
@@ -328,13 +431,37 @@ class FirewallProfilesController extends AppController {
         if(!$user){
             return;
         }
-        
+               
         $req_q      = $this->request->getQuery();
         $id         = $req_q['firewall_profile_entry_id'];  
         $data       = [];
         $entity     = $this->{'FirewallProfileEntries'}->find()->where(['FirewallProfileEntries.id' => $id])->contain([])->first();
-        if($entity){
-            $data       =  $entity->toArray();
+        if($entity){          
+            if($entity->action == 'limit'){
+				$bw_up_suffix = 'kbps';
+				$bw_up = ($entity->bw_up * 8);
+				if($bw_up >= 1000){
+					$bw_up = $bw_up / 1000;
+					$bw_up_suffix = 'mbps';
+				}
+				$entity->limit_upload_unit 		= $bw_up_suffix;
+				$entity->limit_upload_amount 	= $bw_up;
+				
+				$bw_down_suffix = 'kbps';
+				$bw_down = ($entity->bw_down * 8);
+				if($bw_down >= 1000){
+					$bw_down = $bw_down / 1000;
+					$bw_down_suffix = 'mbps';
+				}
+				$entity->limit_download_unit 	= $bw_down_suffix;
+				$entity->limit_download_amount 	= $bw_down;
+			}
+			
+			if($entity->schedule == 'one_time'){
+				$entity->one_time_date = $entity->one_time_date->i18nFormat('yyyy-MM-dd');			
+			}
+            
+            $data       =  $entity;
         }
         $this->set([
             'data'      => $data,
@@ -367,6 +494,39 @@ class FirewallProfilesController extends AppController {
             
             $entity = $this->{'FirewallProfileEntries'}->find()->where(['FirewallProfileEntries.id' => $id])->first();
             if($entity){
+            
+            	if($req_data['action'] == 'limit'){       	  	      	
+			   		$d_amount 	= $req_data['limit_download_amount'];
+			   		$d_unit 	= $req_data['limit_download_unit'];
+			   		if($d_unit == 'mbps'){
+			   			$bw_down = ($d_amount * 1000) / 8;
+			   		}
+			   		if($d_unit == 'kbps'){
+			   			$bw_down = $d_amount / 8;
+			   		}
+			   		
+			   		$u_amount 	= $req_data['limit_upload_amount'];
+			   		$u_unit 	= $req_data['limit_upload_unit'];
+			   		if($u_unit == 'mbps'){
+			   			$bw_up = ($u_amount * 1000) / 8;
+			   		}
+			   		if($u_unit == 'kbps'){
+			   			$bw_up = $u_amount / 8;
+			   		}
+				
+			   		$req_data['bw_up'] 	= $bw_up;
+			   		$req_data['bw_down'] 	= $bw_down; 			   		
+			   	}
+			   	
+			   	if($req_data['action'] == 'block'){
+			   		$req_data['bw_up'] 	= null;
+			   		$req_data['bw_down'] 	= null;  	
+			   	}
+			   	
+			   	if($req_data['schedule'] == 'one_time'){			   	
+			   		$req_data['one_time_date'] = new FrozenTime($req_data['one_time_date']." 00:00:00");			   	
+			   	}
+                                
                 $this->{'FirewallProfileEntries'}->patchEntity($entity, $req_data);  
                 if ($this->{'FirewallProfileEntries'}->save($entity)) {
                     $this->set([
@@ -381,7 +541,7 @@ class FirewallProfilesController extends AppController {
         }
     }
     
-    public function deleteScheduleEntry() {
+    public function deleteFirewallProfileEntry() {
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
 		}
@@ -397,13 +557,13 @@ class FirewallProfilesController extends AppController {
 
 	    if(isset($req_d['id'])){   //Single item delete
             $message = "Single item ".$req_d['id'];       
-            $entity     = $this->{'ScheduleEntries'}->get($req_d['id']);   
-            $this->{'ScheduleEntries'}->delete($entity);
+            $entity     = $this->{'FirewallProfileEntries'}->get($req_d['id']);   
+            $this->{'FirewallProfileEntries'}->delete($entity);
              
         }else{                          //Assume multiple item delete
             foreach($req_d as $d){
-                $entity     = $this->{'ScheduleEntries'}->get($d['id']);     
-                $this->{'ScheduleEntries'}->delete($entity);                
+                $entity     = $this->{'FirewallProfileEntries'}->get($d['id']);     
+                $this->{'FirewallProfileEntries'}->delete($entity);                
             }
         }
 
@@ -427,7 +587,7 @@ class FirewallProfilesController extends AppController {
             return;
         }
         
-        $menu = $this->GridButtonsFlat->returnButtons(false,'Schedules');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'FirewallProfiles');
         $this->set([
             'items'         => $menu,
             'success'       => true
@@ -449,13 +609,21 @@ class FirewallProfilesController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);  
     }
     
-    private function timeFormat($event_time){
-    
+    private function timeFormat($event_time){   
     	$m       = $event_time % 60;
         $h       = ($event_time-$m)/60;
         $hrs_mins= $h.":".str_pad($m, 2, "0", STR_PAD_LEFT);
-        return $hrs_mins;
+        return $hrs_mins;   
+    }
     
+    private function forHumans($span , $format = '%02d:%02d'){
+
+		if ($span < 1) {
+		    return;
+		}
+		$hours = floor($span / 60);
+		$minutes = ($span % 60);
+		return sprintf($format, $hours, $minutes);   
     }
     
 }

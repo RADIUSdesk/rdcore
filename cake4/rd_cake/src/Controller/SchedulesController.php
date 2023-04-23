@@ -468,13 +468,11 @@ class SchedulesController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);  
     }
     
-    private function timeFormat($event_time){
-    
+    private function timeFormat($event_time){  
     	$m       = $event_time % 60;
         $h       = ($event_time-$m)/60;
         $hrs_mins= $h.":".str_pad($m, 2, "0", STR_PAD_LEFT);
-        return $hrs_mins;
-    
+        return $hrs_mins;   
     }
     
 }

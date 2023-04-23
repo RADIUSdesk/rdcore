@@ -621,7 +621,12 @@ class GridButtonsFlatComponent extends Component {
             $menu   = $b;
         }
         
-         if($type == 'unknown_dynamic'){
+        if($type == 'FirewallProfiles'){
+            $b      = $this->_fetchFirewallProfiles();
+            $menu   = $b;
+        }
+        
+       	if($type == 'unknown_dynamic'){
             $b  = $this->_fetchUnknownDynamic();
             $menu = [$b]; 
         }
@@ -709,6 +714,48 @@ class GridButtonsFlatComponent extends Component {
         return $menu;    
     }
     
+    private function _fetchFirewallProfiles(){
+       
+        
+        $b = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+            $this->btnReload,       
+            $this->btnAdd,
+            $this->btnDelete,
+            $this->btnEdit
+            ]
+	    ];
+	    $c = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+            [
+                'xtype'     => 'button', 
+                'glyph'     => Configure::read('icnConfigure'), 
+                'scale'     => $this->scale,
+                'itemId'    => 'app_tools',
+                'tooltip'   =>  __('App Tools'),
+                'ui'        => $this->btnUiProfComp
+            ]                   
+        ]]; 
+        
+        $cmb_firewall_profiles = [
+            'xtype'     => 'cmbFirewallProfile',
+            'margin'    => '5 0 5 0',
+            'width'		=> 230,
+            'itemId'    => 'cmbFirewallProfile',
+            'fieldLabel'=> '',
+            'value'		=> 0,
+            'include_all_option' => true 
+        ];
+        
+        $d = [
+        	'xtype' => 'buttongroup', 
+        	'title' => $this->t,
+        	'items' => [
+        		$cmb_firewall_profiles                   
+        	]
+        ];             
+	    $menu = [$b,$c,$d];
+        return $menu;    
+    }
+        
     private function _fetchProfiles(){
     
     	$edit = [

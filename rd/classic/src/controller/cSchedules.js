@@ -23,18 +23,11 @@ Ext.define('Rd.controller.cSchedules', {
     refs: [
         {  ref: 'dv',    selector: '#dvSchedules'}       
     ],
-    init: function() { 
-        var me = this;
-        if (me.inited) {
-            return;
+   	control: {
+        'pnlSchedules #predef_cmds' : {
+            click   : 'predefCmds'
         }
-        me.inited = true;
-        me.control({
-            'pnlSchedules #predef_cmds' : {
-                click   : me.predefCmds
-            }
-        });
-    },     
+    },    
    	dvActivate: function(pnl){
         var me = this;
         me.getDv().getStore().reload();            

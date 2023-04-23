@@ -94,7 +94,15 @@ Ext.define('Rd.view.firewallProfiles.vcFirewallProfileEntry', {
     		me.getView().down('#chkGrpWeekDays').show();
     	}else{
     		me.getView().down('#chkGrpWeekDays').hide();
-    	}  	    	   	
+    	}
+    	
+    	if(new_value == 'one_time'){
+    		me.getView().down('#dateOneTime').show();
+    		me.getView().down('#dateOneTime').enable();
+    	}else{
+    		me.getView().down('#dateOneTime').hide();
+    		me.getView().down('#dateOneTime').disable();
+    	}	    	   	
     },
     onBtnAllowClick: function(btn){
     	var me = this;

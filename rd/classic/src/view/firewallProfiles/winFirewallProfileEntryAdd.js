@@ -139,7 +139,18 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
                 },
                 {
                 	xtype	: 'cmbFwSchedule'
-                },              
+                },
+                {
+					xtype			: 'datefield',
+					fieldLabel		: 'Day',
+					itemId			: 'dateOneTime',
+					name			: 'one_time_date',
+					minValue		: new Date(),
+					format			: "Y-m-d",
+					allowBlank      : false,
+					disabled        : true,
+                    hidden			: true    
+				},             
                 {
                     xtype       : 'checkboxgroup',
                     columns     : 7,

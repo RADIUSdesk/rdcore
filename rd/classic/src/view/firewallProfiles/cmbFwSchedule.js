@@ -21,7 +21,7 @@ Ext.define('Rd.view.firewallProfiles.cmbFwSchedule', {
                 {"id":"every_day",		"text": 'Every Day'},
                 {"id":"every_week",     "text": 'Every Week'},
                 {"id":"one_time", 		"text": 'One Time Only'},
-                {"id":"custom", 		"text": 'Custom'}         
+               // {"id":"custom", 		"text": 'Custom'}         
             ]
         });
         me.store = s;

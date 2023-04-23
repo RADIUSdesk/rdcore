@@ -172,6 +172,11 @@ Ext.define('Rd.view.firewallProfiles.vcPnlFirewallProfiles', {
             );
         }else{
         	var sr   =  me.getView().down('#dvFirewallProfiles').getSelectionModel().getLastSelected();
+        	
+        	if(!me.rightsCheck(sr)){
+	    		return;
+	    	}
+        	
 		    if(sr.get('type') == 'firewall_profile'){
 		    	 me.delFirewallProfile();
 		    }

@@ -17,18 +17,24 @@ Ext.define('Rd.controller.cFirewallProfiles', {
         }
         return added;      
     },
+    views:  [
+    	'firewallProfiles.pnlFirewallProfiles'
+    ],
     refs: [
         {  ref: 'dv',    selector: '#dvFirewallProfiles'}       
     ],
-    init: function() { 
-        var me = this;
-        if (me.inited) {
-            return;
+    control: {
+        'pnlFirewallProfiles #app_tools' : {
+            click : 'appTools'
         }
-        me.inited = true;
-    },  
+    },
    	dvActivate: function(pnl){
         var me = this;
         me.getDv().getStore().reload();            
+    },
+    appTools : function(b){
+        var me  = this;
+        tp      = b.up('tabpanel');
+        Ext.getApplication().runAction('cAppTools','Index',tp);
     }
 });
