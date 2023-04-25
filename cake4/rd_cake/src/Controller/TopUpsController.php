@@ -70,7 +70,8 @@ class TopUpsController extends AppController{
           		'human_data_out'	=> $human_data_out,
           		'human_data_total'	=> $human_data_total,
           		'human_data_avail'	=> $human_data_avail,
-          		'human_top_up_total' =>  $this->Formatter->formatted_bytes($topup_totals->top_up_total)        	
+          		'human_top_up_total' =>  $this->Formatter->formatted_bytes($topup_totals->top_up_total),
+          		'username'		=> $e_pu->username       	
           	];        	
           	   				
     		$this->set([
