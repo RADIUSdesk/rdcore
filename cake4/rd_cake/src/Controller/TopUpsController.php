@@ -19,6 +19,7 @@ class TopUpsController extends AppController{
         $this->loadModel('TopUps'); 
         $this->loadModel('PermanentUsers');
         $this->loadModel('Radaccts');
+        $this->loadModel('UserStats');
           
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -29,9 +30,65 @@ class TopUpsController extends AppController{
         ]); 
              
         $this->loadComponent('JsonErrors'); 
-        $this->loadComponent('TimeCalculations');          
+        $this->loadComponent('TimeCalculations');  
+        $this->loadComponent('Formatter');         
     }
     
+    public function dataStats(){
+       
+    	$req_q 		= $this->request->getQuery();    	
+    	$username 	= $req_q['username']; 	
+    	$e_pu 		= $this->{'PermanentUsers'}->find()->where(['PermanentUsers.username' => $username])->first();
+    	
+    	if($e_pu){
+    	
+    		$topup_totals = $this->{'TopUps'}->find()
+    			->where(['TopUps.permanent_user_id' => $e_pu->id , 'TopUps.type' => 'data'])
+    			->select([
+                	'top_up_total' => 'sum(TopUps.data)'
+          		])->first();
+          		
+          	$used_totals = $this->{'UserStats'}->find()
+    			->where(['UserStats.username' => $e_pu->username ])
+    			->select([
+    				'data_in' 		=> 'sum(UserStats.acctinputoctets)',
+                    'data_out' 		=> 'sum(UserStats.acctoutputoctets)',
+                	'data_total' 	=> 'sum(UserStats.acctoutputoctets)+ sum(UserStats.acctinputoctets)'
+          		])->first();
+          	
+          	$human_data_in 	= $this->Formatter->formatted_bytes($used_totals->data_in);
+          	$human_data_out = $this->Formatter->formatted_bytes($used_totals->data_out);
+          	$human_data_total = $this->Formatter->formatted_bytes($used_totals->data_total);
+          	$human_data_avail = $this->Formatter->formatted_bytes(($topup_totals->top_up_total -$used_totals->data_total));
+          	
+          	$data = [
+          		'top_up_total' 	=> $topup_totals->top_up_total,
+          		'data_in'		=> $used_totals->data_in,
+          		'data_out'		=> $used_totals->data_out,
+          		'data_total'	=> $used_totals->data_total,
+          		'human_data_in'	=> $human_data_in,
+          		'human_data_out'	=> $human_data_out,
+          		'human_data_total'	=> $human_data_total,
+          		'human_data_avail'	=> $human_data_avail,
+          		'human_top_up_total' =>  $this->Formatter->formatted_bytes($topup_totals->top_up_total)        	
+          	];        	
+          	   				
+    		$this->set([
+    			'data'		=> $data,
+		        'success' 	=> true
+		    ]);
+		    $this->viewBuilder()->setOption('serialize', true);     	
+    	
+    	}else{
+    		$this->set([
+    			'error'		=> "Permanent user $username not found",
+		        'success' 	=> false
+		    ]);
+		    $this->viewBuilder()->setOption('serialize', true); 
+    		return;	
+    	}
+    }
+        
     public function exportCsv(){
     
     	$req_q      = $this->request->getQuery();
@@ -55,8 +112,8 @@ class TopUpsController extends AppController{
         ];
         foreach($q_r as $i){
 
-            $columns    = array();
-            $csv_line   = array();
+            $columns    = [];
+            $csv_line   = [];
             if(isset($req_q['columns'])){
                 $columns = json_decode($req_q['columns']);
                 foreach($columns as $c){
