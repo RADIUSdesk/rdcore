@@ -68,7 +68,8 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileEntryAdd', {
                     xtype   : 'textfield',
                     name    : 'action',
                     itemId	: 'txtAction',
-                    hidden  : true
+                    hidden  : true,
+                    value	: 'block'
                 },
                 {
                     xtype       : 'radiogroup',

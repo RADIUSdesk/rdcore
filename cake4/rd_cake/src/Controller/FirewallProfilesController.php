@@ -194,6 +194,10 @@ class FirewallProfilesController extends AppController {
 					$fp_e->end_time_human 	= $this->timeFormat($fp_e->end_time);
 					$fp_e->human_span 		= $human_span;	
 				}
+				
+				if($fp_e->schedule == 'one_time'){
+					$fp_e->one_time_date = $fp_e->one_time_date->i18nFormat('yyyy-MM-dd');			
+				}
 			
 				$fp_e->type 		= 'firewall_profile_entry';			
 				$fp_e->for_system 	= $for_system;				
