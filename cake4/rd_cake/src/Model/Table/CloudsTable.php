@@ -66,6 +66,10 @@ class CloudsTable extends Table {
             'dependent' => true
         ]);
         
+        $this->hasMany('FirewallApps',[
+            'dependent' => true
+        ]);
+        
         $this->hasMany('CloudAdmins'); //Not dependent!!!
     }
 }

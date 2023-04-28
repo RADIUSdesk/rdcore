@@ -18,15 +18,15 @@ Ext.define('Rd.view.firewallProfiles.tagFwApps', {
                 {name: 'name',  type: 'string'}
             ],
             proxy: {
-                    type    : 'ajax',
-                    format  : 'json',
-                    batchActions: true, 
-                    url     : '/cake4/rd_cake/firewall-profiles/index-apps.json',
-                    reader: {
-                        type            : 'json',
-                        rootProperty    : 'items',
-                        messageProperty : 'message'
-                    }
+                type    : 'ajax',
+                format  : 'json',
+                batchActions: true, 
+                url     : '/cake4/rd_cake/firewall-apps/index-combo.json',
+                reader: {
+                    type            : 'json',
+                    rootProperty    : 'items',
+                    messageProperty : 'message'
+                }
             },
             autoLoad: true
         });

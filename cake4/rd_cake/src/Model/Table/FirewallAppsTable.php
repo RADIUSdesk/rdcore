@@ -1,13 +1,15 @@
 <?php
 
 namespace App\Model\Table;
-
 use Cake\ORM\Table;
+use Cake\Validation\Validator;
 
-class FirewallProfileEntriesTable extends Table{
-    public function initialize(array $config):void{
+class FirewallAppsTable extends Table{
+
+    public function initialize(array $config):void{  
         $this->addBehavior('Timestamp');  
-        $this->belongsTo('FirewallProfiles');
+        $this->belongsTo('Clouds');
         $this->hasMany('FirewallProfileEntryFirewallApps',['dependent' => true]);
     }
+        
 }

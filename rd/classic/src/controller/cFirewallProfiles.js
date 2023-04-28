@@ -24,17 +24,17 @@ Ext.define('Rd.controller.cFirewallProfiles', {
         {  ref: 'dv',    selector: '#dvFirewallProfiles'}       
     ],
     control: {
-        'pnlFirewallProfiles #app_tools' : {
-            click : 'appTools'
+        'pnlFirewallProfiles #firewall_apps' : {
+            click : 'firewallApps'
         }
     },
    	dvActivate: function(pnl){
         var me = this;
         me.getDv().getStore().reload();            
     },
-    appTools : function(b){
+    firewallApps : function(b){
         var me  = this;
         tp      = b.up('tabpanel');
-        Ext.getApplication().runAction('cAppTools','Index',tp);
+        Ext.getApplication().runAction('cFirewallApps','Index',tp);
     }
 });

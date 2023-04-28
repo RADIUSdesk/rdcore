@@ -626,6 +626,11 @@ class GridButtonsFlatComponent extends Component {
             $menu   = $b;
         }
         
+        if($type == 'FirewallApps'){
+            $b  = $this->_fetchBasic();
+            $menu = [$b];
+        }
+        
        	if($type == 'unknown_dynamic'){
             $b  = $this->_fetchUnknownDynamic();
             $menu = [$b]; 
@@ -654,8 +659,7 @@ class GridButtonsFlatComponent extends Component {
             ]];
             $menu = $b; 
         }
-       
-                                   
+                                         
         return $menu;
     }
     
@@ -729,8 +733,8 @@ class GridButtonsFlatComponent extends Component {
                 'xtype'     => 'button', 
                 'glyph'     => Configure::read('icnConfigure'), 
                 'scale'     => $this->scale,
-                'itemId'    => 'app_tools',
-                'tooltip'   =>  __('App Tools'),
+                'itemId'    => 'firewall_apps',
+                'tooltip'   =>  __('Firewall Apps'),
                 'ui'        => $this->btnUiProfComp
             ]                   
         ]]; 

@@ -45,7 +45,8 @@ class FirewallProfilesController extends AppController {
       
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
-        $query 	  = $this->{$this->main_model}->find();      
+        $query 	  = $this->{$this->main_model}->find();
+                  
         $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,[]);
 
 
@@ -85,23 +86,7 @@ class FirewallProfilesController extends AppController {
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
-    
-    public function indexApps(){
-    
-    	$items = [
-			[	'id'	=> 1, 'name' => 'Facebook',	'glyph' => 'fa-facebook', 'description' => '<span style="font-family:FontAwesome;">&#xf09a;</span> Facebook'	], 
-			[	'id'	=> 2, 'name' => 'Twitter',	'glyph' => 'fa-twitter', 'description' => '<span style="font-family:FontAwesome;">&#xf099;</span> Twitter'	],
-			[	'id'	=> 3, 'name' => 'YouTube',	'glyph' => 'fa-twitter', 'description' => '<span style="font-family:FontAwesome;">&#xf167;</span> YouTube'	],  	
-    	];
-    	
-    	$this->set([
-            'items'         => $items,
-            'success'       => true
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);
-          
-    }
-        
+             
   	public function indexDataView(){
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
@@ -598,7 +583,7 @@ class FirewallProfilesController extends AppController {
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
-    
+        
     public function defaultSchedule(){
     
     	$user = $this->Aa->user_for_token($this);
