@@ -36,7 +36,7 @@ Ext.define('Rd.view.firewallApps.pnlFirewallApps', {
 						'<div style="font-size:18px;color:#9999c7;text-align:left;padding-left:20px;padding-top:10px;">{#}. {.}</div>',
 					'</tpl>',
 					'<tpl if="comment">',
-						'<div style="padding-left:20px;padding-top:10px;"><i class="fa fa-sticky-note"></i>  {comment}</div>',
+						'<div style="padding-left:20px;padding-top:10px;"><i class="fa fa-edit"></i>  {comment}</div>',
 					'</tpl>', 
 					'<div style="margin-bottom:20px"></div>',					         		 
                 '</div>',

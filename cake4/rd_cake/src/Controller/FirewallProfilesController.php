@@ -23,6 +23,7 @@ class FirewallProfilesController extends AppController {
         $this->loadModel($this->main_model);
         $this->loadModel('Users');
         $this->loadModel('FirewallProfileEntries');
+        $this->loadModel('FirewallProfileEntryFirewallApps');
 
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model'     => 'FirewallProfiles',
@@ -97,7 +98,7 @@ class FirewallProfilesController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,['FirewallProfileEntries']);
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,['FirewallProfileEntries'=>['FirewallProfileEntryFirewallApps'=>['FirewallApps']]]);
         
         if(isset($req_q['id'])){
         	if($req_q['id'] > 0){
@@ -424,7 +425,7 @@ class FirewallProfilesController extends AppController {
         $req_q      = $this->request->getQuery();
         $id         = $req_q['firewall_profile_entry_id'];  
         $data       = [];
-        $entity     = $this->{'FirewallProfileEntries'}->find()->where(['FirewallProfileEntries.id' => $id])->contain([])->first();
+        $entity     = $this->{'FirewallProfileEntries'}->find()->where(['FirewallProfileEntries.id' => $id])->contain(['FirewallProfileEntryFirewallApps'])->first();
         if($entity){          
             if($entity->action == 'limit'){
 				$bw_up_suffix = 'kbps';
@@ -449,8 +450,21 @@ class FirewallProfilesController extends AppController {
 			if($entity->schedule == 'one_time'){
 				$entity->one_time_date = $entity->one_time_date->i18nFormat('yyyy-MM-dd');			
 			}
+			
+			if($entity->firewall_profile_entry_firewall_apps){
+				$entity->apps = [];			
+				foreach($entity->firewall_profile_entry_firewall_apps as $a){
+					array_push($entity->apps, $a->firewall_app_id);		
+				}
+				unset($entity->firewall_profile_entry_firewall_apps);				
+			}
             
             $data       =  $entity;
+            if(isset($data['apps'])){
+            	$data['apps[]'] = $data['apps'];
+            }
+            
+            
         }
         $this->set([
             'data'      => $data,
@@ -484,6 +498,16 @@ class FirewallProfilesController extends AppController {
             $entity = $this->{'FirewallProfileEntries'}->find()->where(['FirewallProfileEntries.id' => $id])->first();
             if($entity){
             
+            	//Clean up the FirewallProfileEntyFirewallApps entries 
+            	$this->{'FirewallProfileEntryFirewallApps'}->deleteAll(['FirewallProfileEntryFirewallApps.firewall_profile_entry_id' => $entity->id]);
+            	
+            	if(isset($req_data['apps'])){          	
+            		foreach($req_data['apps'] as $app){            		
+            			$a = $this->{'FirewallProfileEntryFirewallApps'}->newEntity(['firewall_profile_entry_id' => $entity->id, 'firewall_app_id' => $app]);            			 
+            			$this->{'FirewallProfileEntryFirewallApps'}->save($a);            		
+            		}
+            	}
+            	           
             	if($req_data['action'] == 'limit'){       	  	      	
 			   		$d_amount 	= $req_data['limit_download_amount'];
 			   		$d_unit 	= $req_data['limit_download_unit'];

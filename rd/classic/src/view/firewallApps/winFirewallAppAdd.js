@@ -60,7 +60,9 @@ Ext.define('Rd.view.firewallApps.winFirewallAppAdd', {
                     name        : "name",
                     allowBlank  : false,
                     blankText   : i18n('sSupply_a_value'),
-                    labelClsExtra: 'lblRdReq'
+                    labelClsExtra: 'lblRdReq',
+                    maxLength	: 16,
+                    maskRe		: /[^\s]/
                 },
                 {
                     xtype       : 'textfield',

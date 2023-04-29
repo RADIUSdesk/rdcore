@@ -185,6 +185,7 @@ Rd.config = {
     'icnExchange'   : 'xf0ec@FontAwesome',
     'icnFire'       : 'xf06d@FontAwesome',
     'icnCalendar'	: 'xf073@FontAwesome',
-    'icnBus'		: 'xf207@FontAwesome'
+    'icnBus'		: 'xf207@FontAwesome',
+    'icnMeter'		: 'xf0e4@FontAwesome'
 }
 
