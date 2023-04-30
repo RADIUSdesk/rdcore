@@ -53,6 +53,21 @@ Ext.define('Rd.view.aps.gridAccessPointExits' ,{
                     '</tpl>'
                 ),
                 dataIndex: 'connects_with',stateId: 'StateGridAccessPointExitsId3'
+            },
+            { 
+                text    : 'Firewall Profile',
+                sortable: false,
+                flex    : 1, 
+                tdCls   : 'gridTree', 
+                xtype   :  'templatecolumn', 
+                tpl:    new Ext.XTemplate(
+                    '<tpl if="apply_firewall_profile">',
+                    	"<tpl><div class=\"fieldBlueWhite\"><span style=\"font-family:FontAwesome;\">&#xf06d;</span>  {firewall_profile_name}</div></tpl>",
+                    '<tpl else>',
+                        "<tpl><div class=\"fieldGreyWhite\">No Active Firewall</div></tpl>",
+                    '</tpl>'
+                ),
+                dataIndex: 'apply_firewall_profile',stateId: 'StateGridAccessPointExitsId4'
             }
         ];
         me.callParent(arguments);

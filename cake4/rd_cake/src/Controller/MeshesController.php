@@ -762,7 +762,7 @@ class MeshesController extends AppController{
 
         $mesh_id    = $this->request->getQuery('mesh_id');
 
-        $q_r        = $this->MeshExits->find()->contain(['MeshExitMeshEntries.MeshEntries'])->where(['MeshExits.mesh_id' => $mesh_id])->all();
+        $q_r        = $this->MeshExits->find()->contain(['MeshExitMeshEntries.MeshEntries','FirewallProfiles'])->where(['MeshExits.mesh_id' => $mesh_id])->all();
         // print_r($q_r);
 
         foreach($q_r as $m){
@@ -779,9 +779,14 @@ class MeshesController extends AppController{
                 	$dynamic_vlan = $m_e_ent->mesh_entry_id;
                 	$dynamic_vlan = str_replace("-9","",$dynamic_vlan);
                 	array_push($exit_entries, ['name' => "Dynamic VLAN $dynamic_vlan"]);               
-                }
-                
+                }             
           	}
+          	
+          	$firewall_profile_name  = 'Unknown Firewall Profile';            
+            if($m->apply_firewall_profile){
+            	$firewall_profile_name = $m->firewall_profile->name;
+            }
+
 
             array_push($items,array(
                 'id'            => $m->id,
@@ -791,7 +796,9 @@ class MeshesController extends AppController{
                 'vlan'          => intval($m->vlan),
                 'connects_with' => $exit_entries,
                 'auto_detect'   => $m->auto_detect,
-
+                'apply_firewall_profile' 	=> $m->apply_firewall_profile,
+                'firewall_profile_id' 		=> $m->firewall_profile_id,
+                'firewall_profile_name'		=> $firewall_profile_name
             ));
         }
         //___ FINAL PART ___
@@ -1136,7 +1143,8 @@ class MeshesController extends AppController{
         
         	$req_d		= $this->request->getData();   	
         	$check_items = [
-				'auto_detect'
+				'auto_detect',
+				'apply_firewall_profile'
 			];
 		    foreach($check_items as $i){
 		        if(isset($req_d[$i])){

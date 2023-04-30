@@ -68,7 +68,6 @@ Ext.define('Rd.view.meshes.gridMeshExits' ,{
 
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
         me.columns  = [
-          //  {xtype: 'rownumberer',stateId: 'StateGridMeshExitsId1'},
             { 
                 text    : i18n('sType'),                 
                 dataIndex: 'type',          
@@ -83,7 +82,7 @@ Ext.define('Rd.view.meshes.gridMeshExits' ,{
                     '<tpl if="type==\'openvpn_bridge\'"><div class="fieldBlueWhite"><i class="fa fa-quote-right"></i> '+' '+'OpenVPN Bridge'+'</div></tpl>',
                     '<tpl if="type==\'tagged_bridge_l3\'"><div class="fieldBlue"><i class="fa fa-tag"></i> '+' '+'Layer 3 Tagged Ethernet Bridge (&#8470; {vlan})'+'</div></tpl>'
                 ),        
-                stateId: 'StateGridMeshExitsId3'
+                stateId: 'StateGridMeshExitsId1'
             },
             { 
                 text    :   i18n('sConnects_with'),
@@ -97,9 +96,30 @@ Ext.define('Rd.view.meshes.gridMeshExits' ,{
                         "<tpl><div class=\"fieldGreyWhite\">{name}</div></tpl>",
                     '</tpl>'
                 ),
-                dataIndex: 'connects_with',stateId: 'StateGridMeshExitsId4'
-            },  
-            { text: i18n('sAuto_detect'),          dataIndex: 'auto_detect',   tdCls: 'gridTree', flex: 1,stateId: 'StateGridMeshExitsId5',
+                dataIndex: 'connects_with',stateId: 'StateGridMeshExitsId2'
+            },
+             { 
+                text    	: 'Firewall Profile',
+                sortable	: false,
+                flex    	: 1, 
+                tdCls   	: 'gridTree', 
+                xtype   	:  'templatecolumn', 
+                tpl			:    new Ext.XTemplate(
+                    '<tpl if="apply_firewall_profile">',
+                    	"<tpl><div class=\"fieldBlueWhite\"><span style=\"font-family:FontAwesome;\">&#xf06d;</span>  {firewall_profile_name}</div></tpl>",
+                    '<tpl else>',
+                        "<tpl><div class=\"fieldGreyWhite\">No Active Firewall</div></tpl>",
+                    '</tpl>'
+                ),
+                dataIndex	: 'apply_firewall_profile',
+                stateId		: 'StateGridMeshExitsId3'
+            }, 
+            { 
+            	text		: i18n('sAuto_detect'),
+            	dataIndex	: 'auto_detect',
+            	tdCls		: 'gridTree',
+            	flex		: 1,
+            	stateId 	: 'StateGridMeshExitsId4',
                 xtype       :  'templatecolumn', 
                 tpl         :  new Ext.XTemplate(
                     '<tpl if="auto_detect"><div class=\"fieldGreen\"><i class="fa fa-check-circle"></i> Yes</div>',
@@ -107,7 +127,7 @@ Ext.define('Rd.view.meshes.gridMeshExits' ,{
                     '<div class=\"fieldRed\"><i class="fa fa-times-circle"></i> No</div>',
                     "</tpl>"   
                 )   
-            }
+            }          
         ];
         me.callParent(arguments);
     }

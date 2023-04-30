@@ -1008,7 +1008,7 @@ class ApHelper22Component extends Component {
 		return $wireless;
     }
     
-     private function _setWiFiSettings(){
+  	private function _setWiFiSettings(){
     
         //Get the basics regardless and then do overrides
         $radio_fields = [

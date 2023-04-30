@@ -7,7 +7,17 @@ Ext.define('Rd.view.aps.vcAccessPointExitPoint', {
     },
     init: function() {
         var me = this;
-    },    
+    },
+    onChkApplyFirewallProfileChange: function(chk){
+		var me 		= this;
+		var form    = chk.up('form');
+		var fw_prof = form.down('cmbFirewallProfile');
+		if(chk.getValue()){
+		    fw_prof.enable();		   
+		}else{
+		    fw_prof.disable();
+		}
+	},        
 	onChkDnsOverrideChange: function(chk){
 		var me 		= this;
 		var form    = chk.up('form');

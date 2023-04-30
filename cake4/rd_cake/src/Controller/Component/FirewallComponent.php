@@ -81,8 +81,7 @@ class FirewallComponent extends Component {
     				$bw_down = $ca->bw_down;
     			}
     			array_push($firewall_list,['mac' => $mac,'action' => $action,'bw_up' => $bw_up,'bw_down' => $bw_down]);
-    		}  
-    	
+    		}    	
     	}
     	  
     	return $firewall_list;

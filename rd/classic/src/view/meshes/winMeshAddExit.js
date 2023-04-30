@@ -240,19 +240,19 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
              },
              {
                 xtype       : 'checkbox',      
-                fieldLabel  : i18n('sSwap_octets'),
+                boxLabel  	: i18n('sSwap_octets'),
+                boxLabelCls	: 'boxLabelRd',
                 name        : 'swap_octet',
                 inputValue  : 'swap_octet',
-                checked     : true,
-                labelClsExtra: 'lblRdReq'
+                checked     : true
             },
             {
                 xtype       : 'checkbox',      
-                fieldLabel  : i18n('sMAC_authentication'),
+                boxLabel  	: i18n('sMAC_authentication'),
+                boxLabelCls	: 'boxLabelRd',
                 name        : 'mac_auth',
                 inputValue  : 'mac_auth',
-                checked     : true,
-                labelClsExtra: 'lblRdReq'
+                checked     : true
             }
         ];
         
@@ -260,11 +260,11 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
             {
                 itemId      : 'chkDnsOverride',
                 xtype       : 'checkbox',      
-                fieldLabel  : 'Enable Override',
+                boxLabel  	: 'Enable Override',
+                boxLabelCls	: 'boxLabelRd',
                 name        : 'dns_manual',
                 inputValue  : 'dns_manual',
                 checked     : false,
-                labelClsExtra: 'lblRd',
                 listeners   : {
 		            change  : 'onChkDnsOverrideChange'
 		        }
@@ -290,28 +290,28 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
             {
                 itemId      : 'chkAnyDns',
                 xtype       : 'checkbox',      
-                fieldLabel  : 'Allow Any DNS',
+                boxLabel  	: 'Allow Any DNS',
+                boxLabelCls	: 'boxLabelRd',
                 name        : 'uamanydns',
                 inputValue  : 'uamanydns',
-                checked     : true,
-                labelClsExtra: 'lblRd'
+                checked     : true
             },
             {
                 xtype       : 'checkbox',      
-                fieldLabel  : 'DNS Paranoia',
+                boxLabel  	: 'DNS Paranoia',
+                boxLabelCls	: 'boxLabelRd',
                 name        : 'dnsparanoia',
                 inputValue  : 'dnsparanoia',
-                checked     : false,
-                labelClsExtra: 'lblRd'
+                checked     : false
             },
             {
                 itemId      : 'chkDnsDesk',
                 xtype       : 'checkbox',      
-                fieldLabel  : 'Use DNS Ident',
+                boxLabel  	: 'Use DNS Ident',
+                boxLabelCls	: 'boxLabelRd',
                 name        : 'dnsdesk',
                 inputValue  : 'dnsdesk',
                 checked     : false,
-                labelClsExtra: 'lblRd',
                 listeners   : {
 		            change  : 'onChkDnsDeskChange'
 		        }
@@ -368,12 +368,12 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
         var proxy_t_items = [
             {
                 itemId      : 'chkProxyEnable',
-                xtype       : 'checkbox',      
-                fieldLabel  : 'Enable',
+                xtype       : 'checkbox',
+                boxLabelCls	: 'boxLabelRd',      
+                boxLabel  	: 'Enable',
                 name        : 'proxy_enable',
                 inputValue  : 'proxy_enable',
-                checked     : false,
-                labelClsExtra: 'lblRdReq'
+                checked     : false
             },
             {
                 xtype       : 'textfield',
@@ -483,11 +483,11 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
                 items       :[
                      {
                         xtype       : 'checkbox',      
-                        fieldLabel  : 'Enable Softflowd',
+                        boxLabel  	: 'Enable Softflowd',
+                        boxLabelCls	: 'boxLabelRd',
                         name        : 'softflowd_enabled',
                         inputValue  : 1,
-                        checked     : false,
-                        labelClsExtra: 'lblRd'
+                        checked     : false
                     }     
                 ]
             }         
@@ -562,11 +562,11 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
                                 }, 
                                 {
                                     xtype       : 'checkbox',      
-                                    fieldLabel  : i18n('sAuto_detect'),
+                                    boxLabel  	: i18n('sAuto_detect'),
+                                    boxLabelCls	: 'boxLabelRd',
                                     name        : 'auto_detect',
                                     inputValue  : 'auto_detect',
-                                    checked     : true,
-                                    labelClsExtra: 'lblRdReq'
+                                    checked     : true
                                 },
                                 {
                                     xtype       : 'numberfield',
@@ -583,13 +583,30 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
                                 },
                                 tagConnectWith,
                                 {
+                                    itemId      : 'chkApplyFirewallProfile',
+                                    xtype       : 'checkbox',      
+                                    boxLabel  	: 'Apply Firewall Profile',
+                                    boxLabelCls	: 'boxLabelRd',
+                                    name        : 'apply_firewall_profile',
+                                    listeners   : {
+							            change  : 'onChkApplyFirewallProfileChange'
+							        }
+                                },                              
+                                {
+                                	xtype		: 'cmbFirewallProfile',
+                                	fieldLabel	: 'Firewall Profile',
+                                	include_all_option : false,
+                                	disabled	: true,
+                                	labelClsExtra: 'lblRdReq'                             	
+                                },
+                                {
                                     itemId      : 'chkNasClient',
                                     xtype       : 'checkbox',      
-                                    fieldLabel  : 'Add Dynamic RADIUS Client',
+                                    boxLabel  	: 'Add Dynamic RADIUS Client',
+                                    boxLabelCls	: 'boxLabelRd',
                                     name        : 'auto_dynamic_client',
                                     inputValue  : 'auto_dynamic_client',
-                                    checked     : true,
-                                    labelClsExtra: 'lblRdReq'
+                                    checked     : true
                                 },
                                 {
                                     itemId      : 'cmbRealm',
@@ -604,11 +621,11 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
                                 {
                                     itemId      : 'chkLoginPage',
                                     xtype       : 'checkbox',      
-                                    fieldLabel  : 'Add Login Page',
+                                    boxLabel  	: 'Add Login Page',
+                                    boxLabelCls	: 'boxLabelRd',
                                     name        : 'auto_login_page',
                                     inputValue  : 'auto_login_page',
-                                    checked     : true,
-                                    labelClsExtra: 'lblRdReq'
+                                    checked     : true
                                 },
                                 {
                                     itemId      : 'cmbDynamicDetail',
@@ -732,6 +749,4 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
         });
         return frmData;
     }   
-
-
 });

@@ -10,6 +10,10 @@ class MeshExitsTable extends Table{
     
         $this->addBehavior('Timestamp');  
         $this->belongsTo('Meshes');
+    	$this->belongsTo('FirewallProfiles', [
+            'className' => 'FirewallProfiles',
+            'foreignKey' => 'firewall_profile_id'
+        ]);
         $this->hasMany('MeshExitMeshEntries',['dependent' => true]);
         $this->hasOne('MeshExitCaptivePortals',['dependent' => true]);
         $this->hasOne('OpenvpnServerClients',['dependent' => true]); 

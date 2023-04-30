@@ -8,6 +8,16 @@ Ext.define('Rd.view.meshes.vcMeshExitPoint', {
     init: function() {
         var me = this;
     }, 
+    onChkApplyFirewallProfileChange: function(chk){
+		var me 		= this;
+		var form    = chk.up('form');
+		var fw_prof = form.down('cmbFirewallProfile');
+		if(chk.getValue()){
+		    fw_prof.enable();		   
+		}else{
+		    fw_prof.disable();
+		}
+	},   
     onAfterRender: function(window){
    
         var me          = this;    

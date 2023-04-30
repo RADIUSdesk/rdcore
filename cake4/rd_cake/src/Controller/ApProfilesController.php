@@ -536,10 +536,8 @@ class ApProfilesController extends AppController {
                 'connects_with' => []
             ]);       
         }       
-        
-       // print_r($q_r);
         $q_r = $this->ApProfileExits->find()
-            ->contain(['ApProfileExitApProfileEntries.ApProfileEntries'])
+            ->contain(['ApProfileExitApProfileEntries.ApProfileEntries','FirewallProfiles'])
             ->where(['ApProfileExits.ap_profile_id' => $ap_profile_id])
             ->all();
 
@@ -561,14 +559,21 @@ class ApProfilesController extends AppController {
                 
                 }
             }
+            
+            $firewall_profile_name  = 'Unknown Firewall Profile';            
+            if($m->apply_firewall_profile){
+            	$firewall_profile_name = $m->firewall_profile->name;
+            }
 
             array_push($items, [
                 'id'            => $m->id,
                 'ap_profile_id' => $m->ap_profile_id,
                 'type'          => $m->type,
                 'vlan'          => intval($m->vlan),
-                'connects_with' => $exit_entries
-
+                'connects_with' => $exit_entries,
+                'apply_firewall_profile' 	=> $m->apply_firewall_profile,
+                'firewall_profile_id' 		=> $m->firewall_profile_id,
+                'firewall_profile_name'		=> $firewall_profile_name
             ]);
         }
         //___ FINAL PART ___
@@ -776,8 +781,18 @@ class ApProfilesController extends AppController {
 
         if ($this->request->is('post')) {
         
-        	$req_d 		= $this->request->getData();
-        
+        	$req_d 			= $this->request->getData();
+        	$g_check_items 	= [
+				'apply_firewall_profile'
+			];
+			foreach($g_check_items as $i){
+			    if(isset($req_d[$i])){
+			        $req_d[$i] = 1;
+			    }else{
+			        $req_d[$i] = 0;
+			    }
+			}
+        	       
             $this->loadModel('ApProfileExitApProfileEntries');
             $this->loadModel('ApProfileExits');
             $this->loadModel('OpenvpnServers');
