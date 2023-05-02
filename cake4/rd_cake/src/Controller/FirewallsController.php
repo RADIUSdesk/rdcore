@@ -48,7 +48,7 @@ class FirewallsController extends AppController {
             $config		= []; //Default is empty
         
             if($version == 22.03){
-            	$config['md_fw'] = $this->MdFirewall->JsonForMac($mac);
+            	$config['adv_firewall'] = $this->MdFirewall->JsonForMac($mac);
             }
             $this->set([
                 'config_settings' => $config,
