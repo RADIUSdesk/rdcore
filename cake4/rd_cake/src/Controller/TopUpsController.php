@@ -42,10 +42,16 @@ class TopUpsController extends AppController{
     	
     	if($e_pu){
     	
-    		$topup_totals = $this->{'TopUps'}->find()
+    		$topup_totals_data = $this->{'TopUps'}->find()
     			->where(['TopUps.permanent_user_id' => $e_pu->id , 'TopUps.type' => 'data'])
     			->select([
                 	'top_up_total' => 'sum(TopUps.data)'
+          		])->first();
+          		
+          	$topup_totals_time = $this->{'TopUps'}->find()
+    			->where(['TopUps.permanent_user_id' => $e_pu->id , 'TopUps.type' => 'time'])
+    			->select([
+                	'top_up_total' => 'sum(TopUps.time)'
           		])->first();
           		
           	$used_totals = $this->{'UserStats'}->find()
@@ -55,23 +61,36 @@ class TopUpsController extends AppController{
                     'data_out' 		=> 'sum(UserStats.acctoutputoctets)',
                 	'data_total' 	=> 'sum(UserStats.acctoutputoctets)+ sum(UserStats.acctinputoctets)'
           		])->first();
+          		
+          	$time_used = $this->{'Radaccts'}->find()
+          		->where(['Radaccts.username' => $e_pu->username])
+          		->select([
+          			'session_total' => 'sum(Radaccts.acctsessiontime)'
+          		])->first();
           	
           	$human_data_in 	= $this->Formatter->formatted_bytes($used_totals->data_in);
           	$human_data_out = $this->Formatter->formatted_bytes($used_totals->data_out);
           	$human_data_total = $this->Formatter->formatted_bytes($used_totals->data_total);
-          	$human_data_avail = $this->Formatter->formatted_bytes(($topup_totals->top_up_total -$used_totals->data_total));
+          	$human_data_avail = $this->Formatter->formatted_bytes(($topup_totals_data->top_up_total -$used_totals->data_total));
           	
+          	$human_time_avail = $this->Formatter->formatted_bytes(($topup_totals_time->top_up_total - $time_used->session_total));
+                   	
           	$data = [
-          		'top_up_total' 	=> $topup_totals->top_up_total,
-          		'data_in'		=> $used_totals->data_in,
-          		'data_out'		=> $used_totals->data_out,
-          		'data_total'	=> $used_totals->data_total,
-          		'human_data_in'	=> $human_data_in,
-          		'human_data_out'	=> $human_data_out,
-          		'human_data_total'	=> $human_data_total,
-          		'human_data_avail'	=> $human_data_avail,
-          		'human_top_up_total' =>  $this->Formatter->formatted_bytes($topup_totals->top_up_total),
-          		'username'		=> $e_pu->username       	
+          		'top_up_data' 			=> $topup_totals_data->top_up_total,
+          		'data_in'				=> $used_totals->data_in,
+          		'data_out'				=> $used_totals->data_out,
+          		'data_total'			=> $used_totals->data_total,
+          		'human_data_in'			=> $human_data_in,
+          		'human_data_out'		=> $human_data_out,
+          		'human_data_total'		=> $human_data_total,
+          		'human_data_avail'		=> $human_data_avail,
+          		'human_top_up_data' 	=> $this->Formatter->formatted_bytes($topup_totals_data->top_up_total),
+          		'top_up_time' 			=> $topup_totals_time->top_up_total,
+          		'time_used'				=> $time_used->session_total,
+          		'human_top_up_time' 	=> $this->Formatter->formatted_seconds($topup_totals_time->top_up_total),
+          		'human_time_used' 		=> $this->Formatter->formatted_seconds($time_used->session_total),
+          		'human_time_avail'		=> $human_time_avail,
+          		'username'				=> $e_pu->username       	
           	];        	
           	   				
     		$this->set([
