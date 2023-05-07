@@ -22,12 +22,12 @@ class MdFirewallComponent extends Component {
         
         $this->Sets[-1] = [
         	'name' 		=> 'md_internet_not',
-        	'elements' 	=> '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16','255.255.255.255'
+        	'elements' 	=> '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16','255.255.255.255',
         	'comment'	=> 'Private IP Addr Excl For Internet'      
         ];
         $this->Sets[-2] = [
         	'name' 		=> 'md_lan',
-        	'elements' 	=> '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
+        	'elements' 	=> '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16',
         	'comment'	=> 'Private IP Addr LAN'      
         ];         
     }
