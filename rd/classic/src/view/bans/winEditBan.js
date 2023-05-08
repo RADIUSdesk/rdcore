@@ -173,7 +173,8 @@ Ext.define('Rd.view.bans.winEditBan', {
 					vertical	: false,
 					items		: [
 						{ boxLabel: 'Block', 	   name: 'action', inputValue: 'block', checked: rb_block ,margin: 2 },
-						{ boxLabel: 'Speed Limit', name: 'action', inputValue: 'limit', checked: rb_limit ,margin: 2 }
+						{ boxLabel: 'Speed Limit', name: 'action', inputValue: 'limit', checked: rb_limit ,margin: 2 },
+						{ boxLabel: 'Firewall Profile', name: 'action', inputValue: 'firewall', checked: rb_firewall ,margin: 2 }
 					],
 					listeners   : {
 				        change  : 'rgrpActionChange'

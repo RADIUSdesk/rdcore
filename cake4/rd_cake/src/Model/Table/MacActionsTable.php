@@ -10,5 +10,6 @@ class MacActionsTable extends Table {
         $this->belongsTo('ClientMacs');
         $this->belongsTo('Meshes');
         $this->belongsTo('ApProfiles');
+        $this->belongsTo('FirewallProfiles');
     }
 }

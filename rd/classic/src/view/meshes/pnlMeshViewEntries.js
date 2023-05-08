@@ -12,7 +12,8 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntries', {
         'Rd.view.meshes.pnlMeshViewEntriesGraph',
         'Rd.view.meshes.winMeshEditMacAlias',
         'Rd.view.meshes.winMeshEditMacLimit',
-        'Rd.view.meshes.winMeshEditMacBlock'
+        'Rd.view.meshes.winMeshEditMacBlock',
+        'Rd.view.meshes.winMeshEditMacFirewall'
     ],
     listeners       : {
         activate : 'onPnlActivate' //Trigger a load of the settings (This is only on the initial load)
@@ -110,7 +111,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntries', {
             	itemId		: 'firewall',
             	hidden		: true,
             	glyph		: Rd.config.icnFire,
-            	tooltip 	: 'Advance Firewall'
+            	tooltip 	: 'Apply Firewall Profile'
             },
             {
             	scale		: 'small',

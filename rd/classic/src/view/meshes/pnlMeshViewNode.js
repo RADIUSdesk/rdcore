@@ -109,7 +109,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewNode', {
             	itemId		: 'firewall',
             	hidden		: true,
             	glyph		: Rd.config.icnFire,
-            	tooltip 	: 'Advance Firewall'
+            	tooltip 	: 'Apply Firewall Profile'
             },
             {
             	scale		: 'small',

@@ -276,6 +276,100 @@ class WifiChartsController extends AppController{
         $this->viewBuilder()->setOption('serialize', true);    
     } 
     
+   	public function editMacFirewall(){
+    	//__ Authentication + Authorization __
+        $user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+             
+        $req_d = $this->request->getData();
+        $req_q = $this->request->getQuery();    
+       	$cloud_id 	= $req_q['cloud_id'];
+       	$ap_profile_id = false;
+       	if(isset($req_d['ap_id'])){      	
+       		$e_ap 			= $this->{'Aps'}->find()->where(['Aps.id' => $req_d['ap_id']])->first();
+       		if($e_ap){  	
+       			$ap_profile_id	= $e_ap->ap_profile_id;
+       		}
+       	}
+       	     	
+       	$mesh_id = false;
+       	if(isset($req_d['mesh_id'])){
+       		$mesh_id	= $req_d['mesh_id'];
+       	}
+       	
+       	if(isset($req_d['scope'])){
+       		if($req_d['scope'] == 'cloud_wide'){
+       			$this->cloud_wide = true;
+       		}
+       	}
+       	
+       	//Remove old entries to start with
+       	foreach($req_d['items'] as $item){
+			$mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
+			if($mac){ 
+				$client_mac_id = $mac->id;
+				if($this->cloud_wide){ //This we only delete if it is specified and cloud wide else we ignore it
+					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.cloud_id' => $cloud_id]);
+				}
+				//These we always remove to start clean
+				if($mesh_id){
+					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.mesh_id' => $mesh_id]);
+				}
+				if($ap_profile_id){
+					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.ap_profile_id' => $ap_profile_id]);
+				}
+			}			
+		}
+		 		
+   		if(!isset($req_d['remove_firewall'])){
+   			   		   		
+	   		foreach($req_d['items'] as $item){
+				$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
+				if(!$e_mac){			
+					$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $item['mac']]);
+					$this->{'ClientMacs'}->save($e_mac);
+				}
+				$d_action = [
+					'client_mac_id' => $e_mac->id,
+					'action'		=> 'firewall',
+					'firewall_profile_id'	=> $req_d['firewall_profile_id']
+				];
+				if($this->cloud_wide){
+					$d_action['cloud_id'] = $cloud_id;
+				}else{
+					if($mesh_id){
+						$d_action['mesh_id'] = $mesh_id;
+					}
+					if($ap_profile_id){
+						$d_action['ap_profile_id'] = $ap_profile_id;
+					}
+				}
+				$e_ma = $this->{'MacActions'}->newEntity($d_action);
+				$this->{'MacActions'}->save($e_ma);	
+			}		
+		}
+		
+		//Action section
+		if($this->cloud_wide){
+			//$this->_addActionsCloud($cloud_id);
+		}else{
+			if($mesh_id){
+				//$this->_addActionsMesh($mesh_id);
+			}
+			if($ap_profile_id){
+				//$this->_addActionsApProfile($ap_profile_id);
+			}
+		}						               
+        $this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);    
+    } 
+    
+    
+    
     public function editMacAlias(){   
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
@@ -754,14 +848,16 @@ class WifiChartsController extends AppController{
            
             $block_flag = false;
             $limit_flag = false;
+            $firewall_flag = false;
             $cloud_flag = false;
             $bw_up		= '';
             $bw_down	= '';
+            $fw_profile = '';
 			$mac 		= $this->mac;          
             $e_cm = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $tt->mac])->first();
             if($e_cm){
                         	
-            	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.cloud_id' => $cloud_id ])->first();
+            	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
             	if($e_ma){
             		$cloud_flag = true;
             		if($e_ma->action == 'block'){
@@ -787,10 +883,14 @@ class WifiChartsController extends AppController{
             			}
             			$bw_down = $bw_down.' '.$bw_down_suffix;
             		}
+            		if($e_ma->action == 'firewall'){
+            			$firewall_flag 	= true;
+            			$fw_profile		= $e_ma->firewall_profile->name;
+            		}
             	}
             	//If there is an mesh level override
             	if($mesh_id){
-		        	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->first();
+		        	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->contain(['FirewallProfiles'])->first();
 		        	if($e_ma){
 		        		$cloud_flag = false;
 		        		if($e_ma->action == 'block'){
@@ -812,13 +912,17 @@ class WifiChartsController extends AppController{
 		        				$bw_down_suffix = 'mbps';
 		        			}
 		        			$bw_down = $bw_down.' '.$bw_down_suffix;
+		        		}
+		        		if($e_ma->action == 'firewall'){
+		        			$firewall_flag 	= true;
+		        			$fw_profile		= $e_ma->firewall_profile->name;
 		        		}
 		        	}
 		        }
 		        
 		        //If there is an AP Profile level override 
 		        if($this->ap_profile_id){
-		        	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.ap_profile_id' => $this->ap_profile_id ])->first();
+		        	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.ap_profile_id' => $this->ap_profile_id ])->contain(['FirewallProfiles'])->first();
 		        	if($e_ma){
 		        		$cloud_flag = false;
 		        		if($e_ma->action == 'block'){
@@ -841,7 +945,11 @@ class WifiChartsController extends AppController{
 		        			}
 		        			$bw_down = $bw_down.' '.$bw_down_suffix;
 		        		}
-		        	}
+		        		if($e_ma->action == 'firewall'){
+			    			$firewall_flag 	= true;
+			    			$fw_profile		= $e_ma->firewall_profile->name;
+			    		}
+		        	}		        	
 		        }                 
             }
                       
@@ -860,6 +968,8 @@ class WifiChartsController extends AppController{
                    	'limit_flag'	=> $limit_flag,
                     'bw_up'			=> $bw_up,
                     'bw_down'		=> $bw_down,
+                    'firewall_flag'	=> $firewall_flag,
+		            'fw_profile'	=> $fw_profile,
                 ]
             );
             $id++;

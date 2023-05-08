@@ -6,7 +6,6 @@ Ext.define('Rd.view.aps.winApEditMacBlock', {
     resizable   : true,
     title       : 'Block MAC Address',
     width       : 500,
-   // height      : 370,
     height      : 350,
     plain       : true,
     border      : false,
@@ -54,8 +53,8 @@ Ext.define('Rd.view.aps.winApEditMacBlock', {
 					fieldLabel  : 'Scope',
 					vertical	: false,
 					items		: [
-						{ boxLabel: 'Cloud Wide', name: 'scope', inputValue: 'cloud_wide' },
-						{ boxLabel: 'AP Profile Only',  name: 'scope', inputValue: 'network_only', checked: true}
+						{ boxLabel: 'Cloud Wide', name: 'scope', inputValue: 'cloud_wide', margin: 0  },
+						{ boxLabel: 'AP Profile Only',  name: 'scope', inputValue: 'network_only', checked: true, margin: 0 }
 					]
 				},
                 {
@@ -65,8 +64,8 @@ Ext.define('Rd.view.aps.winApEditMacBlock', {
                     inputValue  : 'remove_block',
                     itemId      : 'chkRemoveBlock',
                     checked     : false,
-                    cls         : 'lblRd',
-                    margin      : Rd.config.fieldMargin +5
+                    boxLabelCls	: 'boxLabelRd',                
+                    margin      : Rd.config.fieldMargin
                 }
             ]
         });

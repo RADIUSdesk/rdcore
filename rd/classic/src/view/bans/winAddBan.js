@@ -101,7 +101,8 @@ Ext.define('Rd.view.bans.winAddBan', {
 					vertical	: false,
 					items		: [
 						{ boxLabel: 'Block', 	   name: 'action', inputValue: 'block', checked: true ,margin: 2 },
-						{ boxLabel: 'Speed Limit', name: 'action', inputValue: 'limit',margin: 2 }
+						{ boxLabel: 'Speed Limit', name: 'action', inputValue: 'limit',margin: 2 },
+						{ boxLabel: 'Firewall Profile', name: 'action', inputValue: 'firewall', margin: 2 }
 					],
 					listeners   : {
 				        change  : 'rgrpActionChange'

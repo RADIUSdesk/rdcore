@@ -1,22 +1,22 @@
-Ext.define('Rd.view.aps.winApEditMacLimit', {
+Ext.define('Rd.view.meshes.winMeshEditMacFirewall', {
     extend      : 'Ext.window.Window',
-    alias       : 'widget.winApEditMacLimit',
+    alias       : 'widget.winMeshEditMacFirewall',
     closable    : true,
     draggable   : true,
     resizable   : true,
-    title       : 'Speed Limit for MAC Address',
-    width       : 550,
-    height      : 400,
+    title       : 'Apply Firewall Profile',
+    width       : 480,
+    height      : 300,
     plain       : true,
     border      : false,
     layout      : 'fit',
-    glyph       : Rd.config.icnSpeed,
+    glyph       : Rd.config.icnFire,
     autoShow    :   false,
     defaults: {
             border: false
     },
-    requires    : [
-        'Rd.view.components.rdSliderSpeed'
+    requires: [
+    	'Rd.view.components.cmbFirewallProfile'
     ],
     initComponent: function() {
         var me      = this;
@@ -33,7 +33,7 @@ Ext.define('Rd.view.aps.winApEditMacLimit', {
                 labelAlign      : 'left',
                 labelSeparator  : '',
                 labelClsExtra   : 'lblRd',
-                margin          : Rd.config.fieldMargin
+                //margin          : Rd.config.fieldMargin
             },
             defaultType: 'textfield',
             buttons: [
@@ -52,30 +52,30 @@ Ext.define('Rd.view.aps.winApEditMacLimit', {
 					xtype		: 'radiogroup',
 					columns		: 2,
 					fieldLabel  : 'Scope',
+					labelWidth	: 150,
 					vertical	: false,
+					margin      : Rd.config.fieldMargin,
 					items		: [
-						{ boxLabel: 'Cloud Wide', name: 'scope', inputValue: 'cloud_wide', margin: 0 },
-						{ boxLabel: 'AP Profile Only',  name: 'scope', inputValue: 'network_only', checked: true, margin: 0}
+						{ boxLabel: 'Cloud Wide', name: 'scope', inputValue: 'cloud_wide' },
+						{ boxLabel: 'Mesh Only',  name: 'scope', inputValue: 'network_only', checked: true}
 					]
 				},
 				{
-		            xtype       : 'rdSliderSpeed',
-		            sliderName  : 'limit_upload',
-		            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up"
-		        },
-                {
-		            xtype       : 'rdSliderSpeed',
-		            sliderName  : 'limit_download',
-		            fieldLabel  : "<i class='fa fa-arrow-down'></i> Down",
-		        },
+                	xtype		: 'cmbFirewallProfile',
+                	fieldLabel	: 'Firewall Profile',
+                	include_all_option : false,
+                	labelWidth	: 150,
+                	labelClsExtra: 'lblRdReq',
+                	margin      : Rd.config.fieldMargin                             	
+                },
                 {
                     xtype       : 'checkbox',      
-                    boxLabel    : 'Remove Limit',
-                    name        : 'remove_limit',
-                    inputValue  : 'remove_limit',
-                    itemId      : 'chkRemoveLimit',
+                    boxLabel    : 'Remove Firewall',
+                    name        : 'remove_firewall',
+                    inputValue  : 'remove_firewall',
+                    itemId      : 'chkRemoveFirewall',
                     checked     : false,
-                    boxLabelCls	: 'boxLabelRd',                
+                    boxLabelCls	: 'boxLabelRd',
                     margin      : Rd.config.fieldMargin
                 }
             ]

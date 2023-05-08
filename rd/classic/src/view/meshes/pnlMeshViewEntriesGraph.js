@@ -10,7 +10,8 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
     hide_owner  : false,
     requires: [
         'Rd.view.meshes.pnlMeshViewDeviceDetail',
-        'Rd.view.dataUsage.pnlDataUsageGraph'
+        'Rd.view.dataUsage.pnlDataUsageGraph',
+        'Rd.view.meshes.winMeshEditMacFirewall'
     ],
     height  : 550,
     hidePlrNodes : true,
@@ -154,7 +155,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                                 glyph   : Rd.config.icnEdit
                             },
                             {
-                                tooltip : 'Advance Firewall',
+                                tooltip : 'Apply Firewall Profile',
                                 itemId  : 'toolFirewall',
                                 glyph   : Rd.config.icnFire
                             },
@@ -180,12 +181,18 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
 								    '<tpl if="cloud_flag & block_flag">',
 								    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
 								        '<br><span style="font-size:75%;color:#cc6600;"><i class="fa fa-cloud"></i>  <i class="fa fa-ban"></i></span>',
+								   	'<tpl elseif="cloud_flag & firewall_flag">',
+								    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
+								    	'<br><span style="font-size:75%;color:#cc6600;"><i class="fa fa-cloud"></i>  <span style="font-family:FontAwesome;">&#xf06d;</span> {fw_profile}</span>',
 								    '<tpl elseif="cloud_flag & limit_flag">',
 								    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
 								    	'<br><span style="font-size:75%;color:#cc6600;"><i class="fa fa-cloud"></i>  <span style="font-family:FontAwesome;">&#xf0e4;</span> (<i class="fa fa-arrow-circle-down"></i> {bw_down} / <i class="fa fa-arrow-circle-up"></i> {bw_up} )</span>',
 								    '<tpl elseif="block_flag">',
 								    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
 								        '<br><span style="font-size:75%;color:#cc6600;"><i class="fa fa-ban"></i></span>',
+								  	'<tpl elseif="firewall_flag">',
+								    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
+								        '<br><span style="font-size:75%;color:#cc6600;"><span style="font-family:FontAwesome;">&#xf06d;</span> {fw_profile}</span>',
 								    '<tpl elseif="limit_flag">',
 								    	'<tpl if="alias">{alias}<tpl else>{mac}</tpl>',
 								        '<br><span style="font-size:75%;color:#cc6600;"><span style="font-family:FontAwesome;">&#xf0e4;</span> (<i class="fa fa-arrow-circle-down"></i> {bw_down} / <i class="fa fa-arrow-circle-up"></i> {bw_up} )</span>',

@@ -8,7 +8,8 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
         urlUsageForSsid : '/cake4/rd_cake/wifi-charts/usage-for-ssid.json',
         urlEditAlias    : '/cake4/rd_cake/wifi-charts/edit-mac-alias.json',
         urlEditLimit    : '/cake4/rd_cake/wifi-charts/edit-mac-limit.json',
-        UrlEditBlock	: '/cake4/rd_cake/wifi-charts/edit-mac-block.json'
+        UrlEditBlock	: '/cake4/rd_cake/wifi-charts/edit-mac-block.json',
+        UrlEditFirewall	: '/cake4/rd_cake/wifi-charts/edit-mac-firewall.json'
     }, 
     control: {
         'pnlMeshViewEntriesGraph' : {
@@ -44,6 +45,9 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
         '#alias'	: {
         	click	: 'onClickAlias'
         },
+        '#firewall'	: {
+        	click	: 'onClickFirewall'
+        },
         '#limit'	: {
         	click	: 'onClickLimit'
         },
@@ -52,6 +56,12 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
         },
         '#toolAlias': {
             click: 'onClickToolAlias'         
+        },
+        '#toolFirewall': {
+            click: 'onClickToolFirewall'         
+        },
+        'winMeshEditMacFirewall #save': {
+            click: 'firewallSave'
         },
         '#toolLimit': {
         	click: 'onClickToolLimit'
@@ -335,6 +345,89 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
             }
         }
     },
+    onClickFirewall: function(btn){
+    	var me = this;
+    	if(me.getView().down("gridMeshViewEntries")){
+    		var grid = me.getView().down("gridMeshViewEntries")
+    	}
+    	if(me.getView().down("gridMeshViewNodes")){
+    		var grid = me.getView().down("gridMeshViewNodes")
+    	}
+        if(grid.getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );          
+        }else{
+           if(!Ext.WindowManager.get('winMeshEditMacFirewallId')){
+                var w = Ext.widget('winMeshEditMacFirewall',{id:'winMeshEditMacFirewallId','grid' : grid});
+                me.getView().add(w); 
+                let appBody = Ext.getBody();
+                w.showBy(appBody);           
+            }
+        }       
+    },
+    onClickToolFirewall: function(btn){
+        var me = this;
+        if(me.getView().down("#gridTopTen").getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );          
+        }else{
+           console.log("Show Firewall Window");
+           if(!Ext.WindowManager.get('winMeshEditMacFirewallId')){
+                var w = Ext.widget('winMeshEditMacFirewall',{id:'winMeshEditMacFirewallId','grid' : me.getView().down("#gridTopTen")});
+                me.getView().add(w); 
+                let appBody = Ext.getBody();
+                w.showBy(appBody);           
+            }
+        }
+    },
+    firewallSave: function(btn){
+    	var me = this;
+        var form    = btn.up('form');
+        var window  = form.up('window');
+        console.log("Save firewall");
+        var selected    = window.grid.getSelectionModel().getSelection();
+        var list    = [];
+        var values 	= form.getForm().getValues();
+        Ext.Array.forEach(selected,function(item){
+            var mac = item.get('mac');
+            Ext.Array.push(list,{'mac' : mac});
+        });
+        values.mesh_id = me.getView().meshId;     
+        values.items = list;    
+        Ext.Ajax.request({
+            url		: me.getUrlEditFirewall(),
+            method	: 'POST',          
+            jsonData: values,
+            success	: function(batch,options){
+                Ext.ux.Toaster.msg(
+                    'Firewall Action',
+                    'Firewall Action Completed',
+                    Ext.ux.Constants.clsInfo,
+                    Ext.ux.Constants.msgInfo
+                );
+                me.reload(); //Reload from server
+                window.close();
+            },                                    
+            failure: function(batch,options){
+                Ext.ux.Toaster.msg(
+                    'Problems Firewalling Devices',
+                    batch.proxy.getReader().rawData.message.message,
+                    Ext.ux.Constants.clsWarn,
+                    Ext.ux.Constants.msgWarn
+                );
+                me.reload(); //Reload from server
+                window.close();
+            }
+        });      
+    },  
     onClickLimit: function(btn){
     	var me = this;
     	if(me.getView().down("gridMeshViewEntries")){

@@ -54,8 +54,8 @@ Ext.define('Rd.view.meshes.winMeshEditMacLimit', {
 					fieldLabel  : 'Scope',
 					vertical	: false,
 					items		: [
-						{ boxLabel: 'Cloud Wide', name: 'scope', inputValue: 'cloud_wide' },
-						{ boxLabel: 'Mesh Only',  name: 'scope', inputValue: 'network_only', checked: true}
+						{ boxLabel: 'Cloud Wide', name: 'scope', inputValue: 'cloud_wide', margin: 0  },
+						{ boxLabel: 'Mesh Only',  name: 'scope', inputValue: 'network_only', checked: true, margin: 0 }
 					]
 				},
 				{
@@ -75,8 +75,8 @@ Ext.define('Rd.view.meshes.winMeshEditMacLimit', {
                     inputValue  : 'remove_limit',
                     itemId      : 'chkRemoveLimit',
                     checked     : false,
-                    cls         : 'lblRd',
-                    margin      : Rd.config.fieldMargin +5
+                    boxLabelCls	: 'boxLabelRd',                
+                    margin      : Rd.config.fieldMargin
                 }
             ]
         });

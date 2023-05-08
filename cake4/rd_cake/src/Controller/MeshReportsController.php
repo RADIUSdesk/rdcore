@@ -811,15 +811,17 @@ class MeshReportsController extends AppController {
                     
                     $block_flag = false;
                     $limit_flag = false;
+                    $firewall_flag = false;
                     $cloud_flag = false;
                     $bw_up		= '';
                     $bw_down	= '';
+                    $fw_profile = '';
                     $alias		= $this->_find_alias($mac);
                     
                     
                     $e_cm = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
                     if($e_cm){
-                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.cloud_id' => $cloud_id ])->first();
+                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
                     	if($e_ma){
                     		$cloud_flag = true;
                     		if($e_ma->action == 'block'){
@@ -845,9 +847,13 @@ class MeshReportsController extends AppController {
                     			}
                     			$bw_down = $bw_down.' '.$bw_down_suffix;
                     		}
+                    		if($e_ma->action == 'firewall'){
+	                			$firewall_flag 	= true;
+	                			$fw_profile		= $e_ma->firewall_profile->name;
+	                		}
                     	}
                     	//If there is an mesh level override
-                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->first();
+                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->contain(['FirewallProfiles'])->first();
                     	if($e_ma){
                     		$cloud_flag = false;
                     		if($e_ma->action == 'block'){
@@ -870,6 +876,10 @@ class MeshReportsController extends AppController {
                     			}
                     			$bw_down = $bw_down.' '.$bw_down_suffix;
                     		}
+                    		if($e_ma->action == 'firewall'){
+	                			$firewall_flag 	= true;
+	                			$fw_profile		= $e_ma->firewall_profile->name;
+	                		}
                     	}                   
                     }
                     
@@ -903,6 +913,8 @@ class MeshReportsController extends AppController {
                         'block_flag'		=> $block_flag,
                         'cloud_flag'		=> $cloud_flag,
                         'limit_flag'		=> $limit_flag,
+                        'firewall_flag'		=> $firewall_flag,
+		                'fw_profile'		=> $fw_profile,
                         'bw_up'				=> $bw_up,
                         'bw_down'			=> $bw_down,
                         'alias'				=> $alias
@@ -1070,15 +1082,17 @@ class MeshReportsController extends AppController {
                     
                     $block_flag = false;
                     $limit_flag = false;
+                    $firewall_flag = false;
                     $cloud_flag = false;
                     $bw_up		= '';
                     $bw_down	= '';
+                    $fw_profile = '';
                     $alias		= $this->_find_alias($mac);
                     
                     
                     $e_cm = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
                     if($e_cm){
-                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.cloud_id' => $cloud_id ])->first();
+                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
                     	if($e_ma){
                     		$cloud_flag = true;
                     		if($e_ma->action == 'block'){
@@ -1104,9 +1118,13 @@ class MeshReportsController extends AppController {
                     			}
                     			$bw_down = $bw_down.' '.$bw_down_suffix;
                     		}
+                    		if($e_ma->action == 'firewall'){
+	                			$firewall_flag 	= true;
+	                			$fw_profile		= $e_ma->firewall_profile->name;
+	                		}
                     	}
                     	//If there is an mesh level override
-                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->first();
+                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->contain(['FirewallProfiles'])->first();
                     	if($e_ma){
                     		$cloud_flag = false;
                     		if($e_ma->action == 'block'){
@@ -1129,6 +1147,10 @@ class MeshReportsController extends AppController {
                     			}
                     			$bw_down = $bw_down.' '.$bw_down_suffix;
                     		}
+                    		if($e_ma->action == 'firewall'){
+	                			$firewall_flag 	= true;
+	                			$fw_profile		= $e_ma->firewall_profile->name;
+	                		}
                     	}                   
                     }
                     
@@ -1167,6 +1189,8 @@ class MeshReportsController extends AppController {
                         'block_flag'		=> $block_flag,
                         'cloud_flag'		=> $cloud_flag,
                         'limit_flag'		=> $limit_flag,
+                        'firewall_flag'		=> $firewall_flag,
+		                'fw_profile'		=> $fw_profile,
                         'bw_up'				=> $bw_up,
                         'bw_down'			=> $bw_down,
                         'alias'				=> $alias

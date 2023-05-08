@@ -401,9 +401,28 @@ class FirewallProfilesController extends AppController {
 		   	if($req_data['schedule'] == 'one_time'){			   	
 		   		$req_data['one_time_date'] = new FrozenTime($req_data['one_time_date']." 00:00:00");			   	
 		   	}
-                                                      
+		   	
+	   		if($req_data['category'] == 'domain'){	   	
+		   		$ip_list = dns_get_record($req_data['domain'],DNS_A);
+		   		if($ip_list){
+		   			$ip_string = '';
+		   			foreach($ip_list as $i){
+		   				$ip_string = $i['ip'].','.$ip_string;			   			
+		   			}
+		   			$req_data['ip_address'] = $ip_string;		   		
+		   		}		   					   	
+		   	}
+		      	                                                      
             $entity = $this->{'FirewallProfileEntries'}->newEntity($req_data); 
             if ($this->{'FirewallProfileEntries'}->save($entity)) {
+            
+            	if(isset($req_data['apps'])){          	
+            		foreach($req_data['apps'] as $app){            		
+            			$a = $this->{'FirewallProfileEntryFirewallApps'}->newEntity(['firewall_profile_entry_id' => $entity->id, 'firewall_app_id' => $app]);            			 
+            			$this->{'FirewallProfileEntryFirewallApps'}->save($a);            		
+            		}
+            	}
+            
                 $this->set([
                     'success' => true
                 ]);
@@ -426,7 +445,8 @@ class FirewallProfilesController extends AppController {
         $id         = $req_q['firewall_profile_entry_id'];  
         $data       = [];
         $entity     = $this->{'FirewallProfileEntries'}->find()->where(['FirewallProfileEntries.id' => $id])->contain(['FirewallProfileEntryFirewallApps'])->first();
-        if($entity){          
+        if($entity){ 
+                      
             if($entity->action == 'limit'){
 				$bw_up_suffix = 'kbps';
 				$bw_up = ($entity->bw_up * 8);
@@ -462,8 +482,7 @@ class FirewallProfilesController extends AppController {
             $data       =  $entity;
             if(isset($data['apps'])){
             	$data['apps[]'] = $data['apps'];
-            }
-            
+            }            
             
         }
         $this->set([
@@ -532,14 +551,27 @@ class FirewallProfilesController extends AppController {
 			   	}
 			   	
 			   	if($req_data['action'] == 'block'){
-			   		$req_data['bw_up'] 	= null;
+			   		$req_data['bw_up'] 		= null;
 			   		$req_data['bw_down'] 	= null;  	
 			   	}
 			   	
 			   	if($req_data['schedule'] == 'one_time'){			   	
 			   		$req_data['one_time_date'] = new FrozenTime($req_data['one_time_date']." 00:00:00");			   	
 			   	}
-                                
+			   	
+			   	if($req_data['category'] == 'domain'){
+			   	
+			   		$ip_list = dns_get_record($req_data['domain'],DNS_A);
+			   		if($ip_list){
+			   			$ip_string = '';
+			   			foreach($ip_list as $i){
+			   				$ip_string = $i['ip'].','.$ip_string;			   			
+			   			}
+			   			$req_data['ip_address'] = $ip_string;		   		
+			   		}
+			   					   	
+			   	}
+			   	                               
                 $this->{'FirewallProfileEntries'}->patchEntity($entity, $req_data);  
                 if ($this->{'FirewallProfileEntries'}->save($entity)) {
                     $this->set([

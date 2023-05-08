@@ -12,7 +12,8 @@ Ext.define('Rd.view.aps.pnlApViewEntries', {
         'Rd.view.aps.pnlApViewEntriesGraph',
         'Rd.view.aps.winApEditMacAlias',
         'Rd.view.aps.winApEditMacLimit',
-        'Rd.view.aps.winApEditMacBlock'  
+        'Rd.view.aps.winApEditMacBlock',
+        'Rd.view.aps.winApEditMacFirewall'  
     ],
     controller  : 'vcApViewEntries',
     initComponent: function() {
@@ -106,7 +107,7 @@ Ext.define('Rd.view.aps.pnlApViewEntries', {
             	itemId		: 'firewall',
             	hidden		: true,
             	glyph		: Rd.config.icnFire,
-            	tooltip 	: 'Advance Firewall'
+            	tooltip 	: 'Apply Firewall Profile'
             },
             {
             	scale		: 'small',

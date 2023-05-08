@@ -90,6 +90,13 @@ if not exists (select * from information_schema.columns
     alter table mesh_exits add column `firewall_profile_id` int(11) NOT NULL DEFAULT '0';
 end if;
 
+alter table mac_actions modify `action` enum('block','limit','firewall') DEFAULT 'block';
+
+if not exists (select * from information_schema.columns
+    where column_name = 'firewall_profile_id' and table_name = 'mac_actions' and table_schema = 'rd') then
+    alter table mac_actions add column `firewall_profile_id` int(11) DEFAULT NULL;
+end if;
+
 
 end//
 
