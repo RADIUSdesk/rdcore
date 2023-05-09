@@ -18,6 +18,7 @@ class MdFirewallComponent extends Component {
         $this->Meshes		= TableRegistry::get('Meshes');
         $this->ApProfiles	= TableRegistry::get('ApProfiles');
         $this->Hardwares	= TableRegistry::get('Hardwares');
+        $this->MacActions	= TableRegistry::get('MacActions');
         $this->FirewallProfiles	= TableRegistry::get('FirewallProfiles');
         
         $this->Sets[-1] = [
@@ -34,13 +35,19 @@ class MdFirewallComponent extends Component {
     
     public function JsonForMac($mac){
     
-    	$firewall_list = [];
+    	$firewall_list 			= [];
+    	$firewall_list['macs'] 	= [];
     	$firewall_list['entries'] = [];
     	$firewall_list['sets']  = []; 
     	
     	$e_ap = $this->{'Aps'}->find()->where(['Aps.mac' => $mac])->contain(['ApProfiles.ApProfileExits'])->first(); //First try for AP
     	if($e_ap){
     	
+    	
+    		//--MACS--   		
+    		$firewall_list['macs'] = $this->_apFwForMac($e_ap);   		   		 
+    	 	
+    		//--ENTRIES--
     		$ap_profile_id  = $e_ap->ap_profile_id;
     		$this->Hardware = $e_ap->hardware;
     		$this->ApId		= $e_ap->id;
@@ -68,16 +75,94 @@ class MdFirewallComponent extends Component {
            	foreach($temp_list as $fw){
            		$fw['rules'] = $this->_fwRulesFor($fw);
            		array_push($firewall_list['entries'],$fw);       		       	
-           	} 
-           	$firewall_list['sets']  = $this->Sets;          	  	
+           	}
+           	
+           	//Sets          	 
+           	$firewall_list['sets']  = $this->Sets;                  	  	
     	
-    	}else{
-    	
+    	}else{   	
     		$e_node 	= $this->Nodes->find()->where(['Nodes.mac' => $mac])->contain(['Meshes'])->first(); //If not try for Mesh Nodes
     	   	    	
     	}
     	   	
     	return $firewall_list;
+    }
+    
+    private function _apFwForMac($e_ap){
+    
+    	$macs_list = [];
+    
+    	$cloud_id = $e_ap->ap_profile->cloud_id;
+		//Cloud wide rules
+		$cloud_actions = $this->{'MacActions'}->find()
+			->where(['MacActions.cloud_id' => $cloud_id,'MacActions.action' => 'firewall'])
+			->contain(['ClientMacs','FirewallProfiles' => ['FirewallProfileEntries'=>['FirewallProfileEntryFirewallApps'=> 'FirewallApps']]])
+			->all();
+		foreach($cloud_actions as $ca){
+			$m 	= strtolower($ca->client_mac->mac);			
+			$rules = [];			
+			foreach($ca->firewall_profile->firewall_profile_entries as $rule){		
+				unset($rule->created);
+				unset($rule->modified);
+				
+				if($rule->category == 'app'){
+					$rule->apps = [];
+					foreach($rule->firewall_profile_entry_firewall_apps as $fw_app){
+						$app_name = $fw_app->firewall_app->name;
+						
+						if(!isset($this->Sets[$fw_app->firewall_app->id])){
+							unset($fw_app->firewall_app->created);
+							unset($fw_app->firewall_app->modified); 
+							unset($fw_app->firewall_app->fa_code);  
+							unset($fw_app->firewall_app->cloud_id);					
+							$this->Sets[$fw_app->firewall_app->id] = $fw_app->firewall_app;	   					
+						}
+						
+						array_push($rule->apps,$app_name); 				
+					}
+				}				
+				unset($rule->firewall_profile_entry_firewall_apps);					
+				array_push($rules,$rule) ;  		
+			}	  		  						
+			array_push($macs_list,['mac' => $m, 'rules' => $rules]);
+		}
+		
+		//Ap Profile specific rules 
+		$ap_profile_rules = $this->{'MacActions'}->find()
+			->where(['MacActions.ap_profile_id' => $e_ap->ap_profile->id,'MacActions.action' => 'firewall'])
+			->contain(['ClientMacs','FirewallProfiles' => ['FirewallProfileEntries'=>['FirewallProfileEntryFirewallApps'=> 'FirewallApps']]])
+			->all();
+		foreach($ap_profile_rules as $ca){
+			$m 	= strtolower($ca->client_mac->mac);
+			
+			$rules = [];			
+			foreach($ca->firewall_profile->firewall_profile_entries as $rule){		
+				unset($rule->created);
+				unset($rule->modified);
+				
+				if($rule->category == 'app'){
+					$rule->apps = [];
+					foreach($rule->firewall_profile_entry_firewall_apps as $fw_app){
+						$app_name = $fw_app->firewall_app->name;
+						
+						if(!isset($this->Sets[$fw_app->firewall_app->id])){
+							unset($fw_app->firewall_app->created);
+							unset($fw_app->firewall_app->modified); 
+							unset($fw_app->firewall_app->fa_code);  
+							unset($fw_app->firewall_app->cloud_id);					
+							$this->Sets[$fw_app->firewall_app->id] = $fw_app->firewall_app;	   					
+						}
+						
+						array_push($rule->apps,$app_name); 				
+					}
+				}				
+				unset($rule->firewall_profile_entry_firewall_apps);					
+				array_push($rules,$rule) ;  		
+			}	  					
+			array_push($macs_list,['mac' => $m, 'rules' => $rules]);
+		} 
+       
+       	return $macs_list;
     }
     
     

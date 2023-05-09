@@ -24,6 +24,7 @@ class WifiChartsController extends AppController{
     protected $ap_profile_id = false;
     protected $cloud_wide   = false;
     protected $fw_command   = '/etc/MESHdesk/utils/fetch_firewall.lua';
+    protected $adv_fw_command	= '/etc/MESHdesk/utils/fetch_adv_firewall.lua';
       
     protected $fields       = [
         'data_in'       => 'sum(tx_bytes)',
@@ -356,10 +357,10 @@ class WifiChartsController extends AppController{
 			//$this->_addActionsCloud($cloud_id);
 		}else{
 			if($mesh_id){
-				//$this->_addActionsMesh($mesh_id);
+				$this->_addActionsMesh($mesh_id);
 			}
 			if($ap_profile_id){
-				//$this->_addActionsApProfile($ap_profile_id);
+				$this->_addActionsApProfile($ap_profile_id);
 			}
 		}						               
         $this->set([
@@ -1039,6 +1040,8 @@ class WifiChartsController extends AppController{
     private function _addActionsApProfile($ap_profile_id){   
     	$ap_list = $this->{'Aps'}->find()->where(['Aps.ap_profile_id' => $ap_profile_id])->all();
     	foreach($ap_list as $ap){
+    	
+    		//-- Simple Firewall --
     		$aa = $this->{'ApActions'}->find()->where([
     			'ApActions.action' 	=> 'execute',
     			'ApActions.ap_id'   => $ap->id,
@@ -1048,13 +1051,28 @@ class WifiChartsController extends AppController{
     		if(!$aa){
     			$aa = $this->{'ApActions'}->newEntity(['ap_id' => $ap->id,'command' => $this->fw_command]);
     			$this->{'ApActions'}->save($aa);   		
-    		}    	
+    		}
+    		
+    		//-- Advanced Firewall --
+    		$aa = $this->{'ApActions'}->find()->where([
+    			'ApActions.action' 	=> 'execute',
+    			'ApActions.ap_id'   => $ap->id,
+    			'ApActions.command'	=> $this->adv_fw_command,
+    			'ApActions.status'	=> 'awaiting'
+    		])->first(); 
+    		if(!$aa){
+    			$aa = $this->{'ApActions'}->newEntity(['ap_id' => $ap->id,'command' => $this->adv_fw_command]);
+    			$this->{'ApActions'}->save($aa);   		
+    		}   		
+    		    	
     	}
     }
     
     private function _addActionsMesh($mesh_id){       
     	$node_list = $this->{'Nodes'}->find()->where(['Nodes.mesh_id' => $mesh_id])->all();
     	foreach($node_list as $node){
+    	
+    		//-- Simple Firewall --
     		$na = $this->{'NodeActions'}->find()->where([
     			'NodeActions.action' 	=> 'execute',
     			'NodeActions.node_id' 	=> $node->id,
@@ -1064,7 +1082,20 @@ class WifiChartsController extends AppController{
     		if(!$na){
     			$na = $this->{'NodeActions'}->newEntity(['node_id' => $node->id,'command' => $this->fw_command]);
     			$this->{'NodeActions'}->save($na);   		
-    		}  	
+    		}
+    		
+    		//-- Advanced Firewall --
+    		$na = $this->{'NodeActions'}->find()->where([
+    			'NodeActions.action' 	=> 'execute',
+    			'NodeActions.node_id' 	=> $node->id,
+    			'NodeActions.command'	=> $this->adv_fw_command,
+    			'NodeActions.status'	=> 'awaiting'
+    		])->first(); 
+    		if(!$na){
+    			$na = $this->{'NodeActions'}->newEntity(['node_id' => $node->id,'command' => $this->adv_fw_command]);
+    			$this->{'NodeActions'}->save($na);   		
+    		}
+    		  	
     	}   
     }
     
