@@ -49,6 +49,14 @@ Ext.define('Rd.view.bans.winEditBan', {
             hidden		: true,
             disabled	: true
         });
+        
+        var cmbFirewall = Ext.create('Rd.view.components.cmbFirewallProfile',{
+        	fieldLabel	: 'Firewall Profile',
+        	include_all_option : false,
+        	disabled	: true,
+        	hidden		: true,
+        	labelClsExtra: 'lblRdReq'       
+        });
 	    
 	    var cloud_id	= me.record.get('cloud_id');
 	    var mesh_id		= me.record.get('mesh_id');
@@ -60,6 +68,7 @@ Ext.define('Rd.view.bans.winEditBan', {
 	    var action		= me.record.get('action');
 	    var rb_block	= true;
 	    var rb_limit	= false;
+	    var rb_firewall = false;
 	    
 	    if(action == 'limit'){
 	    	rb_block	= false;
@@ -74,8 +83,16 @@ Ext.define('Rd.view.bans.winEditBan', {
 	    	sldrUpload.down('combobox').setValue(me.record.get('bw_up_suffix'));
 	    	sldrDownload.down('combobox').setValue(me.record.get('bw_down_suffix'));
 	    	    	
-	    }   	    
+	    }  
 	    
+	    if(action == 'firewall'){
+	    	rb_block	= false;
+	        rb_firewall = true;
+	        cmbFirewall.setHidden(false);
+	    	cmbFirewall.setDisabled(false);	
+	    	cmbFirewall.setValue(me.record.get('firewall_profile_id'));	    	    	
+	    }   
+	     	    
 	    if(mesh_id > 0){
 	    	rb_cloud	= false;
 	    	rb_mesh		= true;
@@ -181,7 +198,8 @@ Ext.define('Rd.view.bans.winEditBan', {
 			        }
 				},
 				sldrUpload,
-                sldrDownload                
+                sldrDownload,
+                cmbFirewall                
             ]
         });
         me.items = frmData; 

@@ -45,7 +45,8 @@ Ext.define('Rd.view.bans.winAddBan', {
                 labelAlign      : 'left',
                 labelSeparator  : '',
                 labelClsExtra   : 'lblRd',
-                margin          : Rd.config.fieldMargin
+                margin          : Rd.config.fieldMargin,
+                labelWidth		: 150
             },
             defaultType: 'textfield',
             buttons: [
@@ -123,7 +124,15 @@ Ext.define('Rd.view.bans.winAddBan', {
 		            fieldLabel  : "<i class='fa fa-arrow-down'></i> Down",
 		            hidden		: true,
 		            disabled	: true
-		        }                
+		        },
+		        {
+                	xtype		: 'cmbFirewallProfile',
+                	fieldLabel	: 'Firewall Profile',
+                	include_all_option : false,
+                	disabled	: true,
+                	hidden		: true,
+                	labelClsExtra: 'lblRdReq'                             	
+                }                
             ]
         });
         me.items = frmData; 

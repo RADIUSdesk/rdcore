@@ -33,7 +33,8 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
         'Rd.view.meshes.vcMeshExitPoint',
         'Rd.view.meshes.cmbMeshUpstreamList',
         'Rd.view.meshes.tagMeshEntryPoints',,
-        'Rd.view.components.pnlExitPointNatDhcp'
+        'Rd.view.components.pnlExitPointNatDhcp',
+        'Rd.view.components.cmbFirewallProfile'
     ],
     controller  : 'vcMeshExitPoint',
     initComponent: function() {

@@ -146,19 +146,33 @@ Ext.define('Rd.view.bans.vcBans', {
     	var form 	= rgrp.up('form');
     	var bw_up 	= form.down('#bw_up');
     	var bw_down = form.down('#bw_down');
+    	var cmb_fw  = form.down('cmbFirewallProfile');
     	if(newValue.action == 'block'){
     		bw_up.setHidden(true);
 			bw_up.setDisabled(true);
 			bw_down.setHidden(true);
-			bw_down.setDisabled(true);			 	
+			bw_down.setDisabled(true);
+			cmb_fw.setHidden(true);
+			cmb_fw.setDisabled(true);			 	
     	}
     	
     	if(newValue.action == 'limit'){
     		bw_up.setHidden(false);
 			bw_up.setDisabled(false);
 			bw_down.setHidden(false);
-			bw_down.setDisabled(false); 	
-    	}    
+			bw_down.setDisabled(false);
+			cmb_fw.setHidden(true);
+			cmb_fw.setDisabled(true);	
+    	}
+    	
+    	if(newValue.action == 'firewall'){
+    		bw_up.setHidden(true);
+			bw_up.setDisabled(true);
+			bw_down.setHidden(true);
+			bw_down.setDisabled(true);
+			cmb_fw.setHidden(false);
+			cmb_fw.setDisabled(false);
+    	}     	    
     },
     addSave: function(btn){
         var me 		= this;

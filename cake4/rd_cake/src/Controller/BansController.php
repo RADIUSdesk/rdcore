@@ -138,7 +138,7 @@ class BansController extends AppController {
         $query->order([$sort => $dir]); 
      	   	
                 
-        $query->contain(['Meshes','ApProfiles','ClientMacs']);
+        $query->contain(['Meshes','ApProfiles','ClientMacs','FirewallProfiles']);
     
     
     	//===== PAGING (MUST BE LAST) ======
@@ -196,7 +196,14 @@ class BansController extends AppController {
     			}
     			$q->bw_down_suffix = $bw_down_suffix;
     			$q->bw_down = $bw_down;
-    		}       	
+    		}
+    		
+    		if($q->action == 'firewall'){
+    		
+    			$q->fw_profile = $q->firewall_profile->name;
+    		
+    		}
+    		       	
         	
         	$q->created_in_words  = $this->TimeCalculations->time_elapsed_string($q->{"created"});
         	$q->modified_in_words = $this->TimeCalculations->time_elapsed_string($q->{"modified"});
@@ -471,8 +478,15 @@ class BansController extends AppController {
 	   		$current_ent->bw_down = null;
 	   		$this->{'MacActions'}->save($current_ent);	   	
 	   	}
-          	
-           	
+	   	
+	   	if($req_d['action'] == 'firewall'){
+	   		$current_ent->action = 'firewall';
+	   		$current_ent->firewall_profile_id = $req_d['firewall_profile_id'];
+	   		$current_ent->bw_up = null;
+	   		$current_ent->bw_down = null;
+	   		$this->{'MacActions'}->save($current_ent);	   	
+	   	}
+          	           	
 	   	$this->set([
             'success' => true
         ]);
