@@ -312,6 +312,10 @@ class BansController extends AppController {
 	   			   		
 	   	}
 	   	
+	   	if($req_d['action'] == 'firewall'){
+	   		$add_data['firewall_profile_id'] = $req_d['firewall_profile_id'];   	
+	   	}
+	   	   	
 	   	//Now we also have to check if it not already there ....
 	   	
 	   	$e_mac_action = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_mac->id,'MacActions.cloud_id' => $cloud_id])->first();

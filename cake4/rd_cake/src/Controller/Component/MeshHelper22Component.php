@@ -110,7 +110,7 @@ class MeshHelper22Component extends Component {
             }
             
             $adv_firewall = $this->MdFirewall->JsonForMac($ent_node->mac);
-            if($firewall){
+            if($adv_firewall){
             	$json['config_settings']['adv_firewall'] = $adv_firewall;
             }
             
