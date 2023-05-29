@@ -34,6 +34,8 @@ class MeshHelper22Component extends Component {
     protected $week_days 	    = [ 1 => 'mo',2 => 'tu',3 => 'we',4 => 'th',5 => 'fr',6 => 'sa',7 => 'su'];
     
     protected $ppsk_flag		= false;
+    
+    protected $MeshSettings		= [];
 
     public function initialize(array $config):void{
         //Please Note that we assume the Controller has a JsonErrors Component Included which we can access.
@@ -54,11 +56,16 @@ class MeshHelper22Component extends Component {
     public function JsonForMeshNode($ent_node,$gw){
     
         $mesh_id        = $ent_node->mesh_id;
+        $this->MeshId	= $mesh_id;
         $this->NodeId   = $ent_node->id;
 	    $this->Hardware	= $ent_node->hardware;
 		$this->Power	= $ent_node->power;
 		$this->Mac      = $ent_node->mac;
 		$this->EntNode  = $ent_node;
+		
+		if($gw){
+			$this->GwNumber = 1; //Default start with number 1
+		}
 		
 		$this->MetaData = [];
 		$this->MetaData['mode']    = 'mesh';
@@ -165,7 +172,34 @@ class MeshHelper22Component extends Component {
         $json['config_settings']['wireless']    = [];
         $json['config_settings']['network']     = [];
 		$json['config_settings']['system']		= [];
-
+		
+		
+		//== if it is a gateway we need to deterimine which gateway number (in case of multiple)
+		if($gateway){
+			$count = $this->{'Nodes'}->find()
+				->where([
+					'Nodes.gateway !='  => 'none',
+					'Nodes.mesh_id'		=> $this->MeshId,
+					'Nodes.id <'  		=> $this->NodeId 
+				])
+				->count();			
+			$this->GwNumber = $count+1;		
+		}
+				
+		//====== Batman-adv specific config settings ======
+		Configure::load('MESHdesk');
+        $batman_adv       	= Configure::read('mesh_settings'); //Read the defaults
+        $this->MeshSettings = $batman_adv;
+        
+		if($ent_mesh->mesh_setting){
+			unset($ent_mesh->mesh_setting->id);
+			unset($ent_mesh->mesh_setting->mesh_id);
+			unset($ent_mesh->mesh_setting->created);
+			unset($ent_mesh->mesh_setting->modified);
+			$batman_adv = $ent_mesh->mesh_setting;
+			$this->MeshSettings = $ent_mesh->mesh_setting->toArray();
+		}
+		
         //============ Network ================
         $version    = $this->getController()->getRequest()->getQuery('version');
         $net_return = $this->_build_network($ent_mesh,$gateway,$version); //version can be 18.06/19.07/21.02
@@ -264,22 +298,6 @@ class MeshHelper22Component extends Component {
 			}
 		}
 				
-
-		//====== Batman-adv specific config settings ======
-		Configure::load('MESHdesk');
-        $batman_adv       = Configure::read('mesh_settings'); //Read the defaults
-		if($ent_mesh->mesh_setting != null){
-			unset($ent_mesh->mesh_setting->id);
-			unset($ent_mesh->mesh_setting->mesh_id);
-			unset($ent_mesh->mesh_setting->created);
-			unset($ent_mesh->mesh_setting->modified);
-			$batman_adv = $ent_mesh->mesh_setting;
-		}
-		
-		if($this->getController()->getRequest()->getQuery('version') == '18.06'){
-            $json['config_settings']['batman_adv'] = $batman_adv;
-        }
-	
 		//--- Sept 2019 --- Add some metadata ----
 		$this->MetaData['WbwActive']    = $this->WbwActive;
 		$this->MetaData['QmiActive']    = $this->QmiActive;
@@ -563,80 +581,97 @@ class MeshHelper22Component extends Component {
                 array_push( $network,$qmi_return);
             }  	       	
 		}
-		    
-        if(($version == '19.07')||($version == '21.02')||($version == '22.03')){
-        
-            //== BATMAN ADV FOR 19.07 AND NEWER==
-      
-		    //Add an interface called b to list the batman interface
-		    array_push( $network,
-                [
-                    "interface"    => "bat0",
-                    "options"   => [
-                        'proto'         	=> 'batadv',
-                        'routing_algo'  	=> 'BATMAN_IV',
-                        'aggregated_ogms'   => 1,
-                        'ap_isolation'      => 0,
-                        'bonding'           => 0,
-                        'fragmentation'     => 1,
-                        #'gw_bandwidth'     =>'10000/2000',
-                        'gw_mode'           => 'off',
-                        #'gw_sel_class'     => 20,
-                        'log_level'         => 0,
-                        'orig_interval'     => 1000,
-                        'bridge_loop_avoidance' => 1, //FIXME It seems the originator mac message stops when this is disabled FIXME 19Sept22 enable it again
-                        'distributed_arp_table' => 1,
-                        'multicast_mode'    => 1,
-                        'network_coding'    => 0,
-                        'hop_penalty'       => 30,
-                        'isolation_mark'    => '0x00000000/0x00000000'      
-                   ]
-                ]);
-		    
-            //Mesh
-            array_push( $network,
-                [
-                    "interface"    => "mesh",
-                    "options"   => [
-                        "proto"     => "batadv_hardif",
-                        'master'    => 'bat0',
-                        'mtu'       => 2304            
-                   ]
-                ]);
-
-            $ip = $this->EntNode->ip;
-
-            //Admin interface
-            array_push($network,
-                [
-                    "device"    => "br-one",
-                    "options"   => [
-                    	"name"		=> "br-one",
-                        "type"      => "bridge",
-                        'stp'       => 1,
-                   	],
-                   	'lists'	=> [
-                   		'ports'	=> [ "bat0.1" ]
-                   	]                          
-                ]
-            );
+		
+		//---- Batman-Adv ---
+		$gw_mode = 'client';
+		if($gateway){
+			$gw_mode = 'server';
+		}
+		      
+	    //Add an interface called b to list the batman interface
+	    array_push( $network,
+            [
+                "interface"    => "bat0",
+                "options"   => [
+                    'proto'         	=> 'batadv',
+                    'routing_algo'  	=> $this->MeshSettings['routing_algo'],
+                    'aggregated_ogms'   => intval($this->MeshSettings['aggregated_ogms']),//1
+                    'ap_isolation'      => intval($this->MeshSettings['ap_isolation']),//0
+                    'bonding'           => intval($this->MeshSettings['bonding']),//0
+                    'fragmentation'     => intval($this->MeshSettings['fragmentation']),//1
+                    #'gw_bandwidth'     =>'10000/2000',
+                    'gw_mode'           => $gw_mode,
+                    #'gw_sel_class'     => $this->MeshSettings['gw_sel_class'],                        
+                    'orig_interval'     => $this->MeshSettings['orig_interval'], //100
+                    'bridge_loop_avoidance' => intval($this->MeshSettings['bridge_loop_avoidance']), //1
+                    'distributed_arp_table' => intval($this->MeshSettings['distributed_arp_table']), //1
+                    'multicast_mode'    => 1,
+                    'network_coding'    => 0,
+                    'hop_penalty'       => 30,
+                    'isolation_mark'    => '0x00000000/0x00000000',
+                    'log_level'         => 0,     
+               ]
+            ]);
             
-            
-            array_push($network,
-                [
-                    "interface"    => "one",
-                    "options"   => [
-                        "device"    => "br-one",
-                        "proto"     => "static",
-                        "ipaddr"    => $ip,
-                        "netmask"   => "255.255.255.0"
-                   ]
-                ]);
+            /*
+            'proto'         	=> 'batadv',
+            'routing_algo'  	=> 'BATMAN_IV',
+            'aggregated_ogms'   => 1,
+            'ap_isolation'      => 0,
+            'bonding'           => 0,
+            'fragmentation'     => 1,
+            #'gw_bandwidth'     =>'10000/2000',
+            'gw_mode'           => 'off',
+            #'gw_sel_class'     => 20,
+            'log_level'         => 0,
+            'orig_interval'     => 1000,
+            'bridge_loop_avoidance' => 1, //FIXME It seems the originator mac message stops when this is disabled FIXME 19Sept22 enable it again
+            'distributed_arp_table' => 1,
+            'multicast_mode'    => 1,
+            'network_coding'    => 0,
+            'hop_penalty'       => 30,
+            'isolation_mark'    => '0x00000000/0x00000000'                 
+            */
+	    
+        //Mesh
+        array_push( $network,
+            [
+                "interface"    => "mesh",
+                "options"   => [
+                    "proto"     => "batadv_hardif",
+                    'master'    => 'bat0',
+                    'mtu'       => 2304            
+               ]
+            ]);
 
-            //== END BATMAN ADV FOR 19.07 AND NEVER==      
-        }
+        $ip = $this->EntNode->ip;
 
-        //================================
+        //Admin interface
+        array_push($network,
+            [
+                "device"    => "br-one",
+                "options"   => [
+                	"name"		=> "br-one",
+                    "type"      => "bridge",
+                    'stp'       => 1,
+               	],
+               	'lists'	=> [
+               		'ports'	=> [ "bat0.1" ]
+               	]                          
+            ]
+        );
+                
+        array_push($network,
+        	[
+		        "interface"    => "one",
+		        "options"   => [
+		            "device"    => "br-one",
+		            "proto"     => "static",
+		            "ipaddr"    => $ip,
+		            "netmask"   => "255.255.255.0"
+		       ]
+		 	]
+        );
 
         //Now we will loop all the defined exits **that has entries assigned** to them and add them as bridges as we loop. 
         //The members of these bridges will be determined by which entries are assigned to them and specified
@@ -744,19 +779,6 @@ class MeshHelper22Component extends Component {
                         ]]
                     );
 
-					//***With its VLAN*** 
-					if($version == '18.06'){
-					    $nr = $this->_number_to_word($start_number);
-					    array_push($network,
-						    [
-							    "interface"    => "bat_vlan_".$nr,
-							    "options"   => [
-							        "ifname"    	=> "bat0.".$start_number,
-							        "proto"     	=> "batadv_vlan",
-							        'ap_isolation' 	=> '0'
-						       ]
-					    ]);					    
-			        } 
 			        $start_number++;                 
                     continue;   //We don't car about the other if's
                 }
@@ -780,6 +802,26 @@ class MeshHelper22Component extends Component {
                         $if_netmask = $nat_detail_item['netmask'];
                         $nat_detail[$if_name]=$nat_detail_item;
                     }
+                                       
+                    if($this->GwNumber > 1){ //Because there are more than one gateways we have to adjust our range (up it one)
+                    
+                    	if($if_netmask == '255.255.255.0'){ //Class C subnets
+                    		preg_match('/^(\d{1,3}).(\d{1,3}).(\d{1,3}).(\d{1,3})$/',$if_ipaddr,$matches);
+                    		$subnet    = $matches[3];
+                    		$subnet    = $subnet + $this->GwNumber - 1;
+                    		$if_ipaddr = preg_replace('/^(\d{1,3}).(\d{1,3}).(\d{1,3}).(\d{1,3})$/', "$1.$2.$subnet.$4", $if_ipaddr);
+                    		print_r($if_ipaddr);
+                    		$nat_detail[$if_name]['ipaddr'] = $if_ipaddr;
+                    	}
+                    	
+                    	if($if_netmask == '255.255.0.0'){ //Class B subnets
+                    		preg_match('/^(\d{1,3}).(\d{1,3}).(\d{1,3}).(\d{1,3})$/',$if_ipaddr,$matches);
+                    		$subnet    = $matches[2];
+                    		$subnet    = $subnet + $this->GwNumber - 1;
+                    		$if_ipaddr = preg_replace('/^(\d{1,3}).(\d{1,3}).(\d{1,3}).(\d{1,3})$/', "$1.$subnet.$3.$4", $if_ipaddr);
+                    		$nat_detail[$if_name]['ipaddr'] = $if_ipaddr;
+                    	}                      	                        
+                  	}                    
                     
                     array_push($network,
                         [

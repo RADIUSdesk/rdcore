@@ -14,7 +14,7 @@ Ext.define('Rd.view.meshes.pnlMeshSettings', {
         msgTarget       : 'under',
         labelAlign      : 'left',
         labelSeparator  : '',
-        labelWidth      : Rd.config.labelWidth+20,
+        labelWidth      : Rd.config.labelWidth-40,
         margin          : Rd.config.fieldMargin,
         labelClsExtra   : 'lblRdReq'
     },
@@ -40,40 +40,46 @@ Ext.define('Rd.view.meshes.pnlMeshSettings', {
                 anchor  : '100%'
             },
             items       : [
-                 {
-                    xtype       : 'radio',
-                    fieldLabel  : 'Ad-hoc',
-                    name      	: 'connectivity',
-                    inputValue	: 'IBSS',
-                    itemId      : 'con_ibss',
-                    labelClsExtra: 'lblRdReq'
-                }, 
-                {
-                    xtype       : 'radio',
-                    fieldLabel  : '802.11s',
-                    name      	: 'connectivity',
-                    inputValue	: 'mesh_point',
-                    itemId      : 'con_mesh_point',
-                    labelClsExtra: 'lblRdReq',
-                    checked		: true,
-                    afterRender: function (ct, position) {
-                        new Ext.ToolTip({
-                            target : this.id,
-                            trackMouse : false,
-                            maxWidth : 250,
-                            minWidth : 100,
-                            html : "<label class=\'lblTipItem\'>Recommended</label>"
-                        });
-                    }
-                },
+            	{	
+            		xtype		: 'container',
+            		layout		: 'hbox',
+            		items		: [
+				      	{
+				            xtype       : 'radio',
+				            fieldLabel  : 'Ad-hoc',
+				            name      	: 'connectivity',
+				            inputValue	: 'IBSS',
+				            itemId      : 'con_ibss',
+				            labelClsExtra: 'lblRd'
+				        }, 
+				        {
+				            xtype       : 'radio',
+				            fieldLabel  : '802.11s',
+				            name      	: 'connectivity',
+				            inputValue	: 'mesh_point',
+				            itemId      : 'con_mesh_point',
+				            labelClsExtra: 'lblRd',
+				            checked		: true,
+				            afterRender: function (ct, position) {
+				                new Ext.ToolTip({
+				                    target : this.id,
+				                    trackMouse : false,
+				                    maxWidth : 250,
+				                    minWidth : 100,
+				                    html : "<label class=\'lblTipItem\'>Recommended</label>"
+				                });
+				            }
+				        }
+		          	]
+		       	},
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : 'Encryption',
+                    boxLabel  	: 'Encryption',
+                    boxLabelCls	: 'boxLabelRd',
                     name        : 'encryption',
                     inputValue  : 'encryption',
                     itemId      : 'encryption',
                     checked     : false,
-                    labelClsExtra: 'lblRdReq',
                     afterRender: function (ct, position) {
                         new Ext.ToolTip({
                             target : this.id,
@@ -107,33 +113,56 @@ Ext.define('Rd.view.meshes.pnlMeshSettings', {
                 anchor  : '100%'
             },
             items       : [
+            	{	
+            		xtype		: 'container',
+            		layout		: 'hbox',
+            		margin		: 0,
+            		items		: [
+				      	{
+				            xtype       : 'radio',
+				            fieldLabel  : 'BATMAN IV',
+				            name      	: 'routing_algo',
+				            inputValue	: 'BATMAN_IV',
+				            labelClsExtra: 'lblRd'
+				        }, 
+				        {
+				            xtype       : 'radio',
+				            fieldLabel  : 'BATMAN V',
+				            name      	: 'routing_algo',
+				            inputValue	: 'BATMAN_V',
+				            labelClsExtra: 'lblRd',
+				            checked		: true
+				        }
+		          	]
+		       	},            
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : i18n('sAP_isolation'),
+                    boxLabel    : i18n('sAP_isolation'),
+                    boxLabelCls	: 'boxLabelRd',
                     name        : 'ap_isolation',
                     inputValue  : 'ap_isolation',
-                    checked     : true,
-                    labelClsExtra: 'lblRdReq'
+                    checked     : true
                 },
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : i18n('sBridge_Loop_Avoidance'),
+                    boxLabel  : i18n('sBridge_Loop_Avoidance'),
+                    boxLabelCls	: 'boxLabelRd',
                     name        : 'bridge_loop_avoidance',
                     inputValue  : 'bridge_loop_avoidance',
-                    checked     : true,
-                    labelClsExtra: 'lblRdReq'
+                    checked     : true
                 },
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : i18n('sAggregation'),
+                    boxLabel  : i18n('sAggregation'),
+                    boxLabelCls	: 'boxLabelRd',
                     name        : 'aggregated_ogms',
                     inputValue  : 'aggregated_ogms',
-                    checked     : true,
-                    labelClsExtra: 'lblRdReq'
+                    checked     : true
                 },
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : i18n('sBonding'),
+                    boxLabel  	: i18n('sBonding'),
+                    boxLabelCls	: 'boxLabelRd',
                     name        : 'bonding',
                     inputValue  : 'bonding',
                     checked     : true,
@@ -141,19 +170,19 @@ Ext.define('Rd.view.meshes.pnlMeshSettings', {
                 },
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : i18n('sFragmentation'),
+                    boxLabel  	: i18n('sFragmentation'),
+                    boxLabelCls	: 'boxLabelRd',
                     name        : 'fragmentation',
                     inputValue  : 'fragmentation',
-                    checked     : true,
-                    labelClsExtra: 'lblRdReq'
+                    checked     : true
                 },
 		        {
                     xtype       : 'checkbox',      
-                    fieldLabel  : 'Distributed ARP table',
+                    boxLabel  	: 'Distributed ARP table',
+                    boxLabelCls	: 'boxLabelRd',
                     name        : 'distributed_arp_table',
                     inputValue  : 'distributed_arp_table',
-                    checked     : true,
-                    labelClsExtra: 'lblRdReq'
+                    checked     : true
                 },
                 {
                     xtype       : 'numberfield',
@@ -163,7 +192,7 @@ Ext.define('Rd.view.meshes.pnlMeshSettings', {
                     maxValue    : 20000,
                     step        : 100,
                     minValue    : 1,
-                    labelClsExtra: 'lblRdReq',
+                    labelClsExtra: 'lblRd',
                     allowBlank  : false,
                     blankText   : i18n("sSupply_a_value")
                 },
@@ -175,7 +204,7 @@ Ext.define('Rd.view.meshes.pnlMeshSettings', {
                     maxValue    : 255,
                     step        : 1,
                     minValue    : 1,
-                    labelClsExtra: 'lblRdReq',
+                    labelClsExtra: 'lblRd',
                     allowBlank  : false,
                     blankText   : i18n("sSupply_a_value")
                 }      

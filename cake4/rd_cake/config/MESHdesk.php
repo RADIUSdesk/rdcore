@@ -15,6 +15,7 @@ $config['encryption'][6]     = array('name' => __('WPA2 Enterprise'),   'id' => 
 
 //== Default mesh settings ==
 //Define default settings for the mesh which can be overwritten
+$config['mesh_settings']['routing_algo']  			= 'BATMAN_V';  //Aggregation*
 $config['mesh_settings']['aggregated_ogms']  		= true;  //Aggregation*
 $config['mesh_settings']['ap_isolation']  			= false; //AP Isolation*
 $config['mesh_settings']['bonding']   				= false; //Bonding*
