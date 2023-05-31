@@ -810,7 +810,7 @@ class MeshHelper22Component extends Component {
                     		$subnet    = $matches[3];
                     		$subnet    = $subnet + $this->GwNumber - 1;
                     		$if_ipaddr = preg_replace('/^(\d{1,3}).(\d{1,3}).(\d{1,3}).(\d{1,3})$/', "$1.$2.$subnet.$4", $if_ipaddr);
-                    		print_r($if_ipaddr);
+                    		//print_r($if_ipaddr);
                     		$nat_detail[$if_name]['ipaddr'] = $if_ipaddr;
                     	}
                     	
