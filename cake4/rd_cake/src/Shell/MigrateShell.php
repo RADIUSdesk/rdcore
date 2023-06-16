@@ -231,8 +231,7 @@ class MigrateShell extends Shell {
 			$new_p_users[$e_profile->name] = $e_profile->id;							
 		}
 								 	  	
-  	}
-  	  	
+  	}  	  	
 }
 
 ?>

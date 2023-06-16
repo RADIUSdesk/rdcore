@@ -368,6 +368,8 @@ CREATE TABLE `ap_profile_exits` (
   `gateway` varchar(50) NOT NULL DEFAULT '',
   `dns_1` varchar(50) NOT NULL DEFAULT '',
   `dns_2` varchar(50) NOT NULL DEFAULT '',
+  `apply_firewall_profile` tinyint(1) NOT NULL DEFAULT 0,
+  `firewall_profile_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1895,6 +1897,35 @@ LOCK TABLES `email_messages` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `firewall_apps`
+--
+
+DROP TABLE IF EXISTS `firewall_apps`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `firewall_apps` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` char(16) DEFAULT NULL,
+  `cloud_id` int(11) DEFAULT NULL,
+  `fa_code` char(64) DEFAULT '&#xf085;',
+  `elements` text NOT NULL DEFAULT '',
+  `comment` varchar(100) NOT NULL DEFAULT '',
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `firewall_apps`
+--
+
+LOCK TABLES `firewall_apps` WRITE;
+/*!40000 ALTER TABLE `firewall_apps` DISABLE KEYS */;
+/*!40000 ALTER TABLE `firewall_apps` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `firewall_profile_entries`
 --
 
@@ -1929,6 +1960,32 @@ CREATE TABLE `firewall_profile_entries` (
 LOCK TABLES `firewall_profile_entries` WRITE;
 /*!40000 ALTER TABLE `firewall_profile_entries` DISABLE KEYS */;
 /*!40000 ALTER TABLE `firewall_profile_entries` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `firewall_profile_entry_firewall_apps`
+--
+
+DROP TABLE IF EXISTS `firewall_profile_entry_firewall_apps`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `firewall_profile_entry_firewall_apps` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `firewall_profile_entry_id` int(11) NOT NULL,
+  `firewall_app_id` int(11) NOT NULL,
+  `created` datetime NOT NULL,
+  `modified` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `firewall_profile_entry_firewall_apps`
+--
+
+LOCK TABLES `firewall_profile_entry_firewall_apps` WRITE;
+/*!40000 ALTER TABLE `firewall_profile_entry_firewall_apps` DISABLE KEYS */;
+/*!40000 ALTER TABLE `firewall_profile_entry_firewall_apps` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -2126,11 +2183,12 @@ CREATE TABLE `mac_actions` (
   `mesh_id` int(11) DEFAULT NULL,
   `ap_profile_id` int(11) DEFAULT NULL,
   `client_mac_id` int(11) DEFAULT NULL,
-  `action` enum('block','limit') DEFAULT 'block',
+  `action` enum('block','limit','firewall') DEFAULT 'block',
   `bw_up` int(11) DEFAULT NULL,
   `bw_down` int(11) DEFAULT NULL,
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
+  `firewall_profile_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2455,6 +2513,8 @@ CREATE TABLE `mesh_exits` (
   `gateway` varchar(50) NOT NULL DEFAULT '',
   `dns_1` varchar(50) NOT NULL DEFAULT '',
   `dns_2` varchar(50) NOT NULL DEFAULT '',
+  `apply_firewall_profile` tinyint(1) NOT NULL DEFAULT 0,
+  `firewall_profile_id` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `idx_mesh_exits_mesh_id` (`mesh_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
@@ -2492,6 +2552,7 @@ CREATE TABLE `mesh_settings` (
   `encryption_key` varchar(63) NOT NULL DEFAULT '',
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
+  `routing_algo` enum('BATMAN_IV','BATMAN_V') DEFAULT 'BATMAN_V',
   PRIMARY KEY (`id`),
   KEY `idx_mesh_settings_mesh_id` (`mesh_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
@@ -5151,4 +5212,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-04-19  8:08:06
+-- Dump completed on 2023-06-16 16:43:37

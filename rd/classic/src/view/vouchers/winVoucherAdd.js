@@ -153,7 +153,6 @@ Ext.define('Rd.view.vouchers.winVoucherAdd', {
                                     xtype       : 'checkbox',      
                                     fieldLabel  : i18n('sActivate_upon_first_login'),
                                     name        : 'activate_on_login',
-                                    inputValue  : 'activate_on_login',
                                     itemId      : 'activate_on_login',
                                     checked     : false,
                                     cls         : 'lblRd'
@@ -197,7 +196,6 @@ Ext.define('Rd.view.vouchers.winVoucherAdd', {
                                     xtype       : 'checkbox',      
                                     fieldLabel  : i18n('sNever_expire'),
                                     name        : 'never_expire',
-                                    inputValue  : 'never_expire',
                                     itemId      : 'never_expire',
                                     checked     : true,
                                     cls         : 'lblRd'

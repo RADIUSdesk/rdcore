@@ -359,10 +359,14 @@ class VouchersController extends AppController{
 			'activate_on_login',
             'never_expire'
 		];
-
-        foreach($check_items as $i){
+		
+		foreach($check_items as $i){
             if(isset($req_d[$i])){
-                $req_d[$i] = 1;
+            	if($req_d[$i] == null){
+            		$req_d[$i] = 0;
+            	}else{
+                	$req_d[$i] = 1;
+                }
             }else{
                 $req_d[$i] = 0;
             }
@@ -476,34 +480,41 @@ class VouchersController extends AppController{
         }
        
     	$req_q    	= $this->request->getQuery();       
-        $entity     = $this->{$this->main_model}->get( $req_q['voucher_id']);
-        $username   = $entity->name;
+        $entity     = $this->{$this->main_model}->find()->where(['Vouchers.id' => $req_q['voucher_id']])->first();
+        
 
         //List these items
         $include_items = [
             'realm','realm_id','profile','profile_id',
             'extra_name','extra_value', 'expire' ,
-            'time_valid'
+            'time_valid',
+            'id'
         ];
+        
 
         $items = [];
-        foreach($include_items as $i){
-            $items[$i] = $entity->{$i};
-        }
+        if($entity){
+        	$username   = $entity->name;
+		    foreach($include_items as $i){
+		        $items[$i] = $entity->{$i};
+		    }
+		
+		    if($items['expire'] == null){
+		        $items['never_expire'] = true;
+		    }else{
+		       $items['never_expire'] = false;
+		       $items['expire']       = $items['expire']->format("m/d/Y"); 
+		    }
 
-        if($items['expire'] == null){
-            $items['never_expire'] = true;
-        }else{
-           $items['never_expire'] = false;
-           $items['expire']       = $items['expire']->format("m/d/Y"); 
-        }
-
-        if($items['time_valid'] != ''){
-            $items['activate_on_login'] = 'activate_on_login';
-            $pieces                     = explode("-", $items['time_valid']);
-            $items['days_valid']        = $pieces[0];  
-            $items['hours_valid']       = $pieces[1];
-            $items['minutes_valid']     = $pieces[2]; 
+		    if($items['time_valid'] != ''){
+		        $items['activate_on_login'] = true;
+		        $pieces                     = explode("-", $items['time_valid']);
+		        $items['days_valid']        = $pieces[0];  
+		        $items['hours_valid']       = $pieces[1];
+		        $items['minutes_valid']     = $pieces[2]; 
+		    }else{
+		    	$items['activate_on_login'] = false;
+		    }
         }
 
         $this->set([
@@ -547,14 +558,18 @@ class VouchersController extends AppController{
             return;
         }
         
-        $check_items = array(
+        $check_items = [
 			'activate_on_login',
             'never_expire'
-		);
+		];
 
         foreach($check_items as $i){
             if(isset($req_d[$i])){
-                $req_d[$i] = 1;
+            	if($req_d[$i] == null){
+            		$req_d[$i] = 0;
+            	}else{
+                	$req_d[$i] = 1;
+                }
             }else{
                 $req_d[$i] = 0;
             }
