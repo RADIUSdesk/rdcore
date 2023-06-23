@@ -72,8 +72,9 @@ Ext.define('Rd.view.hardwares.gridHardwares' ,{
                 }, stateId: 'StateGridFK5A'
             },
             { 
-                text        : 'System Wide',  
-                xtype       : 'templatecolumn', 
+                text        : 'System Wide', 
+                xtype       : 'templatecolumn',
+                width       : 120,
                 tpl         : new Ext.XTemplate(
                                 "<tpl if='for_system == true'><div class=\"fieldBlue\">"+i18n("sYes")+"</div></tpl>",
                                 "<tpl if='for_system == false'><div class=\"fieldGrey\">"+i18n("sNo")+"</div></tpl>"
@@ -113,7 +114,7 @@ Ext.define('Rd.view.hardwares.gridHardwares' ,{
             {
                 xtype       : 'actioncolumn',
                 text        : 'Actions',
-                width       : 80,
+                
                 stateId     : 'StateGridFK8',
                 items       : [				
 					 { 

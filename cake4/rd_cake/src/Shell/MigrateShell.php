@@ -148,28 +148,34 @@ class MigrateShell extends Shell {
 			}			
 		}
 		
+		
+		
 		//Make a list of all the Profile IDs used
 		$profiles_used = array_keys($l_profile_ids);
 		
-		$t_profiles 	= \Cake\ORM\TableRegistry::getTableLocator()->get("Profiles");
-		$t_profile_components 	= \Cake\ORM\TableRegistry::getTableLocator()->get("ProfileComponents");
-		$t_radusergroups= \Cake\ORM\TableRegistry::getTableLocator()->get("Radusergroups");
-		$ec_profiles    = $t_profiles->find()->where(['id IN' => $profiles_used])->all();
-		$comp_names		= [];
-		foreach($ec_profiles as $p){
-			//$this->out($p->name);
-			array_push($l_profiles,$p->toArray());			
-			$ec_ug = $t_radusergroups->find()->where(["Radusergroups.username" => $p->name])->all();
-			foreach($ec_ug as $ug){
-				array_push($comp_names,$ug->groupname);
-			}		
+		if($profiles_used){		
+			$t_profiles 	= \Cake\ORM\TableRegistry::getTableLocator()->get("Profiles");
+			$t_profile_components 	= \Cake\ORM\TableRegistry::getTableLocator()->get("ProfileComponents");
+			$t_radusergroups= \Cake\ORM\TableRegistry::getTableLocator()->get("Radusergroups");
+			$ec_profiles    = $t_profiles->find()->where(['id IN' => $profiles_used])->all();
+			$comp_names		= [];
+			foreach($ec_profiles as $p){
+				//$this->out($p->name);
+				array_push($l_profiles,$p->toArray());			
+				$ec_ug = $t_radusergroups->find()->where(["Radusergroups.username" => $p->name])->all();
+				foreach($ec_ug as $ug){
+					array_push($comp_names,$ug->groupname);
+				}		
+			}
+			
+			$ec_comps = $t_profile_components->find()->where(['name IN' => $comp_names])->all();
+			foreach($ec_comps as $c){
+				$this->out($c->name);
+				array_push($l_profile_components,$c->toArray());		
+			}
+			
 		}
-		
-		$ec_comps = $t_profile_components->find()->where(['name IN' => $comp_names])->all();
-		foreach($ec_comps as $c){
-			$this->out($c->name);
-			array_push($l_profile_components,$c->toArray());		
-		}
+				
 						
 		//===========================================
 		//=========== NEW ===========================
@@ -229,8 +235,7 @@ class MigrateShell extends Shell {
 				\Cake\ORM\TableRegistry::getTableLocator()->get("PermanentUsers")->save($e_pu);				
 			}
 			$new_p_users[$e_profile->name] = $e_profile->id;							
-		}
-								 	  	
+		}										 	  	
   	}  	  	
 }
 

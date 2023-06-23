@@ -15,7 +15,8 @@ class DevicesTable extends Table
             ]
         );
 
-        $this->belongsTo('PermanentUsers'); 
+        $this->belongsTo('PermanentUsers');
+        $this->belongsTo('Profiles',['propertyName'  => 'real_profile']);
         $this->hasMany('Radchecks',[
             'dependent' => true,
             'cascadeCallbacks' =>true,

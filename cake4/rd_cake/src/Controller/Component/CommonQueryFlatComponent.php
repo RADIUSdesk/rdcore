@@ -35,7 +35,7 @@ class CommonQueryFlatComponent extends Component {
     	//---END--- 
     }
     
-    public function cloud_with_system($query,$cloud_id,$contain_array = ['Users'], $model = null, $allowOverride = true, $sort = null){
+    public function cloud_with_system($query,$cloud_id,$contain_array = ['Users'], $model = null, $allowOverride = true, $sort = null){     	
       
     	$query->where(['OR'=>[["cloud_id" => -1],["cloud_id" => $cloud_id]]]);
     	$query->contain($contain_array);
@@ -98,43 +98,56 @@ class CommonQueryFlatComponent extends Component {
         if($this->getConfig('sort_by') && $allowSortOverride == true){
             $sort = $this->getConfig('sort_by');
         }
+        
+       if(isset($req_q['sort'])){        
+		    $sort_array = json_decode($req_q['sort']);
+		    if(is_array($sort_array)){
+		    	if(isset($sort_array[0])){
+					$first_item = $sort_array[0];
+					$sort 	= $first_item->property;
+					$dir	= $first_item->direction;
+				}      
+		    }else{
 
-        if(isset($req_q['sort'])){
-            if($req_q['sort'] == 'owner'){
-                $sort = 'Users.username';
-            }elseif(
-                ($req_q['sort'] == 'nodes_down')||
-                ($req_q['sort'] == 'nodes_up')
-            ){
-                $sort = $model.'.last_contact';
-            }else{
-                $sort = $model.'.'.$req_q['sort'];
-            }
-            
-            //Special case for IP Address
-            if($req_q['sort'] == 'static_ip'){
-                $sort = 'INET_ATON(static_ip)';
-            }
-            
-            //Special case for Meshes
-            if($req_q['sort'] == 'mesh'){
-                $sort = 'Meshes.name';
-            }
-            
-            //Special case for Ap Profiles
-            if($req_q['sort'] == 'ap_profile'){
-                $sort = 'ApProfiles.name';
-            }
-            
-            //Special case for Devices / PermanentUser
-            if($req_q['sort'] == 'permanent_user'){
-                $sort = 'PermanentUsers.username';
-            }
-            
-            
-            $dir  = isset($req_q['dir']) ? $req_q['dir'] : $dir;
-        }
-        $query->order([$sort => $dir]); 
+			    if($req_q['sort'] == 'owner'){
+			        $sort = 'Users.username';
+			    }elseif(
+			        ($req_q['sort'] == 'nodes_down')||
+			        ($req_q['sort'] == 'nodes_up')
+			    ){
+			        $sort = $model.'.last_contact';
+			    }else{
+			        $sort = $model.'.'.$req_q['sort'];
+			    }
+			    
+			    //Special case for IP Address
+			    if($req_q['sort'] == 'static_ip'){
+			        $sort = 'INET_ATON(static_ip)';
+			    }
+			    
+			    //Special case for Meshes
+			    if($req_q['sort'] == 'mesh'){
+			        $sort = 'Meshes.name';
+			    }
+			    
+			    //Special case for Ap Profiles
+			    if($req_q['sort'] == 'ap_profile'){
+			        $sort = 'ApProfiles.name';
+			    }
+			    
+			    //Special case for Devices / PermanentUser
+			    if($req_q['sort'] == 'permanent_user'){
+			        $sort = 'PermanentUsers.username';
+			    }
+			    				    
+			    $dir  = isset($req_q['dir']) ? $req_q['dir'] : $dir;
+				    				
+			}
+		}
+		
+		//print_r($sort);
+		//print_r($dir);
+		$query->order([$sort => $dir]);
     }
     
       
@@ -175,7 +188,13 @@ class CommonQueryFlatComponent extends Component {
                 //Bools
                 if($f->operator == '=='){
                      $col = $model.'.'.$f->property;
-                     array_push($where_clause,array("$col" => $f->value));
+                     if($f->property == 'for_system'){
+                     	if($f->value == true){
+                     		array_push($where_clause,array($model.'.cloud_id' => -1));
+                     	}
+                     }else{
+                     	array_push($where_clause,array("$col" => $f->value));
+                     }
                 }
                 
                 if($f->operator == 'in'){

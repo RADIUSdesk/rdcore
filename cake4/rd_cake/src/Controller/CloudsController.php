@@ -1086,9 +1086,10 @@ class CloudsController extends AppController {
             
             $entity = $this->{$l_model}->newEntity($data); 
             if ($this->{$l_model}->save($entity)) {
-                $this->set(array(
-                    'success' => true
-                ));
+                $this->set([
+                    'success' 	=> true,
+                    'data'		=> $entity
+                ]);
                 $this->viewBuilder()->setOption('serialize', true);
             } else {
                 $message = __('Could not update item');
@@ -1126,7 +1127,7 @@ class CloudsController extends AppController {
 		          	}
 		          	                
                     $this->set([
-                        'success' => true
+                        'success' 	=> true
                     ]);
                     $this->viewBuilder()->setOption('serialize', true);
                 } else {
@@ -1171,9 +1172,10 @@ class CloudsController extends AppController {
 				        }
 		          	}
 		          	                
-                    $this->set(array(
-                        'success' => true
-                    ));
+                    $this->set([
+                        'success' => true,
+                        'data'	  => $entity	
+                    ]);
                     $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not update item');

@@ -211,7 +211,8 @@ class RealmsController extends AppController{
               
         if ($this->{$this->main_model}->save($entity)) {
             $this->set([
-                'success' => true
+                'success' 	=> true,
+                'data'		=> $entity
             ]);
             $this->viewBuilder()->setOption('serialize', true);
         } else {

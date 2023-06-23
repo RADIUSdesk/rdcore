@@ -157,7 +157,10 @@ class PermanentUsersController extends AppController{
         $this->set(array(
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total
+            'totalCount'    => $total,
+            'metaData'		=> [
+            	'total'	=> $total
+            ]
         ));
         $this->viewBuilder()->setOption('serialize', true);
     }
@@ -383,18 +386,41 @@ class PermanentUsersController extends AppController{
         
         //Zero the token to generate a new one for this user:
         unset($req_d['token']);
+        
+        
+        $check_items = [
+			'always_active'
+		];
 
-        //Set the date and time
-        $extDateSelects = [
-                'from_date',
-                'to_date'
-        ];
-        foreach($extDateSelects as $d){
-            if(isset($req_d[$d])){
-                $newDate = date_create_from_format('m/d/Y', $req_d[$d]);
-                $req_d[$d] = $newDate;
-            }  
+        foreach($check_items as $i){
+            if(isset($req_d[$i])){
+            	if($req_d[$i] == null){
+            		$req_d[$i] = 0;
+            	}else{
+                	$req_d[$i] = 1;
+                }
+            }else{
+                $req_d[$i] = 0;
+            }
         }
+        
+        //If it is expiring; set it in the correct format
+        if($req_d['always_active'] == 0){
+            //Set the date and time
+		    $extDateSelects = [
+		            'from_date',
+		            'to_date'
+		    ];
+		    foreach($extDateSelects as $d){
+		        if(isset($req_d[$d])){
+		            $newDate = date_create_from_format('m/d/Y', $req_d[$d]);
+		            $req_d[$d] = $newDate;
+		        }  
+		    }
+        }else{
+        	$req_d['from_date'] = null;
+        	$req_d['to_date'] = null;    
+        }   
         
         $entity = $this->{$this->main_model}->get($req_d['id']);
         $this->{$this->main_model}->patchEntity($entity, $req_d);
@@ -422,7 +448,7 @@ class PermanentUsersController extends AppController{
         //TODO Check if the owner of this user is in the chain of the APs
         if(isset($req_q['user_id'])){
             $entity         = $this->{$this->main_model}->get($req_q['user_id']);
-            $include_items  = ['name','surname','phone','address', 'email','language_id','country_id'];
+            $include_items  = ['name','surname','phone','address', 'email','language_id','country_id','id'];
             foreach($include_items as $i){
                 $items[$i] = $entity->{$i};
             }
@@ -629,6 +655,12 @@ class PermanentUsersController extends AppController{
             $d['active'] = 1;
         }else{
             $d['active'] = 0;
+        }
+        
+        if(isset($req_d['id'])){
+        	$entity = $this->{$this->main_model}->get($req_d['id']);
+           	$this->{$this->main_model}->patchEntity($entity, $d);
+            $this->{$this->main_model}->save($entity);       
         }
 
         foreach(array_keys($req_d) as $key){

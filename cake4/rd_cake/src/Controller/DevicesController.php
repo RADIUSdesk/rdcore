@@ -162,7 +162,10 @@ class DevicesController extends AppController{
         $this->set(array(
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total
+            'totalCount'    => $total,
+            'metaData'		=> [
+            	'total'	=> $total
+            ]
         ));
         $this->viewBuilder()->setOption('serialize', true);
     }
@@ -349,21 +352,30 @@ class DevicesController extends AppController{
         if(!$user){
             return;
         }
+        
+        $id 		= $this->request->getQuery('device_id');
 
-        $entity     = $this->{$this->main_model}->get( $this->request->getQuery('device_id'));
+        $entity     = $this->{$this->main_model}->find()->where(['Devices.id' => $id])->contain(['PermanentUsers','Profiles'])->first();
         $username   = $entity->username;
 
         //List these items
         $include_items = [
             'description', 'permanent_user_id',
             'profile','profile_id','time_cap_type',
-            'data_cap_type', 'from_date','to_date' 
+            'data_cap_type', 'from_date','to_date', 'id' 
         ];
 
         $items = [];
         foreach($include_items as $i){
             $items[$i] = $entity->{$i};
         }
+        if($entity->real_profile){
+        	$items['profile_name'] = $entity->real_profile->name;	
+        }
+        if($entity->permanent_user){
+        	$items['permanent_user_username'] = $entity->permanent_user->username;	
+        }      
+        
         $items['user_id'] = $entity->permanent_user_id;
 
         if(($items['from_date'] == null)&&($items['to_date'] == null)){

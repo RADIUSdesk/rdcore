@@ -339,11 +339,14 @@ class VouchersController extends AppController{
             array_push($items,$row);      
         }
        
-        $this->set(array(
+        $this->set([
             'items'         => $items,
             'success'       => true,
-            'totalCount'    => $total
-        ));
+            'totalCount'    => $total,
+            'metaData'		=> [
+            	'total'	=> $total
+            ]
+        ]);
         $this->viewBuilder()->setOption('serialize', true); 
     }
    

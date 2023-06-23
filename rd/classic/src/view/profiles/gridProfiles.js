@@ -63,11 +63,28 @@ Ext.define('Rd.view.profiles.gridProfiles' ,{
                 dataIndex   : 'profile_components',
                 stateId     : 'StateGridProfiles2'
             },
+            { 
+                text        : 'System Wide', 
+                xtype       : 'templatecolumn',
+                tdCls       : 'gridTree',
+                width       : 120,
+                tpl         : new Ext.XTemplate(
+                                "<tpl if='for_system == true'><div class=\"fieldBlue\">"+i18n("sYes")+"</div></tpl>",
+                                "<tpl if='for_system == false'><div class=\"fieldGrey\">"+i18n("sNo")+"</div></tpl>"
+                            ),
+                dataIndex   : 'for_system',
+                filter      : {
+                        type            : 'boolean',
+                        defaultValue    : false,
+                        yesText         : 'Yes',
+                        noText          : 'No'
+                }, stateId: 'StateGridProfilesA'
+            },
             {
                 xtype       : 'actioncolumn',
                 text        : 'Actions',
                 width       : 80,
-                stateId     : 'StateGridProfiles3',
+                stateId     : 'StateGridProfiles4',
                 items       : [				
 					 { 
 						iconCls : 'txtRed x-fa fa-trash',

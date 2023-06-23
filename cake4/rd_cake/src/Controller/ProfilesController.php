@@ -107,7 +107,7 @@ class ProfilesController extends AppController
     	$req_q    = $this->request->getQuery(); //q_data is the query data      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['Radusergroups'=> ['Radgroupchecks']]);
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,['Radusergroups'=> ['Radgroupchecks']]);
        
         //===== PAGING (MUST BE LAST) ======
         $limit = 50;   //Defaults
@@ -148,9 +148,15 @@ class ProfilesController extends AppController
                 array_push($components,$a);     
             }
             
+            $for_system = false;
+            if($i->cloud_id == -1){
+            	$for_system = true;
+            } 
+            
             array_push($items, array(
                 'id'                    => $i->id,
                 'name'                  => $i->name,
+                'for_system'			=> $for_system,
                 'profile_components'    => $components,
                 'data_cap_in_profile'   => $data_cap_in_profile,
                 'time_cap_in_profile'   => $time_cap_in_profile,
@@ -160,11 +166,14 @@ class ProfilesController extends AppController
         }
 
         //___ FINAL PART ___
-        $this->set(array(
-            'items' => $items,
-            'success' => true,
-            'totalCount' => $total
-        ));
+        $this->set([
+            'items' 		=> $items,
+            'success' 		=> true,
+            'totalCount' 	=> $total,
+            'metaData'		=> [
+            	'total'	=> $total
+            ]
+        ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
 

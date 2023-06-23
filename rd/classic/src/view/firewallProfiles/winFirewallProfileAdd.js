@@ -67,7 +67,7 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileAdd', {
                     boxLabel    : 'System Wide',
                     name        : 'for_system',
                     inputValue  : 'for_system',
-                    cls         : 'lblRd',
+                    boxLabelCls	: 'boxLabelRd', 
                     hidden      : hide_system,
                     disabled    : hide_system
                 }
