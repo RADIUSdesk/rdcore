@@ -72,6 +72,101 @@ class ProfileComponentsController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
     
+   	public function indexDataView(){
+        //__ Authentication + Authorization __
+        $user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+
+        $req_q    = $this->request->getQuery();      
+       	$cloud_id = $req_q['cloud_id'];
+        $query 	  = $this->{$this->main_model}->find();      
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,['Radgroupchecks','Radgroupreplies']);
+              
+        if(isset($req_q['id'])){
+        	if($req_q['id'] > 0){
+        		$query->where(['ProfileComponents.id' => $req_q['id']]);
+        	}	   
+        }
+
+
+        //===== PAGING (MUST BE LAST) ======
+        $limit = 50;   //Defaults
+        $page = 1;
+        $offset = 0;
+        if (isset($req_qy['limit'])) {
+            $limit  = $req_q['limit'];
+            $page   = $req_q['page'];
+            $offset = $req_q['start'];
+        }
+
+        $query->page($page);
+        $query->limit($limit);
+        $query->offset($offset);
+
+        $total  = $query->count();
+        $q_r    = $query->all();
+        $items  = [];
+
+        foreach ($q_r as $i) {
+       
+            $row            = [];       
+			$row['id']      = $i->id.'_0'; //Signifies Profile Component
+			$row['name']	= $i->name;
+			$row['type']	= 'profile_component';
+			$row['profile_component_id'] = $i->id;
+			
+			$for_system = false;
+            if($i->cloud_id == -1){
+            	$for_system = true;
+            }
+            $row['for_system']  = $for_system;
+								
+			array_push($items, $row);
+			
+			$id_prefix = 'chk_';
+            foreach($i->radgroupchecks as $j){
+                array_push($items, [
+                    'id'            => $id_prefix.$j->id,
+                    'type'          => 'check',
+                    'groupname'     => $j->groupname,
+                    'attribute'     => $j->attribute,
+                    'op'            => $j->op,
+                    'value'         => $j->value,
+                    'comment'       => $j->comment,
+                    'profile_component_id' => $i->id,
+                    'for_system'	=> $for_system
+                ]);
+            }
+            
+            foreach($i->radgroupreplies as $j){
+                array_push($items, [
+                    'id'            => $id_prefix.$j->id,
+                    'type'          => 'reply',
+                    'groupname'     => $j->groupname,
+                    'attribute'     => $j->attribute,
+                    'op'            => $j->op,
+                    'value'         => $j->value,
+                    'comment'       => $j->comment,
+                    'profile_component_id' => $i->id,
+                    'for_system'	=> $for_system
+                ]);
+            }		
+								
+			array_push($items,[ 'id' => '0_'.$i->id, 'type'	=> 'add','name' => 'Profile Component Entry', 'profile_component_id' =>  $i->id, 'profile_component_name' => $i->name, 'for_system' =>  $for_system]);
+			
+        }
+        
+        //___ FINAL PART ___
+        $this->set([
+            'items'         => $items,
+            'success'       => true,
+            'totalCount'    => $total
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    }
+    
     public function indexComp(){
     //Returns a list of vendor attributes based on the tmpl_id query attribute.
         $items 	= [];
@@ -330,7 +425,7 @@ class ProfileComponentsController extends AppController {
        	$cloud_id = $req_q['cloud_id'];
        	
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['Radgroupchecks','Radgroupreplies']);
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,['Radgroupchecks','Radgroupreplies']);
 
         //===== PAGING (MUST BE LAST) ======
         $limit = 50;   //Defaults
@@ -392,14 +487,26 @@ class ProfileComponentsController extends AppController {
     }
     
     private function _addOrEdit($type= 'add') {
+    
+    	$req_d	  = $this->request->getData();       	        	      
+    	if($this->request->getData('for_system')){
+    		$req_d['cloud_id'] = -1;
+	    }
+	        
                   
         if($type == 'add'){ 
-            $entity = $this->{$this->main_model}->newEntity($this->request->getData());
+            $entity = $this->{$this->main_model}->newEntity($req_d);
         }
        
         if($type == 'edit'){
-            $entity = $this->{$this->main_model}->get($this->request->getData('id'));
-            $this->{$this->main_model}->patchEntity($entity, $this->request->getData());
+        
+        	if(str_contains($this->request->getData('id'), '_')){
+        		$ids            = explode("_", $this->request->getData('id'));  
+            	$req_d['id']    = intval($ids[0]);
+            }
+        
+            $entity = $this->{$this->main_model}->get($req_d['id']);
+            $this->{$this->main_model}->patchEntity($entity, $req_d);
         }
               
         if ($this->{$this->main_model}->save($entity)) {

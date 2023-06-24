@@ -67,7 +67,7 @@ Ext.define('Rd.view.schedules.winScheduleAdd', {
                     boxLabel    : 'System Wide',
                     name        : 'for_system',
                     inputValue  : 'for_system',
-                    cls         : 'lblRd',
+                    boxLabelCls	: 'boxLabelRd', 
                     hidden      : hide_system,
                     disabled    : hide_system
                 }
