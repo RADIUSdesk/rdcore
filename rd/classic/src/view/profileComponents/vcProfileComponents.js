@@ -14,10 +14,9 @@ Ext.define('Rd.view.profileComponents.vcProfileComponents', {
         urlAdd          : '/cake4/rd_cake/profile-components/add.json',
         urlDelete       : '/cake4/rd_cake/profile-components/delete.json',
 		urlEdit         : '/cake4/rd_cake/profile-components/edit.json',
-		urlAddEntry     : '/cake4/rd_cake/profile-components/add-pc-entry.json',
-		urlViewEntry    : '/cake4/rd_cake/profile-components/view-pcentry.json',
-		urlEditEntry    : '/cake4/rd_cake/profile-components/edit-pc-entry.json',
-		urlDeleteEntry  : '/cake4/rd_cake/profile-components/delete-pc-entry.json'
+		urlAddEntry     : '/cake4/rd_cake/profile-components/add-comp.json',
+		urlEditEntry    : '/cake4/rd_cake/profile-components/edit-comp.json',
+		urlDeleteEntry  : '/cake4/rd_cake/profile-components/delete-comp.json'
     },
     control: {
     	'pnlProfileComponents #reload': {
@@ -46,11 +45,8 @@ Ext.define('Rd.view.profileComponents.vcProfileComponents', {
         },
         'winProfileComponentEntryAdd #save': {
             click   : 'btnEntryAddSave'
-        }, 
-        'winProfileComponentEntryEdit': {
-            show   : 'winProfileComponentEntryEditShow'
         },
-        'winProfileComponentsEntryEdit #save': {
+        'winProfileComponentEntryEdit #save': {
             click   : 'btnEntryEditSave'
         }                 
     },
@@ -124,17 +120,17 @@ Ext.define('Rd.view.profileComponents.vcProfileComponents', {
 		    
 		    if(sr.get('type') == 'profile_component'){
 				if(!Ext.WindowManager.get('winProfileComponentEditId')){
-		            var w = Ext.widget('winProfileComponentEdit',{id:'winProfileComponentEditId',record: sr, profile_component_id: sr.get('profile_component_id'), root: me.root});
+		            var w = Ext.widget('winProfileComponentEdit',{id:'winProfileComponentEditId',record: sr,root: me.root});
 		            this.getView().add(w);
 		            let appBody = Ext.getBody();
 		            w.showBy(appBody);            
 		        }
 		  	}
 		  	
-		  	if(sr.get('type') == 'profile_component_entry'){		  			  	
+		  	if((sr.get('type') == 'check')||(sr.get('type') == 'reply')){		  			  	
 				if(!Ext.WindowManager.get('winProfileComponenEntryEditId')){
 			        let appBody = Ext.getBody();
-                    var w = Ext.widget('winProfileComponenEntryEdit',{id:'winProfileComponenEntryEditId',record: sr, profile_component_entry_id: sr.get('id')});
+                    var w = Ext.widget('winProfileComponentEntryEdit',{id:'winProfileComponentEntryEditId',record: sr});
                     this.getView().add(w);
                     w.showBy(appBody);     
                 }  
@@ -183,7 +179,7 @@ Ext.define('Rd.view.profileComponents.vcProfileComponents', {
 		    	me.delProfileComponent();
 		    }
 		    
-		    if(sr.get('type') == 'profile_component_entry'){	    
+		    if((sr.get('type') == 'check')||(sr.get('type') == 'reply')){		    
 		        me.delProfileComponentEntry();            
 		    }            
         }      
@@ -255,25 +251,6 @@ Ext.define('Rd.view.profileComponents.vcProfileComponents', {
             },
             failure             : Ext.ux.formFail
         }); 
-    },
-    winProfileComponentEntryEditShow : function(win){
-        var me      = this; 
-        var form    = win.down('form');
-        var entryId = win.profile_component_entry_id;     
-        form.load({
-            url         :me.getUrlViewEntry(), 
-            method      :'GET',
-            params      :{profile_component_entry_id:entryId},
-            success     : function(a,b,c){
-                form.down('#slideTime').setValue(b.result.data.event_time);       
-                if(b.result.data.type == 'predefined_command'){
-                    var cmb    = form.down("cmbPredefinedCommand");
-                    var rec    = Ext.create('Rd.model.mAp', {name: b.result.data.predefined_command_name, id: b.result.data.predefined_command_id});
-                    cmb.getStore().loadData([rec],false);
-                    cmb.setValue(b.result.data.predefined_command_id);
-                }                          
-            }
-        });        
     },
     btnEntryEditSave : function(button){
         var me      = this;

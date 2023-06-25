@@ -140,6 +140,7 @@ class ProfileComponentsController extends AppController {
                 ]);
             }
             
+            $id_prefix = 'rpl_';
             foreach($i->radgroupreplies as $j){
                 array_push($items, [
                     'id'            => $id_prefix.$j->id,
@@ -218,6 +219,10 @@ class ProfileComponentsController extends AppController {
     
     	$req_q  = $this->request->getQuery(); //q_data is the query data 
     	$req_d  = $this->request->getData(); //q_data is the query data 
+    	
+    	if(isset($req_d['profile_component_id'])){
+    		$req_q['comp_id'] = $req_d['profile_component_id'];
+    	}
 
         if(isset($req_q['comp_id'])){
             $comp_id    = $req_q['comp_id'];
@@ -231,10 +236,10 @@ class ProfileComponentsController extends AppController {
                 if ($this->Radgroupchecks->save($entity)) {
                     $id = 'chk_'.$entity->id;
                     $req_d['id'] = $id;
-                    $this->set(array(
+                    $this->set([
                         'items'     => $req_d,
                         'success' => true
-                    ));
+                    ]);
                     $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not create item');
@@ -248,10 +253,10 @@ class ProfileComponentsController extends AppController {
                 if ($this->Radgroupreplies->save($entity)) {
                     $id = 'rpl_'.$entity->id;
                     $req_d['id'] = $id;
-                    $this->set(array(
+                    $this->set([
                         'items'     => $req_d,
                         'success'   => true
-                    ));
+                    ]);
                     $this->viewBuilder()->setOption('serialize', true);
                 } else {
                     $message = __('Could not create item');
@@ -264,7 +269,11 @@ class ProfileComponentsController extends AppController {
      public function editComp(){
      
      	$req_q  = $this->request->getQuery(); 
-     	$req_d  = $this->request->getData(); 
+     	$req_d  = $this->request->getData();
+     	
+     	if(isset($req_d['profile_component_id'])){
+    		$req_q['comp_id'] = $req_d['profile_component_id'];
+    	} 
 
          if(isset($req_q['comp_id'])){
 

@@ -13,8 +13,8 @@ Ext.define('Rd.view.profileComponents.pnlProfileComponents', {
         'Rd.view.profileComponents.vcProfileComponents',
         'Rd.view.profileComponents.winProfileComponentAdd',
         'Rd.view.profileComponents.winProfileComponentEdit',
-      //  'Rd.view.schedules.winScheduleEntryAdd',
-      //  'Rd.view.schedules.winScheduleEntryEdit'
+        'Rd.view.profileComponents.winProfileComponentEntryAdd',
+        'Rd.view.profileComponents.winProfileComponentEntryEdit',
     ],
     viewConfig  : {
         loadMask:true
@@ -31,7 +31,7 @@ Ext.define('Rd.view.profileComponents.pnlProfileComponents', {
                 '<div class="plain-wrap">',
                 	'<tpl if="type==\'profile_component\'">',
                 		'<div class="main">',
-                			'<i class="fa fa-cubes"></i>',
+                			'<i class="fa fa-puzzle-piece"></i>',
                 				'<tpl if="for_system">',
                 					'<i class="fa fa-umbrella"></i>',
                 				'</tpl>',
@@ -41,18 +41,20 @@ Ext.define('Rd.view.profileComponents.pnlProfileComponents', {
                 	
                 	'<tpl if="type==\'check\'">',
                 		'<div class="sub" style="background:#afe3b0;">', //FIXME Create a class for check in CSS
-		            		'<div style="font-size:18px;color:#666699;text-align:left;"><span style="font-family:FontAwesome;">&#xf046;</span> {attribute} <span style="color:#161617;">{op}</span> <span style="color:#0539f5;">{value}</span></div>',
+                			'<div style="font-size:10px;color:#acacad;text-align:center;padding:2px;">CHECK</div>',
+		            		'<div style="font-size:18px;color:#016316;padding:2px;">{attribute} <span style="color:#161617;">{op}</span> <span style="color:#0539f5;">{value}</span></div>',
 		            		'<tpl if="comment!==\'\'">',
-		            			'<div style="font-size:14px;color:#747475;text-align:left;padding:5px;"><span style="font-family:FontAwesome;">&#xf24a;</span> {comment}</div>',
+		            			'<div style="font-size:12px;color:#747475;text-align:left;padding:5px;"><i>{comment}</i></div>',
 		            		'</tpl>',
 				        '</div>',
                 	'</tpl>',
                 	
                 	'<tpl if="type==\'reply\'">',
                 		'<div class="sub">',
-		            		'<div style="font-size:18px;color:#666699;text-align:left;"><span style="font-family:FontAwesome;">&#xf0e5</span> {attribute} <span style="color:#161617;">{op}</span> <span style="color:#0539f5;">{value}</span></div>', 
+                			'<div style="font-size:10px;color:#acacad;text-align:center;padding:2px;">REPLY</div>',
+		            		'<div style="font-size:18px;color:#016316;padding:2px;">{attribute} <span style="color:#161617;">{op}</span> <span style="color:#0539f5;">{value}</span></div>', 
 		            		'<tpl if="comment!==\'\'">',
-		            			'<div style="font-size:14px;color:#747475;text-align:left;padding:5px;"><span style="font-family:FontAwesome;">&#xf24a;</span> {comment}</div>',
+		            			'<div style="font-size:12px;color:#747475;text-align:left;padding:5px;"><i>{comment}</i></div>',
 		            		'</tpl>',
 				        '</div>',
                 	'</tpl>',

@@ -3,7 +3,6 @@ Ext.define('Rd.view.components.cmbAttribute', {
     alias : 'widget.cmbAttribute',
     fieldLabel: i18n('sAttribute'),
     labelSeparator: '',
-    store: 'sAttributes',
     queryMode: 'local',
     valueField: 'id',
     displayField: 'name',
@@ -12,7 +11,13 @@ Ext.define('Rd.view.components.cmbAttribute', {
     mode: 'local',
     labelWidth : 60,
     labelClsExtra: 'lblRd',
+    requires: [
+        'Rd.store.sAttributes'
+    ],
     initComponent: function() {
+    	var me = this;
+  		var s = Ext.create('Rd.store.sAttributes', {});            
+        me.setStore(s);
         this.callParent(arguments);
     }
 });
