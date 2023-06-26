@@ -40,7 +40,7 @@ Ext.define('Rd.view.profileComponents.pnlProfileComponents', {
                 	'</tpl>',
                 	
                 	'<tpl if="type==\'check\'">',
-                		'<div class="sub" style="background:#afe3b0;">', //FIXME Create a class for check in CSS
+                		'<div class="sub-check">', //FIXME Create a class for check in CSS
                 			'<div style="font-size:10px;color:#acacad;text-align:center;padding:2px;">CHECK</div>',
 		            		'<div style="font-size:18px;color:#016316;padding:2px;">{attribute} <span style="color:#161617;">{op}</span> <span style="color:#0539f5;">{value}</span></div>',
 		            		'<tpl if="comment!==\'\'">',

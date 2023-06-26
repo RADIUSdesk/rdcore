@@ -154,6 +154,22 @@ p {
     background: #e1c8d4;
 }
 
+.plain-wrap .sub-check{	
+    margin:5px;
+    padding:5px;
+    background:#c6ebc7;
+    cursor: move;
+    text-align:left;
+}
+
+.plain-wrap .sub-check:hover{
+    background: #ecf8ec;
+}
+
+.plain-wrap.x-item-selected .sub-check {
+    background: #e1c8d4;
+}
+
 
 /* END WIP Schedules */
 
