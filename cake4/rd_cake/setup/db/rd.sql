@@ -1935,10 +1935,11 @@ DROP TABLE IF EXISTS `firewall_profile_entries`;
 CREATE TABLE `firewall_profile_entries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `firewall_profile_id` int(11) DEFAULT NULL,
-  `description` varchar(255) NOT NULL DEFAULT '',
-  `type` enum('predefined_command','command') DEFAULT 'command',
-  `command` varchar(255) NOT NULL DEFAULT '',
-  `predefined_command_id` int(11) DEFAULT NULL,
+  `action` enum('block','allow','limit') DEFAULT 'block',
+  `category` enum('app','app_group','domain','ip_address','region','internet','local_network') DEFAULT 'domain',
+  `domain` varchar(100) DEFAULT NULL,
+  `ip_address` varchar(100) DEFAULT NULL,
+  `schedule` enum('always','every_day','every_week','one_time','custom') DEFAULT 'always',
   `mo` tinyint(1) NOT NULL DEFAULT 0,
   `tu` tinyint(1) NOT NULL DEFAULT 0,
   `we` tinyint(1) NOT NULL DEFAULT 0,
@@ -1946,11 +1947,15 @@ CREATE TABLE `firewall_profile_entries` (
   `fr` tinyint(1) NOT NULL DEFAULT 0,
   `sa` tinyint(1) NOT NULL DEFAULT 0,
   `su` tinyint(1) NOT NULL DEFAULT 0,
-  `event_time` varchar(10) NOT NULL DEFAULT '',
+  `start_time` int(10) NOT NULL DEFAULT 0,
+  `end_time` int(10) NOT NULL DEFAULT 0,
+  `one_time_date` datetime DEFAULT NULL,
+  `bw_up` int(11) DEFAULT NULL,
+  `bw_down` int(11) DEFAULT NULL,
   `created` datetime NOT NULL,
   `modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -5013,7 +5018,7 @@ CREATE TABLE `user_settings` (
 
 LOCK TABLES `user_settings` WRITE;
 /*!40000 ALTER TABLE `user_settings` DISABLE KEYS */;
-INSERT INTO `user_settings` VALUES (91,-1,'UserStatsLastRun','1661538601','2019-11-12 19:00:03','2022-08-26 18:30:01'),(110,-1,'password','admin','2021-06-26 06:47:40','2021-06-26 06:47:40'),(111,-1,'country','ZA','2021-06-26 06:47:40','2022-08-26 18:36:42'),(112,-1,'timezone','24','2021-06-26 06:47:40','2021-06-26 06:47:40'),(113,-1,'heartbeat_dead_after','900','2021-06-26 06:47:40','2021-10-25 22:12:37'),(114,-1,'cp_radius_1','192.168.8.220','2021-06-26 06:47:40','2021-10-25 22:12:37'),(115,-1,'cp_radius_2','','2021-06-26 06:47:40','2021-06-26 06:47:40'),(116,-1,'cp_radius_secret','testing123','2021-06-26 06:47:40','2021-06-26 06:47:40'),(117,-1,'cp_uam_url','http://192.168.8.220/cake4/rd_cake/dynamic-details/chilli-browser-detect/','2021-06-26 06:47:40','2022-08-26 18:37:10'),(118,-1,'cp_uam_secret','greatsecret','2021-06-26 06:47:40','2021-06-26 06:47:40'),(119,-1,'cp_swap_octet','0','2021-06-26 06:47:40','2022-08-12 04:48:16'),(120,-1,'cp_mac_auth','0','2021-06-26 06:47:40','2022-08-12 04:48:16'),(121,-1,'cp_coova_optional','','2021-06-26 06:47:40','2021-06-26 06:47:40'),(122,-1,'email_enabled','0','2021-06-26 06:47:40','2021-06-26 06:47:40'),(123,-1,'email_ssl','0','2021-06-26 06:47:40','2021-06-26 06:47:40'),(124,-1,'s_k','xJ3ktaC39H','2021-10-25 22:15:38','2021-10-25 22:15:38'),(125,-1,'s_iv','anSYCDY1C9','2021-10-25 22:15:38','2021-10-25 22:15:38'),(126,-1,'s_l','Ryttd0xFdFZTK210Z2JFOGw4c0M1WTdtOUJxeXRGdnBDZnduNHRUS0xzcz0=','2021-10-25 22:36:29','2021-10-25 22:36:29'),(450,44,'wl_active','1','2022-08-08 14:12:09','2022-08-08 14:12:09'),(451,44,'wl_header','RADIUSdesk','2022-08-08 14:12:09','2022-08-08 14:12:09'),(452,44,'wl_h_bg','ffffff','2022-08-08 14:12:09','2022-08-08 14:12:09'),(453,44,'wl_h_fg','005691','2022-08-08 14:12:09','2022-08-08 14:12:09'),(454,44,'wl_footer','RADIUSdesk 2022','2022-08-08 14:12:09','2022-08-08 14:12:09'),(455,44,'wl_img_active','1','2022-08-08 14:12:09','2022-08-08 14:12:09'),(456,44,'wl_img_file','logo.png','2022-08-08 14:12:09','2022-08-08 14:12:09'),(457,44,'compact_view','1','2022-08-08 14:12:09','2022-08-08 14:12:09'),(458,-1,'cloud_id','21','2022-08-12 04:48:16','2022-08-23 12:57:40'),(459,-1,'mqtt_enabled','0','2022-08-12 04:48:40','2022-08-12 04:48:40'),(460,-1,'api_mqtt_enabled','0','2022-08-12 04:48:40','2022-08-12 04:48:40'),(461,-1,'sms_1_enabled','0','2022-08-12 04:56:51','2022-08-12 04:56:51'),(462,-1,'sms_1_ssl_verify_peer','0','2022-08-12 04:56:51','2022-08-12 04:56:51'),(463,-1,'sms_1_ssl_verify_host','0','2022-08-12 04:56:51','2022-08-12 04:56:51'),(464,-1,'sms_2_enabled','0','2022-08-12 04:56:55','2022-08-12 04:56:55'),(465,-1,'sms_2_ssl_verify_peer','0','2022-08-12 04:56:55','2022-08-12 04:56:55'),(466,-1,'sms_2_ssl_verify_host','0','2022-08-12 04:56:55','2022-08-12 04:56:55'),(467,-1,'report_adv_proto','http','2022-08-23 12:57:40','2022-08-23 12:57:40'),(468,-1,'report_adv_light','60','2022-08-23 12:57:40','2022-08-23 12:57:40'),(469,-1,'report_adv_full','600','2022-08-23 12:57:40','2022-08-23 12:57:40'),(470,-1,'report_adv_sampling','60','2022-08-23 12:57:40','2022-08-23 12:57:40'),(471,-1,'UserStatsCompactingStoppedAt','1661472000','2022-08-25 03:10:02','2022-08-26 03:10:02'),(472,-1,'UserStatsDailiesStoppedAt','1661472000','2022-08-25 04:10:01','2022-08-26 04:10:02');
+INSERT INTO `user_settings` VALUES (91,-1,'UserStatsLastRun','1687876203','2019-11-12 19:00:03','2023-06-27 14:30:03'),(110,-1,'password','admin','2021-06-26 06:47:40','2021-06-26 06:47:40'),(111,-1,'country','ZA','2021-06-26 06:47:40','2022-08-26 18:36:42'),(112,-1,'timezone','24','2021-06-26 06:47:40','2021-06-26 06:47:40'),(113,-1,'heartbeat_dead_after','900','2021-06-26 06:47:40','2021-10-25 22:12:37'),(114,-1,'cp_radius_1','192.168.8.220','2021-06-26 06:47:40','2021-10-25 22:12:37'),(115,-1,'cp_radius_2','','2021-06-26 06:47:40','2021-06-26 06:47:40'),(116,-1,'cp_radius_secret','testing123','2021-06-26 06:47:40','2021-06-26 06:47:40'),(117,-1,'cp_uam_url','http://192.168.8.220/cake4/rd_cake/dynamic-details/chilli-browser-detect/','2021-06-26 06:47:40','2022-08-26 18:37:10'),(118,-1,'cp_uam_secret','greatsecret','2021-06-26 06:47:40','2021-06-26 06:47:40'),(119,-1,'cp_swap_octet','0','2021-06-26 06:47:40','2022-08-12 04:48:16'),(120,-1,'cp_mac_auth','0','2021-06-26 06:47:40','2022-08-12 04:48:16'),(121,-1,'cp_coova_optional','','2021-06-26 06:47:40','2021-06-26 06:47:40'),(122,-1,'email_enabled','0','2021-06-26 06:47:40','2021-06-26 06:47:40'),(123,-1,'email_ssl','0','2021-06-26 06:47:40','2021-06-26 06:47:40'),(124,-1,'s_k','xJ3ktaC39H','2021-10-25 22:15:38','2021-10-25 22:15:38'),(125,-1,'s_iv','anSYCDY1C9','2021-10-25 22:15:38','2021-10-25 22:15:38'),(126,-1,'s_l','Ryttd0xFdFZTK210Z2JFOGw4c0M1WTdtOUJxeXRGdnBDZnduNHRUS0xzcz0=','2021-10-25 22:36:29','2021-10-25 22:36:29'),(450,44,'wl_active','1','2022-08-08 14:12:09','2022-08-08 14:12:09'),(451,44,'wl_header','RADIUSdesk','2022-08-08 14:12:09','2022-08-08 14:12:09'),(452,44,'wl_h_bg','ffffff','2022-08-08 14:12:09','2022-08-08 14:12:09'),(453,44,'wl_h_fg','005691','2022-08-08 14:12:09','2022-08-08 14:12:09'),(454,44,'wl_footer','RADIUSdesk 2022','2022-08-08 14:12:09','2022-08-08 14:12:09'),(455,44,'wl_img_active','1','2022-08-08 14:12:09','2022-08-08 14:12:09'),(456,44,'wl_img_file','logo.png','2022-08-08 14:12:09','2022-08-08 14:12:09'),(457,44,'compact_view','1','2022-08-08 14:12:09','2022-08-08 14:12:09'),(458,-1,'cloud_id','21','2022-08-12 04:48:16','2022-08-23 12:57:40'),(459,-1,'mqtt_enabled','0','2022-08-12 04:48:40','2022-08-12 04:48:40'),(460,-1,'api_mqtt_enabled','0','2022-08-12 04:48:40','2022-08-12 04:48:40'),(461,-1,'sms_1_enabled','0','2022-08-12 04:56:51','2022-08-12 04:56:51'),(462,-1,'sms_1_ssl_verify_peer','0','2022-08-12 04:56:51','2022-08-12 04:56:51'),(463,-1,'sms_1_ssl_verify_host','0','2022-08-12 04:56:51','2022-08-12 04:56:51'),(464,-1,'sms_2_enabled','0','2022-08-12 04:56:55','2022-08-12 04:56:55'),(465,-1,'sms_2_ssl_verify_peer','0','2022-08-12 04:56:55','2022-08-12 04:56:55'),(466,-1,'sms_2_ssl_verify_host','0','2022-08-12 04:56:55','2022-08-12 04:56:55'),(467,-1,'report_adv_proto','http','2022-08-23 12:57:40','2022-08-23 12:57:40'),(468,-1,'report_adv_light','60','2022-08-23 12:57:40','2022-08-23 12:57:40'),(469,-1,'report_adv_full','600','2022-08-23 12:57:40','2022-08-23 12:57:40'),(470,-1,'report_adv_sampling','60','2022-08-23 12:57:40','2022-08-23 12:57:40'),(471,-1,'UserStatsCompactingStoppedAt','1661472000','2022-08-25 03:10:02','2022-08-26 03:10:02'),(472,-1,'UserStatsDailiesStoppedAt','1661472000','2022-08-25 04:10:01','2022-08-26 04:10:02');
 /*!40000 ALTER TABLE `user_settings` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -5212,4 +5217,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-06-16 16:43:37
+-- Dump completed on 2023-06-27 14:31:07

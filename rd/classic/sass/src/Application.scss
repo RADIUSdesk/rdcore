@@ -154,12 +154,32 @@ p {
     background: #e1c8d4;
 }
 
+.plain-wrap .sub-reply{	
+    cursor      : move;
+    border-radius: 5px;
+    border      : 1px solid #3aacf2;
+    padding     : 5px; 
+    margin      : 5px;
+    text-align  : center; 
+    color       : #0677c7;
+}
+
+.plain-wrap .sub-reply:hover{
+    background: #f2f3f5;
+}
+
+.plain-wrap.x-item-selected .sub-reply {
+    background: #e1c8d4;
+}
+
 .plain-wrap .sub-check{	
-    margin:5px;
-    padding:5px;
-    background:#c6ebc7;
-    cursor: move;
-    text-align:left;
+    cursor      : move;
+    border-radius: 5px;
+    border      : 1px solid #2fde5d;
+    padding     : 5px; 
+    margin      : 5px;
+    text-align  : center; 
+    color       : #0677c7;
 }
 
 .plain-wrap .sub-check:hover{

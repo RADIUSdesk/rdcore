@@ -8888,22 +8888,42 @@ p {
     background: #e1c8d4;
 }
 /* /var/www/rdcore/rd/classic/sass/src/Application.scss:157 */
-.plain-wrap .sub-check {
-    margin: 5px;
-    padding: 5px;
-    background: #c6ebc7;
+.plain-wrap .sub-reply {
     cursor: move;
-    text-align: left;
+    border-radius: 5px;
+    border: 1px solid #3aacf2;
+    padding: 5px;
+    margin: 5px;
+    text-align: center;
+    color: #0677c7;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:165 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:167 */
+.plain-wrap .sub-reply:hover {
+    background: #f2f3f5;
+}
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:171 */
+.plain-wrap.x-item-selected .sub-reply {
+    background: #e1c8d4;
+}
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:175 */
+.plain-wrap .sub-check {
+    cursor: move;
+    border-radius: 5px;
+    border: 1px solid #2fde5d;
+    padding: 5px;
+    margin: 5px;
+    text-align: center;
+    color: #0677c7;
+}
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:185 */
 .plain-wrap .sub-check:hover {
     background: #ecf8ec;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:169 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:189 */
 .plain-wrap.x-item-selected .sub-check {
     background: #e1c8d4;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:178 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:198 */
 .thumb-wrap {
     /* END WIP Schedules */
     /*Wallpaper selection */
@@ -8914,41 +8934,41 @@ p {
     background: #f3f5f9;
     cursor: move;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:187 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:207 */
 .thumb-wrap:hover {
     border: 2px solid #526b9d;
     background: #c4cbd7;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:193 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:213 */
 .thumb-wrap.x-item-selected {
     border: 1px solid #fd6473;
     background: #e1c8d4;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:198 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:218 */
 .thumb-wrap h1 {
     padding: 10px;
     color: #526b9d;
     font-size: 20px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:204 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:224 */
 .thumb-wrap .description {
     padding: 10px;
     color: #526b9d;
     font-size: 14px;
     font-style: oblique;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:211 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:231 */
 .thumb-info {
     text-align: left;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:216 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:236 */
 .banner {
     /* Windows needs a banner */
     width: 100%;
     height: 100%;
     background-color: #dbdbdb;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:222 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:242 */
 .banner h1 {
     margin-left: 52px;
     padding: 18px;
@@ -8956,7 +8976,7 @@ p {
     color: #00359a;
     font-size: 25px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:231 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:251 */
 .gridTree .x-grid-cell-inner {
     /* Grid styles */
     color: #676d76;
@@ -8966,12 +8986,12 @@ p {
     padding: 2px !important;
     margin: 2px !important;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:240 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:260 */
 .gridMain .x-grid-cell-inner {
     color: #0b42b3;
     font-size: 16px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:245 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:265 */
 .gridRealm.availAll {
     background: black;
     border: 1px solid #ccc;
@@ -8980,7 +9000,7 @@ p {
     color: white;
     font-size: 12px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:254 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:274 */
 .gridTag {
     background: #e7edf6;
     border: 1px solid #616b77;
@@ -8989,23 +9009,23 @@ p {
     color: #727982;
     font-size: 10px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:263 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:283 */
 .gridComment .x-grid-cell-inner {
     color: #676d76;
     font-size: 12px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:269 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:289 */
 .x-grid-cell-checkcolumn .x-grid-cell-inner {
     /* EXP for check column */
     padding-top: 4px;
     padding-bottom: 2px;
     line-height: 14px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:274 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:294 */
 .x-grid-with-row-lines .x-grid-cell-checkcolumn .x-grid-cell-inner {
     padding-top: 3px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:278 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:298 */
 .x-grid-checkheader {
     width: 17px;
     height: 17px;
@@ -9018,30 +9038,30 @@ p {
     display: block;
     margin: auto;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:292 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:312 */
 .x-grid-checkheader-checked {
     /* background-position: 0 -13px;*/
     /* background-position: 0 -13px;*/
     background-image: url(images/16x16/yes.png);
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:297 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:317 */
 .x-grid-checkheader-disabled {
     background-position: -39px 0;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:301 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:321 */
 .x-grid-checkheader-checked-disabled {
     background-position: -39px -13px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:305 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:325 */
 .x-grid-checkheader-editor .x-form-cb-wrap {
     text-align: center;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:309 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:329 */
 .x-action-col-icon {
     /* space around action column icons */
     margin-right: 3px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:314 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:334 */
 .noRight {
     /* EXP column display yes/no */
     background: #f6cecf;
@@ -9051,7 +9071,7 @@ p {
     color: #6b032f;
     font-size: 12px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:323 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:343 */
 .hasRight {
     background: #d4e0ce;
     border: 1px solid #ccc;
@@ -9060,7 +9080,7 @@ p {
     color: #1e5304;
     font-size: 12px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:334 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:354 */
 .fieldRed {
     /* Note rather replace the .hasRight and .noRight with a more generic class eg. red or green */
     background: #f6cecf;
@@ -9070,7 +9090,7 @@ p {
     font-size: 14px;
     text-align: center;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:343 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:363 */
 .fieldGreen {
     background: #d4e0ce;
     margin: 1px 0px 1px 0px;
@@ -9079,7 +9099,7 @@ p {
     font-size: 14px;
     text-align: center;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:352 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:372 */
 .fieldBlue {
     background: #c5f5fd;
     margin: 1px 0px 1px 0px;
@@ -9088,7 +9108,7 @@ p {
     font-size: 14px;
     text-align: center;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:361 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:381 */
 .fieldOrange {
     background: #ffd9b3;
     margin: 1px 0px 1px 0px;
@@ -9097,7 +9117,7 @@ p {
     font-size: 14px;
     text-align: center;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:370 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:390 */
 .fieldGrey {
     background: #e6e6e6;
     margin: 1px 0px 1px 0px;
@@ -9106,7 +9126,7 @@ p {
     font-size: 14px;
     text-align: center;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:379 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:399 */
 .fieldYellow {
     background: #ffffb3;
     margin: 1px 0px 1px 0px;
@@ -9115,7 +9135,7 @@ p {
     font-size: 14px;
     text-align: center;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:388 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:408 */
 .fieldRedWhite {
     background: #e00404;
     margin: 1px 0px 1px 0px;
@@ -9124,7 +9144,7 @@ p {
     font-size: 14px;
     text-align: center;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:397 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:417 */
 .fieldGreenWhite {
     background: #1a9406;
     margin: 1px 0px 1px 0px;
@@ -9133,7 +9153,7 @@ p {
     font-size: 14px;
     text-align: center;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:406 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:426 */
 .fieldTealWhite {
     background: teal;
     margin: 1px 0px 1px 0px;
@@ -9142,7 +9162,7 @@ p {
     font-size: 14px;
     text-align: center;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:415 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:435 */
 .fieldGreyWhite {
     background: #767575;
     color: #fff;
@@ -9151,7 +9171,7 @@ p {
     margin: 1px 0px 1px 0px;
     padding: 2px 0px 2px 0px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:425 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:445 */
 .fieldBlueWhite {
     background: #1e66d2;
     margin: 1px 0px 1px 0px;
@@ -9160,7 +9180,7 @@ p {
     font-size: 14px;
     text-align: center;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:434 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:454 */
 .fieldPurpleWhite {
     background: #99f;
     margin: 1px 0px 1px 0px;
@@ -9169,77 +9189,77 @@ p {
     font-size: 14px;
     text-align: center;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:444 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:464 */
 .txtM5 {
     /* https://www.w3schools.com/colors/colors_monochromatic.asp */
     color: #e1ecf9;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:447 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:467 */
 .txtM4 {
     color: #609ce1;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:450 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:470 */
 .txtM3 {
     color: #236ab9;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:453 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:473 */
 .txtM2 {
     color: #133863;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:456 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:476 */
 .txtM1 {
     color: #091d34;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:460 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:480 */
 .txtPurple {
     color: #735ce0;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:464 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:484 */
 .txtOrange {
     color: #ce7708;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:468 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:488 */
 .txtGrey {
     color: #98989b;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:472 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:492 */
 .txtGreen {
     color: #2c7607;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:476 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:496 */
 .txtRed {
     color: #d92435;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:480 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:500 */
 .txtBlue {
     color: #5c88e0;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:484 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:504 */
 .txtBold {
     font-weight: bold;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:488 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:508 */
 .green_round {
     margin: 5px;
     padding: 5px;
     border: 2px solid #0ca630;
     background: #d0f8da;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:495 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:515 */
 .blue_round {
     margin: 5px;
     padding: 5px;
     border: 2px solid #4a709b;
     background: #d3dfec;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:502 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:522 */
 .red_round {
     margin: 5px;
     padding: 5px;
     border: 2px solid #d92435;
     background: #f1e2e2;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:509 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:529 */
 .fileViewer {
     padding: 10px;
     margin: 2px;
@@ -9248,30 +9268,30 @@ p {
     opacity: 0.9;
     filter: opacity=90;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:518 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:538 */
 .ux-filtered-column .x-column-header-inner {
     background-image: url(images/16x16/filter.png) !important;
     background-repeat: no-repeat;
     padding-left: 16px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:525 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:545 */
 .x-grid-cell-inner-treecolumn .admin {
     /* Treeview does not support Glyphs yet */
     background-image: url(images/16x16/list.png) !important;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:529 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:549 */
 .x-grid-cell-inner-treecolumn .users {
     background-image: url(images/16x16/users.png) !important;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:533 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:553 */
 .x-grid-cell-inner-treecolumn .user {
     background-image: url(images/16x16/user.png) !important;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:537 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:557 */
 .list {
     background-image: url(images/16x16/list.png) !important;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:546 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:566 */
 .mapInfoDiv {
     /*----------------------------------------------------
     FIN: Desktop DataView
@@ -9280,18 +9300,18 @@ p {
     width: 350px;
     margin: 0px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:552 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:572 */
 .mapEditDiv {
     height: 190px;
     width: 350px;
     margin: 0px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:558 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:578 */
 .divMapAction {
     margin: 5px;
     padding: 5px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:563 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:583 */
 .lblMap {
     width: 120px;
     float: left;
@@ -9300,128 +9320,128 @@ p {
     font-size: 14px;
     margin: 1px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:572 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:592 */
 .lblValue {
     text-align: left;
     font-size: 14px;
     margin: 1px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:578 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:598 */
 .subTab {
     background: #ebebeb;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:582 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:602 */
 .subSubTab {
     background: #bfbfbf;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:587 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:607 */
 .bodyCls {
     background-color: white;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:591 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:611 */
 .new {
     background-color: #12f6f9;
     font-style: italic;
     font-size: 12px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:598 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:618 */
 .combo-wrapper {
     border: 1px solid #ccc;
     padding: 1px;
     margin: 2px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:604 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:624 */
 .combo-wrapper img {
     float: right;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:608 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:628 */
 .combo-country {
     font-weight: bold;
     font-size: 16px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:613 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:633 */
 .combo-language {
     font-size: 12px;
     color: #666;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:618 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:638 */
 .combo-main {
     font-weight: bold;
     font-size: 14px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:623 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:643 */
 .combo-detail {
     color: #392bef;
     font-size: 12px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:629 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:649 */
 .x-grid-row-summary .x-grid-cell-inner {
     font-weight: bold;
     font-size: 12px;
     color: #0652c3;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:636 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:656 */
 .x-progress.wifired .x-progress-bar {
     /*Red progressbar */
     background-color: #e00404;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:641 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:661 */
 .x-progress.wifiyellow .x-progress-bar {
     /*Yello progressbar */
     background-color: #f90;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:646 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:666 */
 .x-progress.wifigreen .x-progress-bar {
     /*Green progressbar*/
     background-color: #1a9406;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:651 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:671 */
 .x-progress.wifigrey .x-progress-bar {
     /*Grey progressbar*/
     background-color: #555353;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:656 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:676 */
 .conn {
     height: 250px;
     width: 350px;
     margin: 0px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:662 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:682 */
 .grpInfo {
     color: grey;
     font-size: 10px;
     font-style: italic;
     font-weight: lighter;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:669 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:689 */
 .grpNever {
     color: #1383bd;
     font-size: 14px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:674 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:694 */
 .grpUp {
     color: green;
     font-size: 14px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:679 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:699 */
 .grpDown {
     color: red;
     font-size: 14px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:685 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:705 */
 .divTip {
     background: #595959;
     margin-top: 2px;
     padding: 5px 10px;
     color: #fff;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:692 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:712 */
 .divInfo {
     color: #0273b1;
     text-align: center;
     padding: 10px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:699 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:719 */
 .node {
     background-color: transparent;
     font-weight: bold;
@@ -9431,48 +9451,48 @@ p {
     text-align: center;
     padding: 40px 10px 10px 10px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:709 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:729 */
 .node:hover {
     color: #393434;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:713 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:733 */
 .hidden {
     display: none;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:717 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:737 */
 .lightGreen {
     background-color: #eaffea;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:721 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:741 */
 .lightBlue {
     background-color: #e9fdff;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:725 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:745 */
 .lightGrey {
     background-color: #dcdcdc;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:729 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:749 */
 .lightRed {
     background-color: #ffecec;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:733 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:753 */
 .sectionHeader {
     color: white;
     background-color: grey;
     padding: 1px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:739 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:759 */
 .sectionHeader h2 {
     margin: 2px;
     padding: 2px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:744 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:764 */
 .twoColumnContainer {
     width: 700px;
     overflow: hidden;
     display: inline-block;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:750 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:770 */
 .twoColumnItem {
     position: relative;
     float: left;
@@ -9482,7 +9502,7 @@ p {
     margin-top: 10px;
     background-color: #d7d7d4;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:760 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:780 */
 .lblTipItem {
     width: 120px;
     float: left;
@@ -9492,14 +9512,14 @@ p {
     margin: 1px;
     font-weight: bold;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:770 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:790 */
 .lblTipValue {
     text-align: left;
     font-size: 14px;
     margin: 1px;
     color: #fff;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:777 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:797 */
 .lblTipItemL {
     width: 120px;
     float: left;
@@ -9508,45 +9528,45 @@ p {
     font-size: 14px;
     margin: 1px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:786 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:806 */
 .lblTipValueL {
     text-align: left;
     font-size: 14px;
     margin: 1px;
     color: #005691;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:794 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:814 */
 .custom-color-picker-swatch {
     z-index: 10 !important;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:798 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:818 */
 .pnlInfo {
     background: #edf3f5;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:803 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:823 */
 .box {
     border: 2px solid #000;
     margin: 0 auto 5px;
     padding: 5px;
     font-size: 14px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:810 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:830 */
 .even {
     background-color: #ddd;
     border-color: #aaa;
     color: #5e5e5e;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:816 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:836 */
 .odd {
     background-color: #e8cdcc;
     border-color: #828282;
     color: #5e5e5e;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:822 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:842 */
 .x-togglefield-on .x-slider:before {
     background-color: green;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:830 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:850 */
 .x-grid-filters-filtered-column .x-column-header-text-inner:before {
     /* Filter On Grids 
 ----------------------*/
@@ -9555,33 +9575,33 @@ p {
     content: "\f0b0";
     display: inline-block;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:837 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:857 */
 .x-grid-filters-filtered-column .x-column-header-text-inner {
     color: #588ce0;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:841 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:861 */
 .x-form-cb-default {
     margin-top: 7px;
     padding-top: 1px;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:847 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:867 */
 .info_bnr_column {
     /* 30/62020 MAPS */
     float: left;
     width: 33.33%;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:853 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:873 */
 .info_bnr_row:after {
     /* Clear floats after the columns */
     content: "";
     display: table;
     clear: both;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:859 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:879 */
 .info_bnr_container {
     position: relative;
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:863 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:883 */
 .info_bnr_vertical-center {
     margin: 0;
     position: absolute;
@@ -9589,7 +9609,7 @@ p {
     -ms-transform: translateY(-50%);
     transform: translateY(-50%);
 }
-/* /var/www/rdcore/rd/classic/sass/src/Application.scss:871 */
+/* /var/www/rdcore/rd/classic/sass/src/Application.scss:891 */
 .info_bnr_place {
     font-size: 20px;
 }

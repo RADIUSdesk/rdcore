@@ -26,7 +26,7 @@ Ext.define('Rd.view.profileComponents.pnlProfileComponents', {
 
         //Create the view for the wallpapers:
 
-        var imageTpl = new Ext.XTemplate(
+         var imageTpl = new Ext.XTemplate(
             '<tpl for=".">',
                 '<div class="plain-wrap">',
                 	'<tpl if="type==\'profile_component\'">',
@@ -40,9 +40,9 @@ Ext.define('Rd.view.profileComponents.pnlProfileComponents', {
                 	'</tpl>',
                 	
                 	'<tpl if="type==\'check\'">',
-                		'<div class="sub-check">', //FIXME Create a class for check in CSS
+                		'<div class="sub-check">', 
                 			'<div style="font-size:10px;color:#acacad;text-align:center;padding:2px;">CHECK</div>',
-		            		'<div style="font-size:18px;color:#016316;padding:2px;">{attribute} <span style="color:#161617;">{op}</span> <span style="color:#0539f5;">{value}</span></div>',
+		            		'<div style="font-size:1.2em;color:#2642ab;padding:2px;">{attribute} <span style="color:#161617;">{op}</span> <span style="color:#016316;">{value}</span></div>',
 		            		'<tpl if="comment!==\'\'">',
 		            			'<div style="font-size:12px;color:#747475;text-align:left;padding:5px;"><i>{comment}</i></div>',
 		            		'</tpl>',
@@ -50,9 +50,9 @@ Ext.define('Rd.view.profileComponents.pnlProfileComponents', {
                 	'</tpl>',
                 	
                 	'<tpl if="type==\'reply\'">',
-                		'<div class="sub">',
+                		'<div class="sub-reply">',
                 			'<div style="font-size:10px;color:#acacad;text-align:center;padding:2px;">REPLY</div>',
-		            		'<div style="font-size:18px;color:#016316;padding:2px;">{attribute} <span style="color:#161617;">{op}</span> <span style="color:#0539f5;">{value}</span></div>', 
+		            		'<div style="font-size:1.2em;color:#2642ab;padding:2px;">{attribute} <span style="color:#161617;">{op}</span> <span style="color:#016316;">{value}</span></div>', 
 		            		'<tpl if="comment!==\'\'">',
 		            			'<div style="font-size:12px;color:#747475;text-align:left;padding:5px;"><i>{comment}</i></div>',
 		            		'</tpl>',
@@ -61,7 +61,7 @@ Ext.define('Rd.view.profileComponents.pnlProfileComponents', {
                 	
                 	'<tpl if="type==\'add\'">',
                 		'<div style="margin-bottom:40px;padding:5px;cursor:move;font-size:18px;color:green;text-align:right;">',
-                			'<span style="padding:5px;border:1px solid #76cf15;" onMouseOver="this.style.background=\'#76cf15\'" onMouseOut="this.style.background=\'#FFF\'"><i class="fa fa-plus"></i> NEW PROFILE COMPONENT ENTRY</span>',
+                			'<span style="padding:5px;border:1px solid #76cf15;" onMouseOver="this.style.background=\'#76cf15\'" onMouseOut="this.style.background=\'#FFF\'"><i class="fa fa-plus"></i> NEW ENTRY</span>',
                 		'</div>', 
                 	'</tpl>',
                 '</div>',
