@@ -14,6 +14,7 @@ use Cake\Datasource\FactoryLocator;
 class MigrateShell extends Shell {
 
 	protected $root_id = 44;
+	protected $ap_cloud = [];
 
     public function main(){
     
@@ -30,8 +31,28 @@ class MigrateShell extends Shell {
 		foreach($l_realms as $r){		
 			$this->realmToCloud($r);
 		}
+		
+		print_r($this->ap_cloud);
+		$this->apId2CloudId('DynamicDetails');
+		//Then all the dependency tables:
+		$this->oneToOne('DataCollectors');
+		$this->oneToOne('DynamicDetailCtcs');
+		$this->oneToOne('DynamicDetailMobiles');
+		$this->oneToOne('DynamicDetailPrelogins');
+		$this->oneToOne('DynamicDetailSocialLogins');
+		$this->oneToOne('DynamicDetailTransKeys');
+		$this->oneToOne('DynamicPages');
+		$this->oneToOne('DynamicPairs');
+		$this->oneToOne('DynamicPhotos');
+		
+		
+		$this->apId2CloudId('DynamicClients');
+		
+		$this->oneToOne('DynamicClientRealms');
+		$this->oneToOne('DynamicClientStates');
+		
 			
-					
+				
 		$this->oneToOne('UserStats');
 		$this->oneToOne('UserStatsDailies');
 		$this->oneToOne('Radaccts');
@@ -42,7 +63,41 @@ class MigrateShell extends Shell {
        	$this->oneToOne('Radpostauths');
        	//$this->oneToOne('Radreplies');
        	$this->oneToOne('Radusergroups');
+       
 
+  	}
+  	
+  	
+  	function apId2CloudId($table){
+  		$this->out("Convert AP id to Cloud ID in $table");
+  		
+  		$l_orig = [];
+  		
+  		ConnectionManager::alias('cake3', 'default');
+		$this->getTableLocator()->clear();			
+		$ec = \Cake\ORM\TableRegistry::getTableLocator()->get("$table")->find()->all();	
+		foreach($ec as $e){
+			array_push($l_orig,$e->toArray());
+		}
+		
+		ConnectionManager::dropAlias('default');
+		$this->getTableLocator()->clear();		
+		$t = \Cake\ORM\TableRegistry::getTableLocator()->get("$table");
+		
+		foreach($l_orig as $item){			
+			$id  	= $item['id'];
+			$where 	= "$table".".id";
+			$e   = $t->find()->where([$where => $id])->first();
+			if(!$e){
+				$ap_id = $item['user_id'];
+				unset($item['user_id']);
+				unset($item['created']);
+				unset($item['modified']);
+				$item['cloud_id'] = $this->ap_cloud[$ap_id];										
+				$e = $t->newEntity($item);
+				$t->save($e);				
+			}		
+		}	
   	}
   	
   	function oneToOne($table){
@@ -85,8 +140,9 @@ class MigrateShell extends Shell {
 		$this->getTableLocator()->clear();
 		
 		$name 			= $r['name'];
+		$orig_user_id	= $r['user_id'];
 		$r['user_id'] 	= $this->root_id;
-		unset($r['id']);
+		//unset($r['id']);
 		unset($r['created']);
 		unset($r['modified']);
 		
@@ -99,6 +155,8 @@ class MigrateShell extends Shell {
 		}
 	
 		$r['cloud_id'] 	= $e_cloud->id;
+		
+		$this->ap_cloud[$orig_user_id] = $e_cloud->id;
 		
 		$t_realms = \Cake\ORM\TableRegistry::getTableLocator()->get("Realms");
 		$e_realm  = $t_realms->find()->where(['Realms.name' => $name])->first();
@@ -130,6 +188,7 @@ class MigrateShell extends Shell {
 		$l_profile_comps 	= [];
 		$l_profile_components = [];	
 		
+						
 		$t_permanent_users 	= \Cake\ORM\TableRegistry::getTableLocator()->get("PermanentUsers");
 		$ec_permanent_users = $t_permanent_users->find()->where(['PermanentUsers.realm' => $name])->all();
 		$t_radchecks 		= \Cake\ORM\TableRegistry::getTableLocator()->get("Radchecks");
@@ -186,11 +245,12 @@ class MigrateShell extends Shell {
 		ConnectionManager::dropAlias('default');
 		$this->getTableLocator()->clear();
 		
+		
 		//-- Start with new profile
 		foreach($l_profiles as $p){		
 			//Check if there are not already a Profile with this name
 			$name 	= $p['name'];
-			unset($p['id']);
+		//	unset($p['id']);
 			unset($p['created']);
 			unset($p['modified']);
 			$p['cloud_id'] 	= $e_cloud->id;						
@@ -204,7 +264,7 @@ class MigrateShell extends Shell {
 		
 		//-- Now Profile Components --
 		foreach($l_profile_components as $pc){
-			unset($pc['id']);
+		//	unset($pc['id']);
 			unset($pc['created']);
 			unset($pc['modified']);
 			$pc['cloud_id'] 	= $e_cloud->id;
@@ -218,7 +278,7 @@ class MigrateShell extends Shell {
 		//-- Then Permanent Users --
 		foreach($l_permanent_users as $pu){	
 			$username 	= $pu['username'];
-			unset($pu['id']);
+		//	unset($pu['id']);
 			unset($pu['created']);
 			unset($pu['modified']);
 			//Set the profile_id; realm_id; cloud_id

@@ -10,6 +10,7 @@ use Cake\Routing\Router;
 class FreeRadiusBehavior extends Behavior {
 
     protected $Radchecks;
+    protected $Radreplies;
     
     protected $_defaultConfig = [
         'for_model' => 'Vouchers' //Can be Vouchers / PermanentUsers / Devices

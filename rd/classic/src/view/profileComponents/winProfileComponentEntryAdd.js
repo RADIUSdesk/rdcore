@@ -27,15 +27,7 @@ Ext.define('Rd.view.profileComponents.winProfileComponentEntryAdd', {
         var me 		= this; 
         me.setTitle('Add Profile Component Entry For '+me.profile_component_name);
         
-       	var states = Ext.create('Ext.data.Store', {
-			fields: ['abbr', 'name'],
-			data : [
-				{"abbr":"AL", "name":"Alabama"},
-				{"abbr":"AK", "name":"Alaska"},
-				{"abbr":"AZ", "name":"Arizona"}
-			]
-		});
-		
+      	
 		var s = Ext.create('Ext.data.Store', {
             fields: ['id', 'name'],
             data : [                            
