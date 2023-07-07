@@ -326,17 +326,13 @@ class RadpostauthsController extends AppController {
                 ]
             ]);
 
-            
-
-            if($this->Acl->check(['model' => 'Users', 'foreign_key' => $id], $this->base.'export_csv')){
-                array_push($document_group,[
-                    'xtype'     => 'button', 
-                    'iconCls'   => 'b-csv',
-                    'glyph'     => Configure::read('icnCsv'),     
-                    'scale'     => 'large', 
-                    'itemId'    => 'csv',      
-                    'tooltip'   => __('Export CSV')]);
-            }
+		    array_push($document_group,[
+		        'xtype'     => 'button', 
+		        'iconCls'   => 'b-csv',
+		        'glyph'     => Configure::read('icnCsv'),     
+		        'scale'     => 'large', 
+		        'itemId'    => 'csv',      
+		        'tooltip'   => __('Export CSV')]);
 
             $menu = [
                         ['xtype' => 'buttongroup','title' => null,                 'items' => $action_group],

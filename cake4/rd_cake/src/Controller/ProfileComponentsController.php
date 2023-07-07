@@ -502,9 +502,10 @@ class ProfileComponentsController extends AppController {
     
     	$req_d	  = $this->request->getData();       	        	      
     	if($this->request->getData('for_system')){
-    		$req_d['cloud_id'] = -1;
-	    }
-	        
+    		if($this->request->getData('for_system') !== 'null'){
+    			$req_d['cloud_id'] = -1;
+    		}
+	    }    	        
                   
         if($type == 'add'){ 
             $entity = $this->{$this->main_model}->newEntity($req_d);
