@@ -168,7 +168,7 @@ Ext.define('Rd.view.dashboard.winDashboardSettings', {
                                         itemId      : 'chkWlActive',      
                                         fieldLabel  : i18n('sActivate'),
                                         name        : 'wl_active',
-                                        inputValue  : 'wl_active',
+                                        //inputValue  : 'wl_active',
                                         checked     : false,
                                         listeners   : {
                                             change : 'onChkWlActiveChange'
@@ -222,7 +222,7 @@ Ext.define('Rd.view.dashboard.winDashboardSettings', {
                                         itemId      : 'chkWlImgActive',      
                                         fieldLabel  : 'Include Logo',
                                         name        : 'wl_img_active',
-                                        inputValue  : 'wl_img_active',
+                                        //inputValue  : 'wl_img_active',
                                         checked     : false,
                                         disabled    : true,
                                         listeners   : {

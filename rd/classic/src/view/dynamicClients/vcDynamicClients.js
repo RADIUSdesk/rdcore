@@ -11,9 +11,7 @@ Ext.define('Rd.view.dynamicClients.vcDynamicClients', {
         var me      = this;
         var form    = cmb.up('form');
         var cnt     = form.down('#pnlMikrotik');
-        var cntPsk  = form.down('#pnlPrivatePsk');
-        
-          
+        var cntPsk  = form.down('#pnlPrivatePsk');       
         if(cmb.getValue() == 'Mikrotik-API'){
             cnt.setHidden(false);
             cnt.setDisabled(false);

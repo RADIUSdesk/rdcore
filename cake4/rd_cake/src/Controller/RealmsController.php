@@ -162,7 +162,10 @@ class RealmsController extends AppController{
         $this->set([
             'items' => $items,
             'success' => true,
-            'totalCount' => $total
+            'totalCount' => $total,
+            'metaData'		=> [
+            	'total'	=> $total
+            ]
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
@@ -194,7 +197,11 @@ class RealmsController extends AppController{
 		
         foreach($check_items as $i){
             if(isset($req_d[$i])){
-                $req_d[$i] = 1;
+            	if($req_d[$i] == 'null'){
+                	$req_d[$i] = 0;
+                }else{
+                	$req_d[$i] = 1;
+                }  
             }else{
                 $req_d[$i] = 0;
             }
@@ -415,6 +422,79 @@ class RealmsController extends AppController{
         ]); 
         $this->viewBuilder()->setOption('serialize', true); 
     }
+    
+    public function viewRealmsForDynamicClient(){
+    
+    	$user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+        
+        $req_q    	= $this->request->getQuery();    
+        $a_to_all 	= true;        
+        $e_list 	= $this->DynamicClientRealms->find()->where(['DynamicClientRealms.dynamic_client_id' => $req_q['dynamic_client_id']])->all();    
+        $realms 	= [];
+        
+        foreach($e_list as $e){
+        	array_push($realms,$e->realm_id);
+        	$a_to_all = false;
+        }
+    
+    	$data = [
+    		'available_to_all'  => $a_to_all,
+    		'realms'			=> $realms
+    	];
+    
+    	 $this->set([
+            'data'     		=> $data,
+            'success'   	=> true
+        ]); 
+        $this->viewBuilder()->setOption('serialize', true);   
+    }
+    
+    public function editRealmsForDynamicClient(){
+    
+    	if (!$this->request->is('post')) {
+			throw new MethodNotAllowedException();
+		}
+		
+		$user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+    
+    	$req_d	  = $this->request->getData();
+    	
+    	if(isset($req_d['available_to_all'])){
+    		if($req_d['available_to_all'] !== 'null'){
+    			$this->DynamicClientRealms->deleteAll(['DynamicClientRealms.dynamic_client_id' => $this->request->getData('id')]);	
+    		}   	
+    	}
+    	
+    	if(isset($req_d['realms'])){   	
+    		$this->DynamicClientRealms->deleteAll(['DynamicClientRealms.dynamic_client_id' => $this->request->getData('id')]);	//Clear the old ones	
+    		if(str_contains($req_d['realms'], ',')) {		
+				foreach(explode(',',$req_d['realms']) as $realm_id){
+					$entity = $this->DynamicClientRealms->newEmptyEntity();
+		            $entity->dynamic_client_id = $this->request->getData('id');
+		            $entity->realm_id =  $realm_id;
+		            $this->DynamicClientRealms->save($entity);
+				}
+			}else{
+				$entity = $this->DynamicClientRealms->newEmptyEntity();
+	            $entity->dynamic_client_id = $this->request->getData('id');
+	            $entity->realm_id =  $req_d['realms'];
+	            $this->DynamicClientRealms->save($entity);	
+			}  	
+    	}
+    	   
+    	 $this->set([
+            'data'     		=> $req_d,
+            'success'   	=> true
+        ]); 
+        $this->viewBuilder()->setOption('serialize', true);   
+    }
+    
     
     public function updateDynamicClientRealm(){
      

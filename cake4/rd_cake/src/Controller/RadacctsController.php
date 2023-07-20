@@ -1,14 +1,20 @@
 <?php
 
 namespace App\Controller;
-
+use Cake\I18n\FrozenTime;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 
 class RadacctsController extends AppController {
 
-    protected $main_model = 'Radaccts';
-    public $base    = "Access Providers/Controllers/Radaccts/";
+    protected $main_model 	= 'Radaccts';
+    public $base    		= "Access Providers/Controllers/Radaccts/"; 
+    protected $time_zone    = 'UTC'; //Default for timezone 
+    protected  $fields  	= [
+        'total_in' => 'sum(Radaccts.acctinputoctets)',
+        'total_out' => 'sum(Radaccts.acctoutputoctets)',
+        'total' => 'sum(Radaccts.acctoutputoctets) + sum(Radaccts.acctinputoctets)',
+    ];
 
     public function initialize():void
     {
@@ -219,6 +225,148 @@ class RadacctsController extends AppController {
         ]);     
         $this->viewBuilder()->setOption('serialize', true);  
         
+    }
+    
+    public function indexWithSpan(){
+      
+        //__ Authentication + Authorization __
+        $user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+
+        $user_id	= $user['id'];      
+        $now    	= FrozenTime::now(); 
+        $day    	= $now->year.'-'.$now->month.'-'.$now->day;  
+        $span   	= 'daily';      //Can be daily weekly or monthly
+        $type       = 'permanent';
+       
+        if($this->request->getQuery('day')){
+            //Format will be: 2013-09-18T00:00:00
+            $pieces = explode('T',$this->request->getQuery('day'));
+            $day = $pieces[0];
+        }      
+        
+        //==== TIMEZONE ======
+        $tz = 'UTC';     
+        if($this->request->getQuery('timezone_id') != null){
+            $tz_id = $this->request->getQuery('timezone_id');
+            $ent = $this->{'Timezones'}->find()->where(['Timezones.id' => $tz_id])->first();
+            if($ent){
+                $tz = $ent->name;
+            }
+        }        
+        $time 		= new FrozenTime("$day 00:00:00", $tz);
+        
+        //=== Span ====        
+        if($this->request->getQuery('span')){
+        	$span = $this->request->getQuery('span');
+        }
+        
+        $slot_start = $time->startOfDay(); //Default is daily
+        $slot_end	= $time->endOfDay();
+        
+       	if($span	== 'weekly'){
+        	$slot_start = $time->startOfWeek();
+        	$slot_end	= $time->endOfWeek();	       
+        }
+        
+        if($span	== 'monthly'){
+        	$slot_start = $time->startOfMonth();
+        	$slot_end	= $time->endOfMonth();	       
+        }
+               
+        $conditions = [];
+    	array_push($conditions,["acctstarttime >=" => $slot_start]);
+    	array_push($conditions,["acctstarttime <=" => $slot_end]);
+    	
+    	//==== type === (can be cloud, dynamic_client, realm, permanent, voucher, device
+    	if($this->request->getQuery('type')){
+			$type = $this->request->getQuery('type');
+    	}
+    	
+    	if($type == 'cloud'){
+    	
+    		//====== CLOUD's Realms FILTER =====  
+		  	$this->loadModel('Realms'); 	
+		  	$realm_clause = [];
+		  	$found_realm  = false;
+		 	$q_realms  = $this->{'Realms'}->find()->where(['Realms.cloud_id' => $this->request->getQuery('cloud_id')])->all();
+		  	foreach($q_realms as $r){
+		  		$found_realm = true;
+		      	array_push($realm_clause, [$this->main_model.'.realm' => $r->name]);
+		 	}
+		 	if($found_realm){
+		 		array_push($conditions, ['OR' => $realm_clause]);
+		 	}else{
+		 		$this->Aa->fail_no_rights("No Realms owned by this cloud"); //If the list of realms for this cloud is empty reject the request
+		    	return false;
+		 	}      
+		    //====== END Realm FILTER =====     	    	
+    	}
+    	
+    	if($type == 'realm'){
+    		$this->loadModel('Realms');
+    		$e_realm = $this->{'Realms'}->find()->where(['Realms.id' => $this->request->getQuery('username')])->first();
+    		if($e_realm){
+    			array_push($conditions,["Radaccts.realm" => $e_realm->name]);
+    		} 	
+    	}
+    	
+    	if($type == 'dynamic_client'){
+    		$this->loadModel('DynamicClients');
+    		$e_dc = $this->DynamicClients->find()->where(['DynamicClients.id' => $this->request->getQuery('username')])->first();
+    		if($e_dc){
+    			array_push($conditions,["Radaccts.nasidentifier" => $e_dc->nasidentifier]);
+    		} 	
+    	}
+    	
+    	if(($type == 'permanent')||($type == 'voucher')){
+    		array_push($conditions,["Radaccts.username" => $this->request->getQuery('username')]);
+    	}
+    	
+    	if($type == 'device'){
+    		array_push($conditions,["Radaccts.callingstationid" => $this->request->getQuery('username')]);
+    	}
+    	   	
+    	$t_q = $this->{$this->main_model}->find()->where($conditions)->select($this->fields)->first();	
+    		      
+        $total 		= $this->{$this->main_model}->find()->where($conditions)->count();
+        $e_radaccts = $this->{$this->main_model}->find()->where($conditions)->order(['Radaccts.acctstarttime' => 'DESC'])->all();       
+        $items		= [];
+        
+        foreach($e_radaccts as $e_ra){  
+        
+        	$e_ra->user_type      = 'unknown';
+            $e_ra->online_human   = '';
+
+            if($e_ra->acctstoptime == null){
+                $online_time    	  = time()-strtotime($e_ra->acctstarttime);
+                $e_ra->active         = true; 
+                $e_ra->online_human   = $this->TimeCalculations->time_elapsed_string($e_ra->acctstarttime,false,true);
+            }else{
+                $online_time    	  = $e_ra->acctstoptime->setTimezone($tz)->format('Y-m-d H:i:s');
+                $e_ra->active         = false;
+                $e_ra->online_human   = $this->TimeCalculations->time_elapsed_string($e_ra->acctstarttime,false,true);                        
+           	}
+           
+           $e_ra->acctstarttime 	= $e_ra->acctstarttime->setTimezone($tz)->format('Y-m-d H:i:s');
+           $e_ra->acctstoptime		= $online_time;
+           
+            
+        	array_push($items,$e_ra);        
+        }
+     
+        $this->set([
+        	'items'			=> $items,
+            'success'       => true,
+            'metaData'      => [
+                'totalIn'       => $t_q->total_in,
+                'totalOut'      => $t_q->total_out,
+                'totalInOut'    => $t_q->total,
+            ]
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
     }
     
     public function index(){

@@ -23,7 +23,7 @@ Ext.define('Rd.view.profiles.pnlDataLimit', {
 			    userCls     : 'sldrDark',
 			    name        : 'data_limit_enabled',
 			    itemId      : 'data_limit_enabled',
-			    value       : 1,
+			  //  value       : 0,
 			    listeners   : {
 					change  : 'sldrToggleChange'
 				}

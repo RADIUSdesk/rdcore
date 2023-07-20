@@ -37,6 +37,12 @@ Ext.define('Rd.controller.cProfileFup', {
         function (tab){
             return tab.getItemId() === id;
         });
+        
+        var dd      = Ext.getApplication().getDashboardData();
+        var root    = false;
+        if(dd.isRootUser){
+            root = true   
+        }
          
         if (!newTab){
             newTab = tp.add({
@@ -46,7 +52,8 @@ Ext.define('Rd.controller.cProfileFup', {
                 xtype   		: 'pnlEditProfileFup',
                 itemId  		: id,
                 profileId       : profile_id,
-				store			: store
+				store			: store,
+				root			: root
             });
         }    
         tp.setActiveTab(newTab);    

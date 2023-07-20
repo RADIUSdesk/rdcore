@@ -74,6 +74,11 @@ class ProfilesController extends AppController
             $name                   = $i->name;
             $data_cap_in_profile    = false; 
             $time_cap_in_profile    = false; 
+            
+            $for_system = false;
+            if($i->cloud_id == -1){
+            	$for_system = true;
+            } 
 
             foreach ($i->radusergroups as $cmp){
                 foreach ($cmp->radgroupchecks as $radgroupcheck) {
@@ -90,7 +95,8 @@ class ProfilesController extends AppController
                             'id'                    => $id, 
                             'name'                  => $name,
                             'data_cap_in_profile'   => $data_cap_in_profile,
-                            'time_cap_in_profile'   => $time_cap_in_profile
+                            'time_cap_in_profile'   => $time_cap_in_profile,
+                            'for_system'			=> $for_system
                         )
                     );
         } 
@@ -183,6 +189,25 @@ class ProfilesController extends AppController
         if(!$user){
             return;
         }
+        
+        $this->reqData 	= $this->request->getData();
+        $cloud_id		= $this->reqData['cloud_id'];
+        if(isset($this->reqData['for_system'])){
+            if($this->reqData['for_system'] == 'null'){
+            	$cloud_id = $this->reqData['cloud_id'];
+            }else{
+            	$cloud_id = -1;
+            }              
+        }
+        
+        if(isset($this->reqData['id'])){
+		    $e_profile = $this->{'Profiles'}->find()->where(['Profiles.id' => $this->reqData['id']])->first();     
+		    if($e_profile){      
+		    	$e_profile->cloud_id = $cloud_id;
+		    	$this->{$this->main_model}->save($e_profile);     
+		    }
+		}
+             
         $user_id    = $user['id'];
         $rb         = $this->request->getData('rb'); 
 
@@ -196,12 +221,16 @@ class ProfilesController extends AppController
             if(preg_match('/^\d+/',$key)){
                 if($rb == 'remove'){
                     $entity         = $this->{$this->main_model}->get($key);
+                    $entity->cloud_id = $cloud_id;
+		    		$this->{$this->main_model}->save($entity);
                     $profile_name   = $entity->name;
                     $this->Radusergroups->deleteAll(['Radusergroups.username' => $profile_name,'Radusergroups.groupname' => $component_name]);
                 }
                
                 if($rb == 'add'){
                     $entity         = $this->{$this->main_model}->get($key);
+                    $entity->cloud_id = $cloud_id;
+		    		$this->{$this->main_model}->save($entity);
                     $profile_name   = $entity->name;
                     
                     $this->Radusergroups->deleteAll(['Radusergroups.username' => $profile_name,'Radusergroups.groupname' => $component_name]);
@@ -275,11 +304,16 @@ class ProfilesController extends AppController
 		
         $check_items = [
 			'data_limit_mac',
-			'time_limit_mac'	
+			'time_limit_mac',
+			'for_system'	
 		];
         foreach($check_items as $i){
             if(isset($this->reqData[$i])){
-                $this->reqData[$i] = 1;
+                if($this->reqData[$i] == 'null'){
+                	$this->reqData[$i] = 0;
+                }else{
+                	$this->reqData[$i] = 1;
+                }  
             }else{
                 $this->reqData[$i] = 0;
             }
@@ -291,7 +325,7 @@ class ProfilesController extends AppController
             'data_limit_enabled',
             'session_limit_enabled',
             'adv_data_limit_enabled',
-            'adv_time_limit_enabled'
+            'adv_time_limit_enabled',
         ];
         
         foreach($t_f_settings as $i){
@@ -305,6 +339,13 @@ class ProfilesController extends AppController
 		  		$this->reqData[$i] = 0;
 		  	}
         }
+        
+        if($this->reqData['for_system'] == 1){
+        	$this->reqData['cloud_id'] = -1;
+        }else{
+        	$this->reqData['cloud_id'] = $this->request->getData('cloud_id');
+        }
+        
        
         $entity = $this->{$this->main_model}->newEntity($this->reqData);
         
@@ -346,11 +387,16 @@ class ProfilesController extends AppController
 
         $check_items = [
 			'data_limit_mac',
-			'time_limit_mac'	
+			'time_limit_mac',
+			'for_system'	
 		];
         foreach($check_items as $i){
             if(isset($this->reqData[$i])){
-                $this->reqData[$i] = 1;
+                if($this->reqData[$i] == 'null'){
+                	$this->reqData[$i] = 0;
+                }else{
+                	$this->reqData[$i] = 1;
+                }              
             }else{
                 $this->reqData[$i] = 0;
             }
@@ -362,15 +408,25 @@ class ProfilesController extends AppController
             'data_limit_enabled',
             'session_limit_enabled',
             'adv_data_limit_enabled',
-            'adv_time_limit_enabled',
+            'adv_time_limit_enabled'        
         ];
         
         foreach($t_f_settings as $i){
-            if($this->reqData[$i] === 'true'){
-                $this->reqData[$i] = 1;
-            }else{
-                $this->reqData[$i] = 0;
-            }
+        	if(isset($this->reqData[$i])){
+		        if($this->reqData[$i] === 'true'){
+		            $this->reqData[$i] = 1;
+		        }else{
+		            $this->reqData[$i] = 0;
+		        }
+		   	}else{
+		   		$this->reqData[$i] = 0;
+		   	}
+        }
+        
+        if($this->reqData['for_system'] == 1){
+        	$this->reqData['cloud_id'] = -1;
+        }else{
+        	$this->reqData['cloud_id'] = $this->request->getData('cloud_id');
         }
         
         $entity = $this->{$this->main_model}->get($this->reqData['id']);     
@@ -480,11 +536,21 @@ class ProfilesController extends AppController
             $ent = $this->{$this->main_model}->find()
                 ->where(['Profiles.id' => $profile_id])
                 ->first();
+           	
+           	
+           	
             if($ent){ 
+            
+            	$for_system = false;
+           		if($ent->cloud_id == -1){
+           			$for_system = true;
+           		}
+            
                 $pc_name        = $this->profCompPrefix.$ent->id;
                 $data           = $this->_getRadius($pc_name);                          
                 $data['id']     = $ent->id;
-                $data['name']   = $ent->name;            
+                $data['name']   = $ent->name;
+              	$data['for_system'] = $for_system;         
             }    
         } 
 	
@@ -518,9 +584,13 @@ class ProfilesController extends AppController
        	
        	foreach(array_keys($data) as $k){
        		$ent->{$k} = $data[$k];
-       	}             
-        
-	
+       	} 
+       	
+       	$ent->{'for_system'} = false;
+   		if($ent->cloud_id == -1){
+   			$ent->{'for_system'} = true;
+   		}           
+        	
 	    $this->set([
             'success' 	=> true,
             'data' 		=> $ent
@@ -535,20 +605,46 @@ class ProfilesController extends AppController
 			throw new MethodNotAllowedException();
 		}
 		
-		$this->reqData	= $this->request->getData();
+		$this->reqData	= $this->request->getData();	
+		
+		$check_items = [
+			'for_system'	
+		];
+        foreach($check_items as $i){
+            if(isset($this->reqData[$i])){
+            	if($this->reqData[$i] == 'null'){
+                	$this->reqData[$i] = 0;
+                }else{
+                	$this->reqData[$i] = 1;
+                }
+            }else{
+                $this->reqData[$i] = 0;
+            }
+        }		
 
         $t_f_settings = [
 			'fup_enabled',
 		];
 		
+		
 		foreach($t_f_settings as $i){
-            if($this->reqData[$i] === 'true'){
-                $this->reqData[$i] = 1;
-            }else{
-                $this->reqData[$i] = 0;
-            }
+        	if(isset($this->reqData[$i])){
+		        if($this->reqData[$i] === 'true'){
+		            $this->reqData[$i] = 1;
+		        }else{
+		            $this->reqData[$i] = 0;
+		        }
+		   	}else{
+		   		$this->reqData[$i] = 0;
+		   	}
         }
         
+        if($this->reqData['for_system'] == 1){
+        	$this->reqData['cloud_id'] = -1;
+        }else{
+        	$this->reqData['cloud_id'] = $this->request->getData('cloud_id');
+        }
+		    
         $profile_id		= $this->reqData['id'];
         $pc_name 		= $this->profCompPrefixFup.$profile_id;
 		$pc_name_simple = $this->profCompPrefix.$profile_id;
@@ -653,8 +749,7 @@ class ProfilesController extends AppController
                 'priority'  => 5
             ]
         );
-        $this->{'Radusergroups'}->save($ne);
-                		
+        $this->{'Radusergroups'}->save($ne);                		
 		$entity =  $this->{$this->main_model}->find()->where(['Profiles.id' => $profile_id])->first();
 		$this->{$this->main_model}->patchEntity($entity, $this->reqData); 		
 		if ($this->{$this->main_model}->save($entity)) {
@@ -752,38 +847,43 @@ class ProfilesController extends AppController
         
         if(isset($this->reqData['fup_bursting_on'])){ //IF bursting
         
-        	$d_bl = [
-                'groupname' => $groupname,
-                'attribute' => 'Rd-Fup-Burst-Limit',
-                'op'        => ':=',
-                'value'     => $this->reqData['fup_burst_limit'],
-                'comment'   => 'FupProfile'
-            ];
-            
-            $e_bl = $this->{'Radgroupchecks'}->newEntity($d_bl);
-            $this->{'Radgroupchecks'}->save($e_bl); 
-            
-            $d_bt = [
-                'groupname' => $groupname,
-                'attribute' => 'Rd-Fup-Burst-Time',
-                'op'        => ':=',
-                'value'     => $this->reqData['fup_burst_time'],
-                'comment'   => 'FupProfile'
-            ];
-            
-            $e_bt = $this->{'Radgroupchecks'}->newEntity($d_bt);
-            $this->{'Radgroupchecks'}->save($e_bt);
-            
-            $d_bth = [
-                'groupname' => $groupname,
-                'attribute' => 'Rd-Fup-Burst-Threshold',
-                'op'        => ':=',
-                'value'     => $this->reqData['fup_burst_threshold'],
-                'comment'   => 'FupProfile'
-            ];
-            
-            $e_bth = $this->{'Radgroupchecks'}->newEntity($d_bth);
-            $this->{'Radgroupchecks'}->save($e_bth);                  
+      
+        	if(!($this->reqData['fup_bursting_on'] == "null")){ //ExtJS Modern sets it to null if not selected
+        
+		    	$d_bl = [
+		            'groupname' => $groupname,
+		            'attribute' => 'Rd-Fup-Burst-Limit',
+		            'op'        => ':=',
+		            'value'     => $this->reqData['fup_burst_limit'],
+		            'comment'   => 'FupProfile'
+		        ];
+		        
+		        $e_bl = $this->{'Radgroupchecks'}->newEntity($d_bl);
+		        $this->{'Radgroupchecks'}->save($e_bl); 
+		        
+		        $d_bt = [
+		            'groupname' => $groupname,
+		            'attribute' => 'Rd-Fup-Burst-Time',
+		            'op'        => ':=',
+		            'value'     => $this->reqData['fup_burst_time'],
+		            'comment'   => 'FupProfile'
+		        ];
+		        
+		        $e_bt = $this->{'Radgroupchecks'}->newEntity($d_bt);
+		        $this->{'Radgroupchecks'}->save($e_bt);
+		        
+		        $d_bth = [
+		            'groupname' => $groupname,
+		            'attribute' => 'Rd-Fup-Burst-Threshold',
+		            'op'        => ':=',
+		            'value'     => $this->reqData['fup_burst_threshold'],
+		            'comment'   => 'FupProfile'
+		        ];
+		        
+		        $e_bth = $this->{'Radgroupchecks'}->newEntity($d_bth);
+		        $this->{'Radgroupchecks'}->save($e_bth); 
+		        
+		  	}                 
         }
         
         if((isset($this->reqData['fup_ip_pool']))&&($this->reqData['fup_ip_pool'] !== '')){ //IP Pool
@@ -1280,6 +1380,7 @@ class ProfilesController extends AppController
         foreach($e_chk as $e){       
             if($e->attribute == 'Rd-Reset-Type-Data'){
                 unset($data['data_limit_enabled']);
+                //$data['data_limit_enabled'] = true;
                 $data['data_reset'] = $e->value;  
             } 
             if($e->attribute == 'Rd-Cap-Type-Data'){

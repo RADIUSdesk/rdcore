@@ -39,7 +39,12 @@ Ext.define('Rd.view.profiles.pnlAddEditProfile', {
          var w_prim         = 550;
          var w_sec          = 350;
          var hide_multiple  = true;
-         var gen_height     = 150;         
+         var gen_height     = 150; 
+         
+        var hide_system = true;
+        if(me.root){
+            hide_system = false;
+        }        
            
 		// Are we creating a new one or editing an existing one?
 		var saveItemId = (me.profileId == 0) ? 'addsave' : 'editsave';
@@ -166,6 +171,13 @@ Ext.define('Rd.view.profiles.pnlAddEditProfile', {
 						itemId      : 'chkMultiple',
 						hidden      : hide_multiple
 					},
+					{
+                        xtype       : 'checkbox',      
+                        fieldLabel  : 'System Wide',
+                        name        : 'for_system',
+                        hidden      : hide_system,
+                        disabled    : hide_system
+                    },
                     {
 
                         xtype       : 'textfield',

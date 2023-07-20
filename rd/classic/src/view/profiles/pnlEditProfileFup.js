@@ -26,6 +26,11 @@ Ext.define('Rd.view.profiles.pnlEditProfileFup', {
         var me 	    = this;
         var w_prim  = 450;
         var w_sec   = 350;
+        
+        var hide_system = true;
+        if(me.root){
+            hide_system = false;
+        }  
  	
 		me.buttons  = [
             {
@@ -44,7 +49,14 @@ Ext.define('Rd.view.profiles.pnlEditProfileFup', {
                 xtype       : 'panel',
                 bodyStyle   : 'background: #f0f0f5',
                 bodyPadding : 10,
-                items       : [              
+                items       : [
+                	{
+                        xtype       : 'checkbox',      
+                        fieldLabel  : 'System Wide',
+                        name        : 'for_system',
+                        hidden      : hide_system,
+                        disabled    : hide_system
+                    },              
                     {
 					    xtype       : 'textfield',
 					    fieldLabel  : i18n("sName"),

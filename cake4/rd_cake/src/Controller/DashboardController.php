@@ -248,7 +248,8 @@ class DashboardController extends AppController{
             return;
         }
         $user_id    = $user['id']; 
-        $wl         = $this->WhiteLabel->detail($user_id);  
+        $wl         = $this->WhiteLabel->detail($user_id);
+
         $data       = $wl;         
         $e_user     = $this->{'Users'}->find()->where(['Users.id' => $user_id])->first();
 
@@ -279,7 +280,8 @@ class DashboardController extends AppController{
                 }
             }
 	    }
-	    
+	   
+	   	    
 	    $data['overviews_to_include[]'] = $active_overview_items;
 	    
 	    foreach($check_items as $i){
@@ -289,9 +291,9 @@ class DashboardController extends AppController{
                 if($q_rc->value == 1){
                     $val_rc = "$i";
                 }
-                $data["$i"] = $val_rc;
+                $data["$i"] = true; //19 July 23 - Make this 'true' to work with modern toolkit
             }else{
-            	$data["$i"] = 0;
+            	$data["$i"] = false;
             }   
         }
         if(isset($data['alert_activate'])){
@@ -303,6 +305,7 @@ class DashboardController extends AppController{
                 }  
             }
         } 
+                  
            
         $q_rr = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'realm_id'])->first();
         if($q_rr){
@@ -313,7 +316,7 @@ class DashboardController extends AppController{
             	$data['realm_id']   = intval($q_rr->value);
             }
         }
-        
+               
         $q_cloud = $this->UserSettings->find()->where(['user_id' => $user_id,'name' => 'cloud_id'])->first();
         if($q_cloud){
             $q_c                = $this->Clouds->find()->where(['id' => $q_cloud->value])->first();
@@ -323,7 +326,7 @@ class DashboardController extends AppController{
             	$data['cloud_id']   = intval($q_cloud->value);
             }
         }
-     
+          	    
         $this->set([
             'data'   => $data,
             'success' => true
@@ -372,7 +375,11 @@ class DashboardController extends AppController{
 		
         foreach($check_items as $i){
             if(isset($r_data[$i])){
-                $r_data[$i] = 1;
+            	if($r_data[$i] == 'null'){
+                	$r_data[$i] = 0;
+                }else{
+                	$r_data[$i] = 1;
+                }  
             }else{
                 $r_data[$i] = 0;
             }
@@ -474,16 +481,23 @@ class DashboardController extends AppController{
         }                    
         
         if (array_key_exists('overviews_to_include', $r_data)) {
-            if(!empty($r_data['overviews_to_include'])){
-                foreach($r_data['overviews_to_include'] as $e){
-                    if($e != ''){
-                        $s = $this->UserSettings->newEmptyEntity();
-                        $s->user_id = $user_id;
-                        $s->name    = $e;
-                        $s->value   = 1;
-                        $this->UserSettings->save($s);
-                    }    
-                }
+            if(!empty($r_data['overviews_to_include'])){               
+            	if(is_array($r_data['overviews_to_include'])){
+            		if(isset($r_data['overviews_to_include'][0])){
+		        		if(str_contains($r_data['overviews_to_include'][0], ',')) {
+		    				$r_data['overviews_to_include'] = explode(',',$r_data['overviews_to_include'][0]);
+		    			}
+		    		}          	           	
+		            foreach($r_data['overviews_to_include'] as $e){
+		                if($e != ''){
+		                    $s = $this->UserSettings->newEmptyEntity();
+		                    $s->user_id = $user_id;
+		                    $s->name    = $e;
+		                    $s->value   = 1;
+		                    $this->UserSettings->save($s);
+		                }    
+		            }
+		       	}
             }
         }
            

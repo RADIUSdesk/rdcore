@@ -73,17 +73,17 @@ class WhiteLabelComponent extends Component {
                  
                 if($item == 'wl_active'){
                     if($i->value == 0){
-                        $wl["$item"] = 0;
+                        $wl["$item"] = false;
                     }else{
-                        $wl["$item"] = 'wl_active';
+                        $wl["$item"] = true;
                     }      
                 }
                 
                 if($item == 'wl_img_active'){
                     if($i->value == 0){
-                        $wl["$item"] = 0;
+                        $wl["$item"] = false;
                     }else{
-                        $wl["$item"] = 'wl_img_active';
+                        $wl["$item"] = true;
                     }   
                 }
                 if($item == 'wl_img_file'){

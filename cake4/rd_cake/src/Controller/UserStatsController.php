@@ -34,7 +34,7 @@ class UserStatsController extends AppController {
         $day    = $now->year.'-'.$now->month.'-'.$now->day;  
         $span   = 'daily';      //Can be daily weekly or monthly
        
-        if(null !== $this->request->getQuery('day')){
+        if($this->request->getQuery('day')){
             //Format will be: 2013-09-18T00:00:00
             $pieces = explode('T',$this->request->getQuery('day'));
             $day = $pieces[0];
@@ -60,7 +60,7 @@ class UserStatsController extends AppController {
         if($span == 'monthly'){
             $ret_info    = $this->_getMonthly($day);  
         }
-
+        
         if($ret_info){
             $this->set([
                 'items'         => $ret_info['items'],
@@ -104,6 +104,9 @@ class UserStatsController extends AppController {
             $conditions = $base_search;
             array_push($conditions, ["CONVERT_TZ(UserStats.timestamp,'+00:00','".$this->time_zone."') >=" =>  $slot_start]);
             array_push($conditions, ["CONVERT_TZ(UserStats.timestamp,'+00:00','".$this->time_zone."') <="  => $slot_end]);
+            
+            //array_push($conditions, ["UserStats.timestamp >=" =>  $slot_start]);
+            //array_push($conditions, ["UserStats.timestamp <="  => $slot_end]);
 
             $q_r = $this->{$this->main_model}->find()
                 ->select($this->fields)
@@ -214,11 +217,11 @@ class UserStatsController extends AppController {
         while($month_date->timestamp > $slot_end->timestamp){
             $where = $base_search;
             array_push($where, ['UserStats.timestamp >=' => $slot_start]);
-            array_push($where, ['UserStats.timestamp <=' => $slot_end]);
+           array_push($where, ['UserStats.timestamp <=' => $slot_end]);
             //FIXME Somehow it does not like this on the monthly one 
             //Compare with DataUsages
-           // array_push($where, ["CONVERT_TZ(UserStats.timestamp,'+00:00','".$this->time_zone."') >=" => $slot_start]);
-           // array_push($where, ["CONVERT_TZ(UserStats.timestamp,'+00:00','".$this->time_zone."') <=" => $slot_end]);
+            //array_push($where, ["CONVERT_TZ(UserStats.timestamp,'+00:00','".$this->time_zone."') >=" => $slot_start]);
+            //array_push($where, ["CONVERT_TZ(UserStats.timestamp,'+00:00','".$this->time_zone."') <=" => $slot_end]);
                 
             $q_r = $this->{$this->main_model}->find()->select($this->fields)->where($where)->first();
             if($q_r){   

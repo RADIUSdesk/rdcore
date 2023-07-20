@@ -9,6 +9,18 @@ Ext.define('Rd.view.profiles.winComponentManage', {
     glyph   : Rd.config.icnEdit,
     initComponent: function() {
         var me = this;
+        
+        var dd      = Ext.getApplication().getDashboardData();
+        var root    = false;
+        if(dd.isRootUser){
+            root = true   
+        }
+        
+        var hide_system = true;
+        if(root){
+            hide_system = false;
+        }  
+             
         this.items = [
             {
                 xtype: 'form',
@@ -29,6 +41,13 @@ Ext.define('Rd.view.profiles.winComponentManage', {
                 },
                 defaultType: 'textfield',
                 items: [
+                	{
+                        xtype       : 'checkbox',      
+                        fieldLabel  : 'System Wide',
+                        name        : 'for_system',
+                        hidden      : hide_system,
+                        disabled    : hide_system
+                    },
                     {
                         xtype       : 'radiogroup',
                         columns     : 2,
