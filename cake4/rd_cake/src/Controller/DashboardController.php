@@ -703,7 +703,17 @@ class DashboardController extends AppController{
                     "tabConfig"=> [
                         "ui"=> "tab-orange"
                     ]
-                ]     
+                ],
+                //NOTE CUSTOM Extension for IPS Specific Add-on fields
+              /*  [
+                    'title' => 'ISP Specifics',
+                    'glyph' => 'xf055@FontAwesome',
+                    'id'    => 'cIspSpecifics',
+                    'layout'=> 'fit',
+                    'tabConfig'=> [
+                        'ui'=> 'tab-brown'
+                    ]
+                ]  */  
            	];
         }
         

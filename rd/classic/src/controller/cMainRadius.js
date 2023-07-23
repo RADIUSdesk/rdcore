@@ -23,7 +23,12 @@ Ext.define('Rd.controller.cMainRadius', {
 		    afterrender	: function(pnl){
 		        Ext.getApplication().runAction('cRealms','Index',pnl);
 		    }
-	    }
+	    },
+	    '#tabMainRadius #cIspSpecifics' : {
+		    afterrender	: function(pnl){
+		        Ext.getApplication().runAction('cIspSpecifics','Index',pnl);
+		    }
+	    },
     },
     actionIndex: function(pnl,itemId){
         var me      = this;
