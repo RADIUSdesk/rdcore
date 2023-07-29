@@ -130,7 +130,7 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                 hidden      : true,
                 xtype       : 'templatecolumn',
                 tpl         : new Ext.XTemplate(
-                    "<div style=\"padding: 2px;\" class=\"fieldRedWhite\">{to_date_in_words}</div>"
+                    "<div style=\"padding: 2px;\" class=\"fieldOrange\">{to_date_in_words}</div>"
                 ),
                 flex        : 1,
                 filter      : {type: 'date', dateFormat: 'Y-m-d'},
