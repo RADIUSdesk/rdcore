@@ -19,7 +19,7 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
         var me      = this;
-        
+
         me.menu_grid = new Ext.menu.Menu({
            items: [
                { text: 'Change Password', glyph: Rd.config.icnLock,   handler: function(){
@@ -36,9 +36,9 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                }}
            ]
         });
-        
+
        // me.menu_grid
-        
+
         me.bbar = [{
             xtype       : 'pagingtoolbar',
             store       : me.store,
@@ -47,7 +47,7 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                 'ux-progressbarpager': true
             }
         }];
-       
+
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 
         me.columns  = [
@@ -94,10 +94,10 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                 hidden      : true,
                 filter      : {type: 'string'},stateId: 'StateGridPermanentUsers11'
             },
-            { 
+            {
                 text        : i18n('sActive'),
-                tdCls       : 'gridTree',   
-                xtype       : 'templatecolumn', 
+                tdCls       : 'gridTree',
+                xtype       : 'templatecolumn',
                 tpl         : new Ext.XTemplate(
                                 "<tpl if='active == true'><div class=\"fieldGreen\"><i class=\"fa fa-check-circle\"></i> "+i18n("sYes")+"</div></tpl>",
                                 "<tpl if='active == false'><div class=\"fieldRed\"><i class=\"fa fa-times-circle\"></i> "+i18n("sNo")+"</div></tpl>"
@@ -109,20 +109,46 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                         yesText         : 'Yes',
                         noText          : 'No'
                 },stateId: 'StateGridPermanentUsers12'
-            },   
-            { 
+            },
+            {
+                text        : i18n('sFrom'),
+                dataIndex   : 'from_date',
+                tdCls       : 'gridTree',
+                hidden      : true,
+                xtype       : 'templatecolumn',
+                tpl         : new Ext.XTemplate(
+                    "<div class=\"fieldBlue\">{from_date_in_words}</div>"
+                ),
+                flex        : 1,
+                filter      : {type: 'date', dateFormat: 'Y-m-d'},
+                stateId		: 'StateGridPermanentUsers27'
+            },
+            {
+                text        : i18n('sTo'),
+                dataIndex   : 'to_date',
+                tdCls       : 'gridTree',
+                hidden      : true,
+                xtype       : 'templatecolumn',
+                tpl         : new Ext.XTemplate(
+                    "<div style=\"padding: 2px;\" class=\"fieldRedWhite\">{to_date_in_words}</div>"
+                ),
+                flex        : 1,
+                filter      : {type: 'date', dateFormat: 'Y-m-d'},
+                stateId		: 'StateGridPermanentUsers28'
+            },
+            {
                 text        : i18n('sLast_accept_time'),
                 dataIndex   : 'last_accept_time',
                 tdCls       : 'gridTree',
-                hidden      : true, 
-                xtype       : 'templatecolumn', 
+                hidden      : true,
+                xtype       : 'templatecolumn',
                 tpl         : new Ext.XTemplate(
                     "<div class=\"fieldBlue\">{last_accept_time_in_words}</div>"
                 ),
                 flex        : 1,
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
                 stateId		: 'StateGridPermanentUsers13'
-            },    
+            },
             {
                 text        : i18n('sLast_accept_nas'),
                 flex        : 1,
@@ -131,19 +157,19 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                 hidden      : true,
                 filter      : {type: 'string'},stateId: 'StateGridPermanentUsers14'
             },
-            { 
+            {
                 text        : i18n('sLast_reject_time'),
                 dataIndex   : 'last_reject_time',
                 tdCls       : 'gridTree',
-                hidden      : true, 
-                xtype       : 'templatecolumn', 
+                hidden      : true,
+                xtype       : 'templatecolumn',
                 tpl         : new Ext.XTemplate(
                     "<div class=\"fieldBlue\">{last_reject_time_in_words}</div>"
                 ),
                 flex        : 1,
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
                 stateId		: 'StateGridPermanentUsers15'
-            },   
+            },
             {
                 text        : i18n('sLast_reject_nas'),
                 flex        : 1,
@@ -159,7 +185,7 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                 tdCls       : 'gridTree',
                 hidden      : true,
                 filter      : {type: 'string'},stateId: 'StateGridPermanentUsers17'
-            },  
+            },
             {
                 header      : i18n('sData_used'),
                 hidden      : true,
@@ -182,11 +208,11 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                         }
                         if(v > 90){
                             cls = "wifired"
-                        }  
+                        }
                         widget.setValue(v / 100);
                         widget.setText( v +" %");
                         widget.toggleCls(cls,true);
-                    }    
+                    }
                 },
                 stateId: 'StateGridPermanentUsers18'
             },
@@ -201,7 +227,7 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                     xtype   : 'progressbarwidget'
                 },
                 onWidgetAttach: function(column, widget, record) {
-                    var v = record.get('perc_time_used');            
+                    var v = record.get('perc_time_used');
                     widget.toggleCls("wifired",true);
                     if(v == null){
                       widget.setText('');
@@ -212,11 +238,11 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                         }
                         if(v > 90){
                             cls = "wifired"
-                        }  
+                        }
                         widget.setValue(v / 100);
                         widget.setText( v +" %");
                         widget.toggleCls(cls,true);
-                    }    
+                    }
                 },
                 stateId: 'StateGridPermanentUsers19'
             },
@@ -247,25 +273,25 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                 filter      : {type: 'string'},
 				stateId		: 'StateGridPermanentUsers22'
             },
-            { 
+            {
                 text        : 'Created',
-                dataIndex   : 'created', 
+                dataIndex   : 'created',
                 tdCls       : 'gridTree',
-                hidden      : true,  
-                xtype       : 'templatecolumn', 
+                hidden      : true,
+                xtype       : 'templatecolumn',
                 tpl         : new Ext.XTemplate(
                     "<div class=\"fieldBlue\">{created_in_words}</div>"
                 ),
                 stateId		: 'StateGridPermanentUsers23',
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
                 flex        : 1
-            },  
-            { 
+            },
+            {
                 text        : 'Modified',
-                dataIndex   : 'modified', 
+                dataIndex   : 'modified',
                 tdCls       : 'gridTree',
-                hidden      : true, 
-                xtype       : 'templatecolumn', 
+                hidden      : true,
+                xtype       : 'templatecolumn',
                 tpl         : new Ext.XTemplate(
                     "<div class=\"fieldBlue\">{modified_in_words}</div>"
                 ),
@@ -279,7 +305,7 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                 width       : 80,
                 stateId     : 'StateGridPermanentUsers26',
                 items       : [
-					
+
 					 {
 						iconCls : 'txtRed x-fa fa-trash',
 						tooltip : 'Delete',
@@ -319,10 +345,10 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                        }
                     }
 				]
-            }            
+            }
         ];
 
- 
+
         me.callParent(arguments);
     }
 });
