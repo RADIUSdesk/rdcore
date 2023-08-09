@@ -116,8 +116,8 @@ Ext.define('Rd.view.meshes.winMeshEditExit', {
                 xtype       : 'checkbox',      
                 boxLabel    : i18n('sSwap_octets'),
                 boxLabelCls	: 'boxLabelRd',
-                name        : 'swap_octet',
-                inputValue  : 'swap_octet',
+                name        : 'swap_octets',
+                inputValue  : 'swap_octets',
                 checked     : true
             },
             {

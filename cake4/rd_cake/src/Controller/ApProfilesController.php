@@ -254,10 +254,14 @@ class ApProfilesController extends AppController {
         $check_items = ['hidden','isolate','chk_maxassoc','accounting','auto_nasid','chk_schedule'];
         foreach($check_items as $i){
             if(isset($cdata[$i])){
-                $cdata[$i] = 1;
-            }else{
-                $cdata[$i] = 0;
-            }
+				if($cdata[$i] == 'null'){
+					$cdata[$i] = 0;
+				}else{
+					$cdata[$i] = 1;
+				}  
+			}else{
+				$cdata[$i] = 0;
+			}
         }
         
         $entryEntity = $this->ApProfileEntries->newEntity($cdata);
@@ -312,10 +316,14 @@ class ApProfilesController extends AppController {
         $check_items = ['hidden','isolate','apply_to_all','chk_maxassoc','accounting','auto_nasid','chk_schedule'];
         foreach($check_items as $i){
             if(isset($cdata[$i])){
-                $cdata[$i] = 1;
-            }else{
-                $cdata[$i] = 0;
-            }
+				if($cdata[$i] == 'null'){
+					$cdata[$i] = 0;
+				}else{
+					$cdata[$i] = 1;
+				}  
+			}else{
+				$cdata[$i] = 0;
+			}
         }
 
         if ($this->request->is('post')) {
@@ -594,7 +602,22 @@ class ApProfilesController extends AppController {
         }
 
 		$req_d 		= $this->request->getData();
-
+		
+		$check_items = [
+			'apply_firewall_profile'
+		];       
+        foreach($check_items as $i){
+	        if(isset($req_d[$i])){
+	        	if($req_d[$i] == 'null'){
+	            	$req_d[$i] = 0;
+	            }else{
+	            	$req_d[$i] = 1;
+	            }  
+	        }else{
+	            $req_d[$i] = 0;
+	        }
+	    }
+		
         if($this->request->getData('type') == 'captive_portal'){
             if(null !== $this->request->getData('auto_dynamic_client')){
                 $req_d['auto_dynamic_client'] = 1;
@@ -686,10 +709,14 @@ class ApProfilesController extends AppController {
 				];
 			    foreach($check_items as $i){
 			        if(isset($req_d[$i])){
-			            $req_d[$i] = 1;
-			        }else{
-			            $req_d[$i] = 0;
-			        }
+						if($req_d[$i] == 'null'){
+					    	$req_d[$i] = 0;
+					    }else{
+					    	$req_d[$i] = 1;
+					    }  
+					}else{
+					    $req_d[$i] = 0;
+					}
 			    }
 			    
 			    if($req_d['dns_manual'] == 0){
@@ -737,17 +764,25 @@ class ApProfilesController extends AppController {
             //Add the entry points
             $count      = 0;
             $entry_ids  = [];
-                
+                           
             if (array_key_exists('entry_points', $req_d)) {
-                if(!empty($req_d['entry_points'])){
-                    foreach($req_d['entry_points'] as $e){
-                        if($e != ''){
-                            array_push($entry_ids,$req_d['entry_points'][$count]);
-                        }
-                        $count++;      
-                    }
-                }
-            }
+            	if(is_string($req_d['entry_points'])){ //Modern = string (with commas)
+            		if($req_d['entry_points'] !== 'null'){
+            			if(str_contains($req_d['entry_points'], ',')) {
+		            		$entry_ids = explode(',',$req_d['entry_points']);
+		            	}else{		            	
+		            		$entry_ids  = [$req_d['entry_points']]; //One item (no comma)
+		            	}           		
+            		}           	
+            	}else{	//Classic = array	            	     
+	                foreach($req_d['entry_points'] as $e){
+	                    if($e != ''){
+	                        array_push($entry_ids,$req_d['entry_points'][$count]);
+	                    }
+	                    $count++;      
+	                }
+		      	}
+            }         
             
             foreach($entry_ids as $id){	
                 $data = [];
@@ -786,11 +821,15 @@ class ApProfilesController extends AppController {
 				'apply_firewall_profile'
 			];
 			foreach($g_check_items as $i){
-			    if(isset($req_d[$i])){
-			        $req_d[$i] = 1;
-			    }else{
-			        $req_d[$i] = 0;
-			    }
+			   	if(isset($req_d[$i])){
+					if($req_d[$i] == 'null'){
+				    	$req_d[$i] = 0;
+				    }else{
+				    	$req_d[$i] = 1;
+				    }  
+				}else{
+				    $req_d[$i] = 0;
+				}
 			}
         	       
             $this->loadModel('ApProfileExitApProfileEntries');
@@ -870,11 +909,15 @@ class ApProfilesController extends AppController {
                         'softflowd_enabled'
 					];
 					foreach($check_items as $i){
-					    if(isset($req_d[$i])){
-					        $cp_data[$i] = 1;
-					    }else{
-					        $cp_data[$i] = 0;
-					    }
+						 if(isset($req_d[$i])){
+							if($req_d[$i] == 'null'){
+								$cp_data[$i] = 0;
+							}else{
+								$cp_data[$i] = 1;
+							}  
+						}else{
+							$cp_data[$i] = 0;
+						}
 					}
 					
 					if( $cp_data['dns_manual'] == 0){
@@ -974,15 +1017,23 @@ class ApProfilesController extends AppController {
                 $this->{'ApProfileExitApProfileEntries'}->deleteAll(['ApProfileExitApProfileEntries.ap_profile_exit_id' => $new_id]);
 
                 if (array_key_exists('entry_points', $req_d)) {
-                    if(! empty($this->request->getData('entry_points'))){
-                        foreach($this->request->getData('entry_points') as $e){
-                            if($e != ''){
-                                array_push($entry_ids,$req_d['entry_points'][$count]);
-                            }
-                            $count++;      
-                        }
-                    }
-                }
+		        	if(is_string($req_d['entry_points'])){ //Modern = string (with commas)
+		        		if($req_d['entry_points'] !== 'null'){
+		        			if(str_contains($req_d['entry_points'], ',')) {
+				        		$entry_ids = explode(',',$req_d['entry_points']);
+				        	}else{		            	
+				        		$entry_ids  = [$req_d['entry_points']]; //One item (no comma)
+				        	}           		
+		        		}           	
+		        	}else{	//Classic = array	            	     
+			            foreach($req_d['entry_points'] as $e){
+			                if($e != ''){
+			                    array_push($entry_ids,$req_d['entry_points'][$count]);
+			                }
+			                $count++;      
+			            }
+				  	}
+		        }            
 
                 foreach($entry_ids as $id){
 					$data = [];
@@ -1348,11 +1399,15 @@ class ApProfilesController extends AppController {
 		];
 		
 		foreach($check_items as $i){
-            if(isset($cdata[$i])){
-                $cdata[$i] = 1;
-            }else{
-                $cdata[$i] = 0;
-            }
+			if(isset($cdata[$i])){
+				if($cdata[$i] == 'null'){
+			    	$cdata[$i] = 0;
+			    }else{
+			    	$cdata[$i] = 1;
+			    }  
+			}else{
+			    $cdata[$i] = 0;
+			}
         }
          
         if ($this->request->is('post')) {
@@ -1459,10 +1514,14 @@ class ApProfilesController extends AppController {
             $check_items = ['gw_use_previous','gw_auto_reboot','enable_schedules','vlan_enable'];
             foreach($check_items as $i){
                 if(isset($cdata[$i])){
-                    $cdata[$i] = 1;
-                }else{
-                    $cdata[$i] = 0;
-                }
+					if($cdata[$i] == 'null'){
+						$cdata[$i] = 0;
+					}else{
+						$cdata[$i] = 1;
+					}  
+				}else{
+					$cdata[$i] = 0;
+				}
             }
 
             //Try to find the timezone and its value
@@ -1712,10 +1771,14 @@ class ApProfilesController extends AppController {
 	    
 	    foreach($check_items as $i){
             if(isset($cdata[$i])){
-                $cdata[$i] = 1;
-            }else{
-                $cdata[$i] = 0;
-            }
+				if($cdata[$i] == 'null'){
+			    	$cdata[$i] = 0;
+			    }else{
+			    	$cdata[$i] = 1;
+			    }  
+			}else{
+			    $cdata[$i] = 0;
+			}
         }
         
         
@@ -2100,10 +2163,14 @@ class ApProfilesController extends AppController {
 		    
 		    foreach($check_items as $i){
                 if(isset($cdata[$i])){
-                    $cdata[$i] = 1;
-                }else{
-                    $cdata[$i] = 0;
-                }
+					if($cdata[$i] == 'null'){
+						$cdata[$i] = 0;
+					}else{
+						$cdata[$i] = 1;
+					}  
+				}else{
+					$cdata[$i] = 0;
+				}
             }
 			
 			//TreeTag we now use network_id
@@ -2954,6 +3021,5 @@ class ApProfilesController extends AppController {
 				}	       			
 			}       	      	
         }            
-    }
-    
+    }   
 }

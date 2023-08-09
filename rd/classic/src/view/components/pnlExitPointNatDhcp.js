@@ -60,18 +60,6 @@ Ext.define('Rd.view.components.pnlExitPointNatDhcp', {
                         width       : w_prim
                     },
                     {
-                        itemId      : 'txtNetmask',
-                        xtype       : 'textfield',
-                        fieldLabel  : 'Netmask',
-                        name        : 'nat_netmask',
-                        allowBlank  : false,
-                        blankText   : i18n("sSupply_a_value"),
-                        labelClsExtra: 'lblRdReq',
-                        vtype       : 'IPAddress',
-                        value       : '255.255.255.0',
-                        width       : w_prim
-                    },
-                    {
                         xtype       : 'checkbox',
                         fieldLabel  : 'Disable',
                         name        : 'nat_ignore',

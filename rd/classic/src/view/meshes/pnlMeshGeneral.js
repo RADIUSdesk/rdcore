@@ -53,7 +53,6 @@ Ext.define('Rd.view.meshes.pnlMeshGeneral', {
                             itemId      : 'displTag',
                             xtype       : 'displayfield',
                             fieldLabel  : 'Grouping',
-                            name        : 'tag_path',
                             margin      : 0,
                             padding     : 0,
                             width       : 410

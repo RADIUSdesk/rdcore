@@ -371,7 +371,7 @@ Ext.define('Rd.view.meshes.pnlNodeCommonSettings', {
             },
             {
                 xtype       : 'panel',
-                title       : 'Wi-Fi',
+                title       : 'Mesh Wi-Fi Channel',
                 glyph       : Rd.config.icnWifi,  
                 ui          : 'panel-green',
                 layout      : {

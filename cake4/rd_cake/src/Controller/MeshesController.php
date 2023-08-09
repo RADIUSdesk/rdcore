@@ -151,7 +151,7 @@ class MeshesController extends AppController{
         $nodes_up   = $this->{'Nodes'}->find()->where(['Nodes.mesh_id IN' => $mesh_ids,'last_contact >=' => $ft_dead])->count();
 
         //___ FINAL PART ___
-        $this->set(array(
+        $this->set([
             'items' => $items,
             'metaData'      => [
                 'meshes_total'  => count($meshes_total),
@@ -161,7 +161,7 @@ class MeshesController extends AppController{
             ],
             'success' => true,
             'totalCount' => $total
-        ));
+        ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
 
@@ -302,12 +302,16 @@ class MeshesController extends AppController{
         
         $check_items = ['hidden','isolate','apply_to_all','accounting','auto_nasid','chk_maxassoc'];
         foreach($check_items as $i){
-            if(isset($req_d[$i])){
-                $req_d[$i] = 1;
-            }else{
-                $req_d[$i] = 0;
-            }
-        } 
+	        if(isset($req_d[$i])){
+	        	if($req_d[$i] == 'null'){
+	            	$req_d[$i] = 0;
+	            }else{
+	            	$req_d[$i] = 1;
+	            }  
+	        }else{
+	            $req_d[$i] = 0;
+	        }
+	    }
         
         $entity 	= $this->{'MeshEntries'}->newEntity($req_d);      
         if ($this->{'MeshEntries'}->save($entity)) {
@@ -368,12 +372,17 @@ class MeshesController extends AppController{
 
             $check_items = ['hidden','isolate','apply_to_all','accounting','auto_nasid','chk_maxassoc','chk_schedule'];
             foreach($check_items as $i){
-                if(isset($req_d[$i])){
-                    $req_d[$i] = 1;
-                }else{
-                    $req_d[$i] = 0;
-                }
-            }
+		        if(isset($req_d[$i])){
+		        	if($req_d[$i] == 'null'){
+		            	$req_d[$i] = 0;
+		            }else{
+		            	$req_d[$i] = 1;
+		            }  
+		        }else{
+		            $req_d[$i] = 0;
+		        }
+		    }
+            
             
             $entity = $this->{'MeshEntries'}->get($req_d['id']);
             $this->{'MeshEntries'}->patchEntity($entity, $req_d);
@@ -609,6 +618,8 @@ class MeshesController extends AppController{
             
         }
         
+        $data['mesh_id'] = $id;
+        
         $this->set([
             'data'      => $data,
             'success'   => true
@@ -663,7 +674,7 @@ class MeshesController extends AppController{
 
             //Unfortunately there are many check items which means they will not be in the POST if unchecked
             //so we have to check for them
-            $check_items = array(
+            $check_items = [
 				'aggregated_ogms',
 				'ap_isolation',
 				'bonding',
@@ -671,14 +682,19 @@ class MeshesController extends AppController{
 				'bridge_loop_avoidance',
 				'distributed_arp_table',
 				'encryption'
-			);
+			];
             foreach($check_items as $i){
-                if(isset($req_d[$i])){
-                    $req_d[$i] = 1;
-                }else{
-                    $req_d[$i] = 0;
-                }
-            }
+		        if(isset($req_d[$i])){
+		        	if($req_d[$i] == 'null'){
+		            	$req_d[$i] = 0;
+		            }else{
+		            	$req_d[$i] = 1;
+		            }  
+		        }else{
+		            $req_d[$i] = 0;
+		        }
+		    }
+            
 
             $mesh_id = $req_d['mesh_id'];
             //See if there is not already a setting entry
@@ -724,12 +740,16 @@ class MeshesController extends AppController{
 		];
 		
 		foreach($check_items as $i){
-            if(isset($req_d[$i])){
-                $req_d[$i] = 1;
-            }else{
-                $req_d[$i] = 0;
-            }
-        }
+	        if(isset($req_d[$i])){
+	        	if($req_d[$i] == 'null'){
+	            	$req_d[$i] = 0;
+	            }else{
+	            	$req_d[$i] = 1;
+	            }  
+	        }else{
+	            $req_d[$i] = 0;
+	        }
+	    }
          
         if ($this->request->is('post')) {
             $e = $this->{$this->main_model}->get($req_d['mesh_id']);        
@@ -820,15 +840,20 @@ class MeshesController extends AppController{
         $req_d	= $this->request->getData();
         
         $check_items = [
-			'auto_detect'
-		];
+			'auto_detect',
+			'apply_firewall_profile'
+		];       
         foreach($check_items as $i){
-            if(isset($req_d[$i])){
-                $req_d[$i] = 1;
-            }else{
-                $req_d[$i] = 0;
-            }
-        }
+	        if(isset($req_d[$i])){
+	        	if($req_d[$i] == 'null'){
+	            	$req_d[$i] = 0;
+	            }else{
+	            	$req_d[$i] = 1;
+	            }  
+	        }else{
+	            $req_d[$i] = 0;
+	        }
+	    }
           
         if($req_d['type'] == 'captive_portal'){ 
             if(isset($req_d['auto_dynamic_client'])){
@@ -908,14 +933,18 @@ class MeshesController extends AppController{
                     $count      = 0;
                     $dc_data['realm_list'] = ""; //Prime it
                     if (array_key_exists('realm_ids', $req_d)) {
-                        foreach($req_d['realm_ids'] as $r){
-                            if($count == 0){
-                                $dc_data['realm_list'] = $req_d['realm_ids'][$count]; 
-                            }else{
-                                $dc_data['realm_list'] = $dc_data['realm_list'].",".$req_d['realm_ids'][$count];
-                            }  
-                            $count++;
-                        }
+                    	if(is_string($req_d['realm_ids'])){ //Modern = string (with commas)
+                    		$dc_data['realm_list'];
+                    	}else{ //Classic does it different
+		                    foreach($req_d['realm_ids'] as $r){
+		                        if($count == 0){
+		                            $dc_data['realm_list'] = $req_d['realm_ids'][$count]; 
+		                        }else{
+		                            $dc_data['realm_list'] = $dc_data['realm_list'].",".$req_d['realm_ids'][$count];
+		                        }  
+		                        $count++;
+		                    }
+		               	}
                     }
                     
 	                if($req_d['auto_dynamic_client'] == 1){    	                
@@ -944,12 +973,16 @@ class MeshesController extends AppController{
                     'softflowd_enabled'
 				];
 			    foreach($check_items as $i){
-			        if(isset($req_d[$i])){
-			            $req_d[$i] = 1;
-			        }else{
-			            $req_d[$i] = 0;
-			        }
-			    }
+				    if(isset($req_d[$i])){
+				    	if($req_d[$i] == 'null'){
+				        	$req_d[$i] = 0;
+				        }else{
+				        	$req_d[$i] = 1;
+				        }  
+				    }else{
+				        $req_d[$i] = 0;
+				    }
+				}
 			    
 			    if($req_d['dns_manual'] == 0){
 			        //Clear any values
@@ -998,14 +1031,22 @@ class MeshesController extends AppController{
             $entry_ids  = [];
             
             if (array_key_exists('entry_points', $req_d)) {
-                if(!empty($req_d['entry_points'])){
-                    foreach($req_d['entry_points'] as $e){
-                        if($e != ''){
-                            array_push($entry_ids,$req_d['entry_points'][$count]);
-                        }
-                        $count++;      
-                    }
-                }
+            	if(is_string($req_d['entry_points'])){ //Modern = string (with commas)
+            		if($req_d['entry_points'] !== 'null'){
+            			if(str_contains($req_d['entry_points'], ',')) {
+		            		$entry_ids = explode(',',$req_d['entry_points']);
+		            	}else{		            	
+		            		$entry_ids  = [$req_d['entry_points']]; //One item (no comma)
+		            	}           		
+            		}           	
+            	}else{	//Classic = array	            	     
+	                foreach($req_d['entry_points'] as $e){
+	                    if($e != ''){
+	                        array_push($entry_ids,$req_d['entry_points'][$count]);
+	                    }
+	                    $count++;      
+	                }
+		      	}
             }
 
             foreach($entry_ids as $id){	
@@ -1072,7 +1113,10 @@ class MeshesController extends AppController{
         
         $data['MeshExit']['rb_nat_config'] = ['nat_config' =>'auto']; 
         foreach($ent_me->mesh_exit_settings as $s){
-            $data['MeshExit']['rb_nat_config']   = ['nat_config' =>'manual'];    
+            $data['MeshExit']['rb_nat_config']   = ['nat_config' =>'manual'];
+             
+            $data['MeshExit']['nat_config'] 	 = 'manual'; 
+               
             $data['MeshExit']["$s->name"]        = $s->value;
         }     
         unset($ent_me->mesh_exit_settings);
@@ -1148,7 +1192,11 @@ class MeshesController extends AppController{
 			];
 		    foreach($check_items as $i){
 		        if(isset($req_d[$i])){
-		            $req_d[$i] = 1;
+		        	if($req_d[$i] == 'null'){
+		            	$req_d[$i] = 0;
+		            }else{
+		            	$req_d[$i] = 1;
+		            }  
 		        }else{
 		            $req_d[$i] = 0;
 		        }
@@ -1229,9 +1277,14 @@ class MeshesController extends AppController{
                         'dnsdesk',
                         'softflowd_enabled'
 					];
+		
 					foreach($check_items as $i){
 					    if(isset($req_d[$i])){
-					        $cp_data[$i] = 1;
+					        if($cp_data[$i] == 'null'){
+						    	$cp_data[$i] = 0;
+						    }else{
+						    	$cp_data[$i] = 1;
+						    }  
 					    }else{
 					        $cp_data[$i] = 0;
 					    }
@@ -1303,17 +1356,25 @@ class MeshesController extends AppController{
                 $this->{'MeshExitMeshEntries'}->deleteAll(['MeshExitMeshEntries.mesh_exit_id' => $new_id]);
 
                 $entry_ids  = [];
-            
-                if (array_key_exists('entry_points', $req_d)) {
-                    if(!empty($req_d['entry_points'])){
-                        foreach($req_d['entry_points'] as $e){
-                            if($e != ''){
-                                array_push($entry_ids,$req_d['entry_points'][$count]);
-                            }
-                            $count++;      
-                        }
-                    }
-                }
+                          
+              	if (array_key_exists('entry_points', $req_d)) {
+		        	if(is_string($req_d['entry_points'])){ //Modern = string (with commas)
+		        		if($req_d['entry_points'] !== ''){
+		        			if(str_contains($req_d['entry_points'], ',')) {
+				        		$entry_ids = explode(',',$req_d['entry_points']);
+				        	}else{		            	
+				        		$entry_ids  = [$req_d['entry_points']]; //One item (no comma)
+				        	}           		
+		        		}           	
+		        	}else{	//Classic = array	            	     
+			            foreach($req_d['entry_points'] as $e){
+			                if($e != ''){
+			                    array_push($entry_ids,$req_d['entry_points'][$count]);
+			                }
+			                $count++;      
+			            }
+				  	}
+		        }
 
                 //Only if empty was not specified
                 if(count($entry_ids)>0){
@@ -1917,14 +1978,18 @@ class MeshesController extends AppController{
 
             //Unfortunately there are many check items which means they will not be in the POST if unchecked
             //so we have to check for them
-            $check_items = ['all_power','eth_br_chk','eth_br_for_all', 'gw_use_previous','gw_auto_reboot','enable_adv_reporting','enable_schedules','vlan_enable'];
+            $check_items = ['all_power','eth_br_chk','eth_br_for_all', 'gw_use_previous','gw_auto_reboot','enable_adv_reporting','enable_schedules','vlan_enable'];            
             foreach($check_items as $i){
-                if(isset($req_d[$i])){
-                    $req_d[$i] = 1;
-                }else{
-                    $req_d[$i] = 0;
-                }
-            }
+		        if(isset($req_d[$i])){
+		        	if($req_d[$i] == 'null'){
+		            	$req_d[$i] = 0;
+		            }else{
+		            	$req_d[$i] = 1;
+		            }  
+		        }else{
+		            $req_d[$i] = 0;
+		        }
+		    }
 
             //Try to find the timezone and its value
             $tz_id  = $this->request->getData('timezone');
@@ -1986,15 +2051,18 @@ class MeshesController extends AppController{
 		    'enable_overviews',
 		    'enable_alerts'		
 	    ];
-	    
 	    foreach($check_items as $i){
-            if(isset($req_d[$i])){
-                $req_d[$i] = 1;
-            }else{
-                $req_d[$i] = 0;
-            }
-        } 
-        
+	        if(isset($req_d[$i])){
+	        	if($req_d[$i] == 'null'){
+	            	$req_d[$i] = 0;
+	            }else{
+	            	$req_d[$i] = 1;
+	            }  
+	        }else{
+	            $req_d[$i] = 0;
+	        }
+	    }
+	    
         $ent_node = $this->{'Nodes'}->newEntity($req_d); 
         
         
@@ -2269,12 +2337,16 @@ class MeshesController extends AppController{
 	        ];
 	        
 	        foreach($check_items as $i){
-                if(isset($req_d[$i])){
-                    $req_d[$i] = 1;
-                }else{
-                    $req_d[$i] = 0;
-                }
-            } 	
+		        if(isset($req_d[$i])){
+		        	if($req_d[$i] == 'null'){
+		            	$req_d[$i] = 0;
+		            }else{
+		            	$req_d[$i] = 1;
+		            }  
+		        }else{
+		            $req_d[$i] = 0;
+		        }
+		    }
 
 			if (array_key_exists('mesh_id', $req_d)) {
 				$new_mesh_id 	= $req_d['mesh_id'];
