@@ -61,6 +61,7 @@
 $config = [];
 
 $config['Hotspot2']['options']	= [
+	'iw_enabled'	=> 1,
     'iw_interworking' => 1,
   	'iw_access_network_type' => 3,
     'iw_internet' => 1,
