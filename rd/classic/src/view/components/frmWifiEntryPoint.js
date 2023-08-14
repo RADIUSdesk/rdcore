@@ -35,6 +35,9 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
     initComponent: function() {
         var me      = this;
         var w_rd    = 80;
+        
+     
+        
         me.items    = [
             {
                 xtype   : 'tabpanel',
@@ -259,6 +262,16 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                                 allowBlank  : false,  
                                 blankText   : i18n("sSupply_a_value"),
                                 labelClsExtra: 'lblRdReq',
+                                hidden      : true,
+                                disabled    : true
+                            },
+                            {
+                                xtype       : 'checkbox',      
+                                fieldLabel  : 'Hotspot 2.0',
+                                name        : 'hotspot2_enable',
+                                checked     : false,
+                                labelClsExtra: 'lblRdReq',
+                                itemId      : 'chkHotspot2',
                                 hidden      : true,
                                 disabled    : true
                             }

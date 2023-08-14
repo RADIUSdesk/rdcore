@@ -1600,7 +1600,7 @@ class MeshHelper22Component extends Component {
                                         $epd['network'] = $this->if_wbw_nat_br;
                                     }
                                     
-                                    $base_array = array(
+                                    $base_array = [
                                         "device"        => 'radio'.$y,
                                         "ifname"        => "$if_name"."$y",
                                         "mode"          => "ap",
@@ -1613,7 +1613,7 @@ class MeshHelper22Component extends Component {
                                         "auth_server"   => $me->auth_server,
                                         "auth_secret"   => $me->auth_secret,
                                         "disabled"      => $disabled
-                                    );
+                                    ];
                                         
                                     if($me->chk_maxassoc){
                                         $base_array['maxassoc'] = $me->maxassoc;
@@ -1647,12 +1647,22 @@ class MeshHelper22Component extends Component {
                                             $base_array['maclist'] = implode(" ",$mac_list);
                                         }
                                     }
+                                    
+                                    $lists = [];
+                                    
+                                    if($me->hotspot2_enable){
+                                    	Configure::load('Hotspot2');
+        								$options = Configure::read('Hotspot2.options'); 
+        								$base_array = array_merge($base_array,$options);
+        								$lists	 = Configure::read('Hotspot2.lists');                                  
+                                    }
 
                                     array_push( $wireless,
-                                        array(
+                                        [
                                             "wifi-iface"=> "$if_name",
-                                            "options"   => $base_array
-                                    )); 
+                                            "options"   => $base_array,
+                                            "lists"		=> $lists
+                                    ]); 
                                     $start_number++;                         
                                 }
                             }    
@@ -1732,7 +1742,7 @@ class MeshHelper22Component extends Component {
                             							$disabled = $start_disabled;
                             						}
                                                                             
-                                                    $base_array = array(
+                                                    $base_array = [
                                                         "device"        => "radio".$y,
                                                         "ifname"        => "$if_name"."$y",
                                                         "mode"          => "ap",
@@ -1745,7 +1755,7 @@ class MeshHelper22Component extends Component {
                                                         "auth_server"   => $me->auth_server,
                                                         "auth_secret"   => $me->auth_secret,
                                                         "disabled"      => $disabled
-                                                    );
+                                                    ];
                                                     
                                                     if($me->chk_maxassoc){
                                                         $base_array['maxassoc'] = $me->maxassoc;
@@ -1779,13 +1789,23 @@ class MeshHelper22Component extends Component {
                                                         if(count($mac_list)>0){
                                                             $base_array['maclist'] = implode(" ",$mac_list);
                                                         }
-                                                    } 
+                                                    }
+                                                    
+                                                  	$lists = [];
+                                    
+								                    if($me->hotspot2_enable){
+								                    	Configure::load('Hotspot2');
+														$options = Configure::read('Hotspot2.options'); 
+														$base_array = array_merge($base_array,$options);
+														$lists	 = Configure::read('Hotspot2.lists');                                  
+								                    }
                                                 
                                                     array_push( $wireless,
-                                                        array(
-                                                            "wifi-iface"=> "$if_name",
-                                                            "options"   => $base_array
-                                                    ));
+								                        [
+								                            "wifi-iface"=> "$if_name",
+								                            "options"   => $base_array,
+								                            "lists"		=> $lists
+								                    ]); 
                                                     $start_number++; 
                                             
                                                 }

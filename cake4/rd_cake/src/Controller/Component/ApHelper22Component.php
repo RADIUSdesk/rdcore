@@ -1399,13 +1399,22 @@ class ApHelper22Component extends Component {
                                     $base_array['maclist'] = implode(" ",$mac_list);
                                 }
                             }
+                            
+                            $lists = [];
+                            
+                           	if($ap_profile_e->hotspot2_enable){
+                            	Configure::load('Hotspot2');
+								$options = Configure::read('Hotspot2.options'); 
+								$base_array = array_merge($base_array,$options);
+								$lists	 = Configure::read('Hotspot2.lists');                                  
+                            }
 
                             array_push( $wireless,
                                 [
                                     "wifi-iface"=> "$if_name",
-                                    "options"   => $base_array
-                                ]
-                            );
+                                    "options"   => $base_array,
+                                    "lists"		=> $lists
+                            ]); 
                             $start_number++;
                         }
                     }

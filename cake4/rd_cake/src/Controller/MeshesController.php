@@ -276,6 +276,7 @@ class MeshesController extends AppController{
                 'auth_secret'   => $m->auth_secret,
                 'dynamic_vlan'  => $m->dynamic_vlan,
                 'frequency_band'=> $m->frequency_band,
+                'hotspot2_enable' => $m->hotspot2_enable,
                 'connected_to_exit' => $connected_to_exit,
                 'chk_schedule'	=> $chk_schedule
             ));
@@ -300,7 +301,7 @@ class MeshesController extends AppController{
         
         $req_d 		= $this->request->getData();
         
-        $check_items = ['hidden','isolate','apply_to_all','accounting','auto_nasid','chk_maxassoc'];
+        $check_items = ['hidden','isolate','apply_to_all','accounting','auto_nasid','chk_maxassoc','hotspot2_enable'];
         foreach($check_items as $i){
 	        if(isset($req_d[$i])){
 	        	if($req_d[$i] == 'null'){
@@ -370,7 +371,7 @@ class MeshesController extends AppController{
                 $req_d['nasid'] = $mesh_name_underscored.'_meap_'.$req_d['id'];
             }
 
-            $check_items = ['hidden','isolate','apply_to_all','accounting','auto_nasid','chk_maxassoc','chk_schedule'];
+            $check_items = ['hidden','isolate','apply_to_all','accounting','auto_nasid','chk_maxassoc','chk_schedule','hotspot2_enable'];
             foreach($check_items as $i){
 		        if(isset($req_d[$i])){
 		        	if($req_d[$i] == 'null'){

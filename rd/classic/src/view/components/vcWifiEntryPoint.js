@@ -16,6 +16,9 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
         },
         '#chk_schedule' : {
         	change: 'chkScheduleChange'
+        },
+        '#chkHotspot2' : {
+        	change: 'chkHotspot2Change'
         }
     },
     init    : function() {
@@ -32,6 +35,7 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
         var auto    = form.down('#chk_auto_nasid');
         var d_vlan  = form.down('#default_vlan');
         var d_key   = form.down('#default_key');
+        var hs2		= form.down('#chkHotspot2');
 
         var val     = cmb.getValue();
         if(val == 'none'){
@@ -97,8 +101,15 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
             d_vlan.setHidden(true);
             d_vlan.setDisabled(true);
             d_key.setHidden(true);
-            d_key.setDisabled(true); 
-    
+            d_key.setDisabled(true);    
+        }
+        
+        if(val == 'wpa2'){
+        	hs2.show();
+        	hs2.enable();
+        }else{
+        	hs2.hide();
+        	hs2.disable();
         }
 
         if(val == 'ppsk'){
@@ -176,5 +187,10 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
     },
     chkScheduleChange: function(chk){
    		this.getView().down('gridSchedule').setDisabled(!chk.getValue());
+    },
+    chkHotspot2Change: function(chk){
+    	var me 		= this;
+    	var form	= chk.up('form');
+    	//FIXME We will eventually have a combo-box with Hotspot2.0 Profiles to choose from
     } 
 });

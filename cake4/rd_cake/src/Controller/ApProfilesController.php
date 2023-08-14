@@ -230,6 +230,7 @@ class ApProfilesController extends AppController {
                 'auth_secret'   => $m->auth_secret,
                 'dynamic_vlan'  => $m->dynamic_vlan,
                 'frequency_band'  => $m->frequency_band,
+                'hotspot2_enable' => $m->hotspot2_enable,
                 'connected_to_exit' => $connected_to_exit,
                 'chk_schedule'	=> $chk_schedule
             ));
@@ -251,7 +252,7 @@ class ApProfilesController extends AppController {
         
         $cdata = $this->request->getData();
         
-        $check_items = ['hidden','isolate','chk_maxassoc','accounting','auto_nasid','chk_schedule'];
+        $check_items = ['hidden','isolate','chk_maxassoc','accounting','auto_nasid','chk_schedule','hotspot2_enable'];
         foreach($check_items as $i){
             if(isset($cdata[$i])){
 				if($cdata[$i] == 'null'){
@@ -313,7 +314,7 @@ class ApProfilesController extends AppController {
         }
 
         $cdata = $this->request->getData();
-        $check_items = ['hidden','isolate','apply_to_all','chk_maxassoc','accounting','auto_nasid','chk_schedule'];
+        $check_items = ['hidden','isolate','apply_to_all','chk_maxassoc','accounting','auto_nasid','chk_schedule','hotspot2_enable'];
         foreach($check_items as $i){
             if(isset($cdata[$i])){
 				if($cdata[$i] == 'null'){
