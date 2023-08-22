@@ -55,8 +55,7 @@ class WifiChartsController extends AppController{
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');    
     }
-    
-    
+        
     public function editMacBlock(){
     	//__ Authentication + Authorization __
         $user = $this->_ap_right_check();
@@ -65,8 +64,28 @@ class WifiChartsController extends AppController{
         }
         
         $req_d = $this->request->getData();
-        $req_q = $this->request->getQuery();    
-       	$cloud_id 	= $req_q['cloud_id'];
+        $req_q = $this->request->getQuery(); 
+              
+        //-- Tweaks for Modern --
+        if(isset($req_d['cloud_id'])){
+        	$cloud_id 	= $req_d['cloud_id'];
+        }
+        
+        if(isset($req_d['mac'])){
+        	$req_d['items'] = [
+        		[ 'mac' => $req_d['mac']]
+        	];
+        }
+        
+        if(isset($req_d['remove_block'])&&($req_d['remove_block'] == 'null')){      
+        	unset($req_d['remove_block']);
+        }
+        //-- END Tweaks for Modern --  
+           
+       	if(isset($req_q['cloud_id'])){
+       		$cloud_id 	= $req_q['cloud_id'];
+       	}	
+        
        	$ap_profile_id = false;
        	if(isset($req_d['ap_id'])){      	
        		$e_ap 			= $this->{'Aps'}->find()->where(['Aps.id' => $req_d['ap_id']])->first();
@@ -85,7 +104,7 @@ class WifiChartsController extends AppController{
        			$this->cloud_wide = true;
        		}
        	}
-       	
+       	      	
        	//Remove old entries to start with
        	foreach($req_d['items'] as $item){
 			$mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
@@ -172,7 +191,28 @@ class WifiChartsController extends AppController{
         
         $req_d = $this->request->getData();
         $req_q = $this->request->getQuery();    
-       	$cloud_id 	= $req_q['cloud_id'];
+
+       	
+       	//-- Tweaks for Modern --
+        if(isset($req_d['cloud_id'])){
+        	$cloud_id 	= $req_d['cloud_id'];
+        }
+        
+        if(isset($req_d['mac'])){
+        	$req_d['items'] = [
+        		[ 'mac' => $req_d['mac']]
+        	];
+        }
+        
+        if(isset($req_d['remove_limit'])&&($req_d['remove_limit'] == 'null')){      
+        	unset($req_d['remove_limit']);
+        }
+        //-- END Tweaks for Modern --  
+           
+       	if(isset($req_q['cloud_id'])){
+       		$cloud_id 	= $req_q['cloud_id'];
+       	}	
+       	       	
        	$ap_profile_id = false;
        	if(isset($req_d['ap_id'])){      	
        		$e_ap 			= $this->{'Aps'}->find()->where(['Aps.id' => $req_d['ap_id']])->first();
@@ -209,6 +249,7 @@ class WifiChartsController extends AppController{
 				}
 			}			
 		}
+		
 		 		
    		if(!isset($req_d['remove_limit'])){
    		
@@ -285,8 +326,28 @@ class WifiChartsController extends AppController{
         }
              
         $req_d = $this->request->getData();
-        $req_q = $this->request->getQuery();    
-       	$cloud_id 	= $req_q['cloud_id'];
+        $req_q = $this->request->getQuery(); 
+        
+        //-- Tweaks for Modern --
+        if(isset($req_d['cloud_id'])){
+        	$cloud_id 	= $req_d['cloud_id'];
+        }
+        
+        if(isset($req_d['mac'])){
+        	$req_d['items'] = [
+        		[ 'mac' => $req_d['mac']]
+        	];
+        }
+        
+        if(isset($req_d['remove_firewall'])&&($req_d['remove_firewall'] == 'null')){      
+        	unset($req_d['remove_firewall']);
+        }
+        //-- END Tweaks for Modern --       
+        
+        if(isset($req_q['cloud_id'])){
+       		$cloud_id 	= $req_q['cloud_id'];
+       	}
+       	      	      	
        	$ap_profile_id = false;
        	if(isset($req_d['ap_id'])){      	
        		$e_ap 			= $this->{'Aps'}->find()->where(['Aps.id' => $req_d['ap_id']])->first();
@@ -305,7 +366,7 @@ class WifiChartsController extends AppController{
        			$this->cloud_wide = true;
        		}
        	}
-       	
+       	       	
        	//Remove old entries to start with
        	foreach($req_d['items'] as $item){
 			$mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
@@ -368,9 +429,7 @@ class WifiChartsController extends AppController{
         ]);
         $this->viewBuilder()->setOption('serialize', true);    
     } 
-    
-    
-    
+        
     public function editMacAlias(){   
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
@@ -391,13 +450,15 @@ class WifiChartsController extends AppController{
         }     
         $post_data              = $this->request->getData();
         
-        if(isset($post_data['remove_alias'])){
-            $this->{'MacAliases'}->delete($entity);
-            $this->set([
-                'success' => true
-            ]);
-            $this->viewBuilder()->setOption('serialize', true); 
-            return;
+        if(isset($post_data['remove_alias'])&&($post_data['remove_alias']!== 'null')){
+
+	        $this->{'MacAliases'}->delete($entity);
+	        $this->set([
+	            'success' => true
+	        ]);
+	        $this->viewBuilder()->setOption('serialize', true); 
+	        return;
+
         }	
         
         if($entity){

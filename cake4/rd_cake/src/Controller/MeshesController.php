@@ -2241,7 +2241,13 @@ class MeshesController extends AppController{
             //--Clean up--
             $n_id = $new_id;
             foreach(array_keys($req_d) as $key){
-                if(preg_match('/^radio\d+_(disabled|band|mode|width|txpower|include_distance|distance|include_beacon_int|beacon_int|ht_capab|mesh|ap|config|channel_five|channel_two|noscan)/',$key)){           
+                if(preg_match('/^radio\d+_(disabled|band|mode|width|txpower|include_distance|distance|include_beacon_int|beacon_int|ht_capab|mesh|ap|config|channel_five|channel_two|noscan)/',$key)){
+                             
+                	$val =  $req_d["$key"];
+            		if((preg_match('/^radio\d+_(include_distance|include_beacon_int|noscan)/',$key))&&($val == 'null')){ //Cure for the modern toolkit
+            			continue;
+            		}
+                           
                     if(preg_match('/^radio\d+_ht_capab/',$key)){
                         $pieces = explode("\n", $req_d["$key"]);
                         foreach($pieces as $p){
@@ -2603,7 +2609,13 @@ class MeshesController extends AppController{
                 $this->{'NodeWifiSettings'}->deleteAll(['NodeWifiSettings.node_id' => $n_id]);
                 
                 foreach(array_keys($req_d) as $key){
-                    if(preg_match('/^radio\d+_(disabled|band|mode|width|txpower|include_distance|distance|include_beacon_int|beacon_int|ht_capab|mesh|ap|config|channel_five|channel_two|noscan)/',$key)){  
+                    if(preg_match('/^radio\d+_(disabled|band|mode|width|txpower|include_distance|distance|include_beacon_int|beacon_int|ht_capab|mesh|ap|config|channel_five|channel_two|noscan)/',$key)){ 
+                    
+                    	$val =  $req_d["$key"];
+                		if((preg_match('/^radio\d+_(include_distance|include_beacon_int|noscan)/',$key))&&($val == 'null')){ //Cure for the modern toolkit
+                			continue;
+                		}
+                                 
                         if(preg_match('/^radio\d+_ht_capab/',$key)){
                             $pieces = explode("\n", $req_d["$key"]);
                             foreach($pieces as $p){

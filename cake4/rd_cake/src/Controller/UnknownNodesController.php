@@ -109,7 +109,10 @@ class UnknownNodesController extends AppController {
         $this->set(array(
             'items' => $items,
             'success' => true,
-            'totalCount' => $total
+            'totalCount' => $total,
+            'metaData'		=> [
+            	'total'	=> $total
+            ]
         ));
         $this->viewBuilder()->setOption('serialize', true); 
     }

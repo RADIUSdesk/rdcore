@@ -391,7 +391,10 @@ class NodeListsController extends AppController{
         $this->set(array(
             'items' => $sortedNodes, //$items,
             'success' => true,
-            'totalCount' => $total
+            'totalCount' => $total,
+             'metaData'		=> [
+            	'total'	=> $total
+            ]
         ));
         $this->viewBuilder()->setOption('serialize', true);           
     }
