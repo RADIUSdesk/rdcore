@@ -664,7 +664,10 @@ class ApsController extends AppController {
         $this->set([
             'items' => $items,
             'success' => true,
-            'totalCount' => $total
+            'totalCount' => $total,
+            'metaData'		=> [
+            	'total'	=> $total
+            ]
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }

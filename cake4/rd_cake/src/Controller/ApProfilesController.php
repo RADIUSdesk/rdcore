@@ -79,6 +79,10 @@ class ApProfilesController extends AppController {
         $q_r = $query->all();
 
         $items      = [];
+        
+        $meta_ap_total     	= 0;    
+        $meta_ap_up 		= 0;
+        $meta_ap_profile_up = 0;
 
         foreach($q_r as $i){
             
@@ -89,6 +93,8 @@ class ApProfilesController extends AppController {
 			$ap_count 	= 0;
 			$aps_up		= 0;
 			$aps_down   = 0;
+			$last_contact_in_words 	= "never";
+            $last_contact_state 	= "never";
 			foreach($i->aps as $ap){
 			    //Get the 'dead_after' value
 			    $dead_after = $this->_get_dead_after($ap->ap_profile_id);
@@ -103,6 +109,12 @@ class ApProfilesController extends AppController {
 	            }
 				$ap_count++;
 			}
+			
+			$meta_ap_total = $meta_ap_total+$ap_count;
+			$meta_ap_up = $meta_ap_up+$aps_up;
+			if($aps_up > 0){
+				$meta_ap_profile_up++;
+			}
 
             array_push($items, [
                 'id'                    => $i->id,
@@ -110,6 +122,8 @@ class ApProfilesController extends AppController {
                 'ap_count'              => $ap_count,
                 'aps_up'                => $aps_up,
                 'aps_down'              => $aps_down,
+                'last_contact_in_words' => $last_contact_in_words,
+            	'last_contact_state'	=> $last_contact_state,
                 'update'                => true,
                 'delete'                => true,
                 'view'                  => true
@@ -119,6 +133,12 @@ class ApProfilesController extends AppController {
         //___ FINAL PART ___
         $this->set([
             'items' 		=> $items,
+            'metaData'      => [
+                'ap_profiles_total' => $total,
+                'ap_profiles_up'    => $meta_ap_profile_up,
+                'aps_total'   		=> $meta_ap_total,
+                'aps_up'      		=> $meta_ap_up,  
+            ],
             'success' 		=> true,
             'totalCount' 	=> $total
         ]);
@@ -1331,27 +1351,29 @@ class ApProfilesController extends AppController {
         
         //==Oct 2022 Add support for Dynamic VLANs==
         $ap_s = $this->{'ApProfileSettings'}->find()->where(['ApProfileSettings.ap_profile_id' => $ap_profile_id])->first();
-        if($ap_s->vlan_enable == 1){
-        	//Find out the list of vlans.
-        	if($ap_s->vlan_range_or_list == 'range'){
-        		$start 	= $ap_s->vlan_start;
-        		$end 	= $ap_s->vlan_end;
-        		while($start <= $end){
-        			$vlan_id = intval('-9'.$start);
-        			        			
-        			array_push($items, ['id' => $vlan_id, 'name' => "Dynamic VLAN $start"]); //Allow the user not to assign at this stage
-        			$start++;
-        		}        		
-        	}
-        	if($ap_s->vlan_range_or_list == 'list'){
-        		$list 	= $ap_s->vlan_list;
-        		$pieces = explode(",", $list);
-        		foreach($pieces as $p){
-        			$vlan_id = intval('-9'.$p);        			
-        			array_push($items, ['id' => $vlan_id, 'name' => "Dynamic VLAN $p"]); //Allow the user not to assign at this stage
-        		}        		
-        	}       
-        }
+        if($ap_s){
+		    if($ap_s->vlan_enable == 1){
+		    	//Find out the list of vlans.
+		    	if($ap_s->vlan_range_or_list == 'range'){
+		    		$start 	= $ap_s->vlan_start;
+		    		$end 	= $ap_s->vlan_end;
+		    		while($start <= $end){
+		    			$vlan_id = intval('-9'.$start);
+		    			        			
+		    			array_push($items, ['id' => $vlan_id, 'name' => "Dynamic VLAN $start"]); //Allow the user not to assign at this stage
+		    			$start++;
+		    		}        		
+		    	}
+		    	if($ap_s->vlan_range_or_list == 'list'){
+		    		$list 	= $ap_s->vlan_list;
+		    		$pieces = explode(",", $list);
+		    		foreach($pieces as $p){
+		    			$vlan_id = intval('-9'.$p);        			
+		    			array_push($items, ['id' => $vlan_id, 'name' => "Dynamic VLAN $p"]); //Allow the user not to assign at this stage
+		    		}        		
+		    	}       
+		    }
+		}
         //==END OCT 2022 ADD ON===
                       
         $this->set([
