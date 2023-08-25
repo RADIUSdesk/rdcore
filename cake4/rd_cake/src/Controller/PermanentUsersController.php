@@ -30,7 +30,8 @@ class PermanentUsersController extends AppController{
         
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');
-        $this->loadComponent('Formatter');       
+        $this->loadComponent('Formatter');
+        $this->loadComponent('IspPlumbing');           
     }
 
     public function exportCsv(){
@@ -426,9 +427,12 @@ class PermanentUsersController extends AppController{
         $this->{$this->main_model}->patchEntity($entity, $req_d);
      
         if ($this->{$this->main_model}->save($entity)) {
-            $this->set(array(
+        
+        	$this->IspPlumbing->disconnectIfActive($entity);
+        	
+            $this->set([
                 'success' => true
-            ));
+            ]);
             $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
@@ -667,13 +671,14 @@ class PermanentUsersController extends AppController{
             if(preg_match('/^\d+/',$key)){
                 $entity = $this->{$this->main_model}->get($key);
                 $this->{$this->main_model}->patchEntity($entity, $d);
-                $this->{$this->main_model}->save($entity);
+                $this->{$this->main_model}->save($entity);             
+                $this->IspPlumbing->disconnectIfActive($entity);             
             }
         }
-
-        $this->set(array(
+        
+        $this->set([
             'success' => true
-        ));
+        ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
 

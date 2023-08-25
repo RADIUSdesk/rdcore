@@ -26,6 +26,7 @@ class IspPlumbingComponent extends Component {
 		'JHB'		
 	];
 	protected	$disabled	= true;
+	protected $components   = ['Kicker'];
 
     public function realmAddEdit($entity){ //Call when we a
     
@@ -54,6 +55,27 @@ class IspPlumbingComponent extends Component {
         		$IspSpecifics->save($entity);   	
         	}                   
         }     
-    } 
+    }
+    
+    public function disconnectIfActive($entity){
+    
+    	if($this->disabled){
+    		return;
+    	}
+    	  
+    	$this->Radaccts = TableRegistry::get('Radaccts');
+    	$this->Users  	= TableRegistry::get('Users');
+    	
+    	$ent_root 		= $this->Users->find()->where(['Users.id' => $this->root_user_id])->first();
+    	$token	 		= $ent_root->token;
+    	$username		= $entity->username;
+    	$data			= [];
+    	
+    	$e_username 	= $this->{'Radaccts'}->find()->where(['Radaccts.username' => $username,'Radaccts.acctstoptime IS NULL'])->all();
+		foreach($e_username as $ent){
+			$data = $this->Kicker->kick($ent,$token); 
+		}
+		return $data;	      
+    }
 }
 
