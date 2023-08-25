@@ -28,7 +28,9 @@ class RealmsController extends AppController{
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model' => 'Realms'
         ]);    
-        $this->loadComponent('TimeCalculations');     
+        $this->loadComponent('TimeCalculations');
+        
+        $this->loadComponent('IspPlumbing');    
     }
     
      public function indexCloud(){   
@@ -217,6 +219,8 @@ class RealmsController extends AppController{
         }
               
         if ($this->{$this->main_model}->save($entity)) {
+        
+        	$this->IspPlumbing->realmAddEdit($entity);
             $this->set([
                 'success' 	=> true,
                 'data'		=> $entity
@@ -224,7 +228,7 @@ class RealmsController extends AppController{
             $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = 'Error';           
-            $errors = $entity->errors();
+            $errors = $entity->getErrors();
             $a = [];
             foreach(array_keys($errors) as $field){
                 $detail_string = '';
