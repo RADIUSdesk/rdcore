@@ -35,18 +35,17 @@ class IspPlumbingComponent extends Component {
     	       
         $wl 			= [];     
         $IspSpecifics  	= TableRegistry::get('IspSpecifics');
-        $isp_name 		= strtolower($entity->name);
-        $isp_name     	= preg_replace("/\s+/", "", $isp_name);
-        
-        $ent			= $IspSpecifics->find()->where(['IspSpecifics.name' => $isp_name])->count();
+        $lc_name 		= strtolower($entity->name);
+        $lc_name     	= preg_replace("/\s+/", "", $lc_name);      
+        $ent			= $IspSpecifics->find()->where(['IspSpecifics.name' => $entity->name])->count();
         if(!$ent){
         	foreach($this->regions as $r){
         		$d	= [
-        			'name'		=> $isp_name,
+        			'name'		=> $entity->name,
         			'cloud_id'	=> $entity->cloud_id,
         			'region'	=> $r,
-        			'field1'	=> $this->prime_prefix.$isp_name,
-        			'field2'	=> $this->suspend_prefix.$isp_name,
+        			'field1'	=> $this->prime_prefix.$lc_name,
+        			'field2'	=> $this->suspend_prefix.$lc_name,
         			'field3'	=> 'x',
         			'field4'	=> 'x'      		
         		];
