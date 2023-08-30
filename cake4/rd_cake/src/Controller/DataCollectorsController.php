@@ -136,7 +136,10 @@ class DataCollectorsController extends AppController{
                 }
             }
             $req_d		= $this->request->getData();
-            I18n::setLocale($req_d['i18n']);
+            
+            if(isset($req_d['i18n'])){ 
+        		I18n::setLocale($req_d['i18n']);
+        	} 
             
             $dd 		= $this->_find_dynamic_detail_id();
             $ctc		= $dd->dynamic_detail->dynamic_detail_ctc;
