@@ -264,6 +264,13 @@ Ext.define('Rd.view.permanentUsers.winPermanentUserAdd', {
 						            allowBlank  : true,
 						            labelClsExtra: 'lblRd'
 						        },
+						         {
+						            xtype       : 'textfield',
+						            name        : 'site',
+						            fieldLabel  : 'Site',
+						            allowBlank  : true,
+						            labelClsExtra: 'lblRd'
+						        },
 								{
                                     xtype       : 'checkbox',      
                                     boxLabel    : 'Auto-add device after authentication',
