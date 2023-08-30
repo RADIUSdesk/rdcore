@@ -228,6 +228,19 @@ class ApsController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
        	$query 	  = $this->{$this->main_model}->find();
+       	
+       	
+       	if((isset($req_q['zero_flag']))&&($req_q['zero_flag']=='true')){      	
+       		 $this->set([
+		        'items' 	=> [], //$items,
+		        'success' 	=> true,
+		        'totalCount' => 0,           
+        	]);
+        	$this->viewBuilder()->setOption('serialize', true);      	
+       		return;     	
+       	}
+       	
+       	
        	$this->CommonQueryFlat->build_cloud_query($query,$cloud_id,[
             'ApProfiles'    => ['Clouds'],
             'ApActions'     => ['sort' => ['ApActions.id' => 'DESC']],

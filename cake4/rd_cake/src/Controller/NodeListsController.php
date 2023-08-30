@@ -13,8 +13,8 @@ use Cake\Database\Expression\QueryExpression;
 
 class NodeListsController extends AppController{
   
-    public $base         = "Access Providers/Controllers/NodeLists/";   
-    protected $owner_tree   = array();
+    public $base         	= "Access Providers/Controllers/NodeLists/";   
+    protected $owner_tree   = [];
     protected $main_model   = 'Nodes';
     protected $dead_after   = 600; //Default
   
@@ -63,6 +63,16 @@ class NodeListsController extends AppController{
 		$query          = $this->{$this->main_model}->find();
 		$req_q    		= $this->request->getQuery();      
        	$cloud_id 		= $req_q['cloud_id'];
+       	
+       	if((isset($req_q['zero_flag']))&&($req_q['zero_flag']=='true')){      	
+       		 $this->set([
+		        'items' 	=> [], //$items,
+		        'success' 	=> true,
+		        'totalCount' => 0,           
+        	]);
+        	$this->viewBuilder()->setOption('serialize', true);      	
+       		return;     	
+       	}
 						
         $this->CommonQueryFlat->build_cloud_query($query, $cloud_id, ['Meshes','NodeUptmHistories','NodeConnectionSettings']); //AP QUERY is sort of different in a way
 
@@ -281,8 +291,8 @@ class NodeListsController extends AppController{
             $hw_id                      = $i->hardware;
             
             if (array_key_exists($hw_id,$hardware)){
-                $hw_human               = $hardware["$hw_id"];  //Human name for Hardware
-                $i->hw_human  = $hw_human;
+                $i->hw_human  	= $hardware["$hw_id"]['name'];  //Human name for Hardware
+                $i->hw_photo  	= $hardware["$hw_id"]['photo'];  //Human name for Hardware
             }
 
 			$i->state   = $state;
@@ -454,8 +464,10 @@ class NodeListsController extends AppController{
         $q_e        = $this->{'Hardwares'}->find()->where(['Hardwares.for_mesh' => true])->all();
         foreach($q_e as $e){ 
             $id     = $e->fw_id;
-            $name   = $e->name;
-            $hardware["$id"] = $name;  
+            $hardware["$id"] = [
+            	'name' 	=> $e->name,
+            	'photo' => $e->photo_file_name
+            ];  
         }
         return $hardware;
     }

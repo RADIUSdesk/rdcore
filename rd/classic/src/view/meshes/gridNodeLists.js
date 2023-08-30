@@ -512,7 +512,7 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                                     "<div style='clear:both;'></div>",
                                     "<label class='lblTipItemL'>TX Packets</label><label class='lblTipValueL'>"+r.get('wbw_tx_packets')+"</label>",
                                     "<div style='clear:both;'></div>",
-                                    "<label class='lblTipItemL'>TX Packets</label><label class='lblTipValueL'>"+r.get('wbw_rx_packets')+"</label>",
+                                    "<label class='lblTipItemL'>RX Packets</label><label class='lblTipValueL'>"+r.get('wbw_rx_packets')+"</label>",
                                     "<div style='clear:both;'></div>",
                                     "<label class='lblTipItemL'>TX Rate</label><label class='lblTipValueL'>"+r.get('wbw_tx_rate')+" Mbps</label>",
                                     "<div style='clear:both;'></div>",
