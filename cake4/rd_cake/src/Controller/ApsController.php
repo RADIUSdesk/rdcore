@@ -214,6 +214,73 @@ class ApsController extends AppController {
             $this->JsonErrors->entityErros(unkwnEntity,$message);
         }
     }
+    
+    
+     public function exportCsv(){
+
+        $user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
+        $req_q 		= $this->request->getQuery();
+        $cloud_id 	= $req_q['cloud_id'];              
+        $query 		= $this->{$this->main_model}->find();           
+        //$this->CommonQueryFlat->build_cloud_query($query,$cloud_id);
+        
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,[
+            'ApProfiles'    => ['Clouds'],
+            'ApActions'     => ['sort' => ['ApActions.id' => 'DESC']],
+            'OpenvpnServerClients',
+            'ApUptmHistories',
+            'ApConnectionSettings'
+        ],'Aps');
+        
+            
+        $q_r    	= $query->all();
+
+        //Headings
+        $heading_line   = [];
+            
+        if(isset($req_q['columns'])){
+            $columns = json_decode($req_q['columns']);
+            foreach($columns as $c){
+                array_push($heading_line,$c->name);
+            }
+        }
+        
+        $data = [
+            $heading_line
+        ];
+
+        foreach($q_r as $i){
+            $columns    = [];
+            $csv_line   = [];
+            if(isset($req_q['columns'])){
+                $columns = json_decode($req_q['columns']);
+                foreach($columns as $c){
+                    $column_name = $c->name;
+                 
+                    if($column_name == 'ap_profile'){
+                        array_push($csv_line,$i->{$column_name}->name);  
+                    }else{
+                        array_push($csv_line,$i->{$column_name});  
+                    }
+                }
+                array_push($data,$csv_line);
+            }
+        }
+         
+        $this->setResponse($this->getResponse()->withDownload('AccessPoints.csv'));
+        $this->viewBuilder()->setClassName('CsvView.Csv');
+        $this->set([
+            'data' => $data
+        ]);         
+        $this->viewBuilder()->setOption('serialize', true);
+                  
+    } 
+    
+    
 
     //____ BASIC CRUD Manager ________
     public function index(){

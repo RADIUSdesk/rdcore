@@ -562,7 +562,8 @@ class GridButtonsFlatComponent extends Component {
         
         if($type == 'MeshNodes'){        
             $b  = $this->_fetchBasicMeshNodes();
-          	$menu = [$b];       
+          	$d  = $this->_fetchDocument();
+            $menu = [$b,$d];     
         }
         
         if($type == 'NodeDetails'){
@@ -598,7 +599,8 @@ class GridButtonsFlatComponent extends Component {
         
         if($type == 'Aps'){
             $b = $this->_fetchAps();
-            $menu = [$b]; 
+            $d  = $this->_fetchDocument();
+            $menu = [$b,$d]; 
         }
         
         if($type == 'ApProfileDevices'){

@@ -15,9 +15,11 @@ Ext.define('Rd.view.components.cmbFiveGigChannels', {
     labelClsExtra	: 'lblRd',
     initComponent: function() {
         var me= this;
+        //FIXME In future add an option to include Auto or not
         var s = Ext.create('Ext.data.Store', {
             fields: ['id', 'text'],
             data : [
+            	{"id":"auto",       "text": 'Auto'},
                 {"id":"36",         "text": '36 (low power)'},
                 {"id":"40",       	"text": '40 (low power)'},
 				{"id":"44",         "text": '44 (low power)'},

@@ -66,16 +66,6 @@ Ext.define('Rd.view.aps.gridApLists' ,{
 		me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 		
         me.columns  = [
-         //   {xtype: 'rownumberer',stateId: 'StateGridApLists1'},
-			{ 
-                text        : i18n("sOwner"), 
-                dataIndex   : 'owner', 
-                tdCls       : 'gridTree', 
-                flex        : 1,
-                stateId     : 'StateGridApLists2', 
-                sortable    : false,
-                hidden      : true
-            },
 			{ text: i18n("sProfile"),  dataIndex: 'ap_profile',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridApLists3'},
 			{ 
                 text        : i18n('sName'),   
@@ -100,7 +90,6 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                 flex        : 1,
                 filter      : {type: 'string'}
             },
-            //{ text: i18n("sName"),  dataIndex: 'name',  tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridApLists4'},
             { 
 				text		: i18n("sDescription"), 
 				dataIndex	: 'description',  

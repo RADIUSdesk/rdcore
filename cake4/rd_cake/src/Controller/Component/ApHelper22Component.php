@@ -1140,20 +1140,16 @@ class ApHelper22Component extends Component {
         for ($x = 0; $x < $radio_count; $x++) {
         
             if($this->RadioSettings[$x]['radio'.$x.'_band'] == '2g'){
-                $channel = intval($this->RadioSettings[$x]['radio'.$x.'_channel_two']);
-                if($channel == 0){
-		            $channel = 'auto';
-		        }
+                $channel = $this->RadioSettings[$x]['radio'.$x.'_channel_two'];
+                
 		        if(($this->WbwActive == true)&&($this->WbwChannel <= 14)){ //Assume g override        
 		            $channel = $this->WbwChannel;
 		        }	
             }
                 
             if($this->RadioSettings[$x]['radio'.$x.'_band'] == '5g'){
-                $channel    = intval($this->RadioSettings[$x]['radio'.$x.'_channel_five']);
-                if($channel == 0){
-		            $channel = 'auto';
-		        }
+                $channel    = $this->RadioSettings[$x]['radio'.$x.'_channel_five'];
+              
 		        if(($this->WbwActive == true)&&($this->WbwChannel > 14)){ //Assume a/ac override        
 		            $channel = $this->WbwChannel;
 		        }    	
@@ -1196,7 +1192,7 @@ class ApHelper22Component extends Component {
                     }
                 }
             }
-                     
+                                
             $options_array = [
                 'channel'       => $channel,
                 'disabled'      => intval($this->RadioSettings[$x]['radio'.$x.'_disabled']),
