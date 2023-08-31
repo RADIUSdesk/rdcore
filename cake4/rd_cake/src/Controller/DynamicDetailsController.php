@@ -1741,7 +1741,7 @@ class DynamicDetailsController extends AppController{
         if(!$user){   //If not a valid user
             return;
         }  
-        $menu = $this->GridButtons->returnButtons(false,'dynamic_translations');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'dynamic_translations');
         $this->set(array(
             'items'         => $menu,
             'success'       => true
