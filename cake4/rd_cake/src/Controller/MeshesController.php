@@ -49,7 +49,14 @@ class MeshesController extends AppController{
         Configure::load('MESHdesk');  //Load it during initialize       
     }
     
-    public function index(){     
+    public function index(){  
+    
+    	 //__ Authentication + Authorization __
+        $user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+       
         //Get the default dead_after
         $this->dead_after       = $this->_getDefaultDeadAfter();
         $this->node_dead_after  = $this->_getDefaultDeadAfter();

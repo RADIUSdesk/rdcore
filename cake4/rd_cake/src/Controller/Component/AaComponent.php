@@ -148,7 +148,14 @@ class AaComponent extends Component {
       
     private function _can_manage_cloud($user_id,$cloud_id){
     
-    	$cloud_admins  = TableRegistry::get('CloudAdmins');
+    	$clouds			= TableRegistry::get('Clouds');
+    	
+    	$is_owner		= $clouds->find()->where(['Clouds.id' => $cloud_id, 'Clouds.user_id' => $user_id])->first();
+    	if($is_owner){
+    		return true;
+    	}
+    	  
+    	$cloud_admins  	= TableRegistry::get('CloudAdmins');
     	$count = $cloud_admins->find()->where(['CloudAdmins.user_id' => $user_id,'CloudAdmins.cloud_id' => $cloud_id])->count();
     	if($count > 0){
     		return true;
