@@ -1804,6 +1804,9 @@ class ApProfilesController extends AppController {
 			}
         }
         
+        //Set the reboot flag when add
+	    $cdata['reboot_flag'] = 1;	
+        
         
         $this->loadModel('Aps');
         $this->loadModel('ApProfileSettings');

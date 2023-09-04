@@ -2071,6 +2071,9 @@ class MeshesController extends AppController{
 	        }
 	    }
 	    
+	    //Set the reboot flag when add
+	    $req_d['reboot_flag'] = 1;	    
+	    
         $ent_node = $this->{'Nodes'}->newEntity($req_d); 
         
         

@@ -755,7 +755,9 @@ class WizardsController extends AppController{
         $ap_name        = strtolower($ap_name);
         $this->ap_name  = $ap_name; //Make it global accessable
               
-        //We start with a Cloud 
+        //We start with a Cloud        
+        $user_cloud_count = $this->{'Clouds'}->find()->where(['Clouds.user_id' => $this->user_id])->count();
+        
       
         //Add A Cloud / Site and Network
         $cloud_name     = $name;
@@ -768,6 +770,7 @@ class WizardsController extends AppController{
         $this->{'Sites'}->save($e_site);
         $e_network = $this->{'Networks'}->newEntity(['name' => $network_name,'site_id' => $e_site->id]);
         $this->{'Networks'}->save($e_network);
+            
            
         //return; 
         $d_common = [];
@@ -785,7 +788,29 @@ class WizardsController extends AppController{
         $this->{'Realms'}->save($e_realm);
         $realm_id =  $e_realm->id;
       
-      
+      	//==== Default settings if this is the user's first 
+     /* 	if($user_cloud_count == 0){
+      		$this->loadModel('UserSettings');
+      		
+      		$e_cloud = $this->{'UserSettings'}->newEmptyEntity();
+          	$e_cloud->user_id    = $this->user_id;
+            $e_cloud->name       = 'cloud_id';
+            $e_cloud->value      = $this->cloud_id;
+          	$this->UserSettings->save($e_cloud);
+          	
+          	$e_cv = $this->{'UserSettings'}->newEmptyEntity();
+          	$e_cv->user_id    = $this->user_id;
+            $e_cv->name       = 'compact_view';
+            $e_cv->value      = 1;
+          	$this->UserSettings->save($e_cv);
+          	
+          	$e_md = $this->{'UserSettings'}->newEmptyEntity();
+          	$e_md->user_id    = $this->user_id;
+            $e_md->name       = 'meshdesk_overview';
+            $e_md->value      = 1;
+          	$this->UserSettings->save($e_md);    	
+      	}*/
+         
         //===========
         //BASIC
         $d_profile_basic = [];
