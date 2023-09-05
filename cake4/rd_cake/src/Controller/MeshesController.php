@@ -2254,9 +2254,14 @@ class MeshesController extends AppController{
                 if(preg_match('/^radio\d+_(disabled|band|mode|width|txpower|include_distance|distance|include_beacon_int|beacon_int|ht_capab|mesh|ap|config|channel_five|channel_two|noscan)/',$key)){
                              
                 	$val =  $req_d["$key"];
-            		if((preg_match('/^radio\d+_(include_distance|include_beacon_int|noscan)/',$key))&&($val == 'null')){ //Cure for the modern toolkit
-            			continue;
-            		}
+                	
+                	if($val == 'null'){ //Any null values probably comes from the modern toolkit and we just ignore them
+                		continue;
+                	}
+                	
+            		//if((preg_match('/^radio\d+_(include_distance|include_beacon_int|noscan)/',$key))&&($val == 'null')){ //Cure for the modern toolkit
+            		//	continue;
+            		//}
                            
                     if(preg_match('/^radio\d+_ht_capab/',$key)){
                         $pieces = explode("\n", $req_d["$key"]);
@@ -2622,9 +2627,14 @@ class MeshesController extends AppController{
                     if(preg_match('/^radio\d+_(disabled|band|mode|width|txpower|include_distance|distance|include_beacon_int|beacon_int|ht_capab|mesh|ap|config|channel_five|channel_two|noscan)/',$key)){ 
                     
                     	$val =  $req_d["$key"];
-                		if((preg_match('/^radio\d+_(include_distance|include_beacon_int|noscan)/',$key))&&($val == 'null')){ //Cure for the modern toolkit
+                    	if($val == 'null'){ //Any null values probably comes from the modern toolkit and we just ignore them
                 			continue;
                 		}
+                    	
+                    	
+                		//if((preg_match('/^radio\d+_(include_distance|include_beacon_int|noscan)/',$key))&&($val == 'null')){ //Cure for the modern toolkit
+                		//	continue;
+                		//}
                                  
                         if(preg_match('/^radio\d+_ht_capab/',$key)){
                             $pieces = explode("\n", $req_d["$key"]);
