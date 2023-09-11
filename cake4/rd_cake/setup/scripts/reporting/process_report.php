@@ -93,8 +93,13 @@ function _doReports(){
             print("WARNING -> NODE $row->node_id IS MISSING (Skipping $row->id)\n");
             continue;//Skip firther execution of this iteration
         }
-       
-        $report = json_decode($row->report,true);   
+             
+        $report = json_decode($row->report,true);
+        //--Sept 2023 -- 
+        if(!is_array($report)){ //Skip if the report is corrupted
+        	continue;
+        }
+           
         _new_do_uptm_history($row);
         _resolve_alert($row);
          
@@ -177,8 +182,12 @@ function _doReports(){
             continue;//Skip further execution of this iteration
         }
         
-        $report = json_decode($row->report,true);
-        
+        $report = json_decode($row->report,true);      
+        //--Sept 2023 -- 
+        if(!is_array($report)){ //Skip if the report is corrupted
+        	continue;
+        }
+               
         _new_do_ap_uptm_history($row);
         _resolve_ap_alert($row);
         
@@ -861,6 +870,5 @@ function logger($message){
         print($message);
     }
 }
-
 
 ?>
