@@ -1,10 +1,13 @@
 <?php
 
 //as www-data
-//cd /var/www/html/cake4/rd_cake && bin/cake accounting auto_clean_mesh_desk
+//cd /var/www/html/cake4/rd_cake && bin/cake auto_clean_mesh_desk
 
 namespace App\Shell;
 use Cake\Console\Shell;
+use Cake\I18n\FrozenTime;
+use Cake\I18n\Time;
+
 
 
 class AutoCleanMeshDeskShell extends Shell {
@@ -13,6 +16,7 @@ class AutoCleanMeshDeskShell extends Shell {
         parent::initialize();
         $this->loadModel('NodeIbssConnections');
         $this->loadModel('NodeStations');
+        $this->loadModel('TempReports');
     }
 
     public function main() {
@@ -23,6 +27,11 @@ class AutoCleanMeshDeskShell extends Shell {
         $this->out("<comment>Auto Clean-up of MESHdesk data older than one week".APP."</comment>");
         $this->NodeStations->deleteAll(['NodeStations.modified <' => $modified]);
 		$this->NodeIbssConnections->deleteAll(['NodeIbssConnections.modified <' => $modified]);
+		
+		//--Delete TempReports if it is older than 30 minutes--;
+		$now        = new FrozenTime();
+		$hour_old	= $now->subMinute(30);
+		$this->TempReports->deleteAll(['TempReports.timestamp <' => $hour_old]);		
     }
 }
 
