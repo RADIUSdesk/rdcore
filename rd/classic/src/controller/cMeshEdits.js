@@ -72,18 +72,6 @@ Ext.define('Rd.controller.cMeshEdits', {
             'gridMeshEntries #edit': {
                 click:  me.editEntry
             },
-            'winMeshAddEntry cmbEncryptionOptions': {
-                change: me.cmbEncryptionChange
-            },
-            'winMeshAddEntry #chk_auto_nasid': {
-                change: me.chkAutoNasidChange
-            },
-            'winMeshAddEntry #chk_maxassoc': {
-                change: me.chkMaxassocChange
-            },
-            'winMeshAddEntry cmbMacFilter': {
-                change: me.cmbMacFilterChange
-            },
             'winMeshAddEntry #save': {
                 click: me.btnAddEntrySave
             },
@@ -92,18 +80,6 @@ Ext.define('Rd.controller.cMeshEdits', {
             },
             'winMeshEditEntry': {
                 beforeshow:      me.loadEntry
-            },
-             'winMeshEditEntry cmbEncryptionOptions': {
-                change: me.cmbEncryptionChange
-            },
-            'winMeshEditEntry #chk_auto_nasid': {
-                change: me.chkAutoNasidChange
-            },
-            'winMeshEditEntry #chk_maxassoc': {
-                change: me.chkMaxassocChange
-            },
-            'winMeshEditEntry cmbMacFilter': {
-                change: me.cmbMacFilterChange
             },
             'winMeshEditEntry #save': {
                 click: me.btnEditEntrySave
@@ -298,134 +274,6 @@ Ext.define('Rd.controller.cMeshEdits', {
                 meshId      : tabEdit.meshId
             });
             w.show();        
-        }
-    },
-    chkAccountingChange : function(chk){
-        var me      = this;
-        var form    = chk.up('form');
-        var nasid   = form.down('#nasid');
-        var chk_auto_nas = form.down('#chk_auto_nasid');
-        if(chk.getValue()){
-            chk_auto_nas.setVisible(true);
-            chk_auto_nas.setDisabled(false);
-            nasid.setVisible(true);
-            nasid.setDisabled(false);
-        }else{   
-            chk_auto_nas.setVisible(false);
-            chk_auto_nas.setDisabled(true);
-            nasid.setVisible(false);
-            nasid.setDisabled(true);
-        }
-    },
-    chkAutoNasidChange: function(chk){
-        var me      = this;
-        var form    = chk.up('form');
-        var nasid   = form.down('#nasid');
-        var acct    = form.down('#chk_accounting');
-        var enc     =  form.down('cmbEncryptionOptions').getValue();
-        if((enc == 'wpa')|(enc == 'wpa2')){
-            if(acct){
-                if(chk.getValue()){
-                    nasid.setVisible(false);
-                    nasid.setDisabled(true);  
-                }else{
-                    nasid.setVisible(true);
-                    nasid.setDisabled(false);
-                }  
-            }
-        }else{
-            nasid.setVisible(false);
-            nasid.setDisabled(true);
-        }
-    },
-    
-    cmbEncryptionChange: function(cmb){
-        var me      = this;
-        var form    = cmb.up('form');
-        var key     = form.down('#key');
-        var srv     = form.down('#auth_server');
-        var scrt    = form.down('#auth_secret');
-        var nasid   = form.down('#nasid');
-        var acct    = form.down('#chk_accounting');
-        var auto    = form.down('#chk_auto_nasid');        
-        var val     = cmb.getValue();
-        if(val == 'none'){
-            key.setVisible(false);
-            key.setDisabled(true); 
-            srv.setVisible(false);
-            srv.setDisabled(true);
-            scrt.setVisible(false);
-            scrt.setDisabled(true); 
-            nasid.setVisible(false);
-            nasid.setDisabled(true); 
-            acct.setVisible(false);
-            acct.setDisabled(true);  
-            auto.setVisible(false);
-            auto.setDisabled(true); 
-        }
-
-        if((val == 'wep')|(val == 'psk')|(val =='psk2')){
-            key.setVisible(true);
-            key.setDisabled(false); 
-            srv.setVisible(false);
-            srv.setDisabled(true);
-            scrt.setVisible(false);
-            scrt.setDisabled(true);
-            nasid.setVisible(false);
-            nasid.setDisabled(true); 
-            acct.setVisible(false);
-            acct.setDisabled(true);
-            auto.setVisible(false);
-            auto.setDisabled(true);   
-        }
-
-        if((val == 'wpa')|(val == 'wpa2')){
-            key.setVisible(false);
-            key.setDisabled(true); 
-            srv.setVisible(true);
-            srv.setDisabled(false);
-            scrt.setVisible(true);
-            scrt.setDisabled(false);
-            acct.setVisible(true);
-            acct.setDisabled(false);  
-            auto.setVisible(true);
-            auto.setDisabled(false); 
-            
-            if(auto.getValue()){
-                nasid.setVisible(false);
-                nasid.setDisabled(true);  
-            }else{
-                nasid.setVisible(true);
-                nasid.setDisabled(false);  
-            }  
-        }
-
-    },
-    chkMaxassocChange: function(chk){
-        var me      = this;
-        var form    = chk.up('form');
-        var num     = form.down('#maxassoc');    
-        var val     = chk.getValue();
-        if(val){
-            num.setVisible(true);
-            num.setDisabled(false); 
-        }else{
-            num.setVisible(false);
-            num.setDisabled(true);
-        }
-    },
-    cmbMacFilterChange:function(cmb){
-        var me      = this;
-        var form    = cmb.up('form');
-        var pu      = form.down('cmbPermanentUser');
-        var val     = cmb.getValue();
-        
-        if(val == 'disable'){
-            pu.setVisible(false);
-            pu.setDisabled(true); 
-        }else{
-            pu.setVisible(true);
-            pu.setDisabled(false); 
         }
     },
     btnAddEntrySave:  function(button){

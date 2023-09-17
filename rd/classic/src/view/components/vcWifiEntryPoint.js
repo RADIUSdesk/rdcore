@@ -19,6 +19,12 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
         },
         '#chkHotspot2' : {
         	change: 'chkHotspot2Change'
+        },
+        '#chkFastRoaming' : {
+        	change: 'chkFastRoamingChange'
+        },
+        '#chkFtNasid' : {
+        	change: 'chkFtNasidChange'
         }
     },
     init    : function() {
@@ -36,6 +42,11 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
         var d_vlan  = form.down('#default_vlan');
         var d_key   = form.down('#default_key');
         var hs2		= form.down('#chkHotspot2');
+        
+        var	chkFr	= form.down('#chkFastRoaming');
+        var	pnlFr	= form.down('#pnlFastRoaming');
+        var	chkFrNid= form.down('#chkFtNasid');
+        var	txtFrNid= form.down('#txtFtNasid');
 
         var val     = cmb.getValue();
         if(val == 'none'){
@@ -56,8 +67,40 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
             d_vlan.setDisabled(true);
             d_key.setHidden(true);
             d_key.setDisabled(true); 
+            
+            chkFr.hide();
+            chkFr.disable();
+            pnlFr.hide();
+            pnlFr.disable();   
+            
         }
-
+        
+        if((val == 'wpa')|(val == 'wpa2')|(val == 'ppsk')|(val == 'psk')|(val =='psk2')){        
+        	if(chkFr.getValue()){
+        		pnlFr.show();
+            	pnlFr.enable();
+            }      
+        	chkFr.show();
+            chkFr.enable();          
+            //Sub set
+            if((val == 'wpa')|(val == 'wpa2')|(val == 'ppsk')){    
+		    	chkFrNid.hide();
+		    	chkFrNid.disable();
+		    	txtFrNid.hide();
+		    	txtFrNid.disable();		    	             
+		    }else{
+		    	chkFrNid.show();
+		    	chkFrNid.enable();
+		    	if(chkFrNid.getValue()){
+		    		txtFrNid.hide();
+		    		txtFrNid.disable();
+		    	}else{
+		    		txtFrNid.show();
+		    		txtFrNid.enable();
+		    	}	
+		    }                                      
+        }
+        
         if((val == 'wep')|(val == 'psk')|(val =='psk2')){
             key.setVisible(true);
             key.setDisabled(false); 
@@ -192,5 +235,29 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
     	var me 		= this;
     	var form	= chk.up('form');
     	//FIXME We will eventually have a combo-box with Hotspot2.0 Profiles to choose from
+    },
+    chkFastRoamingChange : function(chk){
+    	var me 		= this;
+    	var form	= chk.up('form');
+    	var	pnlFr	= form.down('#pnlFastRoaming');    	
+    	if(chk.getValue()){
+    		pnlFr.show();
+        	pnlFr.enable();
+        }else{      
+        	pnlFr.hide();
+        	pnlFr.disable();
+      	}    
+    },
+    chkFtNasidChange : function(chk){
+    	var me 		= this;
+    	var form	= chk.up('form');
+    	var	txtFrNid= form.down('#txtFtNasid');
+    	if(chk.getValue()){
+    		txtFrNid.hide();
+    		txtFrNid.disable();  	
+    	}else{   	
+    		txtFrNid.show();
+    		txtFrNid.enable();   	
+    	}  
     } 
 });

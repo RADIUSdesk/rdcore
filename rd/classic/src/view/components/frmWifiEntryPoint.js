@@ -36,8 +36,14 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
         var me      = this;
         var w_rd    = 80;
         
-     
-        
+        var store_ft = Ext.create('Ext.data.Store', {
+            fields: ['id', 'Name'],
+            data : [
+                {"id": 0, "name": 'FT Over The Air'},
+                {"id": 1, "name": 'FT Over DS'}
+            ]
+        });
+                  
         me.items    = [
             {
                 xtype   : 'tabpanel',
@@ -274,7 +280,99 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                                 itemId      : 'chkHotspot2',
                                 hidden      : true,
                                 disabled    : true
-                            }
+                            },
+                            {
+                                xtype       : 'checkbox',      
+                                fieldLabel  : 'Hotspot 2.0',
+                                name        : 'hotspot2_enable',
+                                checked     : false,
+                                labelClsExtra: 'lblRdReq',
+                                itemId      : 'chkHotspot2',
+                                hidden      : true,
+                                disabled    : true
+                            },
+                            {
+						        xtype       : 'checkbox',      
+						        boxLabel    : '802.11r Fast Transition',
+						        inputValue  : 'ieee802r',
+						        name        : 'ieee802r',
+						        boxLabelCls	: 'boxLabelRd',
+						        itemId		: 'chkFastRoaming',
+						        hidden		: true,
+						        disabled	: true
+						    },
+						    {	
+						    	xtype		: 'panel',
+						    	bodyStyle  	: 'background: #e0ebeb',
+						    	hidden		: true,
+						    	disabled	: true,
+						    	itemId		: 'pnlFastRoaming',
+						    	layout    	: 'anchor',
+		                        defaults    : {
+		                            anchor: '100%'
+		                        },
+						    	items		: [
+						    		{
+										xtype       : 'combobox',
+										fieldLabel  : 'FT Protocol',
+										store       : store_ft,
+										queryMode   : 'local',
+										name        : 'ft_over_ds',
+										displayField: 'name',
+										valueField  : 'id',
+										value       : 0//Default
+									},
+									{
+				                        xtype       : 'textfield',
+				                        fieldLabel  : 'Mobility Domain',
+				                        name        : 'mobility_domain',
+				                        itemId      : 'txtMobilityDomain',
+				                        minLength   : 4,
+				                        maxLength   : 4,
+				                        allowBlank  : true,  
+				                        blankText   : i18n("sSupply_a_value"),
+				                        labelClsExtra: 'lblRd',
+				                        validator: function(val) {
+				                        	if(val == ''){
+				                        		return true; //allow empty
+				                        	}
+				                        	if((/^([a-fA-F0-9]){4}$/).test(val)){
+				                        		return true;
+											}else{
+												return '4-character hexadecimal ID Please';
+											}
+										}
+				                    },
+									{
+				                        xtype       : 'checkbox',      
+				                        boxLabel    : 'Generate NAS ID',
+				                        name        : 'auto_nasid',
+				                        inputValue  : 'auto_nasid',
+				                        checked     : true,
+				                        boxLabelCls	: 'boxLabelRd',
+				                        itemId      : 'chkFtNasid',
+				                    },
+				                    {
+				                        xtype       : 'textfield',
+				                        fieldLabel  : 'NAS ID',
+				                        name        : 'nasid',
+				                        itemId      : 'txtFtNasid',
+				                        allowBlank  : false,
+				                        blankText   : i18n("sSupply_a_value"),
+				                        labelClsExtra: 'lblRdReq',
+				                        hidden		: true,
+				                        disabled	: true
+				                    },									
+				                    {
+										xtype       : 'checkbox',      
+										boxLabel    : 'Generate PMK Locally',
+										name        : 'ft_pskgenerate_local',
+										inputValue  : 'ft_pskgenerate_local',
+										boxLabelCls	: 'boxLabelRd',
+										checked		: true
+									}
+								]
+							}						                           
                         ]
                     },
                     { 
