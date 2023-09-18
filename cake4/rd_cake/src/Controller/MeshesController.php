@@ -310,7 +310,7 @@ class MeshesController extends AppController{
         
         $req_d 		= $this->request->getData();
         
-        $check_items = ['hidden','isolate','apply_to_all','accounting','auto_nasid','chk_maxassoc','hotspot2_enable','ieee802r','ft_pskgenerate_local'];
+        $check_items = ['hidden','isolate','apply_to_all','accounting','auto_nasid','chk_maxassoc','hotspot2_enable','ieee802r','ft_pskgenerate_local','ft_auto_nasid'];
         foreach($check_items as $i){
 	        if(isset($req_d[$i])){
 	        	if($req_d[$i] == 'null'){
@@ -321,6 +321,12 @@ class MeshesController extends AppController{
 	        }else{
 	            $req_d[$i] = 0;
 	        }
+	    }
+	    
+	    if(isset($req_d['ft_auto_nasid'])){
+	    	if($req_d['ft_auto_nasid'] == 1){
+	   			$req_d['auto_nasid'] = $req_d['ft_auto_nasid']; 
+	    	}
 	    }
         
         $entity 	= $this->{'MeshEntries'}->newEntity($req_d);      
@@ -380,7 +386,7 @@ class MeshesController extends AppController{
                 $req_d['nasid'] = $mesh_name_underscored.'_meap_'.$req_d['id'];
             }
 
-            $check_items = ['hidden','isolate','apply_to_all','accounting','auto_nasid','chk_maxassoc','chk_schedule','hotspot2_enable','ieee802r','ft_pskgenerate_local'];
+            $check_items = ['hidden','isolate','apply_to_all','accounting','auto_nasid','chk_maxassoc','chk_schedule','hotspot2_enable','ieee802r','ft_pskgenerate_local','ft_auto_nasid'];
             foreach($check_items as $i){
 		        if(isset($req_d[$i])){
 		        	if($req_d[$i] == 'null'){
@@ -392,6 +398,12 @@ class MeshesController extends AppController{
 		            $req_d[$i] = 0;
 		        }
 		    }
+		    
+		    if(isset($req_d['ft_auto_nasid'])){
+				if($req_d['ft_auto_nasid'] == 1){
+		   			$req_d['auto_nasid'] = $req_d['ft_auto_nasid']; 
+				}
+			}
             
             
             $entity = $this->{'MeshEntries'}->get($req_d['id']);
@@ -553,9 +565,9 @@ class MeshesController extends AppController{
         }
        
        if($entity->ft_over_ds){
-       	$entity->ft_over_ds = 1;
+       		$entity->ft_over_ds = 1;
        }else{
-       	$entity->ft_over_ds = 0;
+       		$entity->ft_over_ds = 0;
        } 
      
         $this->set([

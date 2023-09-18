@@ -251,6 +251,8 @@ class ApProfilesController extends AppController {
                 'dynamic_vlan'  => $m->dynamic_vlan,
                 'frequency_band'  => $m->frequency_band,
                 'hotspot2_enable' => $m->hotspot2_enable,
+                'ieee802r'		=> $m->ieee802r,
+                'mobility_domain' => $m->mobility_domain,
                 'connected_to_exit' => $connected_to_exit,
                 'chk_schedule'	=> $chk_schedule
             ));
@@ -272,7 +274,7 @@ class ApProfilesController extends AppController {
         
         $cdata = $this->request->getData();
         
-        $check_items = ['hidden','isolate','chk_maxassoc','accounting','auto_nasid','chk_schedule','hotspot2_enable'];
+        $check_items = ['hidden','isolate','chk_maxassoc','accounting','auto_nasid','chk_schedule','hotspot2_enable','ieee802r','ft_pskgenerate_local','ft_auto_nasid'];
         foreach($check_items as $i){
             if(isset($cdata[$i])){
 				if($cdata[$i] == 'null'){
@@ -284,6 +286,12 @@ class ApProfilesController extends AppController {
 				$cdata[$i] = 0;
 			}
         }
+        
+        if(isset($cdata['ft_auto_nasid'])){
+	    	if($cdata['ft_auto_nasid'] == 1){
+	   			$cdata['auto_nasid'] = $cdata['ft_auto_nasid']; 
+	    	}
+	    }
         
         $entryEntity = $this->ApProfileEntries->newEntity($cdata);
         if ($this->ApProfileEntries->save($entryEntity)) {
@@ -334,7 +342,7 @@ class ApProfilesController extends AppController {
         }
 
         $cdata = $this->request->getData();
-        $check_items = ['hidden','isolate','apply_to_all','chk_maxassoc','accounting','auto_nasid','chk_schedule','hotspot2_enable'];
+        $check_items = ['hidden','isolate','apply_to_all','chk_maxassoc','accounting','auto_nasid','chk_schedule','hotspot2_enable','ieee802r','ft_pskgenerate_local','ft_auto_nasid'];
         foreach($check_items as $i){
             if(isset($cdata[$i])){
 				if($cdata[$i] == 'null'){
@@ -346,6 +354,12 @@ class ApProfilesController extends AppController {
 				$cdata[$i] = 0;
 			}
         }
+        
+     	if(isset($cdata['ft_auto_nasid'])){
+			if($cdata['ft_auto_nasid'] == 1){
+	   			$cdata['auto_nasid'] = $cdata['ft_auto_nasid']; 
+			}
+		}
 
         if ($this->request->is('post')) {
         
@@ -490,6 +504,12 @@ class ApProfilesController extends AppController {
         	$q_r->schedule = $new_schedule; 
         	       	        	
         }
+        
+        if($q_r->ft_over_ds){
+		   	$q_r->ft_over_ds = 1;
+		}else{
+		   	$q_r->ft_over_ds = 0;
+		} 
            
         $this->set([
             'data'     => $q_r,

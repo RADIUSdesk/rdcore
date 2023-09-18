@@ -282,16 +282,6 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                                 disabled    : true
                             },
                             {
-                                xtype       : 'checkbox',      
-                                fieldLabel  : 'Hotspot 2.0',
-                                name        : 'hotspot2_enable',
-                                checked     : false,
-                                labelClsExtra: 'lblRdReq',
-                                itemId      : 'chkHotspot2',
-                                hidden      : true,
-                                disabled    : true
-                            },
-                            {
 						        xtype       : 'checkbox',      
 						        boxLabel    : '802.11r Fast Transition',
 						        inputValue  : 'ieee802r',

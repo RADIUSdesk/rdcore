@@ -1618,15 +1618,22 @@ class MeshHelper22Component extends Component {
                                     if($me->chk_maxassoc){
                                         $base_array['maxassoc'] = $me->maxassoc;
                                     }
-
-                                    if($me->encryption == 'wpa2'){
-                                         $base_array['nasid'] = $me->nasid;
-                                    }
                                                        
                                     if($me->accounting){
                                         $base_array['acct_server']	= $me->auth_server;
                                         $base_array['acct_secret']	= $me->auth_secret;
                                     }
+                                    
+                                    if($me->ieee802r){
+								    	$base_array['ieee802r']				= $me->ieee802r;
+								    	$base_array['ft_over_ds']			= $me->ft_over_ds;
+								    	$base_array['ft_pskgenerate_local']	= $me->ft_pskgenerate_local; 
+								    	
+								    	if($me->mobility_domain !== ''){
+								    		$base_array['mobility_domain']  = $me->mobility_domain;
+								    	}                           	                          
+								    }   
+                                    
                                     
                                     if($me->encryption == 'ppsk'){
 										$base_array['encryption']	= 'psk2';
@@ -1634,11 +1641,19 @@ class MeshHelper22Component extends Component {
 										$base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
 										$base_array['vlan_bridge']  = 'br-ex_vlan';
 										//$base_array['vlan_tagged_interface']  = 'lan1';//Is this needed?
-										$base_array['vlan_naming']	= '0';
-										$base_array['nasid']		= $me->nasid;														
+										$base_array['vlan_naming']	= '0';												
 										//Set the flag
 										$this->ppsk_flag = true;
 									}
+									
+									//NASID: We can probaly send along regardless and we use a convention of: md_ / ap_<entry_id>_<radio_number>_<ap_id>/node_id 
+				                    if($me->auto_nasid){                         
+				                    	$base_array['nasid'] = 'md_'.$me->id.'_'.$y.'_'.$this->NodeId;                            
+				                    }else{
+				                    	if($me->nasid !== ''){
+				                    		$base_array['nasid'] == $me->nasid;                            	
+				                    	}                            
+				                    }									
 
                                     if($me->macfilter != 'disable'){
                                         $base_array['macfilter']    = $me->macfilter;
@@ -1759,16 +1774,22 @@ class MeshHelper22Component extends Component {
                                                     
                                                     if($me->chk_maxassoc){
                                                         $base_array['maxassoc'] = $me->maxassoc;
-                                                    }
-                                                    
-                                                    if($me->encryption == 'wpa2'){
-                                                         $base_array['nasid'] = $me->nasid;
-                                                    }
+                                                    }                                                    
                                                     
                                                     if($me->accounting){
                                                         $base_array['acct_server']	= $me->auth_server;
                                                         $base_array['acct_secret']	= $me->auth_secret;
                                                     }
+                                                    
+                                                    if($me->ieee802r){
+												    	$base_array['ieee802r']				= $me->ieee802r;
+												    	$base_array['ft_over_ds']			= $me->ft_over_ds;
+												    	$base_array['ft_pskgenerate_local']	= $me->ft_pskgenerate_local; 
+												    	
+												    	if($me->mobility_domain !== ''){
+												    		$base_array['mobility_domain']  = $me->mobility_domain;
+												    	}                           	                          
+												    }     
                                                     
                                                     //OCT 2022
                                                     if($me->encryption == 'ppsk'){
@@ -1777,11 +1798,19 @@ class MeshHelper22Component extends Component {
 														$base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
 														$base_array['vlan_bridge']  = 'br-ex_vlan';
 														//$base_array['vlan_tagged_interface']  = 'lan1';//Is this needed?
-														$base_array['vlan_naming']	= '0';
-														$base_array['nasid']		= $me->nasid;														
+														$base_array['vlan_naming']	= '0';													
 														//Set the flag
 														$this->ppsk_flag = true;
 													}
+													
+													//NASID: We can probaly send along regardless and we use a convention of: md_ / ap_<entry_id>_<radio_number>_<ap_id>/node_id 
+												    if($me->auto_nasid){                         
+												    	$base_array['nasid'] = 'md_'.$me->id.'_'.$y.'_'.$this->NodeId;                            
+												    }else{
+												    	if($me->nasid !== ''){
+												    		$base_array['nasid'] == $me->nasid;                            	
+												    	}                            
+												    }	
                                                     
                                                    	if($me->macfilter != 'disable'){
                                                         $base_array['macfilter']    = $me->macfilter;

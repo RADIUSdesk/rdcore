@@ -1335,17 +1335,23 @@ class ApHelper22Component extends Component {
                             if($ap_profile_e->chk_maxassoc){
                                 $base_array['maxassoc'] = $ap_profile_e->maxassoc;
                             }
-
-                            if($ap_profile_e->encryption == 'wpa2'){
-                                 $base_array['nasid'] = $ap_profile_e->nasid;
-                            }
-
+                            
                             if($ap_profile_e->accounting){
                                 $base_array['acct_server']	= $ap_profile_e->auth_server;
                                 $base_array['acct_secret']	= $ap_profile_e->auth_secret;
                                 $base_array['acct_interval']= $this->acct_interval;
                             }
                             
+                            if($ap_profile_e->ieee802r){
+                            	$base_array['ieee802r']				= $ap_profile_e->ieee802r;
+                            	$base_array['ft_over_ds']			= $ap_profile_e->ft_over_ds;
+                            	$base_array['ft_pskgenerate_local']	= $ap_profile_e->ft_pskgenerate_local; 
+                            	
+                            	if($ap_profile_e->mobility_domain !== ''){
+                            		$base_array['mobility_domain']  = $ap_profile_e->mobility_domain;
+                            	}                           	                          
+                            }                                                      
+                                                                                 
                             //==OCT 2022== Private PSK Support ==
                             /*
                             config wifi-iface 'default_radio0'
@@ -1370,12 +1376,19 @@ class ApHelper22Component extends Component {
 								$base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
 								$base_array['vlan_bridge']  = 'br-ex_vlan';
 								$base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
-								$base_array['vlan_naming']	= '0';
-								$base_array['nasid']		= $ap_profile_e->nasid;
-								
+								$base_array['vlan_naming']	= '0';								
 								//Set the flag
 								$this->ppsk_flag = true;
 							}
+							
+							//NASID: We can probaly send along regardless and we use a convention of: md_ / ap_<entry_id>_<radio_number>_<ap_id>/node_id 
+                            if($ap_profile_e->auto_nasid){                         
+                            	$base_array['nasid'] = 'ap_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;                            
+                            }else{
+                            	if($ap_profile_e->nasid !== ''){
+                            		$base_array['nasid'] == $ap_profile_e->nasid;                            	
+                            	}                            
+                            }
                             
 
                             if($ap_profile_e->macfilter != 'disable'){
