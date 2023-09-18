@@ -1343,13 +1343,13 @@ class ApHelper22Component extends Component {
                             }
                             
                             if($ap_profile_e->ieee802r){
-                            	$base_array['ieee802r']				= $ap_profile_e->ieee802r;
-                            	$base_array['ft_over_ds']			= $ap_profile_e->ft_over_ds;
-                            	$base_array['ft_pskgenerate_local']	= $ap_profile_e->ft_pskgenerate_local; 
-                            	
-                            	if($ap_profile_e->mobility_domain !== ''){
-                            		$base_array['mobility_domain']  = $ap_profile_e->mobility_domain;
-                            	}                           	                          
+	                            $base_array['ieee80211r']				= $ap_profile_e->ieee802r; //FIXME A Typo slipped in ... OpenWrt looking for ieee80211r and not ieee802r
+	                            $base_array['ft_over_ds']			= $ap_profile_e->ft_over_ds;
+	                            $base_array['ft_psk_generate_local']	= $ap_profile_e->ft_pskgenerate_local; //FIXME Another Type slipped in ... OpenWrt looking for ft_psk_generate_local
+	                            
+	                            if($ap_profile_e->mobility_domain !== ''){
+		                            $base_array['mobility_domain']  = $ap_profile_e->mobility_domain;
+	                            }                           	                          
                             }                                                      
                                                                                  
                             //==OCT 2022== Private PSK Support ==

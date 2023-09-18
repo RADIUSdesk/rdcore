@@ -1625,16 +1625,15 @@ class MeshHelper22Component extends Component {
                                     }
                                     
                                     if($me->ieee802r){
-								    	$base_array['ieee802r']				= $me->ieee802r;
-								    	$base_array['ft_over_ds']			= $me->ft_over_ds;
-								    	$base_array['ft_pskgenerate_local']	= $me->ft_pskgenerate_local; 
-								    	
-								    	if($me->mobility_domain !== ''){
-								    		$base_array['mobility_domain']  = $me->mobility_domain;
-								    	}                           	                          
-								    }   
-                                    
-                                    
+	                                    $base_array['ieee80211r']				= $me->ieee802r;
+	                                    $base_array['ft_over_ds']			    = $me->ft_over_ds;
+	                                    $base_array['ft_psk_generate_local']	= $me->ft_pskgenerate_local; 
+	                                    
+	                                    if($me->mobility_domain !== ''){
+		                                    $base_array['mobility_domain']  = $me->mobility_domain;
+	                                    }                           	                          
+                                    }   
+                                                                       
                                     if($me->encryption == 'ppsk'){
 										$base_array['encryption']	= 'psk2';
 										$base_array['ppsk']			= '1';
@@ -1782,14 +1781,14 @@ class MeshHelper22Component extends Component {
                                                     }
                                                     
                                                     if($me->ieee802r){
-												    	$base_array['ieee802r']				= $me->ieee802r;
-												    	$base_array['ft_over_ds']			= $me->ft_over_ds;
-												    	$base_array['ft_pskgenerate_local']	= $me->ft_pskgenerate_local; 
-												    	
-												    	if($me->mobility_domain !== ''){
-												    		$base_array['mobility_domain']  = $me->mobility_domain;
-												    	}                           	                          
-												    }     
+	                                                    $base_array['ieee80211r']			= $me->ieee802r;  //FIXME A Typo slipped in ... OpenWrt looking for ieee80211r and not ieee802r
+	                                                    $base_array['ft_over_ds']			= $me->ft_over_ds;
+	                                                    $base_array['ft_psk_generate_local']	= $me->ft_pskgenerate_local; //FIXME Another Type slipped in ... OpenWrt looking for ft_psk_generate_local
+	                                                    
+	                                                    if($me->mobility_domain !== ''){
+		                                                    $base_array['mobility_domain']  = $me->mobility_domain;
+	                                                    }                           	                          
+                                                    }     
                                                     
                                                     //OCT 2022
                                                     if($me->encryption == 'ppsk'){
