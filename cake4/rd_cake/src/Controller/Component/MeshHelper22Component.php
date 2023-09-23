@@ -889,20 +889,7 @@ class MeshHelper22Component extends Component {
                     }else{       
                         $current_interfaces = $network[1]['lists']['ports'];
                         $network[1]['lists']['ports'] = array_merge($current_interfaces,$interfaces);
-                        $network[1]['options']['stp'] = 1;
-                        
-                        $dns            = '';
-                        $wan_specific   = $this->_checkForWanSpecific();
-                        foreach($wan_specific as $x => $val){
-                            if(($x == 'dns_1')or($x == 'dns_2')){
-                                $dns = $dns.' '.$val;
-                            }else{
-                                $network[2]['options'][$x] = $val;
-                            }
-                        }
-                        if($dns !== ''){
-                            $network[2]['options']['dns'] = trim($dns); 
-                        }          
+                        $network[1]['options']['stp'] = 1;  
                     }                
                     $start_number++;
                     continue; //We dont care about the other if's
@@ -1157,7 +1144,23 @@ class MeshHelper22Component extends Component {
             }
             $cp_counter++;
         }
-                  
+        
+        /* --- Add this regardless ---- (If it is configured; set it) */
+        $dns            = '';
+        $wan_specific   = $this->_checkForWanSpecific();
+        
+        foreach($wan_specific as $x => $val){
+            if(($x == 'dns_1')or($x == 'dns_2')){
+                $dns = $dns.' '.$val;
+            }else{
+                $network[2]['options'][$x] = $val;
+            }
+        }
+        if($dns !== ''){
+            $network[2]['options']['dns'] = trim($dns); 
+        }
+        
+                         
         return [$network,$entry_point_data,$nat_data,$captive_portal_data,$openvpn_bridge_data,$nat_detail];     
     }
      

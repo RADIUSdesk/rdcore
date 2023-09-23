@@ -2,7 +2,6 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
     extend:'Ext.grid.Panel',
     alias : 'widget.gridMeshes',
     multiSelect: false,
-    store : 'sMeshes',
     stateful: true,
     stateId: 'StateGridMeshes',
     stateEvents:['groupclick','columnhide'],
@@ -20,7 +19,7 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
         var me      = this;    
-        me.store    = Ext.create(Rd.store.sMeshes,{
+        me.store    = Ext.create('Rd.store.sMeshes',{
             listeners: {
                 load: function(store, records, successful) {
                     var md          = store.getProxy().getReader().metaData;

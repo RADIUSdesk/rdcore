@@ -207,9 +207,7 @@
         {
             "path": "app.js",
             "bundle": true
-        }
-		/* TODO - FIgure out how this works properly for Production build -jtm-
-		,
+        },
         {
             "path": "resources/js/singletons.js"
         },
@@ -218,17 +216,7 @@
         },
         {
             "path": "resources/js/jit-yc.js"
-        },
-        {
-            "path": "resources/js/Chart.2.7.2.min.js"
-        },
-        {
-            "path": "resources/js/chartjs-plugin-datalabels.0.2.0.min.js"
-        },
-        {
-            "path": "resources/js/countUp.min.js"
-        }  
-		*/			
+        }			
     ],
 
     /**

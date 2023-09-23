@@ -30,8 +30,7 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
     }],*/
     initComponent: function(){
         var me      = this;
-
-		me.store    = Ext.create(Rd.store.sNodeLists,{});
+		me.store    = Ext.create('Rd.store.sNodeLists',{});
          
          me.bbar   =  [
             {
