@@ -30,7 +30,7 @@ Ext.define('Rd.view.vouchers.gridVoucherDevices' ,{
         ];
 
         //Create a store specific to this Access Provider
-        me.store = Ext.create(Ext.data.Store,{
+        me.store = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mVoucherDevice',
             proxy: {
                 type        : 'ajax',

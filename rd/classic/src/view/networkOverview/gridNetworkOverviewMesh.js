@@ -169,7 +169,7 @@ Ext.define('Rd.view.networkOverview.gridNetworkOverviewMesh' ,{
     ], 
     initComponent: function(){
         var me      = this;
-        me.store    = Ext.create(Rd.store.sMeshOverview,{
+        me.store    = Ext.create('Rd.store.sMeshOverview',{
             autoLoad: false 
         });
 		me.store.load(); 

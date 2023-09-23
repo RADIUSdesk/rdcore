@@ -109,7 +109,7 @@ Ext.define('Rd.view.schedules.pnlSchedules', {
             '</tpl>'
         );
                    
-        me.store = Ext.create(Ext.data.Store,{
+        me.store = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mSchedule',
             proxy: {
                 type        :'ajax',

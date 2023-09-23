@@ -107,7 +107,7 @@ Ext.define('Rd.view.aps.gridApViewActions' ,{
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 
         //Create a store specific to this Owner
-        me.store = Ext.create(Ext.data.Store,{
+        me.store = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mMeshViewNodeAction',
             proxy: {
                 type: 'ajax',

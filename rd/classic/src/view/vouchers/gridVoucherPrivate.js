@@ -109,7 +109,7 @@ Ext.define('Rd.view.vouchers.gridVoucherPrivate' ,{
 
 
         //Create a store specific to this Access Provider
-        me.store = Ext.create(Ext.data.Store,{
+        me.store = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mPrivateAttribute',
             proxy: {
                 type        : 'ajax',

@@ -53,7 +53,7 @@ Ext.define('Rd.view.meshes.gridMeshViewNodes' ,{
     }],
     initComponent: function(){
         var me      = this;
-        me.store    = Ext.create(Rd.store.sMeshViewNodes,{
+        me.store    = Ext.create('Rd.store.sMeshViewNodes',{
             groupField: 'name',
             listeners: {
                 load: function(store, records, successful) {
@@ -95,7 +95,7 @@ Ext.define('Rd.view.meshes.gridMeshViewNodes' ,{
             autoLoad: false 
         });
         
-        me.store    = Ext.create(Rd.store.sMeshViewNodes,{});
+        me.store    = Ext.create('Rd.store.sMeshViewNodes',{});
         me.store.getProxy().setExtraParam('mesh_id',me.meshId);
               
         me.bbar     =  [

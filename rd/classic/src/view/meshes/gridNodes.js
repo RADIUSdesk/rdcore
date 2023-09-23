@@ -19,7 +19,7 @@ Ext.define('Rd.view.meshes.gridNodes' ,{
     initComponent: function(){
         var me      = this;
 
-        me.store    = Ext.create(Rd.store.sNodes,{
+        me.store    = Ext.create('Rd.store.sNodes',{
             listeners: {
                 load: function(store, records, successful) {
                     if(!successful){

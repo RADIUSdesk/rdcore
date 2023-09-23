@@ -68,7 +68,7 @@ Ext.define('Rd.view.profileComponents.pnlProfileComponents', {
             '</tpl>'
         );
                    
-        me.store = Ext.create(Ext.data.Store,{
+        me.store = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mProfileComponentDataView',
             proxy: {
                 type        :'ajax',

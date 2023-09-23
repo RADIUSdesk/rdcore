@@ -87,7 +87,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailTranslations' ,{
         var me      = this;
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
         //Create a store specific to this Dynamic Detail
-        me.store = Ext.create(Ext.data.Store,{
+        me.store = Ext.create('Ext.data.Store',{
             model       : 'Rd.model.mDynamicDetailTranslation',
             //To force server side sorting:
             remoteSort  : true,

@@ -17,7 +17,7 @@ Ext.define('Rd.view.meshes.gridMeshEntries' ,{
     urlMenu: '/cake4/rd_cake/meshes/menu_for_entries_grid.json',
     initComponent: function(){
         var me      = this;
-        me.store    = Ext.create(Rd.store.sMeshEntries,{
+        me.store    = Ext.create('Rd.store.sMeshEntries',{
             listeners: {
                 load: function(store, records, successful) {
                     if(!successful){

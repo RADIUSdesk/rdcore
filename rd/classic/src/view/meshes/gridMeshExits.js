@@ -17,7 +17,7 @@ Ext.define('Rd.view.meshes.gridMeshExits' ,{
     urlMenu: '/cake4/rd_cake/meshes/menu_for_exits_grid.json',
     initComponent: function(){
         var me      = this;
-        me.store    = Ext.create(Rd.store.sMeshExits,{
+        me.store    = Ext.create('Rd.store.sMeshExits',{
             listeners: {
                 load: function(store, records, successful) {
                     if(!successful){

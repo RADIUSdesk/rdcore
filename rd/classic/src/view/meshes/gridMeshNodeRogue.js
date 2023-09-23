@@ -14,7 +14,7 @@ Ext.define('Rd.view.meshes.gridMeshNodeRogue' ,{
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
         var me      = this;
-		me.store    = Ext.create(Rd.store.sMeshNodeRogues,{
+		me.store    = Ext.create('Rd.store.sMeshNodeRogues',{
             listeners: {
                 load: function(store, records, successful) {
                     var pnl     = me.up("pnlMeshNodeRogue");

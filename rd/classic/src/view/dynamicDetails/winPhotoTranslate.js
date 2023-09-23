@@ -16,7 +16,7 @@ Ext.define('Rd.view.dynamicDetails.winPhotoTranslate', {
     controller  : 'vcPhotoTranslate',
     initComponent: function() {
         var me      = this;    
-        var store   = Ext.create(Ext.data.Store,{
+        var store   = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mDynamicPhoto',
             proxy: {
                 type        :'ajax',

@@ -15,7 +15,7 @@ Ext.define('Rd.view.aps.gridAccessPointExits' ,{
     urlMenu     : '/cake4/rd_cake/ap-profiles/menu_for_exits_grid.json',
     initComponent: function(){
         var me      = this;
-        me.store    = Ext.create(Rd.store.sAccessPointExits,{});
+        me.store    = Ext.create('Rd.store.sAccessPointExits',{});
         me.store.getProxy().setExtraParam('ap_profile_id',me.apProfileId);
         me.store.load();
 

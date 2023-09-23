@@ -19,7 +19,7 @@ Ext.define('Rd.view.aps.gridAccessPointAps' ,{
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
         var me      = this;
-        me.store    = Ext.create(Rd.store.sAps,{});
+        me.store    = Ext.create('Rd.store.sAps',{});
         me.store.getProxy().setExtraParam('ap_profile_id',me.apProfileId);
         me.store.load();
         me.bbar = [{

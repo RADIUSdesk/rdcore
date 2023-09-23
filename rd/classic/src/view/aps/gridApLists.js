@@ -543,7 +543,4 @@ Ext.define('Rd.view.aps.gridApLists' ,{
         }, 100);
         return Ext.String.format('<div id="{0}"></div>', id);
     }
-
-
-
 });

@@ -9,7 +9,7 @@ Ext.define('Rd.view.dataUsage.pnlDataUsageGraph', {
     ],
     initComponent: function(){
         var me      = this;
-        me.store    = Ext.create(Ext.data.Store,{model: 'Rd.model.mUserStat'});
+        me.store    = Ext.create('Ext.data.Store',{model: 'Rd.model.mUserStat'});
 
         var chart = Ext.create('Ext.chart.CartesianChart',{
              insetPadding: {

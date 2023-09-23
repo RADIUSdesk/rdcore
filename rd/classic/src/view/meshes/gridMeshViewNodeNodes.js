@@ -57,7 +57,7 @@ Ext.define('Rd.view.meshes.gridMeshViewNodeNodes' ,{
     }],
     initComponent: function(){
         var me      = this;
-        me.store    = Ext.create(Rd.store.sMeshViewNodeNodes,{});
+        me.store    = Ext.create('Rd.store.sMeshViewNodeNodes',{});
         me.store.getProxy().setExtraParam('mesh_id',me.meshId);
               
         me.bbar     =  [

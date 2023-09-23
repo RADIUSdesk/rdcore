@@ -46,7 +46,7 @@ Ext.define('Rd.view.permanentUsers.gridUserRadpostauths' ,{
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 
         //Create a store specific to this Permanent User
-        me.store = Ext.create(Ext.data.Store,{
+        me.store = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mRadpostauth',
             buffered: false,
             leadingBufferZone: 450, 

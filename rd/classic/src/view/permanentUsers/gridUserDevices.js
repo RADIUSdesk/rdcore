@@ -160,7 +160,7 @@ Ext.define('Rd.view.permanentUsers.gridUserDevices' ,{
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu+'?user_id='+me.user_id+'&username='+me.username});
 
         //Create a store specific to this Permanent User
-        me.store = Ext.create(Ext.data.Store,{
+        me.store = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mDevice',
             pageSize: 100,
             //To force server side sorting:

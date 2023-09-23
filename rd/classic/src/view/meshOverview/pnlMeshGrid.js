@@ -15,7 +15,7 @@ Ext.define('Rd.view.meshOverview.pnlMeshGrid', {
         var me      = this;
         var size    = 'small';
 		var mo_pnl = Ext.ComponentQuery.query('pnlMeshOverview')[0];
-        me.store    = Ext.create(Rd.store.sMeshOverview,{
+        me.store    = Ext.create('Rd.store.sMeshOverview',{
             autoLoad: false 
         });
 		me.store.getProxy().setExtraParams({'tree_tag_id': mo_pnl.current_node_id});

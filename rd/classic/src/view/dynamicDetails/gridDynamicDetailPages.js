@@ -41,7 +41,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailPages' ,{
        
 
         //Create a store specific to this Dynamic Detail
-        me.store = Ext.create(Ext.data.Store,{
+        me.store = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mDynamicPage',
             //To force server side sorting:
             remoteSort: true,

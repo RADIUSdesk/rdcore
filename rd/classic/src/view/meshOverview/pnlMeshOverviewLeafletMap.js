@@ -22,7 +22,7 @@ Ext.define('Rd.view.meshOverview.pnlMeshOverviewLeafletMap', {
 		    initialZoomLevel: zoom 
         }];
         
-        me.store    = Ext.create(Rd.store.sMeshOverviewMaps,{
+        me.store    = Ext.create('Rd.store.sMeshOverviewMaps',{
             listeners: {
                 load: function(store, records, successful) {
                     //console.log("Store Loaded....");

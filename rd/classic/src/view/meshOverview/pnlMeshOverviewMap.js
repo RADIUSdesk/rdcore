@@ -12,9 +12,7 @@ Ext.define('Rd.view.meshOverview.pnlMeshOverviewMap', {
 	initComponent: function(){
         var me      = this;	
         me.mapItems = new Ext.util.MixedCollection();
- 
-        //me.store    = Ext.create(Rd.store.sMeshOverviewLight,{
-        me.store    = Ext.create(Rd.store.sMeshOverviewMaps,{
+        me.store    = Ext.create('Rd.store.sMeshOverviewMaps',{
             listeners: {
                 load: function(store, records, successful) {
                     //console.log("Store Loaded....");

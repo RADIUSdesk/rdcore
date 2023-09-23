@@ -86,7 +86,7 @@ Ext.define('Rd.view.components.pnlUsageGraph', {
                 cls     : 'lblRd' 
             }
         ];       
-        me.store    = Ext.create(Ext.data.Store,{
+        me.store    = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mUserStat',
             proxy: {
                 type        : 'ajax',

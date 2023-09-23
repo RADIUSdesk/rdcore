@@ -39,7 +39,7 @@ Ext.define('Rd.view.nas.gridNasAvailability' ,{
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 
         //Create a store specific to this Owner
-        me.store = Ext.create(Ext.data.Store,{
+        me.store = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mNaState',
             proxy: {
                 type: 'ajax',

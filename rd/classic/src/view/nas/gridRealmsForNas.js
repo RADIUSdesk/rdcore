@@ -27,7 +27,7 @@ Ext.define('Rd.view.nas.gridRealmsForNas' ,{
     initComponent: function(){
 
         var me   = this;
-        me.store = Ext.create(Ext.data.Store,{
+        me.store = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mRealmForDynamicClientCloud',
             proxy: {
                 type            : 'ajax',

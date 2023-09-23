@@ -43,7 +43,7 @@ Ext.define('Rd.view.firewallApps.pnlFirewallApps', {
             '</tpl>'
         );
                    
-        me.store = Ext.create(Ext.data.Store,{
+        me.store = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mDynamicPhoto', //FIXME MODEL 
             proxy: {
                 type        :'ajax',

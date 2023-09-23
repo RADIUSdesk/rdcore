@@ -119,7 +119,7 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailPhoto', {
         );
         
 
-        me.store = Ext.create(Ext.data.Store,{
+        me.store = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mDynamicPhoto',
             proxy: {
                 type        :'ajax',

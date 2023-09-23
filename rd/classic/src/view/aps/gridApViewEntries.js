@@ -26,7 +26,7 @@ Ext.define('Rd.view.aps.gridApViewEntries' ,{
     }],
     initComponent: function(){
         var me      = this;
-        me.store    = Ext.create(Rd.store.sApViewEntries,{});
+        me.store    = Ext.create('Rd.store.sApViewEntries',{});
         me.store.getProxy().setExtraParam('ap_id',me.apId);
         
         me.bbar     =  [
