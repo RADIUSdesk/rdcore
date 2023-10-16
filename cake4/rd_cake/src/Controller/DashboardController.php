@@ -793,7 +793,17 @@ class DashboardController extends AppController{
 	            	'ui' =>  'tab-brown'
 	        	]   
             ]);
-       		                       
+            
+            array_push($items,[
+                "title" => "Accel-ppp Servers",
+                "glyph" => "xf10e@FontAwesome",
+                "id"	=> "cAccel",
+                "layout"=> "fit",
+                'tabConfig' =>  [
+	            	'ui' =>  'tab-brown'
+	        	]   
+            ]);
+                		                       
         }
         
         $this->set([

@@ -608,7 +608,12 @@ class GridButtonsFlatComponent extends Component {
             $menu = [$b]; 
         }
         
-         if($type == 'unknown_ap_or_nodes'){
+        if($type = 'accel_servers'){
+            $b = $this->_fetchBasic();
+            $menu = [$b]; 
+        }
+              
+        if($type == 'unknown_ap_or_nodes'){
             $b  = $this->_fetchUnknown();
             $menu = [$b]; 
         }
