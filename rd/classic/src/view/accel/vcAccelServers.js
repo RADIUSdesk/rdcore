@@ -5,14 +5,21 @@ Ext.define('Rd.view.accel.vcAccelServers', {
     
     },
     config: {
-        urlDelete       : '/cake4/rd_cake/settings/sms-histories-delete.json',
+        urlAdd      : '/cake4/rd_cake/accel-servers/add.json',
+        urlDelete   : '/cake4/rd_cake/accel-servers/delete.json'
     },
     control: {
         'gridAccelServers #reload': {
             click   : 'reload'
+        },
+        'gridAccelServers #add': {
+            click   : 'add'
         },     
         'gridAccelServers #delete': {
             click   : 'del'
+        },
+        'winAddAccelServer #save' : {
+            click   : 'addSave'
         }
     },
     reload: function(){
@@ -69,6 +76,36 @@ Ext.define('Rd.view.accel.vcAccelServers', {
                 }
             });
         }
+    },
+    add: function(btn){
+    	var me = this;
+    	if(!Ext.WindowManager.get('winAddAccelServerId')){
+            var w = Ext.widget('winAddAccelServer',{id:'winAddAccelServerId'});
+            me.getView().add(w); 
+            let appBody = Ext.getBody();
+            w.showBy(appBody);           
+        }  
+    },
+    addSave :  function(button){
+        var me      = this;
+        var win     = button.up('window');
+        var form    = win.down('form');
+        form.submit({
+            clientValidation: true,
+            url: me.getUrlAdd(),
+            success: function(form, action) {
+                win.close();
+                me.reload();
+                me.reloadComboBox();
+                Ext.ux.Toaster.msg(
+                    i18n('sNew_item_created'),
+                    i18n('sItem_created_fine'),
+                    Ext.ux.Constants.clsInfo,
+                    Ext.ux.Constants.msgInfo
+                );
+            },
+            failure: Ext.ux.formFail
+        });
     },
     onViewActivate: function(pnl){
         var me = this;

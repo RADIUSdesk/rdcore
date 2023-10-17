@@ -53,9 +53,78 @@ Ext.define('Rd.view.accel.gridAccelServers' ,{
                 stateId     : 'StateGridAccS2'
             },
             { 
+                text        : "<i class=\"fa fa-gears\"></i> "+'Config Fetched', 
+                dataIndex   : 'config_fetched',  
+                tdCls       : 'gridTree', 
+                flex        : 1,
+                renderer    : function(val,metaData, record){
+                    var config_fetched_human     = record.get('config_fetched_human');  
+                    var config;
+                    var value = record.get('config_state');
+                    if(value != 'never'){                    
+                        if(value == 'up'){
+                            config =  "<div class=\"fieldGreen\">"+config_fetched_human+"</div>";
+                        }
+                        if(value == 'down'){
+                            config = "<div class=\"fieldGrey\">"+config_fetched_human+"</div>";
+                        }
+
+                    }else{
+                        config = "<div class=\"fieldBlue\">Never</div>";
+                    }
+                    return config;
+                                 
+                },stateId: 'StateGMVND12a',
+                hidden: false
+            },
+            { 
+                text        : "<i class=\"fa fa-heartbeat\"></i> "+'Heartbeat Received',   
+                dataIndex   : 'last_contact',  
+                tdCls       : 'gridTree', 
+                flex        : 1,
+                renderer    : function(val,metaData, record){    
+                    var heartbeat;
+                    var value = record.get('state');
+                    if(value != 'never'){                    
+                        var last_contact     = record.get('last_contact_human');
+                        if(value == 'up'){
+                            heartbeat =  "<div class=\"fieldGreen\">"+last_contact+"</div>";
+                        }
+                        if(value == 'down'){
+                            heartbeat = "<div class=\"fieldRed\">"+last_contact+"</div>";
+                        }
+
+                    }else{
+                        heartbeat = "<div class=\"fieldBlue\">Never</div>";
+                    }
+                    return heartbeat;
+                                 
+                },stateId: 'StateGridNodeLists8'
+            },
+            { 
+
+                text        : 'From IP', 
+                dataIndex   : 'last_contact_from_ip',          
+                tdCls       : 'gridTree', 
+                flex        : 1,
+                hidden      : true, 
+                xtype       :  'templatecolumn', 
+                 tpl         :  new Ext.XTemplate(
+                    '<div class=\"fieldGreyWhite\">{last_contact_from_ip}</div>',
+                    "<tpl if='Ext.isEmpty(city)'><tpl else>",
+                        '<div><b>{city}</b>  ({postal_code})</div>',
+                    "</tpl>",
+                    "<tpl if='Ext.isEmpty(country_name)'><tpl else>",
+                        '<div><b>{country_name}</b> ({country_code})</div>',
+                    "</tpl>"   
+                ), 
+                filter		: {type: 'string'},stateId: 'StateGridNodeLists8a'
+            },
+            { 
                 text        : 'Created',
                 dataIndex   : 'created', 
-                tdCls       : 'gridTree',  
+                tdCls       : 'gridTree', 
+                hidden      : true, 
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
                     "<div class=\"fieldBlue\">{created_in_words}</div>"

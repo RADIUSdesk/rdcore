@@ -16,6 +16,7 @@ class AccelServersController extends AppController{
         parent::initialize();
 
         $this->loadModel('AccelServers'); 
+        $this->loadModel('AccelStats');
     
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -25,14 +26,46 @@ class AccelServersController extends AppController{
          $this->loadComponent('JsonErrors'); 
          $this->loadComponent('TimeCalculations');          
     }
-
     
+    public function submitReport(){ 
+    
+        $req_d		= $this->request->getData();
+        
+        //json_encode($req_d['stat']['sessions']);
+        
+        if(isset($req_d['mac'])){
+            $mac = $req_d['mac'];
+            $e_s = $this->{'AccelServers'}->find()->where(['AccelServers.mac' => $mac])->first();
+            if($e_s){               
+                $e_s->last_contact = date('Y-m-d H:i:s', time());
+                $e_s->last_contact_from_ip = $this->request->clientIp();
+                $this->{'AccelServers'}->save($e_s);
+                //Do the stats entry 
+                $e_stats = $this->{'AccelStats'}->find()->where(['AccelStats.accel_server_id' => $e_s->id])->first();
+                if($e_stats){
+                    $this->{'AccelStats'}->patchEntity($e_stats, $req_d['stat']);    
+                }else{
+                    $e_stats = $this->{'AccelStats'}->newEntity($req_d['stat']);
+                }
+                $this->{'AccelStats'}->save($e_stats);
+            }     
+        }
+                
+        $this->set([
+            'data'      => $req_d['stat']['uptime'],
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    }
+   
 	public function index(){
 	
 		$user = $this->_ap_right_check();
         if (!$user) {
             return;
         }
+        
+        $dead_after = 900; //15 minutes
     
     	$req_q    = $this->request->getQuery(); //q_data is the query data
         $cloud_id = $req_q['cloud_id'];
@@ -57,21 +90,38 @@ class AccelServersController extends AppController{
         $items  = [];
 
         foreach($q_r as $i){               
-            $row        = [];
-            $fields     = $this->{$this->main_model}->getSchema()->columns();
-            foreach($fields as $field){
-                $row["$field"]= $i->{"$field"};
-                
-                if($field == 'created'){
-                    $row['created_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }
-                if($field == 'modified'){
-                    $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }   
-            } 
-			$row['update']		= true;
-			$row['delete']		= true;
-            array_push($items,$row);
+			$i->update		= true;
+			$i->delete		= true;		
+			$i->state		= 'up';
+
+			$i->modified_in_words = $this->TimeCalculations->time_elapsed_string($i->modified);
+			$i->created_in_words = $this->TimeCalculations->time_elapsed_string($i->created);
+			
+			if($i->config_fetched == null){
+			    $i->config_state= 'never';
+			}else{
+			    $i->config_fetched_human = $this->TimeCalculations->time_elapsed_string($i->config_fetched);
+			    $last_timestamp = strtotime($i->config_fetched);
+                if ($last_timestamp+$dead_after <= time()) {
+                    $i->config_state = 'down';
+                } else {
+                    $i->config_state = 'up';
+                }		
+			}
+			
+			if($i->last_contact == null){
+			    $i->state= 'never';
+			}else{
+			    $i->last_contact_human = $this->TimeCalculations->time_elapsed_string($i->last_contact);
+			    $last_timestamp = strtotime($i->last_contact);
+                if ($last_timestamp+$dead_after <= time()) {
+                    $i->state = 'down';
+                } else {
+                    $i->state = 'up';
+                }		
+			}	
+					
+            array_push($items,$i);
         }
         
         $this->set([
@@ -132,8 +182,6 @@ class AccelServersController extends AppController{
         }
               
         if ($this->{$this->main_model}->save($entity)) {
-        
-        	$this->IspPlumbing->realmAddEdit($entity);
             $this->set([
                 'success' 	=> true,
                 'data'		=> $entity
@@ -202,13 +250,12 @@ class AccelServersController extends AppController{
         }
         
         $menu = $this->GridButtonsFlat->returnButtons(false,'accel_servers');
-        $this->set(array(
+        $this->set([
             'items'         => $menu,
             'success'       => true
-        ));
+        ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
-
 }
 
 ?>
