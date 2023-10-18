@@ -14,7 +14,83 @@ Ext.define('Rd.view.accel.gridAccelServers' ,{
     listeners       : {
         activate  : 'onViewActivate'
     },
-    plugins     : 'gridfilters',
+    plugins     : [
+        'gridfilters',
+        {
+            ptype       : 'rowexpander',
+            rowBodyTpl  : new Ext.XTemplate(
+                '<div class="plain-wrap">',                 
+            		'<tpl if="accel_stat">',
+            		    '<div class="sub">',
+			    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
+			    				'Uptime - {accel_stat.uptime}',
+			    			'</div>',
+			    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
+			    				'CPU - {accel_stat.cpu}',
+			    			'</div>',
+			    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
+			    				'Memory - {accel_stat.mem}',
+			    			'</div>',
+    					'</div>',
+            		    '<div class="main">',
+                			'Core',
+                		'</div>',
+            		    '<div class="sub">',
+    					    '<tpl for="accel_stat.core">',
+				    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
+				    				'<span>{[Ext.ux.splitCapital(values.name)]}</span> - {value}',
+				    			'</div>',
+				    		'</tpl>',
+    					'</div>',
+    					'<div class="main">',
+                			'Sessions',
+                		'</div>',
+            		    '<div class="sub">',
+    					    '<tpl for="accel_stat.sessions">',
+				    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
+				    				'<span>{[Ext.ux.splitCapital(values.name)]}</span> - {value}',
+				    			'</div>',
+				    		'</tpl>',
+    					'</div>',
+    					'<div class="main">',
+                			'PPPoE',
+                		'</div>',
+            		    '<div class="sub">',
+    					    '<tpl for="accel_stat.pppoe">',
+				    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
+				    				'<span>{[Ext.ux.splitCapital(values.name)]}</span> - {value}',
+				    			'</div>',
+				    		'</tpl>',
+    					'</div>',
+    					'<div class="main">',
+                			'RADIUS 1',
+                		'</div>',
+            		    '<div class="sub">',
+    					    '<tpl for="accel_stat.radius1">',
+				    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
+				    				'<span>{[Ext.ux.splitCapital(values.name)]}</span> - {value}',
+				    			'</div>',
+				    		'</tpl>',
+    					'</div>',
+    					'<div class="main">',
+                			'RADIUS 2',
+                		'</div>',
+            		    '<div class="sub">',
+    					    '<tpl for="accel_stat.radius2">',
+				    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
+				    				'<span>{[Ext.ux.splitCapital(values.name)]}</span> - {value}',
+				    			'</div>',
+				    		'</tpl>',
+    					'</div>',
+    				'<tpl else>',
+    				    '<div class="sub">',
+    					    '<div style="font-size:25px;color:#9999c7;text-align:left;padding-left:20px;padding-top:10px;"> No Stats Available</div>',
+    					'</div>',
+    				'</tpl>',
+            	'</div>'
+            )
+        }
+    ],
     requires    : [
         'Rd.view.components.ajaxToolbar',
         'Ext.toolbar.Paging',
@@ -40,14 +116,16 @@ Ext.define('Rd.view.accel.gridAccelServers' ,{
         me.columns  = [
             { 
                 text        : 'Name',               
-                dataIndex   : 'name',  
+                dataIndex   : 'name',
+                tdCls       : 'gridMain', 
                 flex        : 1,
                 filter      : {type: 'string'},
                 stateId     : 'StateGridAccS1'
             },
             { 
                 text        : 'MAC Address',               
-                dataIndex   : 'mac',  
+                dataIndex   : 'mac',
+                tdCls       : 'gridTree',  
                 flex        : 1,
                 filter      : {type: 'string'},
                 stateId     : 'StateGridAccS2'
@@ -119,6 +197,21 @@ Ext.define('Rd.view.accel.gridAccelServers' ,{
                     "</tpl>"   
                 ), 
                 filter		: {type: 'string'},stateId: 'StateGridNodeLists8a'
+            },
+            { 
+                text        : "<i class=\"fa fa-chain \"></i> "+'Active Sessions',   
+                dataIndex   : 'sessions_active',  
+                tdCls       : 'gridTree', 
+                flex        : 1,
+                renderer    : function(val,metaData, record){    
+                    var heartbeat;
+                    var value = record.get('sessions_active');
+                    if(value != 0){                    
+                        return "<div class=\"fieldGreyWhite\">"+value+"</div>";
+                    }else{
+                        return "<div class=\"fieldBlue\">0</div>";
+                    }                              
+                },stateId: 'StateGridNodeLists8b'
             },
             { 
                 text        : 'Created',

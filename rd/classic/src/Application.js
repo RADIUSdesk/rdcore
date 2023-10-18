@@ -354,6 +354,10 @@ Ext.define('Rd.Application', {
         Ext.ux.centsToHuman = function(cents) {
             return (cents/100).toFixed(2); 
         }
+        
+        Ext.ux.splitCapital = function(n) {
+            return Ext.String.capitalize(n).replaceAll('_',' ');
+        }
     },
     
     onAppUpdate: function () {

@@ -31,12 +31,44 @@ class AccelServersController extends AppController{
     
         $req_d		= $this->request->getData();
         
-        //json_encode($req_d['stat']['sessions']);
+        //--We store the data as JSON strings since ther are arrays.
+        foreach (array_keys($req_d['stat']) as $key){
+                 
+            if($key == 'sessions'){
+                $s_list = $req_d['stat'][$key];
+                foreach($s_list as $s){
+                    if($s['name'] == 'active'){
+                        $req_d['stat']['sessions_active'] = $s['value'];
+                    }
+                }              
+            }
+            
+            if(($key == 'core')||($key == 'sessions')||($key == 'pppoe')){
+                $req_d['stat'][$key] = json_encode($req_d['stat'][$key]);
+            }
+            
+            if(preg_match('/^radius/', $key)){ //,"radius(1, 164.160.89.129)"
+                $radius_nr = preg_replace('/^radius\(/','',$key);
+                $radius_nr = preg_replace('/,.*/','',$radius_nr);
+                $radius_ip = preg_replace('/.*,\s+/','',$key);
+                $radius_ip = preg_replace('/\)$/','',$radius_ip);
+                array_push($req_d['stat'][$key], ['name' => 'ip', 'value' => $radius_ip]);            
+                $req_d['stat']['radius'.$radius_nr] = json_encode($req_d['stat'][$key]);     
+            }
+            
+            if(preg_match('/^mem/', $key)){    // "mem(rss\/virt)":"5632\/244536 kB"
+                $req_d['stat']['mem'] = $req_d['stat'][$key];
+            }
+             
+        }
         
         if(isset($req_d['mac'])){
             $mac = $req_d['mac'];
             $e_s = $this->{'AccelServers'}->find()->where(['AccelServers.mac' => $mac])->first();
-            if($e_s){               
+            if($e_s){ 
+            
+                $req_d['stat']['accel_server_id'] = $e_s->id;
+                          
                 $e_s->last_contact = date('Y-m-d H:i:s', time());
                 $e_s->last_contact_from_ip = $this->request->clientIp();
                 $this->{'AccelServers'}->save($e_s);
@@ -44,7 +76,7 @@ class AccelServersController extends AppController{
                 $e_stats = $this->{'AccelStats'}->find()->where(['AccelStats.accel_server_id' => $e_s->id])->first();
                 if($e_stats){
                     $this->{'AccelStats'}->patchEntity($e_stats, $req_d['stat']);    
-                }else{
+                }else{                  
                     $e_stats = $this->{'AccelStats'}->newEntity($req_d['stat']);
                 }
                 $this->{'AccelStats'}->save($e_stats);
@@ -52,7 +84,6 @@ class AccelServersController extends AppController{
         }
                 
         $this->set([
-            'data'      => $req_d['stat']['uptime'],
             'success'   => true
         ]);
         $this->viewBuilder()->setOption('serialize', true);
@@ -69,7 +100,7 @@ class AccelServersController extends AppController{
     
     	$req_q    = $this->request->getQuery(); //q_data is the query data
         $cloud_id = $req_q['cloud_id'];
-        $query 	  = $this->{$this->main_model}->find();      
+        $query 	  = $this->{$this->main_model}->find()->contain(['AccelStats']);      
         $this->CommonQueryFlat->build_cloud_query($query,$cloud_id);
         
         $limit  = 50;   //Defaults
@@ -119,6 +150,19 @@ class AccelServersController extends AppController{
                 } else {
                     $i->state = 'up';
                 }		
+			}
+			
+			if($i->accel_stat){
+			    $i->sessions_active = $i->accel_stat->sessions_active;
+			    $i->uptime = $i->accel_stat->uptime;
+			    $i->accel_stat->core = json_decode($i->accel_stat->core);
+			    $i->accel_stat->sessions = json_decode($i->accel_stat->sessions);
+			    $i->accel_stat->pppoe = json_decode($i->accel_stat->pppoe);
+			    $i->accel_stat->radius1 = json_decode($i->accel_stat->radius1);
+			    $i->accel_stat->radius2 = json_decode($i->accel_stat->radius2);		    
+			}else{
+			    $i->sessions_active = 0;
+			    $i->uptime = 0;
 			}	
 					
             array_push($items,$i);
