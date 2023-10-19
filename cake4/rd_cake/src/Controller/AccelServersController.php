@@ -17,6 +17,7 @@ class AccelServersController extends AppController{
 
         $this->loadModel('AccelServers'); 
         $this->loadModel('AccelStats');
+        $this->loadModel('AccelSessions');
     
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -58,8 +59,7 @@ class AccelServersController extends AppController{
             
             if(preg_match('/^mem/', $key)){    // "mem(rss\/virt)":"5632\/244536 kB"
                 $req_d['stat']['mem'] = $req_d['stat'][$key];
-            }
-             
+            }             
         }
         
         if(isset($req_d['mac'])){
@@ -67,12 +67,14 @@ class AccelServersController extends AppController{
             $e_s = $this->{'AccelServers'}->find()->where(['AccelServers.mac' => $mac])->first();
             if($e_s){ 
             
+                $server_id = $e_s->id;
                 $req_d['stat']['accel_server_id'] = $e_s->id;
-                          
+                                        
                 $e_s->last_contact = date('Y-m-d H:i:s', time());
                 $e_s->last_contact_from_ip = $this->request->clientIp();
                 $this->{'AccelServers'}->save($e_s);
-                //Do the stats entry 
+                
+                //--Do the stats entry-- 
                 $e_stats = $this->{'AccelStats'}->find()->where(['AccelStats.accel_server_id' => $e_s->id])->first();
                 if($e_stats){
                     $this->{'AccelStats'}->patchEntity($e_stats, $req_d['stat']);    
@@ -80,6 +82,26 @@ class AccelServersController extends AppController{
                     $e_stats = $this->{'AccelStats'}->newEntity($req_d['stat']);
                 }
                 $this->{'AccelStats'}->save($e_stats);
+                
+                //--Do the sessions entry--
+                foreach($req_d['sessions'] as $session){ 
+                
+                    foreach(array_keys($session) as $key){              
+                         if(str_contains($key , '-')){                        
+                            $new_key = str_replace('-','_',$key);
+                            $session[$new_key] = $session[$key];
+                         }
+                    }                             
+                    $mac        = $session['calling_sid'];                                
+                    $e_session  =  $this->{'AccelSessions'}->find()->where(['AccelSessions.accel_server_id' => $server_id,'AccelSessions.calling_sid' => $mac])->first();
+                    if($e_session){
+                        $this->{'AccelSessions'}->patchEntity($e_session,$session);    
+                    }else{ 
+                        $session['accel_server_id'] = $server_id;                 
+                        $e_session                  = $this->{'AccelSessions'}->newEntity($session);
+                    }
+                    $this->{'AccelSessions'}->save($e_session);             
+                }             
             }     
         }
                 

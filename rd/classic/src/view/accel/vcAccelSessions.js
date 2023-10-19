@@ -1,33 +1,26 @@
-Ext.define('Rd.view.accel.vcAccelServers', {
+Ext.define('Rd.view.accel.vcAccelSessions', {
     extend  : 'Ext.app.ViewController',
-    alias   : 'controller.vcAccelServers',
+    alias   : 'controller.vcAccelSessions',
     init    : function() {
     
     },
     config: {
-        urlAdd      : '/cake4/rd_cake/accel-servers/add.json',
-        urlDelete   : '/cake4/rd_cake/accel-servers/delete.json'
+        urlDelete   : '/cake4/rd_cake/accel-sessions/delete.json'
     },
     control: {
-        'gridAccelServers #reload': {
+        'gridAccelSessions #reload': {
             click   : 'reload'
         },
-        'gridAccelServers #reload menuitem[group=refresh]'   : {
+        'gridAccelSessions #reload menuitem[group=refresh]'   : {
             click   : 'reloadOptionClick'
-        },  
-        'gridAccelServers #add': {
-            click   : 'add'
-        },     
-        'gridAccelServers #delete': {
+        },   
+        'gridAccelSessions #delete': {
             click   : 'del'
         },
-        'gridAccelServers #sessions': {
-            click   : 'sessions'
+        'gridAccelSessions #sessions': {
+            click   : 'disconnect'
         },
-        'winAddAccelServer #save' : {
-            click   : 'addSave'
-        },
-        'gridAccelServers actioncolumn': { 
+        'gridAccelSessions actioncolumn': { 
              itemClick  : 'onActionColumnItemClick'
         }
     },
@@ -110,37 +103,7 @@ Ext.define('Rd.view.accel.vcAccelServers', {
             });
         }
     },
-    add: function(btn){
-    	var me = this;
-    	if(!Ext.WindowManager.get('winAddAccelServerId')){
-            var w = Ext.widget('winAddAccelServer',{id:'winAddAccelServerId'});
-            me.getView().add(w); 
-            let appBody = Ext.getBody();
-            w.showBy(appBody);           
-        }  
-    },
-    addSave :  function(button){
-        var me      = this;
-        var win     = button.up('window');
-        var form    = win.down('form');
-        form.submit({
-            clientValidation: true,
-            url: me.getUrlAdd(),
-            success: function(form, action) {
-                win.close();
-                me.reload();
-                me.reloadComboBox();
-                Ext.ux.Toaster.msg(
-                    i18n('sNew_item_created'),
-                    i18n('sItem_created_fine'),
-                    Ext.ux.Constants.clsInfo,
-                    Ext.ux.Constants.msgInfo
-                );
-            },
-            failure: Ext.ux.formFail
-        });
-    },
-    sessions : function(){
+    disconnect : function(){
          // console.log("Edit node");  
         var me = this;
         //See if there are anything selected... if not, inform the user
@@ -153,34 +116,7 @@ Ext.define('Rd.view.accel.vcAccelServers', {
                         Ext.ux.Constants.msgWarn
             );
         }else{
-
-            var selected    =  me.getView().getSelectionModel().getSelection();
-            var count       = selected.length;         
-            Ext.each(me.getView().getSelectionModel().getSelection(), function(sr,index){
-
-                //Check if the node is not already open; else open the node:
-                var tp          = me.getView().up('tabpanel');
-                var t_id       = sr.getId();
-                var t_tab_id   = 'puTab_'+t_id;
-                var nt          = tp.down('#'+t_tab_id);
-                if(nt){
-                    tp.setActiveTab(t_tab_id); //Set focus on  Tab
-                    return;
-                }
-
-                var t_tab_name = sr.get('name');
-                //Tab not there - add one
-                tp.add({ 
-                    title   : t_tab_name,
-                    itemId  : t_tab_id,
-                    closable: true,
-                    glyph   : Rd.config.icnChain,
-                    layout  : 'fit',
-                    srv_id  : t_id,
-                    xtype   : 'gridAccelSessions'
-                });
-                tp.setActiveTab(t_tab_id); //Set focus on Add Tab
-            });
+            console.log("We need to disconnect the following items");
         }   
     },
     onViewActivate: function(pnl){

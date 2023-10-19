@@ -608,11 +608,62 @@ class GridButtonsFlatComponent extends Component {
             $menu = [$b]; 
         }
         
-        if($type = 'accel_servers'){
-            $b = $this->_fetchBasic();
+        if($type == 'accel_servers'){
+            $b = $this->_fetchBasic(true);
+            //print_r($b);
+            
+            $restart = [
+                'xtype'     => 'button', 
+                'glyph'     => Configure::read('icnGears'), 
+                'scale'     => $this->scale,
+                'itemId'    => 'restart',
+                'tooltip'   =>  __('Restart Service'),
+                'ui'        => $this->btnUiRestart
+            ];
+            
+            $sessions = [
+                'xtype'     => 'button', 
+                'glyph'     => Configure::read('icnConnect'), 
+                'scale'     => $this->scale,
+                'itemId'    => 'sessions',
+                'tooltip'   =>  __('Show Active Sessions'),
+                'ui'        => $this->btnUiRestart
+            ];
+                 
+            array_push($b['items'],$restart,$sessions);
             $menu = [$b]; 
         }
-              
+        
+        
+        if($type == 'accel_sessions'){
+            $b = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+                $this->btnReloadTimer,
+                [
+                    'xtype'         => 'button',
+                    'glyph'         => Configure::read('icnWatch'),
+                    'pressed'       => false,                       
+                    //To list only active
+                    //'glyph'         => Configure::read('icnLight'),
+                    //'pressed'       => true,                                
+                    'scale'         => $this->scale,
+                    'itemId'        => 'connected',
+                    'enableToggle'  => true,                       
+                    'ui'            => 'button-green',  
+                    'tooltip'       => __('Show only currently connected')
+                ],
+                $this->btnDelete,
+                [
+                    'xtype'     => 'button', 
+                    'glyph'     => Configure::read('icnChainBroken'), 
+                    'scale'     => $this->scale,
+                    'itemId'    => 'disconnect',
+                    'tooltip'   =>  __('Disconnect'),
+                    'ui'        => $this->btnUiRestart
+                ]
+            ]];
+            $menu = $b;
+        }
+                      
         if($type == 'unknown_ap_or_nodes'){
             $b  = $this->_fetchUnknown();
             $menu = [$b]; 

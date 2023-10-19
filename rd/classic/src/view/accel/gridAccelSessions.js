@@ -1,10 +1,10 @@
-Ext.define('Rd.view.accel.gridAccelServers' ,{
+Ext.define('Rd.view.accel.gridAccelSessions' ,{
     extend      :'Ext.grid.Panel',
-    alias       : 'widget.gridAccelServers',
+    alias       : 'widget.gridAccelSessions',
     multiSelect : true,
     store       : 'sAccelServers',
     stateful    : true,
-    stateId     : 'StateGridAccelServers',
+    stateId     : 'StateGridAccelSessions',
     stateEvents :['groupclick','columnhide'],
     border      : false,
     padding     : 0,
@@ -15,95 +15,21 @@ Ext.define('Rd.view.accel.gridAccelServers' ,{
         activate  : 'onViewActivate'
     },
     plugins     : [
-        'gridfilters',
-        {
-            ptype       : 'rowexpander',
-            rowBodyTpl  : new Ext.XTemplate(
-                '<div class="plain-wrap">',                 
-            		'<tpl if="accel_stat">',
-            		    '<div class="sub" style="background-color:#8a9fbf;">',
-			    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
-			    				'Uptime - {accel_stat.uptime}',
-			    			'</div>',
-			    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
-			    				'CPU - {accel_stat.cpu}',
-			    			'</div>',
-			    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
-			    				'Memory - {accel_stat.mem}',
-			    			'</div>',
-    					'</div>',
-            		    '<div class="main">',
-                			'Core',
-                		'</div>',
-            		    '<div class="sub">',
-    					    '<tpl for="accel_stat.core">',
-				    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
-				    				'<span>{[Ext.ux.splitCapital(values.name)]}</span> - {value}',
-				    			'</div>',
-				    		'</tpl>',
-    					'</div>',
-    					'<div class="main">',
-                			'Sessions',
-                		'</div>',
-            		    '<div class="sub">',
-    					    '<tpl for="accel_stat.sessions">',
-				    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
-				    				'<span>{[Ext.ux.splitCapital(values.name)]}</span> - {value}',
-				    			'</div>',
-				    		'</tpl>',
-    					'</div>',
-    					'<div class="main">',
-                			'PPPoE',
-                		'</div>',
-            		    '<div class="sub">',
-    					    '<tpl for="accel_stat.pppoe">',
-				    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
-				    				'<span>{[Ext.ux.splitCapital(values.name)]}</span> - {value}',
-				    			'</div>',
-				    		'</tpl>',
-    					'</div>',
-    					'<div class="main">',
-                			'RADIUS 1',
-                		'</div>',
-            		    '<div class="sub">',
-    					    '<tpl for="accel_stat.radius1">',
-				    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
-				    				'<span>{[Ext.ux.splitCapital(values.name)]}</span> - {value}',
-				    			'</div>',
-				    		'</tpl>',
-    					'</div>',
-    					'<div class="main">',
-                			'RADIUS 2',
-                		'</div>',
-            		    '<div class="sub">',
-    					    '<tpl for="accel_stat.radius2">',
-				    			'<div style="font-size:16px;color:#282852;text-align:left;padding-left:20px;padding-top:3px;padding-bottom:3px;">',
-				    				'<span>{[Ext.ux.splitCapital(values.name)]}</span> - {value}',
-				    			'</div>',
-				    		'</tpl>',
-    					'</div>',
-    				'<tpl else>',
-    				    '<div class="sub">',
-    					    '<div style="font-size:25px;color:#9999c7;text-align:left;padding-left:20px;padding-top:10px;"> No Stats Available</div>',
-    					'</div>',
-    				'</tpl>',
-            	'</div>'
-            )
-        }
+        'gridfilters'
     ],
     requires    : [
         'Rd.view.components.ajaxToolbar',
         'Ext.toolbar.Paging',
         'Ext.ux.ProgressBarPager',
-        'Rd.view.accel.vcAccelServers',
+        'Rd.view.accel.vcAccelSessions',
     ],
-    controller  : 'vcAccelServers',
-    urlMenu     : '/cake4/rd_cake/accel-servers/menu-for-grid.json',  
+    controller  : 'vcAccelSessions',
+    urlMenu     : '/cake4/rd_cake/accel-sessions/menu-for-grid.json',  
     initComponent: function(){
         var me     = this;
         me.tbar    = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu}); 
-        me.store   = Ext.create('Rd.store.sAccelServers');
-        me.store.addListener('metachange',  me.onStoreAccelServersMetachange, me);
+        me.store   = Ext.create('Rd.store.sAccelSessions');
+        me.store.addListener('metachange',  me.onStoreAccelSessionsMetachange, me);
         me.bbar     =  [
             {
                  xtype       : 'pagingtoolbar',
@@ -295,7 +221,7 @@ Ext.define('Rd.view.accel.gridAccelServers' ,{
         ]; 
         me.callParent(arguments);
     },
-    onStoreAccelServersMetachange: function(store,meta_data) {
+    onStoreAccelSessionsMetachange: function(store,meta_data) {
         var me          = this;
         console.log("Meta Data Changes Comes Here");
     }

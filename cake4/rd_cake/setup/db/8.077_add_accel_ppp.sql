@@ -56,31 +56,30 @@ if not exists (select * from information_schema.columns
       `username` varchar(255) NOT NULL DEFAULT '',
       `ip` varchar(32) NOT NULL DEFAULT '',
       `ip6` varchar(32) NOT NULL DEFAULT '',
-      `ip6-dp` varchar(32) NOT NULL DEFAULT '',
+      `ip6_dp` varchar(32) NOT NULL DEFAULT '',
       `type` varchar(32) NOT NULL DEFAULT '',
       `state` varchar(32) NOT NULL DEFAULT '',
       `uptime` varchar(32) NOT NULL DEFAULT '',
-      `uptime-raw`  int(11) NOT NULL DEFAULT 0,
-      `calling-sid` varchar(32) NOT NULL DEFAULT '',
-      `called-sid` varchar(32) NOT NULL DEFAULT '',
+      `uptime_raw`  int(11) NOT NULL DEFAULT 0,
+      `calling_sid` varchar(32) NOT NULL DEFAULT '',
+      `called_sid` varchar(32) NOT NULL DEFAULT '',
       `sid` varchar(32) NOT NULL DEFAULT '',
       `comp` varchar(32) NOT NULL DEFAULT '',
-      `rx-bytes` varchar(32) NOT NULL DEFAULT '',
-      `tx-bytes` varchar(32) NOT NULL DEFAULT '',
-      `rx-bytes-raw`  int(11) NOT NULL DEFAULT 0,
-      `tx-bytes-raw`  int(11) NOT NULL DEFAULT 0,
-      `rx-pkts`  int(11) NOT NULL DEFAULT 0,
-      `tx-pkts`  int(11) NOT NULL DEFAULT 0,
-      `inbound-if` varchar(32) NOT NULL DEFAULT '',
-      `service-name` varchar(32) NOT NULL DEFAULT '',
-      `rate-limit` varchar(32) NOT NULL DEFAULT '',
+      `rx_bytes` varchar(32) NOT NULL DEFAULT '',
+      `tx_bytes` varchar(32) NOT NULL DEFAULT '',
+      `rx_bytes_raw`  int(11) NOT NULL DEFAULT 0,
+      `tx_bytes_raw`  int(11) NOT NULL DEFAULT 0,
+      `rx_pkts`  int(11) NOT NULL DEFAULT 0,
+      `tx_pkts`  int(11) NOT NULL DEFAULT 0,
+      `inbound_if` varchar(32) NOT NULL DEFAULT '',
+      `service_name` varchar(32) NOT NULL DEFAULT '',
+      `rate_limit` varchar(32) NOT NULL DEFAULT '',
       `created` datetime NOT NULL,
       `modified` datetime NOT NULL,
       PRIMARY KEY (`id`)
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
 
 end if;
-
 
 end//
 

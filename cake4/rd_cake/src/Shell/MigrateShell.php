@@ -34,24 +34,20 @@ class MigrateShell extends Shell {
 		
 		print_r($this->ap_cloud);
 		$this->apId2CloudId('DynamicDetails');
-		//Then all the dependency tables:
+/*		//Then all the dependency tables:
 		$this->oneToOne('DataCollectors');
-		$this->oneToOne('DynamicDetailCtcs');
+	//	$this->oneToOne('DynamicDetailCtcs');
 		$this->oneToOne('DynamicDetailMobiles');
 		$this->oneToOne('DynamicDetailPrelogins');
 		$this->oneToOne('DynamicDetailSocialLogins');
 		$this->oneToOne('DynamicDetailTransKeys');
 		$this->oneToOne('DynamicPages');
 		$this->oneToOne('DynamicPairs');
-		$this->oneToOne('DynamicPhotos');
-		
-		
-		$this->apId2CloudId('DynamicClients');
-		
+		$this->oneToOne('DynamicPhotos');		
+				
+		$this->apId2CloudId('DynamicClients');		
 		$this->oneToOne('DynamicClientRealms');
-		$this->oneToOne('DynamicClientStates');
-		
-			
+		$this->oneToOne('DynamicClientStates');			
 				
 		$this->oneToOne('UserStats');
 		$this->oneToOne('UserStatsDailies');
@@ -62,12 +58,32 @@ class MigrateShell extends Shell {
        	$this->oneToOne('Radippool');
        	$this->oneToOne('Radpostauths');
        	//$this->oneToOne('Radreplies');
-       	$this->oneToOne('Radusergroups');
-       
-
+       	$this->oneToOne('Radusergroups');*/
+       	
+       	//Do meshes
+        $this->apId2CloudId('Meshes');
+        $this->oneToOne('MeshEntries'); 
+        $this->oneToOne('MeshEntries'); 
+        $this->oneToOne('MeshExitCaptivePortals'); 
+        $this->oneToOne('MeshExitMeshEntries');
+        $this->oneToOne('MeshExitSettings'); 
+        $this->oneToOne('MeshExits');
+        $this->oneToOne('MeshSettings'); 
+        $this->oneToOne('MeshSpecifics');
+        
+        $this->oneToOne('Nodes');
+        $this->oneToOne('NodeActions');    
+        $this->oneToOne('NodeConnectionSettings'); 
+        $this->oneToOne('NodeIbssConnections');  
+        $this->oneToOne('NodeLoads'); 
+        $this->oneToOne('NodeNeighbors'); 
+        $this->oneToOne('NodeSettings');
+        $this->oneToOne('NodeStations'); 
+        $this->oneToOne('NodeSystems');
+        $this->oneToOne('NodeUptmHistories');
+        $this->oneToOne('NodeWifiSettings');             
   	}
-  	
-  	
+  	  	
   	function apId2CloudId($table){
   		$this->out("Convert AP id to Cloud ID in $table");
   		
@@ -206,9 +222,7 @@ class MigrateShell extends Shell {
 				$l_profile_ids[$pu->profile_id] = $pu->profile;
 			}			
 		}
-		
-		
-		
+				
 		//Make a list of all the Profile IDs used
 		$profiles_used = array_keys($l_profile_ids);
 		
@@ -231,8 +245,7 @@ class MigrateShell extends Shell {
 			foreach($ec_comps as $c){
 				$this->out($c->name);
 				array_push($l_profile_components,$c->toArray());		
-			}
-			
+			}			
 		}
 				
 						
