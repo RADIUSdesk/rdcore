@@ -17,12 +17,12 @@ echo
 echo Starting Build ....
 echo
 echo Copying database files to volume mounts for MariaDB ...
-mkdir  -p /mnt/data/radiusdesk
-mkdir  -p /mnt/data/radiusdesk/db_startup
-mkdir  -p /mnt/data/radiusdesk/db_conf
-chmod -R 777 /mnt/data/radiusdesk
-chmod -R 777 /mnt/data/radiusdesk/db_startup
-chmod -R 777 /mnt/data/radiusdesk/db_conf
+mkdir  -p $RADIUSDESK_VOLUME
+mkdir  -p $RADIUSDESK_VOLUME/db_startup
+mkdir  -p $RADIUSDESK_VOLUME/db_conf
+chmod -R 777 $RADIUSDESK_VOLUME
+chmod -R 777 $RADIUSDESK_VOLUME/db_startup
+chmod -R 777 $RADIUSDESK_VOLUME/db_conf
 
 if [ -d "rdcore" ] 
 then
