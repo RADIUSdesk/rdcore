@@ -50,6 +50,11 @@ function main(){
                     if(isset($_POST['qmi_info'])){
                         _addQmiInfo($node->id);
                     }
+                    if(isset($_POST['vpn_info'])){
+                        $vpn_info = $_POST['vpn_info'];
+                        _addOpenVpn($vpn_info,$node);
+                    }
+                    
                     _doLightReport($node);                   
                 }
                 if($report_type == 'full'){
@@ -338,6 +343,29 @@ function _addQmiInfo($id){
 		    }
 		}
     }   
+}
+
+function _addOpenVpn($vpn_info,$node){
+
+    global $conn,$mode;
+    
+    $query  = "SELECT id FROM openvpn_server_clients WHERE id = :id";
+    $update = "UPDATE openvpn_server_clients SET modified = NOW(), last_contact_to_server = :last_contact_to_server, state = :state WHERE id = :id";
+
+    $vpn_gw_list = $vpn_info['vpn_gateways'];  
+    foreach ($vpn_gw_list as $gw) {
+        $vpn_client_id  = $gw['vpn_client_id'];
+        $vpn_state      = $gw['state'];
+        $timestamp      = $gw['timestamp'];
+        $date           = date('Y-m-d H:i:s', $timestamp);          
+        $stmt   = $conn->prepare($query);
+        $stmt->execute(['id' => $vpn_client_id]);   
+        $result = $stmt->fetch(PDO::FETCH_OBJ);
+        if(isset($result->id)){
+            $stmt = $conn->prepare($update);
+            $stmt->execute(['id' => $result->id,'last_contact_to_server' =>$date, 'state'=> $vpn_state]);   
+        }
+    }
 }
 
 

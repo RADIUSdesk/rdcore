@@ -60,7 +60,7 @@ class OpenvpnServersController extends AppController {
 		    if (preg_match('/^mesh_/',$username)){
 		        $mac    = preg_replace('/^mesh_/', '', $username);    
 		        $this->loadModel('Nodes');
-                $q_r    = $this->{'Nodes'}->find->where(['Nodes.mac' => $mac])->first();
+                $q_r    = $this->{'Nodes'}->find()->where(['Nodes.mac' => $mac])->first();
                 if($q_r){
                     $success = true;
                 }

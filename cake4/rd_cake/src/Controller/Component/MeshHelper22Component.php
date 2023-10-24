@@ -1904,7 +1904,7 @@ class MeshHelper22Component extends Component {
             $config_file    = Configure::read('OpenvpnClientPresets.'.$o['config_preset']); //Read the defaults
 
             $config_file['remote']  = $o['ip_address'].' '.$o['port'];
-            $config_file['up']      = '"/etc/openvpn/up.sh br-'.$o['interface'].'"';
+//            $config_file['up']      = '"/etc/openvpn/up.sh br-'.$o['interface'].'"';
             $config_file['proto']   = $o['protocol'];
             $config_file['ca']      = '/etc/openvpn/'.$o['interface'].'_ca.crt';
             $config_file['auth_user_pass'] = '/etc/openvpn/'.$o['interface'].'_up';  
