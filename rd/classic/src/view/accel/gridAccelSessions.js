@@ -29,6 +29,10 @@ Ext.define('Rd.view.accel.gridAccelSessions' ,{
         var me     = this;
         me.tbar    = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu}); 
         me.store   = Ext.create('Rd.store.sAccelSessions');
+        me.store.getProxy().setExtraParam('accel_server_id',me.srv_id);
+        me.store.load();
+        
+        
         me.store.addListener('metachange',  me.onStoreAccelSessionsMetachange, me);
         me.bbar     =  [
             {
@@ -41,57 +45,40 @@ Ext.define('Rd.view.accel.gridAccelSessions' ,{
                
         me.columns  = [
             { 
-                text        : 'Name',               
-                dataIndex   : 'name',
+                text        : 'Username',               
+                dataIndex   : 'username',
                 tdCls       : 'gridMain', 
                 flex        : 1,
                 filter      : {type: 'string'},
-                stateId     : 'StateGridAccS1'
+                stateId     : 'StateGridAccSsn1',
+                renderer    : function(value,metaData, record){
+                	var disconnect_flag = record.get('disconnect_flag');
+                	var value           = record.get('username');
+                	if(disconnect_flag == 1){
+                	    return "<i class=\"fa fa-chain-broken\" style=\"color:orange;\"></i> "+value;
+                	}
+                    return value;	             
+                }
             },
             { 
-                text        : 'MAC Address',               
-                dataIndex   : 'mac',
-                hidden      : true,
+                text        : 'IP Address',               
+                dataIndex   : 'ip',
                 tdCls       : 'gridTree',  
                 flex        : 1,
                 filter      : {type: 'string'},
-                stateId     : 'StateGridAccS2'
+                stateId     : 'StateGridAccSsn2'
             },
+           
             { 
-                text        : "<i class=\"fa fa-gears\"></i> "+'Config Fetched', 
-                dataIndex   : 'config_fetched',  
-                tdCls       : 'gridTree', 
-                flex        : 1,
-                renderer    : function(val,metaData, record){
-                    var config_fetched_human     = record.get('config_fetched_human');  
-                    var config;
-                    var value = record.get('config_state');
-                    if(value != 'never'){                    
-                        if(value == 'up'){
-                            config =  "<div class=\"fieldGreen\">"+config_fetched_human+"</div>";
-                        }
-                        if(value == 'down'){
-                            config = "<div class=\"fieldGrey\">"+config_fetched_human+"</div>";
-                        }
-
-                    }else{
-                        config = "<div class=\"fieldBlue\">Never</div>";
-                    }
-                    return config;
-                                 
-                },stateId: 'StateGridAccS3',
-                hidden: false
-            },
-            { 
-                text        : "<i class=\"fa fa-heartbeat\"></i> "+'Heartbeat Received',   
-                dataIndex   : 'last_contact',  
+                text        : "<i class=\"fa fa-heartbeat\"></i> "+'Last Seen',   
+                dataIndex   : 'modified_in_words',  
                 tdCls       : 'gridTree', 
                 flex        : 1,
                 renderer    : function(val,metaData, record){    
                     var heartbeat;
                     var value = record.get('state');
                     if(value != 'never'){                    
-                        var last_contact     = record.get('last_contact_human');
+                        var last_contact     = record.get('modified_in_words');
                         if(value == 'up'){
                             heartbeat =  "<div class=\"fieldGreen\">"+last_contact+"</div>";
                         }
@@ -104,41 +91,7 @@ Ext.define('Rd.view.accel.gridAccelSessions' ,{
                     }
                     return heartbeat;
                                  
-                },stateId: 'StateGridAccS4'
-            },
-            { 
-
-                text        : 'From IP', 
-                dataIndex   : 'last_contact_from_ip',          
-                tdCls       : 'gridTree', 
-                flex        : 1,
-                hidden      : true, 
-                xtype       :  'templatecolumn', 
-                 tpl         :  new Ext.XTemplate(
-                    '<div class=\"fieldGreyWhite\">{last_contact_from_ip}</div>',
-                    "<tpl if='Ext.isEmpty(city)'><tpl else>",
-                        '<div><b>{city}</b>  ({postal_code})</div>',
-                    "</tpl>",
-                    "<tpl if='Ext.isEmpty(country_name)'><tpl else>",
-                        '<div><b>{country_name}</b> ({country_code})</div>',
-                    "</tpl>"   
-                ), 
-                filter		: {type: 'string'},stateId: 'StateGridNodeLists8a'
-            },
-            { 
-                text        : "<i class=\"fa fa-chain \"></i> "+'Active Sessions',   
-                dataIndex   : 'sessions_active',  
-                tdCls       : 'gridTree', 
-                flex        : 1,
-                renderer    : function(val,metaData, record){    
-                    var heartbeat;
-                    var value = record.get('sessions_active');
-                    if(value != 0){                    
-                        return "<div class=\"fieldGreyWhite\">"+value+"</div>";
-                    }else{
-                        return "<div class=\"fieldBlue\">0</div>";
-                    }                              
-                },stateId: 'StateGridAccS5'
+                },stateId: 'StateGridAccSsn3'
             },
             { 
                 text        : 'Uptime',   
@@ -149,11 +102,43 @@ Ext.define('Rd.view.accel.gridAccelSessions' ,{
                     var heartbeat;
                     var value = record.get('uptime');
                     if(value != 0){                    
-                        return "<div class=\"fieldGrey\">"+value+"</div>";
+                        return "<div class=\"fieldGreyWhite\">"+value+"</div>";
                     }else{
                         return "<div class=\"fieldBlue\">0</div>";
                     }                              
-                },stateId: 'StateGridAccS6'
+                },stateId: 'StateGridAccSsn4'
+            },
+            { 
+                text        : 'Rate Limit (kbps)',               
+                dataIndex   : 'rate_limit',
+                tdCls       : 'gridMain', 
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridAccSsn6'
+            },
+            { 
+                text        : 'Rx-Bytes',               
+                dataIndex   : 'rx_bytes_raw',
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    "{[Ext.ux.bytesToHuman(values.rx_bytes_raw)]}"
+                ),
+                tdCls       : 'gridMain', 
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridAccSsn7'
+            },
+            { 
+                text        : 'Tx-Bytes',               
+                dataIndex   : 'tx_bytes_raw',
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    "{[Ext.ux.bytesToHuman(values.tx_bytes_raw)]}"
+                ),
+                tdCls       : 'gridMain', 
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridAccSsn8'
             },
             { 
                 text        : 'Created',
@@ -164,29 +149,16 @@ Ext.define('Rd.view.accel.gridAccelSessions' ,{
                 tpl         : new Ext.XTemplate(
                     "<div class=\"fieldBlue\">{created_in_words}</div>"
                 ),
-                stateId     : 'StateGridAccS7',
+                stateId     : 'StateGridAccSsn9',
                 format      : 'Y-m-d H:i:s',
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
                 width       : 200
-            },  
-            { 
-                text        : 'Modified',
-                dataIndex   : 'modified', 
-                tdCls       : 'gridTree',
-                hidden      : true, 
-                xtype       : 'templatecolumn', 
-                tpl         : new Ext.XTemplate(
-                    "<div class=\"fieldBlue\">{modified_in_words}</div>"
-                ),
-                flex        : 1,
-                filter      : {type: 'date',dateFormat: 'Y-m-d'},
-                stateId     : 'StateGridAccS8'
-            },
+            }, 
             {
                 xtype       : 'actioncolumn',
                 text        : 'Actions',
-                width       : 100,
-                stateId     : 'StateGridAccS9',
+                width       : 75,
+                stateId     : 'StateGridAccSsn10',
                 items       : [					 
                     { 
 						iconCls : 'txtRed x-fa fa-trash',
@@ -195,25 +167,12 @@ Ext.define('Rd.view.accel.gridAccelSessions' ,{
                             this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'delete');
                         }
                     },
-                    {  
-                        iconCls : 'txtBlue x-fa fa-pen',
-                        tooltip : 'Edit',
-						handler: function(view, rowIndex, colIndex, item, e, record, row) {
-                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'update');
-                        }
-					},
-					{ 
-						iconCls : 'txtRed x-fa fa-gear',
-						tooltip : 'Restart Service',
-                        handler: function(view, rowIndex, colIndex, item, e, record, row) {
-                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'restart');
-                        }
-                    },
+					
 					{  
-                        iconCls : 'txtBlue x-fa fa-chain',
-                        tooltip : 'Show Active Sessions',
+                        iconCls : 'txtBlue x-fa fa-chain-broken',
+                        tooltip : 'Disconnect',
 						handler: function(view, rowIndex, colIndex, item, e, record, row) {
-                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'sessions');
+                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'disconnect');
                         }
 					}
 				]

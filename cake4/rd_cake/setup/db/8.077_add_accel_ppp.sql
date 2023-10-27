@@ -74,6 +74,7 @@ if not exists (select * from information_schema.columns
       `inbound_if` varchar(32) NOT NULL DEFAULT '',
       `service_name` varchar(32) NOT NULL DEFAULT '',
       `rate_limit` varchar(32) NOT NULL DEFAULT '',
+      `disconnect_flag` tinyint(1) NOT NULL DEFAULT '0',
       `created` datetime NOT NULL,
       `modified` datetime NOT NULL,
       PRIMARY KEY (`id`)

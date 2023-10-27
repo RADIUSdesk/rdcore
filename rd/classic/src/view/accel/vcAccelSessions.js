@@ -5,7 +5,8 @@ Ext.define('Rd.view.accel.vcAccelSessions', {
     
     },
     config: {
-        urlDelete   : '/cake4/rd_cake/accel-sessions/delete.json'
+        urlDelete       : '/cake4/rd_cake/accel-sessions/delete.json',
+        urlDisconnect   : '/cake4/rd_cake/accel-sessions/disconnect.json'
     },
     control: {
         'gridAccelSessions #reload': {
@@ -13,22 +14,43 @@ Ext.define('Rd.view.accel.vcAccelSessions', {
         },
         'gridAccelSessions #reload menuitem[group=refresh]'   : {
             click   : 'reloadOptionClick'
-        },   
+        },  
+        'gridAccelSessions #connected': {
+            click   : 'reload'
+        }, 
         'gridAccelSessions #delete': {
             click   : 'del'
         },
-        'gridAccelSessions #sessions': {
+        'gridAccelSessions #disconnect': {
             click   : 'disconnect'
         },
         'gridAccelSessions actioncolumn': { 
              itemClick  : 'onActionColumnItemClick'
         }
     },
-    reload: function(){
+    reloadZ: function(){
         var me      = this;
         me.getView().getSelectionModel().deselectAll(true);
         me.getView().getStore().load();
-    },
+    },   
+    reload: function(){
+        var me      = this;
+        var btn     = me.getView().down('#connected');
+        var only_connected  = false;
+        if(btn){
+            only_connected = btn.pressed; //Default only active
+            if(btn.pressed){
+               btn.setGlyph(Rd.config.icnLightbulb);
+               btn.setTooltip('Include past connections');
+            }else{
+               btn.setGlyph(Rd.config.icnTime);
+               btn.setTooltip('Show only currently connected');
+            }
+        }      
+        me.getView().getStore().getProxy().setExtraParam('only_connected', only_connected);
+        me.getView().getSelectionModel().deselectAll(true);
+        me.getView().getStore().load();
+    },    
     reloadOptionClick: function(menu_item){
         var me      = this;
         var n       = menu_item.getItemId();
@@ -52,6 +74,10 @@ Ext.define('Rd.view.accel.vcAccelSessions', {
         me.autoReload = setInterval(function(){        
             me.reload();
         },  interval);  
+    },
+    connected : function(btn){
+        var me = this;
+    
     },
     del:   function(){
         var me      = this;     
@@ -116,7 +142,43 @@ Ext.define('Rd.view.accel.vcAccelSessions', {
                         Ext.ux.Constants.msgWarn
             );
         }else{
-            console.log("We need to disconnect the following items");
+            Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
+                if(val== 'yes'){
+                    var selected    = me.getView().getSelectionModel().getSelection();
+                    var list        = [];
+                    Ext.Array.forEach(selected,function(item){
+                        var id = item.getId();
+                        Ext.Array.push(list,{'id' : id});
+                    });
+
+                    Ext.Ajax.request({
+                        url     : me.getUrlDisconnect(),
+                        method  : 'POST',          
+                        jsonData: list,
+                        success : function(batch,options){console.log('success');
+                            Ext.ux.Toaster.msg(
+                                i18n('sItem_deleted'),
+                                i18n('sItem_deleted_fine'),
+                                Ext.ux.Constants.clsInfo,
+                                Ext.ux.Constants.msgInfo
+                            );
+                            me.reload(); //Reload from server
+                        },                                    
+                        failure: function (response, options) {
+                            var jsonData = Ext.JSON.decode(response.responseText);
+                            Ext.Msg.show({
+                                title       : "Error",
+                                msg         : response.request.url + '<br>' + response.status + ' ' + response.statusText+"<br>"+jsonData.message,
+                                modal       : true,
+                                buttons     : Ext.Msg.OK,
+                                icon        : Ext.Msg.ERROR,
+                                closeAction : 'destroy'
+                            });
+                            me.reload(); //Reload from server
+                        }
+                    });
+                }
+            });
         }   
     },
     onViewActivate: function(pnl){
@@ -128,14 +190,11 @@ Ext.define('Rd.view.accel.vcAccelSessions', {
         var me = this;
         var grid = view.up('grid');
         grid.setSelection(record);
-        if(action == 'update'){
-            me.edit()
-        }
         if(action == 'delete'){
             me.del();
         }
-        if(action == 'view'){
-            me.view();
+        if(action == 'disconnect'){
+            me.disconnect();
         }      
     }
 });

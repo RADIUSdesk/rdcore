@@ -25,7 +25,7 @@ function afterReport()
     local f=io.open(result_file,"r")
     if(f)then
         result_string = f:read("*all")
-        --print(result_string);
+        print(result_string);
         r = cjson.decode(result_string);
         if(r.success)then
             ok_flag = true;       
@@ -43,7 +43,7 @@ function lightReport()
     local j_sess= cjson.encode(sess);
 
     local curl_data= '{"report_type":"light","mac":"'..id..'","stat":'..j_stat..',"sessions":'..j_sess..'}';
-    --print(curl_data);
+    print(curl_data);
     os.remove(result_file)  
     os.execute('curl -k -o '..result_file..' -X POST -H "Content-Type: application/json" -d \''..curl_data..'\' '..query);
     afterReport();
