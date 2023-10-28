@@ -630,8 +630,20 @@ class GridButtonsFlatComponent extends Component {
                 'ui'        => $this->btnUiRestart
             ];
                  
-            array_push($b['items'],$restart,$sessions);
-            $menu = [$b]; 
+            array_push($b['items'],$restart,$sessions,);
+            $menu = [$b,'|', 
+                [   
+                    'xtype'     => 'component', 
+                    'itemId'    => 'totals',  
+                    'tpl'       => [
+                        "<div>",
+                        "<label class='lblTipItem' style='font-weight:lighter;color:#186a86;'>COUNT <span style='color:#5c5f63;'>{count}</span></label>",
+                        "<div style='clear:both;'></div>",
+                    ],
+                    'style'     => 'margin-right:5px',
+                    'data'      => []
+                ]
+            ]; 
         }
         
         
@@ -661,7 +673,34 @@ class GridButtonsFlatComponent extends Component {
                     'ui'        => $this->btnUiRestart
                 ]
             ]];
-            $menu = $b;
+            $menu = [$b,'|',             
+                [   
+                    'xtype'     => 'component', 
+                    'itemId'    => 'totalsData',  
+                    'tpl'       => [
+                        "<div>",
+                        "<label class='lblTipItem' style='font-weight:lighter;color:#186a86;'>IN  <span style='color:#5c5f63;'>{[Ext.ux.bytesToHuman(values.in)]}</span></label>",
+                        "<div style='clear:both;'></div>",
+                        "<label class='lblTipItem' style='font-weight:lighter;color:#186a86;'>OUT  <span style='color:#5c5f63;'>{[Ext.ux.bytesToHuman(values.out)]}</span></label>",
+                        "<div style='clear:both;'></div>",
+                        "<label class='lblTipItem' style='font-weight:lighter;color:#186a86;'>TOTAL  <span style='color:#5c5f63;'>{[Ext.ux.bytesToHuman(values.total)]}</span></label>",
+                        "</div>"
+                    ],
+                    'style'     => 'margin-right:5px',
+                    'data'      => []
+                ],
+                '|',
+                [   
+                    'xtype'     => 'component', 
+                    'itemId'    => 'totals',  
+                    'tpl'       => [
+                        "<div>",
+                        "<label class='lblTipItem' style='font-weight:lighter;color:#186a86;'>COUNT <span style='color:#5c5f63;'>{count}</span></label>",
+                        "<div style='clear:both;'></div>",
+                    ],
+                    'style'     => 'margin-right:5px'
+                ],
+            ];
         }
                       
         if($type == 'unknown_ap_or_nodes'){

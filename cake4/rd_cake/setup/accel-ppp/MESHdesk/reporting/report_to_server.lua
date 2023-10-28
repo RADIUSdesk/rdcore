@@ -8,6 +8,7 @@ local result_file   = '/tmp/result.json'
 local a_json        = rdAccelJson();
 local logger        = rdLogger();
 local cjson         = require("cjson");
+local socket        = require("socket");
 local report        = 'light'; -- can be light or full
 
 if(arg[1])then
@@ -19,8 +20,13 @@ function file_exists(name)
         if f~=nil then io.close(f) return true else return false end                
 end
 
+function sleep(sec)
+	socket.select(nil, nil, sec)                                                                          
+end 
+
 function afterReport()
     local ok_flag = false;
+    local follow_up = false;
     --Read the results
     local f=io.open(result_file,"r")
     if(f)then
@@ -29,8 +35,30 @@ function afterReport()
         r = cjson.decode(result_string);
         if(r.success)then
             ok_flag = true;       
-        end                            
+        end       
+       
+        if(r.data)then
+            if(r.data.terminate)then --Terminate
+                for index, value in pairs(r.data.terminate) do
+                    follow_up = true;
+                    print("Terminate "..value);
+                    os.execute('accel-cmd terminate sid '..value);   
+                end
+            end
+            if(r.data.restart_service)then --Restart Service
+                follow_up = true;
+                print("Restart Service");
+                os.execute('/etc/init.d/accel-ppp restart');   
+            end            
+        end                                    
     end
+    
+    if(follow_up)then
+        print("Doing a follow up");
+        sleep(10); --Give it enough time to connect again
+        lightReport();
+    end
+        
 end
 
 function lightReport()

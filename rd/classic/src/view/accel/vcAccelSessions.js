@@ -27,11 +27,6 @@ Ext.define('Rd.view.accel.vcAccelSessions', {
         'gridAccelSessions actioncolumn': { 
              itemClick  : 'onActionColumnItemClick'
         }
-    },
-    reloadZ: function(){
-        var me      = this;
-        me.getView().getSelectionModel().deselectAll(true);
-        me.getView().getStore().load();
     },   
     reload: function(){
         var me      = this;
@@ -74,10 +69,6 @@ Ext.define('Rd.view.accel.vcAccelSessions', {
         me.autoReload = setInterval(function(){        
             me.reload();
         },  interval);  
-    },
-    connected : function(btn){
-        var me = this;
-    
     },
     del:   function(){
         var me      = this;     
@@ -157,8 +148,8 @@ Ext.define('Rd.view.accel.vcAccelSessions', {
                         jsonData: list,
                         success : function(batch,options){console.log('success');
                             Ext.ux.Toaster.msg(
-                                i18n('sItem_deleted'),
-                                i18n('sItem_deleted_fine'),
+                                'Disconnect Initiated',
+                                'Disconnect Initiated',
                                 Ext.ux.Constants.clsInfo,
                                 Ext.ux.Constants.msgInfo
                             );

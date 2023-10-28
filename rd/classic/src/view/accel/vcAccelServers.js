@@ -6,7 +6,8 @@ Ext.define('Rd.view.accel.vcAccelServers', {
     },
     config: {
         urlAdd      : '/cake4/rd_cake/accel-servers/add.json',
-        urlDelete   : '/cake4/rd_cake/accel-servers/delete.json'
+        urlDelete   : '/cake4/rd_cake/accel-servers/delete.json',
+        urlRestart  : '/cake4/rd_cake/accel-servers/restart.json'
     },
     control: {
         'gridAccelServers #reload': {
@@ -20,6 +21,9 @@ Ext.define('Rd.view.accel.vcAccelServers', {
         },     
         'gridAccelServers #delete': {
             click   : 'del'
+        },
+        'gridAccelServers #restart': {
+            click   : 'restart'
         },
         'gridAccelServers #sessions': {
             click   : 'sessions'
@@ -139,6 +143,58 @@ Ext.define('Rd.view.accel.vcAccelServers', {
             },
             failure: Ext.ux.formFail
         });
+    },
+    restart : function(){
+         // console.log("Edit node");  
+        var me = this;
+        //See if there are anything selected... if not, inform the user
+        var sel_count = me.getView().getSelectionModel().getCount();
+        if(sel_count == 0){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{
+            Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
+                if(val== 'yes'){
+                    var selected    = me.getView().getSelectionModel().getSelection();
+                    var list        = [];
+                    Ext.Array.forEach(selected,function(item){
+                        var id = item.getId();
+                        Ext.Array.push(list,{'id' : id});
+                    });
+
+                    Ext.Ajax.request({
+                        url     : me.getUrlRestart(),
+                        method  : 'POST',          
+                        jsonData: list,
+                        success : function(batch,options){console.log('success');
+                            Ext.ux.Toaster.msg(
+                                'Restart Initiated',
+                                'Restart Initiated',
+                                Ext.ux.Constants.clsInfo,
+                                Ext.ux.Constants.msgInfo
+                            );
+                            me.reload(); //Reload from server
+                        },                                    
+                        failure: function (response, options) {
+                            var jsonData = Ext.JSON.decode(response.responseText);
+                            Ext.Msg.show({
+                                title       : "Error",
+                                msg         : response.request.url + '<br>' + response.status + ' ' + response.statusText+"<br>"+jsonData.message,
+                                modal       : true,
+                                buttons     : Ext.Msg.OK,
+                                icon        : Ext.Msg.ERROR,
+                                closeAction : 'destroy'
+                            });
+                            me.reload(); //Reload from server
+                        }
+                    });
+                }
+            });
+        }   
     },
     sessions : function(){
          // console.log("Edit node");  

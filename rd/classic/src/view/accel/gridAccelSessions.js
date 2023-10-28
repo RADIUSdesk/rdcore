@@ -26,8 +26,8 @@ Ext.define('Rd.view.accel.gridAccelSessions' ,{
     controller  : 'vcAccelSessions',
     urlMenu     : '/cake4/rd_cake/accel-sessions/menu-for-grid.json',  
     initComponent: function(){
-        var me     = this;
-        me.tbar    = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu}); 
+        var me      = this;
+        me.tbar    = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
         me.store   = Ext.create('Rd.store.sAccelSessions');
         me.store.getProxy().setExtraParam('accel_server_id',me.srv_id);
         me.store.load();
@@ -182,6 +182,8 @@ Ext.define('Rd.view.accel.gridAccelSessions' ,{
     },
     onStoreAccelSessionsMetachange: function(store,meta_data) {
         var me          = this;
-        console.log("Meta Data Changes Comes Here");
+        console.log(meta_data);
+        me.down('#totals').setData(meta_data);
+        me.down('#totalsData').setData(meta_data);
     }
 });

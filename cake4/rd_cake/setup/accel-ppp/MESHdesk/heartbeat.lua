@@ -53,8 +53,7 @@ end
 
 function light_report()
     log("Light Reporting");
-    --os.execute("/etc/MESHdesk/reporting/report_to_server.lua light");
-    os.execute("/home/system/Documents/accel-ppp/MESHdesk/reporting/report_to_server.lua light");
+    os.execute("/etc/MESHdesk/reporting/report_to_server.lua light");
 end
 
 function reporting_loop()

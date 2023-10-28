@@ -7,10 +7,16 @@ use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
 
 use Cake\Utility\Inflector;
+use Cake\I18n\FrozenTime;
 
 class AccelSessionsController extends AppController{
 
     protected $main_model   = 'AccelSessions';
+    protected  $fields  	= [
+        'total_in'  => 'sum(AccelSessions.rx_bytes_raw)',
+        'total_out' => 'sum(AccelSessions.tx_bytes_raw)',
+        'total'     => 'sum(AccelSessions.rx_bytes_raw) + sum(AccelSessions.tx_bytes_raw)',
+    ];
     
     public function initialize():void{  
         parent::initialize();
@@ -25,9 +31,7 @@ class AccelSessionsController extends AppController{
         ]);        
          $this->loadComponent('JsonErrors'); 
          $this->loadComponent('TimeCalculations');          
-    }
-    
-    
+    }    
    
 	public function index(){
 	
@@ -40,6 +44,7 @@ class AccelSessionsController extends AppController{
     
     	$req_q    = $this->request->getQuery(); //q_data is the query data
         $cloud_id = $req_q['cloud_id'];
+        $conditions = [];
         
         //The request should also contain the accel_server_id
         if(isset($req_q['accel_server_id'])){
@@ -54,8 +59,19 @@ class AccelSessionsController extends AppController{
             $this->JsonErrors->errorMessage("Missing accel_server_id in request");
             return;  
         }
-                
-        $query 	  = $this->{$this->main_model}->find()->where(['AccelSessions.accel_server_id' => $srv_id]);      
+        
+        //base conditions
+        $conditions = ['AccelSessions.accel_server_id' => $srv_id];
+        
+        $ft_fresh = FrozenTime::now();
+        $ft_fresh = $ft_fresh->subMinute(10);//Below 10 minutes is fresh
+        
+        
+        if((isset($req_q['only_connected']))&&($req_q['only_connected'] =='true')){
+            array_push($conditions, ['AccelSessions.modified >=' => $ft_fresh ]);
+        }
+                       
+        $query 	  = $this->{$this->main_model}->find()->where($conditions);      
      
         $limit  = 50;   //Defaults
         $page   = 1;
@@ -70,6 +86,7 @@ class AccelSessionsController extends AppController{
         $query->limit($limit);
         $query->offset($offset);
 
+        $t_q    = $this->{$this->main_model}->find()->where($conditions)->select($this->fields)->first();	
         $total  = $query->count();       
         $q_r    = $query->all();
         $items  = [];
@@ -96,7 +113,10 @@ class AccelSessionsController extends AppController{
             'success' => true,
             'totalCount' => $total,
             'metaData'		=> [
-            	'total'	=> $total
+                'count'    => $total,
+            	'in'       => $t_q->total_in,
+                'out'      => $t_q->total_out,
+                'total'    => $t_q->total
             ]
         ]);
         $this->viewBuilder()->setOption('serialize', true);

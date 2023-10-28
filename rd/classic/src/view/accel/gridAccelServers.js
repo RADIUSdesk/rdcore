@@ -123,7 +123,15 @@ Ext.define('Rd.view.accel.gridAccelServers' ,{
                 tdCls       : 'gridMain', 
                 flex        : 1,
                 filter      : {type: 'string'},
-                stateId     : 'StateGridAccS1'
+                stateId     : 'StateGridAccS1',
+                renderer    : function(value,metaData, record){
+                	var flag    = record.get('restart_service_flag');
+                	var value   = record.get('name');
+                	if(flag == 1){
+                	    return "<i class=\"fa fa-gears\" style=\"color:orange;\"></i> "+value;
+                	}
+                    return value;	             
+                }
             },
             { 
                 text        : 'MAC Address',               

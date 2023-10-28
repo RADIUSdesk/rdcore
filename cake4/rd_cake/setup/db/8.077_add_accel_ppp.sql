@@ -15,6 +15,7 @@ if not exists (select * from information_schema.columns
       `config_fetched` datetime DEFAULT NULL,
       `last_contact` datetime DEFAULT NULL,
       `last_contact_from_ip` varchar(30) NOT NULL DEFAULT '',
+      `restart_service_flag` tinyint(1) NOT NULL DEFAULT '0',
       `created` datetime NOT NULL,
       `modified` datetime NOT NULL,
       PRIMARY KEY (`id`)

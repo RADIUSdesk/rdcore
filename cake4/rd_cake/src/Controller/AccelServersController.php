@@ -31,6 +31,7 @@ class AccelServersController extends AppController{
     public function submitReport(){ 
     
         $req_d		= $this->request->getData();
+        $reply_data = [];
         
         //--We store the data as JSON strings since ther are arrays.
         foreach (array_keys($req_d['stat']) as $key){
@@ -91,7 +92,13 @@ class AccelServersController extends AppController{
                             $new_key = str_replace('-','_',$key);
                             $session[$new_key] = $session[$key];
                          }
-                    }                             
+                    }
+                    if(array_key_exists('rate_limit',$session)){
+                       //Do nothing 
+                    }else{
+                       $session['rate_limit'] = 'No Limit';  
+                    }
+                                               
                     $mac        = $session['calling_sid'];                                
                     $e_session  =  $this->{'AccelSessions'}->find()->where(['AccelSessions.accel_server_id' => $server_id,'AccelSessions.calling_sid' => $mac])->first();
                     if($e_session){
@@ -101,12 +108,35 @@ class AccelServersController extends AppController{
                         $e_session                  = $this->{'AccelSessions'}->newEntity($session);
                     }
                     $this->{'AccelSessions'}->save($e_session);             
-                }             
+                }
+                
+                //See if there are any sessions to terminate
+                $terminate_list = $this->{'AccelSessions'}->find()->where(['AccelSessions.disconnect_flag' => true,'AccelSessions.accel_server_id' => $server_id])->all();
+                if(count($terminate_list)>0){
+                    $reply_data['terminate'] = [];
+                    foreach($terminate_list as $t){
+                        array_push($reply_data['terminate'],$t->sid);
+                        //Clear the flag 
+                        $t->disconnect_flag = false;
+                        $t->setDirty('modified', true); //Dont update the modified field
+                        //Save it
+                        $this->{'AccelSessions'}->save($t);
+                    }              
+                }
+                
+                //See if the restart_service_flag is set and clear it
+                if($e_s->restart_service_flag){
+                    $reply_data['restart_service'] = true;
+                    $e_s->restart_service_flag = false;
+                    //$e_s->setDirty('modified', true);
+                    $this->{'AccelServers'}->save($e_s);             
+                }                                        
             }     
         }
                 
         $this->set([
-            'success'   => true
+            'success'   => true,
+            'data'      => $reply_data
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
@@ -274,7 +304,46 @@ class AccelServersController extends AppController{
             $this->viewBuilder()->setOption('serialize', true);
         }
 	}
-
+	
+	 public function restart($id = null) {
+		if (!$this->request->is('post')) {
+			throw new MethodNotAllowedException();
+		}
+		
+		$user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+        		
+		$req_d		= $this->request->getData();
+			
+	    if(isset($req_d['id'])){   //Single item delete       
+            $entity     = $this->{$this->main_model}->get($req_d['id']);
+            if($entity->restart_service_flag == 0){
+                $entity->restart_service_flag = 1;
+            }else{
+                $entity->restart_service_flag = 0;
+            }
+            $entity->setDirty('modified', true);
+            $this->{$this->main_model}->save($entity);
+        }else{
+            foreach($req_d as $d){
+                $entity     = $this->{$this->main_model}->get($d['id']);  
+                if($entity->restart_service_flag == 0){
+                    $entity->restart_service_flag = 1;
+                }else{
+                    $entity->restart_service_flag = 0;
+                }
+                $entity->setDirty('modified', true);
+                $this->{$this->main_model}->save($entity);
+            }
+        }         
+        $this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+	}
+	
    	public function delete($id = null) {
 		if (!$this->request->is('post')) {
 			throw new MethodNotAllowedException();
