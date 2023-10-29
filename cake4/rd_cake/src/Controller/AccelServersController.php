@@ -7,10 +7,15 @@ use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
 
 use Cake\Utility\Inflector;
+use Cake\I18n\FrozenTime;
 
 class AccelServersController extends AppController{
 
     protected $main_model   = 'AccelServers';
+    protected  $fields  	= [
+        'sessions'  => 'sum(AccelStats.sessions_active)',
+    ];
+    protected   $deadAfter = 600; //600 seconds
     
     public function initialize():void{  
         parent::initialize();
@@ -148,12 +153,21 @@ class AccelServersController extends AppController{
             return;
         }
         
-        $dead_after = 900; //15 minutes
+        $dead_after = $this->deadAfter;
     
     	$req_q    = $this->request->getQuery(); //q_data is the query data
         $cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find()->contain(['AccelStats']);      
         $this->CommonQueryFlat->build_cloud_query($query,$cloud_id);
+        
+        $ft_fresh = FrozenTime::now();
+        $ft_fresh = $ft_fresh->subSecond($this->deadAfter);//Below 10 minutes is fresh
+        
+        
+        if((isset($req_q['only_online']))&&($req_q['only_online'] =='true')){
+            $query->where(['AccelServers.last_contact >=' => $ft_fresh ]);
+        }
+        
         
         $limit  = 50;   //Defaults
         $page   = 1;
@@ -163,11 +177,12 @@ class AccelServersController extends AppController{
             $page   = $req_q['page'];
             $offset = $req_q['start'];
         }
-        
+       
+           
         $query->page($page);
         $query->limit($limit);
         $query->offset($offset);
-
+        
         $total  = $query->count();       
         $q_r    = $query->all();
         $items  = [];
@@ -220,12 +235,15 @@ class AccelServersController extends AppController{
             array_push($items,$i);
         }
         
+        $t_q    = $query->select($this->fields)->first();
+        
         $this->set([
             'items' => $items,
             'success' => true,
             'totalCount' => $total,
             'metaData'		=> [
-            	'total'	=> $total
+            	'count'	    => $total,
+            	'sessions'  => $t_q->sessions
             ]
         ]);
         $this->viewBuilder()->setOption('serialize', true);

@@ -610,27 +610,43 @@ class GridButtonsFlatComponent extends Component {
         
         if($type == 'accel_servers'){
             $b = $this->_fetchBasic(true);
-            //print_r($b);
             
-            $restart = [
-                'xtype'     => 'button', 
-                'glyph'     => Configure::read('icnGears'), 
-                'scale'     => $this->scale,
-                'itemId'    => 'restart',
-                'tooltip'   =>  __('Restart Service'),
-                'ui'        => $this->btnUiRestart
-            ];
+            $b = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+                $this->btnReloadTimer,
+                [
+                    'xtype'         => 'button',
+                    'glyph'         => Configure::read('icnWatch'),
+                    'pressed'       => false,                       
+                    //To list only active
+                    //'glyph'         => Configure::read('icnLight'),
+                    //'pressed'       => true,                                
+                    'scale'         => $this->scale,
+                    'itemId'        => 'online',
+                    'enableToggle'  => true,                       
+                    'ui'            => 'button-green',  
+                    'tooltip'       => __('Show only online servers')
+                ],
+                $this->btnAdd,
+                $this->btnDelete,
+                $this->btnEdit,
+                [
+                    'xtype'     => 'button', 
+                    'glyph'     => Configure::read('icnGears'), 
+                    'scale'     => $this->scale,
+                    'itemId'    => 'restart',
+                    'tooltip'   =>  __('Restart Service'),
+                    'ui'        => $this->btnUiRestart
+                ],
+                [
+                    'xtype'     => 'button', 
+                    'glyph'     => Configure::read('icnConnect'), 
+                    'scale'     => $this->scale,
+                    'itemId'    => 'sessions',
+                    'tooltip'   =>  __('Show Active Sessions'),
+                    'ui'        => $this->btnUiRestart
+                ]
+            ]];
             
-            $sessions = [
-                'xtype'     => 'button', 
-                'glyph'     => Configure::read('icnConnect'), 
-                'scale'     => $this->scale,
-                'itemId'    => 'sessions',
-                'tooltip'   =>  __('Show Active Sessions'),
-                'ui'        => $this->btnUiRestart
-            ];
-                 
-            array_push($b['items'],$restart,$sessions,);
             $menu = [$b,'|', 
                 [   
                     'xtype'     => 'component', 
@@ -638,6 +654,8 @@ class GridButtonsFlatComponent extends Component {
                     'tpl'       => [
                         "<div>",
                         "<label class='lblTipItem' style='font-weight:lighter;color:#186a86;'>COUNT <span style='color:#5c5f63;'>{count}</span></label>",
+                        "<div style='clear:both;'></div>",
+                        "<label class='lblTipItem' style='font-weight:lighter;color:#186a86;'>SESSIONS  <span style='color:#5c5f63;'>{sessions}</span></label>",
                         "<div style='clear:both;'></div>",
                     ],
                     'style'     => 'margin-right:5px',

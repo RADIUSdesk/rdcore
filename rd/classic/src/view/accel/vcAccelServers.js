@@ -15,6 +15,9 @@ Ext.define('Rd.view.accel.vcAccelServers', {
         },
         'gridAccelServers #reload menuitem[group=refresh]'   : {
             click   : 'reloadOptionClick'
+        },
+        'gridAccelServers #online': {
+            click   : 'reload'
         },  
         'gridAccelServers #add': {
             click   : 'add'
@@ -37,6 +40,19 @@ Ext.define('Rd.view.accel.vcAccelServers', {
     },
     reload: function(){
         var me      = this;
+        var btn     = me.getView().down('#online');
+        var only_online  = false;
+        if(btn){
+            only_online = btn.pressed; //Default only active
+            if(btn.pressed){
+               btn.setGlyph(Rd.config.icnLightbulb);
+               btn.setTooltip('Show ALL servers');
+            }else{
+               btn.setGlyph(Rd.config.icnTime);
+               btn.setTooltip('Show only online servers');
+            }
+        }      
+        me.getView().getStore().getProxy().setExtraParam('only_online', only_online);
         me.getView().getSelectionModel().deselectAll(true);
         me.getView().getStore().load();
     },
@@ -256,6 +272,14 @@ Ext.define('Rd.view.accel.vcAccelServers', {
         }
         if(action == 'view'){
             me.view();
-        }      
+        } 
+        
+        if(action == 'restart'){
+            me.restart();
+        } 
+        
+        if(action == 'sessions'){
+            me.sessions();
+        }     
     }
 });

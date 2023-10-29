@@ -68,7 +68,60 @@ Ext.define('Rd.view.accel.gridAccelSessions' ,{
                 filter      : {type: 'string'},
                 stateId     : 'StateGridAccSsn2'
             },
-           
+            { 
+                text        : 'Calling SID',               
+                dataIndex   : 'calling_sid',
+                tdCls       : 'gridTree',  
+                flex        : 1,
+                hidden      : true,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridAccSsn2a'
+            },
+            { 
+                text        : 'Called SID',               
+                dataIndex   : 'called_sid',
+                tdCls       : 'gridTree',  
+                flex        : 1,
+                hidden      : true,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridAccSsn2b'
+            },
+            { 
+                text        : 'Rx Packets',               
+                dataIndex   : 'rx_pkts',
+                tdCls       : 'gridTree',  
+                flex        : 1,
+                hidden      : true,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridAccSsn2c'
+            },
+            { 
+                text        : 'Tx Packets',               
+                dataIndex   : 'tx_pkts',
+                tdCls       : 'gridTree',  
+                flex        : 1,
+                hidden      : true,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridAccSsn2d'
+            },
+            { 
+                text        : 'Inbound IF',               
+                dataIndex   : 'inbound_if',
+                tdCls       : 'gridTree',  
+                flex        : 1,
+                hidden      : true,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridAccSsn2e'
+            },
+            { 
+                text        : 'IF Name',               
+                dataIndex   : 'ifname',
+                tdCls       : 'gridTree',  
+                flex        : 1,
+                hidden      : true,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridAccSsn2f'
+            },          
             { 
                 text        : "<i class=\"fa fa-heartbeat\"></i> "+'Last Seen',   
                 dataIndex   : 'modified_in_words',  

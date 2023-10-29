@@ -308,6 +308,6 @@ Ext.define('Rd.view.accel.gridAccelServers' ,{
     },
     onStoreAccelServersMetachange: function(store,meta_data) {
         var me          = this;
-        console.log("Meta Data Changes Comes Here");
+        me.down('#totals').setData(meta_data);
     }
 });
