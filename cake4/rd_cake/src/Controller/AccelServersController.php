@@ -33,6 +33,20 @@ class AccelServersController extends AppController{
          $this->loadComponent('TimeCalculations');          
     }
     
+    public function getConfigForServer(){ 
+    
+        Configure::load('AccelPresets');
+        $config_file    = Configure::read('AccelPresets.Default'); //Read the defaults  
+        $reply_data     = $config_file;
+    
+         $this->set([
+            'success'   => true,
+            'data'      => $reply_data
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+        
+    }
+    
     public function submitReport(){ 
     
         $req_d		= $this->request->getData();
@@ -267,25 +281,8 @@ class AccelServersController extends AppController{
      
     private function _addOrEdit($type= 'add') {
     
-    	$req_d		= $this->request->getData();
-        $check_items = [
-			'suffix_permanent_users',
-			'suffix_vouchers',
-            'suffix_devices'
-		];
-		
-        foreach($check_items as $i){
-            if(isset($req_d[$i])){
-            	if($req_d[$i] == 'null'){
-                	$req_d[$i] = 0;
-                }else{
-                	$req_d[$i] = 1;
-                }  
-            }else{
-                $req_d[$i] = 0;
-            }
-        }
-       
+    	$req_d  = $this->request->getData();
+         
         if($type == 'add'){ 
             $entity = $this->{$this->main_model}->newEntity($req_d);
         }

@@ -720,6 +720,11 @@ class GridButtonsFlatComponent extends Component {
                 ],
             ];
         }
+        
+        if($type == 'accel_profiles'){
+            $b  = $this->_fetchBasic();
+            $menu = [$b];
+        }
                       
         if($type == 'unknown_ap_or_nodes'){
             $b  = $this->_fetchUnknown();

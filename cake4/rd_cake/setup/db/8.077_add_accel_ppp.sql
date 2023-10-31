@@ -24,6 +24,36 @@ if not exists (select * from information_schema.columns
 end if;
 
 if not exists (select * from information_schema.columns
+    where table_name = 'accel_profiles' and table_schema = 'rd') then
+	CREATE TABLE `accel_profiles` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `cloud_id` int(11) NOT NULL,
+      `name` varchar(255) NOT NULL,
+      `base_config` varchar(255) NOT NULL,
+      `created` datetime NOT NULL,
+      `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
+
+end if;
+
+if not exists (select * from information_schema.columns
+    where table_name = 'accel_profile_entries' and table_schema = 'rd') then
+	CREATE TABLE `accel_profile_entries` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `accel_profile_id` int(11) NOT NULL,
+      `section` varchar(255) NOT NULL,
+      `key` varchar(255) NOT NULL,
+      `value` varchar(255) NOT NULL,
+      `no_key_flag` tinyint(1) NOT NULL DEFAULT '0',
+      `created` datetime NOT NULL,
+      `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
+
+end if;
+
+if not exists (select * from information_schema.columns
     where table_name = 'accel_stats' and table_schema = 'rd') then
 	CREATE TABLE `accel_stats` (
       `id` int(11) NOT NULL AUTO_INCREMENT,

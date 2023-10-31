@@ -18,7 +18,7 @@ Ext.define('Rd.view.accel.pnlAccel', {
         },
         { 
             title   : 'Profiles',
-           // xtype   : 'pnlSettingsMqtt'
+            xtype   : 'gridAccelProfiles'
         },
         { 
             title   : 'New Arrivals',
