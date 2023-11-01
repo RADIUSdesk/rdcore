@@ -4,6 +4,9 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
     autoScroll	: true,
     plain       : true,
     frame       : false,
+    listeners       : {
+        activate  : 'onViewActivate'
+    },
     layout      : {
         type    : 'vbox',
         pack    : 'start',
@@ -50,6 +53,11 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
                     name        : "name",
                     allowBlank  : false,
                     blankText   : i18n("sSupply_a_value"),
+                },
+                {
+                    xtype       : 'textfield',
+                    name        : 'id',
+                    hidden      : true
                 },
                 {
                     xtype       : 'cmbAccelBaseConfig'
@@ -220,7 +228,7 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
 				    name			: 'radius1_auth-port',
 				    allowBlank  	: false,
 				    labelClsExtra   : 'lblRdReq',
-				    value           : 1812,
+				    //value           : 1812,
 				    minValue        : 1,
 				    maxValue        : 65535,
 				    hideTrigger     : true,
@@ -233,7 +241,7 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
 				    name			: 'radius1_acct-port',
 				    allowBlank  	: false,
 				    labelClsExtra   : 'lblRdReq',
-				    value           : 1812,
+				    //value           : 1813,
 				    minValue        : 1,
 				    maxValue        : 65535,
 				    hideTrigger     : true,
@@ -246,7 +254,7 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
 				    name			: 'radius1_req-limit',
 				    allowBlank  	: false,
 				    labelClsExtra   : 'lblRdReq',
-				    value           : 50,
+				    //value           : 50,
 				    minValue        : 1,
 				    maxValue        : 1000,
 				    hideTrigger     : true,
@@ -259,7 +267,7 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
 				    name			: 'radius1_fail-timeout',
 				    allowBlank  	: false,
 				    labelClsExtra   : 'lblRdReq',
-				    value           : 0,
+				    //value           : 0,
 				    minValue        : 0,
 				    maxValue        : 1000,
 				    hideTrigger     : true,
@@ -272,7 +280,7 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
 				    name			: 'radius1_max-fail',
 				    allowBlank  	: false,
 				    labelClsExtra   : 'lblRdReq',
-				    value           : 10,
+				    //value           : 10,
 				    minValue        : 1,
 				    maxValue        : 1000,
 				    hideTrigger     : true,
@@ -285,7 +293,7 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
 				    name			: 'radius1_weight',
 				    allowBlank  	: false,
 				    labelClsExtra   : 'lblRdReq',
-				    value           : 1,
+				    //value           : 1,
 				    minValue        : 1,
 				    maxValue        : 100,
 				    hideTrigger     : true,
@@ -322,7 +330,6 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
 				    fieldLabel		: 'Auth Port',
 				    name			: 'radius2_auth-port',
 				    labelClsExtra   : 'lblRd',
-				    value           : 1812,
 				    minValue        : 1,
 				    maxValue        : 65535,
 				    hideTrigger     : true,
@@ -334,7 +341,6 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
 				    fieldLabel		: 'Acct Port',
 				    name			: 'radius2_acct-port',
 				    labelClsExtra   : 'lblRd',
-				    value           : 1813,
 				    minValue        : 1,
 				    maxValue        : 65535,
 				    hideTrigger     : true,
@@ -346,7 +352,6 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
 				    fieldLabel		: 'Request Limit',
 				    name			: 'radius2_req-limit',
 				    labelClsExtra   : 'lblRd',
-				    value           : 50,
 				    minValue        : 1,
 				    maxValue        : 1000,
 				    hideTrigger     : true,
@@ -357,9 +362,7 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
 				    xtype           : 'numberfield',
 				    fieldLabel		: 'Fail Timeout',
 				    name			: 'radius2_fail-timeout',
-				    allowBlank  	: false,
 				    labelClsExtra   : 'lblRd',
-				    value           : 0,
 				    minValue        : 0,
 				    maxValue        : 1000,
 				    hideTrigger     : true,
@@ -370,9 +373,7 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
 				    xtype           : 'numberfield',
 				    fieldLabel		: 'Max Fail',
 				    name			: 'radius2_max-fail',
-				    allowBlank  	: false,
 				    labelClsExtra   : 'lblRd',
-				    value           : 10,
 				    minValue        : 1,
 				    maxValue        : 1000,
 				    hideTrigger     : true,
@@ -383,9 +384,7 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
 				    xtype           : 'numberfield',
 				    fieldLabel		: 'Weight',
 				    name			: 'radius2_weight',
-				    allowBlank  	: false,
 				    labelClsExtra   : 'lblRd',
-				    value           : 1,
 				    minValue        : 1,
 				    maxValue        : 100,
 				    hideTrigger     : true,
@@ -438,13 +437,17 @@ Ext.define('Rd.view.accel.pnlAccelProfileAddEdit', {
                 anchor  : '100%'
             },
             items       : [
-                {
+              /*  {
                     xtype       : 'textfield',
                     fieldLabel  : 'Password',
                     name        : "cli_password",
                     labelClsExtra   : 'lblRdReq',
                     allowBlank  : false,
                     blankText   : i18n("sSupply_a_value"),
+                },*/
+                {
+                    xtype       : 'rdPasswordfield',
+                    rdName      : 'cli_password',
                 }, 				
                 {
                     xtype       : 'checkbox',

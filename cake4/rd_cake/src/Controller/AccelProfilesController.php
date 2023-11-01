@@ -11,12 +11,34 @@ use Cake\I18n\FrozenTime;
 
 class AccelProfilesController extends AppController{
 
-    protected $main_model   = 'AccelProfiles';
+    protected $main_model  = 'AccelProfiles';
+    protected $looking_for = [
+        'dns',
+        'radius',
+        'pppoe',
+        'ppp',
+        'shaper',
+        'ip-pool',
+        'cli',       
+    ];
+    
+    protected $submit_sections = [
+        'dns',
+        'radius',
+        'radius1',
+        'radius2',
+        'pppoe',
+        'ppp',
+        'shaper',
+        'ip-pool',
+        'cli',       
+    ];
     
     public function initialize():void{  
         parent::initialize();
 
-        $this->loadModel('AccelProfiles'); 
+        $this->loadModel('AccelProfiles');
+        $this->loadModel('AccelProfileEntries');
     
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -100,50 +122,40 @@ class AccelProfilesController extends AppController{
     
         $data   = []; 
         $req_q  = $this->request->getQuery(); //q_data is the query data
-        
-        Configure::load('AccelPresets');
-        $configs    = Configure::read('AccelPresets');
-        $looking_for = [
-            'dns',
-            'radius',
-            'pppoe',
-            'ppp',
-            'shaper',
-            'ip-pool',
-            'cli',       
-        ];
              
-        if($req_q['mode'] == 'add'){        
-            $base_config = $req_q['base_config'];
-            $config = $configs[$base_config]; 
-            foreach($looking_for as $look){       
-                foreach(array_keys($config[$look]) as $k){
-                                  
-                    $val = $config[$look][$k];
-                    $key = $look.'_'.$k;
-                    if((is_string($val))||(is_int($val))){
-                        $data[$key] = $val;
-                    }
-                    
-                    //ip-pool -> pool is different
-                    if(($look == 'ip-pool')&&($k == 'pools')){
-                        $val_string = '';
-                        foreach($val as $v_line){
-                            $val_string = $val_string.$v_line."\n";                       
-                        }
-                        $data[$key] = $val_string;                  
-                    }
-                    
-                    //radius -> server is different
-                    if(($look == 'radius')&&($k == 'server')){ //'164.160.89.129,testing123,auth-port=1812,acct-port=1813,req-limit=50,fail-timeout=0,max-fail=10,weight=1'
-                        $radius1 = $val[0];
-                        if(isset($val[1])){
-                            $radius2 = $val[1];
-                        }               
-                    }                                
-                }         
-            }                        
+        if($req_q['mode'] == 'add'){         
+            $base_config    = $req_q['base_config'];
+            $data           = $this->_getViewFromBaseConfig($base_config);         
         }
+        
+        if($req_q['mode'] == 'edit'){         
+            $base_config    = $req_q['base_config'];
+            $data           = $this->_getViewFromBaseConfig($base_config); 
+            //Fin the rest of the data
+            $id             = $req_q['accel_profile_id'];
+            $e_profile      = $this->{'AccelProfiles'}->find()->where(['AccelProfiles.id' => $id])->contain(['AccelProfileEntries'])->first();
+            if($e_profile){
+                $data['name']   = $e_profile->name;
+                $data['id']     = $e_profile->id;
+                $found_radius2  = false;
+                foreach($e_profile->accel_profile_entries as $a){
+                    if($a->secion == 'radius2'){
+                        $found_radius2 = true;
+                    }
+                    $key = $a->section.'_'.$a->item;
+                    $data[$key] = $a->value;                
+                }                      
+            }
+            
+            if($found_radius2 == false){ //Unset radius2_ items
+                foreach(array_keys($data) as $k){               
+                    if(str_contains($k, 'radius2_')){
+                        unset($data[$k]);
+                    }             
+                }           
+            }                           
+        }
+        
         $this->set([
             'data' => $data,
             'success' => true,
@@ -169,10 +181,29 @@ class AccelProfilesController extends AppController{
      
     private function _addOrEdit($type= 'add') {
     
-    	$req_d		= $this->request->getData();     
-       
+    	$req_d		= $this->request->getData();
+    	
+    	$check_items = [
+			'ppp_verbose',
+			'pppoe_verbose',
+            'shaper_verbose',
+            'cli_verbose'
+		];
+		
+        foreach($check_items as $i){
+            if(isset($req_d[$i])){
+            	if($req_d[$i] == 'null'){
+                	$req_d[$i] = 0;
+                }else{
+                	$req_d[$i] = 1;
+                }  
+            }else{
+                $req_d[$i] = 0;
+            }
+        }
+    	     
         if($type == 'add'){ 
-            $entity = $this->{$this->main_model}->newEntity($req_d);
+            $entity = $this->{$this->main_model}->newEntity($req_d);           
         }
        
         if($type == 'edit'){
@@ -181,6 +212,32 @@ class AccelProfilesController extends AppController{
         }
               
         if ($this->{$this->main_model}->save($entity)) {
+        
+            $accel_profile_id = $entity->id;
+            //Delete all the old entries
+            $this->{'AccelProfileEntries'}->deleteAll(['AccelProfileEntries.accel_profile_id' => $accel_profile_id]);
+        
+            //After is has been saved the real work begins
+            foreach(array_keys($req_d) as $key){
+                if(str_contains($key, '_')){
+                    $section    = preg_replace('/_.+$/', '', $key);
+                    $s_item     = preg_replace('/^.+_/', '', $key);
+                    $value      = $req_d[$key];
+                    if(in_array($section,$this->submit_sections)){
+                        $d_entry =[
+                            'accel_profile_id'  => $accel_profile_id,
+                            'section'           => $section,
+                            'item'              => $s_item,
+                            'value'             => $value
+                        ];
+                        if($value !== ''){
+                            $e_entry = $this->{'AccelProfileEntries'}->newEntity($d_entry);
+                            $this->{'AccelProfileEntries'}->save($e_entry);
+                        }
+                    }                              
+                }        
+            }
+               
             $this->set([
                 'success' 	=> true,
                 'data'		=> $entity
@@ -254,6 +311,59 @@ class AccelProfilesController extends AppController{
             'success'       => true
         ]);
         $this->viewBuilder()->setOption('serialize', true);
+    }
+    
+    private function _getViewFromBaseConfig($base_config){
+    
+        Configure::load('AccelPresets');
+        $configs    = Configure::read('AccelPresets');  
+        $config     = $configs[$base_config];
+        $data       = [];     
+        foreach($this->looking_for as $look){       
+            foreach(array_keys($config[$look]) as $k){
+                              
+                $val = $config[$look][$k];
+                $key = $look.'_'.$k;
+                if((is_string($val))||(is_int($val))){
+                    $data[$key] = $val;
+                }
+                
+                //ip-pool -> pool is different
+                if(($look == 'ip-pool')&&($k == 'pools')){
+                    $data[$key] = implode("\n",$val);                               
+                }
+                
+                //radius -> server is different
+                if(($look == 'radius')&&($k == 'server')){ //'164.160.89.129,testing123,auth-port=1812,acct-port=1813,req-limit=50,fail-timeout=0,max-fail=10,weight=1'
+                    $radius1 = $val[0];
+                    $r1_pieces = explode(',',$radius1);
+                    $data['radius1_ip'] = $r1_pieces[0];
+                    $data['radius1_secret'] = $r1_pieces[1];
+                    foreach($r1_pieces as $p){
+                        if(str_contains($p, '=')){
+                            $r_key = preg_replace('/=.+$/', '', $p);
+                            $r_val = preg_replace('/^.+=/', '', $p);
+                            $data['radius1_'.$r_key] = $r_val;
+                        }  
+                    }
+                    
+                    if(isset($val[1])){
+                        $radius2 = $val[1];
+                        $r2_pieces = explode(',',$radius2);
+                        $data['radius2_ip'] = $r2_pieces[0];
+                        $data['radius2_secret'] = $r2_pieces[1];
+                        foreach($r2_pieces as $p){
+                            if(str_contains($p, '=')){
+                                $r_key = preg_replace('/=.+$/', '', $p);
+                                $r_val = preg_replace('/^.+=/', '', $p);
+                                $data['radius2_'.$r_key] = $r_val;
+                            }  
+                        }
+                    }               
+                }                                
+            }         
+        }
+        return $data;                           
     }
 }
 

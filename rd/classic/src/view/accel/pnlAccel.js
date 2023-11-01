@@ -22,7 +22,7 @@ Ext.define('Rd.view.accel.pnlAccel', {
         },
         { 
             title   : 'New Arrivals',
-           // xtype   : 'pnlSettingsEmail'
+            xtype   : 'gridAccelArrivals'
         }          
     ]; 
         me.callParent(arguments);

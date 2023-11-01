@@ -13,7 +13,8 @@ class AccelServersTable extends Table{
     public function initialize(array $config):void{
         
         $this->addBehavior('Timestamp');  
-        $this->belongsTo('Clouds');        
+        $this->belongsTo('Clouds'); 
+        $this->belongsTo('AccelProfiles');       
         $this->hasOne('AccelStats',['dependent' => true]);
     }
     
@@ -27,7 +28,16 @@ class AccelServersTable extends Table{
                     'rule' => 'validateUnique', 
                     'provider' => 'table'
                 ]
-            ]);            
+            ])
+            ->notEmpty('mac', 'A name is required')
+            ->add('mac', [ 
+                'nameUnique' => [
+                    'message' => 'The MAC you provided is already taken. Please provide another one.',
+                    'rule' => 'validateUnique', 
+                    'provider' => 'table'
+                ]
+            ]);
+                       
         return $validator;
     }
     

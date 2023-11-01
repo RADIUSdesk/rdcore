@@ -1,16 +1,16 @@
-Ext.define('Rd.view.accel.winAddAccelServer', {
+Ext.define('Rd.view.accel.winAccelServerEdit', {
     extend      : 'Ext.window.Window',
-    alias       : 'widget.winAddAccelServer',
+    alias       : 'widget.winAccelServerEdit',
     closable    : true,
     draggable   : true,
     resizable   : true,
-    title       : 'Add Accel-ppp Server',
-    width       : 550,
-    height      : 500,
+    title       : 'Edit Accel-ppp Server',
+    width       : 500,
+    height      : 450,
     plain       : true,
     border      : false,
     layout      : 'fit',
-    glyph       : Rd.config.icnAdd,
+    glyph       : Rd.config.icnEdit,
     autoShow    :   false,
     defaults: {
             border: false
@@ -18,18 +18,10 @@ Ext.define('Rd.view.accel.winAddAccelServer', {
     requires: [
     ],
     initComponent: function() {
-        var me      = this;
-        
-        var cmbApProfile = Ext.create('Rd.view.components.cmbApProfile',{
-		    itemId      : 'ap_profile_id',
-		    hidden		: true,
-		    disabled	: true
-	    });
-	    
-	    var cmbMesh = Ext.create('Rd.view.components.cmbMesh',{
-		    itemId      : 'mesh_id',
-		    hidden		: true,
-		    disabled	: true
+        var me      = this;	    
+	    var cmbProfile = Ext.create('Rd.view.accel.cmbAccelProfiles',{
+	        margin          : Rd.config.fieldMargin +5,
+            labelClsExtra   : 'lblRdReq'
 	    });
                
         var frmData = Ext.create('Ext.form.Panel',{
@@ -63,26 +55,52 @@ Ext.define('Rd.view.accel.winAddAccelServer', {
             items: [
                 {
                     name        : 'name',
+                    xtype       : 'textfield',
                     fieldLabel  : 'Name',
                     allowBlank  : false,
                     blankText   : 'Specify A Name',
                     margin      : Rd.config.fieldMargin +5,
                     labelClsExtra   : 'lblRdReq'
-                },            	
+                }, 
+                {
+                    name        : 'id',
+                    xtype       : 'textfield',
+                    hidden      : true
+                },                         	
 				{
                     name        : 'mac',
-                    fieldLabel  : 'MAC',
+                    xtype       : 'textfield',
+                    fieldLabel  : i18n("sMAC_address"),
                     allowBlank  : false,
                     blankText   : 'Specify A MAC Address',
-					vtype       : 'MacColon',
+					vtype       : 'MacAddress',
 					fieldStyle  : 'text-transform:uppercase',
                     itemId      : 'txtMac',
                     margin      : Rd.config.fieldMargin +5,
                     labelClsExtra   : 'lblRdReq'
-                }                
+                },
+                cmbProfile,
+                {
+                    name        : 'pppoe_interface',
+                    xtype       : 'textfield',
+                    fieldLabel  : 'Interface',
+                    allowBlank  : false,
+                    margin      : Rd.config.fieldMargin +5,
+                    labelClsExtra   : 'lblRdReq'
+                }, 
+                {
+                    name        : 'nas_identifier',
+                    xtype       : 'textfield',
+                    fieldLabel  : 'NAS Identifier',
+                    allowBlank  : false,
+                    margin      : Rd.config.fieldMargin +5,
+                    labelClsExtra   : 'lblRdReq'
+                },                 
             ]
         });
-        me.items = frmData; 
+        me.items = frmData;    
         me.callParent(arguments);
+        
+        frmData.loadRecord(me.sr);
     }
 });

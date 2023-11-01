@@ -23,6 +23,7 @@ class AccelServersController extends AppController{
         $this->loadModel('AccelServers'); 
         $this->loadModel('AccelStats');
         $this->loadModel('AccelSessions');
+        $this->loadModel('AccelArrivals');
     
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -30,12 +31,33 @@ class AccelServersController extends AppController{
             'model' => 'AccelServers'
         ]);        
          $this->loadComponent('JsonErrors'); 
-         $this->loadComponent('TimeCalculations');          
+         $this->loadComponent('TimeCalculations');
+         $this->loadComponent('Unknowns');         
     }
     
     public function getConfigForServer(){ 
     
-        Configure::load('AccelPresets');
+        $req_q    = $this->request->getQuery(); //q_data is the query data
+        
+        if(isset($req_q['mac'])){
+            $mac       = $this->request->getQuery('mac');
+            $ent_srv   = $this->{$this->main_model}->find()->where([$this->main_model.'.mac' => $mac])->first();
+            if($ent_srv){
+                
+                $this->set([
+                    'success'           => true
+                ]);
+                $this->viewBuilder()->setOption('serialize', true);
+                  
+            }else{
+                $this->Unknowns->RecordUnknownAccel();
+            }   
+                      
+        }else{
+            $this->JsonErrors->errorMessage("MAC Address of server not specified",'error');
+        }
+    
+      /*  Configure::load('AccelPresets');
         $config_file    = Configure::read('AccelPresets.Default'); //Read the defaults  
         $reply_data     = $config_file;
     
@@ -43,7 +65,7 @@ class AccelServersController extends AppController{
             'success'   => true,
             'data'      => $reply_data
         ]);
-        $this->viewBuilder()->setOption('serialize', true);
+        $this->viewBuilder()->setOption('serialize', true);*/
         
     }
     
@@ -171,7 +193,7 @@ class AccelServersController extends AppController{
     
     	$req_q    = $this->request->getQuery(); //q_data is the query data
         $cloud_id = $req_q['cloud_id'];
-        $query 	  = $this->{$this->main_model}->find()->contain(['AccelStats']);      
+        $query 	  = $this->{$this->main_model}->find()->contain(['AccelStats','AccelProfiles']);      
         $this->CommonQueryFlat->build_cloud_query($query,$cloud_id);
         
         $ft_fresh = FrozenTime::now();
@@ -233,6 +255,13 @@ class AccelServersController extends AppController{
                 }		
 			}
 			
+			if($i->accel_profile){
+			    $i->profile             = $i->accel_profile->name;
+			    $i->accel_profile_id    = $i->accel_profile->id;
+			}else{
+			    $i->profile = '== PROFILE MISSING =='; 
+			}
+						
 			if($i->accel_stat){
 			    $i->sessions_active = $i->accel_stat->sessions_active;
 			    $i->uptime = $i->accel_stat->uptime;
@@ -298,6 +327,10 @@ class AccelServersController extends AppController{
                 'data'		=> $entity
             ]);
             $this->viewBuilder()->setOption('serialize', true);
+            //Delete (if there are any) AccellArrivals with that MAC Address
+            $this->{'AccelArrivals'}->deleteAll(['AccelArrivals.mac' => $entity->mac]);
+            
+            
         } else {
             $message = 'Error';           
             $errors = $entity->getErrors();

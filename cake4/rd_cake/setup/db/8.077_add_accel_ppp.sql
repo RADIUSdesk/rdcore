@@ -9,8 +9,11 @@ if not exists (select * from information_schema.columns
 	CREATE TABLE `accel_servers` (
       `id` int(11) NOT NULL AUTO_INCREMENT,
       `cloud_id` int(11) NOT NULL,
+      `accel_profile_id` int(11) NOT NULL,
       `name` varchar(255) NOT NULL,
       `mac` varchar(255) NOT NULL,
+      `pppoe_interface` varchar(10) NOT NULL,
+      `nas_identifier` varchar(10) NOT NULL,
       `server_type` enum('standalone','mesh','ap_profile') DEFAULT 'standalone',
       `config_fetched` datetime DEFAULT NULL,
       `last_contact` datetime DEFAULT NULL,
@@ -43,7 +46,7 @@ if not exists (select * from information_schema.columns
       `id` int(11) NOT NULL AUTO_INCREMENT,
       `accel_profile_id` int(11) NOT NULL,
       `section` varchar(255) NOT NULL,
-      `key` varchar(255) NOT NULL,
+      `item` varchar(255) NOT NULL,
       `value` varchar(255) NOT NULL,
       `no_key_flag` tinyint(1) NOT NULL DEFAULT '0',
       `created` datetime NOT NULL,
@@ -112,6 +115,22 @@ if not exists (select * from information_schema.columns
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
 
 end if;
+
+if not exists (select * from information_schema.columns
+    where table_name = 'accel_arrivals' and table_schema = 'rd') then
+        CREATE TABLE `accel_arrivals` (
+      `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+      `mac` varchar(255) NOT NULL,
+      `vendor` varchar(255) DEFAULT NULL,
+      `last_contact` datetime DEFAULT NULL,
+      `last_contact_from_ip` varchar(30) NOT NULL DEFAULT '',
+      `created` datetime NOT NULL,
+      `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
+
+end if;
+
 
 end//
 

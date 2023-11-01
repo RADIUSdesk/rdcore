@@ -27,6 +27,11 @@ class UnknownsComponent extends Component {
         $this->record_unknown($unknown_table);
     }
     
+    public function RecordUnknownAccel(){
+        $unknown_table = 'AccelArrivals';
+        $this->record_unknown($unknown_table);
+    }
+    
     private function record_unknown($unknown_table){
     
         $this->{$unknown_table} = TableRegistry::get($unknown_table);
@@ -41,7 +46,7 @@ class UnknownsComponent extends Component {
         $mac = $req_q['mac'];
         
         $ip 					        = $this->getController()->getRequest()->clientIp();
-		$data 					        = array();
+		$data 					        = [];
 		$data['mac'] 			        = $mac;
 		$data['from_ip']		        = $ip;
 		$data['gateway']		        = $gw;

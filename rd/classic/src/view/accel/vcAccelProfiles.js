@@ -19,6 +19,9 @@ Ext.define('Rd.view.accel.vcAccelProfiles', {
         'gridAccelProfiles #delete': {
             click   : 'del'
         },
+        'gridAccelProfiles #edit': {
+            click   : 'edit'
+        },    
         'gridAccelProfiles actioncolumn': { 
              itemClick  : 'onActionColumnItemClick'
         }
@@ -81,7 +84,7 @@ Ext.define('Rd.view.accel.vcAccelProfiles', {
     add: function(btn){
     	var me         = this;
         var tp         = me.getView().up('tabpanel');
-        var t_id       = 110;
+        var t_id       = 0;
         var accel_profile_id = 0;
         var t_tab_id   = 'profileTab_'+t_id;
         var nt         = tp.down('#'+t_tab_id);
@@ -102,6 +105,46 @@ Ext.define('Rd.view.accel.vcAccelProfiles', {
             xtype   : 'pnlAccelProfileAddEdit'
         });
         tp.setActiveTab(t_tab_id); //Set focus on Add Tab
+    },
+    edit: function(button){
+        var me      = this;   
+        //Find out if there was something selected
+        var selCount = me.getView().getSelectionModel().getCount();
+        if(selCount == 0){
+             Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{
+            if(selCount > 1){
+                Ext.ux.Toaster.msg(
+                        i18n('sLimit_the_selection'),
+                        i18n('sSelection_limited_to_one'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+                );
+            }else{
+                var sr          = me.getView().getSelectionModel().getLastSelected();
+                var tp          = me.getView().up('tabpanel');               
+                var t_tab_name  = 'Edit Profile';
+                var t_id        = sr.get('id');
+                var t_tab_id    = 'profileTab_'+t_id;
+                //Tab not there - add one
+                tp.add({ 
+                    title   : t_tab_name,
+                    itemId  : t_tab_id,
+                    accel_profile_id : t_id,
+                    mode    : 'edit', //Add or edit Mode
+                    closable: true,
+                    glyph   : Rd.config.icnEdit,
+                    xtype   : 'pnlAccelProfileAddEdit',
+                    sr      : sr
+                });
+                tp.setActiveTab(t_tab_id); //Set focus on Add Tab
+            }
+        }
     },
     onViewActivate: function(pnl){
         var me = this;

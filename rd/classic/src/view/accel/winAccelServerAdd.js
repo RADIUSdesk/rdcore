@@ -1,12 +1,12 @@
-Ext.define('Rd.view.accel.winAddAccelServer', {
+Ext.define('Rd.view.accel.winAccelServerAdd', {
     extend      : 'Ext.window.Window',
-    alias       : 'widget.winAddAccelServer',
+    alias       : 'widget.winAccelServerAdd',
     closable    : true,
     draggable   : true,
     resizable   : true,
     title       : 'Add Accel-ppp Server',
     width       : 500,
-    height      : 300,
+    height      : 450,
     plain       : true,
     border      : false,
     layout      : 'fit',
@@ -20,7 +20,7 @@ Ext.define('Rd.view.accel.winAddAccelServer', {
     initComponent: function() {
         var me      = this;
         
-        var cmbApProfile = Ext.create('Rd.view.components.cmbApProfile',{
+    /*    var cmbApProfile = Ext.create('Rd.view.components.cmbApProfile',{
 		    itemId      : 'ap_profile_id',
 		    hidden		: true,
 		    disabled	: true
@@ -30,6 +30,11 @@ Ext.define('Rd.view.accel.winAddAccelServer', {
 		    itemId      : 'mesh_id',
 		    hidden		: true,
 		    disabled	: true
+	    });*/
+	    
+	    var cmbProfile = Ext.create('Rd.view.accel.cmbAccelProfiles',{
+	        margin          : Rd.config.fieldMargin +5,
+            labelClsExtra   : 'lblRdReq'
 	    });
                
         var frmData = Ext.create('Ext.form.Panel',{
@@ -63,15 +68,17 @@ Ext.define('Rd.view.accel.winAddAccelServer', {
             items: [
                 {
                     name        : 'name',
+                    xtype       : 'textfield',
                     fieldLabel  : 'Name',
                     allowBlank  : false,
                     blankText   : 'Specify A Name',
                     margin      : Rd.config.fieldMargin +5,
                     labelClsExtra   : 'lblRdReq'
-                },            	
+                },                         	
 				{
                     name        : 'mac',
-                    fieldLabel  : 'MAC',
+                    xtype       : 'textfield',
+                    fieldLabel  : i18n("sMAC_address"),
                     allowBlank  : false,
                     blankText   : 'Specify A MAC Address',
 					vtype       : 'MacAddress',
@@ -79,10 +86,32 @@ Ext.define('Rd.view.accel.winAddAccelServer', {
                     itemId      : 'txtMac',
                     margin      : Rd.config.fieldMargin +5,
                     labelClsExtra   : 'lblRdReq'
-                }                
+                },
+                cmbProfile,
+                {
+                    name        : 'pppoe_interface',
+                    xtype       : 'textfield',
+                    fieldLabel  : 'Interface',
+                    allowBlank  : false,
+                    margin      : Rd.config.fieldMargin +5,
+                    labelClsExtra   : 'lblRdReq'
+                }, 
+                {
+                    name        : 'nas_identifier',
+                    xtype       : 'textfield',
+                    fieldLabel  : 'NAS Identifier',
+                    allowBlank  : false,
+                    margin      : Rd.config.fieldMargin +5,
+                    labelClsExtra   : 'lblRdReq'
+                },                 
             ]
         });
         me.items = frmData; 
         me.callParent(arguments);
+        
+        if(me.sr){
+            frmData.loadRecord(me.sr);
+        }
+        
     }
 });

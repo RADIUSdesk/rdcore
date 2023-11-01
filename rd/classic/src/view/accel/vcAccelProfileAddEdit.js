@@ -56,5 +56,14 @@ Ext.define('Rd.view.accel.vcAccelProfileAddEdit', {
                 console.log(b.result.data)                        
             }
         });  
+    },
+    onViewActivate : function(){
+        var me = this;
+        console.log("View Activate Pappie");
+        if(me.getView().mode == 'edit'){
+            var sr = me.getView().sr;
+            var bc = sr.get('base_config');
+            me.getView().down('cmbAccelBaseConfig').setValue(bc);      
+        }   
     }
 });

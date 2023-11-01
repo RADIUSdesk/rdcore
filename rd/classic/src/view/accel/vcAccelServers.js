@@ -6,6 +6,7 @@ Ext.define('Rd.view.accel.vcAccelServers', {
     },
     config: {
         urlAdd      : '/cake4/rd_cake/accel-servers/add.json',
+        urlEdit      : '/cake4/rd_cake/accel-servers/edit.json',
         urlDelete   : '/cake4/rd_cake/accel-servers/delete.json',
         urlRestart  : '/cake4/rd_cake/accel-servers/restart.json'
     },
@@ -25,14 +26,20 @@ Ext.define('Rd.view.accel.vcAccelServers', {
         'gridAccelServers #delete': {
             click   : 'del'
         },
+        'gridAccelServers #edit': {
+            click   : 'edit'
+        },  
         'gridAccelServers #restart': {
             click   : 'restart'
         },
         'gridAccelServers #sessions': {
             click   : 'sessions'
         },
-        'winAddAccelServer #save' : {
+        'winAccelServerAdd #save' : {
             click   : 'addSave'
+        },
+        'winAccelServerEdit #save' : {
+            click   : 'editSave'
         },
         'gridAccelServers actioncolumn': { 
              itemClick  : 'onActionColumnItemClick'
@@ -130,10 +137,40 @@ Ext.define('Rd.view.accel.vcAccelServers', {
             });
         }
     },
+    edit: function(button){
+        var me      = this;   
+        //Find out if there was something selected
+        var selCount = me.getView().getSelectionModel().getCount();
+        if(selCount == 0){
+             Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{
+            if(selCount > 1){
+                Ext.ux.Toaster.msg(
+                        i18n('sLimit_the_selection'),
+                        i18n('sSelection_limited_to_one'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+                );
+            }else{
+                var sr          = me.getView().getSelectionModel().getLastSelected();
+                if(!Ext.WindowManager.get('winAccelServerEditId')){
+                    var w = Ext.widget('winAccelServerEdit',{id:'winAccelServerEditId',sr:sr});
+                    me.getView().add(w); 
+                    let appBody = Ext.getBody();
+                    w.showBy(appBody);           
+                }  
+            }
+        }
+    },
     add: function(btn){
     	var me = this;
-    	if(!Ext.WindowManager.get('winAddAccelServerId')){
-            var w = Ext.widget('winAddAccelServer',{id:'winAddAccelServerId'});
+    	if(!Ext.WindowManager.get('winAccelServerAddId')){
+            var w = Ext.widget('winAccelServerAdd',{id:'winAccelServerAddId'});
             me.getView().add(w); 
             let appBody = Ext.getBody();
             w.showBy(appBody);           
@@ -153,6 +190,27 @@ Ext.define('Rd.view.accel.vcAccelServers', {
                 Ext.ux.Toaster.msg(
                     i18n('sNew_item_created'),
                     i18n('sItem_created_fine'),
+                    Ext.ux.Constants.clsInfo,
+                    Ext.ux.Constants.msgInfo
+                );
+            },
+            failure: Ext.ux.formFail
+        });
+    },
+    editSave :  function(button){
+        var me      = this;
+        var win     = button.up('window');
+        var form    = win.down('form');
+        form.submit({
+            clientValidation: true,
+            url: me.getUrlEdit(),
+            success: function(form, action) {
+                win.close();
+                me.reload();
+                me.reloadComboBox();
+                Ext.ux.Toaster.msg(
+                    'Item Updated',
+                    'Item Updated Fine',
                     Ext.ux.Constants.clsInfo,
                     Ext.ux.Constants.msgInfo
                 );

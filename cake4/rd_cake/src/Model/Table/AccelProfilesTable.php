@@ -14,7 +14,7 @@ class AccelProfilesTable extends Table{
         
         $this->addBehavior('Timestamp');  
         $this->belongsTo('Clouds');        
-        $this->hasOne('AccelProfileEntries',['dependent' => true]);
+        $this->hasMany('AccelProfileEntries',['dependent' => true]);
     }
     
     public function validationDefault(Validator $validator):Validator{

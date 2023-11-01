@@ -143,6 +143,33 @@ Ext.define('Rd.view.accel.gridAccelServers' ,{
                 stateId     : 'StateGridAccS2'
             },
             { 
+                text        : 'Profile',               
+                dataIndex   : 'profile',
+                hidden      : true,
+                tdCls       : 'gridTree',  
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridAccS2a'
+            },
+            { 
+                text        : 'Interface',               
+                dataIndex   : 'pppoe_interface',
+                hidden      : true,
+                tdCls       : 'gridTree',  
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridAccS2b'
+            },
+            { 
+                text        : 'NAS Identifier',               
+                dataIndex   : 'nas_identifier',
+                hidden      : true,
+                tdCls       : 'gridTree',  
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridAccS2c'
+            },
+            { 
                 text        : "<i class=\"fa fa-gears\"></i> "+'Config Fetched', 
                 dataIndex   : 'config_fetched',  
                 tdCls       : 'gridTree', 
