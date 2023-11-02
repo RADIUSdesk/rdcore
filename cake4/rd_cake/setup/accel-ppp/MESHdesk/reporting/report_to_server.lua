@@ -10,6 +10,7 @@ local logger        = rdLogger();
 local cjson         = require("cjson");
 local socket        = require("socket");
 local report        = 'light'; -- can be light or full
+local password      = 'testing123';
 
 if(arg[1])then
     report = arg[1];
@@ -42,7 +43,7 @@ function afterReport()
                 for index, value in pairs(r.data.terminate) do
                     follow_up = true;
                     print("Terminate "..value);
-                    os.execute('accel-cmd terminate sid '..value);   
+                    os.execute('accel-cmd -P '..password..' terminate sid '..value);   
                 end
             end
             if(r.data.restart_service)then --Restart Service
@@ -62,7 +63,7 @@ function afterReport()
 end
 
 function lightReport()
-    local id    = 'aa-bb-cc-dd-ee-ff';
+    local id    = '64-64-4A-D1-2D-67';
     local mode  = 'standalone';
     local query = 'http://127.0.0.1/cake4/rd_cake/accel-servers/submit-report.json';
     local stat  = a_json:showStat();

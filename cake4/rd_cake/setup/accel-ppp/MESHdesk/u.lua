@@ -24,23 +24,20 @@ function printAll(t, level)
             if(level == 0)then
                 --print("\n["..k.."]");
                 txtConf=txtConf.."\n\n["..k.."]";
-            else
-                if(k == 'server')then -- this one under radius is special and needs spacial treatment
-                    for i,v in ipairs(v) do
-                        --print(k..'='..v);
-                        txtConf=txtConf.."\n"..k..'='..v;
-                    end
-                    return;
-                end
-                       
+            else                
                 if(type(v) == 'string')then
-                    if(tonumber(k))then
-                        --print(v);
+                    print(k);
+                    if((k == 'pools')or(k == 'server' ))then
                         txtConf=txtConf.."\n"..v;
-                    else
-                        --print(k..'='..v);
-                        txtConf=txtConf.."\n"..k..'='..v;
-                    end
+                    else                    
+                        if(tonumber(k))then
+                            --print(v);
+                            txtConf=txtConf.."\n"..v;
+                        else
+                            --print(k..'='..v);
+                            txtConf=txtConf.."\n"..k..'='..v;
+                        end                       
+                    end                   
                 end
                 if(type(v) == 'number')then
                     --print(k..'='..v);
@@ -70,7 +67,9 @@ end
 local file = io.open( "/home/system/accel-ppp.conf", "w" )
 if( io.type( file ) == "file" ) then
     file:write(txtConf)
-    file:close();	
+    file:close();
+    os.execute('cp /home/system/accel-ppp.conf /etc/accel-ppp.conf'); 
+    os.execute('/etc/init.d/accel-ppp restart'); 	
 else
 	print( "--error--" )
 end

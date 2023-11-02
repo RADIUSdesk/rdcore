@@ -139,14 +139,14 @@ class AccelProfilesController extends AppController{
                 $data['id']     = $e_profile->id;
                 $found_radius2  = false;
                 foreach($e_profile->accel_profile_entries as $a){
-                    if($a->secion == 'radius2'){
+                    if($a->section == 'radius2'){
                         $found_radius2 = true;
                     }
                     $key = $a->section.'_'.$a->item;
                     $data[$key] = $a->value;                
                 }                      
             }
-            
+                     
             if($found_radius2 == false){ //Unset radius2_ items
                 foreach(array_keys($data) as $k){               
                     if(str_contains($k, 'radius2_')){
@@ -187,7 +187,8 @@ class AccelProfilesController extends AppController{
 			'ppp_verbose',
 			'pppoe_verbose',
             'shaper_verbose',
-            'cli_verbose'
+            'cli_verbose',
+            'radius_verbose'
 		];
 		
         foreach($check_items as $i){

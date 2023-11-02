@@ -10,6 +10,7 @@ function rdAccelJson:rdAccelJson()
 	self.version 	= "1.0.1"
 	self.tag	    = "MESHdesk"
 	self.priority	= "debug"
+	self.password   = 'testing123';
 end
         
 function rdAccelJson:getVersion()
@@ -31,7 +32,7 @@ end
 --]]--
 
 function rdAccelJson._showStat(self)
-    local a   = io.popen('accel-cmd show stat') 
+    local a   = io.popen('accel-cmd -P '..self.password..' show stat') 
     local str = a:read('*a')
     local items = {};
     for s in str:gmatch("[^\r\n]+") do
@@ -86,7 +87,7 @@ show sessions [columns] [order <column>] [match <column> <regexp>] - shows sessi
 --]]--
 
 function rdAccelJson._showSessions(self)
-    local a     = io.popen('accel-cmd show sessions ifname,username,ip,state,uptime,calling-sid,called-sid,sid,rx-bytes-raw,tx-bytes-raw,rx-pkts,tx-pkts,inbound-if,rate-limit') 
+    local a     = io.popen('accel-cmd -P '..self.password..' show sessions ifname,username,ip,state,uptime,calling-sid,called-sid,sid,rx-bytes-raw,tx-bytes-raw,rx-pkts,tx-pkts,inbound-if,rate-limit') 
     local str   = a:read('*a')
     local counter = 0;
     local keys  = {};

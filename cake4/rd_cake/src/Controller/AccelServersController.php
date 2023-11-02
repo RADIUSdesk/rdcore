@@ -41,11 +41,15 @@ class AccelServersController extends AppController{
         
         if(isset($req_q['mac'])){
             $mac       = $this->request->getQuery('mac');
-            $ent_srv   = $this->{$this->main_model}->find()->where([$this->main_model.'.mac' => $mac])->first();
+            $ent_srv   = $this->{$this->main_model}->find()->where([$this->main_model.'.mac' => $mac])->contain(['AccelProfiles'=> ['AccelProfileEntries']])->first();
             if($ent_srv){
                 
+                $config = $this->_return_config($ent_srv);                
+                $this->_update_fetched_info($ent_srv);              
+                
                 $this->set([
-                    'success'           => true
+                    'data'      => $config,
+                    'success'   => true
                 ]);
                 $this->viewBuilder()->setOption('serialize', true);
                   
@@ -439,6 +443,74 @@ class AccelServersController extends AppController{
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
+    
+    private function _update_fetched_info($ent_srv){
+        //--Update the fetched info--
+        $data = [];
+		$data['id'] 			        = $ent_srv->id;
+		$data['config_fetched']         = date("Y-m-d H:i:s", time());
+		$data['last_contact_from_ip']   = $this->getRequest()->clientIp();
+        $this->{'AccelServers'}->patchEntity($ent_srv, $data);
+        $this->{'AccelServers'}->save($ent_srv);      
+    }
+    
+    private function _return_config($ent_srv){
+    
+        $config = [];
+    
+        $base_config  = $ent_srv->accel_profile->base_config;
+        Configure::load('AccelPresets');
+        $config    = Configure::read('AccelPresets.'.$base_config); //Read the defaults
+        
+        $config['ip-pool']['pools'] = implode("\n",$config['ip-pool']['pools']); //This will actually be overwritten by one of the entries
+        
+        //===These two overrides comes from the server's entitiy===
+        $config['radius']['nas-identifier'] = $ent_srv->nas_identifier;
+        $config['pppoe']['interface']       = $ent_srv->pppoe_interface;
+        //----------------------------------------------------------
+        
+        $radius = [];                           
+        foreach($ent_srv->accel_profile->accel_profile_entries as $entry){                    
+            if(($entry->section != 'radius1')&&($entry->section != 'radius2')){
+                $config[$entry->section][$entry->item] = $entry->value;                      
+            }else{
+                 $radius[$entry->section][$entry->item] = $entry->value;                   
+            }
+        }
+        
+        //Unset $config['radius']['server']
+        unset($config['radius']['server']);
+        
+        $want_these = ['auth-port','acct-port','req-limit','fail-timeout','max-fail','weight'];
+        
+        if(isset($radius['radius1'])){
+            $radius1_string         = 'server='.$radius['radius1']['ip'].','.$radius['radius1']['secret'];
+            $radius1_rest_string    = '';
+            foreach (array_keys($radius['radius1']) as $key){                     
+                 if(in_array($key, $want_these)){
+                    $radius1_rest_string=$radius1_rest_string.$key.'='.$radius['radius1'][$key].',';                    
+                 }                   
+            }
+            $radius1_rest_string = rtrim($radius1_rest_string, ',');
+            $radius1_string = $radius1_string.','.$radius1_rest_string; 
+            $config['radius']['server'] = $radius1_string;
+            $config['radius']['server'] = $radius1_string;         
+        }
+        if(isset($radius['radius2'])){
+            $radius2_string         = 'server='.$radius['radius2']['ip'].','.$radius['radius2']['secret'];
+            $radius2_rest_string    = '';
+            foreach (array_keys($radius['radius2']) as $key){                     
+                 if(in_array($key, $want_these)){
+                    $radius2_rest_string=$radius2_rest_string.$key.'='.$radius['radius1'][$key].',';                    
+                 }                   
+            }
+            $radius2_rest_string = rtrim($radius2_rest_string, ',');
+            $radius2_string = $radius2_string.','.$radius2_rest_string; 
+            $config['radius']['server'] = $radius1_string."\n".$radius2_string;      //Combine them with newline     
+        }   
+        return $config;   
+    }
+    
 }
 
 ?>
