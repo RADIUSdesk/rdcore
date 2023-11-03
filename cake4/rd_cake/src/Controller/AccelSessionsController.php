@@ -97,13 +97,13 @@ class AccelSessionsController extends AppController{
 			$i->state	= 'up';
 
 			$i->modified_in_words = $this->TimeCalculations->time_elapsed_string($i->modified);
-			$i->created_in_words = $this->TimeCalculations->time_elapsed_string($i->created);			
-			$last_timestamp = strtotime($i->modified);
-            if ($last_timestamp+$dead_after <= time()) {
+			$i->created_in_words = $this->TimeCalculations->time_elapsed_string($i->created);	
+			
+		    if ($i->modified <= $ft_fresh) {
                 $i->state = 'down';
             } else {
                 $i->state = 'up';
-            }	
+            }
 								
             array_push($items,$i);
         }

@@ -165,7 +165,7 @@ class ApHelper22Component extends Component {
         //--Update the fetched info--
         $data = [];
 		$data['id'] 			        = $this->ApId;
-		$data['config_fetched']         = date("Y-m-d H:i:s", time());
+		$data['config_fetched']         = FrozenTime::now();
 		$data['last_contact_from_ip']   = $this->getController()->getRequest()->clientIp();
         $this->{$this->main_model}->patchEntity($ent_ap, $data);
         $this->{$this->main_model}->save($ent_ap);       

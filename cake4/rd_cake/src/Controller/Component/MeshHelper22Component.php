@@ -156,7 +156,7 @@ class MeshHelper22Component extends Component {
         //--Update the fetched info--
         $data = [];
 		$data['id'] 			        = $this->NodeId;
-		$data['config_fetched']         = date("Y-m-d H:i:s", time());
+		$data['config_fetched']         = FrozenTime::now();
 		$data['last_contact_from_ip']   = $this->getController()->getRequest()->clientIp();
         $this->Nodes->patchEntity($ent_node, $data);
         $this->Nodes->save($ent_node);      

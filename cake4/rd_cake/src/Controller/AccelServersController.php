@@ -116,7 +116,7 @@ class AccelServersController extends AppController{
                 $server_id = $e_s->id;
                 $req_d['stat']['accel_server_id'] = $e_s->id;
                                         
-                $e_s->last_contact = date('Y-m-d H:i:s', time());
+                $e_s->last_contact = FrozenTime::now();
                 $e_s->last_contact_from_ip = $this->request->clientIp();
                 $this->{'AccelServers'}->save($e_s);
                 
@@ -239,8 +239,7 @@ class AccelServersController extends AppController{
 			    $i->config_state= 'never';
 			}else{
 			    $i->config_fetched_human = $this->TimeCalculations->time_elapsed_string($i->config_fetched);
-			    $last_timestamp = strtotime($i->config_fetched);
-                if ($last_timestamp+$dead_after <= time()) {
+                if ($i->config_fetched <= $ft_fresh) {
                     $i->config_state = 'down';
                 } else {
                     $i->config_state = 'up';
@@ -251,8 +250,7 @@ class AccelServersController extends AppController{
 			    $i->state= 'never';
 			}else{
 			    $i->last_contact_human = $this->TimeCalculations->time_elapsed_string($i->last_contact);
-			    $last_timestamp = strtotime($i->last_contact);
-                if ($last_timestamp+$dead_after <= time()) {
+                if ($i->last_contact <= $ft_fresh) {
                     $i->state = 'down';
                 } else {
                     $i->state = 'up';
@@ -448,7 +446,7 @@ class AccelServersController extends AppController{
         //--Update the fetched info--
         $data = [];
 		$data['id'] 			        = $ent_srv->id;
-		$data['config_fetched']         = date("Y-m-d H:i:s", time());
+		$data['config_fetched']         = FrozenTime::now();
 		$data['last_contact_from_ip']   = $this->getRequest()->clientIp();
         $this->{'AccelServers'}->patchEntity($ent_srv, $data);
         $this->{'AccelServers'}->save($ent_srv);      
