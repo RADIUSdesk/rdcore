@@ -11,6 +11,9 @@ local cjson         = require("cjson");
 local socket        = require("socket");
 local report        = 'light'; -- can be light or full
 local password      = 'testing123';
+local inifile       = require('inifile');
+local config_file   = '/etc/accel-ppp-rd.conf';
+local report_url    = '/cake4/rd_cake/accel-servers/submit-report.json';
 
 if(arg[1])then
     report = arg[1];
@@ -58,14 +61,27 @@ function afterReport()
         print("Doing a follow up");
         sleep(10); --Give it enough time to connect again
         lightReport();
-    end
-        
+    end     
 end
 
 function lightReport()
-    local id    = '64-64-4A-D1-2D-67';
-    local mode  = 'standalone';
-    local query = 'http://127.0.0.1/cake4/rd_cake/accel-servers/submit-report.json';
+
+    local conf  = inifile.parse(config_file);
+    local dns   = conf['internet']['dns'];
+    local proto = conf['internet']['protocol'];
+    local ip    = conf['internet']['ip'];
+    local interface = conf['pppoe']['interface'];
+    local id        = getMac(interface);
+    
+    local current_ip = socket.dns.toip(dns)
+    if(current_ip)then
+        if(current_ip ~= ip)then
+            ip = current_ip; --update it
+            conf['internet']['ip'] = ip;
+            inifile.save(config_file, conf);
+        end
+    end
+    local query = proto..'://'..ip..report_url;    
     local stat  = a_json:showStat();
     local j_stat= cjson.encode(stat);
     local sess  = a_json:showSessions();
@@ -78,13 +94,22 @@ function lightReport()
     afterReport();
 end
 
+
+function  getMac(interface)
+	interface = interface or "eth0"
+	io.input("/sys/class/net/" .. interface .. "/address")
+	t = io.read("*line")
+	dashes, count = string.gsub(t, ":", "-")
+	dashes = string.upper(dashes)
+	return dashes
+end
+
+
 if(report == 'light')then
     lightReport();
 end
 
-if(report == 'full')then
-    --fullReport();
-end
+
 
 print("Doing the *"..report.."* report");
 

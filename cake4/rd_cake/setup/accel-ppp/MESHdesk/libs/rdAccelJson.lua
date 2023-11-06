@@ -7,10 +7,12 @@ class "rdAccelJson"
 
 --Init function for object
 function rdAccelJson:rdAccelJson()
-	self.version 	= "1.0.1"
-	self.tag	    = "MESHdesk"
-	self.priority	= "debug"
-	self.password   = 'testing123';
+    self.inifile        = require('inifile');
+	self.version 	    = "1.0.1"
+	self.tag	        = "MESHdesk"
+	self.priority	    = "debug"
+	self.password       = '';
+	self.config_accel   = '/etc/accel-ppp.conf';
 end
         
 function rdAccelJson:getVersion()
@@ -18,10 +20,12 @@ function rdAccelJson:getVersion()
 end
 
 function rdAccelJson:showStat()
+    self:_primePassword();
     return self:_showStat()	
 end
 
 function rdAccelJson:showSessions()
+    self:_primePassword();
     return self:_showSessions()	
 end
 
@@ -32,6 +36,7 @@ end
 --]]--
 
 function rdAccelJson._showStat(self)
+
     local a   = io.popen('accel-cmd -P '..self.password..' show stat') 
     local str = a:read('*a')
     local items = {};
@@ -115,3 +120,14 @@ function rdAccelJson._showSessions(self)
     end
     return items;
 end
+
+function rdAccelJson._primePassword(self) --read the password from the server's config file
+
+    local conf  = self.inifile.parse(self.config_accel);
+    local password = conf['cli']['password'];
+    print(password);
+    self.password = password;
+end
+
+
+

@@ -1,0 +1,13 @@
+#!/bin/bash
+iptables -t nat -A POSTROUTING -o enp0s3 -j MASQUERADE
+
+cd /etc/MESHdesk
+
+sleep 10
+/etc/MESHdesk/u.lua &
+sleep 10
+/etc/MESHdesk/heartbeat.lua &
+
+
+exit 0
+

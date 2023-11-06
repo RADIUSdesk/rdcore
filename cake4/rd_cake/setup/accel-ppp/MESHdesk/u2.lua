@@ -56,6 +56,10 @@ function fetchConfig()
     local proto = conf['internet']['protocol'];
     local ip    = conf['internet']['ip'];
     local interface = conf['pppoe']['interface'];
+    
+    --data to send
+    local accel     = inifile.parse(config_accel);
+    local interface = accel['pppoe']['interface'];
     local id        = getMac(interface);
     
     local current_ip = socket.dns.toip(dns)

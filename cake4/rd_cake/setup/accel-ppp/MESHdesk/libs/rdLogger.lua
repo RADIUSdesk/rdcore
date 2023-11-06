@@ -7,9 +7,10 @@ class "rdLogger"
 
 --Init function for object
 function rdLogger:rdLogger()
-	self.version 	= "1.0.1"
-	self.tag	    = "MESHdesk"
-	self.priority	= "debug"
+	self.version 	    = "1.0.1"
+	self.tag	        = "MESHdesk"
+	self.priority	    = "debug"
+
 end
         
 function rdLogger:getVersion()
