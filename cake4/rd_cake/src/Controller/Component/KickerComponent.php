@@ -20,7 +20,8 @@ class KickerComponent extends Component {
     //protected $pod_command = '/etc/MESHdesk/pod.lua';
     protected $pod_command 	= 'chilli_query logout mac';
     protected	$coova_md 	= 'CoovaMeshdesk';
-    protected	$mt_api 	= 'Mikrotik-API'; 
+    protected	$mt_api 	= 'Mikrotik-API';
+    protected   $accel      = 'AccelRadiusdesk';
     protected	$node_action_add = 'http://127.0.0.1/cake4/rd_cake/node-actions/add.json';
     protected	$ap_action_add = 'http://127.0.0.1/cake4/rd_cake/ap-actions/add.json';
     
@@ -35,7 +36,12 @@ class KickerComponent extends Component {
         $this->MeshExitCaptivePortals   = TableRegistry::get('MeshExitCaptivePortals'); 
         $this->MeshExits                = TableRegistry::get('MeshExits'); 
         $this->Nodes                    = TableRegistry::get('Nodes');
-        $this->NodeActions              = TableRegistry::get('NodeActions'); 
+        $this->NodeActions              = TableRegistry::get('NodeActions');
+        
+        //Accel
+        $this->AccelServers             = TableRegistry::get('AccelServers');
+        $this->AccelSessions            = TableRegistry::get('AccelSessions');
+         
     }
 
     public function kick($ent,$token){
@@ -50,6 +56,11 @@ class KickerComponent extends Component {
      		->first();
      		
      	if($dc){
+     	    //===Accel====
+     	    if($dc->type == $this->accel){ //It is type AccelRadiusdesk -> try to locate the session and set the disconnect flag of the session
+     	        $this->kickAccelSession($ent);
+     	    }
+     	
      		//===CoovaMeshdesk====
      		if($dc->type == $this->coova_md){ //It is type CoovaMeshdesk => Now try and locate AP to send command to 
      		
@@ -89,15 +100,24 @@ class KickerComponent extends Component {
 					}
 				}         
 				unset($mt_data['proto']); 
-				$this->MikrotikApi->kickRadius($ent,$mt_data);				             
-     		   		
-     		}     		
-     		   	
+				$this->MikrotikApi->kickRadius($ent,$mt_data);   		   		
+     		}     		  		   	
      	}
              
         return $data = [];       
     }
-       
+    
+    private function kickAccelSession($ent){
+    
+        $sid    = $ent->acctsessionid;    
+        $e_srv  = $this->{'AccelSessions'}->find()->where(['AccelSessions.sid' => $sid])->first(); //Short and sweet :-)
+        if($e_srv){
+            $e_srv->disconnect_flag = 1;
+            $e_srv->setDirty('modified', true);
+            $this->{'AccelSessions'}->save($e_srv);
+        }    
+    }
+         
     private function kickMeshNodeUser($ent,$cloud_id,$token){      
   		$cp = $this->MeshExitCaptivePortals->find()->where(['MeshExitCaptivePortals.radius_nasid' => $ent->nasidentifier])->first();            
         if($cp){

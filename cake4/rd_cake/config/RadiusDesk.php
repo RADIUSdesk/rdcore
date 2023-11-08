@@ -41,9 +41,11 @@ $config['dynamic_attributes'][2]     = ['name' => 'NAS-Identifier',     'id' => 
 
 //Define nas types
 $config['nas_types'][0]     = ['name' => 'Other',            	'id' => 'other',       		'active' => true];
-$config['nas_types'][1]     = ['name' => 'Coova-On-Meshdesk',	'id' => 'CoovaMeshdesk',   	'active' => true];
-$config['nas_types'][2]     = ['name' => 'Mikrotik-API',	    'id' => 'Mikrotik-API',   	'active' => true];
-$config['nas_types'][3]     = ['name' => 'Private PSK',	        'id' => 'private_psk',   	'active' => true];
+$config['nas_types'][1]     = ['name' => 'Accel-On-RADIUSdesk',	'id' => 'AccelRadiusdesk',  'active' => true];
+$config['nas_types'][2]     = ['name' => 'Coova-On-Meshdesk',	'id' => 'CoovaMeshdesk',   	'active' => true];
+$config['nas_types'][3]     = ['name' => 'Mikrotik-API',	    'id' => 'Mikrotik-API',   	'active' => true];
+$config['nas_types'][4]     = ['name' => 'Private PSK',	        'id' => 'private_psk',   	'active' => true];
+
 
 //Define Email Transport types
 $config['mail_transports'][0]	= ['name' => 'Smtp',        'id' => 'smtp',		'className' => 'Smtp'];

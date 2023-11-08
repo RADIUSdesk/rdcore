@@ -28,16 +28,23 @@ class AccelServersTable extends Table{
                     'rule' => 'validateUnique', 
                     'provider' => 'table'
                 ]
-            ])
-            ->notEmpty('mac', 'A name is required')
-            ->add('mac', [ 
-                'nameUnique' => [
-                    'message' => 'The MAC you provided is already taken. Please provide another one.',
+            ])           
+            ->notEmpty('nas_identifier', 'A NAS Identifier is required')
+            ->add('nas_identifier', [ 
+                'nasIdUnique' => [
+                    'message' => 'The NAS Identifier you provided is already taken. Please provide another one.',
                     'rule' => 'validateUnique', 
                     'provider' => 'table'
                 ]
-            ]);
-                       
+            ])
+            ->notEmpty('mac', 'A MAC is required')
+            ->add('mac', [ 
+                'macUnique' => [
+                    'message' => 'The MAC you provided is already taken. Please provide another one',
+                    'rule' => 'validateUnique', 
+                    'provider' => 'table'
+                ]
+            ]);                     
         return $validator;
     }
     
