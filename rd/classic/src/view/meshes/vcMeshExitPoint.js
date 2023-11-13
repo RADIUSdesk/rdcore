@@ -145,6 +145,7 @@ Ext.define('Rd.view.meshes.vcMeshExitPoint', {
                 var t_val = t.getValue();
                 var vlan  = form.down('#vlan');
                 var vpn   = form.down('#cmbOpenVpnServers');
+                var pppoe = form.down('#cmbAccelProfiles');
                 
                 var rgrpProtocol= form.down('#rgrpProtocol');
                 var txtIpaddr   = form.down('#txtIpaddr');
@@ -162,9 +163,24 @@ Ext.define('Rd.view.meshes.vcMeshExitPoint', {
                     
                     vlan.setVisible(false);
                     vlan.setDisabled(true);
+                    pppoe.setVisible(false);
+                    pppoe.setDisabled(true);
                 }else{
                     vpn.setVisible(false);
                     vpn.setDisabled(true);
+                }
+                
+                if(t_val == 'pppoe_server'){
+                    pppoe.setVisible(true);
+                    pppoe.setDisabled(false);
+                    
+                    vlan.setVisible(false);
+                    vlan.setDisabled(true);
+                    vpn.setVisible(false);
+                    vpn.setDisabled(true);
+                }else{
+                    pppoe.setVisible(false);
+                    pppoe.setDisabled(true);
                 }
                   
                 if(t_val == 'tagged_bridge'){

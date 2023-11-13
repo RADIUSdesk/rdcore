@@ -459,7 +459,8 @@ Ext.define('Rd.controller.cAccessPointEdits', {
         var tab_capt= win.down('#tabCaptivePortal');
         var tab_nat = win.down('#tabNatDhcp');
         var sel_type= win.down('#type');
-        var vpn     = win.down('#cmbOpenVpnServers') 
+        var vpn     = win.down('#cmbOpenVpnServers');
+        var pppoe   = win.down('#cmbAccelProfiles'); 
         var a_nas   = win.down('#chkNasClient');
         var cmb_realm = win.down('#cmbRealm');
         var a_page  = win.down('#chkLoginPage');
@@ -478,6 +479,14 @@ Ext.define('Rd.controller.cAccessPointEdits', {
         }else{
             vpn.setVisible(false);
             vpn.setDisabled(true);
+        }
+        
+        if(type == 'pppoe_server'){
+            pppoe.setVisible(true);
+            pppoe.setDisabled(false);
+        }else{
+            pppoe.setVisible(false);
+            pppoe.setDisabled(true);
         }
  
         if(type == 'tagged_bridge'){

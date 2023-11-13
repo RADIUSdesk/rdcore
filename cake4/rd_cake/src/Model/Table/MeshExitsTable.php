@@ -18,7 +18,7 @@ class MeshExitsTable extends Table{
         $this->hasOne('MeshExitCaptivePortals',['dependent' => true]);
         $this->hasOne('OpenvpnServerClients',['dependent' => true]); 
         $this->hasMany('NodeMeshExits',['dependent' => true]);  
-        $this->hasMany('MeshExitSettings',['dependent' => true]);    
-    }
-        
+        $this->hasMany('MeshExitSettings',['dependent' => true]);
+        $this->hasOne('MeshExitPppoeServers',['dependent' => true]);     
+    }        
 }

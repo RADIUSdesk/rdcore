@@ -95,7 +95,8 @@ Ext.define('Rd.view.aps.vcAccessPointExitPoint', {
                 var t           = form.down("#type");
                 var t_val       = t.getValue();
                 var vlan        = form.down('#vlan');  
-                var vpn         = form.down('#cmbOpenVpnServers') 
+                var vpn         = form.down('#cmbOpenVpnServers');
+                var pppoe       = form.down('#cmbAccelProfiles'); 
                  
                 var rgrpProtocol= form.down('#rgrpProtocol');
                 
@@ -111,6 +112,19 @@ Ext.define('Rd.view.aps.vcAccessPointExitPoint', {
                 }else{
                     vpn.setVisible(false);
                     vpn.setDisabled(true);
+                }
+                
+                if(t_val == 'pppoe_server'){
+                    pppoe.setVisible(true);
+                    pppoe.setDisabled(false);
+                    
+                    vlan.setVisible(false);
+                    vlan.setDisabled(true);
+                    vpn.setVisible(false);
+                    vpn.setDisabled(true);
+                }else{
+                    pppoe.setVisible(false);
+                    pppoe.setDisabled(true);
                 }
          
                 if(t_val == 'tagged_bridge'){

@@ -32,7 +32,8 @@ Ext.define('Rd.view.aps.winAccessPointEditExit', {
         'Rd.view.aps.cmbApProfileUpstreamList',
         'Rd.view.aps.tagAccessPointEntryPoints',
         'Rd.view.components.pnlExitPointNatDhcp',
-        'Rd.view.components.cmbFirewallProfile'
+        'Rd.view.components.cmbFirewallProfile',
+        'Rd.view.accel.cmbAccelProfiles'
     ],
     controller  : 'vcAccessPointExitPoint',
     initComponent: function() {
@@ -254,6 +255,13 @@ Ext.define('Rd.view.aps.winAccessPointEditExit', {
                                 {
                                     itemId      : 'cmbOpenVpnServers',
                                     xtype       : 'cmbOpenVpnServers',
+                                    labelClsExtra: 'lblRdReq',
+                                    allowBlank  : false
+                                },
+                                {
+                                    itemId      : 'cmbAccelProfiles',
+                                    xtype       : 'cmbAccelProfiles',
+                                    fieldLabel  : 'PPPoE Srv Profile',
                                     labelClsExtra: 'lblRdReq',
                                     allowBlank  : false
                                 },

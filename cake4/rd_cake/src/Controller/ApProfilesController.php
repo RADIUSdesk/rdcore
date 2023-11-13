@@ -801,6 +801,19 @@ class ApProfilesController extends AppController {
                 }           
             }       
             //==== END NAT ========
+            
+            
+            //===== PPPoE ==========
+            if($this->request->getData('type') == 'pppoe_server'){
+                $this->loadModel('ApProfileExitPppoeServers');
+                $d_ppp  = [
+                   'ap_profile_exit_id' => $new_id,
+                   'accel_profile_id'   => $req_d['accel_profile_id']         
+                ];
+                $ent_ppp = $this->{'ApProfileExitPppoeServers'}->newEntity($d_ppp);
+                $this->{'ApProfileExitPppoeServers'}->save($ent_ppp);         
+            }       
+            //==== END PPPoE ========         
 
             //Add the entry points
             $count      = 0;
@@ -1012,6 +1025,19 @@ class ApProfilesController extends AppController {
                 }           
             }       
             //==== END NAT ========
+                     
+            //===== PPPoE ==========
+            if($this->request->getData('type') == 'pppoe_server'){
+                $this->loadModel('ApProfileExitPppoeServers');
+                $ent_ppp = $this->{'ApProfileExitPppoeServers'}->deleteAll(['ApProfileExitPppoeServers.ap_profile_exit_id' => $req_d['id']]);
+                $d_ppp  = [
+                   'ap_profile_exit_id'     => $req_d['id'],
+                   'accel_profile_id'       => $req_d['accel_profile_id']         
+                ];
+                $ent_ppp = $this->{'ApProfileExitPppoeServers'}->newEntity($d_ppp);
+                $this->{'ApProfileExitPppoeServers'}->save($ent_ppp);         
+            }       
+            //==== END PPPoE ========                    
             
             $req_d['realm_list'] = ""; //Prime it
             
@@ -1142,7 +1168,8 @@ class ApProfilesController extends AppController {
             'ApProfileExitApProfileEntries',
             'ApProfileExitCaptivePortals',
             'DynamicDetails',
-            'ApProfileExitSettings'
+            'ApProfileExitSettings',
+            'ApProfileExitPppoeServers'
         ])->where(['ApProfileExits.id' => $id])->first();
 
         //Get the realm list
@@ -1194,6 +1221,11 @@ class ApProfilesController extends AppController {
             }
 
         }
+        
+        if($q_r->ap_profile_exit_pppoe_server){
+            $q_r['accel_profile_id'] =   $q_r->ap_profile_exit_pppoe_server->accel_profile_id;   
+        }  
+        
         
         if($q_r->dynamic_detail){
            $q_r['dynamic_detail'] =  $q_r->dynamic_detail->name;

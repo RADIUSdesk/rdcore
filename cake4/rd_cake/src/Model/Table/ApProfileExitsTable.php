@@ -29,5 +29,6 @@ class ApProfileExitsTable extends Table {
         $this->hasMany('OpenvpnServerClients', ['dependent' => true]);
         $this->hasOne('ApProfileExitCaptivePortals', ['dependent' => true]);
         $this->hasMany('ApProfileExitSettings', ['dependent' => true]);
+        $this->hasOne('ApProfileExitPppoeServers', ['dependent' => true]);
     }
 }

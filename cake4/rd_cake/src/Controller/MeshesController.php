@@ -1053,6 +1053,20 @@ class MeshesController extends AppController{
                 }           
             }       
             //==== END NAT ========
+            
+            
+            //===== PPPoE ==========
+            if($this->request->getData('type') == 'pppoe_server'){
+                $this->loadModel('MeshExitPppoeServers');
+                $d_ppp  = [
+                   'mesh_exit_id'       => $new_id,
+                   'accel_profile_id'   => $req_d['accel_profile_id']         
+                ];
+                $ent_ppp = $this->{'MeshExitPppoeServers'}->newEntity($d_ppp);
+                $this->{'MeshExitPppoeServers'}->save($ent_ppp);         
+            }       
+            //==== END PPPoE ========
+                       
 
             //Add the entry points
             $count      = 0;
@@ -1109,7 +1123,7 @@ class MeshesController extends AppController{
         $this->loadModel('MeshExits');  
         $ent_me = $this->{'MeshExits'}->find()
             ->where(['MeshExits.id' => $req_q['exit_id']])
-            ->contain(['MeshExitMeshEntries','MeshExitCaptivePortals','MeshExitSettings'])
+            ->contain(['MeshExitMeshEntries','MeshExitCaptivePortals','MeshExitSettings','MeshExitPppoeServers'])
             ->first();
 
         //entry_points
@@ -1133,6 +1147,10 @@ class MeshesController extends AppController{
             }
             
         }
+        
+        if($ent_me->mesh_exit_pppoe_server){
+            $data['MeshExit']['accel_profile_id'] =   $ent_me->mesh_exit_pppoe_server->accel_profile_id;   
+        }     
         
         $fields    = $this->{'MeshExits'}->getSchema()->columns();
         foreach($fields as $field){  
@@ -1367,6 +1385,20 @@ class MeshesController extends AppController{
                 }           
             }       
             //==== END NAT ========
+            
+            
+            //===== PPPoE ==========
+            if($this->request->getData('type') == 'pppoe_server'){
+                $this->loadModel('MeshExitPppoeServers');
+                $ent_ppp = $this->{'MeshExitPppoeServers'}->deleteAll(['MeshExitPppoeServers.mesh_exit_id' => $req_d['id']]);
+                $d_ppp  = [
+                   'mesh_exit_id'       => $req_d['id'],
+                   'accel_profile_id'   => $req_d['accel_profile_id']         
+                ];
+                $ent_ppp = $this->{'MeshExitPppoeServers'}->newEntity($d_ppp);
+                $this->{'MeshExitPppoeServers'}->save($ent_ppp);         
+            }       
+            //==== END PPPoE ========          
 
             // If the form data can be validated and saved...
             $ent_exit = $this->{'MeshExits'}->get($req_d['id']);

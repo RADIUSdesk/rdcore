@@ -35,7 +35,8 @@ Ext.define('Rd.view.meshes.winMeshEditExit', {
         'Rd.view.meshes.cmbMeshUpstreamList',
         'Rd.view.meshes.tagMeshEntryPoints',
         'Rd.view.components.pnlExitPointNatDhcp',
-        'Rd.view.components.cmbFirewallProfile'
+        'Rd.view.components.cmbFirewallProfile',
+        'Rd.view.accel.cmbAccelProfiles'
     ],
     controller  : 'vcMeshExitPoint',
     initComponent: function() {
@@ -474,6 +475,13 @@ Ext.define('Rd.view.meshes.winMeshEditExit', {
                                 {
                                     itemId      : 'cmbOpenVpnServers',
                                     xtype       : 'cmbOpenVpnServers',
+                                    labelClsExtra: 'lblRdReq',
+                                    allowBlank  : false
+                                },
+                                {
+                                    itemId      : 'cmbAccelProfiles',
+                                    xtype       : 'cmbAccelProfiles',
+                                    fieldLabel  : 'PPPoE Srv Profile',
                                     labelClsExtra: 'lblRdReq',
                                     allowBlank  : false
                                 },

@@ -132,6 +132,34 @@ if not exists (select * from information_schema.columns
 end if;
 
 
+alter table ap_profile_exits modify `type` enum('bridge','tagged_bridge','nat','captive_portal','openvpn_bridge','tagged_bridge_l3','pppoe_server') DEFAULT NULL; 
+alter table mesh_exits modify `type` enum('bridge','tagged_bridge','nat','captive_portal','openvpn_bridge','tagged_bridge_l3','pppoe_server') DEFAULT NULL; 
+
+if not exists (select * from information_schema.columns
+    where table_name = 'mesh_exit_pppoe_servers' and table_schema = 'rd') then
+        CREATE TABLE `mesh_exit_pppoe_servers` (
+      `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+      `mesh_exit_id` int(11) NOT NULL,
+      `accel_profile_id` int(11) NOT NULL,
+      `created` datetime NOT NULL,
+      `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
+end if;
+
+if not exists (select * from information_schema.columns
+    where table_name = 'ap_profile_exit_pppoe_servers' and table_schema = 'rd') then
+        CREATE TABLE `ap_profile_exit_pppoe_servers` (
+      `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+      `ap_profile_exit_id` int(11) NOT NULL,
+      `accel_profile_id` int(11) NOT NULL,
+      `created` datetime NOT NULL,
+      `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
+end if;
+
+
 end//
 
 delimiter ;

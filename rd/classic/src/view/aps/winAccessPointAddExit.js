@@ -31,7 +31,8 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
         'Rd.view.aps.cmbApProfileUpstreamList',
         'Rd.view.aps.tagAccessPointEntryPoints',
         'Rd.view.components.pnlExitPointNatDhcp',
-        'Rd.view.components.cmbFirewallProfile'
+        'Rd.view.components.cmbFirewallProfile',
+        'Rd.view.accel.cmbAccelProfiles'
     ],
     controller  : 'vcAccessPointExitPoint',
     initComponent: function() {
@@ -99,7 +100,12 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
                         boxLabel: "<i class=\"fa fa-quote-right\"></i> "+i18n('sOpenVPN_Bridge'),
                         name: 'exit_type', 
                         inputValue: 'openvpn_bridge' 
-                    }     
+                    },
+                    { 
+                        boxLabel    : "<i class=\"fa fa-link\"></i> "+'PPPoE Server',
+                        name        : 'exit_type', 
+                        inputValue  : 'pppoe_server' 
+                   }        
                 ];
         }else{
             var radios = [
@@ -133,7 +139,12 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
                         boxLabel: "<i class=\"fa fa-quote-right\"></i> "+i18n('sOpenVPN_Bridge'),
                         name: 'exit_type', 
                         inputValue: 'openvpn_bridge' 
-                   }     
+                   },
+                   { 
+                        boxLabel    : "<i class=\"fa fa-link\"></i> "+'PPPoE Server',
+                        name        : 'exit_type', 
+                        inputValue  : 'pppoe_server' 
+                   }        
                 ];
         }
 
@@ -378,6 +389,13 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
                                 {
                                     itemId      : 'cmbOpenVpnServers',
                                     xtype       : 'cmbOpenVpnServers',
+                                    labelClsExtra: 'lblRdReq',
+                                    allowBlank  : false
+                                },
+                                {
+                                    itemId      : 'cmbAccelProfiles',
+                                    xtype       : 'cmbAccelProfiles',
+                                    fieldLabel  : 'PPPoE Srv Profile',
                                     labelClsExtra: 'lblRdReq',
                                     allowBlank  : false
                                 },
