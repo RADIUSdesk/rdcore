@@ -1448,11 +1448,10 @@ class ApHelper22Component extends Component {
                             	$base_array['nasid'] = 'ap_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;                            
                             }else{
                             	if($ap_profile_e->nasid !== ''){
-                            		$base_array['nasid'] == $ap_profile_e->nasid;                            	
+                            		$base_array['nasid'] = $ap_profile_e->nasid;                            	
                             	}                            
                             }
                             
-
                             if($ap_profile_e->macfilter != 'disable'){
                                 $this->loadModel('Devices');
 

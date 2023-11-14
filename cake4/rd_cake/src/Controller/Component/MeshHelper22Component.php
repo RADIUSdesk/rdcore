@@ -1712,11 +1712,12 @@ class MeshHelper22Component extends Component {
 									}
 									
 									//NASID: We can probaly send along regardless and we use a convention of: md_ / ap_<entry_id>_<radio_number>_<ap_id>/node_id 
+									print_r($me->auto_nasid);
 				                    if($me->auto_nasid){                         
 				                    	$base_array['nasid'] = 'md_'.$me->id.'_'.$y.'_'.$this->NodeId;                            
 				                    }else{
-				                    	if($me->nasid !== ''){
-				                    		$base_array['nasid'] == $me->nasid;                            	
+				                    	if($me->nasid !== ''){				                    	     
+				                    		$base_array['nasid'] = $me->nasid;                         	
 				                    	}                            
 				                    }									
 
