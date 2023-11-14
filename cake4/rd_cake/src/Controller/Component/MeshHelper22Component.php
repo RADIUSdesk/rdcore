@@ -19,7 +19,7 @@ use Cake\I18n\Time;
 
 class MeshHelper22Component extends Component {
 
-	protected $components 		= ['Firewall','MdFirewall'];
+	protected $components 		= ['Firewall','MdFirewall','AccelPpp'];
     protected $RadioSettings    = [];
     protected $l3_vlans         = []; //Layer three VLAN interfaces
     
@@ -92,7 +92,8 @@ class MeshHelper22Component extends Component {
                         'MeshExits' => [
                             'MeshExitCaptivePortals',
                             'OpenvpnServerClients',
-                            'MeshExitSettings'
+                            'MeshExitSettings',
+                            'MeshExitPppoeServers'
                         ],
                         'Nodes' => [
                             'NodeMeshEntries',
@@ -229,6 +230,8 @@ class MeshHelper22Component extends Component {
             $json['config_settings']['gateways']        = $net_return[2]; //Gateways
             $json['config_settings']['gateway_details'] = $net_return[5]; //Gateways
             $json['config_settings']['captive_portals'] = $net_return[3]; //Captive portals
+            $json['config_settings']['accel_servers']   = $net_return[6]; //Accel-ppp servers
+            
                              
             $openvpn_bridges                            = $this->_build_openvpn_bridges($net_return[4]);
             $json['config_settings']['openvpn_bridges'] = $openvpn_bridges; //Openvpn Bridges
@@ -449,6 +452,7 @@ class MeshHelper22Component extends Component {
         $openvpn_bridge_data    = [];
 		$include_lan_dhcp 		= true;
 		$nat_detail				= [];
+		$pppoe_detail           = [];
 
 
         //=================================
@@ -1090,6 +1094,65 @@ class MeshHelper22Component extends Component {
                     }
                     continue; //We dont care about the other if's 
                 }
+                
+                //____ PPPoE Server ____
+                if(($type == 'pppoe_server')&&($gateway)){
+                
+                    $pppoe_if       = "br-$if_name";
+                    $nas_identifier = "mpppoe_".$me->id.'_'.$this->EntNode->id;
+                    $profile_id     = $me->mesh_exit_pppoe_server->accel_profile_id;
+                    
+                    /*Info should look like this:
+                    [
+                        'server_type' => 'mesh' / 'ap_profile',
+                        'mac' => 'AA-BB-CC-DD-EE-FF',
+                        'cloud_id'  => int val,
+                        'accel_profile_id'  => int val,
+                        'name'  => string
+                        'nas_identifier'    => string,
+                        'pppoe_interface'   => string    
+                    ]
+                    */
+                    $info   = [
+                        'server_type'       => 'mesh',
+                        'nas_identifier'    => $nas_identifier,
+                        'cloud_id'          => $this->ent_mesh->cloud_id,
+                        'pppoe_interface'   => $pppoe_if,
+                        'mac'               => $this->EntNode->mac.'_'.$nas_identifier, //We do this to allow multiple servers to be defined
+                        'accel_profile_id'  => $profile_id,
+                        'name'              => $this->ent_mesh->name.'_'.$nas_identifier
+                    ];
+                    
+                    $pppoe_conf = $this->AccelPpp->JsonConfig($info);
+                    array_push($pppoe_detail,$pppoe_conf);
+                                                                                                     
+                    array_push($network,
+	                    [
+	                        "device"    => "br-$if_name",
+	                        "options"   => [
+	                        	"name"		=> "br-$if_name",
+	                            "type"      => "bridge",
+	                            'stp'       => 1,
+	                       	],
+	                       	'lists'	=> [
+	                       		'ports'	=> $interfaces
+	                       	]                          
+	                    ]
+	                );        
+                                      
+                    array_push($network,
+                        [
+                            "interface"    => "$if_name",
+                            "options"   => [
+                                "device"    => "br-$if_name",
+                                "proto"     => "none"
+                        ]]
+                    );
+
+                    $start_number++;
+                    continue; //We dont care about the other if's 
+                }
+                               
 
                 //=======================================
                 //==== STANDARD NODES ===================
@@ -1161,7 +1224,7 @@ class MeshHelper22Component extends Component {
         }
         
                          
-        return [$network,$entry_point_data,$nat_data,$captive_portal_data,$openvpn_bridge_data,$nat_detail];     
+        return [$network,$entry_point_data,$nat_data,$captive_portal_data,$openvpn_bridge_data,$nat_detail,$pppoe_detail];     
     }
      
     private function _build_wireless($ent_mesh,$entry_point_data){

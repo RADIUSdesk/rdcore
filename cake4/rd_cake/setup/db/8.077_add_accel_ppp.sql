@@ -13,7 +13,7 @@ if not exists (select * from information_schema.columns
       `name` varchar(255) NOT NULL,
       `mac` varchar(255) NOT NULL,
       `pppoe_interface` varchar(10) NOT NULL,
-      `nas_identifier` varchar(10) NOT NULL,
+      `nas_identifier` varchar(32) NOT NULL,
       `server_type` enum('standalone','mesh','ap_profile') DEFAULT 'standalone',
       `config_fetched` datetime DEFAULT NULL,
       `last_contact` datetime DEFAULT NULL,
