@@ -31,7 +31,6 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
             margin  : Rd.config.buttonMargin
         }
     ],
-    hide_apply_to_all_nodes: true,
     initComponent: function() {
         var me      = this;
         var w_rd    = 80;
@@ -157,9 +156,8 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                                 fieldLabel  : i18n('sApply_to_all_nodes'),
                                 name        : 'apply_to_all',
                                 inputValue  : 'apply_to_all',
-                                checked     : false,
-                                labelClsExtra: 'lblRdReq',
-                                hidden      : me.hide_apply_to_all_nodes
+                                checked     : true,
+                                labelClsExtra: 'lblRdReq'
                             }
                         ]
                     },

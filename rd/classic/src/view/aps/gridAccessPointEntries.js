@@ -73,12 +73,21 @@ Ext.define('Rd.view.aps.gridAccessPointEntries' ,{
                     "</tpl>"   
                 )
             },
+            { text: 'Apply to all APs',   dataIndex: 'apply_to_all',  tdCls: 'gridTree', flex: 1, stateId: 'StateGridAccessPointEntries6',
+                xtype       :  'templatecolumn', 
+                tpl         :  new Ext.XTemplate(
+                    '<tpl if="apply_to_all"><div class=\"fieldGreen\"><i class="fa fa-check-circle"></i> Yes</div>',
+                    '<tpl else>',
+                    '<div class=\"fieldRed\"><i class="fa fa-times-circle"></i> No</div>',
+                    "</tpl>"   
+                )   
+            },
             { 
                 text        : 'Connected to Exit' ,   
                 dataIndex   : 'connected_to_exit',  
                 tdCls       : 'gridTree', 
                 flex        : 1, 
-                stateId     : 'StateGridAccessPointEntries6',
+                stateId     : 'StateGridAccessPointEntries7',
                 renderer    : function (v, m, r) {
                     if(v == true){
                         return '<div class=\"fieldGreen\"><i class="fa fa-check-circle"></i> Yes</div>';
@@ -90,7 +99,7 @@ Ext.define('Rd.view.aps.gridAccessPointEntries' ,{
                  
                 }
             },
-            { text: 'Frequency',   dataIndex: 'frequency_band', tdCls: 'gridTree', flex: 1, stateId: 'StateGridAccessPointEntries7',
+            { text: 'Frequency',   dataIndex: 'frequency_band', tdCls: 'gridTree', flex: 1, stateId: 'StateGridAccessPointEntries8',
                 xtype       :  'templatecolumn', 
                 tpl         :  new Ext.XTemplate(
                     '<tpl if="frequency_band==\'both\'"><div class=\"fieldGreyWhite\"> 2.4G & 5.8G </div></tpl>',
@@ -100,9 +109,9 @@ Ext.define('Rd.view.aps.gridAccessPointEntries' ,{
                     '<tpl if="frequency_band==\'five_upper\'"><div class=\"fieldGreyWhite\"> 5G Upper Band </div></tpl>',
                 )     
             },
-            { text: 'WPA Personal Key', hidden: true,dataIndex: 'speical_key',          tdCls: 'gridTree', flex: 1, stateId: 'StateGridAccessPointEntries8'},
-            { text: 'RADIUS Server',    hidden: true,dataIndex: 'auth_server',  tdCls: 'gridTree', flex: 1, stateId: 'StateGridAccessPointEntries9'},
-            { text: 'RADIUS Secret',    hidden: true,dataIndex: 'auth_secret',  tdCls: 'gridTree', flex: 1, stateId: 'StateGridAccessPointEntries10'}
+            { text: 'WPA Personal Key', hidden: true,dataIndex: 'speical_key',          tdCls: 'gridTree', flex: 1, stateId: 'StateGridAccessPointEntries9'},
+            { text: 'RADIUS Server',    hidden: true,dataIndex: 'auth_server',  tdCls: 'gridTree', flex: 1, stateId: 'StateGridAccessPointEntries10'},
+            { text: 'RADIUS Secret',    hidden: true,dataIndex: 'auth_secret',  tdCls: 'gridTree', flex: 1, stateId: 'StateGridAccessPointEntries11'}
             
         ];
         me.callParent(arguments);

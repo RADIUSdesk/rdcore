@@ -1864,7 +1864,6 @@ class MeshesController extends AppController{
 
         $q_r        = $this->Nodes->find()->contain([
             'NodeMeshEntries.MeshEntries',
-            'NodeMeshExits.MeshExits',
             'NodeConnectionSettings'
         ])->where(['Nodes.mesh_id' => $mesh_id])->all();
 
@@ -1900,13 +1899,8 @@ class MeshesController extends AppController{
 
         foreach($q_r as $m){
             $static_entries = [];
-            $static_exits   = [];
             foreach($m->node_mesh_entries as $m_e_ent){
                 array_push($static_entries,array('name' => $m_e_ent->mesh_entry->name));
-            }
-
-            foreach($m->node_mesh_exits as $m_e_exit){
-                array_push($static_exits,array('name'   => $m_e_exit->mesh_exit->id));
             }
 
             if($power_override){
@@ -1945,7 +1939,6 @@ class MeshesController extends AppController{
                 'lat'			=> $m->lat,
                 'lng'			=> $m->lon,
                 'static_entries'=> $static_entries,
-                'static_exits'  => $static_exits,
                 'ip'            => $m->ip,
                 'wbw_active'    => $wbw_active,
                 'qmi_active'	=> $qmi_active
@@ -2095,7 +2088,6 @@ class MeshesController extends AppController{
         unset($req_d['id']); //Remove the ID which is set to 0 (Zero) for ADD actions
       
         $this->loadModel('NodeMeshEntries');
-        $this->loadModel('NodeMeshExits');
         $this->loadModel('Nodes');
         $this->loadModel('NodeWifiSettings');
         
@@ -2141,8 +2133,7 @@ class MeshesController extends AppController{
             //Add the entry points
             $count      = 0;
             $entry_ids  = [];
-            $empty_flag = false;
-                       
+                      
             //vlan_admin settings            
             if($this->request->getData('vlan_admin') !== ''){
             	$d_vlan = [];
@@ -2248,9 +2239,7 @@ class MeshesController extends AppController{
                     }
                 }               
             }
-                             
-
-            
+                                      
             if (array_key_exists('static_entries', $req_d)) {
                 foreach($req_d['static_entries'] as $e){
                 	if(is_numeric($e)){
@@ -2258,44 +2247,14 @@ class MeshesController extends AppController{
                 	}                
                 }
             }
-            
-
             //Only if empty was not specified
-            if((!$empty_flag)&&(count($entry_ids)>0)){  
+            if(count($entry_ids)>0){  
                 foreach($entry_ids as $id){
                 	$data = array();
                     $data['node_id']       = $new_id;
                     $data['mesh_entry_id'] = $id;
                     $ent_e = $this->{'NodeMeshEntries'}->newEntity($data);
                     $this->{'NodeMeshEntries'}->save($ent_e);	
-                }
-            }
-
-            //Add the exit points
-            $count      = 0;
-            $exit_ids  = array();
-            $e_flag = false;
-
-            if (array_key_exists('static_exits', $req_d)) {
-                foreach($req_d['static_exits'] as $e){
-                    if($req_d['static_exits'][$count] == 0){
-                        $e_flag = true;
-                        break;
-                    }else{
-                        array_push($entry_ids,$req_d['static_exits'][$count]);
-                    }
-                    $count++;
-                }
-            }
-
-            //Only if empty was not specified
-            if((!$e_flag)&&(count($exit_ids)>0)){
-                foreach($entry_ids as $id){
-                    $data = array();
-                    $data['node_id']       = $new_id;
-                    $data['mesh_exit_id']  = $id;  
-					$ent_x = $this->{'NodeMeshExits'}->newEntity($data);
-                    $this->{'NodeMeshExits'}->save($ent_x);	
                 }
             }
 
@@ -2395,7 +2354,6 @@ class MeshesController extends AppController{
         	$req_d		= $this->request->getData();
       
             $this->loadModel('NodeMeshEntries');
-            $this->loadModel('NodeMeshExits');
             $this->loadModel('Nodes');
             $this->loadModel('NodeNeighbors');
             $this->loadModel('NodeWifiSettings');
@@ -2456,9 +2414,7 @@ class MeshesController extends AppController{
 
                 //Add the entry points
                 $count      = 0;
-                $entry_ids  = [];
-                $empty_flag = false;
-                
+                $entry_ids  = [];               
                 
                 if (array_key_exists('static_entries', $req_d)) {
                     foreach($req_d['static_entries'] as $e){
@@ -2469,7 +2425,7 @@ class MeshesController extends AppController{
                 }
                 
                 //Only if empty was not specified
-                if((!$empty_flag)&&(count($entry_ids)>0)){
+                if(count($entry_ids)>0){
                     foreach($entry_ids as $id){
                         $data = [];
                         $data['node_id']       = $new_id;
@@ -2478,38 +2434,7 @@ class MeshesController extends AppController{
                         $this->{'NodeMeshEntries'}->save($ent_se);
                     }
                 }
-
-				//Clear previous ones first:
-                $this->{'NodeMeshExits'}->deleteAll(['NodeMeshExits.node_id' => $new_id]);
-
-                //Add the exit points
-                $count      = 0;
-                $exit_ids  = array();
-                $e_flag = false;
-
-                if (array_key_exists('static_exits', $req_d)) {
-                    foreach($req_d['static_exits'] as $e){
-                        if($req_d['static_exits'][$count] == 0){
-                            $e_flag = true;
-                            break;
-                        }else{
-                            array_push($entry_ids,$req_d['static_exits'][$count]);
-                        }
-                        $count++;
-                    }
-                }
-
-                //Only if empty was not specified
-                if((!$e_flag)&&(count($exit_ids)>0)){
-                    foreach($entry_ids as $id){
-                    	$data = array();
-                        $data['node_id']       = $new_id;
-                        $data['mesh_exit_id']  = $id;      
-                        $ent_sx = $this->{'NodeMeshExits'}->newEntity($data);
-                        $this->{'NodeMeshExits'}->save($ent_sx);
-                    }
-                }
-                
+                                
                 //vlan_admin settings
 		        $this->{'NodeConnectionSettings'}->deleteAll([
 		            'NodeConnectionSettings.node_id' => $new_id,

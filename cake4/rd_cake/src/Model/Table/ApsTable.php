@@ -59,7 +59,9 @@ class ApsTable extends Table {
 				'conditions'	=> [
 					"ViewNotifications.object_type = 'aps'"
 				]
-			]);			
+			]);	
+			
+		$this->hasMany('ApApProfileEntries',  ['dependent' => true]);		
 	    $this->hasMany('ApConnectionSettings', ['dependent' => true]);
     }
 

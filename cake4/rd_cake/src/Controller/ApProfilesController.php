@@ -25,6 +25,7 @@ class ApProfilesController extends AppController {
         $this->loadModel('ApProfileEntries');
         $this->loadModel('ApProfileSettings');
         $this->loadModel('ApProfileEntrySchedules');
+        $this->loadModel('ApApProfileEntries');
         
         //New change May2021
         $this->loadModel('Networks');
@@ -249,6 +250,7 @@ class ApProfilesController extends AppController {
                 'auth_server'   => $m->auth_server,
                 'auth_secret'   => $m->auth_secret,
                 'dynamic_vlan'  => $m->dynamic_vlan,
+                'apply_to_all'  => $m->apply_to_all,
                 'frequency_band'  => $m->frequency_band,
                 'hotspot2_enable' => $m->hotspot2_enable,
                 'ieee802r'		=> $m->ieee802r,
@@ -1711,7 +1713,37 @@ class ApProfilesController extends AppController {
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
+    
+    public function staticEntryOptions(){
+        $this->loadModel('ApProfileEntries');
 
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){   
+            return;
+        }
+
+        $where = ['ApProfileEntries.apply_to_all' => 0];
+
+        if(null !== $this->request->getQuery('ap_profile_id')){
+            $ap_profile_id = $this->request->getQuery('ap_profile_id');
+            array_push($where,['ApProfileEntries.ap_profile_id' => $ap_profile_id]);
+        }
+
+        $q_r    = $this->ApProfileEntries->find()->where($where)->all();
+
+        $items = [];
+        foreach($q_r as $i){
+            $id = $i->id;
+            $n  = $i->name;
+            array_push($items,['id' => $id, 'name' => $n]);
+        }
+
+        $this->set([
+            'items' => $items,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    }
     
     //=== APs CRUD ===
     public function apProfileApIndex(){
@@ -2080,8 +2112,28 @@ class ApProfilesController extends AppController {
                 $d_wbw['value']      = $cdata['reboot_at'];
                 $ent_wbw = $this->{'ApConnectionSettings'}->newEntity($d_wbw);  
                 $this->{'ApConnectionSettings'}->save($ent_wbw);
-            }     
-
+            }
+            
+            $entry_ids = [];
+            
+            if (array_key_exists('static_entries', $cdata)) {
+                foreach($cdata['static_entries'] as $e){
+                	if(is_numeric($e)){
+                		array_push($entry_ids,$e);
+                	}                
+                }
+            }
+            //Only if empty was not specified
+            if(count($entry_ids)>0){  
+                foreach($entry_ids as $id){
+                	$data = [];
+                    $data['ap_id']       = $new_id;
+                    $data['ap_profile_entry_id'] = $id;
+                    $ent_e = $this->{'ApApProfileEntries'}->newEntity($data);
+                    $this->{'ApApProfileEntries'}->save($ent_e);	
+                }
+            }
+            
             //---------Add WiFi settings for this ap ------
             //--Clean up--
             $a_id = $new_id;
@@ -2467,6 +2519,32 @@ class ApProfilesController extends AppController {
                             $this->{'ApConnectionSettings'}->save($ent_wbw);
                         }
                         
+                        //Clear previous ones first:
+				        $this->{'ApApProfileEntries'}->deleteAll(['ApApProfileEntries.ap_id' => $new_id]);
+
+                        //Add the entry points
+                        $count      = 0;
+                        $entry_ids  = [];               
+                        
+                        if (array_key_exists('static_entries', $cdata)) {
+                            foreach($cdata['static_entries'] as $e){
+                            	if(is_numeric($e)){
+                            		array_push($entry_ids,$e);
+                            	}                
+                            }
+                        }
+                        
+                        //Only if empty was not specified
+                        if(count($entry_ids)>0){
+                            foreach($entry_ids as $id){
+                                $data = [];
+                                $data['ap_id']       = $new_id;
+                                $data['ap_profile_entry_id'] = $id;
+                                $ent_se = $this->{'ApApProfileEntries'}->newEntity($data);
+                                $this->{'ApApProfileEntries'}->save($ent_se);
+                            }
+                        }
+                        
 
                         //---------Add WiFi settings for this ap ------
                         //--Clean up--
@@ -2539,7 +2617,7 @@ class ApProfilesController extends AppController {
         $data = [];
 
         $id   = $this->request->getQuery('ap_id');
-        $q_r  = $this->Aps->find()->contain(['ApWifiSettings','ApConnectionSettings','Schedules'])->where(['Aps.id' => $id])->first();
+        $q_r  = $this->Aps->find()->contain(['ApWifiSettings','ApApProfileEntries','ApConnectionSettings','Schedules'])->where(['Aps.id' => $id])->first();
         
         if($q_r){
         
@@ -2617,9 +2695,15 @@ class ApProfilesController extends AppController {
             }else{     
                 $data['tag_path']   = "<div class=\"fieldBlue\" style=\"text-align:left;\"> <b>".$tree_tag['value']."</b></div>";
             }
-            $data['network_id'] = $tree_tag['network_id'];                    
-        }   
-
+            $data['network_id'] = $tree_tag['network_id'];
+            
+            $ap_ap_profile_e_list = [];
+            foreach($q_r->ap_ap_profile_entries as $ap_ap_profile_e){
+                array_push($ap_ap_profile_e_list,$ap_ap_profile_e->ap_profile_entry_id);
+            }
+            $data['static_entries[]'] = $ap_ap_profile_e_list;                                 
+        } 
+       
         //Return the Advanced WiFi Settings...
         if(count($q_r->ap_wifi_settings) > 0){             
             $radio1_flag    = false;

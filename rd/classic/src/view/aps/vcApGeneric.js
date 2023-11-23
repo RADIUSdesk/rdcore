@@ -2,8 +2,9 @@ Ext.define('Rd.view.aps.vcApGeneric', {
     extend  : 'Ext.app.ViewController',
     alias   : 'controller.vcApGeneric',
     config : {
-        urlAdvancedSettingsForModel : '/cake4/rd_cake/ap-profiles/advanced_settings_for_model.json',
-        urlViewAp                   : '/cake4/rd_cake/ap-profiles/ap_profile_ap_view.json'
+        urlAdvancedSettingsForModel : '/cake4/rd_cake/ap-profiles/advanced-settings-for-model.json',
+        urlViewAp                   : '/cake4/rd_cake/ap-profiles/ap-profile-ap-view.json',
+        UrlApStaticOverrides        : '/cake4/rd_cake/ap-profiles/ap-static-entry-overrides-view.json'
     },
     init: function() {
         var me = this;
@@ -144,9 +145,8 @@ Ext.define('Rd.view.aps.vcApGeneric', {
             form.down('#wifi_pppoe_key').setVisible(true);
             form.down('#wifi_pppoe_key').setDisabled(false);  
         }
-    },
-         
-    onCmbApHardwareModelsChange: function(cmb){
+    },         
+   onCmbApHardwareModelsChange: function(cmb){
      
 		var me      = this;
         var form    = cmb.up('form');
@@ -350,6 +350,12 @@ Ext.define('Rd.view.aps.vcApGeneric', {
         
         form.down('#qmi_wan_bridge').getStore().getProxy().setExtraParams({ap_profile_id: cmb.getValue(),add_no_exit : true});
         form.down('#qmi_wan_bridge').getStore().reload();
+        
+        var cmbSe   = form.down('tagApProfileStaticEntries');
+        cmbSe.setValue(''); // Clear the values if there were perhaps some selected
+        cmbSe.getStore().getProxy().setExtraParam('ap_profile_id',cmb.getValue());
+        cmbSe.getStore().load();
+               
     },
     chkEnableSchedulesChange : function(chk){
 		var me 		= this;
@@ -362,5 +368,31 @@ Ext.define('Rd.view.aps.vcApGeneric', {
 			cnt.setVisible(false);
             cnt.setDisabled(true); 
 		}
+	},
+	onTagApProfileStaticEntriesChange : function(tag){
+	    var me      = this;
+	    var form	= tag.up('form');
+	    Ext.Array.forEach(tag.getValue(),function(r){      
+            console.log("Hier is dit nou!");
+            console.log(r);
+            Ext.Ajax.request({
+                url: me.getUrlApStaticOverrides(),
+                params: {
+                    ap_id               : me.getView().apId,
+                    ap_profile_entry_id : r
+                },
+                method: 'GET',
+                success: function(response){
+                    var jsonData = Ext.JSON.decode(response.responseText);                    
+                    if(jsonData.success){    
+                        console.log("Add Override Options");
+                    }else{
+                        console.log("NOT COOL");
+                      
+                    }
+                }
+            });
+           
+        });	    	    
 	}
 });

@@ -1873,7 +1873,7 @@ class MeshHelper22Component extends Component {
 												    	$base_array['nasid'] = 'md_'.$me->id.'_'.$y.'_'.$this->NodeId;                            
 												    }else{
 												    	if($me->nasid !== ''){
-												    		$base_array['nasid'] == $me->nasid;                            	
+												    		$base_array['nasid'] = $me->nasid;                            	
 												    	}                            
 												    }	
                                                     

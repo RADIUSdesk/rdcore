@@ -28,6 +28,7 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
         'Rd.view.components.sldrToggle',
         'Rd.view.aps.vcApGeneric',
         'Rd.view.aps.pnlApRadioDetail',
+        'Rd.view.aps.tagApProfileStaticEntries',
         'Rd.view.components.cmbEncryptionOptionsSimple',
         'Rd.view.components.cmbInternetConnection',
         'Rd.view.components.winSelectCloud',
@@ -738,6 +739,15 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
 					width       : w_prim,
 					value       : me.mac
 				},
+				{
+	                xtype       : 'tagApProfileStaticEntries',
+	                apProfileId : me.apProfileId,
+	                labelClsExtra : 'lblRd',
+	                width       : w_prim,
+	                listeners   : {
+		                change : 'onTagApProfileStaticEntriesChange'
+			        }   
+	            },
 				{
                     xtype       : 'cmbInternetConnection',
                     itemId      : 'cmbInternetConnection',

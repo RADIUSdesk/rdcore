@@ -110,7 +110,23 @@ class AccelServersController extends AppController{
         
         if(isset($req_d['mac'])){
             $mac = $req_d['mac'];
-            $e_s = $this->{'AccelServers'}->find()->where(['AccelServers.mac' => $mac])->first();
+            
+            //MESHdesk and APdesk will include 'mode'
+            $e_s = false;
+            if(isset($req_d['mode'])){
+                if($req_d['mode'] == 'mesh'){
+                    $val = $mac.'_mpppoe_%';
+                    $e_s = $this->{'AccelServers'}->find()->where(['AccelServers.mac LIKE' => $val])->first();   
+                }  
+            
+                if($req_d['mode'] == 'ap'){
+                    $val = $mac.'_apppoe_%';
+                    $e_s = $this->{'AccelServers'}->find()->where(['AccelServers.mac LIKE' => $val])->first();   
+                }          
+                
+            }else{
+                $e_s = $this->{'AccelServers'}->find()->where(['AccelServers.mac' => $mac])->first();
+            }         
             if($e_s){ 
             
                 $server_id = $e_s->id;
