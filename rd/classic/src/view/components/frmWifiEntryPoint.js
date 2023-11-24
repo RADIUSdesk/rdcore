@@ -137,27 +137,27 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                             },              
                             {
                                 xtype       : 'checkbox',      
-                                fieldLabel  : i18n("sHidden"),
                                 name        : 'hidden',
                                 inputValue  : 'hidden',
                                 checked     : false,
-                                labelClsExtra: 'lblRdReq'
+                                boxLabel  	: i18n("sHidden"),
+                                boxLabelCls	: 'boxLabelRd'
                             },
                             {
                                 xtype       : 'checkbox',      
-                                fieldLabel  : i18n("sClient_isolation"),
                                 name        : 'isolate',
                                 inputValue  : 'isolate',
                                 checked     : false,
-                                labelClsExtra: 'lblRdReq'
+                                boxLabel  	: i18n("sClient_isolation"),
+                                boxLabelCls	: 'boxLabelRd'
                             },
                             {
                                 xtype       : 'checkbox',      
-                                fieldLabel  : i18n('sApply_to_all_nodes'),
                                 name        : 'apply_to_all',
                                 inputValue  : 'apply_to_all',
                                 checked     : true,
-                                labelClsExtra: 'lblRdReq'
+                                boxLabel  	: i18n('sApply_to_all_nodes'),
+                                boxLabelCls	: 'boxLabelRd'
                             }
                         ]
                     },
@@ -211,14 +211,14 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                             },
                              {
                                 xtype       : 'checkbox',      
-                                fieldLabel  : 'Generate NAS ID',
                                 name        : 'auto_nasid',
                                 inputValue  : 'auto_nasid',
                                 checked     : true,
-                                labelClsExtra: 'lblRdReq',
                                 itemId      : 'chk_auto_nasid',
                                 hidden      : true,
-                                disabled    : true
+                                disabled    : true,
+                                boxLabel  	: 'Generate NAS ID',
+                                boxLabelCls	: 'boxLabelRd'
                             },
                             {
                                 xtype       : 'textfield',
@@ -233,14 +233,14 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                             }, 
                             {
                                 xtype       : 'checkbox',      
-                                fieldLabel  : 'Accounting',
                                 name        : 'accounting',
                                 inputValue  : 'accounting',
                                 checked     : true,
-                                labelClsExtra: 'lblRdReq',
                                 itemId      : 'chk_accounting',
                                 hidden      : true,
-                                disabled    : true
+                                disabled    : true,
+                                boxLabel  	: 'Accounting',
+                                boxLabelCls	: 'boxLabelRd'
                             },
                             {
                                 xtype       : 'numberfield',
@@ -271,13 +271,13 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                             },
                             {
                                 xtype       : 'checkbox',      
-                                fieldLabel  : 'Hotspot 2.0',
                                 name        : 'hotspot2_enable',
                                 checked     : false,
-                                labelClsExtra: 'lblRdReq',
                                 itemId      : 'chkHotspot2',
                                 hidden      : true,
-                                disabled    : true
+                                disabled    : true,
+                                boxLabel  	: 'Hotspot 2.0',
+                                boxLabelCls	: 'boxLabelRd'
                             },
                             {
 						        xtype       : 'checkbox',      
@@ -374,12 +374,12 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                         items       : [ 
                             {
                                 xtype       : 'checkbox',      
-                                fieldLabel  : i18n("sLimitClients"),
                                 name        : 'chk_maxassoc',
                                 inputValue  : 'chk_maxassoc',
                                 checked     : false,
-                                labelClsExtra: 'lblRdReq',
-                                itemId      : 'chk_maxassoc'
+                                itemId      : 'chk_maxassoc',
+                                boxLabel  	: i18n("sLimitClients"),
+                                boxLabelCls	: 'boxLabelRd'
                             },          
                             {
                                 xtype       : 'numberfield',
@@ -419,13 +419,13 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                         items       : [ 
                             {
                                 xtype       : 'checkbox',      
-                                fieldLabel  : 'Enable',
                                 name        : 'chk_schedule',
                                 inputValue  : 'chk_schedule',
                                 checked     : false,
-                                labelClsExtra: 'lblRd',
                                 itemId      : 'chk_schedule',
                                 labelWidth  : Rd.config.labelWidth,
+                                boxLabel  	: 'Enable',
+                                boxLabelCls	: 'boxLabelRd'
                             },
                             {
                             	xtype		: 'gridSchedule',

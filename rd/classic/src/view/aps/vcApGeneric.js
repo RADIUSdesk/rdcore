@@ -370,8 +370,15 @@ Ext.define('Rd.view.aps.vcApGeneric', {
 		}
 	},
 	onTagApProfileStaticEntriesChange : function(tag){
-	    var me      = this;
-	    var form	= tag.up('form');
+	    var me                  = this;
+	    var form	            = tag.up('form');
+	    var cntEntryOverrides   = form.down('#cntEntryOverrides');
+	    
+	    //Clear it out first
+	    cntEntryOverrides.removeAll();      
+        cntEntryOverrides.hide();
+        cntEntryOverrides.disable();
+	    
 	    Ext.Array.forEach(tag.getValue(),function(r){      
             console.log("Hier is dit nou!");
             console.log(r);
@@ -379,20 +386,31 @@ Ext.define('Rd.view.aps.vcApGeneric', {
                 url: me.getUrlApStaticOverrides(),
                 params: {
                     ap_id               : me.getView().apId,
-                    ap_profile_entry_id : r
+                    ap_profile_entry_id : r,
+                    toolkit             : 'classic'
                 },
                 method: 'GET',
                 success: function(response){
+                    cntEntryOverrides.show();
+                    cntEntryOverrides.enable();
                     var jsonData = Ext.JSON.decode(response.responseText);                    
                     if(jsonData.success){    
-                        console.log("Add Override Options");
+                        me.addStaticEntryEdit(jsonData.data);
                     }else{
-                        console.log("NOT COOL");
-                      
+                        console.log("NOT COOL");                      
                     }
                 }
             });
            
         });	    	    
+	},
+	addStaticEntryEdit: function(data){
+	    var me                  = this;
+	    var cntEntryOverrides   = me.getView().down('#cntEntryOverrides');	    
+	    var item    = {
+	        xtype       : 'cntApEntryOverride',
+	        info        : data
+	    };	        	    
+	    cntEntryOverrides.add(item);	    
 	}
 });

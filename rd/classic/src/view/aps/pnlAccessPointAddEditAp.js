@@ -34,7 +34,8 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
         'Rd.view.components.winSelectCloud',
         'Rd.view.components.pnlClouds',
         'Rd.view.components.cmbQmiAuth',
-        'Rd.view.aps.cmbApExits'
+        'Rd.view.aps.cmbApExits',
+        'Rd.view.aps.cntApEntryOverride'
     ],
     controller  : 'vcApGeneric',
     listeners       : {
@@ -614,8 +615,8 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
         var cntRebootController = {
             xtype   : 'panel',
             itemId  : 'cntRebootController',
-            hidden  : true,
-            disabled: true,
+          //  hidden  : true,
+          //  disabled: true,
             bodyStyle   : 'background: #e0ebeb',
             items   : [
                  {
@@ -631,33 +632,30 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
             ]
         };
         
-        var cntDailyReboot = {
+        var cntEntryOverrides = {
             xtype   : 'panel',
-            itemId  : 'cntDailyReboot',
-            hidden  : true,
-            disabled: true,
+            itemId  : 'cntEntryOverrides',
+            layout: {
+                type    : 'vbox',
+                pack    : 'center',
+                align   : 'stretchmax',
+            },
+         //   hidden  : true,
+         //   disabled: true,
             bodyStyle   : 'background: #e0ebeb',
             items   : [
-                {
-                    xtype       : 'timefield',
-                    name        : 'reboot_at',
-                    fieldLabel  : 'Reboot At',
-                    minValue    : '00:00',
-                    maxValue    : '23:30',
-                    value       : '00:00',
-                    increment   : 30,
-                    width       : w_prim
-                }
+                                        
             ]
         };
-        
+               
         var cntTop = {
             xtype       : 'container',
             items       : [ 
                 {
 					xtype       : 'checkbox',      
-					fieldLabel  : 'Add Multiple',
 					itemId      : 'chkMultiple',
+					boxLabel    : 'Add Multiple',
+                    boxLabelCls : 'boxLabelRd',
 					hidden      : hide_multiple
 				},
                 {
@@ -748,6 +746,7 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
 		                change : 'onTagApProfileStaticEntriesChange'
 			        }   
 	            },
+	            cntEntryOverrides,
 				{
                     xtype       : 'cmbInternetConnection',
                     itemId      : 'cmbInternetConnection',
@@ -778,8 +777,8 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
                 }, 
                 {
                     xtype     : 'checkbox',
-                    fieldLabel  : 'Controller Reboot',
                     boxLabel  : 'Reboot When Controller Can\'t Be Reached',
+                    boxLabelCls : 'boxLabelRd',
                     name      : 'chk_no_controller',
                     itemId    : 'chkNoInternet',
                     listeners : {
@@ -787,32 +786,14 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
                     }
                 },       
                 cntRebootController,
-                /*{
-                    xtype       : 'checkboxgroup',
-                    itemId      : 'check_periodic_reboot',
-                    fieldLabel  : 'Daily Reboot',
-                    columns     : 1,
-                    vertical    : false,
-                    items       : [
-                        {
-                            name      : 'chk_daily_reboot',
-                            itemId    : 'chkDailyReboot',
-                            margin    : '0 15 0 0',
-                            listeners : {
-                                change: 'onChkDailyRebootChange' 
-                            }
-                        }       
-                    ]
-                },
-                cntDailyReboot,*/
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : 'Apply Schedule',
                     name        : 'enable_schedules',
                     inputValue  : '1',
 		            itemId		: 'chkEnableSchedules',
                     checked     : false,
-                    labelClsExtra: 'lblRdReq'
+                    boxLabel    : 'Apply Schedule',
+                    boxLabelCls : 'boxLabelRd'
                 },
                 {
                     xtype   : 'panel',
@@ -830,15 +811,15 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
                 },          
                 {
                     xtype       : 'checkbox',
-                    fieldLabel  : 'Alerts',
                     name        : 'enable_alerts',
-                    boxLabel    : 'Enable Alerts'
+                    boxLabel    : 'Enable Alerts',
+                    boxLabelCls : 'boxLabelRd'
                 },      
                 {
                     xtype       : 'checkbox',
-                    fieldLabel  : 'Overviews',
                     name        : 'enable_overviews',
-                    boxLabel    : 'Include In Overviews'
+                    boxLabel    : 'Include In Overviews',
+                    boxLabelCls : 'boxLabelRd'
                 }       
             ]
         };            

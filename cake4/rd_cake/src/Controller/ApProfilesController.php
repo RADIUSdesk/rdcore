@@ -519,6 +519,26 @@ class ApProfilesController extends AppController {
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
+    
+    public function apStaticEntryOverridesView(){
+    
+        //We send it the ap_profile_entry_id and also ap_id    
+        $data = [
+            'entry_name'            => 'Koos',
+            'check'                 => true,
+            'ap_proile_entry_id'    => $this->request->getQuery('ap_profile_entry_id'),
+            'key'                   => '12345678',
+            'vlan'                  => 100,
+            'ssid'                  => 'koos'
+        ];
+    
+        $this->set([
+            'data'      => $data,
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    
+    }
 
     public function apProfileEntryDelete(){
 
