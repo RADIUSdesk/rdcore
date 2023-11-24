@@ -61,7 +61,8 @@ class ApsTable extends Table {
 				]
 			]);	
 			
-		$this->hasMany('ApApProfileEntries',  ['dependent' => true]);		
+		$this->hasMany('ApApProfileEntries',  ['dependent' => true]);
+        $this->hasMany('ApStaticEntryOverrides',  ['dependent' => true]);		
 	    $this->hasMany('ApConnectionSettings', ['dependent' => true]);
     }
 

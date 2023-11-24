@@ -4,7 +4,7 @@ namespace App\Model\Table;
 
 use Cake\ORM\Table;
 
-class ApApProfileEntriesTable extends Table {
+class ApStaticEntryOverridesTable extends Table {
 
     public function initialize(array $config):void{  
         $this->addBehavior('Timestamp');
@@ -12,7 +12,9 @@ class ApApProfileEntriesTable extends Table {
                 'className' => 'Aps',
                 'foreignKey' => 'ap_id'
             ]);
-        $this->hasMany('ApApProfileEntries',  ['dependent' => true]);
-        $this->hasMany('ApStaticEntryOverrides',  ['dependent' => true]);	
+        $this->belongsTo('ApProfileEntries', [
+            'className' => 'ApProfileEntries',
+            'foreignKey' => 'ap_profile_entry_id'
+        ]);
     }
 }

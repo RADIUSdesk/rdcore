@@ -4,23 +4,35 @@ Ext.define('Rd.view.aps.cntApEntryOverride', {
     requires: [
         'Rd.view.aps.vcApEntryOverride',
     ],
-    controller  : 'vcApEntryOverride',  
+    controller  : 'vcApEntryOverride',
+    info        : {}, 
     initComponent: function(){
         var me          = this;
         var w_prim      = 550;
         var ent_id      = me.info.ap_proile_entry_id;
         
         var hidden_dis  = true;
+        var hidden_key  = true;
+        var hidden_vlan  = true;
         
         if(me.info.check== true){
             hidden_dis = false;
         }
         
+        if((me.info.check== true)&&(me.info.show_key == true)){
+            hidden_key = false;
+        }
+        
+        if((me.info.check== true)&&(me.info.show_vlan == true)){
+            hidden_vlan = false;
+        }
+        
         me.items = [
             {
                 xtype     : 'checkbox',
+                itemId    : 'chkOverride',
                 width     : 550,
-                boxLabel  : 'Override Static '+me.info.entry_name,
+                boxLabel  : 'Override: '+me.info.entry_name,
                 boxLabelCls : 'boxLabelRd',
                 name      : 'ent_override_'+ent_id+'_check',
                 checked   : me.info.check
@@ -34,7 +46,9 @@ Ext.define('Rd.view.aps.cntApEntryOverride', {
                 width       : w_prim,
                 name        : 'ent_override_'+ent_id+'_ssid',
                 hidden      : hidden_dis,
-                disabled    : hidden_dis
+                disabled    : hidden_dis,
+                itemId      : 'txtSsid',
+                value       : me.info.ssid
             },
             {
                 xtype       : 'textfield',
@@ -45,8 +59,10 @@ Ext.define('Rd.view.aps.cntApEntryOverride', {
                 labelClsExtra: 'lblRdReq',
                 width       : w_prim,
                 name        : 'ent_override_'+ent_id+'_key',
-                hidden      : hidden_dis,
-                disabled    : hidden_dis
+                hidden      : hidden_key,
+                disabled    : hidden_key,
+                itemId      : 'txtKey',
+                value       : me.info.key
             },
             {
                 xtype       : 'numberfield',
@@ -61,8 +77,10 @@ Ext.define('Rd.view.aps.cntApEntryOverride', {
     			mouseWheelEnabled	: false,
     			width       : w_prim,
     			name        : 'ent_override_'+ent_id+'_vlan',
-    			hidden      : hidden_dis,
-                disabled    : hidden_dis
+    			hidden      : hidden_vlan,
+                disabled    : hidden_vlan,
+                itemId      : 'txtVlan',
+                value       : me.info.vlan
             }
         ];       
         me.callParent(arguments);

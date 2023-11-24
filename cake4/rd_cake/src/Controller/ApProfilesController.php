@@ -26,6 +26,7 @@ class ApProfilesController extends AppController {
         $this->loadModel('ApProfileSettings');
         $this->loadModel('ApProfileEntrySchedules');
         $this->loadModel('ApApProfileEntries');
+        $this->loadModel('ApStaticEntryOverrides');
         
         //New change May2021
         $this->loadModel('Networks');
@@ -522,15 +523,74 @@ class ApProfilesController extends AppController {
     
     public function apStaticEntryOverridesView(){
     
-        //We send it the ap_profile_entry_id and also ap_id    
-        $data = [
-            'entry_name'            => 'Koos',
-            'check'                 => true,
-            'ap_proile_entry_id'    => $this->request->getQuery('ap_profile_entry_id'),
-            'key'                   => '12345678',
-            'vlan'                  => 100,
-            'ssid'                  => 'koos'
-        ];
+        $date = [];
+    
+        //We send it the ap_profile_entry_id and also ap_id 
+        $entry_id   = $this->request->getQuery('ap_profile_entry_id');
+        $ap_id      = $this->request->getQuery('ap_id');
+        
+        $ent_entry = $this->{'ApProfileEntries'}->find()->where(['ApProfileEntries.id' =>$entry_id])->contain(['ApProfileExitApProfileEntries' =>['ApProfileExits']])->first();
+
+        if($ent_entry){
+              
+            $check      = false;
+            $ssid       = '';
+            $show_key   = false;
+            $key        = '';
+            $show_vlan  = false;
+            $vlan       = 0;
+            
+            $ent_exit = $ent_entry->ap_profile_exit_ap_profile_entries[0];
+            if(($ent_exit->ap_profile_exit->type == 'tagged_bridge')||($ent_exit->ap_profile_exit->type == 'tagged_bridge_l3')){
+                $show_vlan = true;
+                $ent_vlan = $this->{'ApStaticEntryOverrides'}->find()->where([
+                    'ApStaticEntryOverrides.ap_profile_entry_id' => $entry_id,
+                    'ApStaticEntryOverrides.ap_id'               => $ap_id,
+                    'ApStaticEntryOverrides.item'                => 'vlan',          
+                ])->first();
+                
+                if($ent_vlan){
+                    $vlan = $ent_vlan->value;        
+                }    
+            }
+                        
+            if(($ent_entry->encryption == 'wep')||($ent_entry->encryption == 'psk')||($ent_entry->encryption == 'psk2')){
+                $show_key = true;
+                $ent_key = $this->{'ApStaticEntryOverrides'}->find()->where([
+                    'ApStaticEntryOverrides.ap_profile_entry_id' => $entry_id,
+                    'ApStaticEntryOverrides.ap_id'               => $ap_id,
+                    'ApStaticEntryOverrides.item'                => 'key',          
+                ])->first();
+                
+                if($ent_key){
+                    $key = $ent_key->value;        
+                }                           
+            }            
+        
+            //ssid            
+            $ent_ssid = $this->{'ApStaticEntryOverrides'}->find()->where([
+                'ApStaticEntryOverrides.ap_profile_entry_id' => $entry_id,
+                'ApStaticEntryOverrides.ap_id'               => $ap_id,
+                'ApStaticEntryOverrides.item'                => 'ssid',          
+            ])->first();
+            
+            if($ent_ssid){
+                $check = true;
+                $ssid = $ent_ssid->value;        
+            } 
+                           
+            $data = [
+                'entry_name'            => $ent_entry->name,
+                'check'                 => $check,
+                'ap_proile_entry_id'    => $entry_id,
+                'key'                   => $key,
+                'show_key'              => $show_key,
+                'vlan'                  => $vlan,
+                'show_vlan'             => $show_vlan,
+                'ssid'                  => $ssid
+            ];
+            
+        }
     
         $this->set([
             'data'      => $data,
@@ -2152,6 +2212,29 @@ class ApProfilesController extends AppController {
                     $ent_e = $this->{'ApApProfileEntries'}->newEntity($data);
                     $this->{'ApApProfileEntries'}->save($ent_e);	
                 }
+                
+                //See if there are overrides
+                foreach(array_keys($cdata) as $key){
+                     if(preg_match('/^(ent_override_)(\d+)(_check)/',$key,$matches)){
+
+                        $ap_profile_entry_id = $matches[2];
+                        $override_list      = ['ssid','key','vlan'];
+                        foreach($override_list as $o){
+                            $o_item = 'ent_override_'.$ap_profile_entry_id.'_'.$o;
+                            if(isset($cdata[$o_item])){
+                                $o_value = $cdata[$o_item];
+                                $o_data  = [
+                                    'ap_profile_entry_id' => $ap_profile_entry_id,
+                                    'ap_id' => $new_id,
+                                    'item'  => $o,
+                                    'value' => $o_value                                           
+                                ];
+                                $ent_o = $this->{'ApStaticEntryOverrides'}->newEntity($o_data);
+                                $this->{'ApStaticEntryOverrides'}->save($ent_o);                                        
+                            }
+                        }                                                                   
+                     }                          
+                }              
             }
             
             //---------Add WiFi settings for this ap ------
@@ -2541,6 +2624,7 @@ class ApProfilesController extends AppController {
                         
                         //Clear previous ones first:
 				        $this->{'ApApProfileEntries'}->deleteAll(['ApApProfileEntries.ap_id' => $new_id]);
+				        $this->{'ApStaticEntryOverrides'}->deleteAll(['ApStaticEntryOverrides.ap_id' => $new_id]);
 
                         //Add the entry points
                         $count      = 0;
@@ -2563,8 +2647,29 @@ class ApProfilesController extends AppController {
                                 $ent_se = $this->{'ApApProfileEntries'}->newEntity($data);
                                 $this->{'ApApProfileEntries'}->save($ent_se);
                             }
-                        }
-                        
+                            //See if there are overrides
+                            foreach(array_keys($cdata) as $key){
+                                 if(preg_match('/^(ent_override_)(\d+)(_check)/',$key,$matches)){
+
+                                    $ap_profile_entry_id = $matches[2];
+                                    $override_list      = ['ssid','key','vlan'];
+                                    foreach($override_list as $o){
+                                        $o_item = 'ent_override_'.$ap_profile_entry_id.'_'.$o;
+                                        if(isset($cdata[$o_item])){
+                                            $o_value = $cdata[$o_item];
+                                            $o_data  = [
+                                                'ap_profile_entry_id' => $ap_profile_entry_id,
+                                                'ap_id' => $new_id,
+                                                'item'  => $o,
+                                                'value' => $o_value                                           
+                                            ];
+                                            $ent_o = $this->{'ApStaticEntryOverrides'}->newEntity($o_data);
+                                            $this->{'ApStaticEntryOverrides'}->save($ent_o);                                        
+                                        }
+                                    }                                                                   
+                                 }                          
+                            }                                                                               
+                       }                      
 
                         //---------Add WiFi settings for this ap ------
                         //--Clean up--

@@ -26,6 +26,22 @@ if not exists (select * from information_schema.columns
 
 end if;
 
+if not exists (select * from information_schema.columns
+    where table_name = 'ap_static_entry_overrides' and table_schema = 'rd') then
+    CREATE TABLE `ap_static_entry_overrides` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `ap_id` int(11) NOT NULL,
+      `ap_profile_entry_id` int(11) NOT NULL,
+      `item` varchar(64) NOT NULL,
+      `value` varchar(64) NOT NULL,
+      `created` datetime NOT NULL,
+      `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+
+end if;
+
+
 end//
 
 delimiter ;
