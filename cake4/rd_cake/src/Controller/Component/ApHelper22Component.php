@@ -1521,7 +1521,7 @@ class ApHelper22Component extends Component {
         } 
          
         foreach($ap_profile->ap_ap_profile_entries as $ap_ap_profile_entry){
-        
+               
             //We start off by adding WiFi Scedules
             $ap_profile_e   = $ap_ap_profile_entry->ap_profile_entry;
         	$ssid_name      = $ap_profile_e->name;
@@ -1562,9 +1562,10 @@ class ApHelper22Component extends Component {
                 }          
             }
             
+            
             //Loop through all the radios
             for ($y = 0; $y < $radio_count; $y++){
-            
+                        
                 $hwmode     = $wireless[$y]['options']['hwmode'];
                 $channel    = $wireless[$y]['options']['channel'];
                 $band       = 'two'; //Default is 2.4G
@@ -1583,10 +1584,10 @@ class ApHelper22Component extends Component {
                         } 
                     }  
                 }
-                
+
                 
                 if(($ap_profile_e->frequency_band == 'both')||($ap_profile_e->frequency_band == $band)){
-                    $if_name    = $this->_number_to_word($start_number);
+                    $if_name    = $this->_number_to_word($start_number);                   
                     
                     $this->MetaData["$if_name"."$y"] = $ap_profile_e->id;
                     
@@ -1602,7 +1603,7 @@ class ApHelper22Component extends Component {
                     if(($start_disabled)&&(!$disabled)){
                     	$disabled = $start_disabled;
                     }
-                                               
+                                                                  
                     $base_array = [
                         "device"        => "radio".$y,
                         "ifname"        => "$if_name"."$y",
@@ -1702,7 +1703,7 @@ class ApHelper22Component extends Component {
 					    $base_array = array_merge($base_array,$options);
 					    $lists	 = Configure::read('Hotspot2.lists');                                  
                     }
-
+                    
                     array_push( $wireless,
                         [
                             "wifi-iface"=> "$if_name",

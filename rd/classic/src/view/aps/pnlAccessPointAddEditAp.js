@@ -615,8 +615,8 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
         var cntRebootController = {
             xtype   : 'panel',
             itemId  : 'cntRebootController',
-          //  hidden  : true,
-          //  disabled: true,
+            hidden  : true,
+            disabled: true,
             bodyStyle   : 'background: #e0ebeb',
             items   : [
                  {

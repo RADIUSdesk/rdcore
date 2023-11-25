@@ -408,9 +408,18 @@ class ApProfilesController extends AppController {
         
         $this->loadModel('Aps');
         
-        $q_ap = $this->{'Aps'}->find()->where(['id' => $ap_id])->first();
+        $q_ap = $this->{'Aps'}->find()->where(['id' => $ap_id])->contain(['ApStaticEntryOverrides'])->first();
         if($q_ap){
             $ap_profile_id = $q_ap->ap_profile_id;
+        }
+        
+        
+        //Build a lookup table for overrides
+        $override_table = [];
+        foreach($q_ap->ap_static_entry_overrides as $override){               
+            if($override->item == 'ssid'){
+                $override_table[$override->ap_profile_entry_id] =  $override->value;  
+            }               
         }
         
         $this->loadModel('ApProfileEntries');
@@ -424,8 +433,14 @@ class ApProfilesController extends AppController {
         	$chk_schedule = false;
         	if(count($i->ap_profile_entry_schedules) > 0){
             	$chk_schedule  = true;
-            }        
-            array_push($items,['id' => $i->id,'name'=> $i->name,'chk_schedule' => $chk_schedule]);
+            }
+            
+            $name = $i->name;
+            if(isset($override_table[$i->id])){
+                $name = $override_table[$i->id];
+            }  
+                                
+            array_push($items,['id' => $i->id,'name'=> $name,'chk_schedule' => $chk_schedule]);
         }
         
         $this->set(array(

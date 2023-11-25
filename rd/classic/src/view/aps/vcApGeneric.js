@@ -380,8 +380,6 @@ Ext.define('Rd.view.aps.vcApGeneric', {
         cntEntryOverrides.disable();
 	    
 	    Ext.Array.forEach(tag.getValue(),function(r){      
-            console.log("Hier is dit nou!");
-            console.log(r);
             Ext.Ajax.request({
                 url: me.getUrlApStaticOverrides(),
                 params: {
@@ -397,7 +395,7 @@ Ext.define('Rd.view.aps.vcApGeneric', {
                     if(jsonData.success){    
                         me.addStaticEntryEdit(jsonData.data);
                     }else{
-                        console.log("NOT COOL");                      
+                        //console.log("NOT COOL");                      
                     }
                 }
             });

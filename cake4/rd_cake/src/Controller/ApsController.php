@@ -313,7 +313,8 @@ class ApsController extends AppController {
             'ApActions'     => ['sort' => ['ApActions.id' => 'DESC']],
             'OpenvpnServerClients',
             'ApUptmHistories',
-            'ApConnectionSettings'
+            'ApConnectionSettings',
+            'ApStaticEntryOverrides'
         ],'Aps');
 
         //===== PAGING (MUST BE LAST) ======
@@ -352,6 +353,7 @@ class ApsController extends AppController {
                 $postal_code    = '';
                 $state_name     = '';
                 $state_code     = '';
+                $entry_point_lookup = [];
 
                 if($i->last_contact_from_ip != ''){
                     try {
@@ -432,11 +434,25 @@ class ApsController extends AppController {
                         'ApStations.modified >='   => $modified
                     ])
                     ->all();
+                    
+                //Build a lookup table for overrides
+                $override_table = [];
+                foreach($i->ap_static_entry_overrides as $override){               
+                    if($override->item == 'ssid'){
+                        $override_table[$override->ap_profile_entry_id] =  $override->value;  
+                    }               
+                }
 
                 $array_ssids = [];
+                $mao->{'override_flag'} = false;
+                
                 if($q_e){
                     foreach($q_e as $e){
                         $name = $e->name;
+                        if(isset($override_table[$e->id])){
+                            $name = $override_table[$e->id];
+                            $mao->{'override_flag'} = true;
+                        }                       
                         array_push($array_ssids, ['name' => $name,'users' => 0]);
                     }
                 }
@@ -457,7 +473,7 @@ class ApsController extends AppController {
                 if(count($array_ssids) > 0 && count($ssid_devices) > 0){
                     $c = 0;
                     foreach($array_ssids as $ssid){
-                        $n = $ssid['name'];
+                        $n  = $ssid['name'];
                         if(array_key_exists($n,$ssid_devices)){
                             $users = $ssid_devices["$n"];
                             $array_ssids[$c] = ['name' => $n,'users' => $users];
@@ -465,7 +481,7 @@ class ApsController extends AppController {
                         $c++;
                     }
                 }
-
+                
                 //Get the newest visitor
                 $q_mac = $this->ApStations->find()->where(['ApStations.ap_id' => $ap_id])->order(['ApStations.created' => 'desc'])->first();
 
