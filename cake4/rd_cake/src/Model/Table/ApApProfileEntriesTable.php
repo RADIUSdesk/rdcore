@@ -12,7 +12,10 @@ class ApApProfileEntriesTable extends Table {
                 'className' => 'Aps',
                 'foreignKey' => 'ap_id'
             ]);
-        $this->hasMany('ApApProfileEntries',  ['dependent' => true]);
+        $this->belongsTo('ApProfileEntries', [
+                'className' => 'ApProfileEntries',
+                'foreignKey' => 'ap_profile_entry_id'
+            ]);
         $this->hasMany('ApStaticEntryOverrides',  ['dependent' => true]);	
     }
 }

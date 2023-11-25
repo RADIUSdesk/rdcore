@@ -88,8 +88,13 @@ class ApHelper22Component extends Component {
 		        $this->_update_wbw_channel(); //Update the wbw channel if it is included
 		        
                 $query = $this->{$this->main_model}->find()->contain([
+                    'ApApProfileEntries' => [
+                        'ApProfileEntries' => [
+                            'ApProfileEntrySchedules'
+                        ],
+                    ],
+                    'ApStaticEntryOverrides',
                     'ApProfiles' => [
-                        'Aps',
                         'ApProfileEntries' => [ 
                         	'ApProfileEntrySchedules'
                         ],
@@ -604,7 +609,7 @@ class ApHelper22Component extends Component {
             $type                   = $ap_profile_e->type;
             $vlan                   = $ap_profile_e->vlan;
             $eth_one_bridge         = false;
-
+                       
             //This is used to fetch info eventually about the entry points
             if(count($ap_profile_e->ap_profile_exit_ap_profile_entries) > 0){
                 $has_entries_attached = true;
@@ -626,10 +631,29 @@ class ApHelper22Component extends Component {
                     }else{
                         array_push($entry_point_data, ['network' => $if_name,'entry_id' => $entry->ap_profile_entry_id, 'exit_id'=> $entry->ap_profile_exit_id]);
                     }
-                    //print_r($entry_point_data);
+                    
+                   foreach($ap_profile->ap_static_entry_overrides as $override){                         
+                        if($override->item == 'vlan'){
+                            if($entry->ap_profile_entry_id == $override->ap_profile_entry_id){
+                                $vlan = $override->value;
+                            }                       
+                        }  
+                   }                    
                 }           
             }
             
+            foreach($ap_profile->ap_static_entry_overrides as $override){ 
+            
+                /*foreach($entry_point_data as $entry_point_data){
+                    print_r($entry_point_data);
+                }       
+                if($override->ap_profile_entry_id == $ap_profile_e->id){               
+                    if($override->item == 'vlan'){
+                        $vlan = $override->value;
+                    }                   
+                }   */       
+            }
+                       
             if($type == 'tagged_bridge_l3'){
                 $has_entries_attached = true;
             }
@@ -648,7 +672,7 @@ class ApHelper22Component extends Component {
                 if($type == 'tagged_bridge'){
                 
                 	$interfaces =  [ $br_int.'.'.$vlan ]; //only one
-                
+                	                
                 	array_push($network,
 	                    [
 	                        "device"    => "br-$if_name",
@@ -931,7 +955,6 @@ class ApHelper22Component extends Component {
                         continue; //We dont care about the other if's
                     }
                 }
-
 
                  //____ LAYER 3 Tagged Bridge ____
                 if($type == 'tagged_bridge_l3'){
@@ -1300,201 +1323,402 @@ class ApHelper22Component extends Component {
         }
                
         $start_number = 0;
-
+        
 		//____ ENTRY POINTS ____
         //Check if we need to add this wireless VAP
         foreach($ap_profile->ap_profile->ap_profile_entries as $ap_profile_e){
             $entry_id   = $ap_profile_e->id;
+            
+            if($ap_profile_e->apply_to_all == 1){
                        
-            //Check if it is assigned to an exit point
+                //Check if it is assigned to an exit point                  
+                foreach($entry_point_data as $epd){
+                    if($epd['entry_id'] == $entry_id){ //We found our man :-) This means the Entry has been 'connected' to an exit point
                     
-            foreach($entry_point_data as $epd){
-                if($epd['entry_id'] == $entry_id){ //We found our man :-) This means the Entry has been 'connected' to an exit point
-                
-                
-                	//We start off by adding WiFi Scedules
-                	$ssid_name = $ap_profile_e->name;
-                    $script    = "/etc/MESHdesk/utils/ssid_on_off.lua";
                     
-                    $start_disabled = $this->_scheduleStartDisabledTest($ap_profile,$ap_profile_e->ap_profile_entry_schedules);
-                    
-                    foreach($ap_profile_e->ap_profile_entry_schedules as $sch){
-                    	$sch->command 	= "$script '$ssid_name' '$sch->action'";
-                    	$sch->type		= 'command';
-                    	unset($sch->action);
-                       	unset($sch->ap_profile_entry_id);
-                        unset($sch->created);
-                        unset($sch->modified);
-                        array_push($this->WifiSchedules,$sch);                    
-                    } 
-                
-                
-                	//FIXME DONT THINK THIS IS NEEDED ACTUALLY
-                	//Lets see if there is not perhaps a Dynamic VLAN to override the interface name 
-                	$exit_id = $epd['exit_id'];
-                	foreach($entry_point_data as $epd_vlan){
-                		if(($epd_vlan['exit_id'] == $exit_id)&&(preg_match('/^ex_vlan/',$epd_vlan['network']))){
-                			$epd['network'] = $epd_vlan['network'];
-                		}             	
-                	}
-      
-                    //Loop through all the radios
-                    for ($y = 0; $y < $radio_count; $y++){
-                    
-                        $hwmode     = $wireless[$y]['options']['hwmode'];
-                        $channel    = $wireless[$y]['options']['channel'];
-                        $band       = 'two'; //Default is 2.4G
-                        if($hwmode == '11a'){
-                            $band = 'five'; 
-                        }
+                    	//We start off by adding WiFi Scedules
+                    	$ssid_name = $ap_profile_e->name;
+                        $script    = "/etc/MESHdesk/utils/ssid_on_off.lua";
                         
-                        if(($ap_profile_e->frequency_band == 'five_upper')||($ap_profile_e->frequency_band == 'five_lower')){      
-                            if($band == 'five'){ //This is actually a 5G radio now see if we need t o foce a match based on the channel
-                                if(($channel <= 48)&&($ap_profile_e->frequency_band == 'five_lower')){   
-                                    $band = 'five_lower'; //We can enable it based on the channel setting of the radio
+                        $start_disabled = $this->_scheduleStartDisabledTest($ap_profile,$ap_profile_e->ap_profile_entry_schedules);
+                        
+                        foreach($ap_profile_e->ap_profile_entry_schedules as $sch){
+                        	$sch->command 	= "$script '$ssid_name' '$sch->action'";
+                        	$sch->type		= 'command';
+                        	unset($sch->action);
+                           	unset($sch->ap_profile_entry_id);
+                            unset($sch->created);
+                            unset($sch->modified);
+                            array_push($this->WifiSchedules,$sch);                    
+                        } 
+                    
+                    
+                    	//FIXME DONT THINK THIS IS NEEDED ACTUALLY
+                    	//Lets see if there is not perhaps a Dynamic VLAN to override the interface name 
+                    	$exit_id = $epd['exit_id'];
+                    	foreach($entry_point_data as $epd_vlan){
+                    		if(($epd_vlan['exit_id'] == $exit_id)&&(preg_match('/^ex_vlan/',$epd_vlan['network']))){
+                    			$epd['network'] = $epd_vlan['network'];
+                    		}             	
+                    	}
+          
+                        //Loop through all the radios
+                        for ($y = 0; $y < $radio_count; $y++){
+                        
+                            $hwmode     = $wireless[$y]['options']['hwmode'];
+                            $channel    = $wireless[$y]['options']['channel'];
+                            $band       = 'two'; //Default is 2.4G
+                            if($hwmode == '11a'){
+                                $band = 'five'; 
+                            }
+                            
+                            if(($ap_profile_e->frequency_band == 'five_upper')||($ap_profile_e->frequency_band == 'five_lower')){      
+                                if($band == 'five'){ //This is actually a 5G radio now see if we need t o foce a match based on the channel
+                                    if(($channel <= 48)&&($ap_profile_e->frequency_band == 'five_lower')){   
+                                        $band = 'five_lower'; //We can enable it based on the channel setting of the radio
+                                    }
+                                     
+                                    if(($channel >= 149)&&($ap_profile_e->frequency_band == 'five_upper')){   
+                                        $band = 'five_upper'; //We can enable it based on the channel setting of the radio
+                                    } 
+                                }  
+                            }
+                            
+                            
+                            if(($ap_profile_e->frequency_band == 'both')||($ap_profile_e->frequency_band == $band)){
+                                $if_name    = $this->_number_to_word($start_number);
+                                
+                                $this->MetaData["$if_name"."$y"] = $ap_profile_e->id;
+                                
+                                //Change the bridge if auto-wbw detection and nat creation happened
+                                if( ($epd['network'] == 'lan')&&
+                                    (($this->WbwActive == true)||($this->QmiActive == true))
+                                ){
+                                    $epd['network'] = $this->if_wbw_nat_br;
                                 }
-                                 
-                                if(($channel >= 149)&&($ap_profile_e->frequency_band == 'five_upper')){   
-                                    $band = 'five_upper'; //We can enable it based on the channel setting of the radio
-                                } 
-                            }  
-                        }
-                        
-                        
-                        if(($ap_profile_e->frequency_band == 'both')||($ap_profile_e->frequency_band == $band)){
-                            $if_name    = $this->_number_to_word($start_number);
-                            
-                            $this->MetaData["$if_name"."$y"] = $ap_profile_e->id;
-                            
-                            //Change the bridge if auto-wbw detection and nat creation happened
-                            if( ($epd['network'] == 'lan')&&
-                                (($this->WbwActive == true)||($this->QmiActive == true))
-                            ){
-                                $epd['network'] = $this->if_wbw_nat_br;
-                            }
-                            
-                            //If it is NOT disabled in hardware BUT we have to diesable it on the schedule ($start_disabled) then make it disabled
-                            $disabled = $this->RadioSettings[$y]['radio'.$y.'_disabled'];
-                            if(($start_disabled)&&(!$disabled)){
-                            	$disabled = $start_disabled;
-                            }
-                                                       
-                            $base_array = [
-                                "device"        => "radio".$y,
-                                "ifname"        => "$if_name"."$y",
-                                "mode"          => "ap",
-                                "network"       => $epd['network'],
-                                "encryption"    => $ap_profile_e->encryption,
-                                "ssid"          => $ap_profile_e->name,
-                                "key"           => $ap_profile_e->special_key,
-                                "hidden"        => $ap_profile_e->hidden,
-                                "isolate"       => $ap_profile_e->isolate,
-                                "auth_server"   => $ap_profile_e->auth_server,
-                                "auth_secret"   => $ap_profile_e->auth_secret,
-                                "disabled"      => $disabled 
-                            ];
-                            
-                            if($ap_profile_e->chk_maxassoc){
-                                $base_array['maxassoc'] = $ap_profile_e->maxassoc;
-                            }
-                            
-                            if($ap_profile_e->accounting){
-                                $base_array['acct_server']	= $ap_profile_e->auth_server;
-                                $base_array['acct_secret']	= $ap_profile_e->auth_secret;
-                                $base_array['acct_interval']= $this->acct_interval;
-                            }
-                            
-                            if($ap_profile_e->ieee802r){
-	                            $base_array['ieee80211r']				= $ap_profile_e->ieee802r; //FIXME A Typo slipped in ... OpenWrt looking for ieee80211r and not ieee802r
-	                            $base_array['ft_over_ds']			= $ap_profile_e->ft_over_ds;
-	                            $base_array['ft_psk_generate_local']	= $ap_profile_e->ft_pskgenerate_local; //FIXME Another Type slipped in ... OpenWrt looking for ft_psk_generate_local
-	                            
-	                            if($ap_profile_e->mobility_domain !== ''){
-		                            $base_array['mobility_domain']  = $ap_profile_e->mobility_domain;
-	                            }                           	                          
-                            }                                                      
-                                                                                 
-                            //==OCT 2022== Private PSK Support ==
-                            /*
-                            config wifi-iface 'default_radio0'
-								option device 'radio0'
-								option network 'lan'
-								option mode 'ap'
-								option ssid 'OpenWrt'
-								option encryption 'psk2'
-								option ppsk '1'
-								option auth_secret 'testing123'
-								option key '12345678'
-								option auth_server '192.168.8.101'
-								option nasid 'DisVrydag'
-								option dynamic_vlan '2'
-								option vlan_tagged_interface 'lan1'
-								option vlan_bridge 'br-vlan'
-								option vlan_naming '0'
-							*/
-							if($ap_profile_e->encryption == 'ppsk'){
-								$base_array['encryption']	= 'psk2';
-								$base_array['ppsk']			= '1';
-								$base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-								$base_array['vlan_bridge']  = 'br-ex_vlan';
-								$base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
-								$base_array['vlan_naming']	= '0';								
-								//Set the flag
-								$this->ppsk_flag = true;
-							}
-							
-							//NASID: We can probaly send along regardless and we use a convention of: md_ / ap_<entry_id>_<radio_number>_<ap_id>/node_id 
-                            if($ap_profile_e->auto_nasid){                         
-                            	$base_array['nasid'] = 'ap_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;                            
-                            }else{
-                            	if($ap_profile_e->nasid !== ''){
-                            		$base_array['nasid'] = $ap_profile_e->nasid;                            	
-                            	}                            
-                            }
-                            
-                            if($ap_profile_e->macfilter != 'disable'){
-                                $this->loadModel('Devices');
+                                
+                                //If it is NOT disabled in hardware BUT we have to diesable it on the schedule ($start_disabled) then make it disabled
+                                $disabled = $this->RadioSettings[$y]['radio'.$y.'_disabled'];
+                                if(($start_disabled)&&(!$disabled)){
+                                	$disabled = $start_disabled;
+                                }
+                                                           
+                                $base_array = [
+                                    "device"        => "radio".$y,
+                                    "ifname"        => "$if_name"."$y",
+                                    "mode"          => "ap",
+                                    "network"       => $epd['network'],
+                                    "encryption"    => $ap_profile_e->encryption,
+                                    "ssid"          => $ap_profile_e->name,
+                                    "key"           => $ap_profile_e->special_key,
+                                    "hidden"        => $ap_profile_e->hidden,
+                                    "isolate"       => $ap_profile_e->isolate,
+                                    "auth_server"   => $ap_profile_e->auth_server,
+                                    "auth_secret"   => $ap_profile_e->auth_secret,
+                                    "disabled"      => $disabled 
+                                ];
+                                
+                                if($ap_profile_e->chk_maxassoc){
+                                    $base_array['maxassoc'] = $ap_profile_e->maxassoc;
+                                }
+                                
+                                if($ap_profile_e->accounting){
+                                    $base_array['acct_server']	= $ap_profile_e->auth_server;
+                                    $base_array['acct_secret']	= $ap_profile_e->auth_secret;
+                                    $base_array['acct_interval']= $this->acct_interval;
+                                }
+                                
+                                if($ap_profile_e->ieee802r){
+	                                $base_array['ieee80211r']				= $ap_profile_e->ieee802r; //FIXME A Typo slipped in ... OpenWrt looking for ieee80211r and not ieee802r
+	                                $base_array['ft_over_ds']			= $ap_profile_e->ft_over_ds;
+	                                $base_array['ft_psk_generate_local']	= $ap_profile_e->ft_pskgenerate_local; //FIXME Another Type slipped in ... OpenWrt looking for ft_psk_generate_local
+	                                
+	                                if($ap_profile_e->mobility_domain !== ''){
+		                                $base_array['mobility_domain']  = $ap_profile_e->mobility_domain;
+	                                }                           	                          
+                                }                                                      
+                                                                                     
+                                //==OCT 2022== Private PSK Support ==
+                                /*
+                                config wifi-iface 'default_radio0'
+								    option device 'radio0'
+								    option network 'lan'
+								    option mode 'ap'
+								    option ssid 'OpenWrt'
+								    option encryption 'psk2'
+								    option ppsk '1'
+								    option auth_secret 'testing123'
+								    option key '12345678'
+								    option auth_server '192.168.8.101'
+								    option nasid 'DisVrydag'
+								    option dynamic_vlan '2'
+								    option vlan_tagged_interface 'lan1'
+								    option vlan_bridge 'br-vlan'
+								    option vlan_naming '0'
+							    */
+							    if($ap_profile_e->encryption == 'ppsk'){
+								    $base_array['encryption']	= 'psk2';
+								    $base_array['ppsk']			= '1';
+								    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+								    $base_array['vlan_bridge']  = 'br-ex_vlan';
+								    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
+								    $base_array['vlan_naming']	= '0';								
+								    //Set the flag
+								    $this->ppsk_flag = true;
+							    }
+							    
+							    //NASID: We can probaly send along regardless and we use a convention of: md_ / ap_<entry_id>_<radio_number>_<ap_id>/node_id 
+                                if($ap_profile_e->auto_nasid){                         
+                                	$base_array['nasid'] = 'ap_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;                            
+                                }else{
+                                	if($ap_profile_e->nasid !== ''){
+                                		$base_array['nasid'] = $ap_profile_e->nasid;                            	
+                                	}                            
+                                }
+                                
+                                if($ap_profile_e->macfilter != 'disable'){
+                                    $this->loadModel('Devices');
 
-                                $base_array['macfilter']    = $ap_profile_e->macfilter;
-                                //Replace later
-                                $pu_id      = $ap_profile_e->permanent_user_id;
-                                $q_d        = $this->Devices->find()->where(['Devices.permanent_user_id' => $pu_id])->all();
-                                $mac_list   = [];
-                                foreach($q_d as $device){
-                                    $mac = $device->name;
-                                    $mac = str_replace('-',':',$mac);
-                                    array_push($mac_list,$mac);
+                                    $base_array['macfilter']    = $ap_profile_e->macfilter;
+                                    //Replace later
+                                    $pu_id      = $ap_profile_e->permanent_user_id;
+                                    $q_d        = $this->Devices->find()->where(['Devices.permanent_user_id' => $pu_id])->all();
+                                    $mac_list   = [];
+                                    foreach($q_d as $device){
+                                        $mac = $device->name;
+                                        $mac = str_replace('-',':',$mac);
+                                        array_push($mac_list,$mac);
+                                    }
+                                    if(count($mac_list)>0){
+                                        $base_array['maclist'] = implode(" ",$mac_list);
+                                    }
                                 }
-                                if(count($mac_list)>0){
-                                    $base_array['maclist'] = implode(" ",$mac_list);
+                                
+                                $lists = [];
+                                
+                               	if($ap_profile_e->hotspot2_enable){
+                                	Configure::load('Hotspot2');
+								    $options = Configure::read('Hotspot2.options'); 
+								    $base_array = array_merge($base_array,$options);
+								    $lists	 = Configure::read('Hotspot2.lists');                                  
                                 }
-                            }
-                            
-                            $lists = [];
-                            
-                           	if($ap_profile_e->hotspot2_enable){
-                            	Configure::load('Hotspot2');
-								$options = Configure::read('Hotspot2.options'); 
-								$base_array = array_merge($base_array,$options);
-								$lists	 = Configure::read('Hotspot2.lists');                                  
-                            }
 
-                            array_push( $wireless,
-                                [
-                                    "wifi-iface"=> "$if_name",
-                                    "options"   => $base_array,
-                                    "lists"		=> $lists
-                            ]); 
-                            $start_number++;
+                                array_push( $wireless,
+                                    [
+                                        "wifi-iface"=> "$if_name",
+                                        "options"   => $base_array,
+                                        "lists"		=> $lists
+                                ]); 
+                                $start_number++;
+                            }
+                        }
+                                            
+                        break; //No need to loop further
+                    }    
+                }
+                
+            }
+        } 
+         
+        foreach($ap_profile->ap_ap_profile_entries as $ap_ap_profile_entry){
+        
+            //We start off by adding WiFi Scedules
+            $ap_profile_e   = $ap_ap_profile_entry->ap_profile_entry;
+        	$ssid_name      = $ap_profile_e->name;
+        	
+        	//--Determine the network Name-- 
+        	foreach($entry_point_data as $epd){ 
+                if($epd['entry_id'] == $ap_profile_e->id){
+                    break;
+                }
+            }
+            //--End Network Name --
+                            	
+        	//-- WiFi Schedules --
+            $script         = "/etc/MESHdesk/utils/ssid_on_off.lua";                      
+            $start_disabled = $this->_scheduleStartDisabledTest($ap_profile,$ap_profile_e->ap_profile_entry_schedules);                        
+            foreach($ap_profile_e->ap_profile_entry_schedules as $sch){
+            	$sch->command 	= "$script '$ssid_name' '$sch->action'";
+            	$sch->type		= 'command';
+            	unset($sch->action);
+               	unset($sch->ap_profile_entry_id);
+                unset($sch->created);
+                unset($sch->modified);
+                array_push($this->WifiSchedules,$sch);                                  
+            }
+            //-- End WiFi Schedules --           
+            
+            $ssid   = $ap_profile_e->name;
+            $key    = $ap_profile_e->special_key;
+            
+            foreach($ap_profile->ap_static_entry_overrides as $override){        
+                if($override->ap_profile_entry_id == $ap_profile_e->id){               
+                    if($override->item == 'ssid'){
+                        $ssid = $override->value;
+                    }
+                    if($override->item == 'key'){
+                        $key = $override->value;
+                    }
+                }          
+            }
+            
+            //Loop through all the radios
+            for ($y = 0; $y < $radio_count; $y++){
+            
+                $hwmode     = $wireless[$y]['options']['hwmode'];
+                $channel    = $wireless[$y]['options']['channel'];
+                $band       = 'two'; //Default is 2.4G
+                if($hwmode == '11a'){
+                    $band = 'five'; 
+                }
+                
+                if(($ap_profile_e->frequency_band == 'five_upper')||($ap_profile_e->frequency_band == 'five_lower')){      
+                    if($band == 'five'){ //This is actually a 5G radio now see if we need t o foce a match based on the channel
+                        if(($channel <= 48)&&($ap_profile_e->frequency_band == 'five_lower')){   
+                            $band = 'five_lower'; //We can enable it based on the channel setting of the radio
+                        }
+                         
+                        if(($channel >= 149)&&($ap_profile_e->frequency_band == 'five_upper')){   
+                            $band = 'five_upper'; //We can enable it based on the channel setting of the radio
+                        } 
+                    }  
+                }
+                
+                
+                if(($ap_profile_e->frequency_band == 'both')||($ap_profile_e->frequency_band == $band)){
+                    $if_name    = $this->_number_to_word($start_number);
+                    
+                    $this->MetaData["$if_name"."$y"] = $ap_profile_e->id;
+                    
+                    //Change the bridge if auto-wbw detection and nat creation happened
+                    if( ($epd['network'] == 'lan')&&
+                        (($this->WbwActive == true)||($this->QmiActive == true))
+                    ){
+                        $epd['network'] = $this->if_wbw_nat_br;
+                    }
+                    
+                    //If it is NOT disabled in hardware BUT we have to diesable it on the schedule ($start_disabled) then make it disabled
+                    $disabled = $this->RadioSettings[$y]['radio'.$y.'_disabled'];
+                    if(($start_disabled)&&(!$disabled)){
+                    	$disabled = $start_disabled;
+                    }
+                                               
+                    $base_array = [
+                        "device"        => "radio".$y,
+                        "ifname"        => "$if_name"."$y",
+                        "mode"          => "ap",
+                        "network"       => $epd['network'],
+                        "encryption"    => $ap_profile_e->encryption,
+                        "ssid"          => $ssid,
+                        "key"           => $key,
+                        "hidden"        => $ap_profile_e->hidden,
+                        "isolate"       => $ap_profile_e->isolate,
+                        "auth_server"   => $ap_profile_e->auth_server,
+                        "auth_secret"   => $ap_profile_e->auth_secret,
+                        "disabled"      => $disabled 
+                    ];
+                    
+                    if($ap_profile_e->chk_maxassoc){
+                        $base_array['maxassoc'] = $ap_profile_e->maxassoc;
+                    }
+                    
+                    if($ap_profile_e->accounting){
+                        $base_array['acct_server']	= $ap_profile_e->auth_server;
+                        $base_array['acct_secret']	= $ap_profile_e->auth_secret;
+                        $base_array['acct_interval']= $this->acct_interval;
+                    }
+                    
+                    if($ap_profile_e->ieee802r){
+                        $base_array['ieee80211r']				= $ap_profile_e->ieee802r; //FIXME A Typo slipped in ... OpenWrt looking for ieee80211r and not ieee802r
+                        $base_array['ft_over_ds']			= $ap_profile_e->ft_over_ds;
+                        $base_array['ft_psk_generate_local']	= $ap_profile_e->ft_pskgenerate_local; //FIXME Another Type slipped in ... OpenWrt looking for ft_psk_generate_local
+                        
+                        if($ap_profile_e->mobility_domain !== ''){
+                            $base_array['mobility_domain']  = $ap_profile_e->mobility_domain;
+                        }                           	                          
+                    }                                                      
+                                                                         
+                    //==OCT 2022== Private PSK Support ==
+                    /*
+                    config wifi-iface 'default_radio0'
+					    option device 'radio0'
+					    option network 'lan'
+					    option mode 'ap'
+					    option ssid 'OpenWrt'
+					    option encryption 'psk2'
+					    option ppsk '1'
+					    option auth_secret 'testing123'
+					    option key '12345678'
+					    option auth_server '192.168.8.101'
+					    option nasid 'DisVrydag'
+					    option dynamic_vlan '2'
+					    option vlan_tagged_interface 'lan1'
+					    option vlan_bridge 'br-vlan'
+					    option vlan_naming '0'
+				    */
+				    if($ap_profile_e->encryption == 'ppsk'){
+					    $base_array['encryption']	= 'psk2';
+					    $base_array['ppsk']			= '1';
+					    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+					    $base_array['vlan_bridge']  = 'br-ex_vlan';
+					    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
+					    $base_array['vlan_naming']	= '0';								
+					    //Set the flag
+					    $this->ppsk_flag = true;
+				    }
+				    
+				    //NASID: We can probaly send along regardless and we use a convention of: md_ / ap_<entry_id>_<radio_number>_<ap_id>/node_id 
+                    if($ap_profile_e->auto_nasid){                         
+                    	$base_array['nasid'] = 'ap_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;                            
+                    }else{
+                    	if($ap_profile_e->nasid !== ''){
+                    		$base_array['nasid'] = $ap_profile_e->nasid;                            	
+                    	}                            
+                    }
+                    
+                    if($ap_profile_e->macfilter != 'disable'){
+                        $this->loadModel('Devices');
+
+                        $base_array['macfilter']    = $ap_profile_e->macfilter;
+                        //Replace later
+                        $pu_id      = $ap_profile_e->permanent_user_id;
+                        $q_d        = $this->Devices->find()->where(['Devices.permanent_user_id' => $pu_id])->all();
+                        $mac_list   = [];
+                        foreach($q_d as $device){
+                            $mac = $device->name;
+                            $mac = str_replace('-',':',$mac);
+                            array_push($mac_list,$mac);
+                        }
+                        if(count($mac_list)>0){
+                            $base_array['maclist'] = implode(" ",$mac_list);
                         }
                     }
-                                        
-                    break; //No need to loop further
-                }    
-            }
-        }            	
+                    
+                    $lists = [];
+                    
+                   	if($ap_profile_e->hotspot2_enable){
+                    	Configure::load('Hotspot2');
+					    $options = Configure::read('Hotspot2.options'); 
+					    $base_array = array_merge($base_array,$options);
+					    $lists	 = Configure::read('Hotspot2.lists');                                  
+                    }
+
+                    array_push( $wireless,
+                        [
+                            "wifi-iface"=> "$if_name",
+                            "options"   => $base_array,
+                            "lists"		=> $lists
+                    ]); 
+                    $start_number++;
+                }
+            }                   
+        }
+        
+        
+                   	
         return $wireless;  
     }
+    
     
 
     private function _number_to_word($number) {
