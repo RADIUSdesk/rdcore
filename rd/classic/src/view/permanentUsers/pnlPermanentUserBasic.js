@@ -131,10 +131,18 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
                     allowBlank  : true,
                     labelClsExtra: 'lblRd'
                 },
-                 {
+                {
                     xtype       : 'textfield',
                     name        : 'site',
                     fieldLabel  : 'Site',
+                    allowBlank  : true,
+                    labelClsExtra: 'lblRd'
+                },
+                {
+                    xtype       : 'textfield',
+                    name        : 'ppsk',
+                    fieldLabel  : 'PPSK',
+                    minLength   : 8,
                     allowBlank  : true,
                     labelClsExtra: 'lblRd'
                 }
