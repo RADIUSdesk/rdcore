@@ -17,9 +17,6 @@ Ext.define('Rd.view.realms.gridRealms' ,{
     viewConfig: {
         loadMask:true
     },
-    bbar        : [
-        {   xtype: 'component', itemId: 'count',   tpl: i18n('sResult_count_{count}'),   style: 'margin-right:5px', cls: 'lblYfi'  }
-    ],
     initComponent: function(){
         var me      = this;
         me.menu_grid = new Ext.menu.Menu({
@@ -29,6 +26,12 @@ Ext.define('Rd.view.realms.gridRealms' ,{
                 }},
                 { text: 'Edit Logo',  glyph: Rd.config.icnCamera,  handler: function(){
                      me.fireEvent('menuItemClick',me,'logo');
+                }},
+                { text: 'Manage VLANs',  glyph: Rd.config.icnTag,  handler: function(){
+                     me.fireEvent('menuItemClick',me,'vlans');
+                }},
+                { text: 'Manage PMKs',  glyph: Rd.config.icnTag,  handler: function(){
+                     me.fireEvent('menuItemClick',me,'pmks');
                 }}
             ]
          });

@@ -1272,13 +1272,29 @@ class GridButtonsFlatComponent extends Component {
             'title' => $t, 
             'items' => array(
                 $this->btnGraph,
-                array(
+                [
                     'xtype'     => 'button', 
                     'glyph'     => Configure::read('icnCamera'),
                     'scale'     => $this->scale, 
                     'itemId'    => 'logo',     
                     'tooltip'   => __('Edit logo')
-                )
+                ],
+                [
+                    'xtype'     => 'button', 
+                    'glyph'     => Configure::read('icnTag'),
+                    'scale'     => $this->scale, 
+                    'itemId'    => 'vlans',     
+                    'tooltip'   => __('Manage VLANs'),
+                    'ui'        => 'button-metal'
+                ],
+                [
+                    'xtype'     => 'button', 
+                    'glyph'     => Configure::read('icnLock'),
+                    'scale'     => $this->scale, 
+                    'itemId'    => 'pmks',     
+                    'tooltip'   => __('Manage PMKs'),
+                    'ui'        => 'button-metal'
+                ],
             )
         );             
         return $menu;

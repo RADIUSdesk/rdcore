@@ -31,8 +31,7 @@ Ext.define('Rd.view.accel.gridAccelSessions' ,{
         me.store   = Ext.create('Rd.store.sAccelSessions');
         me.store.getProxy().setExtraParam('accel_server_id',me.srv_id);
         me.store.load();
-        
-        
+               
         me.store.addListener('metachange',  me.onStoreAccelSessionsMetachange, me);
         me.bbar     =  [
             {

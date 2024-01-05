@@ -16,6 +16,10 @@ class RealmsTable extends Table
         $this->hasMany('PermanentUsers',['dependent' => true]);
         $this->hasMany('Vouchers',['dependent' => true]);
         $this->hasMany('Devices',['dependent' => true]);
+        
+        $this->hasMany('RealmVlans',['dependent' => true]);
+        $this->hasMany('RealmPmks',['dependent' => true]);
+        
     }
     
     public function validationDefault(Validator $validator): Validator{

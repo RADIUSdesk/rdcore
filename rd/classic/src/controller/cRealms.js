@@ -74,6 +74,12 @@ Ext.define('Rd.controller.cRealms', {
             'gridRealms #graph'   : {
                 click:      me.graph
             },
+            'gridRealms #vlans'   : {
+                click:      me.vlans
+            },
+            'gridRealms #pmks'   : {
+                click:      me.pmks
+            },
             'gridRealms'   : {
                 itemclick       :  me.gridClick,
                 menuItemClick   : me.onActionColumnMenuItemClick 
@@ -504,6 +510,80 @@ Ext.define('Rd.controller.cRealms', {
             tp.setActiveTab(tab_id); //Set focus on Add Tab 
         }
     },
+    vlans: function(button){
+        var me = this;  
+        //Find out if there was something selected
+        if(me.getGrid().getSelectionModel().getCount() == 0){
+             Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{
+            //Check if the node is not already open; else open the node:
+            var tp      = me.getGrid().up('tabpanel');
+            var sr      = me.getGrid().getSelectionModel().getLastSelected();
+            var id      = sr.getId();
+            var tab_id  = 'realmTabVlans_'+id;
+            var nt      = tp.down('#'+tab_id);
+            if(nt){
+                tp.setActiveTab(tab_id); //Set focus on  Tab
+                return;
+            }
+            var tab_name = me.selectedRecord.get('name');
+            //Tab not there - add one
+            tp.add({ 
+                title   : 'VLANs For '+tab_name,
+                itemId  : tab_id,
+                closable: true,
+                glyph   : Rd.config.icnTag, 
+                xtype   : 'gridRealmVlans',
+                realm_id: id,
+                tabConfig : {
+                    ui : me.ui
+                }
+            });
+            tp.setActiveTab(tab_id); //Set focus on Add Tab 
+        }
+    },
+    pmks: function(button){
+        var me = this;  
+        //Find out if there was something selected
+        if(me.getGrid().getSelectionModel().getCount() == 0){
+             Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{
+            //Check if the node is not already open; else open the node:
+            var tp      = me.getGrid().up('tabpanel');
+            var sr      = me.getGrid().getSelectionModel().getLastSelected();
+            var id      = sr.getId();
+            var tab_id  = 'realmTabPmks_'+id;
+            var nt      = tp.down('#'+tab_id);
+            if(nt){
+                tp.setActiveTab(tab_id); //Set focus on  Tab
+                return;
+            }
+            var tab_name = me.selectedRecord.get('name');
+            //Tab not there - add one
+            tp.add({ 
+                title   : 'PMKs For '+tab_name,
+                itemId  : tab_id,
+                closable: true,
+                glyph   : Rd.config.icnTag, 
+                xtype   : 'gridRealmPmks',
+                realm_id: id,
+                tabConfig : {
+                    ui : me.ui
+                }
+            });
+            tp.setActiveTab(tab_id); //Set focus on Add Tab 
+        }
+    },
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         var me = this;
         var grid = view.up('grid');
@@ -523,6 +603,12 @@ Ext.define('Rd.controller.cRealms', {
         }
         if(action == 'logo'){
             me.logo();
+        }
+        if(action == 'vlans'){
+            me.vlans();
+        }
+        if(action == 'pmks'){
+            me.pmks();
         }
     }
 });
