@@ -20,8 +20,11 @@ Ext.define('Rd.view.realms.vcRealmVlans', {
         'gridRealmVlans #delete': {
             click   : 'del'
         },
-        'winRealmVlanAdd #btnDataNext' : {
-            click   : 'btnDataNext'
+        'gridRealmVlans actioncolumn': { 
+             itemClick  : 'onActionColumnItemClick'
+        },
+        'winRealmVlanAdd #save' : {
+            click   : 'save'
         },
         'winRealmVlanEdit #save': {
             click   : 'btnEditSave'
@@ -36,20 +39,19 @@ Ext.define('Rd.view.realms.vcRealmVlans', {
     },
     reload: function(){
         var me = this;
-        console.log("Reload");
         me.getView().getSelectionModel().deselectAll(true);
         me.getView().getStore().load();
     },
     add: function(button) {	
         var me      = this;   
-        if(!Ext.WindowManager.get('Rd.view.realm.winRealmVlanAdd')){
+        if(!Ext.WindowManager.get('winRealmVlanAddId')){
             var w = Ext.widget('winRealmVlanAdd',{id:'winRealmVlanAddId',realm_id: me.getView().realm_id});
             this.getView().add(w);
             let appBody = Ext.getBody();
             w.showBy(appBody);        
         }
     },
-    btnDataNext:  function(button){
+    save:  function(button){
         var me      = this;
         var win     = button.up('window');
         var form    = win.down('form');
@@ -72,7 +74,7 @@ Ext.define('Rd.view.realms.vcRealmVlans', {
     edit: function(button) {
         var me      = this;
         //Find out if there was something selected
-        if(me.getView().down('#dvFirewallApps').getSelectionModel().getCount() == 0){
+        if(me.getView().getSelectionModel().getCount() == 0){
              Ext.ux.Toaster.msg(
                         i18n('sSelect_an_item'),
                         i18n('sFirst_select_an_item_to_edit'),
@@ -80,8 +82,9 @@ Ext.define('Rd.view.realms.vcRealmVlans', {
                         Ext.ux.Constants.msgWarn
             );
         }else{
-			if(!Ext.WindowManager.get('winFirewallAppEditId')){
-	            var w = Ext.widget('winFirewallAppEdit',{id:'winFirewallAppEditId',record: sr, firewall_app_id: sr.get('id'),root: me.root});
+            var sr   = me.getView().getSelectionModel().getLastSelected();
+			if(!Ext.WindowManager.get('winRealmVlanEditd')){
+	            var w = Ext.widget('winRealmVlanEdit',{id:'winRealmVlanEditId',sr: sr, realm_vlan_id: sr.get('id')});
 	            this.getView().add(w);
 	            let appBody = Ext.getBody();
 	            w.showBy(appBody);            
@@ -111,76 +114,63 @@ Ext.define('Rd.view.realms.vcRealmVlans', {
     },
     del: function(button) {
         var me      = this;              
-        if(me.getView().down('#dvFirewallApps').getSelectionModel().getCount() == 0){
+        if(me.getView().getSelectionModel().getCount() == 0){
              Ext.ux.Toaster.msg(
                         i18n('sSelect_an_item'),
                         i18n('sFirst_select_an_item_to_delete'),
                         Ext.ux.Constants.clsWarn,
                         Ext.ux.Constants.msgWarn
             );
-        }else{
-        
-        	var sr   =  me.getView().down('#dvFirewallApps').getSelectionModel().getLastSelected();	
-        	if(!me.rightsCheck(sr)){
-	    		return;
-	    	}
-	    	        
-        	Ext.MessageBox.confirm(i18n('sConfirm'), 'This will DELETE the Firewall App' , function(val){
-		        if(val== 'yes'){
-		            var selected    = me.getView().down('#dvFirewallApps').getSelectionModel().getSelection();
-		            var list        = [];
-		            Ext.Array.forEach(selected,function(item){
-		                var id = item.get('id');
-		                Ext.Array.push(list,{'id' : id});
-		            });
-		            Ext.Ajax.request({
-		                url: me.getUrlDelete(),
-		                method: 'POST',          
-		                jsonData: list,
-		                success: function(response){
-						    var jsonData    = Ext.JSON.decode(response.responseText);
-						    if(jsonData.success){
-						        Ext.ux.Toaster.msg(
-				                    i18n('sItem_deleted'),
-				                    i18n('sItem_deleted_fine'),
-				                    Ext.ux.Constants.clsInfo,
-				                    Ext.ux.Constants.msgInfo
-				                );
-				                me.reload(); //Reload from server
-						    }else{
-						    	Ext.ux.Toaster.msg(
-				                    i18n('sProblems_deleting_item'),
-				                    jsonData.message,
-				                    Ext.ux.Constants.clsWarn,
-				                    Ext.ux.Constants.msgWarn
-				                );			        
-						    }                         
-		                },                                    
-		                failure: function(batch,options){
-		                    Ext.ux.Toaster.msg(
-		                        i18n('sProblems_deleting_item'),
-		                        batch.proxy.getReader().rawData.message.message,
-		                        Ext.ux.Constants.clsWarn,
-		                        Ext.ux.Constants.msgWarn
-		                    );
-		                    me.reload(); //Reload from server
-		                }
-		            });
-            	}
-        	});        
+        }else{         	        
+        	Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
+                if(val== 'yes'){
+                    var selected    = me.getView().getSelectionModel().getSelection();
+                    var list        = [];
+                    Ext.Array.forEach(selected,function(item){
+                        var id = item.getId();
+                        Ext.Array.push(list,{'id' : id});
+                    });
+
+                    Ext.Ajax.request({
+                        url: me.getUrlDelete(),
+                        method: 'POST',          
+                        jsonData: list,
+                        success: function(batch,options){console.log('success');
+                            Ext.ux.Toaster.msg(
+                                i18n('sItem_deleted'),
+                                i18n('sItem_deleted_fine'),
+                                Ext.ux.Constants.clsInfo,
+                                Ext.ux.Constants.msgInfo
+                            );
+                            me.reload(); //Reload from server
+                        },                                    
+                        failure: function (response, options) {
+                            var jsonData = Ext.JSON.decode(response.responseText);
+                            Ext.Msg.show({
+                                title       : "Error",
+                                msg         : response.request.url + '<br>' + response.status + ' ' + response.statusText+"<br>"+jsonData.message,
+                                modal       : true,
+                                buttons     : Ext.Msg.OK,
+                                icon        : Ext.Msg.ERROR,
+                                closeAction : 'destroy'
+                            });
+                            me.reload(); //Reload from server
+                        }
+                    });
+                }
+            });
         }    
     },
-    rightsCheck: function(record){
-    	var me = this;
-    	if(record.get('for_system') && (!me.root)){
-			Ext.ux.Toaster.msg(
-                'No Rights',
-                'No Rights For This Action',
-                Ext.ux.Constants.clsWarn,
-                Ext.ux.Constants.msgWarn
-        	);
-			return false; //has no rights
-		}
-    	return true; //has rights    
-    }            
+    onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
+        //console.log("Action Item "+action+" Clicked");
+        var me = this;
+        var grid = view.up('grid');
+        grid.setSelection(record);
+        if(action == 'edit'){
+            me.edit()
+        }
+        if(action == 'delete'){
+            me.del();
+        }
+    }     
 });

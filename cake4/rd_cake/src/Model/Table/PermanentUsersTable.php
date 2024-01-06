@@ -20,6 +20,8 @@ class PermanentUsersTable extends Table
         $this->belongsTo('Languages');
         $this->belongsTo('Profiles',['propertyName'  => 'real_profile']);
         $this->belongsTo('Realms',['propertyName'  => 'real_realm']);
+        
+        $this->belongsTo('RealmVlans');
            
         //It is very impartant that we specify 'cascadeCallbacks' in order for the devices to also be taken for the system
         $this->hasMany('Devices',['dependent' => true,'cascadeCallbacks' =>true]);      

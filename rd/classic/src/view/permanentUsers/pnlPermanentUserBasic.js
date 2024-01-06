@@ -11,6 +11,9 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
     },
     margin      : 5,  
     ap_id       : null,
+    requires    : [
+        'Rd.view.realms.cmbRealmVlans'
+    ],
     fieldDefaults: {
         msgTarget       : 'under',
         labelAlign      : 'left',
@@ -39,6 +42,7 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
         dtTo.setYear(dtTo.getFullYear() + 1);
 
 		var ap_id	= me.record.get('owner_id');
+		var realm_id = me.record.get('realm_id');
         
         var cntRequired  = {
             xtype       : 'container',
@@ -115,7 +119,8 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
                     xtype		: 'textfield',
                     fieldLabel	: 'Static IP',
                     name 		: "static_ip",
-                    allowBlank	:true
+                    allowBlank	:true,
+                    labelClsExtra: 'lblRd'
                 },
 				{
                     xtype       : 'textfield',
@@ -145,6 +150,11 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
                     minLength   : 8,
                     allowBlank  : true,
                     labelClsExtra: 'lblRd'
+                },
+                {
+                    xtype       : 'cmbRealmVlans',
+                    labelClsExtra: 'lblRd',
+                    realm_id    : realm_id
                 }
             ]
         }

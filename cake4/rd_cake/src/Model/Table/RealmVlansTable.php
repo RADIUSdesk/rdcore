@@ -20,7 +20,7 @@ class RealmVlansTable extends Table
             ->add('vlan', [ 
                 'nameUnique' => [
                     'message' => 'The vlan you provided is already taken. Please provide another one.',
-                    'rule' => 'validateUnique', 
+                    'rule'    => ['validateUnique', ['scope' => 'realm_id']],
                     'provider' => 'table'
                 ]
             ]);

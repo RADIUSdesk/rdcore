@@ -10,8 +10,8 @@ if not exists (select * from information_schema.columns
 end if;
 
 if not exists (select * from information_schema.columns
-    where column_name = 'vlan_id' and table_name = 'permanent_users' and table_schema = 'rd') then
-    alter table permanent_users add column `vlan_id` int(11) DEFAULT NULL;
+    where column_name = 'realm_vlan_id' and table_name = 'permanent_users' and table_schema = 'rd') then
+    alter table permanent_users add column `realm_vlan_id` int(11) DEFAULT NULL;
 end if;
 
 if not exists (select * from information_schema.columns
@@ -19,7 +19,7 @@ if not exists (select * from information_schema.columns
 	CREATE TABLE `realm_vlans` (
       `id` int(11) NOT NULL AUTO_INCREMENT,
       `realm_id` int(11) NOT NULL,
-      `vlan` int(11) NOT NULL,
+      `vlan` varchar(4) DEFAULT NULL,
       `name` varchar(100) NOT NULL,
       `comment` varchar(255) NOT NULL,
       `created` datetime NOT NULL,

@@ -265,6 +265,15 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                 filter      : {type: 'string'},
 				stateId		: 'StateGridPermanentUsers22b'
             },
+            {
+                text        : 'VLAN',
+                flex        : 1,
+                dataIndex   : 'vlan',
+                tdCls       : 'gridTree',
+                hidden      : true,
+                filter      : 'number',
+				stateId		: 'StateGridPermanentUsers22c'
+            },
             { 
                 text        : 'Created',
                 dataIndex   : 'created', 

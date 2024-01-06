@@ -22,7 +22,11 @@ Ext.define('Rd.view.realms.gridRealmVlans' ,{
     },
     controller  : 'vcRealmVlans',
     initComponent: function(){
-        var me      = this;
+        var me      = this;     
+        me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
+        me.store    = Ext.create('Rd.store.sRealmVlans');
+        me.store.getProxy().setExtraParam('realm_id',me.realm_id);
+        me.store.load();
         
         me.bbar = [{
             xtype       : 'pagingtoolbar',
@@ -33,15 +37,10 @@ Ext.define('Rd.view.realms.gridRealmVlans' ,{
             }
         }];
         
-        me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
-        me.store    = Ext.create('Rd.store.sRealmVlans');
-        me.store.getProxy().setExtraParam('realm_id',me.realm_id);
-        me.store.load();
-        
         
         me.columns  = [
         	{ text: 'ID',           dataIndex: 'id',                            flex: 1, stateId: 'StateGridRV0', hidden : true},      
-            { text: 'VLAN',         dataIndex: 'vlan',      tdCls: 'gridMain',  flex: 1, filter: {type: 'string'},stateId: 'StateGridRV1'},
+            { text: 'VLAN',         dataIndex: 'vlan',      tdCls: 'gridMain',  flex: 1, filter: 'number',stateId: 'StateGridRV1'},
             { text: 'Name',         dataIndex: 'name',      tdCls: 'gridTree',  flex: 1, filter: {type: 'string'},   hidden: false,stateId: 'StateGridRV2'},
             { text: 'Comment',      dataIndex: 'comment',   tdCls: 'gridTree',  flex: 1, filter: {type: 'string'},   hidden: false,stateId: 'StateGridRV3'},
             { 
