@@ -574,7 +574,7 @@ Ext.define('Rd.controller.cRealms', {
                 title   : 'PMKs For '+tab_name,
                 itemId  : tab_id,
                 closable: true,
-                glyph   : Rd.config.icnTag, 
+                glyph   : Rd.config.icnLock, 
                 xtype   : 'gridRealmPmks',
                 realm_id: id,
                 tabConfig : {

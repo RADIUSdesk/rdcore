@@ -14,6 +14,7 @@ class PermanentUsersTable extends Table
                 'for_model' => 'PermanentUsers'
             ]
         );
+        $this->addBehavior('Ppsk');
           
         $this->belongsTo('Clouds');      
         $this->belongsTo('Countries');
@@ -58,7 +59,14 @@ class PermanentUsersTable extends Table
             ->add('static_ip', [
                 'nameUnique' => [
                     'message' => 'The Static IP Address is already taken',
-                    'rule' => 'validateUnique', 
+                    'rule' => ['validateUnique', ['scope' => 'realm_id']],
+                    'provider' => 'table'
+                ]
+            ])
+            ->add('ppsk', [ 
+                'nameUnique' => [
+                    'message' => 'The PPSK you provided is already taken. Please provide another one.',
+                    'rule'    => ['validateUnique', ['scope' => 'realm_id']],
                     'provider' => 'table'
                 ]
             ]);

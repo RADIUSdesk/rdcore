@@ -30,13 +30,30 @@ if not exists (select * from information_schema.columns
 end if;
 
 if not exists (select * from information_schema.columns
+    where table_name = 'realm_ssids' and table_schema = 'rd') then
+	CREATE TABLE `realm_ssids` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `realm_id` int(11) NOT NULL,
+      `name` varchar(32) DEFAULT NULL,
+      `ssid_type` enum('standalone','mesh','ap_profile') DEFAULT 'standalone',
+      `mesh_id` int(11) DEFAULT NULL,
+      `mesh_entry_id` int(11) DEFAULT NULL,
+      `ap_profile_id` int(11) DEFAULT NULL,
+      `ap_profile_entry_id` int(11) DEFAULT NULL,
+      `created` datetime NOT NULL,
+      `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
+end if;
+
+if not exists (select * from information_schema.columns
     where table_name = 'realm_pmks' and table_schema = 'rd') then
 	CREATE TABLE `realm_pmks` (
       `id` int(11) NOT NULL AUTO_INCREMENT,
       `realm_id` int(11) NOT NULL,
-      `ppsk` int(11) DEFAULT NULL,
-      `ssid` varchar(32) DEFAULT NULL,
-      `pmk` varbinary(32) DEFAULT NULL,
+      `realm_ssid_id` int(11) NOT NULL,
+      `ppsk` varchar(100) DEFAULT NULL,
+      `pmk` varchar(32) DEFAULT NULL,
       `created` datetime NOT NULL,
       `modified` datetime NOT NULL,
       PRIMARY KEY (`id`)

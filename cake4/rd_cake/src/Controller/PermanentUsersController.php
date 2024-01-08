@@ -98,7 +98,7 @@ class PermanentUsersController extends AppController{
       	$req_q    = $this->request->getQuery(); //q_data is the query data
         $cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id);
+        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,['Realms','RealmVlans']);
         
         $limit  = 50;
         $page   = 1;
@@ -150,7 +150,13 @@ class PermanentUsersController extends AppController{
             unset($row["token"]);
                  
 			$row['update']	= true;
-			$row['delete']	= true; 
+			$row['delete']	= true; 			
+			$row['vlan']    = 'Default VLAN';
+
+			if($i->realm_vlan){
+			    $row['vlan'] = $i->realm_vlan->vlan;
+			}
+			
             array_push($items,$row); 
                  
         }
