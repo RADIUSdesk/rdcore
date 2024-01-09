@@ -770,8 +770,7 @@ class GridButtonsFlatComponent extends Component {
             $a  = $this->_fetchNas();
             $menu = [$b,$a];
         }
-        
-        
+               
         if($type == 'ReloadDelete'){
             $b = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
                 $this->btnReload,
@@ -779,6 +778,10 @@ class GridButtonsFlatComponent extends Component {
             ]];
             $menu = $b; 
         }
+        
+        if($type == 'RealmSsids'){          
+            $menu = $this->_fetchRealmSsids();       
+        }       
                                          
         return $menu;
     }
@@ -793,7 +796,49 @@ class GridButtonsFlatComponent extends Component {
         ];
         return $menu;
     }
-
+    
+    
+    private function _fetchRealmSsids(){
+    
+        $b = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+            $this->btnReload,       
+            $this->btnAdd,
+            $this->btnDelete,
+            $this->btnEdit
+            ]
+	    ];
+	    $c = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+            [
+                'xtype'     => 'button', 
+                'glyph'     => Configure::read('icnCalculator'), 
+                'scale'     => $this->scale,
+                'itemId'    => 'predef_cmds',
+                'tooltip'   =>  __('Recalculate PMKs'),
+                'ui'        => $this->btnUiProfComp
+            ]                   
+        ]]; 
+        
+        $cmb_realm_ssids = [
+            'xtype'     => 'cmbRealmSsids',
+            'margin'    => '5 0 5 0',
+            'width'		=> 230,
+            'itemId'    => 'cmbRealmSsids',
+            'fieldLabel'=> '',
+            'value'		=> 0,
+            'include_all_option' => true 
+        ];
+        
+        $d = [
+        	'xtype' => 'buttongroup', 
+        	'title' => $this->t,
+        	'items' => [
+        		$cmb_realm_ssids                    
+        	]
+        ];  
+           
+	    $menu = [$b,$c,$d];
+        return $menu;       
+    }
     
     private function _fetchSchedules(){
        

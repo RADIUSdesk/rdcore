@@ -25,10 +25,20 @@ Ext.define('Rd.view.realms.vcRealmPmks', {
         },
         'winRealmSsidEdit #save': {
             click   : 'btnEditSave'
-        }        
+        },
+        'gridRealmPmks cmbRealmSsids':{
+            afterrender : 'reloadRealmSsids'
+        }      
     },
     itemSelected: function(dv,record){
     	var me = this;  	
+    },
+    reloadRealmSsids : function(){
+        var me = this;
+        var cmb = me.getView().down('cmbRealmSsids');
+        cmb.getStore().getProxy().setExtraParam('realm_id',me.getView().realm_id);
+        cmb.getStore().load();
+        cmb.setValue("0");
     },
     onViewActivate: function(pnl){
         var me = this;
@@ -57,6 +67,7 @@ Ext.define('Rd.view.realms.vcRealmPmks', {
             url: me.getUrlAdd(),
             success: function(form, action) {
                 win.close();
+                me.reloadRealmSsids();
                 me.reload();
                 Ext.ux.Toaster.msg(
                     i18n('sNew_item_created'),
@@ -71,17 +82,18 @@ Ext.define('Rd.view.realms.vcRealmPmks', {
     edit: function(button) {
         var me      = this;
         //Find out if there was something selected
-        if(me.getView().getSelectionModel().getCount() == 0){
+        if(me.getView().down('cmbRealmSsids').getValue() == 0){
              Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item_to_edit'),
+                        'Select A Specific SSID',
+                        'Select a specific SSID to edit from dropdown',
                         Ext.ux.Constants.clsWarn,
                         Ext.ux.Constants.msgWarn
             );
         }else{
-            var sr   = me.getView().getSelectionModel().getLastSelected();
+            var realm_ssid_id   = me.getView().down('cmbRealmSsids').getValue();
+            var sr              = me.getView().down('cmbRealmSsids').getStore().getById(realm_ssid_id);
 			if(!Ext.WindowManager.get('winRealmSsidEditd')){
-	            var w = Ext.widget('winRealmSsidEdit',{id:'winRealmSsidEditId',sr: sr, realm_ssid_id: sr.get('id')});
+	            var w = Ext.widget('winRealmSsidEdit',{id:'winRealmSsidEditId',sr:sr,realm_ssid_id: realm_ssid_id});
 	            this.getView().add(w);
 	            let appBody = Ext.getBody();
 	            w.showBy(appBody);            
@@ -98,7 +110,8 @@ Ext.define('Rd.view.realms.vcRealmPmks', {
             url                 : me.getUrlEdit(),
             success             : function(form, action) {
                 me.reload();
-                 win.close();
+                me.reloadRealmSsids();
+                win.close();
                 Ext.ux.Toaster.msg(
                     i18n('sItems_modified'),
                     i18n('sItems_modified_fine'),
@@ -111,23 +124,20 @@ Ext.define('Rd.view.realms.vcRealmPmks', {
     },
     del: function(button) {
         var me      = this;              
-        if(me.getView().getSelectionModel().getCount() == 0){
+        if(me.getView().down('cmbRealmSsids').getValue() == 0){
              Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item_to_delete'),
+                        'Select A Specific SSID',
+                        'Select a specific SSID to delete from dropdown',
                         Ext.ux.Constants.clsWarn,
                         Ext.ux.Constants.msgWarn
             );
         }else{         	        
         	Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
                 if(val== 'yes'){
-                    var selected    = me.getView().getSelectionModel().getSelection();
+                    var ssid_id    = me.getView().down('cmbRealmSsids').getValue();
                     var list        = [];
-                    Ext.Array.forEach(selected,function(item){
-                        var id = item.getId();
-                        Ext.Array.push(list,{'id' : id});
-                    });
-
+                    Ext.Array.push(list,{'id' : ssid_id});
+                    
                     Ext.Ajax.request({
                         url: me.getUrlDelete(),
                         method: 'POST',          
@@ -140,6 +150,7 @@ Ext.define('Rd.view.realms.vcRealmPmks', {
                                 Ext.ux.Constants.msgInfo
                             );
                             me.reload(); //Reload from server
+                            me.reloadRealmSsids();
                         },                                    
                         failure: function (response, options) {
                             var jsonData = Ext.JSON.decode(response.responseText);

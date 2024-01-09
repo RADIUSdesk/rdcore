@@ -28,7 +28,7 @@ Ext.define('Rd.view.realms.gridRealmPmks' ,{
         me.store    = Ext.create('Rd.store.sRealmPmks');
         me.store.getProxy().setExtraParam('realm_id',me.realm_id);
         me.store.load();
-        
+               
         me.bbar = [{
             xtype       : 'pagingtoolbar',
             store       : me.store,
