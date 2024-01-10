@@ -137,7 +137,7 @@ class RealmSsidsController extends AppController{
 
         foreach($q_r as $i){             
             $row       = [];
-            $fields    = $this->{$this->main_model}->getSchema()->columns();
+            $fields    = $this->{'RealmPmks'}->getSchema()->columns();
             foreach($fields as $field){
                 $row["$field"]= $i->{"$field"};
                 
@@ -147,7 +147,8 @@ class RealmSsidsController extends AppController{
                 if($field == 'modified'){
                     $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
                 }
-            }        
+            }
+            $row['realm_ssid_name']  = $i->realm_ssid->name;   
 			$row['update']  = true;
 			$row['delete']	= true; 
             array_push($items,$row);      
@@ -182,7 +183,7 @@ class RealmSsidsController extends AppController{
             //Unset the ID in the request data (if the call has it though it should not include an ID) 02-Jun-2022
             $add_data = $req_d;
             unset($add_data['id']);                   
-            $entity = $this->{$this->main_model}->newEntity($add_data);
+            $entity = $this->{$this->main_model}->newEntity($add_data);           
         }
        
         if($type == 'edit'){
@@ -191,7 +192,7 @@ class RealmSsidsController extends AppController{
         } 
                      
         if ($this->{$this->main_model}->save($entity)) {
-        	      
+              	      
             $this->set([
                 'success' => true
             ]);
@@ -250,4 +251,6 @@ class RealmSsidsController extends AppController{
             $this->viewBuilder()->setOption('serialize', true); 
         }
 	}
+	
+    
 }

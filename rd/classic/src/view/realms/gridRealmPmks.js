@@ -40,7 +40,7 @@ Ext.define('Rd.view.realms.gridRealmPmks' ,{
 
         me.columns  = [
         	{ text: 'ID',       dataIndex: 'id',                        flex: 1, stateId: 'StateGridRP0', hidden : true},
-        	{ text: 'SSID',     dataIndex: 'ssid',  tdCls: 'gridMain',  flex: 1, filter: {type: 'string'},stateId: 'StateGridRP1'},      
+        	{ text: 'SSID',     dataIndex: 'realm_ssid_name',  tdCls: 'gridMain',  flex: 1, filter: {type: 'string'},stateId: 'StateGridRP1'},      
             { text: 'ppsk',     dataIndex: 'ppsk',  tdCls: 'gridTree',  flex: 1, filter: {type: 'string'},stateId: 'StateGridRP2'},
             { text: 'pmk',      dataIndex: 'pmk',   tdCls: 'gridTree',  flex: 1, filter: {type: 'string'},stateId: 'StateGridRP3'},
             { 
