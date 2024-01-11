@@ -14,7 +14,18 @@ Ext.define('Rd.view.realms.cmbRealmSsids', {
     initComponent: function(){
         var me      = this;
         var s       = Ext.create('Ext.data.Store', {
-            fields: ['id', 'vlan'],
+            listeners: {
+                load: function(store, records, successful) {
+                    if(successful){
+                        me.setValue(0);  
+                    }
+                },
+                scope: this
+            },
+            fields: [
+                {name: 'id',       type: 'int'     },
+                {name: 'name',     type: 'string'  }
+            ],
             proxy: {
                 type    : 'ajax',
                 format  : 'json',

@@ -812,7 +812,7 @@ class GridButtonsFlatComponent extends Component {
                 'xtype'     => 'button', 
                 'glyph'     => Configure::read('icnCalculator'), 
                 'scale'     => $this->scale,
-                'itemId'    => 'predef_cmds',
+                'itemId'    => 'recalculate',
                 'tooltip'   =>  __('Recalculate PMKs'),
                 'ui'        => $this->btnUiProfComp
             ]                   

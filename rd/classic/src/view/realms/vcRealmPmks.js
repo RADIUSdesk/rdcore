@@ -5,7 +5,8 @@ Ext.define('Rd.view.realms.vcRealmPmks', {
         urlAdd          : '/cake4/rd_cake/realm-ssids/add.json',
         urlDelete       : '/cake4/rd_cake/realm-ssids/delete.json',
 		urlEdit         : '/cake4/rd_cake/realm-ssids/edit.json',
-		urlView         : '/cake4/rd_cake/realm-ssids/view.json'
+		urlView         : '/cake4/rd_cake/realm-ssids/view.json',
+		urlRecalculate  : '/cake4/rd_cake/realm-ssids/recalculate.json'
     },
     control: {
     	'gridRealmPmks #reload': {
@@ -20,6 +21,9 @@ Ext.define('Rd.view.realms.vcRealmPmks', {
         'gridRealmPmks #delete': {
             click   : 'del'
         },
+        'gridRealmPmks #recalculate' : {
+            click   : 'recalculate'
+        },
         'winRealmSsidAdd #save' : {
             click   : 'save'
         },
@@ -27,7 +31,8 @@ Ext.define('Rd.view.realms.vcRealmPmks', {
             click   : 'btnEditSave'
         },
         'gridRealmPmks cmbRealmSsids':{
-            afterrender : 'reloadRealmSsids'
+            afterrender : 'reloadRealmSsids',
+            change      : 'realmSsidChange'
         }      
     },
     itemSelected: function(dv,record){
@@ -38,7 +43,6 @@ Ext.define('Rd.view.realms.vcRealmPmks', {
         var cmb = me.getView().down('cmbRealmSsids');
         cmb.getStore().getProxy().setExtraParam('realm_id',me.getView().realm_id);
         cmb.getStore().load();
-        cmb.setValue("0");
     },
     onViewActivate: function(pnl){
         var me = this;
@@ -168,5 +172,43 @@ Ext.define('Rd.view.realms.vcRealmPmks', {
                 }
             });
         }    
+    },
+    realmSsidChange: function(cmb){
+        var me = this;
+        var val = cmb.getValue();
+        me.getView().getStore().getProxy().setExtraParam('realm_ssid_id', val);
+        me.reload();   
+    },
+    recalculate: function(btn){
+        var me = this;
+        var realm_id = me.getView().realm_id;
+        var val = me.getView().down('cmbRealmSsids').getValue();
+        Ext.Ajax.request({
+            url     : me.getUrlRecalculate(),
+            method  : 'POST',          
+            jsonData: { 'realm_ssid_id' : val, 'realm_id' : realm_id },
+            success: function(batch,options){console.log('success');
+                Ext.ux.Toaster.msg(
+                    'PMKs Recaluclated',
+                    'PMKs recaluclated fine',
+                    Ext.ux.Constants.clsInfo,
+                    Ext.ux.Constants.msgInfo
+                );
+                me.reload(); //Reload from server
+                me.reloadRealmSsids();
+            },                                    
+            failure: function (response, options) {
+                var jsonData = Ext.JSON.decode(response.responseText);
+                Ext.Msg.show({
+                    title       : "Error",
+                    msg         : response.request.url + '<br>' + response.status + ' ' + response.statusText+"<br>"+jsonData.message,
+                    modal       : true,
+                    buttons     : Ext.Msg.OK,
+                    icon        : Ext.Msg.ERROR,
+                    closeAction : 'destroy'
+                });
+                me.reload(); //Reload from server
+            }
+        });  
     }
 });

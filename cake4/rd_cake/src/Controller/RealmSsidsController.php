@@ -23,9 +23,9 @@ class RealmSsidsController extends AppController{
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
-            'model'                     => 'RealmSsids',
+            'model'                     => 'RealmPmks',
             'no_available_to_siblings'  => true,
-            'sort_by'                   => 'name'
+            'sort_by'                   => 'ppsk'
         ]); 
                 
         $this->loadComponent('JsonErrors'); 
@@ -105,7 +105,10 @@ class RealmSsidsController extends AppController{
         
         //base conditions
         $conditions = ['RealmSsids.realm_id' => $realm_id];
-        
+        if(isset($req_q['realm_ssid_id'])&&($req_q['realm_ssid_id']!=='0')){
+            $conditions = ['RealmSsids.realm_id' => $realm_id,'RealmPmks.realm_ssid_id' => $req_q['realm_ssid_id']];
+        }
+             
         $c_filter = $this->CommonQueryFlat->get_filter_conditions();
         $conditions = array_merge($conditions,$c_filter);      
         $query 	  = $this->{'RealmPmks'}->find()->where($conditions)->contain(['RealmSsids']);      
@@ -128,9 +131,13 @@ class RealmSsidsController extends AppController{
         $dir    = isset($req_q['dir']) ? $req_q['dir'] : $dir;
         $sort   = isset($req_q['sort']) ? $req_q['sort'] : $sort;
        // $sort   = $this->{$this->main_model}.$sort;
-        
-        $query->order([$sort => $dir]);
-        	
+             
+       if($sort == 'realm_ssid_name'){
+            $query->order(['RealmSsids.name' => $dir]);
+       }else{
+            $query->order(['RealmPmks.'.$sort => $dir]);
+       }
+               	
         $total  = $query->count();       
         $q_r    = $query->all();
         $items  = [];
@@ -203,6 +210,38 @@ class RealmSsidsController extends AppController{
             $this->JsonErrors->entityErros($entity,$message);
         }
 	}
+		
+	public function recalculate(){
+	
+	    $user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+        
+        $req_d	    = $this->request->getData();
+        $realm_id   = $req_d['realm_id'];
+        
+        if($req_d['realm_ssid_id'] == '0'){ 
+            $this->{'RealmPmks'}->deleteAll(['RealmPmks.realm_id' => $realm_id]);            
+            $r_ssids = $this->{'RealmSsids'}->find()->where(['RealmSsids.realm_id' => $realm_id])->all();
+            foreach($r_ssids as $e_ssid){
+                $e_ssid->setDirty('id', true);
+                $this->{'RealmSsids'}->save($e_ssid);
+            }     
+        }else{
+            $this->{'RealmPmks'}->deleteAll(['RealmPmks.realm_id' => $realm_id,'RealmPmks.realm_ssid_id' => $req_d['realm_ssid_id']]);
+            $e_ssid = $this->{'RealmSsids'}->find()->where(['RealmSsids.realm_id' => $realm_id,'RealmSsids.id' => $req_d['realm_ssid_id']])->first();
+            if($e_ssid){
+                $e_ssid->setDirty('id', true);
+                $this->{'RealmSsids'}->save($e_ssid);
+            }       
+        }
+             
+        $this->set([
+            'success'       => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    }	
 	
     public function menuForGrid(){     
         $menu = $this->GridButtonsFlat->returnButtons(false,'RealmSsids'); 

@@ -27,6 +27,7 @@ Ext.define('Rd.view.realms.gridRealmPmks' ,{
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
         me.store    = Ext.create('Rd.store.sRealmPmks');
         me.store.getProxy().setExtraParam('realm_id',me.realm_id);
+        me.store.getProxy().setExtraParam('realm_ssid_id',0);//Prime it with all SSIDs
         me.store.load();
                
         me.bbar = [{
@@ -40,7 +41,7 @@ Ext.define('Rd.view.realms.gridRealmPmks' ,{
 
         me.columns  = [
         	{ text: 'ID',       dataIndex: 'id',                        flex: 1, stateId: 'StateGridRP0', hidden : true},
-        	{ text: 'SSID',     dataIndex: 'realm_ssid_name',  tdCls: 'gridMain',  flex: 1, filter: {type: 'string'},stateId: 'StateGridRP1'},      
+        	{ text: 'SSID',     dataIndex: 'realm_ssid_name',  tdCls: 'gridMain',  flex: 1,stateId: 'StateGridRP1'},      
             { text: 'ppsk',     dataIndex: 'ppsk',  tdCls: 'gridTree',  flex: 1, filter: {type: 'string'},stateId: 'StateGridRP2'},
             { text: 'pmk',      dataIndex: 'pmk',   tdCls: 'gridTree',  flex: 1, filter: {type: 'string'},stateId: 'StateGridRP3'},
             { 
