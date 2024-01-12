@@ -19,7 +19,7 @@ if not exists (select * from information_schema.columns
 	CREATE TABLE `realm_vlans` (
       `id` int(11) NOT NULL AUTO_INCREMENT,
       `realm_id` int(11) NOT NULL,
-      `vlan` varchar(4) DEFAULT NULL,
+      `vlan` int(4) DEFAULT NULL,
       `name` varchar(100) NOT NULL,
       `comment` varchar(255) NOT NULL,
       `created` datetime NOT NULL,

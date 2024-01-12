@@ -55,9 +55,12 @@ class PpskBehavior extends Behavior {
         }    
     }
 
-
-    private function _doAfterDelete($entity){
-        
+    private function _doAfterDelete($entity){ 
+        $realm_id   = $entity->realm_id;
+        $ppsk       = $entity->ppsk;   
+        if(strlen($entity->ppsk)>7){
+            $this->_removeEntries($realm_id,$ppsk);
+        }        
     }
     
     private function _addNewEntries($realm_id,$ppsk){
@@ -93,9 +96,9 @@ class PpskBehavior extends Behavior {
         }       
     }
     
-    private function _removeEntries($realm_id,$old_ppsk){
+    private function _removeEntries($realm_id,$ppsk){
         $this->RealmPmks    = TableRegistry::get('RealmPmks');
-        $this->RealmPmks->deleteAll(['RealmPmks.realm_id' => $realm_id,'RealmPmks.ppsk' => $old_ppsk]);   
+        $this->RealmPmks->deleteAll(['RealmPmks.realm_id' => $realm_id,'RealmPmks.ppsk' => $ppsk]);   
     }
     
     private function pbkdf2($algorithm, $password, $salt, $count, $key_length, $raw_output = false){

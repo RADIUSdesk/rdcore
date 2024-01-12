@@ -109,6 +109,9 @@ Ext.define('Rd.controller.cPermanentUsers', {
             'winPermanentUserAdd #profile' : {
                 change:  me.cmbProfileChange
             },
+            'winPermanentUserAdd #realm' : {
+                change:  me.cmbRealmChange
+            },
             'winPermanentUserAdd #always_active' : {
                 change:  me.chkAlwaysActiveChange
             },
@@ -160,7 +163,8 @@ Ext.define('Rd.controller.cPermanentUsers', {
                 render:  me.renderEventProfile
             },
             'pnlPermanentUser #realm' : {
-                render:      me.renderEventRealm
+                render:  me.renderEventRealm,
+                change:  me.cmbRealmChange
             },
             'pnlPermanentUser #always_active' : {
                 change:  me.chkAlwaysActiveChange
@@ -282,6 +286,14 @@ Ext.define('Rd.controller.cPermanentUsers', {
                 cmbTimeCap.setDisabled(true);
             }
         }
+    },
+    cmbRealmChange:   function(cmb){
+        var me      = this;
+        var form    = cmb.up('form');
+        var cmbRealmVlans = form.down('cmbRealmVlans');
+        var realm_id= cmb.getValue();
+        cmbRealmVlans.getStore().getProxy().setExtraParam('realm_id',realm_id);
+        cmbRealmVlans.getStore().load();
     },
 
     chkAlwaysActiveChange: function(chk){

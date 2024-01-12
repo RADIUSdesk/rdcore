@@ -28,11 +28,11 @@ class RealmSsidsTable extends Table{
             ]);
         return $validator;
     }
-    
+       
     public function afterSave($event, $entity){
         return $this->_doAfterSave($entity);   
     }
-    
+       
     private function _doAfterSave($entity){
     
         if($entity->isDirty('name')){
@@ -42,12 +42,17 @@ class RealmSsidsTable extends Table{
                 $this->{'RealmPmks'}->patchEntity($e_pmk, ['pmk' => $pmk]);
                 $this->{'RealmPmks'}->save($e_pmk);  
             } 
+        }
+        
+        if($entity->isDirty('id')){
+            $this->_addNewEntries($entity);
         }              
          
         if($entity->isNew()){ 
              $this->_addNewEntries($entity);
         }  
     }
+    
     
     private function _addNewEntries($ent_ssid){	
 
