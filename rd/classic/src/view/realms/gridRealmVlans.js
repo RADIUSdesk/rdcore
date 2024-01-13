@@ -44,10 +44,28 @@ Ext.define('Rd.view.realms.gridRealmVlans' ,{
             { text: 'Name',         dataIndex: 'name',      tdCls: 'gridTree',  flex: 1, filter: {type: 'string'},   hidden: false,stateId: 'StateGridRV2'},
             { text: 'Comment',      dataIndex: 'comment',   tdCls: 'gridTree',  flex: 1, filter: {type: 'string'},   hidden: false,stateId: 'StateGridRV3'},
             { 
+                text        : 'Assigned To',
+                sortable    : true,
+                flex        : 1,
+                tdCls       : 'gridTree', 
+                xtype       : 'templatecolumn', 
+                tpl:        new Ext.XTemplate(
+                    '<tpl if="Ext.isArray(permanent_users)">',
+                        '<tpl for="permanent_users">',
+                            '<div class=\"fieldBlueWhite\">{#}.) {username}</div>',
+                        '</tpl>',                     
+                    '<tpl else>',
+                        '<div class=\"fieldGrey\">Available</div>',
+                    '</tpl>' 
+                ),
+                dataIndex   : 'permanent_users',
+                filter: { type: 'string'},stateId: 'StateGridRV4'
+            },
+            { 
                 text        : 'Created',
                 dataIndex   : 'created', 
                 tdCls       : 'gridTree',
-                hidden      : false,  
+                hidden      : true,  
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
                     "<div class=\"fieldBlue\">{created_in_words}</div>"
@@ -60,7 +78,7 @@ Ext.define('Rd.view.realms.gridRealmVlans' ,{
                 text        : 'Modified',
                 dataIndex   : 'modified', 
                 tdCls       : 'gridTree',
-                hidden      : false, 
+                hidden      : true, 
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
                     "<div class=\"fieldBlue\">{modified_in_words}</div>"

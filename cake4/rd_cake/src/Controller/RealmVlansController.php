@@ -107,7 +107,7 @@ class RealmVlansController extends AppController{
         
         $c_filter = $this->CommonQueryFlat->get_filter_conditions();
         $conditions = array_merge($conditions,$c_filter);      
-        $query 	  = $this->{$this->main_model}->find()->where($conditions);      
+        $query 	  = $this->{$this->main_model}->find()->where($conditions)->contain(['PermanentUsers']);      
      
         $limit  = 50;   //Defaults
         $page   = 1;
@@ -135,21 +135,21 @@ class RealmVlansController extends AppController{
         $items  = [];
 
         foreach($q_r as $i){             
-            $row       = [];
-            $fields    = $this->{$this->main_model}->getSchema()->columns();
-            foreach($fields as $field){
-                $row["$field"]= $i->{"$field"};
-                
-                if($field == 'created'){
-                    $row['created_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }
-                if($field == 'modified'){
-                    $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }
-            }        
-			$row['update']  = true;
-			$row['delete']	= true; 
-            array_push($items,$row);      
+            $i->modified_in_words   = $this->TimeCalculations->time_elapsed_string($i->{"modified"});
+            $i->created_in_words    = $this->TimeCalculations->time_elapsed_string($i->{"created"});
+            $pu_list = [];
+            foreach($i->permanent_users as $pu){           
+                array_push($pu_list,['username' => $pu->username]);           
+            }         
+            if(count($pu_list) == 0){            
+                unset($i->permanent_users);
+            }else{
+                $i->permanent_users = $pu_list;
+            }
+            
+			$i->update  = true;
+			$i->delete  = true; 
+            array_push($items,$i);      
         }
        
         $this->set([
