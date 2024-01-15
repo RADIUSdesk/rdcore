@@ -60,6 +60,22 @@ if not exists (select * from information_schema.columns
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
 end if;
 
+
+if not exists (select * from information_schema.columns
+    where table_name = 'realm_mac_users' and table_schema = 'rd') then
+	CREATE TABLE `realm_mac_users` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `realm_id` int(11) NOT NULL,
+      `mac` varchar(17) DEFAULT NULL,
+      `username` varchar(64) DEFAULT NULL,
+      `created` datetime NOT NULL,
+      `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`),
+      UNIQUE KEY `realm_mac` (`realm_id`,`mac`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
+end if;
+
+
 end//
 
 delimiter ;
