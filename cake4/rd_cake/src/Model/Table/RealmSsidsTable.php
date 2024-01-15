@@ -61,7 +61,7 @@ class RealmSsidsTable extends Table{
         $permanentUsers = TableRegistry::get('PermanentUsers');      
         $e_perm_users   = $permanentUsers->find()->where(['PermanentUsers.realm_id' => $realm_id,'PermanentUsers.ppsk IS NOT' => null,'PermanentUsers.ppsk !=' => ''])->all();        
 	    foreach($e_perm_users as $pu){	    
-	        $pmk = $this->pbkdf2('sha1',$pu->ppsk,$ent_ssid->name,4096,32);	        
+	        $pmk = $this->pbkdf2('sha1',$pu->ppsk,$ent_ssid->name,4096,64);	        
 	        $d = [
                 'realm_id'      => $realm_id,
                 'ppsk'          => $pu->ppsk,

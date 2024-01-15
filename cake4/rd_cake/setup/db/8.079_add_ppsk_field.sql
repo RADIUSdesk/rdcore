@@ -53,7 +53,7 @@ if not exists (select * from information_schema.columns
       `realm_id` int(11) NOT NULL,
       `realm_ssid_id` int(11) NOT NULL,
       `ppsk` varchar(100) DEFAULT NULL,
-      `pmk` varchar(32) DEFAULT NULL,
+      `pmk` varchar(64) DEFAULT NULL,
       `created` datetime NOT NULL,
       `modified` datetime NOT NULL,
       PRIMARY KEY (`id`)
