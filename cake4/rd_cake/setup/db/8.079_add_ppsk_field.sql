@@ -75,6 +75,16 @@ if not exists (select * from information_schema.columns
     ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
 end if;
 
+if not exists (select * from information_schema.columns
+    where column_name = 'realm_id' and table_name = 'ap_profile_entries' and table_schema = 'rd') then
+    alter table ap_profile_entries add column `realm_id` int(11) DEFAULT NULL;
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'realm_id' and table_name = 'mesh_entries' and table_schema = 'rd') then
+    alter table mesh_entries add column `realm_id` int(11) DEFAULT NULL;
+end if;
+
 
 end//
 

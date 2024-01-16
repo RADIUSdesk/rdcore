@@ -43,13 +43,13 @@ class RealmSsidsTable extends Table{
                 $this->{'RealmPmks'}->save($e_pmk);  
             } 
         }
-        
-        if($entity->isDirty('id')){
-            $this->_addNewEntries($entity);
-        }              
-         
+                              
         if($entity->isNew()){ 
              $this->_addNewEntries($entity);
+        }else{
+            if($entity->isDirty('id')){
+                $this->_addNewEntries($entity);
+            }
         }  
     }
     
