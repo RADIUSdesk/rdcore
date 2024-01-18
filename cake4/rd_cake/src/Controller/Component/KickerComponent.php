@@ -22,6 +22,7 @@ class KickerComponent extends Component {
     protected	$coova_md 	= 'CoovaMeshdesk';
     protected	$mt_api 	= 'Mikrotik-API';
     protected   $accel      = 'AccelRadiusdesk';
+    protected   $juniper    = 'Juniper';
     protected	$node_action_add = 'http://127.0.0.1/cake4/rd_cake/node-actions/add.json';
     protected	$ap_action_add = 'http://127.0.0.1/cake4/rd_cake/ap-actions/add.json';
     
@@ -56,6 +57,13 @@ class KickerComponent extends Component {
      		->first();
      		
      	if($dc){
+     	
+     	    //===Juniper===
+     	    if($dc->type == $this->juniper){ //It is type Juniper -> SEND IT A POD
+     	        $this->kickJuniperSession($ent);
+     	    }
+     	    
+     	
      	    //===Accel====
      	    if($dc->type == $this->accel){ //It is type AccelRadiusdesk -> try to locate the session and set the disconnect flag of the session
      	        $this->kickAccelSession($ent);
@@ -105,6 +113,17 @@ class KickerComponent extends Component {
      	}
              
         return $data = [];       
+    }
+    
+    private function kickJuniperSession($ent){
+    
+        //-- Sample Disconnect ---
+        //echo "Acct-​Session-​ID='2040',User-Name='zaguy@zarealm.co.za'" |radclient -c '1' -n '3' -r '3' -t '3' -x '127.0.0.1:3799' 'disconnect' 'testing123'       
+        $sessionid = $ent->acctsessionid;
+        $username  = $ent->username;
+        $ip        = $ent->nasipaddress;
+        $secret    = 'testing123';
+        shell_exec("echo \"Acct-Session-ID='$sessionid',User-Name='$username'\" |radclient -c '1' -n '3' -r '3' -t '3' -x '$ip:3799' 'disconnect' '$secret'");
     }
     
     private function kickAccelSession($ent){
