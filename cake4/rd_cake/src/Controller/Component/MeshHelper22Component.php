@@ -36,6 +36,8 @@ class MeshHelper22Component extends Component {
     protected $ppsk_flag		= false;
     
     protected $MeshSettings		= [];
+    
+    protected $stp              = 1;
 
     public function initialize(array $config):void{
         //Please Note that we assume the Controller has a JsonErrors Component Included which we can access.
@@ -657,7 +659,7 @@ class MeshHelper22Component extends Component {
                 "options"   => [
                 	"name"		=> "br-one",
                     "type"      => "bridge",
-                    'stp'       => 1,
+                    'stp'       => $this->stp,
                	],
                	'lists'	=> [
                		'ports'	=> [ "bat0.1" ]
@@ -767,7 +769,7 @@ class MeshHelper22Component extends Component {
                             "options"   => [
                             	"name"		=> "br-$if_name",
                                 "type"      => "bridge",
-                                'stp'       => 1,
+                                'stp'       => $this->stp,
                            	],
                            	'lists'	=> [
                            		'ports'	=> $interfaces
@@ -833,7 +835,7 @@ class MeshHelper22Component extends Component {
                             "options"   => [
                             	"name"		=> "br-$if_name",
                                 "type"      => "bridge",
-                                'stp'       => 1,
+                                'stp'       => $this->stp,
                            	],
                            	'lists'	=> [
                            		'ports'	=> $interfaces
@@ -871,7 +873,7 @@ class MeshHelper22Component extends Component {
 		                        "options"   => [
 		                        	"name"		=> "br-$if_name",
 		                            "type"      => "bridge",
-		                            'stp'       => 1,
+		                            'stp'       => $this->stp,
 		                       	],
 		                       	'lists'	=> [
 		                       		'ports'	=> $interfaces
@@ -893,7 +895,7 @@ class MeshHelper22Component extends Component {
                     }else{       
                         $current_interfaces = $network[1]['lists']['ports'];
                         $network[1]['lists']['ports'] = array_merge($current_interfaces,$interfaces);
-                        $network[1]['options']['stp'] = 1;  
+                        $network[1]['options']['stp'] = $this->stp;  
                     }                
                     $start_number++;
                     continue; //We dont care about the other if's
@@ -965,7 +967,7 @@ class MeshHelper22Component extends Component {
 	                        "options"   => [
 	                        	"name"		=> "br-$if_name",
 	                            "type"      => "bridge",
-	                            'stp'       => 1,
+	                            'stp'       => $this->stp,
 	                       	],
 	                       	'lists'	=> [
 	                       		'ports'	=> $interfaces
@@ -1021,7 +1023,7 @@ class MeshHelper22Component extends Component {
 	                        "options"   => [
 	                        	"name"		=> "br-$if_name",
 	                            "type"      => "bridge",
-	                            'stp'       => 1,
+	                            'stp'       => $this->stp,
 	                       	],
 	                       	'lists'	=> [
 	                       		'ports'	=> $interfaces
@@ -1132,7 +1134,7 @@ class MeshHelper22Component extends Component {
 	                        "options"   => [
 	                        	"name"		=> "br-$if_name",
 	                            "type"      => "bridge",
-	                            'stp'       => 1,
+	                            'stp'       => $this->stp,
 	                       	],
 	                       	'lists'	=> [
 	                       		'ports'	=> $interfaces
@@ -1175,7 +1177,7 @@ class MeshHelper22Component extends Component {
 	                        "options"   => [
 	                        	"name"		=> "br-$if_name",
 	                            "type"      => "bridge",
-	                            'stp'       => 1,
+	                            'stp'       => $this->stp,
 	                       	],
 	                       	'lists'	=> [
 	                       		'ports'	=> $interfaces
