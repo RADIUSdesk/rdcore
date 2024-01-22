@@ -22,6 +22,7 @@ Ext.define('Rd.view.aps.pnlApRadioDetail', {
 			{
 			    xtype       : 'sldrToggle',
 			    fieldLabel  : 'Enabled',
+			    labelClsExtra: 'lblRd',
 			    userCls     : 'sldrDark',
 			    name        : radio_nr +'_enabled',
 			    itemId      : radio_nr +'_enabled',
@@ -62,7 +63,8 @@ Ext.define('Rd.view.aps.pnlApRadioDetail', {
 				        disabled	: true,
 				        inclAuto    : true,
 				        width       : w_sec,
-				        itemId		: 'numRadioTwoChan'
+				        itemId		: 'numRadioTwoChan',
+				        labelClsExtra: 'lblRd',
 			        },
 			        {
 				        xtype       : 'cmbFiveGigChannels',
@@ -70,7 +72,8 @@ Ext.define('Rd.view.aps.pnlApRadioDetail', {
 				        hidden		: true,
 				        disabled	: true,
 				        width       : w_sec,
-				        itemId		: 'numRadioFiveChan'
+				        itemId		: 'numRadioFiveChan',
+				        labelClsExtra: 'lblRd',
 			        },
 			        {
 			            xtype       : 'container',
@@ -83,6 +86,7 @@ Ext.define('Rd.view.aps.pnlApRadioDetail', {
                                 margin      : '15 0 0 15',
                                 padding     : 0,
                                 fieldLabel  : 'TX Power(dBm)',
+                                labelClsExtra: 'lblRd',
                                 value       : 0
                             },
                             {
@@ -103,6 +107,7 @@ Ext.define('Rd.view.aps.pnlApRadioDetail', {
                     {
                         xtype       : 'radiogroup',
                         fieldLabel  : 'Width',
+                        labelClsExtra: 'lblRd',
                         itemId      : 'rgrpWidth',
                         columns     : 4,
                         vertical    : false,
@@ -140,6 +145,45 @@ Ext.define('Rd.view.aps.pnlApRadioDetail', {
                                 hidden    : true,
                                 margin    : '0 0 0 0',
                                 width     : w_rb
+                            }
+                        ]
+                    },
+                    {
+                        xtype       : 'radiogroup',
+                        fieldLabel  : 'Cell Density',
+                        labelClsExtra: 'lblRd',
+                        itemId      : 'rgrpCellDensity',
+                        columns     : 4,
+                        vertical    : false,
+                        items       : [
+                            {
+                                boxLabel  : 'Disabled',
+                                name      : radio_nr +'_cell_density',
+                                inputValue: 0,
+                                margin    : '0 0 0 0',
+                                checked   : true,
+                                width     : w_rb+2
+                            },
+                            {
+                                boxLabel  : 'Normal',
+                                name      : radio_nr +'_cell_density',
+                                inputValue: 1,
+                                margin    : '0 0 0 0',
+                                width     : w_rb+2
+                            },
+                            {
+                                boxLabel  : 'High',
+                                name      : radio_nr +'_cell_density',
+                                inputValue: 2,
+                                margin    : '0 0 0 0',
+                                width     : w_rb+2
+                            },
+                            { 
+                                boxLabel  : 'Very High',
+                                name      : radio_nr +'_cell_density',
+                                inputValue: 3,
+                                margin    : '0 0 0 0',
+                                width     : w_rb+4
                             }
                         ]
                     },

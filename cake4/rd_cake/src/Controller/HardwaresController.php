@@ -69,7 +69,8 @@ class HardwaresController extends AppController{
             'beacon_int','include_distance','distance','ht_capab','mesh','ap', 'config',
             'band',
             'mode',
-            'width'
+            'width',
+            'cell_density'
         ];
         
         foreach ($q_r as $i) {
@@ -383,7 +384,8 @@ class HardwaresController extends AppController{
                 'distance', 'ht_capab', 'mesh',         'ap',                   'config',       'disabled',
                 'band',
                 'mode',
-                'width'
+                'width',
+                'cell_density'
             ];  
             
              $check_items = [

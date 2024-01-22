@@ -2256,7 +2256,7 @@ class ApProfilesController extends AppController {
             //--Clean up--
             $a_id = $new_id;
             foreach(array_keys($cdata) as $key){                
-                if(preg_match('/^radio\d+_(disabled|band|mode|width|txpower|include_distance|distance|include_beacon_int|beacon_int|ht_capab|mesh|ap|config|channel_five|channel_two|noscan)/',$key)){           
+                if(preg_match('/^radio\d+_(disabled|band|mode|width|txpower|include_distance|distance|include_beacon_int|beacon_int|ht_capab|mesh|ap|config|channel_five|channel_two|noscan|cell_density)/',$key)){           
                     if(preg_match('/^radio\d+_ht_capab/',$key)){
                         $pieces = explode("\n", $cdata["$key"]);
                         foreach($pieces as $p){
@@ -2692,7 +2692,7 @@ class ApProfilesController extends AppController {
                         $this->ApWifiSettings->deleteAll(['ApWifiSettings.ap_id' => $a_id]);
 
                         foreach(array_keys($cdata) as $key){
-                            if(preg_match('/^radio\d+_(disabled|band|mode|width|txpower|include_distance|distance|include_beacon_int|beacon_int|ht_capab|mesh|ap|config|channel_five|channel_two|noscan)/',$key)){  
+                            if(preg_match('/^radio\d+_(disabled|band|mode|width|txpower|include_distance|distance|include_beacon_int|beacon_int|ht_capab|mesh|ap|config|channel_five|channel_two|noscan|cell_density)/',$key)){  
                                 if(preg_match('/^radio\d+_ht_capab/',$key)){
                                     $pieces = explode("\n", $cdata["$key"]);
                                     foreach($pieces as $p){
@@ -2878,7 +2878,7 @@ class ApProfilesController extends AppController {
             //Get the defaults from the DB---
             $radio_fields = [
                 'disabled','band','mode','width','txpower','include_beacon_int',
-                'beacon_int','include_distance','distance','ht_capab','mesh','ap','config'
+                'beacon_int','include_distance','distance','ht_capab','mesh','ap','config','cell_density'
             ];          
             $q_e = $this->{'Hardwares'}->find()->where(['Hardwares.fw_id' => $hardware])->contain(['HardwareRadios'])->first();         
             if($q_e){

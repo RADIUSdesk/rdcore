@@ -1103,7 +1103,7 @@ class ApHelper22Component extends Component {
         //Get the basics regardless and then do overrides
         $radio_fields = [
             'disabled','band','mode','width','txpower','include_beacon_int','beacon_int',
-            'include_distance','distance','ht_capab'
+            'include_distance','distance','ht_capab','cell_density'
         ];
         $model  = $this->Hardware;
         $q_e    = $this->{'Hardwares'}->find()->where(['Hardwares.fw_id' => $model])->contain(['HardwareRadios'])->first();
@@ -1284,7 +1284,7 @@ class ApHelper22Component extends Component {
                 'hwmode'        => $hwmode,
                 'htmode'        => $htmode.$width,
                 'band'          => $band,
-                'cell_density'  => '0',
+                'cell_density'  => intval($this->RadioSettings[$x]['radio'.$x.'_cell_density']),
                 'country'       => $country,
                 'txpower'       => intval($this->RadioSettings[$x]['radio'.$x.'_txpower'])
             ];

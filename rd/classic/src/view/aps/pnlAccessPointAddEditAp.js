@@ -891,7 +891,7 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
                         ]
                     }
                 ],
-                height      : 900
+                height      : 1400
             }
         ];       
         me.callParent(arguments);

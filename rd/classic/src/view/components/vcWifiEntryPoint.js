@@ -41,6 +41,7 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
         var auto    = form.down('#chk_auto_nasid');
         var d_vlan  = form.down('#default_vlan');
         var d_key   = form.down('#default_key');
+        var realm   = form.down('#cmbRealm');
         var hs2		= form.down('#chkHotspot2');
         
         var	chkFr	= form.down('#chkFastRoaming');
@@ -66,7 +67,10 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
             d_vlan.setHidden(true);
             d_vlan.setDisabled(true);
             d_key.setHidden(true);
-            d_key.setDisabled(true); 
+            d_key.setDisabled(true);
+            
+            realm.setHidden(true);
+            realm.setDisabled(true);  
             
             chkFr.hide();
             chkFr.disable();
@@ -176,7 +180,10 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
             d_vlan.setHidden(false);
             d_vlan.setDisabled(false);
             d_key.setHidden(false);
-            d_key.setDisabled(false);   
+            d_key.setDisabled(false);
+            
+            realm.setHidden(false);
+            realm.setDisabled(false);    
         }
 
     },

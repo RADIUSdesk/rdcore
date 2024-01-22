@@ -270,6 +270,14 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                                 disabled    : true
                             },
                             {
+                                xtype       : 'cmbRealm',
+                                fieldLabel  : 'Realm For PPSK',
+                                itemId      : 'cmbRealm',
+                                labelClsExtra: 'lblRdReq',
+                                hidden      : true,
+                                disabled    : true
+                            },
+                            {
                                 xtype       : 'checkbox',      
                                 name        : 'hotspot2_enable',
                                 checked     : false,

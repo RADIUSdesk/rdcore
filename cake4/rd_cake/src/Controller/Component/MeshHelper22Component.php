@@ -1323,7 +1323,7 @@ class MeshHelper22Component extends Component {
             //ONLY If there were no WiFi settings we can use the default
             if(count($q_r->node_wifi_settings) == 0){
                 $radio_fields = [
-                    'disabled', 'band','mode','width','mesh','config','ap','ht_capab','txpower'
+                    'disabled', 'band','mode','width','mesh','config','ap','ht_capab','txpower','cell_density'
                 ]; 
             }
                   
@@ -1480,7 +1480,7 @@ class MeshHelper22Component extends Component {
                 'hwmode'        => $hwmode,
                 'htmode'        => $htmode.$width,
                 'band'          => $band,
-                'cell_density'  => '0',
+                'cell_density'  => intval($this->RadioSettings[$x]['radio'.$x.'_cell_density']),
                 'country'       => $country,
                 'txpower'       => intval($this->RadioSettings[$x]['radio'.$x.'_txpower'])
             ];
