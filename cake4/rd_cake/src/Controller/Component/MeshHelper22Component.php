@@ -1708,7 +1708,8 @@ class MeshHelper22Component extends Component {
 										$base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
 										$base_array['vlan_bridge']  = 'br-ex_vlan';
 										//$base_array['vlan_tagged_interface']  = 'lan1';//Is this needed?
-										$base_array['vlan_naming']	= '0';												
+										$base_array['vlan_naming']	= '0';
+																					
 										//Set the flag
 										$this->ppsk_flag = true;
 									}
@@ -1738,6 +1739,11 @@ class MeshHelper22Component extends Component {
         								$base_array = array_merge($base_array,$options);
         								$lists	 = Configure::read('Hotspot2.lists');                                  
                                     }
+                                    
+                                    $lists['hostapd_options'] = [
+                                        'radius_acct_interim_interval=600',
+                                        'radius_auth_req_attr=126:s:Klaphom'
+                                    ];
 
                                     array_push( $wireless,
                                         [

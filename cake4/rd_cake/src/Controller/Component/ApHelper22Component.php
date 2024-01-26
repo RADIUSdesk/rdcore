@@ -49,6 +49,9 @@ class ApHelper22Component extends Component {
     protected $stp_dflt			= 0;
     protected $acct_interval	= 300;
     protected $br_int			= 'eth0'; //bogus filler
+    
+    //Jan 2024 - Add a flag which will be triggered if wan interface is defined as 'eth0 eth1' This is to accomodate a special config to get VLANs to work on certain Mediatek based hardware
+    protected $vlan_hack        = false;
 
 
     public function initialize(array $config):void{
@@ -530,7 +533,7 @@ class ApHelper22Component extends Component {
             }
             if($dns !== ''){
                 $wan_options['dns'] = $dns;    
-            }
+            }         
         }
         
         $e_vlan = $this->{'ApConnectionSettings'}->find()->where([
@@ -557,7 +560,23 @@ class ApHelper22Component extends Component {
         ]);
         
         $wan_options['device'] = 'br-lan';
-               
+        
+        
+        //---26Jan24 VLAN Hack---
+        /* --Sample--
+        config interface 'lan'
+            option device 'br-lan'
+            option proto 'dhcp'
+            option ifname 'eth0 eth1'
+            option stp '1'
+        
+        */
+        if($this->vlan_hack){       
+            $wan_options['ifname'] = 'eth0 eth1'; 
+            $wan_options['stp']    =  '1';
+        }
+        //---
+                      
         array_push( $network,
             [
                 "interface" => "lan",
@@ -1755,6 +1774,14 @@ class ApHelper22Component extends Component {
 		if($q_e){
 		    $return_val = $q_e->wan;   
 		}
+		
+		//--26Jan24 Tweak for VLAN hack--
+		if($return_val == 'eth0 eth1'){
+		    $return_val = 'lan';
+		    $this->vlan_hack = true;
+		}
+		//--
+		
 		return $return_val;
 	}
 	
