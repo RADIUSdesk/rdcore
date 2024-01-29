@@ -548,17 +548,25 @@ function _do_vis($d){
             $algo   = 'BATMAN_IV';
             $tp     = null;
             $tq     = null;
+            $metric = 1;
             
-            if($vis['algo']){
+            if(isset($vis['algo'])){
                 $algo = $vis['algo'];
             }
             
-            if($vis['tq']){
+            if(isset($vis['tq'])){
                 $tq = $vis['tq'];
             }
             
+            if(isset($vis['tq'])){
+                $tq = $vis['tq'];
+            }
+            
+            if(isset($vis['metric'])){
+                $tq = $vis['metric'];
+            }
+            
             if($algo == 'BATMAN_V'){
-                $metric = 1; // Set the metric to 1 on Batman V
                 $tp = $vis['tp'];
             }
         
