@@ -563,14 +563,13 @@ function _do_vis($d){
             }
             
             if(isset($vis['metric'])){
-                $tq = $vis['metric'];
+                $metric = $vis['metric'];
             }
             
             if($algo == 'BATMAN_V'){
                 $tp = $vis['tp'];
             }
         
-            $metric         = $vis['metric'];
             $neighbor       = $vis['neighbor'];
             $router         = $vis['router'];
                      
