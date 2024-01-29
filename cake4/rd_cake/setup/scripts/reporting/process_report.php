@@ -545,6 +545,8 @@ function _do_vis($d){
     if (array_key_exists('vis',$d)) {     
         foreach ($d['vis'] as $vis) {
         
+            print_r($vis);
+        
             $algo   = 'BATMAN_IV';
             $tp     = null;
             $tq     = null;
@@ -596,10 +598,10 @@ function _do_vis($d){
                 $stmt->execute(['node_id' => $node_id,'neighbor_id' => $neighbor_id]);
                 $result     = $stmt->fetch(PDO::FETCH_OBJ);     
                 if(isset($result->id)){
-                    $stmt = $conn->prepare("UPDATE node_neighbors SET metric=:metric,gateway=:gateway,hwmode=:hwmode,modified = NOW(),algo=:algo,tq=:tq,tp=>:tp WHERE id = :id");
+                    $stmt = $conn->prepare("UPDATE node_neighbors SET metric=:metric,gateway=:gateway,hwmode=:hwmode,modified = NOW(),algo=:algo,tq=:tq,tp=:tp WHERE id = :id");
                     $stmt->execute(['metric' => $metric,'gateway' => $gateway,'hwmode' => $hwmode,'algo' => $algo, 'tq' => $tq, 'tp' => $tp, 'id' => $result->id]);                    
                 }else{
-                    $stmt = $conn->prepare("INSERT into node_neighbors (node_id,neighbor_id,metric,gateway,hwmode,created,modified) VALUES(:node_id,:neighbor_id,:metric,:gateway,:hwmode,NOW(),NOW())");
+                    $stmt = $conn->prepare("INSERT into node_neighbors (node_id,neighbor_id,metric,gateway,hwmode,created,modified,algo=:algo,tq=:tq,tp=:tp) VALUES(:node_id,:neighbor_id,:metric,:gateway,:hwmode,NOW(),NOW(),:algo,:tq,:tp)");
                      $stmt->execute(['node_id' => $node_id,'neighbor_id'=>$neighbor_id,'metric'=>$metric,'gateway'=>$gateway,'hwmode'=>$hwmode,'algo' => $algo, 'tq' => $tq, 'tp' => $tp]);     
                 } 
             }

@@ -1474,13 +1474,18 @@ class MeshHelper22Component extends Component {
                 }
             }
             
+            $cell_density  = 0;
+            if(isset($this->RadioSettings[$x]['radio'.$x.'_cell_density'])){
+                $cell_density =  intval($this->RadioSettings[$x]['radio'.$x.'_cell_density']);  
+            }
+            
             $options_array = [
                 'channel'       => $channel,
                 'disabled'      => intval($this->RadioSettings[$x]['radio'.$x.'_disabled']),
                 'hwmode'        => $hwmode,
                 'htmode'        => $htmode.$width,
                 'band'          => $band,
-                'cell_density'  => intval($this->RadioSettings[$x]['radio'.$x.'_cell_density']),
+                'cell_density'  => $cell_density,
                 'country'       => $country,
                 'txpower'       => intval($this->RadioSettings[$x]['radio'.$x.'_txpower'])
             ];
@@ -1740,11 +1745,6 @@ class MeshHelper22Component extends Component {
         								$lists	 = Configure::read('Hotspot2.lists');                                  
                                     }
                                     
-                                    $lists['hostapd_options'] = [
-                                        'radius_acct_interim_interval=600',
-                                        'radius_auth_req_attr=126:s:Klaphom'
-                                    ];
-
                                     array_push( $wireless,
                                         [
                                             "wifi-iface"=> "$if_name",
