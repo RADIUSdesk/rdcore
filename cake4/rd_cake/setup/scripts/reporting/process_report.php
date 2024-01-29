@@ -559,7 +559,7 @@ function _do_vis($d){
             
             if($algo == 'BATMAN_V'){
                 $metric = 1; // Set the metric to 1 on Batman V
-                $tp = $vis['tp']
+                $tp = $vis['tp'];
             }
         
             $metric         = $vis['metric'];
