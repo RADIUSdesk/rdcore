@@ -543,34 +543,28 @@ function _do_vis($d){
     global $conn,$MeshMacLookup; 
     
     if (array_key_exists('vis',$d)) {     
-        foreach ($d['vis'] as $vis) {
-        
-            print_r($vis);
-        
+        foreach ($d['vis'] as $vis) {       
             $algo   = 'BATMAN_IV';
             $tp     = null;
             $tq     = null;
             $metric = 1;
             
-            if(isset($vis['algo'])){
-                $algo = $vis['algo'];
+            if (array_key_exists('algo_name', $vis)) {
+                $algo = $vis['algo_name'];
             }
             
-            if(isset($vis['tq'])){
+            if (array_key_exists('tq', $vis)) {
                 $tq = $vis['tq'];
             }
             
-            if(isset($vis['tq'])){
-                $tq = $vis['tq'];
+            if (array_key_exists('tp', $vis)) {
+                $tp = $vis['tp'];
             }
-            
-            if(isset($vis['metric'])){
+                       
+            if (array_key_exists('metric', $vis)) {
                 $metric = $vis['metric'];
             }
             
-            if($algo == 'BATMAN_V'){
-                $tp = $vis['tp'];
-            }
         
             $neighbor       = $vis['neighbor'];
             $router         = $vis['router'];
@@ -601,7 +595,7 @@ function _do_vis($d){
                     $stmt = $conn->prepare("UPDATE node_neighbors SET metric=:metric,gateway=:gateway,hwmode=:hwmode,modified = NOW(),algo=:algo,tq=:tq,tp=:tp WHERE id = :id");
                     $stmt->execute(['metric' => $metric,'gateway' => $gateway,'hwmode' => $hwmode,'algo' => $algo, 'tq' => $tq, 'tp' => $tp, 'id' => $result->id]);                    
                 }else{
-                    $stmt = $conn->prepare("INSERT into node_neighbors (node_id,neighbor_id,metric,gateway,hwmode,created,modified,algo=:algo,tq=:tq,tp=:tp) VALUES(:node_id,:neighbor_id,:metric,:gateway,:hwmode,NOW(),NOW(),:algo,:tq,:tp)");
+                    $stmt = $conn->prepare("INSERT into node_neighbors (node_id,neighbor_id,metric,gateway,hwmode,created,modified,algo,tq,tp) VALUES(:node_id,:neighbor_id,:metric,:gateway,:hwmode,NOW(),NOW(),:algo,:tq,:tp)");
                      $stmt->execute(['node_id' => $node_id,'neighbor_id'=>$neighbor_id,'metric'=>$metric,'gateway'=>$gateway,'hwmode'=>$hwmode,'algo' => $algo, 'tq' => $tq, 'tp' => $tp]);     
                 } 
             }
