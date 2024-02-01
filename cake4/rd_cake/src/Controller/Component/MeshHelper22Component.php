@@ -38,6 +38,7 @@ class MeshHelper22Component extends Component {
     protected $MeshSettings		= [];
     
     protected $stp              = 1;
+    protected $acct_interval	= 300;
 
     public function initialize(array $config):void{
         //Please Note that we assume the Controller has a JsonErrors Component Included which we can access.
@@ -1101,7 +1102,7 @@ class MeshHelper22Component extends Component {
                 if(($type == 'pppoe_server')&&($gateway)){
                 
                     $pppoe_if       = "br-$if_name";
-                    $nas_identifier = "mpppoe_".$me->id.'_'.$this->EntNode->id;
+                    $nas_identifier = "m_pppoe_".$me->id.'_'.$this->EntNode->id;
                     $profile_id     = $me->mesh_exit_pppoe_server->accel_profile_id;
                     
                     /*Info should look like this:
@@ -1695,6 +1696,7 @@ class MeshHelper22Component extends Component {
                                     if($me->accounting){
                                         $base_array['acct_server']	= $me->auth_server;
                                         $base_array['acct_secret']	= $me->auth_secret;
+                                        $base_array['acct_interval']= $this->acct_interval;
                                     }
                                     
                                     if($me->ieee802r){
@@ -1719,12 +1721,19 @@ class MeshHelper22Component extends Component {
 										$this->ppsk_flag = true;
 									}
 									
-									//NASID: We can probaly send along regardless and we use a convention of: md_ / ap_<entry_id>_<radio_number>_<ap_id>/node_id 
+									//NASID: We can probaly send along regardless and we use a convention of: m_ / a_<entry_id>_<radio_number>_<ap_id>/node_id 
 				                    if($me->auto_nasid){                         
-				                    	$base_array['nasid'] = 'md_'.$me->id.'_'.$y.'_'.$this->NodeId;                            
+				                    	//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id**
+                                	    $base_array['nasid'] = 'm_hosta_'.$me->mesh_id.'_'.$me->id;
+                                	    //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id** 
+                                	    $base_array['radius_auth_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;  
+                                	    $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;                 	                           
 				                    }else{
 				                    	if($me->nasid !== ''){				                    	     
-				                    		$base_array['nasid'] = $me->nasid;                         	
+				                    		$base_array['nasid'] = $me->nasid;
+				                    		//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id**
+				                    		$base_array['radius_auth_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;  
+                                	        $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;                           	         		                         	
 				                    	}                            
 				                    }									
 
@@ -1744,6 +1753,7 @@ class MeshHelper22Component extends Component {
         								$base_array = array_merge($base_array,$options);
         								$lists	 = Configure::read('Hotspot2.lists');                                  
                                     }
+                                   
                                     
                                     array_push( $wireless,
                                         [
@@ -1852,6 +1862,7 @@ class MeshHelper22Component extends Component {
                                                     if($me->accounting){
                                                         $base_array['acct_server']	= $me->auth_server;
                                                         $base_array['acct_secret']	= $me->auth_secret;
+                                                        $base_array['acct_interval']= $this->acct_interval;
                                                     }
                                                     
                                                     if($me->ieee802r){
@@ -1875,13 +1886,18 @@ class MeshHelper22Component extends Component {
 														//Set the flag
 														$this->ppsk_flag = true;
 													}
-													
-													//NASID: We can probaly send along regardless and we use a convention of: md_ / ap_<entry_id>_<radio_number>_<ap_id>/node_id 
 												    if($me->auto_nasid){                         
-												    	$base_array['nasid'] = 'md_'.$me->id.'_'.$y.'_'.$this->NodeId;                            
+												    	//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id**
+                                	                    $base_array['nasid'] = 'm_hosta_'.$me->mesh_id.'_'.$me->id;
+                                	                    //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id**  
+                                	                    $base_array['radius_auth_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;
+                                	                    $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;                                        
 												    }else{
 												    	if($me->nasid !== ''){
-												    		$base_array['nasid'] = $me->nasid;                            	
+												    		$base_array['nasid'] = $me->nasid;
+												    		//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id** 												    		
+												    		$base_array['radius_auth_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId; 
+                                	                        $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;                           	
 												    	}                            
 												    }	
                                                     
@@ -1901,7 +1917,7 @@ class MeshHelper22Component extends Component {
 														$base_array = array_merge($base_array,$options);
 														$lists	 = Configure::read('Hotspot2.lists');                                  
 								                    }
-                                                
+
                                                     array_push( $wireless,
 								                        [
 								                            "wifi-iface"=> "$if_name",

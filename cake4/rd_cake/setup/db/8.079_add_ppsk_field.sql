@@ -85,6 +85,11 @@ if not exists (select * from information_schema.columns
     alter table mesh_entries add column `realm_id` int(11) DEFAULT NULL;
 end if;
 
+if not exists (select * from information_schema.columns
+    where column_name = 'operator_name' and table_name = 'radacct' and table_schema = 'rd') then
+    alter table radacct add column `operator_name` varchar(32) NOT NULL DEFAULT '';
+end if;
+
 
 end//
 

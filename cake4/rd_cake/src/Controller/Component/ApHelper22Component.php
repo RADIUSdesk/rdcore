@@ -1026,7 +1026,7 @@ class ApHelper22Component extends Component {
                 if($type == 'pppoe_server'){
                 
                     $pppoe_if       = "br-$if_name";
-                    $nas_identifier = "apppoe_".$ap_profile_e->id.'_'.$this->ApId;
+                    $nas_identifier = 'a_pppoe_'.$ap_profile_e->id.'_'.$this->ApId;
                     
                     $profile_id     = $ap_profile_e->ap_profile_exit_pppoe_server->accel_profile_id;
                     
@@ -1486,12 +1486,21 @@ class ApHelper22Component extends Component {
 								    $this->ppsk_flag = true;
 							    }
 							    
-							    //NASID: We can probaly send along regardless and we use a convention of: md_ / ap_<entry_id>_<radio_number>_<ap_id>/node_id 
+							    //NASID: We can probaly send along regardless and we use a convention of: m_ / a_<entry_id>_<radio_number>_<ap_id>/node_id 
                                 if($ap_profile_e->auto_nasid){                         
-                                	$base_array['nasid'] = 'ap_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;                            
+                                    //We do not go to deep when generating the nasid we will use radius_acct_req_attr to contain all the detail
+                                    //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id**
+                                	$base_array['nasid'] = 'a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id;
+                                	//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id** 
+                                	$base_array['radius_auth_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId; 
+                                	$base_array['radius_acct_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;
+                                	                         
                                 }else{
                                 	if($ap_profile_e->nasid !== ''){
-                                		$base_array['nasid'] = $ap_profile_e->nasid;                            	
+                                		$base_array['nasid'] = $ap_profile_e->nasid;
+                                		//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id** 
+                                		$base_array['radius_auth_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId; 
+                                	    $base_array['radius_acct_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;                            	
                                 	}                            
                                 }
                                 
@@ -1687,12 +1696,20 @@ class ApHelper22Component extends Component {
 					    $this->ppsk_flag = true;
 				    }
 				    
-				    //NASID: We can probaly send along regardless and we use a convention of: md_ / ap_<entry_id>_<radio_number>_<ap_id>/node_id 
-                    if($ap_profile_e->auto_nasid){                         
-                    	$base_array['nasid'] = 'ap_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;                            
+				    //NASID: We can probaly send along regardless and we use a convention of: m_ / a_<entry_id>_<radio_number>_<ap_id>/node_id 
+                    if($ap_profile_e->auto_nasid){                   
+                        //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id**                       
+                    	$base_array['nasid'] = 'a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id;
+                    	//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id**
+                    	$base_array['radius_auth_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;   
+                        $base_array['radius_acct_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;
+                         
                     }else{
                     	if($ap_profile_e->nasid !== ''){
-                    		$base_array['nasid'] = $ap_profile_e->nasid;                            	
+                    		$base_array['nasid'] = $ap_profile_e->nasid;
+                    		//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id** 
+                    		$base_array['radius_auth_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;   
+                            $base_array['radius_acct_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;                            	
                     	}                            
                     }
                     
