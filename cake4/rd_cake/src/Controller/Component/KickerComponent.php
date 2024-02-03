@@ -19,10 +19,17 @@ class KickerComponent extends Component {
     protected $radclient;
     //protected $pod_command = '/etc/MESHdesk/pod.lua';
     protected $pod_command 	= 'chilli_query logout mac';
-    protected	$coova_md 	= 'CoovaMeshdesk';
-    protected	$mt_api 	= 'Mikrotik-API';
-    protected   $accel      = 'AccelRadiusdesk';
-    protected   $juniper    = 'Juniper';
+    protected $podMdHostapd = '/etc/MESHdesk/utils/hostapd_disconnect.lua';
+    
+    //--NAS TYPES--
+    protected   $typeAccel      = 'AccelRadiusdesk';
+    protected	$typeCoovaMd 	= 'CoovaMeshdesk';
+    protected	$typeHostaMd 	= 'private_psk';
+    protected   $typeJuniper    = 'Juniper';
+    protected	$typeMtApi 	    = 'Mikrotik-API';
+
+
+    
     protected	$node_action_add = 'http://127.0.0.1/cake4/rd_cake/node-actions/add.json';
     protected	$ap_action_add = 'http://127.0.0.1/cake4/rd_cake/ap-actions/add.json';
     
@@ -57,20 +64,13 @@ class KickerComponent extends Component {
      		->first();
      		
      	if($dc){
-     	
-     	    //===Juniper===
-     	    if($dc->type == $this->juniper){ //It is type Juniper -> SEND IT A POD
-     	        $this->kickJuniperSession($ent);
-     	    }
-     	    
-     	
-     	    //===Accel====
-     	    if($dc->type == $this->accel){ //It is type AccelRadiusdesk -> try to locate the session and set the disconnect flag of the session
+     	   	    
+     	    if($dc->type == $this->typeAccel){ //It is type AccelRadiusdesk -> try to locate the session and set the disconnect flag of the session
      	        $this->kickAccelSession($ent);
      	    }
      	
-     		//===CoovaMeshdesk====
-     		if($dc->type == $this->coova_md){ //It is type CoovaMeshdesk => Now try and locate AP to send command to 
+     	    //--------------------
+     		if($dc->type == $this->typeCoovaMd){ //It is type CoovaMeshdesk => Now try and locate AP to send command to 
      		
      			//We have a convention of nasidentifier for meshdesk => mcp_<captive_portal_id> and apdesk => ap_<ap id>_cp_<captive_portal_id>
      			if(preg_match('/^mcp_/' ,$nasidentifier)){ //MESHdesk     		
@@ -82,10 +82,29 @@ class KickerComponent extends Component {
      			}
      			sleep(1); //Give MQTT time to do its thing....  			
      		}
+     		
+     		//-------------------
+     		if($dc->type = $this->typeHostaMd){
+     		
+     		    //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id** 
+     		    $o = $ent->operator_name;
+     		
+     			if(preg_match('/^m_hosta_/' ,$o)){ //MESHdesk     		
+     				$this->kickMeshHostaMac($ent,$dc->cloud_id,$token);
+     			}
+     			
+     			if(preg_match('/^a_hosta_/' ,$o)){ //APdesk		
+     				$this->kickApHostaMac($ent,$dc->cloud_id,$token); 			
+     			}
+     			sleep(1); //Give MQTT time to do its thing....    		
+     		}
+     	
+     		
+     		if($dc->type == $this->typeJuniper){ //SEND IT A POD
+     	        $this->kickJuniperSession($ent);
+     	    }
      		    		
-     		//===Mikrotik-API===
-
-     		if($dc->type == $this->mt_api){ 
+     		if($dc->type == $this->typeMtApi){ 
      		
      			//We need to determine the API Connection details    		
      			$mt_data = [];
@@ -115,6 +134,17 @@ class KickerComponent extends Component {
         return $data = [];       
     }
     
+    private function kickAccelSession($ent){
+    
+        $sid    = $ent->acctsessionid;    
+        $e_srv  = $this->{'AccelSessions'}->find()->where(['AccelSessions.sid' => $sid])->first(); //Short and sweet :-)
+        if($e_srv){
+            $e_srv->disconnect_flag = 1;
+            $e_srv->setDirty('modified', true);
+            $this->{'AccelSessions'}->save($e_srv);
+        }    
+    }
+    
     private function kickJuniperSession($ent){
     
         //-- Sample Disconnect ---
@@ -126,16 +156,7 @@ class KickerComponent extends Component {
         shell_exec("echo \"Acct-Session-ID='$sessionid',User-Name='$username'\" |radclient -c '1' -n '3' -r '3' -t '3' -x '$ip:3799' 'disconnect' '$secret'");
     }
     
-    private function kickAccelSession($ent){
-    
-        $sid    = $ent->acctsessionid;    
-        $e_srv  = $this->{'AccelSessions'}->find()->where(['AccelSessions.sid' => $sid])->first(); //Short and sweet :-)
-        if($e_srv){
-            $e_srv->disconnect_flag = 1;
-            $e_srv->setDirty('modified', true);
-            $this->{'AccelSessions'}->save($e_srv);
-        }    
-    }
+   
          
     private function kickMeshNodeUser($ent,$cloud_id,$token){      
   		$cp = $this->MeshExitCaptivePortals->find()->where(['MeshExitCaptivePortals.radius_nasid' => $ent->nasidentifier])->first();            
@@ -194,4 +215,57 @@ class KickerComponent extends Component {
 			);   	
     	}      
     }
+    
+    //--- HOSTAPD ----
+    //---ubus call hostapd.three1 del_client "{'addr':'0c:c6:fd:7b:8b:aa', 'reason':5, 'deauth':true, 'ban_time':0}"
+    //---
+    private function kickMeshHostaMac($ent,$cloud_id,$token){
+        //m_ <id> _ <entry_id> _ <radio_number> _ <node id>
+        $node_id  = preg_replace("/^m_hosta_(\d+)_(\d+)_(\d+)_/",'', $ent->operator_name);
+        $entry_id = preg_replace("/^m_hosta_(\d+)_/",'', $ent->operator_name); 
+        $entry_id = preg_replace("/_(\d+)_(\d+)/",'', $entry_id);    
+        
+        if($node_id){
+    		$command 	= $this->podMdHostapd.' '.$ent->callingstationid.' '.$entry_id;
+            $a_data 	= [
+            	'node_id' 	=> $node_id,
+            	'command' 	=> $command, 
+            	'action'	=> 'execute',
+				'cloud_id'	=> $cloud_id,
+				'token'		=> $token,
+				'sel_language'	=> '4_4'
+          	];                  	
+          	$http 		= new Client();
+			$response 	= $http->post(
+			  $this->node_action_add,
+			  json_encode($a_data),
+			  ['type' => 'json']
+			);   	
+    	}   
+    }
+        
+    private function kickApHostaMac($ent,$cloud_id,$token){
+        //a_ <id> _ <entry_id> _ <radio_number> _ <ap id>
+        $ap_id   = preg_replace("/^a_hosta_(\d+)_(\d+)_(\d+)_/",'', $ent->operator_name);
+        $entry_id = preg_replace("/^a_hosta_(\d+)_/",'', $ent->operator_name); 
+        $entry_id = preg_replace("/_(\d+)_(\d+)/",'', $entry_id);      
+        if($ap_id){
+    		$command 	= $this->podMdHostapd.' '.$ent->callingstationid.' '.$entry_id;
+            $a_data 	= [
+            	'ap_id' 	=> $ap_id,
+            	'command' 	=> $command, 
+            	'action'	=> 'execute',
+				'cloud_id'	=> $cloud_id,
+				'token'		=> $token,
+				'sel_language'	=> '4_4'
+          	];                  	
+          	$http 		= new Client();
+			$response 	= $http->post(
+			  $this->ap_action_add,
+			  json_encode($a_data),
+			  ['type' => 'json']
+			);   	
+    	}   
+    }
+
 }
