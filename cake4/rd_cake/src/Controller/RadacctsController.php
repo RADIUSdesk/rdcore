@@ -479,6 +479,7 @@ class RadacctsController extends AppController {
                     'acctstartdelay'    => $i->acctstartdelay,
                     'acctstopdelay'     => $i->acctstopdelay,
                     'xascendsessionsvrkey' => $i->xascendsessionsvrkey,
+                    'operator_name'     => $i->operator_name,
                     'user_type'         => $user_type,
                     'active'            => $active,
                     'online_human'      => $online_human
