@@ -101,11 +101,15 @@ class MeshesController extends AppController{
 			    array_push($node_list,$node);
 
 			    $l_contact      = $node->last_contact;
-			    $last_timestamp = strtotime($l_contact);
-	            if($last_timestamp+$this->node_dead_after <= $now){
-	                $nodes_down++;
+			    if($l_contact != null){
+			        $last_timestamp = strtotime($l_contact);
+	                if($last_timestamp+$this->node_dead_after <= $now){
+	                    $nodes_down++;
+	                }else{
+					    $nodes_up++; 
+	                }
 	            }else{
-					$nodes_up++; 
+	                $nodes_down++;
 	            }
 				$node_count++;
 			}

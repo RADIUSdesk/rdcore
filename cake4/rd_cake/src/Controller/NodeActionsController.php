@@ -75,7 +75,10 @@ class NodeActionsController extends AppController {
                     $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
                 } 
             }
-            $row['reply_html']= nl2br($row['reply']);  
+            if($row['reply']){
+                $row['reply_html']= nl2br($row['reply']);
+            }  
+
             array_push($items, $row);
         }
 

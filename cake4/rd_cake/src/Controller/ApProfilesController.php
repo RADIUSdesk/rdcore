@@ -102,13 +102,16 @@ class ApProfilesController extends AppController {
 			    $dead_after = $this->_get_dead_after($ap->ap_profile_id);
 			
 				$l_contact  = $ap->last_contact;
-				//===Determine when last did we saw this ap (never / up / down) ====
-				$last_timestamp = strtotime($l_contact);
-	            if($last_timestamp+$dead_after <= $now){
-	                $aps_down++;
+				if($l_contact != null){
+			        $last_timestamp = strtotime($l_contact);
+	                if($last_timestamp+$dead_after <= $now){
+	                    $aps_down++;
+	                }else{
+					    $aps_up++;  
+	                }
 	            }else{
-					$aps_up++;  
-	            }
+	                $aps_down++;
+	            }				
 				$ap_count++;
 			}
 			

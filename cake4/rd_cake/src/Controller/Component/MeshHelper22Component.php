@@ -1725,15 +1725,19 @@ class MeshHelper22Component extends Component {
 				                    if($me->auto_nasid){                         
 				                    	//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id**
                                 	    $base_array['nasid'] = 'm_hosta_'.$me->mesh_id.'_'.$me->id;
-                                	    //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id** 
-                                	    $base_array['radius_auth_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;  
-                                	    $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;                 	                           
+                                	    if($me->accounting){
+                                	        //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id** 
+                                	        $base_array['radius_auth_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;  
+                                	        $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;
+                                	    }                 	                           
 				                    }else{
 				                    	if($me->nasid !== ''){				                    	     
 				                    		$base_array['nasid'] = $me->nasid;
-				                    		//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id**
-				                    		$base_array['radius_auth_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;  
-                                	        $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;                           	         		                         	
+				                    		if($me->accounting){
+				                    		    //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id**
+				                    		    $base_array['radius_auth_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;  
+                                	            $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;
+                                	        }                          	         		                         	
 				                    	}                            
 				                    }									
 
@@ -1889,15 +1893,19 @@ class MeshHelper22Component extends Component {
 												    if($me->auto_nasid){                         
 												    	//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id**
                                 	                    $base_array['nasid'] = 'm_hosta_'.$me->mesh_id.'_'.$me->id;
-                                	                    //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id**  
-                                	                    $base_array['radius_auth_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;
-                                	                    $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;                                        
+                                	                    if($me->accounting){
+                                	                        //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id**  
+                                	                        $base_array['radius_auth_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;
+                                	                        $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;
+                                	                    }                                       
 												    }else{
 												    	if($me->nasid !== ''){
 												    		$base_array['nasid'] = $me->nasid;
-												    		//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id** 												    		
-												    		$base_array['radius_auth_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId; 
-                                	                        $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;                           	
+												    		if($me->accounting){
+												    		    //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id** 												    		
+												    		    $base_array['radius_auth_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId; 
+                                	                            $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId; 
+                                	                        }                          	
 												    	}                            
 												    }	
                                                     
