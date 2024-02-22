@@ -803,6 +803,16 @@ class DashboardController extends AppController{
 	            	'ui' =>  'tab-brown'
 	        	]   
             ]);
+            
+             array_push($items,[
+                "title" => "FreeRADIUS Home Servers",
+                "glyph" => "xf1ce@FontAwesome",
+                "id"	=> "cHomeServerPools",
+                "layout"=> "fit",
+                'tabConfig' =>  [
+	            	'ui' =>  'tab-brown'
+	        	]   
+            ]);
                 		                       
         }
         

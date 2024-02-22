@@ -34,7 +34,7 @@ class MigrateShell extends Shell {
 		
 		print_r($this->ap_cloud);
 		$this->apId2CloudId('DynamicDetails');
-/*		//Then all the dependency tables:
+		//Then all the dependency tables:
 		$this->oneToOne('DataCollectors');
 	//	$this->oneToOne('DynamicDetailCtcs');
 		$this->oneToOne('DynamicDetailMobiles');
@@ -58,11 +58,31 @@ class MigrateShell extends Shell {
        	$this->oneToOne('Radippool');
        	$this->oneToOne('Radpostauths');
        	//$this->oneToOne('Radreplies');
-       	$this->oneToOne('Radusergroups');*/
+       	$this->oneToOne('Radusergroups');
+       	
+       	
+       	//Do ap_profiles
+       	$this->apId2CloudId('ApProfiles');
+       	$this->oneToOne('ApProfileEntries'); 
+        $this->oneToOne('ApProfileExitCaptivePortals'); 
+        $this->oneToOne('ApProfileExitApProfileEntries');
+        $this->oneToOne('ApProfileExitSettings'); 
+        $this->oneToOne('ApProfileExits');
+        $this->oneToOne('ApProfileSettings'); 
+        $this->oneToOne('ApProfileSpecifics');
+        
+        
+        $this->oneToOne('Aps');
+        $this->oneToOne('ApActions');    
+        $this->oneToOne('ApConnectionSettings'); 
+        $this->oneToOne('ApLoads'); 
+        $this->oneToOne('ApStations'); 
+        $this->oneToOne('ApSystems');
+        $this->oneToOne('ApUptmHistories');
+        $this->oneToOne('ApWifiSettings');                   	
        	
        	//Do meshes
         $this->apId2CloudId('Meshes');
-        $this->oneToOne('MeshEntries'); 
         $this->oneToOne('MeshEntries'); 
         $this->oneToOne('MeshExitCaptivePortals'); 
         $this->oneToOne('MeshExitMeshEntries');
