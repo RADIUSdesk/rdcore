@@ -66,7 +66,9 @@ class ApHelper22Component extends Component {
         $this->ApProfileEntries = TableRegistry::get('ApProfileEntries');
         $this->Hardwares        = TableRegistry::get('Hardwares'); 
         $this->UserSettings     = TableRegistry::get('UserSettings');
-        $this->Timezones        = TableRegistry::get('Timezones');   
+        $this->Timezones        = TableRegistry::get('Timezones');
+        $this->OpenvpnServerClients   = TableRegistry::get('OpenvpnServerClients');
+        $this->Devices          = TableRegistry::get('Devices');   
         
         $this->ApConnectionSettings     = TableRegistry::get('ApConnectionSettings');   
     }
@@ -931,7 +933,6 @@ class ApHelper22Component extends Component {
 
                 //___ OpenVPN Bride ________
                 if($type == 'openvpn_bridge'){
-                    $this->loadModel('OpenvpnServerClients');
 
                     $q_c = $this->OpenvpnServerClients->find()->where([
                         'OpenvpnServerClients.ap_profile_id'         => $ap_profile_e->ap_profile_id,
@@ -1505,7 +1506,6 @@ class ApHelper22Component extends Component {
                                 }
                                 
                                 if($ap_profile_e->macfilter != 'disable'){
-                                    $this->loadModel('Devices');
 
                                     $base_array['macfilter']    = $ap_profile_e->macfilter;
                                     //Replace later
@@ -1714,7 +1714,6 @@ class ApHelper22Component extends Component {
                     }
                     
                     if($ap_profile_e->macfilter != 'disable'){
-                        $this->loadModel('Devices');
 
                         $base_array['macfilter']    = $ap_profile_e->macfilter;
                         //Replace later
