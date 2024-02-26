@@ -911,6 +911,7 @@ class MeshesController extends AppController{
                 
                 $server_id  = $req_d['openvpn_server_id'];
                 $this->loadModel('OpenvpnServers');
+                $this->loadModel('OpenvpnServerClients');
                 $q_r        = $this->{'OpenvpnServers'}->find()->where(['OpenvpnServers.id' => $server_id])->first();
                 if($q_r){    
                     $d_vpn_c                    = array();
@@ -1260,6 +1261,7 @@ class MeshesController extends AppController{
             
                 $this->loadModel('OpenvpnServers');
                 $this->loadModel('OpenvpnClients');
+                $this->loadModel('OpenvpnServerClients');
                 
                 $server_id  = $req_d['openvpn_server_id'];
                 
