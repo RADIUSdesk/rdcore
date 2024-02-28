@@ -66,6 +66,9 @@ Ext.define('Rd.controller.cOpenvpnServers', {
             },
 			'winOpenvpnServerEdit #save': {
                 click: me.btnEditSave
+            },
+            'gridOpenvpnServers actioncolumn': { 
+                 itemClick  : me.onActionColumnItemClick
             }
         });
     },
@@ -81,9 +84,14 @@ Ext.define('Rd.controller.cOpenvpnServers', {
     add: function(button){        
         var me      = this;
         var c_name 	= Ext.getApplication().getCloudName();
-        var c_id	= Ext.getApplication().getCloudId()
+        var c_id	= Ext.getApplication().getCloudId();
+        var dd      = Ext.getApplication().getDashboardData();
+        var root    = false;
+        if(dd.isRootUser){
+            root = true   
+        } 
         if(!Ext.WindowManager.get('winOpenvpnServerAddId')){
-            var w = Ext.widget('winOpenvpnServerAdd',{id:'winOpenvpnServerAddId',cloudId: c_id, cloudName: c_name});
+            var w = Ext.widget('winOpenvpnServerAdd',{id:'winOpenvpnServerAddId',cloudId: c_id, cloudName: c_name,root:root});
             w.show();        
         }
     },
@@ -183,9 +191,9 @@ Ext.define('Rd.controller.cOpenvpnServers', {
             });
         }
     },
-    edit: function(button){
+    edit: function(){
         var me      = this;
-        var grid    = button.up('grid');
+        var grid    = me.getGrid()
         //Find out if there was something selected
         if(grid.getSelectionModel().getCount() == 0){
              Ext.ux.Toaster.msg(
@@ -197,7 +205,12 @@ Ext.define('Rd.controller.cOpenvpnServers', {
         }else{
 			var sr      =  me.getGrid().getSelectionModel().getLastSelected();
 			if(!Ext.WindowManager.get('winOpenvpnServerEditId')){
-                var w = Ext.widget('winOpenvpnServerEdit',{id:'winOpenvpnServerEditId',record: sr});
+			    var dd      = Ext.getApplication().getDashboardData();
+                var root    = false;
+                if(dd.isRootUser){
+                    root = true;  
+                } 
+                var w = Ext.widget('winOpenvpnServerEdit',{id:'winOpenvpnServerEditId',record: sr, root:root });
                 w.show();      
             }    
         }
@@ -222,9 +235,15 @@ Ext.define('Rd.controller.cOpenvpnServers', {
             failure: Ext.ux.formFail
         });
     },
-    onStoreOpenvpnServersLoaded: function() {
-        var me      = this;
-        var count   = me.getStore('sOpenvpnServers').getTotalCount();
-        me.getGrid().down('#count').update({count: count});
+    onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
+        var me = this;
+        var grid = view.up('grid');
+        grid.setSelection(record);
+        if(action == 'update'){
+            me.edit(); 
+        }
+        if(action == 'delete'){
+            me.del(); 
+        }
     }
 });

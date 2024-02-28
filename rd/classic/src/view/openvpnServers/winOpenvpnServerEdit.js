@@ -5,12 +5,11 @@ Ext.define('Rd.view.openvpnServers.winOpenvpnServerEdit', {
     draggable   : true,
     resizable   : true,
     title       : 'Edit OpenVPN Server',
-    width       : 450,
+    width       : 550,
     height      : 500,
     plain       : true,
     border      : false,
     layout      : 'fit',
-    iconCls     : 'edit',
     glyph       : Rd.config.icnEdit,
     autoShow    : false,
     record      : '',
@@ -22,7 +21,12 @@ Ext.define('Rd.view.openvpnServers.winOpenvpnServerEdit', {
         'Ext.form.field.Text'
     ],
     initComponent: function() {
-        var me 		= this; 
+        var me 		= this;
+        
+        var hide_system = true;
+        if(me.root){
+            hide_system = false;
+        }        
 
         var frmData = Ext.create('Ext.form.Panel',{
             border      : false,
@@ -33,21 +37,18 @@ Ext.define('Rd.view.openvpnServers.winOpenvpnServerEdit', {
                 labelClsExtra   : 'lblRd',
                 labelAlign      : 'left',
                 labelSeparator  : '',
-                labelClsExtra   : 'lblRd',
-                labelWidth      : Rd.config.labelWidth,
-                //maxWidth        : Rd.config.maxWidth, 
-                margin          : Rd.config.fieldMargin
+                margin          : Rd.config.fieldMargin,
+                labelWidth      : Rd.config.labelWidth
             },
             defaultType: 'textfield',
             buttons : [
                 {
-                    itemId: 'save',
-                    text: i18n('sOK'),
-                    scale: 'large',
-                    iconCls: 'b-btn_ok',
+                    itemId  : 'save',
+                    text    : i18n('sOK'),
+                    scale   : 'large',
                     glyph   : Rd.config.icnYes,
                     formBind: true,
-                    margin: Rd.config.buttonMargin
+                    margin  : Rd.config.buttonMargin
                 }
             ],
             items       : [
@@ -89,6 +90,15 @@ Ext.define('Rd.view.openvpnServers.winOpenvpnServerEdit', {
                                     name        : "description",
                                     allowBlank  : true,
                                     labelClsExtra: 'lblRd'
+                                },
+                                {
+                                    xtype       : 'checkbox',      
+                                    boxLabel    : 'System Wide',
+                                    name        : 'for_system',
+                                    inputValue  : 'for_system',
+                                    boxLabelCls	: 'boxLabelRd', 
+                                    hidden      : hide_system,
+                                    disabled    : hide_system
                                 }
                             ]
                         },

@@ -40,8 +40,7 @@ Ext.define('Rd.view.homeServerPools.winHomeServerPoolAdd', {
         if(me.root){
             hide_system = false;
         }
-
-        
+     
         var frmData = Ext.create('Ext.form.Panel',{
             border      : false,
             layout      : 'anchor',
@@ -107,8 +106,7 @@ Ext.define('Rd.view.homeServerPools.winHomeServerPoolAdd', {
                     inputValue  : 'for_system',
                     hidden      : hide_system,
                     disabled    : hide_system
-                } 
-               
+                }               
             ],
             buttons: [{ xtype : 'btnDataNext' }]
         });

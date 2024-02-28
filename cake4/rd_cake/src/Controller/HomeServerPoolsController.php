@@ -248,26 +248,24 @@ class HomeServerPoolsController extends AppController{
         $fail_flag = false;
         
         $req_d		= $this->request->getData();
+        $ap_flag 	= true;		
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
 
 	    if(isset($req_d['id'])){
-            $message = "Single item ".$req_d['id'];
-
-            //NOTE: we first check of the user_id is the logged in user OR a sibling of them:         
-            $entity     = $this->{$this->main_model}->get($req_d['id']);   
-            $owner_id   = $entity->user_id;
-            
-            if($owner_id != $user_id){
-                if($this->Users->is_sibling_of($user_id,$owner_id)== true){               
-                    $this->{$this->main_model}->removeHsPool($entity);
-                    $this->{$this->main_model}->delete($entity);
-                }else{
-                    $fail_flag = true;
-                }
-            }else{
-                $this->{$this->main_model}->removeHsPool($entity);
-                $this->{$this->main_model}->delete($entity);
-            }
-   
+            $entity     = $this->{$this->main_model}->get($req_d['id']);         
+            if(($entity->cloud_id == -1)&&($ap_flag == true)){
+	    		$this->set([
+					'message' 	=> 'Not enough rights for action',
+					'success'	=> false
+				]);
+				$this->viewBuilder()->setOption('serialize', true);
+				return;
+	    	} 
+            $this->{$this->main_model}->removeHsPool($entity);
+            $this->{$this->main_model}->delete($entity);
+  
         }else{                          //Assume multiple item delete
             foreach($req_d as $d){           
                 $entity     = $this->{$this->main_model}->get($d['id']);

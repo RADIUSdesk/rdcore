@@ -74,13 +74,12 @@ Ext.define('Rd.view.firewallProfiles.winFirewallProfileAdd', {
             ],
             buttons: [
                 {
-                    itemId: 'btnDataNext',
-                    text: i18n('sNext'),
-                    scale: 'large',
-                    iconCls: 'b-next',
-                    glyph: Rd.config.icnNext,
+                    itemId  : 'btnDataNext',
+                    text    : i18n('sNext'),
+                    scale   : 'large',
+                    glyph   : Rd.config.icnNext,
                     formBind: true,
-                    margin: '0 20 40 0'
+                    margin  : '0 20 40 0'
                 }
             ]
         });

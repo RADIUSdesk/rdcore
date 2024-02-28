@@ -63,6 +63,7 @@ class PermanentUsersTable extends Table
                     'provider' => 'table'
                 ]
             ])
+            ->allowEmpty('ppsk')
             ->add('ppsk', [ 
                 'nameUnique' => [
                     'message' => 'The PPSK you provided is already taken. Please provide another one.',

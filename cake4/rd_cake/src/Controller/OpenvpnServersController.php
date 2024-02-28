@@ -94,9 +94,8 @@ class OpenvpnServersController extends AppController {
         
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
-        $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,[]);
-
+        $query 	  = $this->{$this->main_model}->find();  
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,[]);    
 
         //===== PAGING (MUST BE LAST) ======
         $limit = 50;   //Defaults
@@ -115,37 +114,29 @@ class OpenvpnServersController extends AppController {
         $total = $query->count();
         $q_r = $query->all();
 
-        $items = array();
+        $items = [];
 
         foreach ($q_r as $i) {
+        
+            $i->for_system = false;
+            if($i->cloud_id == -1){
+            	$i->for_system = true;
+            }
+            
+            $i->created_in_words    = $this->TimeCalculations->time_elapsed_string($i->created);
+            $i->modified_in_words   = $this->TimeCalculations->time_elapsed_string($i->modified);                 
+            $i->update = true;
+            $i->delete = true;
+            array_push($items,$i);     
 
-            array_push($items,[
-                'id'                    => $i['id'], 
-                'name'                  => $i['name'],
-                'description'           => $i['description'],
-                'available_to_siblings' => $i['available_to_siblings'],
-                'local_remote'          => $i['local_remote'],
-                'protocol'              => $i['protocol'],
-                'ip_address'            => $i['ip_address'],
-                'port'                  => $i['port'],
-                'vpn_gateway_address'   => $i['vpn_gateway_address'],
-                'vpn_bridge_start_address'      => $i['vpn_bridge_start_address'],
-                'vpn_mask'              => $i['vpn_mask'],
-                'config_preset'         => $i['config_preset'],
-                'ca_crt'                => $i['ca_crt'],       
-				'extra_name'            => $i['extra_name'],
-				'extra_value'           => $i['extra_value'],
-                'update'                => true,
-                'delete'                => true
-            ]);
         }
        
         //___ FINAL PART ___
-        $this->set(array(
-            'items' => $items,
-            'success' => true,
-            'totalCount' => $total
-        ));
+        $this->set([
+            'items'         => $items,
+            'success'       => true,
+            'totalCount'    => $total
+        ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
 	
@@ -165,7 +156,7 @@ class OpenvpnServersController extends AppController {
         $req_q    = $this->request->getQuery();      
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();      
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,[]);
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,[]); 
         
         $q_r = $query->all();
 
@@ -187,7 +178,11 @@ class OpenvpnServersController extends AppController {
         if(!$user){
             return;
         }
-        
+        $ap_flag 	= true;		
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
+    
         $this->_addOrEdit($user,'add');
         
     }
@@ -198,6 +193,20 @@ class OpenvpnServersController extends AppController {
         if(!$user){
             return;
         }
+        //If cloud_id = -1 and the user is not root ...reject the action
+        if($user['group_name'] == Configure::read('group.ap')){
+        	$e_check = $this->{$this->main_model}->find()->where(['OpenvpnServers.id' => $this->request->getData('id')])->first();
+        	if($e_check){       
+		    	if($e_check->cloud_id == -1){
+		    		$this->set([
+						'message' 	=> 'Not enough rights for action',
+						'success'	=> false
+					]);
+					$this->viewBuilder()->setOption('serialize', true);
+					return;
+		    	}
+		  	}
+        }    
         $this->_addOrEdit($user,'edit');
         
     }
@@ -209,15 +218,22 @@ class OpenvpnServersController extends AppController {
 		$req_d 		= $this->request->getData();
 		
         $check_items = [
-			'active'
-		];
+            'for_system'
+        ];
+
         foreach($check_items as $i){
-            if(isset($req_d [$i])){
-                $req_d [$i] = 1;
+            if(isset($req_d[$i])){
+                $req_d[$i] = 1;
             }else{
-                $req_d [$i] = 0;
+                $req_d[$i] = 0;
             }
         }
+        
+        if($req_d['for_system'] == 1){
+	    	$req_d['cloud_id'] = -1;
+	    }else{
+	    	$req_d['cloud_id'] = $this->request->getData('cloud_id');
+	    }
        
         if($type == 'add'){ 
             $entity = $this->{$this->main_model}->newEntity($req_d);
@@ -252,13 +268,33 @@ class OpenvpnServersController extends AppController {
 
         $fail_flag  = false;
         $req_d 		= $this->request->getData();
+        $ap_flag 	= true;		
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
 
 	    if(isset($req_d['id'])){        
-            $entity     = $this->{$this->main_model}->get($req_d['id']);   
+            $entity     = $this->{$this->main_model}->get($req_d['id']); 
+            if(($entity->cloud_id == -1)&&($ap_flag == true)){
+	    		$this->set([
+					'message' 	=> 'Not enough rights for action',
+					'success'	=> false
+				]);
+				$this->viewBuilder()->setOption('serialize', true);
+				return;
+	    	}   
          	$this->{$this->main_model}->delete($entity);   
         }else{                          //Assume multiple item delete
             foreach($req_d as $d){
-                $entity     = $this->{$this->main_model}->get($d['id']);  
+                $entity     = $this->{$this->main_model}->get($d['id']); 
+                if(($entity->cloud_id == -1)&&($ap_flag == true)){
+					$this->set([
+							'message' 	=> 'Not enough rights for action',
+							'success'	=> false
+						]);
+						$this->viewBuilder()->setOption('serialize', true);
+					return;
+				}   
                 $this->{$this->main_model}->delete($entity);
             }
         }

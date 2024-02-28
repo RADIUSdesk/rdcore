@@ -110,7 +110,51 @@ Ext.define('Rd.view.openvpnServers.gridOpenvpnServers' ,{
                 hidden      : true
             },
 			{ text: 'Extra name',  dataIndex: 'extra_name',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridOpenvpnServers14', hidden: true},
-			{ text: 'Extra value', dataIndex: 'extra_value', tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridOpenvpnServers15',hidden: true}
+			{ text: 'Extra value', dataIndex: 'extra_value', tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridOpenvpnServers15',hidden: true},
+			{ 
+                text        : 'System Wide',  
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                                "<tpl if='for_system == true'><div class=\"fieldBlue\">"+i18n("sYes")+"</div></tpl>",
+                                "<tpl if='for_system == false'><div class=\"fieldGrey\">"+i18n("sNo")+"</div></tpl>"
+                            ),
+                dataIndex   : 'for_system',
+                filter      : {
+                        type            : 'boolean',
+                        defaultValue    : false,
+                        yesText         : 'Yes',
+                        noText          : 'No'
+                }, stateId: 'StateGridOpenvpnServers16'
+            },
+            {
+                xtype       : 'actioncolumn',
+                text        : 'Actions',
+                width       : 80,
+                stateId     : 'StateGridOpenvpnServers17',
+                items       : [				
+					 { 
+						iconCls : 'txtRed x-fa fa-trash',
+						tooltip : 'Delete',
+						isDisabled: function (grid, rowIndex, colIndex, items, record) {
+                                if (record.get('delete') == true) {
+                                     return false;
+                                } else {
+                                    return true;
+                                }
+                        },
+                        handler: function(view, rowIndex, colIndex, item, e, record, row) {
+                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'delete');
+                        }
+                    },
+                    {  
+                       iconCls : 'txtBlue x-fa fa-pen',
+                       tooltip : 'Edit',
+                       handler: function(view, rowIndex, colIndex, item, e, record, row) {
+                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'update');
+                       }
+                    }
+				]
+            }
         ];
            
         me.callParent(arguments);

@@ -22,9 +22,9 @@ class OpenvpnServersTable extends Table {
             ->notBlank('name','Value is required')
             ->add('name', [
                 'nameUnique' => [
-                    'message' => 'This name is already taken',
-                    'rule' => 'validateUnique',
-                    'provider' => 'table'
+                    'message'   => 'This name is already taken',
+                    'rule'      => ['validateUnique', ['scope' => 'cloud_id']],
+                    'provider'  => 'table'
                 ]
             ]);
         return $validator;

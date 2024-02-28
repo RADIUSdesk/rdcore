@@ -66,7 +66,7 @@ Ext.define('Rd.controller.cHomeServerPools', {
             },
             'gridHomeServerPools actioncolumn': { 
                  itemClick  : me.onActionColumnItemClick
-            },
+            }
         });
     },
     
