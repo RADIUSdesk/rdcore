@@ -491,6 +491,27 @@ class GridButtonsFlatComponent extends Component {
          if($type == 'permanent_users'){
             $b  = $this->_fetchBasic(true);
             $d  = $this->_fetchDocument();
+            
+            //Some overrides and additions            
+            //$d['width'] = 160;
+            $d['width'] = 110;
+            array_push($d['items'],[
+                'xtype'     => 'button', 
+                'glyph'     => Configure::read('icnEmail'),
+                'scale'     => $this->scale, 
+                'itemId'    => 'email', 
+                'tooltip'   => __('e-Mail Credentials'),
+                'ui'        => $this->btnUiMail
+            ]);
+          /*  array_push($d['items'],[
+                'xtype'     => 'button', 
+                'glyph'     => Configure::read('icnMobile'),
+                'scale'     => $this->scale, 
+                'itemId'    => 'sms', 
+                'tooltip'   => __('SMS Credentials'),
+                'ui'        => $this->btnUiMail
+            ]);*/
+                        
             $a  = $this->_fetchPermanentUserExtras();
             $menu = [$b,$d,$a];
         }

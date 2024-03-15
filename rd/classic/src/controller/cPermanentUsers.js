@@ -25,7 +25,8 @@ Ext.define('Rd.controller.cPermanentUsers', {
        	'permanentUsers.pnlPermanentUser', 'permanentUsers.gridUserRadaccts', 'permanentUsers.gridUserRadpostauths',
         'components.winEnableDisable', 'permanentUsers.gridUserPrivate',
        	'components.cmbVendor',   'components.cmbAttribute', 'permanentUsers.gridUserDevices', 'components.pnlUsageGraph',
-        'permanentUsers.pnlPermanentUserGraphs'
+        'permanentUsers.pnlPermanentUserGraphs',
+        'permananetUsers.winUserEmailDetail',
     ],
     stores: ['sLanguages', 'sPermanentUsers', 'sRealms', 'sProfiles', 'sAttributes', 'sVendors'],
     models: [
@@ -45,7 +46,8 @@ Ext.define('Rd.controller.cPermanentUsers', {
         urlDevicesListedOnly: '/cake4/rd_cake/permanent-users/restrict-list-of-devices.json',
         urlAutoAddMac       : '/cake4/rd_cake/permanent-users/auto-mac-on-off.json',        
         urlDeleteRadaccts   : '/cake4/rd_cake/radaccts/delete.json',
-        urlDeletePostAuths  : '/cake4/rd_cake/radpostauths/delete.json'
+        urlDeletePostAuths  : '/cake4/rd_cake/radpostauths/delete.json',
+        urlEmailSend        : '/cake4/rd_cake/permanent-users/email-user-details.json',
     },
     refs: [
         {  ref: 'grid',         selector:   'gridPermanentUsers'},
@@ -78,6 +80,9 @@ Ext.define('Rd.controller.cPermanentUsers', {
             'gridPermanentUsers #csv'  : {
                 click:      me.csvExport
             },
+            'gridPermanentUsers #email': {
+                click:    me.email
+            },
             'gridPermanentUsers #password'  : {
                 click:      me.changePassword
             },
@@ -102,6 +107,9 @@ Ext.define('Rd.controller.cPermanentUsers', {
             },
             'gridPermanentUsers actioncolumn': {
                  itemClick  : me.onActionColumnItemClick
+            },
+            'winUserEmailDetail #send'   : {
+                click:      me.emailSend
             },
             'winPermanentUserAdd #btnDataNext' : {
                 click:  me.btnDataNext
@@ -539,6 +547,63 @@ Ext.define('Rd.controller.cPermanentUsers', {
             window.open(me.getUrlExportCsv()+append_url);
             win.close();
         }
+    },
+    email: function(button){
+        var me = this;
+        var sel_count = me.getGrid().getSelectionModel().getCount();
+        if(sel_count == 0){
+             Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{
+            if(sel_count > 1){
+                Ext.ux.Toaster.msg(
+                        i18n('sLimit_the_selection'),
+                        i18n('sSelection_limited_to_one'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+                );
+            }else{
+
+                //Determine the selected record:
+                var sr           = me.getGrid().getSelectionModel().getLastSelected();
+                var user_name    = sr.get('username');
+
+                if(!Ext.WindowManager.get('winUserEmailDetailId'+sr.getId())){
+                    var w = Ext.widget('winUserEmailDetail',
+                        {
+                            id       : 'winUserEmailDetailId'+sr.getId(),
+                            userId   : sr.getId(),
+                            username : user_name,
+                            email    : sr.get('email')
+                        });
+                    w.show();       
+                }
+            }    
+        }
+    },
+    emailSend: function(button){
+        var me      = this;
+        var win     = button.up('window');
+        var form    = win.down('form');
+        form.setLoading(true); //Mask it
+        form.submit({
+            clientValidation: true,
+            url: me.getUrlEmailSend(),
+            success: function(form, action) {
+                win.close();
+                Ext.ux.Toaster.msg(
+                    'Voucher details sent',
+                    'Voucher details sent fine',
+                    Ext.ux.Constants.clsInfo,
+                    Ext.ux.Constants.msgInfo
+                );
+            },
+            failure: Ext.ux.formFail
+        });
     }, 
     changePassword: function(){
         var me = this;
@@ -1126,6 +1191,9 @@ Ext.define('Rd.controller.cPermanentUsers', {
     onActionColumnMenuItemClick: function(grid,action){
         var me = this;
         grid.setSelection(grid.selRecord);
+        if(action == 'email'){
+            me.email();
+        }
         if(action == 'password'){
             me.changePassword();
         }

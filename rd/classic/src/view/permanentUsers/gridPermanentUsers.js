@@ -22,6 +22,12 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
         
         me.menu_grid = new Ext.menu.Menu({
            items: [
+               { text: 'eMail Credentials', glyph: Rd.config.icnEmail,   handler: function(){
+                    me.fireEvent('menuItemClick',me,'email');
+               }},
+               {
+                    xtype: 'menuseparator'
+               },
                { text: 'Change Password', glyph: Rd.config.icnLock,   handler: function(){
                     me.fireEvent('menuItemClick',me,'password');
                }},

@@ -2,16 +2,14 @@
 
 namespace App\Controller;
 use App\Controller\AppController;
-
 use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
-
 use Cake\Utility\Inflector;
+use Cake\Mailer\Mailer;
 
 class PermanentUsersController extends AppController{
 
-    public $base         = "Access Providers/Controllers/PermanentUsers/";
-    protected $owner_tree   = array();
+    public $base            = "Access Providers/Controllers/PermanentUsers/";
     protected $main_model   = 'PermanentUsers';
 
     public function initialize():void{  
@@ -31,6 +29,8 @@ class PermanentUsersController extends AppController{
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('Formatter');
+        $this->loadComponent('MailTransport');
+        $this->loadComponent('RdLogger');
         $this->loadComponent('IspPlumbing');           
     }
 
@@ -200,6 +200,12 @@ class PermanentUsersController extends AppController{
             //Test to see if we need to auto-add a suffix
             $suffix                 =  $realm_entity->suffix; 
             $suffix_permanent_users = $realm_entity->suffix_permanent_users;
+            
+            //Auto populate the email field if it looks like the username is an email address
+            if ((filter_var($req_d['username'], FILTER_VALIDATE_EMAIL))&&($req_d['email']== '')) {
+                $req_d['email'] = $req_d['username'];
+            }
+                        
             if(($suffix != '')&&($suffix_permanent_users)){
                 $req_d['username'] = $req_d['username'].'@'.$suffix;
             }
@@ -767,6 +773,72 @@ class PermanentUsersController extends AppController{
             $message = __('Could not change password');
             $this->JsonErrors->entityErros($entity,$message);
         }           
+    }
+    
+     public function emailUserDetails(){
+    
+    	$user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+
+        $data   = $this->request->getData();
+        $to     = $data['email'];
+        $message= $data['message']; 
+        
+        $query  = $this->{$this->main_model}->find()->contain(['Radchecks']);
+        $entity = $query->where(['PermanentUsers.id' => $data['id']])->first();   
+        
+        if($entity){
+        
+            $password = false;       
+            foreach($entity->radchecks as $rc){
+                if($rc->attribute == 'Cleartext-Password'){
+                    $password = $rc->value;
+                    break;
+                }
+            }
+            
+            $username       = $entity->username;
+            $profile        = $entity->profile;
+            $extra_name     = $entity->extra_name;
+            $extra_value    = $entity->extra_value;
+            
+            $meta_data      = $this->MailTransport->setTransport($data['cloud_id']);           
+            $success        = false;
+                      
+            if($meta_data !== false){         
+                $email 	= new Mailer(['transport'   => 'mail_rd']);
+                $from   = $meta_data['from'];
+                $email->setSubject('User credentials')
+                    ->setFrom($from)
+                    ->setTo($to)
+                    ->setViewVars(compact( 'username', 'password','profile','extra_name','extra_value','message'))
+                    ->setEmailFormat('html')
+                    ->viewBuilder()
+                    	->setTemplate('user_detail_admin')
+                		->setLayout('user_notify');                   
+
+                $email->deliver();
+               
+                $settings_cloud_id = $this->MailTransport->getCloudId();
+            	$this->RdLogger->addEmailHistory($settings_cloud_id,$to,'user_detail',"$username $password $message");
+               
+                $success    = true;
+                $this->set([
+                    'data'          => $data,
+                    'success'       => $success
+                ]);
+                $this->viewBuilder()->setOption('serialize', true);  
+            }else{                     
+                $this->set([
+                    'data'          => $data,
+                    'success'       => $success,
+                    'message'       => 'Email Disabled / Not Configured',
+                ]);
+                $this->viewBuilder()->setOption('serialize', true); 
+            }            
+        }       
     }
    
     public function menuForGrid(){
