@@ -22,9 +22,14 @@ FROM jtreminio/php:8.1
     RUN apt-get install -y subversion 
 
     # Prepare all directories
-    COPY ./default /etc/nginx/sites-enabled/
-    COPY ./disable_strict_mode.cnf /etc/mysql/conf.d/
-    COPY ./rdcore /var/www/rdcore
+    COPY ./docker/default /etc/nginx/sites-enabled/
+    COPY ./docker/disable_strict_mode.cnf /etc/mysql/conf.d/
+
+    # Copy all files from the host to the container
+    COPY ./AmpConf /var/www/rdcore/AmpConf
+    COPY ./cake4 /var/www/rdcore/cake4
+    COPY ./login /var/www/rdcore/login
+    COPY ./rd /var/www/rdcore/rd
 
     RUN mkdir -p /var/www/html
     RUN ln -s /var/www/rdcore/rd /var/www/html/rd
@@ -84,16 +89,16 @@ FROM jtreminio/php:8.1
     RUN mkdir -p /var/run/freeradius
     RUN chown freerad. /var/run/freeradius
 
-    COPY ./freeradius.service /lib/systemd/system/
+    COPY ./docker/freeradius.service /lib/systemd/system/
 
     ## cleanup
     RUN rm -rf /var/lib/apt/lists/*
 
     # supervisord allows multiple processes to be started with a single process
-    COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+    COPY ./docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
     # Copy php settings
-    COPY ./php.ini /etc/php/php.ini
+    COPY ./docker/php.ini /etc/php/php.ini
 
     # Fix the configs to point to external database
     RUN sed  -i  "s/'host' => 'localhost'/'host' => 'rdmariadb'/g" /var/www/html/cake4/rd_cake/config/app_local.php
