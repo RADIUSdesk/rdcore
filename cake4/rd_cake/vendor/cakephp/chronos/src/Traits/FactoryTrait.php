@@ -2,18 +2,19 @@
 declare(strict_types=1);
 
 /**
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  * @copyright     Copyright (c) Brian Nesbitt <brian@nesbot.com>
- * @link          http://cakephp.org CakePHP(tm) Project
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link          https://cakephp.org CakePHP(tm) Project
+ * @license       https://www.opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Chronos\Traits;
 
+use Cake\Chronos\ChronosDate;
 use Cake\Chronos\ChronosInterface;
 use DateTimeInterface;
 use DateTimeZone;
@@ -40,6 +41,9 @@ trait FactoryTrait
      */
     public static function instance(DateTimeInterface $dt): ChronosInterface
     {
+        if (static::class === ChronosDate::class) {
+            trigger_error('2.5 instance() will be removed in 3.x.', E_USER_DEPRECATED);
+        }
         if ($dt instanceof static) {
             return clone $dt;
         }
@@ -113,7 +117,12 @@ trait FactoryTrait
      */
     public static function maxValue(): ChronosInterface
     {
-        return static::createFromTimestampUTC(PHP_INT_MAX);
+        $instance = new static(PHP_INT_MAX);
+        if (get_class($instance) === ChronosDate::class) {
+            trigger_error('2.5 Using minValue() to create Date objects will be removed in 3.0', E_USER_DEPRECATED);
+        }
+
+        return $instance;
     }
 
     /**
@@ -125,7 +134,12 @@ trait FactoryTrait
     {
         $max = PHP_INT_SIZE === 4 ? PHP_INT_MAX : PHP_INT_MAX / 10;
 
-        return static::createFromTimestampUTC(~$max);
+        $instance = new static(~$max);
+        if (get_class($instance) === ChronosDate::class) {
+            trigger_error('2.5 Using minValue() to create Date objects will be removed in 3.0', E_USER_DEPRECATED);
+        }
+
+        return $instance;
     }
 
     /**
@@ -199,6 +213,10 @@ trait FactoryTrait
         ?int $day = null,
         $tz = null
     ): ChronosInterface {
+        if (static::class === ChronosDate::class) {
+            trigger_error('2.5 createFromDate() will be removed in 3.x.', E_USER_DEPRECATED);
+        }
+
         return static::create($year, $month, $day, null, null, null, null, $tz);
     }
 
@@ -219,7 +237,12 @@ trait FactoryTrait
         ?int $microsecond = null,
         $tz = null
     ): ChronosInterface {
-        return static::create(null, null, null, $hour, $minute, $second, $microsecond, $tz);
+        $instance = static::create(null, null, null, $hour, $minute, $second, $microsecond, $tz);
+        if (get_class($instance) === ChronosDate::class) {
+            trigger_error('2.5 Using createFromTime to create Date objects will be removed in 3.0', E_USER_DEPRECATED);
+        }
+
+        return $instance;
     }
 
     /**
@@ -315,7 +338,15 @@ trait FactoryTrait
      */
     public static function createFromTimestamp(int $timestamp, $tz = null): ChronosInterface
     {
-        return static::now($tz)->setTimestamp($timestamp);
+        $instance = static::now($tz)->setTimestamp($timestamp);
+        if (get_class($instance) === ChronosDate::class) {
+            trigger_error(
+                '2.5 Creating Date instances with createFromTimestamp() will be removed in 3.0',
+                E_USER_DEPRECATED
+            );
+        }
+
+        return $instance;
     }
 
     /**
@@ -326,7 +357,13 @@ trait FactoryTrait
      */
     public static function createFromTimestampUTC(int $timestamp): ChronosInterface
     {
-        return new static($timestamp);
+        trigger_error(
+            '2.5 createFromTimestampUTC() is deprecated. Use createFromTimestamp() instead.',
+            E_USER_DEPRECATED
+        );
+        $instance = new static($timestamp);
+
+        return $instance;
     }
 
     /**
@@ -358,8 +395,15 @@ trait FactoryTrait
     public static function getLastErrors(): array
     {
         if (empty(static::$_lastErrors)) {
-            return parent::getLastErrors();
+            return parent::getLastErrors() ?: [
+                'warning_count' => 0,
+                'warnings' => [],
+                'error_count' => 0,
+                'errors' => [],
+            ];
         }
+
+        trigger_error('2.5 getLastErrors() is deprecated. Exceptions will be raised in 3.x', E_USER_DEPRECATED);
 
         return static::$_lastErrors;
     }

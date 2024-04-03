@@ -642,6 +642,10 @@ class PostgresSchemaDialect extends SchemaDialect
         $content = array_merge($columns, $constraints);
         $content = implode(",\n", array_filter($content));
         $tableName = $this->_driver->quoteIdentifier($schema->name());
+        $dbSchema = $this->_driver->schema();
+        if ($dbSchema != 'public') {
+            $tableName = $this->_driver->quoteIdentifier($dbSchema) . '.' . $tableName;
+        }
         $temporary = $schema->isTemporary() ? ' TEMPORARY ' : ' ';
         $out = [];
         $out[] = sprintf("CREATE%sTABLE %s (\n%s\n)", $temporary, $tableName, $content);
@@ -693,6 +697,8 @@ class PostgresSchemaDialect extends SchemaDialect
 }
 
 // phpcs:disable
-// Add backwards compatible alias.
-class_alias('Cake\Database\Schema\PostgresSchemaDialect', 'Cake\Database\Schema\PostgresSchema');
+class_alias(
+    'Cake\Database\Schema\PostgresSchemaDialect',
+    'Cake\Database\Schema\PostgresSchema'
+);
 // phpcs:enable

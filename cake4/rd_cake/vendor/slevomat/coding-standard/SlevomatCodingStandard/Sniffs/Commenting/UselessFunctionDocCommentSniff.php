@@ -22,7 +22,7 @@ class UselessFunctionDocCommentSniff implements Sniff
 
 	public const CODE_USELESS_DOC_COMMENT = 'UselessDocComment';
 
-	/** @var string[] */
+	/** @var list<string> */
 	public $traversableTypeHints = [];
 
 	/** @var array<int, string>|null */
@@ -91,7 +91,7 @@ class UselessFunctionDocCommentSniff implements Sniff
 			}
 		}
 
-		foreach (AnnotationHelper::getAnnotations($phpcsFile, $functionPointer) as [$annotation]) {
+		foreach (AnnotationHelper::getAnnotations($phpcsFile, $functionPointer) as $annotation) {
 			if (!in_array($annotation->getName(), ['@param', '@return'], true)) {
 				return;
 			}

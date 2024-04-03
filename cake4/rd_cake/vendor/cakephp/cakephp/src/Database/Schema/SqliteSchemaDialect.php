@@ -118,7 +118,7 @@ class SqliteSchemaDialect extends SchemaDialect
             return ['type' => TableSchema::TYPE_BOOLEAN, 'length' => null];
         }
 
-        if ($col === 'char' && $length === 36) {
+        if (($col === 'char' && $length === 36) || $col === 'uuid') {
             return ['type' => TableSchema::TYPE_UUID, 'length' => null];
         }
         if ($col === 'char') {
@@ -642,6 +642,8 @@ class SqliteSchemaDialect extends SchemaDialect
 }
 
 // phpcs:disable
-// Add backwards compatible alias.
-class_alias('Cake\Database\Schema\SqliteSchemaDialect', 'Cake\Database\Schema\SqliteSchema');
+class_alias(
+    'Cake\Database\Schema\SqliteSchemaDialect',
+    'Cake\Database\Schema\SqliteSchema'
+);
 // phpcs:enable

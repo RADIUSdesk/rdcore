@@ -3,22 +3,19 @@
 namespace SlevomatCodingStandard\Sniffs\Classes;
 
 use PHP_CodeSniffer\Files\File;
+use PHP_CodeSniffer\Util\Tokens;
 use SlevomatCodingStandard\Helpers\TokenHelper;
 use function array_keys;
 use function count;
 use function in_array;
 use function sprintf;
-use const T_ANON_CLASS;
-use const T_CLASS;
 use const T_CONST;
-use const T_ENUM;
+use const T_ENUM_CASE;
 use const T_FUNCTION;
-use const T_INTERFACE;
-use const T_TRAIT;
 use const T_USE;
 use const T_VARIABLE;
 
-class ConstantSpacingSniff extends AbstractPropertyAndConstantSpacing
+class ConstantSpacingSniff extends AbstractPropertyConstantAndEnumCaseSpacing
 {
 
 	public const CODE_INCORRECT_COUNT_OF_BLANK_LINES_AFTER_CONSTANT = 'IncorrectCountOfBlankLinesAfterConstant';
@@ -45,7 +42,7 @@ class ConstantSpacingSniff extends AbstractPropertyAndConstantSpacing
 
 		/** @var int $classPointer */
 		$classPointer = array_keys($tokens[$constantPointer]['conditions'])[count($tokens[$constantPointer]['conditions']) - 1];
-		if (!in_array($tokens[$classPointer]['code'], [T_CLASS, T_INTERFACE, T_ANON_CLASS, T_ENUM, T_TRAIT], true)) {
+		if (!in_array($tokens[$classPointer]['code'], Tokens::$ooScopeTokens, true)) {
 			return $constantPointer;
 		}
 
@@ -60,7 +57,7 @@ class ConstantSpacingSniff extends AbstractPropertyAndConstantSpacing
 			return true;
 		}
 
-		$nextPointer = TokenHelper::findNext($phpcsFile, [T_FUNCTION, T_CONST, T_VARIABLE, T_USE], $pointer + 1);
+		$nextPointer = TokenHelper::findNext($phpcsFile, [T_FUNCTION, T_ENUM_CASE, T_CONST, T_VARIABLE, T_USE], $pointer + 1);
 
 		return $tokens[$nextPointer]['code'] === T_CONST;
 	}

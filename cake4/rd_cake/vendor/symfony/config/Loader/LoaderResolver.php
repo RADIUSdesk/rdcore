@@ -36,7 +36,7 @@ class LoaderResolver implements LoaderResolverInterface
         }
     }
 
-    public function resolve(mixed $resource, string $type = null): LoaderInterface|false
+    public function resolve(mixed $resource, ?string $type = null): LoaderInterface|false
     {
         foreach ($this->loaders as $loader) {
             if ($loader->supports($resource, $type)) {
@@ -47,6 +47,9 @@ class LoaderResolver implements LoaderResolverInterface
         return false;
     }
 
+    /**
+     * @return void
+     */
     public function addLoader(LoaderInterface $loader)
     {
         $this->loaders[] = $loader;

@@ -22,6 +22,8 @@ use Cake\View\Helper;
 use Cake\View\StringTemplate;
 use Cake\View\StringTemplateTrait;
 use Cake\View\View;
+use function Cake\Core\h;
+use function Cake\I18n\__;
 
 /**
  * Pagination Helper class for easy generation of pagination links.
@@ -891,11 +893,9 @@ class PaginatorHelper extends Helper
             ]);
         }
 
-        $url = $options['url'];
-        $url['?']['page'] = $params['page'];
         $out .= $templater->format('current', [
             'text' => $this->Number->format($params['page']),
-            'url' => $this->generateUrl($url, $options['model']),
+            'url' => $this->generateUrl(['page' => $params['page']], $options['model'], $options['url']),
         ]);
 
         $start = $params['page'] + 1;

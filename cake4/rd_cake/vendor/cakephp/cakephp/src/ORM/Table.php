@@ -40,13 +40,21 @@ use Cake\ORM\Association\HasOne;
 use Cake\ORM\Exception\MissingEntityException;
 use Cake\ORM\Exception\PersistenceFailedException;
 use Cake\ORM\Exception\RolledbackTransactionException;
+use Cake\ORM\Query\DeleteQuery;
+use Cake\ORM\Query\InsertQuery;
+use Cake\ORM\Query\SelectQuery;
+use Cake\ORM\Query\UpdateQuery;
 use Cake\ORM\Rule\IsUnique;
 use Cake\Utility\Inflector;
 use Cake\Validation\ValidatorAwareInterface;
 use Cake\Validation\ValidatorAwareTrait;
 use Exception;
 use InvalidArgumentException;
+use ReflectionMethod;
 use RuntimeException;
+use function Cake\Core\deprecationWarning;
+use function Cake\Core\getTypeName;
+use function Cake\Core\namespaceSplit;
 
 /**
  * Represents a single database table.
@@ -515,11 +523,17 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
     public function getSchema(): TableSchemaInterface
     {
         if ($this->_schema === null) {
-            $this->_schema = $this->_initializeSchema(
-                $this->getConnection()
-                    ->getSchemaCollection()
-                    ->describe($this->getTable())
-            );
+            $this->_schema = $this->getConnection()
+                ->getSchemaCollection()
+                ->describe($this->getTable());
+
+            $method = new ReflectionMethod($this, '_initializeSchema');
+            if ($method->getDeclaringClass()->getName() != Table::class) {
+                deprecationWarning(
+                    'Table::_initializeSchema() is deprecated. Override `getSchema()` with a parent call instead.'
+                );
+                $this->_schema = $this->_initializeSchema($this->_schema);
+            }
             if (Configure::read('debug')) {
                 $this->checkAliasLengths();
             }
@@ -632,9 +646,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
      */
     public function hasField(string $field): bool
     {
-        $schema = $this->getSchema();
-
-        return $schema->getColumn($field) !== null;
+        return $this->getSchema()->getColumn($field) !== null;
     }
 
     /**
@@ -684,22 +696,34 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
     /**
      * Returns the display field.
      *
-     * @return array<string>|string|null
+     * @return array<string>|string
      */
     public function getDisplayField()
     {
-        if ($this->_displayField === null) {
-            $schema = $this->getSchema();
-            $this->_displayField = $this->getPrimaryKey();
-            foreach (['title', 'name', 'label'] as $field) {
-                if ($schema->hasColumn($field)) {
-                    $this->_displayField = $field;
-                    break;
-                }
+        if ($this->_displayField !== null) {
+            return $this->_displayField;
+        }
+
+        $schema = $this->getSchema();
+        foreach (['title', 'name', 'label'] as $field) {
+            if ($schema->hasColumn($field)) {
+                return $this->_displayField = $field;
             }
         }
 
-        return $this->_displayField;
+        foreach ($schema->columns() as $column) {
+            $columnSchema = $schema->getColumn($column);
+            if (
+                $columnSchema &&
+                $columnSchema['null'] !== true &&
+                $columnSchema['type'] === 'string' &&
+                !preg_match('/pass|token|secret/i', $column)
+            ) {
+                return $this->_displayField = $column;
+            }
+        }
+
+        return $this->_displayField = $this->getPrimaryKey();
     }
 
     /**
@@ -1048,10 +1072,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
     {
         $options += ['sourceTable' => $this];
 
-        /** @var \Cake\ORM\Association\BelongsTo $association */
-        $association = $this->_associations->load(BelongsTo::class, $associated, $options);
-
-        return $association;
+        return $this->_associations->load(BelongsTo::class, $associated, $options);
     }
 
     /**
@@ -1094,10 +1115,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
     {
         $options += ['sourceTable' => $this];
 
-        /** @var \Cake\ORM\Association\HasOne $association */
-        $association = $this->_associations->load(HasOne::class, $associated, $options);
-
-        return $association;
+        return $this->_associations->load(HasOne::class, $associated, $options);
     }
 
     /**
@@ -1146,10 +1164,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
     {
         $options += ['sourceTable' => $this];
 
-        /** @var \Cake\ORM\Association\HasMany $association */
-        $association = $this->_associations->load(HasMany::class, $associated, $options);
-
-        return $association;
+        return $this->_associations->load(HasMany::class, $associated, $options);
     }
 
     /**
@@ -1200,10 +1215,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
     {
         $options += ['sourceTable' => $this];
 
-        /** @var \Cake\ORM\Association\BelongsToMany $association */
-        $association = $this->_associations->load(BelongsToMany::class, $associated, $options);
-
-        return $association;
+        return $this->_associations->load(BelongsToMany::class, $associated, $options);
     }
 
     /**
@@ -1266,7 +1278,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
      */
     public function find(string $type = 'all', array $options = []): Query
     {
-        return $this->callFinder($type, $this->query()->select(), $options);
+        return $this->callFinder($type, $this->selectQuery()->select(), $options);
     }
 
     /**
@@ -1711,7 +1723,54 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
      */
     public function query(): Query
     {
+        deprecationWarning(
+            'As of 4.5.0 using query() is deprecated. Instead use `insertQuery()`, ' .
+            '`deleteQuery()`, `selectQuery()` or `updateQuery()`. The query objects ' .
+            'returned by these methods will emit deprecations that will become fatal errors in 5.0.' .
+            'See https://book.cakephp.org/4/en/appendices/4-5-migration-guide.html for more information.'
+        );
+
         return new Query($this->getConnection(), $this);
+    }
+
+    /**
+     * Creates a new DeleteQuery instance for a table.
+     *
+     * @return \Cake\ORM\Query\DeleteQuery
+     */
+    public function deleteQuery(): DeleteQuery
+    {
+        return new DeleteQuery($this->getConnection(), $this);
+    }
+
+    /**
+     * Creates a new InsertQuery instance for a table.
+     *
+     * @return \Cake\ORM\Query\InsertQuery
+     */
+    public function insertQuery(): InsertQuery
+    {
+        return new InsertQuery($this->getConnection(), $this);
+    }
+
+    /**
+     * Creates a new SelectQuery instance for a table.
+     *
+     * @return \Cake\ORM\Query\SelectQuery
+     */
+    public function selectQuery(): SelectQuery
+    {
+        return new SelectQuery($this->getConnection(), $this);
+    }
+
+    /**
+     * Creates a new UpdateQuery instance for a table.
+     *
+     * @return \Cake\ORM\Query\UpdateQuery
+     */
+    public function updateQuery(): UpdateQuery
+    {
+        return new UpdateQuery($this->getConnection(), $this);
     }
 
     /**
@@ -1730,8 +1789,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
      */
     public function updateAll($fields, $conditions): int
     {
-        $statement = $this->query()
-            ->update()
+        $statement = $this->updateQuery()
             ->set($fields)
             ->where($conditions)
             ->execute();
@@ -1745,8 +1803,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
      */
     public function deleteAll($conditions): int
     {
-        $statement = $this->query()
-            ->delete()
+        $statement = $this->deleteQuery()
             ->where($conditions)
             ->execute();
         $statement->closeCursor();
@@ -2086,7 +2143,8 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
             return false;
         }
 
-        $statement = $this->query()->insert(array_keys($data))
+        $statement = $this->insertQuery()
+            ->insert(array_keys($data))
             ->values($data)
             ->execute();
 
@@ -2167,8 +2225,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
             throw new InvalidArgumentException($message);
         }
 
-        $statement = $this->query()
-            ->update()
+        $statement = $this->updateQuery()
             ->set($data)
             ->where($primaryKey)
             ->execute();
@@ -2508,8 +2565,7 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
             return $success;
         }
 
-        $statement = $this->query()
-            ->delete()
+        $statement = $this->deleteQuery()
             ->where($entity->extract($primaryKey))
             ->execute();
 
@@ -2782,9 +2838,8 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
     public function newEntity(array $data, array $options = []): EntityInterface
     {
         $options['associated'] = $options['associated'] ?? $this->_associations->keys();
-        $marshaller = $this->marshaller();
 
-        return $marshaller->one($data, $options);
+        return $this->marshaller()->one($data, $options);
     }
 
     /**
@@ -2822,9 +2877,8 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
     public function newEntities(array $data, array $options = []): array
     {
         $options['associated'] = $options['associated'] ?? $this->_associations->keys();
-        $marshaller = $this->marshaller();
 
-        return $marshaller->many($data, $options);
+        return $this->marshaller()->many($data, $options);
     }
 
     /**
@@ -2881,9 +2935,8 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
     public function patchEntity(EntityInterface $entity, array $data, array $options = []): EntityInterface
     {
         $options['associated'] = $options['associated'] ?? $this->_associations->keys();
-        $marshaller = $this->marshaller();
 
-        return $marshaller->merge($entity, $data, $options);
+        return $this->marshaller()->merge($entity, $data, $options);
     }
 
     /**
@@ -2920,9 +2973,8 @@ class Table implements RepositoryInterface, EventListenerInterface, EventDispatc
     public function patchEntities(iterable $entities, array $data, array $options = []): array
     {
         $options['associated'] = $options['associated'] ?? $this->_associations->keys();
-        $marshaller = $this->marshaller();
 
-        return $marshaller->mergeMany($entities, $data, $options);
+        return $this->marshaller()->mergeMany($entities, $data, $options);
     }
 
     /**

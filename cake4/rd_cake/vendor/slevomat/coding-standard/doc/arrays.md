@@ -1,8 +1,24 @@
 ## Arrays
 
+#### SlevomatCodingStandard.Arrays.AlphabeticallySortedByKeys 🔧
+
+Arrays should be defined with keys in alphabetical order.
+It defines where new entries should be inserted.
+It reduces merge conflicts and duplicate entries.
+
+This sniff enforces natural sorting of array definitions by key in multi-line arrays.
+
+#### SlevomatCodingStandard.Arrays.ArrayAccess 🔧
+
+Disallow whitespace between array access operator and the variable, or between array access operators.
+
 #### SlevomatCodingStandard.Arrays.DisallowImplicitArrayCreation
 
 Disallows implicit array creation.
+
+#### SlevomatCodingStandard.Arrays.DisallowPartiallyKeyed 🚧
+
+Array must have keys specified for either all or none of the values.
 
 #### SlevomatCodingStandard.Arrays.MultiLineArrayEndBracketPlacement 🔧
 
@@ -21,10 +37,8 @@ Sniff provides the following settings:
 
 Commas after last element in an array make adding a new element easier and result in a cleaner versioning diff.
 
-This sniff enforces trailing commas in multi-line arrays and requires short array syntax `[]`.
+This sniff enforces trailing commas in multi-line arrays.
 
 Sniff provides the following settings:
 
 * `enableAfterHeredoc`: enables/disables trailing commas after HEREDOC/NOWDOC, default based on PHP version.
-
-

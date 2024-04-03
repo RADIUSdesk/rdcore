@@ -4,13 +4,13 @@ namespace SlevomatCodingStandard\Sniffs\Arrays;
 
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
+use SlevomatCodingStandard\Helpers\ArrayHelper;
 use SlevomatCodingStandard\Helpers\SniffSettingsHelper;
 use SlevomatCodingStandard\Helpers\TokenHelper;
 use function in_array;
 use const T_COMMA;
 use const T_END_HEREDOC;
 use const T_END_NOWDOC;
-use const T_OPEN_SHORT_ARRAY;
 
 class TrailingArrayCommaSniff implements Sniff
 {
@@ -25,9 +25,7 @@ class TrailingArrayCommaSniff implements Sniff
 	 */
 	public function register(): array
 	{
-		return [
-			T_OPEN_SHORT_ARRAY,
-		];
+		return TokenHelper::$arrayTokenCodes;
 	}
 
 	/**
@@ -39,35 +37,35 @@ class TrailingArrayCommaSniff implements Sniff
 		$this->enableAfterHeredoc = SniffSettingsHelper::isEnabledByPhpVersion($this->enableAfterHeredoc, 70300);
 
 		$tokens = $phpcsFile->getTokens();
-		$arrayToken = $tokens[$stackPointer];
-		$closeParenthesisPointer = $arrayToken['bracket_closer'];
-		$openParenthesisToken = $tokens[$arrayToken['bracket_opener']];
-		$closeParenthesisToken = $tokens[$closeParenthesisPointer];
-		if ($openParenthesisToken['line'] === $closeParenthesisToken['line']) {
+
+		[$arrayOpenerPointer, $arrayCloserPointer] = ArrayHelper::openClosePointers($tokens[$stackPointer]);
+
+		if ($tokens[$arrayOpenerPointer]['line'] === $tokens[$arrayCloserPointer]['line']) {
 			return;
 		}
 
-		/** @var int $previousToCloseParenthesisPointer */
-		$previousToCloseParenthesisPointer = TokenHelper::findPreviousEffective($phpcsFile, $closeParenthesisPointer - 1);
-		$previousToCloseParenthesisToken = $tokens[$previousToCloseParenthesisPointer];
+		/** @var int $pointerPreviousToClose */
+		$pointerPreviousToClose = TokenHelper::findPreviousEffective($phpcsFile, $arrayCloserPointer - 1);
+		$tokenPreviousToClose = $tokens[$pointerPreviousToClose];
+
 		if (
-			$previousToCloseParenthesisPointer === $arrayToken['bracket_opener']
-			|| $previousToCloseParenthesisToken['code'] === T_COMMA
-			|| $closeParenthesisToken['line'] === $previousToCloseParenthesisToken['line']
+			$pointerPreviousToClose === $arrayOpenerPointer
+			|| $tokenPreviousToClose['code'] === T_COMMA
+			|| $tokens[$arrayCloserPointer]['line'] === $tokenPreviousToClose['line']
 		) {
 			return;
 		}
 
 		if (
 			!$this->enableAfterHeredoc
-			&& in_array($previousToCloseParenthesisToken['code'], [T_END_HEREDOC, T_END_NOWDOC], true)
+			&& in_array($tokenPreviousToClose['code'], [T_END_HEREDOC, T_END_NOWDOC], true)
 		) {
 			return;
 		}
 
 		$fix = $phpcsFile->addFixableError(
 			'Multi-line arrays must have a trailing comma after the last element.',
-			$previousToCloseParenthesisPointer,
+			$pointerPreviousToClose,
 			self::CODE_MISSING_TRAILING_COMMA
 		);
 		if (!$fix) {
@@ -75,7 +73,7 @@ class TrailingArrayCommaSniff implements Sniff
 		}
 
 		$phpcsFile->fixer->beginChangeset();
-		$phpcsFile->fixer->addContent($previousToCloseParenthesisPointer, ',');
+		$phpcsFile->fixer->addContent($pointerPreviousToClose, ',');
 		$phpcsFile->fixer->endChangeset();
 	}
 

@@ -23,6 +23,9 @@ use InvalidArgumentException;
 use IteratorAggregate;
 use Psr\Http\Message\UploadedFileInterface;
 use Traversable;
+use function Cake\Core\deprecationWarning;
+use function Cake\Core\getTypeName;
+use function Cake\I18n\__d;
 
 /**
  * Validator object encapsulates all methods related to data validations for a model
@@ -31,6 +34,8 @@ use Traversable;
  * Implements ArrayAccess to easily modify rules in the set
  *
  * @link https://book.cakephp.org/4/en/core-libraries/validation.html
+ * @template-implements \ArrayAccess<string, \Cake\Validation\ValidationSet>
+ * @template-implements \IteratorAggregate<string, \Cake\Validation\ValidationSet>
  */
 class Validator implements ArrayAccess, IteratorAggregate, Countable
 {
@@ -193,7 +198,7 @@ class Validator implements ArrayAccess, IteratorAggregate, Countable
      */
     public function __construct()
     {
-        $this->_useI18n = function_exists('__d');
+        $this->_useI18n = function_exists('\Cake\I18n\__d');
         $this->_providers = self::$_defaultProviders;
     }
 
@@ -231,7 +236,7 @@ class Validator implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Validates and returns an array of failed fields and their error messages.
      *
-     * @param array $data The data to be checked for errors
+     * @param array<string|int, mixed> $data The data to be checked for errors
      * @param bool $newRecord whether the data to be validated is new or to be updated.
      * @return array<array> Array of failed fields
      */
@@ -240,6 +245,7 @@ class Validator implements ArrayAccess, IteratorAggregate, Countable
         $errors = [];
 
         foreach ($this->_fields as $name => $field) {
+            $name = (string)$name;
             $keyPresent = array_key_exists($name, $data);
 
             $providers = $this->_providers;
@@ -422,12 +428,12 @@ class Validator implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Returns the rule set for a field
      *
-     * @param string $field name of the field to check
+     * @param string|int $field name of the field to check
      * @return \Cake\Validation\ValidationSet
      */
     public function offsetGet($field): ValidationSet
     {
-        return $this->field($field);
+        return $this->field((string)$field);
     }
 
     /**
@@ -676,7 +682,7 @@ class Validator implements ArrayAccess, IteratorAggregate, Countable
      * You can also set mode and message for all passed fields, the individual
      * setting takes precedence over group settings.
      *
-     * @param array|string $field the name of the field or list of fields.
+     * @param array<string|int, mixed>|string $field the name of the field or list of fields.
      * @param callable|string|bool $mode Valid values are true, false, 'create', 'update'.
      *   If a callable is passed then the field will be required only when the callback
      *   returns true.
@@ -698,7 +704,7 @@ class Validator implements ArrayAccess, IteratorAggregate, Countable
             $settings = $this->_convertValidatorToArray($fieldName, $defaults, $setting);
             $fieldName = current(array_keys($settings));
 
-            $this->field($fieldName)->requirePresence($settings[$fieldName]['mode']);
+            $this->field((string)$fieldName)->requirePresence($settings[$fieldName]['mode']);
             if ($settings[$fieldName]['message']) {
                 $this->_presenceMessages[$fieldName] = $settings[$fieldName]['message'];
             }
@@ -1144,12 +1150,15 @@ class Validator implements ArrayAccess, IteratorAggregate, Countable
      *
      * @param string|int $fieldName name of field
      * @param array<string, mixed> $defaults default settings
-     * @param array<string, mixed>|string $settings settings from data
+     * @param array<string|int, mixed>|string $settings settings from data
      * @return array<array>
      * @throws \InvalidArgumentException
      */
     protected function _convertValidatorToArray($fieldName, array $defaults = [], $settings = []): array
     {
+        if (is_int($settings)) {
+            $settings = (string)$settings;
+        }
         if (is_string($settings)) {
             $fieldName = $settings;
             $settings = [];
@@ -1224,7 +1233,7 @@ class Validator implements ArrayAccess, IteratorAggregate, Countable
      *
      * @deprecated 3.7.0 Use {@link notEmptyString()}, {@link notEmptyArray()}, {@link notEmptyFile()},
      *   {@link notEmptyDate()}, {@link notEmptyTime()} or {@link notEmptyDateTime()} instead.
-     * @param array|string $field the name of the field or list of fields
+     * @param array<string|int, mixed>|string $field the name of the field or list of fields
      * @param string|null $message The message to show if the field is not
      * @param callable|string|bool $when Indicates when the field is not allowed
      *   to be empty. Valid values are true (always), 'create', 'update'. If a
@@ -1255,7 +1264,7 @@ class Validator implements ArrayAccess, IteratorAggregate, Countable
 
             $whenSetting = $this->invertWhenClause($settings[$fieldName]['when']);
 
-            $this->field($fieldName)->allowEmpty($whenSetting);
+            $this->field((string)$fieldName)->allowEmpty($whenSetting);
             $this->_allowEmptyFlags[$fieldName] = static::EMPTY_ALL;
             if ($settings[$fieldName]['message']) {
                 $this->_allowEmptyMessages[$fieldName] = $settings[$fieldName]['message'];
@@ -2345,8 +2354,30 @@ class Validator implements ArrayAccess, IteratorAggregate, Countable
      * @see \Cake\Validation\Validation::isArray()
      * @return $this
      */
+    public function array(string $field, ?string $message = null, $when = null)
+    {
+        $extra = array_filter(['on' => $when, 'message' => $message]);
+
+        return $this->add($field, 'array', $extra + [
+            'rule' => 'isArray',
+        ]);
+    }
+
+    /**
+     * Add a validation rule to ensure that a field contains an array.
+     *
+     * @param string $field The field you want to apply the rule to.
+     * @param string|null $message The error message when the rule fails.
+     * @param callable|string|null $when Either 'create' or 'update' or a callable that returns
+     *   true when the validation rule should be applied.
+     * @see \Cake\Validation\Validation::isArray()
+     * @return $this
+     * @deprecated 4.5.0 Use Validator::array() instead.
+     */
     public function isArray(string $field, ?string $message = null, $when = null)
     {
+        deprecationWarning('`Validator::isArray()` is deprecated, use `Validator::array()` instead');
+
         $extra = array_filter(['on' => $when, 'message' => $message]);
 
         return $this->add($field, 'isArray', $extra + [

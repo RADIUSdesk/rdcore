@@ -10,6 +10,8 @@ use Cake\Routing\Router;
 use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
+use function Cake\Core\deprecationWarning;
+use function Cake\Core\env;
 
 /**
  * Entry point to CakePHP's exception handling.
@@ -132,7 +134,7 @@ class ExceptionTrap
         }
 
         if (is_string($class)) {
-            /** @var class-string<\Cake\Error\ExceptionRendererInterface> $class */
+            /** @psalm-suppress ArgumentTypeCoercion */
             if (!(method_exists($class, 'render') && method_exists($class, 'write'))) {
                 throw new InvalidArgumentException(
                     "Cannot use {$class} as an `exceptionRenderer`. " .
@@ -140,6 +142,7 @@ class ExceptionTrap
                 );
             }
 
+            /** @var class-string<\Cake\Error\ExceptionRendererInterface> $class */
             return new $class($exception, $request, $this->_config);
         }
 
@@ -236,8 +239,15 @@ class ExceptionTrap
         $this->logException($exception, $request);
 
         try {
-            $renderer = $this->renderer($exception);
-            $renderer->write($renderer->render());
+            $event = $this->dispatchEvent('Exception.beforeRender', ['exception' => $exception, 'request' => $request]);
+            if ($event->isStopped()) {
+                return;
+            }
+            $exception = $event->getData('exception');
+            assert($exception instanceof Throwable);
+
+            $renderer = $this->renderer($exception, $request);
+            $renderer->write($event->getResult() ?: $renderer->render());
         } catch (Throwable $exception) {
             $this->logInternalError($exception);
         }
@@ -347,6 +357,7 @@ class ExceptionTrap
             foreach ($this->getConfig('skipLog') as $class) {
                 if ($exception instanceof $class) {
                     $shouldLog = false;
+                    break;
                 }
             }
         }
@@ -363,7 +374,6 @@ class ExceptionTrap
                 $this->logger()->log($exception, $request);
             }
         }
-        $this->dispatchEvent('Exception.beforeRender', ['exception' => $exception]);
     }
 
     /**

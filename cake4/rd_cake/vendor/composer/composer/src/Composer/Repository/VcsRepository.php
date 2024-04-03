@@ -21,6 +21,7 @@ use Composer\Package\Loader\ValidatingArrayLoader;
 use Composer\Package\Loader\InvalidPackageException;
 use Composer\Package\Loader\LoaderInterface;
 use Composer\EventDispatcher\EventDispatcher;
+use Composer\Util\Platform;
 use Composer\Util\ProcessExecutor;
 use Composer\Util\HttpDownloader;
 use Composer\Util\Url;
@@ -90,7 +91,7 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
             'svn' => 'Composer\Repository\Vcs\SvnDriver',
         ];
 
-        $this->url = $repoConfig['url'];
+        $this->url = $repoConfig['url'] = Platform::expandPath($repoConfig['url']);
         $this->io = $io;
         $this->type = $repoConfig['type'] ?? 'vcs';
         $this->isVerbose = $io->isVerbose();
@@ -383,7 +384,7 @@ class VcsRepository extends ArrayRepository implements ConfigurableRepositoryInt
 
                 $packageData = $this->preProcess($driver, $data, $identifier);
                 $package = $this->loader->load($packageData);
-                if ($this->loader instanceof ValidatingArrayLoader && $this->loader->getWarnings()) {
+                if ($this->loader instanceof ValidatingArrayLoader && \count($this->loader->getWarnings()) > 0) {
                     throw new InvalidPackageException($this->loader->getErrors(), $this->loader->getWarnings(), $packageData);
                 }
                 $this->addPackage($package);

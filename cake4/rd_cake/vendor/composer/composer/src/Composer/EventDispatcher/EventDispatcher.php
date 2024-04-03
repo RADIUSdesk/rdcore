@@ -14,10 +14,14 @@ namespace Composer\EventDispatcher;
 
 use Composer\DependencyResolver\Transaction;
 use Composer\Installer\InstallerEvent;
+use Composer\IO\BufferIO;
+use Composer\IO\ConsoleIO;
 use Composer\IO\IOInterface;
 use Composer\Composer;
 use Composer\PartialComposer;
 use Composer\Pcre\Preg;
+use Composer\Plugin\CommandEvent;
+use Composer\Plugin\PreCommandRunEvent;
 use Composer\Util\Platform;
 use Composer\DependencyResolver\Operation\OperationInterface;
 use Composer\Repository\RepositoryInterface;
@@ -27,6 +31,10 @@ use Composer\Installer\BinaryInstaller;
 use Composer\Util\ProcessExecutor;
 use Composer\Script\Event as ScriptEvent;
 use Composer\Autoload\ClassLoader;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\StringInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\ExecutableFinder;
 
@@ -174,6 +182,10 @@ class EventDispatcher
             $details = null;
             if ($event instanceof PackageEvent) {
                 $details = (string) $event->getOperation();
+            } elseif ($event instanceof CommandEvent) {
+                $details = $event->getCommandName();
+            } elseif ($event instanceof PreCommandRunEvent) {
+                $details = $event->getCommand();
             }
             $this->io->writeError('Dispatching <info>'.$event->getName().'</info>'.($details ? ' ('.$details.')' : '').' event');
         }
@@ -188,6 +200,7 @@ class EventDispatcher
                 $return = 0;
                 $this->ensureBinDirIsInPath();
 
+                $formattedEventNameWithArgs = $event->getName() . ($event->getArguments() !== [] ? ' (' . implode(', ', $event->getArguments()) . ')' : '');
                 if (!is_string($callable)) {
                     if (!is_callable($callable)) {
                         $className = is_object($callable[0]) ? get_class($callable[0]) : $callable[0];
@@ -195,11 +208,11 @@ class EventDispatcher
                         throw new \RuntimeException('Subscriber '.$className.'::'.$callable[1].' for event '.$event->getName().' is not callable, make sure the function is defined and public');
                     }
                     if (is_array($callable) && (is_string($callable[0]) || is_object($callable[0])) && is_string($callable[1])) {
-                        $this->io->writeError(sprintf('> %s: %s', $event->getName(), (is_object($callable[0]) ? get_class($callable[0]) : $callable[0]).'->'.$callable[1]), true, IOInterface::VERBOSE);
+                        $this->io->writeError(sprintf('> %s: %s', $formattedEventNameWithArgs, (is_object($callable[0]) ? get_class($callable[0]) : $callable[0]).'->'.$callable[1]), true, IOInterface::VERBOSE);
                     }
                     $return = false === $callable($event) ? 1 : 0;
                 } elseif ($this->isComposerScript($callable)) {
-                    $this->io->writeError(sprintf('> %s: %s', $event->getName(), $callable), true, IOInterface::VERBOSE);
+                    $this->io->writeError(sprintf('> %s: %s', $formattedEventNameWithArgs, $callable), true, IOInterface::VERBOSE);
 
                     $script = explode(' ', substr($callable, 1));
                     $scriptName = $script[0];
@@ -207,6 +220,11 @@ class EventDispatcher
 
                     $args = array_merge($script, $event->getArguments());
                     $flags = $event->getFlags();
+                    if (isset($flags['script-alias-input'])) {
+                        $argsString = implode(' ', array_map(static function ($arg) { return ProcessExecutor::escape($arg); }, $script));
+                        $flags['script-alias-input'] = $argsString . ' ' . $flags['script-alias-input'];
+                        unset($argsString);
+                    }
                     if (strpos($callable, '@composer ') === 0) {
                         $exec = $this->getPhpExecCommand() . ' ' . ProcessExecutor::escape(Platform::getEnv('COMPOSER_BINARY')) . ' ' . implode(' ', $args);
                         if (0 !== ($exitCode = $this->executeTty($exec))) {
@@ -244,6 +262,49 @@ class EventDispatcher
 
                     try {
                         $return = false === $this->executeEventPhpScript($className, $methodName, $event) ? 1 : 0;
+                    } catch (\Exception $e) {
+                        $message = "Script %s handling the %s event terminated with an exception";
+                        $this->io->writeError('<error>'.sprintf($message, $callable, $event->getName()).'</error>', true, IOInterface::QUIET);
+                        throw $e;
+                    }
+                } elseif ($this->isCommandClass($callable)) {
+                    $className = $callable;
+                    if (!class_exists($className)) {
+                        $this->io->writeError('<warning>Class '.$className.' is not autoloadable, can not call '.$event->getName().' script</warning>', true, IOInterface::QUIET);
+                        continue;
+                    }
+                    if (!is_a($className, Command::class, true)) {
+                        $this->io->writeError('<warning>Class '.$className.' does not extend '.Command::class.', can not call '.$event->getName().' script</warning>', true, IOInterface::QUIET);
+                        continue;
+                    }
+                    if (defined('Composer\Script\ScriptEvents::'.str_replace('-', '_', strtoupper($event->getName())))) {
+                        $this->io->writeError('<warning>You cannot bind '.$event->getName().' to a Command class, use a non-reserved name</warning>', true, IOInterface::QUIET);
+                        continue;
+                    }
+
+                    $app = new Application();
+                    $app->setCatchExceptions(false);
+                    if (method_exists($app, 'setCatchErrors')) {
+                        $app->setCatchErrors(false);
+                    }
+                    $app->setAutoExit(false);
+                    $cmd = new $className($event->getName());
+                    $app->add($cmd);
+                    $app->setDefaultCommand((string) $cmd->getName(), true);
+                    try {
+                        $args = implode(' ', array_map(static function ($arg) { return ProcessExecutor::escape($arg); }, $event->getArguments()));
+                        // reusing the output from $this->io is mostly needed for tests, but generally speaking
+                        // it does not hurt to keep the same stream as the current Application
+                        if ($this->io instanceof ConsoleIO) {
+                            $reflProp = new \ReflectionProperty($this->io, 'output');
+                            if (PHP_VERSION_ID < 80100) {
+                                $reflProp->setAccessible(true);
+                            }
+                            $output = $reflProp->getValue($this->io);
+                        } else {
+                            $output = new ConsoleOutput();
+                        }
+                        $return = $app->run(new StringInput($event->getFlags()['script-alias-input'] ?? $args), $output);
                     } catch (\Exception $e) {
                         $message = "Script %s handling the %s event terminated with an exception";
                         $this->io->writeError('<error>'.sprintf($message, $callable, $event->getName()).'</error>', true, IOInterface::QUIET);
@@ -291,15 +352,23 @@ class EventDispatcher
                         $pathAndArgs = substr($exec, 5);
                         if (Platform::isWindows()) {
                             $pathAndArgs = Preg::replaceCallback('{^\S+}', static function ($path) {
-                                return str_replace('/', '\\', $path[0]);
+                                return str_replace('/', '\\', (string) $path[0]);
                             }, $pathAndArgs);
                         }
                         // match somename (not in quote, and not a qualified path) and if it is not a valid path from CWD then try to find it
                         // in $PATH. This allows support for `@php foo` where foo is a binary name found in PATH but not an actual relative path
-                        $matched = Preg::isMatch('{^[^\'"\s/\\\\]+}', $pathAndArgs, $match);
+                        $matched = Preg::isMatchStrictGroups('{^[^\'"\s/\\\\]+}', $pathAndArgs, $match);
                         if ($matched && !file_exists($match[0])) {
                             $finder = new ExecutableFinder;
                             if ($pathToExec = $finder->find($match[0])) {
+                                if (Platform::isWindows()) {
+                                    $execWithoutExt = Preg::replace('{\.(exe|bat|cmd|com)$}i', '', $pathToExec);
+                                    // prefer non-extension file if it exists when executing with PHP
+                                    if (file_exists($execWithoutExt)) {
+                                        $pathToExec = $execWithoutExt;
+                                    }
+                                    unset($execWithoutExt);
+                                }
                                 $pathAndArgs = $pathToExec . substr($pathAndArgs, strlen($match[0]));
                             }
                         }
@@ -313,6 +382,8 @@ class EventDispatcher
 
                         if (Platform::isWindows()) {
                             $exec = Preg::replaceCallback('{^\S+}', static function ($path) {
+                                assert(is_string($path[0]));
+
                                 return str_replace('/', '\\', $path[0]);
                             }, $exec);
                         }
@@ -505,6 +576,14 @@ class EventDispatcher
     protected function isPhpScript(string $callable): bool
     {
         return false === strpos($callable, ' ') && false !== strpos($callable, '::');
+    }
+
+    /**
+     * Checks if string given references a command class
+     */
+    protected function isCommandClass(string $callable): bool
+    {
+        return str_contains($callable, '\\') && !str_contains($callable, ' ') && str_ends_with($callable, 'Command');
     }
 
     /**

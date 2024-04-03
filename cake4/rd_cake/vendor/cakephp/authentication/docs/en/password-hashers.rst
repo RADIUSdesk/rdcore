@@ -8,7 +8,7 @@ This is using the php constant ``PASSWORD_DEFAULT`` for the encryption
 method. The default hash type is ``bcrypt``.
 
 See `the php
-documentation <http://php.net/manual/en/function.password-hash.php>`__
+documentation <https://php.net/manual/en/function.password-hash.php>`__
 for further information on bcrypt and PHP’s password hashing.
 
 The config options for this adapter are:
@@ -70,7 +70,7 @@ password needs to be upgraded::
            // Assuming you are using the `Password` identifier.
            if ($authentication->identifiers()->get('Password')->needsPasswordRehash()) {
                // Rehash happens on save.
-               $user = $this->Users->get($this->Auth->user('id'));
+               $user = $this->Users->get($authentication->getIdentity()->getIdentifier());
                $user->password = $this->request->getData('password');
                $this->Users->save($user);
            }

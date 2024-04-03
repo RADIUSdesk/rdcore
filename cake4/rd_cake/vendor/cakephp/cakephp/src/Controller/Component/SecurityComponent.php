@@ -209,7 +209,7 @@ class SecurityComponent extends Component
             ($requireSecure[0] === '*' ||
                 in_array($this->_action, $requireSecure, true)
             ) &&
-            !$controller->getRequest()->is('ssl')
+            !$controller->getRequest()->is('https')
         ) {
             throw new SecurityException(
                 'Request is not SSL and the action is required to be secure'
@@ -427,7 +427,7 @@ class SecurityComponent extends Component
         $expectedFields = Hash::get($expectedParts, 1);
         $dataFields = Hash::get($hashParts, 1);
         if ($dataFields) {
-            $dataFields = unserialize($dataFields);
+            $dataFields = unserialize($dataFields, ['allowed_classes' => false]);
         }
         $fieldsMessages = $this->_debugCheckFields(
             $dataFields,

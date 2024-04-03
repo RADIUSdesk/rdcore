@@ -20,13 +20,15 @@ use Composer\Pcre\Preg;
 class Version
 {
     /**
-     * @param  bool        $isFips Set by the method
+     * @param bool $isFips Set by the method
+     *
+     * @param-out bool $isFips
      */
     public static function parseOpenssl(string $opensslVersion, ?bool &$isFips): ?string
     {
         $isFips = false;
 
-        if (!Preg::isMatch('/^(?<version>[0-9.]+)(?<patch>[a-z]{0,2})?(?<suffix>(?:-?(?:dev|pre|alpha|beta|rc|fips)[\d]*)*)?(?<garbage>-\w+)?(?<garbage2> \(.+?\))?$/', $opensslVersion, $matches)) {
+        if (!Preg::isMatchStrictGroups('/^(?<version>[0-9.]+)(?<patch>[a-z]{0,2})(?<suffix>(?:-?(?:dev|pre|alpha|beta|rc|fips)[\d]*)*)(?:-\w+)?(?: \(.+?\))?$/', $opensslVersion, $matches)) {
             return null;
         }
 
@@ -44,7 +46,7 @@ class Version
 
     public static function parseLibjpeg(string $libjpegVersion): ?string
     {
-        if (!Preg::isMatch('/^(?<major>\d+)(?<minor>[a-z]*)$/', $libjpegVersion, $matches)) {
+        if (!Preg::isMatchStrictGroups('/^(?<major>\d+)(?<minor>[a-z]*)$/', $libjpegVersion, $matches)) {
             return null;
         }
 
@@ -53,7 +55,7 @@ class Version
 
     public static function parseZoneinfoVersion(string $zoneinfoVersion): ?string
     {
-        if (!Preg::isMatch('/^(?<year>\d{4})(?<revision>[a-z]*)$/', $zoneinfoVersion, $matches)) {
+        if (!Preg::isMatchStrictGroups('/^(?<year>\d{4})(?<revision>[a-z]*)$/', $zoneinfoVersion, $matches)) {
             return null;
         }
 

@@ -36,7 +36,7 @@ class Question
      * @param string                     $question The question to ask to the user
      * @param string|bool|int|float|null $default  The default answer to return if the user enters nothing
      */
-    public function __construct(string $question, string|bool|int|float $default = null)
+    public function __construct(string $question, string|bool|int|float|null $default = null)
     {
         $this->question = $question;
         $this->default = $default;
@@ -146,12 +146,11 @@ class Question
         if (\is_array($values)) {
             $values = $this->isAssoc($values) ? array_merge(array_keys($values), array_values($values)) : array_values($values);
 
-            $callback = static function () use ($values) {
-                return $values;
-            };
+            $callback = static fn () => $values;
         } elseif ($values instanceof \Traversable) {
-            $valueCache = null;
-            $callback = static function () use ($values, &$valueCache) {
+            $callback = static function () use ($values) {
+                static $valueCache;
+
                 return $valueCache ??= iterator_to_array($values, false);
             };
         } else {
@@ -176,7 +175,7 @@ class Question
      *
      * @return $this
      */
-    public function setAutocompleterCallback(callable $callback = null): static
+    public function setAutocompleterCallback(?callable $callback = null): static
     {
         if (1 > \func_num_args()) {
             trigger_deprecation('symfony/console', '6.2', 'Calling "%s()" without any arguments is deprecated, pass null explicitly instead.', __METHOD__);
@@ -195,7 +194,7 @@ class Question
      *
      * @return $this
      */
-    public function setValidator(callable $validator = null): static
+    public function setValidator(?callable $validator = null): static
     {
         if (1 > \func_num_args()) {
             trigger_deprecation('symfony/console', '6.2', 'Calling "%s()" without any arguments is deprecated, pass null explicitly instead.', __METHOD__);
@@ -267,6 +266,9 @@ class Question
         return $this->normalizer;
     }
 
+    /**
+     * @return bool
+     */
     protected function isAssoc(array $array)
     {
         return (bool) \count(array_filter(array_keys($array), 'is_string'));

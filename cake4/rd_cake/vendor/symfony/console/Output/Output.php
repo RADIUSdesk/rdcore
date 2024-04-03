@@ -37,13 +37,16 @@ abstract class Output implements OutputInterface
      * @param bool                          $decorated Whether to decorate messages
      * @param OutputFormatterInterface|null $formatter Output formatter instance (null to use default OutputFormatter)
      */
-    public function __construct(?int $verbosity = self::VERBOSITY_NORMAL, bool $decorated = false, OutputFormatterInterface $formatter = null)
+    public function __construct(?int $verbosity = self::VERBOSITY_NORMAL, bool $decorated = false, ?OutputFormatterInterface $formatter = null)
     {
         $this->verbosity = $verbosity ?? self::VERBOSITY_NORMAL;
         $this->formatter = $formatter ?? new OutputFormatter();
         $this->formatter->setDecorated($decorated);
     }
 
+    /**
+     * @return void
+     */
     public function setFormatter(OutputFormatterInterface $formatter)
     {
         $this->formatter = $formatter;
@@ -54,6 +57,9 @@ abstract class Output implements OutputInterface
         return $this->formatter;
     }
 
+    /**
+     * @return void
+     */
     public function setDecorated(bool $decorated)
     {
         $this->formatter->setDecorated($decorated);
@@ -64,6 +70,9 @@ abstract class Output implements OutputInterface
         return $this->formatter->isDecorated();
     }
 
+    /**
+     * @return void
+     */
     public function setVerbosity(int $level)
     {
         $this->verbosity = $level;
@@ -94,11 +103,17 @@ abstract class Output implements OutputInterface
         return self::VERBOSITY_DEBUG <= $this->verbosity;
     }
 
+    /**
+     * @return void
+     */
     public function writeln(string|iterable $messages, int $options = self::OUTPUT_NORMAL)
     {
         $this->write($messages, true, $options);
     }
 
+    /**
+     * @return void
+     */
     public function write(string|iterable $messages, bool $newline = false, int $options = self::OUTPUT_NORMAL)
     {
         if (!is_iterable($messages)) {
@@ -133,6 +148,8 @@ abstract class Output implements OutputInterface
 
     /**
      * Writes a message to the output.
+     *
+     * @return void
      */
     abstract protected function doWrite(string $message, bool $newline);
 }

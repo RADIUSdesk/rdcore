@@ -45,57 +45,53 @@ class EmitterStack extends SplStack implements EmitterInterface
     /**
      * Set an emitter on the stack by index.
      *
-     * @param int $index
-     * @param EmitterInterface $emitter
+     * @param int $offset
+     * @param EmitterInterface $value
      * @return void
      * @throws Exception\InvalidEmitterException If not an EmitterInterface instance.
      */
     #[ReturnTypeWillChange]
-    public function offsetSet($index, $emitter)
+    public function offsetSet($offset, $value)
     {
-        /** @psalm-suppress RedundantConditionGivenDocblockType */
-        $this->validateEmitter($emitter);
-        parent::offsetSet($index, $emitter);
+        $this->validateEmitter($value);
+        parent::offsetSet($offset, $value);
     }
 
     /**
      * Push an emitter to the stack.
      *
-     * @param EmitterInterface $emitter
+     * @param EmitterInterface $value
      * @return void
      * @throws Exception\InvalidEmitterException If not an EmitterInterface instance.
      */
     #[ReturnTypeWillChange]
-    public function push($emitter)
+    public function push($value)
     {
-        /** @psalm-suppress RedundantConditionGivenDocblockType */
-        $this->validateEmitter($emitter);
-        parent::push($emitter);
+        $this->validateEmitter($value);
+        parent::push($value);
     }
 
     /**
      * Unshift an emitter to the stack.
      *
-     * @param EmitterInterface $emitter
+     * @param EmitterInterface $value
      * @return void
      * @throws Exception\InvalidEmitterException If not an EmitterInterface instance.
      */
     #[ReturnTypeWillChange]
-    public function unshift($emitter)
+    public function unshift($value)
     {
-        /** @psalm-suppress RedundantConditionGivenDocblockType */
-        $this->validateEmitter($emitter);
-        parent::unshift($emitter);
+        $this->validateEmitter($value);
+        parent::unshift($value);
     }
 
     /**
      * Validate that an emitter implements EmitterInterface.
      *
-     * @param mixed $emitter
      * @throws Exception\InvalidEmitterException For non-emitter instances.
      * @psalm-assert EmitterInterface $emitter
      */
-    private function validateEmitter($emitter): void
+    private function validateEmitter(mixed $emitter): void
     {
         if (! $emitter instanceof EmitterInterface) {
             throw Exception\InvalidEmitterException::forEmitter($emitter);

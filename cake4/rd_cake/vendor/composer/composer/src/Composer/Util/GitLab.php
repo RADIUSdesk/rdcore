@@ -125,9 +125,22 @@ class GitLab
             $this->io->writeError($message);
         }
 
-        $this->io->writeError(sprintf('A token will be created and stored in "%s", your password will never be stored', $this->config->getAuthConfigSource()->getName()));
-        $this->io->writeError('To revoke access to this token you can visit '.$scheme.'://'.$originUrl.'/-/profile/applications');
-        $this->io->writeError('Alternatively you can setup an personal access token on  '.$scheme.'://'.$originUrl.'/-/profile/personal_access_tokens and store it under "gitlab-token" see https://getcomposer.org/doc/articles/authentication-for-private-packages.md#gitlab-token for more details.');
+        $localAuthConfig = $this->config->getLocalAuthConfigSource();
+        $personalAccessTokenLink = $scheme.'://'.$originUrl.'/-/profile/personal_access_tokens';
+        $revokeLink = $scheme.'://'.$originUrl.'/-/profile/applications';
+        $this->io->writeError(sprintf('A token will be created and stored in "%s", your password will never be stored', ($localAuthConfig !== null ? $localAuthConfig->getName() . ' OR ' : '') . $this->config->getAuthConfigSource()->getName()));
+        $this->io->writeError('To revoke access to this token you can visit:');
+        $this->io->writeError($revokeLink);
+        $this->io->writeError('Alternatively you can setup an personal access token on:');
+        $this->io->writeError($personalAccessTokenLink);
+        $this->io->writeError('and store it under "gitlab-token" see https://getcomposer.org/doc/articles/authentication-for-private-packages.md#gitlab-token for more details.');
+        $this->io->writeError('https://getcomposer.org/doc/articles/authentication-for-private-packages.md#gitlab-token');
+        $this->io->writeError('for more details.');
+
+        $storeInLocalAuthConfig = false;
+        if ($localAuthConfig !== null) {
+            $storeInLocalAuthConfig = $this->io->askConfirmation('A local auth config source was found, do you want to store the token there?', true);
+        }
 
         $attemptCounter = 0;
 
@@ -149,7 +162,8 @@ class GitLab
                         $this->io->writeError('Maximum number of login attempts exceeded. Please try again later.');
                     }
 
-                    $this->io->writeError('You can also manually create a personal access token enabling the "read_api" scope at '.$scheme.'://'.$originUrl.'/profile/personal_access_tokens');
+                    $this->io->writeError('You can also manually create a personal access token enabling the "read_api" scope at:');
+                    $this->io->writeError($scheme.'://'.$originUrl.'/profile/personal_access_tokens');
                     $this->io->writeError('Add it using "composer config --global --auth gitlab-token.'.$originUrl.' <token>"');
 
                     continue;
@@ -160,9 +174,10 @@ class GitLab
 
             $this->io->setAuthentication($originUrl, $response['access_token'], 'oauth2');
 
+            $authConfigSource = $storeInLocalAuthConfig && $localAuthConfig !== null ? $localAuthConfig : $this->config->getAuthConfigSource();
             // store value in user config in auth file
             if (isset($response['expires_in'])) {
-                $this->config->getAuthConfigSource()->addConfigSetting(
+                $authConfigSource->addConfigSetting(
                     'gitlab-oauth.'.$originUrl,
                     [
                         'expires-at' => intval($response['created_at']) + intval($response['expires_in']),
@@ -171,7 +186,7 @@ class GitLab
                     ]
                 );
             } else {
-                $this->config->getAuthConfigSource()->addConfigSetting('gitlab-oauth.'.$originUrl, $response['access_token']);
+                $authConfigSource->addConfigSetting('gitlab-oauth.'.$originUrl, $response['access_token']);
             }
 
             return true;

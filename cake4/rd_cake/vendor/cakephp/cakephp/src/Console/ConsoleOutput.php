@@ -16,7 +16,9 @@ declare(strict_types=1);
  */
 namespace Cake\Console;
 
+use Cake\Console\Exception\ConsoleException;
 use InvalidArgumentException;
+use function Cake\Core\env;
 
 /**
  * Object wrapper for outputting information from a shell application.
@@ -160,11 +162,20 @@ class ConsoleOutput
      * Checks for a pretty console environment. Ansicon and ConEmu allows
      *  pretty consoles on Windows, and is supported.
      *
-     * @param string $stream The identifier of the stream to write output to.
+     * @param string|resource $stream The identifier of the stream to write output to.
+     * @throws \Cake\Console\Exception\ConsoleException If the given stream is not a valid resource.
      */
-    public function __construct(string $stream = 'php://stdout')
+    public function __construct($stream = 'php://stdout')
     {
-        $this->_output = fopen($stream, 'wb');
+        if (is_string($stream)) {
+            $stream = fopen($stream, 'wb');
+        }
+
+        if (!is_resource($stream)) {
+            throw new ConsoleException('Invalid stream in constructor. It is not a valid resource.');
+        }
+
+        $this->_output = $stream;
 
         if (
             (
@@ -214,17 +225,25 @@ class ConsoleOutput
         if ($this->_outputAs === static::RAW) {
             return $text;
         }
-        if ($this->_outputAs === static::PLAIN) {
-            $tags = implode('|', array_keys(static::$_styles));
-
-            return preg_replace('#</?(?:' . $tags . ')>#', '', $text);
+        if ($this->_outputAs !== static::PLAIN) {
+            $output = preg_replace_callback(
+                '/<(?P<tag>[a-z0-9-_]+)>(?P<text>.*?)<\/(\1)>/ims',
+                [$this, '_replaceTags'],
+                $text
+            );
+            if ($output !== null) {
+                return $output;
+            }
         }
 
-        return preg_replace_callback(
-            '/<(?P<tag>[a-z0-9-_]+)>(?P<text>.*?)<\/(\1)>/ims',
-            [$this, '_replaceTags'],
-            $text
-        );
+        $tags = implode('|', array_keys(static::$_styles));
+        $output = preg_replace('#</?(?:' . $tags . ')>#', '', $text);
+
+        if ($output === null) {
+            return $text;
+        }
+
+        return $output;
     }
 
     /**

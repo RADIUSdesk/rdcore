@@ -2,15 +2,15 @@
 declare(strict_types=1);
 
 /**
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  * @copyright     Copyright (c) Brian Nesbitt <brian@nesbot.com>
- * @link          http://cakephp.org CakePHP(tm) Project
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @link          https://cakephp.org CakePHP(tm) Project
+ * @license       https://www.opensource.org/licenses/mit-license.php MIT License
  */
 namespace Cake\Chronos;
 
@@ -102,7 +102,7 @@ interface ChronosInterface extends DateTimeInterface
      * @param \DateTimeZone|string|null $tz The DateTimeZone object or timezone name.
      * @return static
      */
-    public static function now($tz): self;
+    public static function now($tz = null): self;
 
     /**
      * Get a copy of the instance
@@ -1153,84 +1153,86 @@ interface ChronosInterface extends DateTimeInterface
     public function secondsUntilEndOfDay(): int;
 
     /**
-     * Resets the time to 00:00:00
+     * Sets the time to 00:00:00
      *
      * @return static
      */
     public function startOfDay(): self;
 
     /**
-     * Resets the time to 23:59:59
+     * Sets the time to 23:59:59 or 23:59:59.999999
+     * if `$microseconds` is true.
      *
+     * @param bool $microseconds Whether to set microseconds
      * @return static
      */
-    public function endOfDay(): self;
+    public function endOfDay(bool $microseconds = false): self;
 
     /**
-     * Resets the date to the first day of the month and the time to 00:00:00
+     * Sets the date to the first day of the month and the time to 00:00:00
      *
      * @return static
      */
     public function startOfMonth(): self;
 
     /**
-     * Resets the date to end of the month and time to 23:59:59
+     * Sets the date to end of the month and time to 23:59:59
      *
      * @return static
      */
     public function endOfMonth(): self;
 
     /**
-     * Resets the date to the first day of the year and the time to 00:00:00
+     * Sets the date to the first day of the year and the time to 00:00:00
      *
      * @return static
      */
     public function startOfYear(): self;
 
     /**
-     * Resets the date to end of the year and time to 23:59:59
+     * Sets the date to end of the year and time to 23:59:59
      *
      * @return static
      */
     public function endOfYear(): self;
 
     /**
-     * Resets the date to the first day of the decade and the time to 00:00:00
+     * Sets the date to the first day of the decade and the time to 00:00:00
      *
      * @return static
      */
     public function startOfDecade(): self;
 
     /**
-     * Resets the date to end of the decade and time to 23:59:59
+     * Sets the date to end of the decade and time to 23:59:59
      *
      * @return static
      */
     public function endOfDecade(): self;
 
     /**
-     * Resets the date to the first day of the century and the time to 00:00:00
+     * Sets the date to the first day of the century and the time to 00:00:00
      *
      * @return static
      */
     public function startOfCentury(): self;
 
     /**
-     * Resets the date to end of the century and time to 23:59:59
+     * Sets the date to end of the century and time to 23:59:59
      *
      * @return static
      */
     public function endOfCentury(): self;
 
     /**
-     * Resets the date to the first day of week (defined in $weekStartsAt) and the time to 00:00:00
+     * Sets the date to the first day of week (defined in $weekStartsAt) and the time to 00:00:00
      *
      * @return static
      */
     public function startOfWeek(): self;
 
     /**
-     * Resets the date to end of week (defined in $weekEndsAt) and time to 23:59:59
+     * Sets the date to end of week (defined in $weekEndsAt) and time to 23:59:59
      *
      * @return static
      */

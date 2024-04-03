@@ -20,7 +20,9 @@ use Cake\Core\Configure\Engine\PhpConfig;
 use Cake\Core\Exception\CakeException;
 use Cake\Core\InstanceConfigTrait;
 use Cake\Utility\Hash;
+use InvalidArgumentException;
 use RuntimeException;
+use function Cake\Core\h;
 
 /**
  * Provides an interface for registering and inserting
@@ -178,8 +180,13 @@ class StringTemplate
         foreach ($templates as $name) {
             $template = $this->get($name);
             if ($template === null) {
-                $this->_compiled[$name] = [null, null];
+                throw new InvalidArgumentException(sprintf('String template `%s` is not valid.', $name));
             }
+
+            assert(
+                is_string($template),
+                sprintf('Template for `%s` must be of type `string`, but is `%s`', $name, gettype($template))
+            );
 
             $template = str_replace('%', '%%', $template);
             preg_match_all('#\{\{([\w\.]+)\}\}#', $template, $matches);

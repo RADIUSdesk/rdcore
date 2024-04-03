@@ -17,7 +17,9 @@ declare(strict_types=1);
 namespace Authentication\Controller\Component;
 
 use ArrayAccess;
+use ArrayObject;
 use Authentication\AuthenticationServiceInterface;
+use Authentication\Authenticator\ImpersonationInterface;
 use Authentication\Authenticator\PersistenceInterface;
 use Authentication\Authenticator\ResultInterface;
 use Authentication\Authenticator\StatelessInterface;
@@ -47,7 +49,7 @@ class AuthenticationComponent extends Component implements EventDispatcherInterf
      *   false to disable that behavior. See allowUnauthenticated() as well.
      * - `unauthenticatedMessage` - Error message to use when `UnauthenticatedException` is thrown.
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected $_defaultConfig = [
         'logoutRedirect' => false,
@@ -139,7 +141,10 @@ class AuthenticationComponent extends Component implements EventDispatcherInterf
         $controller = $this->getController();
         $service = $controller->getRequest()->getAttribute('authentication');
         if ($service === null) {
-            throw new Exception('The request object does not contain the required `authentication` attribute');
+            throw new Exception(
+                'The request object does not contain the required `authentication` attribute. Verify the ' .
+                'AuthenticationMiddleware has been added.'
+            );
         }
 
         if (!($service instanceof AuthenticationServiceInterface)) {
@@ -347,5 +352,106 @@ class AuthenticationComponent extends Component implements EventDispatcherInterf
             'Controller.initialize' => 'beforeFilter',
             'Controller.startup' => 'startup',
         ];
+    }
+
+    /**
+     * Impersonates a user
+     *
+     * @param \ArrayAccess $impersonated User impersonated
+     * @return $this
+     * @throws \Exception
+     */
+    public function impersonate(ArrayAccess $impersonated)
+    {
+        $service = $this->getImpersonationAuthenticationService();
+
+        $identity = $this->getIdentity();
+        if (!$identity) {
+            throw new UnauthenticatedException('You must be logged in before impersonating a user.');
+        }
+        $impersonator = $identity->getOriginalData();
+        if (!($impersonator instanceof ArrayAccess)) {
+            $impersonator = new ArrayObject($impersonator);
+        }
+        $controller = $this->getController();
+        /** @psalm-var array{request: \Cake\Http\ServerRequest, response: \Cake\Http\Response} $result */
+        $result = $service->impersonate(
+            $controller->getRequest(),
+            $controller->getResponse(),
+            $impersonator,
+            $impersonated
+        );
+
+        if (!$service->isImpersonating($controller->getRequest())) {
+            throw new \UnexpectedValueException('An error has occurred impersonating user.');
+        }
+
+        $controller->setRequest($result['request']);
+        $controller->setResponse($result['response']);
+
+        return $this;
+    }
+
+    /**
+     * Stops impersonation
+     *
+     * @return $this
+     * @throws \Exception
+     */
+    public function stopImpersonating()
+    {
+        $service = $this->getImpersonationAuthenticationService();
+
+        $controller = $this->getController();
+
+        /** @psalm-var array{request: \Cake\Http\ServerRequest, response: \Cake\Http\Response} $result */
+        $result = $service->stopImpersonating(
+            $controller->getRequest(),
+            $controller->getResponse()
+        );
+
+        if ($service->isImpersonating($controller->getRequest())) {
+            throw new \UnexpectedValueException('An error has occurred stopping impersonation.');
+        }
+
+        $controller->setRequest($result['request']);
+        $controller->setResponse($result['response']);
+
+        return $this;
+    }
+
+    /**
+     * Returns true if impersonation is being done
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    public function isImpersonating(): bool
+    {
+        $service = $this->getImpersonationAuthenticationService();
+        $controller = $this->getController();
+
+        return $service->isImpersonating(
+            $controller->getRequest()
+        );
+    }
+
+    /**
+     * Get impersonation authentication service
+     *
+     * @return \Authentication\Authenticator\ImpersonationInterface
+     * @throws \Exception
+     */
+    protected function getImpersonationAuthenticationService(): ImpersonationInterface
+    {
+        $service = $this->getAuthenticationService();
+        if (!($service instanceof ImpersonationInterface)) {
+            $className = get_class($service);
+            throw new \InvalidArgumentException(
+                "The {$className} must implement ImpersonationInterface in order to use impersonation."
+            );
+        }
+
+        return $service;
     }
 }

@@ -23,16 +23,16 @@ class FullyQualifiedExceptionsSniff implements Sniff
 
 	public const CODE_NON_FULLY_QUALIFIED_EXCEPTION = 'NonFullyQualifiedException';
 
-	/** @var string[] */
+	/** @var list<string> */
 	public $specialExceptionNames = [];
 
-	/** @var string[] */
+	/** @var list<string> */
 	public $ignoredNames = [];
 
-	/** @var string[]|null */
+	/** @var list<string>|null */
 	private $normalizedSpecialExceptionNames;
 
-	/** @var string[]|null */
+	/** @var list<string>|null */
 	private $normalizedIgnoredNames;
 
 	/**
@@ -129,16 +129,14 @@ class FullyQualifiedExceptionsSniff implements Sniff
 
 			$phpcsFile->fixer->beginChangeset();
 
-			FixerHelper::removeBetweenIncluding($phpcsFile, $referencedName->getStartPointer(), $referencedName->getEndPointer());
-
-			$phpcsFile->fixer->addContent($referencedName->getStartPointer(), $fullyQualifiedName);
+			FixerHelper::change($phpcsFile, $referencedName->getStartPointer(), $referencedName->getEndPointer(), $fullyQualifiedName);
 
 			$phpcsFile->fixer->endChangeset();
 		}
 	}
 
 	/**
-	 * @return string[]
+	 * @return list<string>
 	 */
 	private function getSpecialExceptionNames(): array
 	{
@@ -150,7 +148,7 @@ class FullyQualifiedExceptionsSniff implements Sniff
 	}
 
 	/**
-	 * @return string[]
+	 * @return list<string>
 	 */
 	private function getIgnoredNames(): array
 	{

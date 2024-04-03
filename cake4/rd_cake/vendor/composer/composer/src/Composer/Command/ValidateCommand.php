@@ -91,7 +91,7 @@ EOT
         [$errors, $publishErrors, $warnings] = $validator->validate($file, $checkAll, $checkVersion);
 
         $lockErrors = [];
-        $composer = Factory::create($io, $file, $input->hasParameterOption('--no-plugins'));
+        $composer = $this->createComposerInstance($input, $io, $file);
         // config.lock = false ~= implicit --no-check-lock; --check-lock overrides
         $checkLock = ($checkLock && $composer->getConfig()->get('lock')) || $input->getOption('check-lock');
         $locker = $composer->getLocker();
@@ -100,46 +100,21 @@ EOT
         }
 
         if ($locker->isLocked()) {
-            $missingRequirements = false;
-            $sets = [
-                ['repo' => $locker->getLockedRepository(false), 'method' => 'getRequires', 'description' => 'Required'],
-                ['repo' => $locker->getLockedRepository(true), 'method' => 'getDevRequires', 'description' => 'Required (in require-dev)'],
-            ];
-            foreach ($sets as $set) {
-                $installedRepo = new InstalledRepository([$set['repo']]);
-
-                foreach (call_user_func([$composer->getPackage(), $set['method']]) as $link) {
-                    if (PlatformRepository::isPlatformPackage($link->getTarget())) {
-                        continue;
-                    }
-                    if (!$installedRepo->findPackagesWithReplacersAndProviders($link->getTarget(), $link->getConstraint())) {
-                        if ($results = $installedRepo->findPackagesWithReplacersAndProviders($link->getTarget())) {
-                            $provider = reset($results);
-                            $lockErrors[] = '- ' . $set['description'].' package "' . $link->getTarget() . '" is in the lock file as "'.$provider->getPrettyVersion().'" but that does not satisfy your constraint "'.$link->getPrettyConstraint().'".';
-                        } else {
-                            $lockErrors[] = '- ' . $set['description'].' package "' . $link->getTarget() . '" is not present in the lock file.';
-                        }
-                        $missingRequirements = true;
-                    }
-                }
-            }
-
-            if ($missingRequirements) {
-                $lockErrors[] = 'This usually happens when composer files are incorrectly merged or the composer.json file is manually edited.';
-                $lockErrors[] = 'Read more about correctly resolving merge conflicts https://getcomposer.org/doc/articles/resolving-merge-conflicts.md';
-                $lockErrors[] = 'and prefer using the "require" command over editing the composer.json file directly https://getcomposer.org/doc/03-cli.md#require';
-            }
+            $lockErrors = array_merge($lockErrors, $locker->getMissingRequirementInfo($composer->getPackage(), true));
         }
 
         $this->outputResult($io, $file, $errors, $warnings, $checkPublish, $publishErrors, $checkLock, $lockErrors, true);
 
         // $errors include publish and lock errors when exists
-        $exitCode = $errors ? 2 : ($isStrict && $warnings ? 1 : 0);
+        $exitCode = count($errors) > 0 ? 2 : (($isStrict && count($warnings) > 0) ? 1 : 0);
 
         if ($input->getOption('with-dependencies')) {
             $localRepo = $composer->getRepositoryManager()->getLocalRepository();
             foreach ($localRepo->getPackages() as $package) {
                 $path = $composer->getInstallationManager()->getInstallPath($package);
+                if (null === $path) {
+                    continue;
+                }
                 $file = $path . '/composer.json';
                 if (is_dir($path) && file_exists($file)) {
                     [$errors, $publishErrors, $warnings] = $validator->validate($file, $checkAll, $checkVersion);
@@ -147,7 +122,7 @@ EOT
                     $this->outputResult($io, $package->getPrettyName(), $errors, $warnings, $checkPublish, $publishErrors);
 
                     // $errors include publish errors when exists
-                    $depCode = $errors ? 2 : ($isStrict && $warnings ? 1 : 0);
+                    $depCode = count($errors) > 0 ? 2 : (($isStrict && count($warnings) > 0) ? 1 : 0);
                     $exitCode = max($depCode, $exitCode);
                 }
             }

@@ -22,6 +22,7 @@ use Cake\Utility\Hash;
 use Cake\Utility\Inflector;
 use InvalidArgumentException;
 use Traversable;
+use function Cake\Core\deprecationWarning;
 
 /**
  * An entity represents a single result row from a repository. It exposes the
@@ -117,6 +118,23 @@ trait EntityTrait
      * @var string
      */
     protected $_registryAlias = '';
+
+    /**
+     * Storing the current visitation status while recursing through entities getting errors.
+     *
+     * @var bool
+     */
+    protected $_hasBeenVisited = false;
+
+    /**
+     * Set to true in your entity's class definition or
+     * via application logic. When true. has() and related
+     * methods will use `array_key_exists` instead of `isset`
+     * to decide if fields are 'defined' in an entity.
+     *
+     * @var bool
+     */
+    protected $_hasAllowsNull = false;
 
     /**
      * Magic getter to access fields that have been set in this entity
@@ -361,7 +379,11 @@ trait EntityTrait
     public function has($field): bool
     {
         foreach ((array)$field as $prop) {
-            if ($this->get($prop) === null) {
+            if ($this->_hasAllowsNull) {
+                if (!array_key_exists($prop, $this->_fields) && !static::_accessor($prop, 'get')) {
+                    return false;
+                }
+            } elseif ($this->get($prop) === null) {
                 return false;
             }
         }
@@ -845,6 +867,11 @@ trait EntityTrait
      */
     public function hasErrors(bool $includeNested = true): bool
     {
+        if ($this->_hasBeenVisited) {
+            // While recursing through entities, each entity should only be visited once. See https://github.com/cakephp/cakephp/issues/17318
+            return false;
+        }
+
         if (Hash::filter($this->_errors)) {
             return true;
         }
@@ -853,10 +880,15 @@ trait EntityTrait
             return false;
         }
 
-        foreach ($this->_fields as $field) {
-            if ($this->_readHasErrors($field)) {
-                return true;
+        $this->_hasBeenVisited = true;
+        try {
+            foreach ($this->_fields as $field) {
+                if ($this->_readHasErrors($field)) {
+                    return true;
+                }
             }
+        } finally {
+            $this->_hasBeenVisited = false;
         }
 
         return false;
@@ -869,17 +901,29 @@ trait EntityTrait
      */
     public function getErrors(): array
     {
+        if ($this->_hasBeenVisited) {
+            // While recursing through entities, each entity should only be visited once. See https://github.com/cakephp/cakephp/issues/17318
+            return [];
+        }
+
         $diff = array_diff_key($this->_fields, $this->_errors);
 
-        return $this->_errors + (new Collection($diff))
-            ->filter(function ($value) {
-                return is_array($value) || $value instanceof EntityInterface;
-            })
-            ->map(function ($value) {
-                return $this->_readError($value);
-            })
-            ->filter()
-            ->toArray();
+        $this->_hasBeenVisited = true;
+        try {
+            $errors = $this->_errors + (new Collection($diff))
+                ->filter(function ($value) {
+                    return is_array($value) || $value instanceof EntityInterface;
+                })
+                ->map(function ($value) {
+                    return $this->_readError($value);
+                })
+                ->filter()
+                ->toArray();
+        } finally {
+            $this->_hasBeenVisited = false;
+        }
+
+        return $errors;
     }
 
     /**

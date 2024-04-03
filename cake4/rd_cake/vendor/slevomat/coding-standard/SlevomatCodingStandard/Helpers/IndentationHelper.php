@@ -33,22 +33,22 @@ class IndentationHelper
 		return TokenHelper::getContent($phpcsFile, $firstPointerOnLine, $pointer - 1);
 	}
 
-	public static function addIndentation(string $identation, int $level = 1): string
+	public static function addIndentation(string $indentation, int $level = 1): string
 	{
-		$whitespace = self::getOneIndentationLevel($identation);
+		$whitespace = self::getOneIndentationLevel($indentation);
 
-		return $identation . str_repeat($whitespace, $level);
+		return $indentation . str_repeat($whitespace, $level);
 	}
 
-	public static function getOneIndentationLevel(string $identation): string
+	public static function getOneIndentationLevel(string $indentation): string
 	{
-		return $identation === ''
+		return $indentation === ''
 			? self::TAB_INDENT
-			: ($identation[0] === self::TAB_INDENT ? self::TAB_INDENT : self::SPACES_INDENT);
+			: ($indentation[0] === self::TAB_INDENT ? self::TAB_INDENT : self::SPACES_INDENT);
 	}
 
 	/**
-	 * @param int[] $codePointers
+	 * @param list<int> $codePointers
 	 */
 	public static function fixIndentation(File $phpcsFile, array $codePointers, string $defaultIndentation): string
 	{

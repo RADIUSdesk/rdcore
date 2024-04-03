@@ -187,7 +187,7 @@ identity results::
         }
 
         // display error if user submitted and authentication failed
-        if ($this->request->is(['post']) && !$result->isValid()) {
+        if ($this->request->is(['post'])) {
             $this->Flash->error('Invalid username or password');
         }
     }
@@ -237,6 +237,13 @@ present::
 
 Each call to ``allowUnauthenticated()`` will overwrite the current
 action list.
+
+To mimic ``$this->Auth->deny(['register']);`` you can do::
+
+    $action = $this->getRequest()->getParam('action');
+    if ($action !== 'register') {
+        $this->Authentication->allowUnauthenticated([$action]);
+    }
 
 Migrating Unauthenticated Redirects
 ===================================

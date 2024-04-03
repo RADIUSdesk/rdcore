@@ -2,7 +2,7 @@
     "name": "cakephp/debug_kit",
     "description": "CakePHP Debug Kit",
     "type": "cakephp-plugin",
-    "keywords": ["cakephp", "debug", "kit"],
+    "keywords": ["cakephp", "debug", "kit", "dev"],
     "homepage": "https://github.com/cakephp/debug_kit",
     "license": "MIT",
     "authors": [
@@ -18,16 +18,16 @@
     ],
     "support": {
         "issues": "https://github.com/cakephp/debug_kit/issues",
-        "forum": "http://stackoverflow.com/tags/cakephp",
+        "forum": "https://stackoverflow.com/tags/cakephp",
         "irc": "irc://irc.freenode.org/cakephp",
         "source": "https://github.com/cakephp/debug_kit"
     },
     "require": {
         "php": ">=7.4",
-        "cakephp/cakephp": "^4.4.0",
+        "cakephp/cakephp": "^4.5.0",
         "cakephp/chronos": "^2.0",
         "composer/composer": "^1.3 | ^2.0",
-        "jdorn/sql-formatter": "^1.2"
+        "doctrine/sql-formatter": "^1.1.3"
     },
     "require-dev": {
         "cakephp/cakephp-codesniffer": "^4.0",

@@ -58,14 +58,14 @@ class InputOption
     private string $description;
 
     /**
-     * @param string|array|null                $shortcut The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
-     * @param int|null                         $mode     The option mode: One of the VALUE_* constants
-     * @param string|bool|int|float|array|null $default  The default value (must be null for self::VALUE_NONE)
+     * @param string|array|null                                                             $shortcut        The shortcuts, can be null, a string of shortcuts delimited by | or an array of shortcuts
+     * @param int|null                                                                      $mode            The option mode: One of the VALUE_* constants
+     * @param string|bool|int|float|array|null                                              $default         The default value (must be null for self::VALUE_NONE)
      * @param array|\Closure(CompletionInput,CompletionSuggestions):list<string|Suggestion> $suggestedValues The values used for input completion
      *
      * @throws InvalidArgumentException If option mode is invalid or incompatible
      */
-    public function __construct(string $name, string|array $shortcut = null, int $mode = null, string $description = '', string|bool|int|float|array $default = null, array|\Closure $suggestedValues = [])
+    public function __construct(string $name, string|array|null $shortcut = null, ?int $mode = null, string $description = '', string|bool|int|float|array|null $default = null, array|\Closure $suggestedValues = [])
     {
         if (str_starts_with($name, '--')) {
             $name = substr($name, 2);
@@ -75,7 +75,7 @@ class InputOption
             throw new InvalidArgumentException('An option name cannot be empty.');
         }
 
-        if (empty($shortcut)) {
+        if ('' === $shortcut || [] === $shortcut || false === $shortcut) {
             $shortcut = null;
         }
 
@@ -84,10 +84,10 @@ class InputOption
                 $shortcut = implode('|', $shortcut);
             }
             $shortcuts = preg_split('{(\|)-?}', ltrim($shortcut, '-'));
-            $shortcuts = array_filter($shortcuts);
+            $shortcuts = array_filter($shortcuts, 'strlen');
             $shortcut = implode('|', $shortcuts);
 
-            if (empty($shortcut)) {
+            if ('' === $shortcut) {
                 throw new InvalidArgumentException('An option shortcut cannot be empty.');
             }
         }
@@ -178,7 +178,10 @@ class InputOption
         return self::VALUE_NEGATABLE === (self::VALUE_NEGATABLE & $this->mode);
     }
 
-    public function setDefault(string|bool|int|float|array $default = null)
+    /**
+     * @return void
+     */
+    public function setDefault(string|bool|int|float|array|null $default = null)
     {
         if (1 > \func_num_args()) {
             trigger_deprecation('symfony/console', '6.2', 'Calling "%s()" without any arguments is deprecated, pass null explicitly instead.', __METHOD__);

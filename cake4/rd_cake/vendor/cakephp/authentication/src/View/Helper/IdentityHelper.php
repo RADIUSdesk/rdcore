@@ -32,7 +32,7 @@ class IdentityHelper extends Helper
      *
      * - `identityAttribute` - The request attribute which holds the identity.
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected $_defaultConfig = [
         'identityAttribute' => 'identity',
@@ -71,7 +71,7 @@ class IdentityHelper extends Helper
     /**
      * Gets the id of the current logged in identity
      *
-     * @return int|null|string
+     * @return string|int|array|null
      */
     public function getId()
     {

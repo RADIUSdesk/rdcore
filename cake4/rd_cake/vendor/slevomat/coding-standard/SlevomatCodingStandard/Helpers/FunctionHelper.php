@@ -5,15 +5,15 @@ namespace SlevomatCodingStandard\Helpers;
 use Generator;
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Util\Tokens;
-use SlevomatCodingStandard\Helpers\Annotation\ParameterAnnotation;
-use SlevomatCodingStandard\Helpers\Annotation\ReturnAnnotation;
-use SlevomatCodingStandard\Helpers\Annotation\VariableAnnotation;
+use PHPStan\PhpDocParser\Ast\PhpDoc\ParamTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\ReturnTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\TypelessParamTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\VarTagValueNode;
 use function array_filter;
 use function array_map;
 use function array_merge;
 use function array_pop;
 use function array_reverse;
-use function count;
 use function in_array;
 use function iterator_to_array;
 use function preg_match;
@@ -52,32 +52,41 @@ class FunctionHelper
 	public const SPECIAL_FUNCTIONS = [
 		'array_key_exists',
 		'array_slice',
+		'assert',
 		'boolval',
 		'call_user_func',
 		'call_user_func_array',
 		'chr',
+		'constant',
 		'count',
-		'doubleval',
+		'define',
 		'defined',
+		'dirname',
+		'doubleval',
+		'extension_loaded',
 		'floatval',
 		'func_get_args',
 		'func_num_args',
+		'function_exists',
 		'get_called_class',
 		'get_class',
 		'gettype',
 		'in_array',
+		'ini_get',
 		'intval',
 		'is_array',
 		'is_bool',
+		'is_callable',
 		'is_double',
 		'is_float',
-		'is_long',
 		'is_int',
 		'is_integer',
+		'is_long',
 		'is_null',
 		'is_object',
 		'is_real',
 		'is_resource',
+		'is_scalar',
 		'is_string',
 		'ord',
 		'sizeof',
@@ -169,7 +178,7 @@ class FunctionHelper
 	}
 
 	/**
-	 * @return string[]
+	 * @return list<string>
 	 */
 	public static function getParametersNames(File $phpcsFile, int $functionPointer): array
 	{
@@ -188,7 +197,7 @@ class FunctionHelper
 	}
 
 	/**
-	 * @return (TypeHint|null)[]
+	 * @return array<string, TypeHint|null>
 	 */
 	public static function getParametersTypeHints(File $phpcsFile, int $functionPointer): array
 	{
@@ -315,17 +324,15 @@ class FunctionHelper
 	}
 
 	/**
-	 * @return ParameterAnnotation[]
+	 * @return list<Annotation<ParamTagValueNode>|Annotation<TypelessParamTagValueNode>>
 	 */
 	public static function getParametersAnnotations(File $phpcsFile, int $functionPointer): array
 	{
-		/** @var ParameterAnnotation[] $parametersAnnotations */
-		$parametersAnnotations = AnnotationHelper::getAnnotationsByName($phpcsFile, $functionPointer, '@param');
-		return $parametersAnnotations;
+		return AnnotationHelper::getAnnotations($phpcsFile, $functionPointer, '@param');
 	}
 
 	/**
-	 * @return array<string, ParameterAnnotation|VariableAnnotation>
+	 * @return array<string, Annotation<VarTagValueNode>|Annotation<ParamTagValueNode>|Annotation<TypelessParamTagValueNode>>
 	 */
 	public static function getValidParametersAnnotations(File $phpcsFile, int $functionPointer): array
 	{
@@ -339,8 +346,7 @@ class FunctionHelper
 					continue;
 				}
 
-				/** @var VariableAnnotation[] $varAnnotations */
-				$varAnnotations = AnnotationHelper::getAnnotationsByName($phpcsFile, $i, '@var');
+				$varAnnotations = AnnotationHelper::getAnnotations($phpcsFile, $i, '@var');
 				if ($varAnnotations === []) {
 					continue;
 				}
@@ -350,37 +356,33 @@ class FunctionHelper
 		}
 
 		foreach (self::getParametersAnnotations($phpcsFile, $functionPointer) as $parameterAnnotation) {
-			if ($parameterAnnotation->getContent() === null) {
-				continue;
-			}
-
 			if ($parameterAnnotation->isInvalid()) {
 				continue;
 			}
 
-			$parametersAnnotations[$parameterAnnotation->getParameterName()] = $parameterAnnotation;
+			$parametersAnnotations[$parameterAnnotation->getValue()->parameterName] = $parameterAnnotation;
 		}
 
 		return $parametersAnnotations;
 	}
 
 	/**
-	 * @return array<string, ParameterAnnotation|VariableAnnotation>
+	 * @return array<string, Annotation<VarTagValueNode>|Annotation<ParamTagValueNode>>
 	 */
 	public static function getValidPrefixedParametersAnnotations(File $phpcsFile, int $functionPointer): array
 	{
 		$tokens = $phpcsFile->getTokens();
 
 		$parametersAnnotations = [];
-		foreach (AnnotationHelper::PREFIXES as $prefix) {
+		foreach (AnnotationHelper::STATIC_ANALYSIS_PREFIXES as $prefix) {
 			if (self::getName($phpcsFile, $functionPointer) === '__construct') {
 				for ($i = $tokens[$functionPointer]['parenthesis_opener'] + 1; $i < $tokens[$functionPointer]['parenthesis_closer']; $i++) {
 					if ($tokens[$i]['code'] !== T_VARIABLE) {
 						continue;
 					}
 
-					/** @var VariableAnnotation[] $varAnnotations */
-					$varAnnotations = AnnotationHelper::getAnnotationsByName($phpcsFile, $i, sprintf('@%s-var', $prefix));
+					/** @var list<Annotation<VarTagValueNode>> $varAnnotations */
+					$varAnnotations = AnnotationHelper::getAnnotations($phpcsFile, $i, sprintf('@%s-var', $prefix));
 					if ($varAnnotations === []) {
 						continue;
 					}
@@ -389,30 +391,29 @@ class FunctionHelper
 				}
 			}
 
-			/** @var ParameterAnnotation[] $annotations */
-			$annotations = AnnotationHelper::getAnnotationsByName($phpcsFile, $functionPointer, sprintf('@%s-param', $prefix));
+			/** @var list<Annotation<ParamTagValueNode>> $annotations */
+			$annotations = AnnotationHelper::getAnnotations($phpcsFile, $functionPointer, sprintf('@%s-param', $prefix));
 			foreach ($annotations as $parameterAnnotation) {
-				if ($parameterAnnotation->getContent() === null) {
-					continue;
-				}
-
 				if ($parameterAnnotation->isInvalid()) {
 					continue;
 				}
 
-				$parametersAnnotations[$parameterAnnotation->getParameterName()] = $parameterAnnotation;
+				$parametersAnnotations[$parameterAnnotation->getValue()->parameterName] = $parameterAnnotation;
 			}
 		}
 
 		return $parametersAnnotations;
 	}
 
-	public static function findReturnAnnotation(File $phpcsFile, int $functionPointer): ?ReturnAnnotation
+	/**
+	 * @return Annotation<ReturnTagValueNode>|null
+	 */
+	public static function findReturnAnnotation(File $phpcsFile, int $functionPointer): ?Annotation
 	{
-		/** @var ReturnAnnotation[] $returnAnnotations */
-		$returnAnnotations = AnnotationHelper::getAnnotationsByName($phpcsFile, $functionPointer, '@return');
+		/** @var list<Annotation<ReturnTagValueNode>> $returnAnnotations */
+		$returnAnnotations = AnnotationHelper::getAnnotations($phpcsFile, $functionPointer, '@return');
 
-		if (count($returnAnnotations) === 0) {
+		if ($returnAnnotations === []) {
 			return null;
 		}
 
@@ -420,19 +421,24 @@ class FunctionHelper
 	}
 
 	/**
-	 * @return ReturnAnnotation[]
+	 * @return list<Annotation>
 	 */
 	public static function getValidPrefixedReturnAnnotations(File $phpcsFile, int $functionPointer): array
 	{
 		$returnAnnotations = [];
 
-		foreach (AnnotationHelper::PREFIXES as $prefix) {
-			/** @var ReturnAnnotation[] $annotations */
-			$annotations = AnnotationHelper::getAnnotationsByName($phpcsFile, $functionPointer, sprintf('@%s-return', $prefix));
+		$annotations = AnnotationHelper::getAnnotations($phpcsFile, $functionPointer);
+
+		foreach (AnnotationHelper::STATIC_ANALYSIS_PREFIXES as $prefix) {
+			$prefixedAnnotationName = sprintf('@%s-return', $prefix);
+
 			foreach ($annotations as $annotation) {
-				if (!$annotation->isInvalid()) {
+				if ($annotation->isInvalid()) {
+					continue;
+				}
+
+				if ($annotation->getName() === $prefixedAnnotationName) {
 					$returnAnnotations[] = $annotation;
-					break;
 				}
 			}
 		}
@@ -441,7 +447,7 @@ class FunctionHelper
 	}
 
 	/**
-	 * @return string[]
+	 * @return list<string>
 	 */
 	public static function getAllFunctionNames(File $phpcsFile): array
 	{

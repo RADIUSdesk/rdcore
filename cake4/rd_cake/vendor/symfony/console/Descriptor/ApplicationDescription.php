@@ -39,7 +39,7 @@ class ApplicationDescription
      */
     private array $aliases = [];
 
-    public function __construct(Application $application, string $namespace = null, bool $showHidden = false)
+    public function __construct(Application $application, ?string $namespace = null, bool $showHidden = false)
     {
         $this->application = $application;
         $this->namespace = $namespace;
@@ -79,7 +79,7 @@ class ApplicationDescription
         return $this->commands[$name] ?? $this->aliases[$name];
     }
 
-    private function inspectApplication()
+    private function inspectApplication(): void
     {
         $this->commands = [];
         $this->namespaces = [];

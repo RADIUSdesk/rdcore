@@ -32,6 +32,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use ReflectionClass;
 use ReflectionFunction;
 use ReflectionNamedType;
+use function Cake\Core\deprecationWarning;
 
 /**
  * Factory method for building controllers for request.
@@ -105,7 +106,7 @@ class ControllerFactory implements ControllerFactoryInterface, RequestHandlerInt
         $middlewares = $controller->getMiddleware();
 
         if ($middlewares) {
-            $middlewareQueue = new MiddlewareQueue($middlewares);
+            $middlewareQueue = new MiddlewareQueue($middlewares, $this->container);
             $runner = new Runner();
 
             return $runner->run($middlewareQueue, $controller->getRequest(), $this);
@@ -159,17 +160,6 @@ class ControllerFactory implements ControllerFactoryInterface, RequestHandlerInt
         $function = new ReflectionFunction($action);
         foreach ($function->getParameters() as $parameter) {
             $type = $parameter->getType();
-            if ($type && !$type instanceof ReflectionNamedType) {
-                // Only single types are supported
-                throw new InvalidParameterException([
-                    'template' => 'unsupported_type',
-                    'parameter' => $parameter->getName(),
-                    'controller' => $this->controller->getName(),
-                    'action' => $this->controller->getRequest()->getParam('action'),
-                    'prefix' => $this->controller->getRequest()->getParam('prefix'),
-                    'plugin' => $this->controller->getRequest()->getParam('plugin'),
-                ]);
-            }
 
             // Check for dependency injection for classes
             if ($type instanceof ReflectionNamedType && !$type->isBuiltin()) {
@@ -346,10 +336,18 @@ class ControllerFactory implements ControllerFactoryInterface, RequestHandlerInt
     protected function missingController(ServerRequest $request)
     {
         return new MissingControllerException([
-            'class' => $request->getParam('controller'),
+            'controller' => $request->getParam('controller'),
             'plugin' => $request->getParam('plugin'),
             'prefix' => $request->getParam('prefix'),
             '_ext' => $request->getParam('_ext'),
+            'class' => $request->getParam('controller'), // Deprecated: Will be removed in 4.5. Use `controller` instead.
         ]);
     }
 }
+
+// phpcs:disable
+class_alias(
+    'Cake\Controller\ControllerFactory',
+    'Cake\Http\ControllerFactory'
+);
+// phpcs:enable

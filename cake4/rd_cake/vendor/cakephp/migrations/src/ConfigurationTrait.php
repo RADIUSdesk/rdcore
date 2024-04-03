@@ -21,6 +21,7 @@ use Cake\Database\Driver\Sqlserver;
 use Cake\Datasource\ConnectionManager;
 use Migrations\Util\UtilTrait;
 use Phinx\Config\Config;
+use Phinx\Config\ConfigInterface;
 use Symfony\Component\Console\Input\InputInterface;
 
 /**
@@ -67,13 +68,25 @@ trait ConfigurationTrait
     }
 
     /**
+     * Overrides the original method from phinx to just always return true to
+     * avoid calling loadConfig method which will throw an exception as we rely on
+     * the overridden getConfig method.
+     *
+     * @return bool
+     */
+    public function hasConfig(): bool
+    {
+        return true;
+    }
+
+    /**
      * Overrides the original method from phinx in order to return a tailored
      * Config object containing the connection details for the database.
      *
      * @param bool $forceRefresh Refresh config.
-     * @return \Phinx\Config\Config
+     * @return \Phinx\Config\ConfigInterface
      */
-    public function getConfig($forceRefresh = false)
+    public function getConfig($forceRefresh = false): ConfigInterface
     {
         if ($this->configuration && $forceRefresh === false) {
             return $this->configuration;
@@ -83,7 +96,13 @@ trait ConfigurationTrait
         $seedsPath = $this->getOperationsPath($this->input(), 'Seeds');
         $plugin = $this->getPlugin($this->input());
 
-        if (Configure::read('debug') && !is_dir($migrationsPath)) {
+        if (!is_dir($migrationsPath)) {
+            if (!Configure::read('debug')) {
+                throw new \RuntimeException(sprintf(
+                    'Migrations path `%s` does not exist and cannot be created because `debug` is disabled.',
+                    $migrationsPath
+                ));
+            }
             mkdir($migrationsPath, 0777, true);
         }
 
@@ -95,15 +114,12 @@ trait ConfigurationTrait
 
         $connection = $this->getConnectionName($this->input());
 
-        $connectionConfig = ConnectionManager::getConfig($connection);
-        /**
-         * @psalm-suppress PossiblyNullArgument
-         * @psalm-suppress PossiblyNullArrayAccess
-         */
+        $connectionConfig = (array)ConnectionManager::getConfig($connection);
+
         $adapterName = $this->getAdapterName($connectionConfig['driver']);
+        $dsnOptions = $this->extractDsnOptions($adapterName, $connectionConfig);
 
         $templatePath = dirname(__DIR__) . DS . 'templates' . DS;
-        /** @psalm-suppress PossiblyNullArrayAccess */
         $config = [
             'paths' => [
                 'migrations' => $migrationsPath,
@@ -126,13 +142,14 @@ trait ConfigurationTrait
                     'charset' => $connectionConfig['encoding'] ?? null,
                     'unix_socket' => $connectionConfig['unix_socket'] ?? null,
                     'suffix' => '',
+                    'dsn_options' => $dsnOptions,
                 ],
             ],
+            'feature_flags' => $this->featureFlags(),
         ];
 
         if ($adapterName === 'pgsql') {
             if (!empty($connectionConfig['schema'])) {
-                /** @psalm-suppress PossiblyNullArrayAccess */
                 $config['environments']['default']['schema'] = $connectionConfig['schema'];
             }
         }
@@ -143,12 +160,7 @@ trait ConfigurationTrait
                 $config['environments']['default']['mysql_attr_ssl_cert'] = $connectionConfig['ssl_cert'];
             }
 
-            /** @psalm-suppress PossiblyNullReference */
             if (!empty($connectionConfig['ssl_ca'])) {
-                /**
-                 * @psalm-suppress PossiblyNullReference
-                 * @psalm-suppress PossiblyNullArrayAccess
-                 */
                 $config['environments']['default']['mysql_attr_ssl_ca'] = $connectionConfig['ssl_ca'];
             }
         }
@@ -163,15 +175,27 @@ trait ConfigurationTrait
         }
 
         if (!empty($connectionConfig['flags'])) {
-            /**
-             * @psalm-suppress PossiblyNullArrayAccess
-             * @psalm-suppress PossiblyNullArgument
-             */
             $config['environments']['default'] +=
                 $this->translateConnectionFlags($connectionConfig['flags'], $adapterName);
         }
 
         return $this->configuration = new Config($config);
+    }
+
+    /**
+     * The following feature flags are disabled by default to keep BC.
+     * The next major will turn them on. You can do so on your own before already.
+     *
+     * @return array<string, bool>
+     */
+    protected function featureFlags(): array
+    {
+        $defaults = [
+            'unsigned_primary_keys' => false,
+            'column_null_default' => false,
+        ];
+
+        return (array)Configure::read('Migrations') + $defaults;
     }
 
     /**
@@ -182,6 +206,7 @@ trait ConfigurationTrait
      * @return string Name of the adapter.
      * @throws \InvalidArgumentException when it was not possible to infer the information
      * out of the provided database configuration
+     * @phpstan-param class-string $driver
      */
     public function getAdapterName($driver)
     {
@@ -271,5 +296,38 @@ trait ConfigurationTrait
         }
 
         return $options;
+    }
+
+    /**
+     * Extracts DSN options from the connection configuration.
+     *
+     * @param string $adapterName The adapter name.
+     * @param array $config The connection configuration.
+     * @return array
+     */
+    protected function extractDsnOptions(string $adapterName, array $config): array
+    {
+        $dsnOptionsMap = [];
+
+        // SQLServer is currently the only Phinx adapter that supports DSN options
+        if ($adapterName === 'sqlsrv') {
+            $dsnOptionsMap = [
+                'connectionPooling' => 'ConnectionPooling',
+                'failoverPartner' => 'Failover_Partner',
+                'loginTimeout' => 'LoginTimeout',
+                'multiSubnetFailover' => 'MultiSubnetFailover',
+                'encrypt' => 'Encrypt',
+                'trustServerCertificate' => 'TrustServerCertificate',
+            ];
+        }
+
+        $suppliedDsnOptions = array_intersect_key($dsnOptionsMap, $config);
+
+        $dsnOptions = [];
+        foreach ($suppliedDsnOptions as $alias => $option) {
+            $dsnOptions[$option] = $config[$alias];
+        }
+
+        return $dsnOptions;
     }
 }

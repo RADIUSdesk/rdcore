@@ -12,9 +12,11 @@ use function count;
 use function in_array;
 use const T_CLOSE_PARENTHESIS;
 use const T_CLOSURE;
+use const T_COMMA;
 use const T_DOUBLE_COLON;
 use const T_EQUAL;
 use const T_FOREACH;
+use const T_GLOBAL;
 use const T_LIST;
 use const T_OBJECT_OPERATOR;
 use const T_OPEN_PARENTHESIS;
@@ -49,8 +51,8 @@ class DisallowImplicitArrayCreationSniff implements Sniff
 	{
 		$tokens = $phpcsFile->getTokens();
 
-		$assigmentPointer = TokenHelper::findNextEffective($phpcsFile, $tokens[$bracketOpenerPointer]['bracket_closer'] + 1);
-		if ($tokens[$assigmentPointer]['code'] !== T_EQUAL) {
+		$assignmentPointer = TokenHelper::findNextEffective($phpcsFile, $tokens[$bracketOpenerPointer]['bracket_closer'] + 1);
+		if ($tokens[$assignmentPointer]['code'] !== T_EQUAL) {
 			return;
 		}
 
@@ -182,8 +184,8 @@ class DisallowImplicitArrayCreationSniff implements Sniff
 				continue;
 			}
 
-			$assigmentPointer = TokenHelper::findNextEffective($phpcsFile, $i + 1);
-			if ($tokens[$assigmentPointer]['code'] === T_EQUAL) {
+			$assignmentPointer = TokenHelper::findNextEffective($phpcsFile, $i + 1);
+			if ($tokens[$assignmentPointer]['code'] === T_EQUAL) {
 				return true;
 			}
 
@@ -201,6 +203,10 @@ class DisallowImplicitArrayCreationSniff implements Sniff
 			}
 
 			if ($this->isCreatedByReferencedParameterInFunctionCall($phpcsFile, $i, $scopeOpenerPointer)) {
+				return true;
+			}
+
+			if ($this->isImportedUsingGlobalStatement($phpcsFile, $i)) {
 				return true;
 			}
 		}
@@ -260,6 +266,15 @@ class DisallowImplicitArrayCreationSniff implements Sniff
 
 		$pointerBeforeParenthesisOpener = TokenHelper::findPreviousEffective($phpcsFile, $parenthesisOpenerPointer - 1);
 		return $tokens[$pointerBeforeParenthesisOpener]['code'] === T_STRING;
+	}
+
+	private function isImportedUsingGlobalStatement(File $phpcsFile, int $variablePointer): bool
+	{
+		$tokens = $phpcsFile->getTokens();
+
+		$startOfStatement = $phpcsFile->findStartOfStatement($variablePointer, T_COMMA);
+
+		return $tokens[$startOfStatement]['code'] === T_GLOBAL;
 	}
 
 }

@@ -18,6 +18,7 @@ use Composer\IO\IOInterface;
 use Composer\Package\Archiver;
 use Composer\Package\Version\VersionGuesser;
 use Composer\Package\RootPackageInterface;
+use Composer\Repository\FilesystemRepository;
 use Composer\Repository\RepositoryManager;
 use Composer\Repository\RepositoryFactory;
 use Composer\Util\Filesystem;
@@ -219,9 +220,7 @@ class Factory
         if ($composerAuthEnv = Platform::getEnv('COMPOSER_AUTH')) {
             $authData = json_decode($composerAuthEnv);
             if (null === $authData) {
-                if ($io instanceof IOInterface) {
-                    $io->writeError('<error>COMPOSER_AUTH environment variable is malformed, should be a valid JSON object</error>');
-                }
+                throw new \UnexpectedValueException('COMPOSER_AUTH environment variable is malformed, should be a valid JSON object');
             } else {
                 if ($io instanceof IOInterface) {
                     $io->writeError('Loading auth config from COMPOSER_AUTH', true, IOInterface::DEBUG);
@@ -338,7 +337,7 @@ class Factory
                 $io->writeError('Loading config file ' . $localAuthFile->getPath(), true, IOInterface::DEBUG);
                 self::validateJsonSchema($io, $localAuthFile, JsonFile::AUTH_SCHEMA);
                 $config->merge(['config' => $localAuthFile->read()], $localAuthFile->getPath());
-                $config->setAuthConfigSource(new JsonConfigSource($localAuthFile, true));
+                $config->setLocalAuthConfigSource(new JsonConfigSource($localAuthFile, true));
             }
         }
 
@@ -352,9 +351,14 @@ class Factory
             // load auth configs into the IO instance
             $io->loadConfiguration($config);
 
-            // load existing Composer\InstalledVersions instance if available
-            if (!class_exists('Composer\InstalledVersions', false) && file_exists($installedVersionsPath = $config->get('vendor-dir').'/composer/InstalledVersions.php')) {
-                include $installedVersionsPath;
+            // load existing Composer\InstalledVersions instance if available and scripts/plugins are allowed, as they might need it
+            // we only load if the InstalledVersions class wasn't defined yet so that this is only loaded once
+            if (false === $disablePlugins && false === $disableScripts && !class_exists('Composer\InstalledVersions', false) && file_exists($installedVersionsPath = $config->get('vendor-dir').'/composer/installed.php')) {
+                // force loading the class at this point so it is loaded from the composer phar and not from the vendor dir
+                // as we cannot guarantee integrity of that file
+                if (class_exists('Composer\InstalledVersions')) {
+                    FilesystemRepository::safelyLoadInstalledVersions($installedVersionsPath);
+                }
             }
         }
 

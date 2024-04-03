@@ -75,6 +75,7 @@ class UpdateCommand extends BaseCommand
                 new InputOption('ignore-platform-reqs', null, InputOption::VALUE_NONE, 'Ignore all platform requirements (php & ext- packages).'),
                 new InputOption('prefer-stable', null, InputOption::VALUE_NONE, 'Prefer stable versions of dependencies (can also be set via the COMPOSER_PREFER_STABLE=1 env var).'),
                 new InputOption('prefer-lowest', null, InputOption::VALUE_NONE, 'Prefer lowest versions of dependencies (can also be set via the COMPOSER_PREFER_LOWEST=1 env var).'),
+                new InputOption('minimal-changes', 'm', InputOption::VALUE_NONE, 'During a partial update with -w/-W, only perform absolutely necessary changes to transitive dependencies (can also be set via the COMPOSER_MINIMAL_CHANGES=1 env var).'),
                 new InputOption('interactive', 'i', InputOption::VALUE_NONE, 'Interactive interface with autocompletion to select the packages to update.'),
                 new InputOption('root-reqs', null, InputOption::VALUE_NONE, 'Restricts the update to your first degree dependencies.'),
             ])
@@ -106,13 +107,13 @@ To run a partial update with more restrictive constraints you can use the shorth
 
 To select packages names interactively with auto-completion use <info>-i</info>.
 
-Read more at https://getcomposer.org/doc/03-cli.md#update-u
+Read more at https://getcomposer.org/doc/03-cli.md#update-u-upgrade
 EOT
             )
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = $this->getIO();
         if ($input->getOption('dev')) {
@@ -160,7 +161,9 @@ EOT
             $parsedConstraint = $parser->parseConstraints($constraint);
             $temporaryConstraints[$package] = $parsedConstraint;
             if (isset($rootRequirements[$package]) && !Intervals::haveIntersections($parsedConstraint, $rootRequirements[$package]->getConstraint())) {
-                throw new \InvalidArgumentException('The temporary constraint "'.$constraint.'" for "'.$package.'" must be a subset of the constraint in your composer.json ('.$rootRequirements[$package]->getPrettyConstraint().')');
+                $io->writeError('<error>The temporary constraint "'.$constraint.'" for "'.$package.'" must be a subset of the constraint in your composer.json ('.$rootRequirements[$package]->getPrettyConstraint().')</error>');
+                $io->write('<info>Run `composer require '.$package.'` or `composer require '.$package.':'.$constraint.'` instead to replace the constraint</info>');
+                return self::FAILURE;
             }
         }
 
@@ -238,6 +241,7 @@ EOT
             ->setTemporaryConstraints($temporaryConstraints)
             ->setAudit(!$input->getOption('no-audit'))
             ->setAuditFormat($this->getAuditFormat($input))
+            ->setMinimalUpdate($input->getOption('minimal-changes'))
         ;
 
         if ($input->getOption('no-plugins')) {

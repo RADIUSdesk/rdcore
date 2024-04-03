@@ -153,6 +153,7 @@ class PluginManager
     public function registerPackage(PackageInterface $package, bool $failOnMissingClasses = false, bool $isGlobalPlugin = false): void
     {
         if ($this->arePluginsDisabled($isGlobalPlugin ? 'global' : 'local')) {
+            $this->io->writeError('<warning>The "'.$package->getName().'" plugin was not loaded as plugins are disabled.</warning>');
             return;
         }
 
@@ -187,7 +188,7 @@ class PluginManager
             }
         }
 
-        if (!$this->isPluginAllowed($package->getName(), $isGlobalPlugin)) {
+        if (!$this->isPluginAllowed($package->getName(), $isGlobalPlugin, true === ($package->getExtra()['plugin-optional'] ?? false))) {
             $this->io->writeError('Skipped loading "'.$package->getName() . '" '.($isGlobalPlugin || $this->runningInGlobalDir ? '(installed globally) ' : '').'as it is not in config.allow-plugins', true, IOInterface::DEBUG);
 
             return;
@@ -236,8 +237,11 @@ class PluginManager
                 continue;
             }
 
-            $downloadPath = $this->getInstallPath($autoloadPackage, $globalRepo && $globalRepo->hasPackage($autoloadPackage));
-            $autoloads[] = [$autoloadPackage, $downloadPath];
+            $installPath = $this->getInstallPath($autoloadPackage, $globalRepo && $globalRepo->hasPackage($autoloadPackage));
+            if ($installPath === null) {
+                continue;
+            }
+            $autoloads[] = [$autoloadPackage, $installPath];
         }
 
         $map = $generator->parseAutoloads($autoloads, $rootPackage);
@@ -264,7 +268,7 @@ class PluginManager
                 if ($separatorPos) {
                     $className = substr($class, $separatorPos + 1);
                 }
-                $code = Preg::replace('{^((?:final\s+)?(?:\s*))class\s+('.preg_quote($className).')}mi', '$1class $2_composer_tmp'.self::$classCounter, $code, 1);
+                $code = Preg::replace('{^((?:(?:final|readonly)\s+)*(?:\s*))class\s+('.preg_quote($className).')}mi', '$1class $2_composer_tmp'.self::$classCounter, $code, 1);
                 $code = strtr($code, [
                     '__FILE__' => var_export($path, true),
                     '__DIR__' => var_export(dirname($path), true),
@@ -370,7 +374,7 @@ class PluginManager
 
         if ($sourcePackage === null) {
             trigger_error('Calling PluginManager::addPlugin without $sourcePackage is deprecated, if you are using this please get in touch with us to explain the use case', E_USER_DEPRECATED);
-        } elseif (!$this->isPluginAllowed($sourcePackage->getName(), $isGlobalPlugin)) {
+        } elseif (!$this->isPluginAllowed($sourcePackage->getName(), $isGlobalPlugin, true === ($sourcePackage->getExtra()['plugin-optional'] ?? false))) {
             $this->io->writeError('Skipped loading "'.get_class($plugin).' from '.$sourcePackage->getName() . '" '.($isGlobalPlugin || $this->runningInGlobalDir ? '(installed globally) ' : '').' as it is not in config.allow-plugins', true, IOInterface::DEBUG);
 
             return;
@@ -524,9 +528,9 @@ class PluginManager
      *
      * @param bool             $global  Whether this is a global package
      *
-     * @return string Install path
+     * @return string|null Install path
      */
-    private function getInstallPath(PackageInterface $package, bool $global = false): string
+    private function getInstallPath(PackageInterface $package, bool $global = false): ?string
     {
         if (!$global) {
             return $this->composer->getInstallationManager()->getInstallPath($package);
@@ -656,7 +660,15 @@ class PluginManager
     /**
      * @internal
      */
-    public function isPluginAllowed(string $package, bool $isGlobalPlugin): bool
+    public function disablePlugins(): void
+    {
+        $this->disablePlugins = true;
+    }
+
+    /**
+     * @internal
+     */
+    public function isPluginAllowed(string $package, bool $isGlobalPlugin, bool $optional = false): bool
     {
         if ($isGlobalPlugin) {
             $rules = &$this->allowGlobalPluginRules;
@@ -733,6 +745,8 @@ class PluginManager
                         break;
                 }
             }
+        } elseif ($optional) {
+            return false;
         }
 
         throw new PluginBlockedException(

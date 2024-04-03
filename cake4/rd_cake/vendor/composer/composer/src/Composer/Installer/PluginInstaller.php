@@ -43,6 +43,11 @@ class PluginInstaller extends LibraryInstaller
         return $packageType === 'composer-plugin' || $packageType === 'composer-installer';
     }
 
+    public function disablePlugins(): void
+    {
+        $this->getPluginManager()->disablePlugins();
+    }
+
     /**
      * @inheritDoc
      */
@@ -50,7 +55,7 @@ class PluginInstaller extends LibraryInstaller
     {
         // fail install process early if it is going to fail due to a plugin not being allowed
         if (($type === 'install' || $type === 'update') && !$this->getPluginManager()->arePluginsDisabled('local')) {
-            $this->getPluginManager()->isPluginAllowed($package->getName(), false);
+            $this->getPluginManager()->isPluginAllowed($package->getName(), false, true === ($package->getExtra()['plugin-optional'] ?? false));
         }
 
         return parent::prepare($type, $package, $prevPackage);

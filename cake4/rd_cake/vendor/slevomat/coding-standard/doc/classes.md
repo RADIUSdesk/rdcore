@@ -32,7 +32,7 @@ public const BAR = 2; // correct
 
 #### SlevomatCodingStandard.Classes.ClassMemberSpacing 🔧
 
-Checks lines count between different class members, eg. between last property and first method.
+Sniff checks lines count between different class members, e.g. between last property and first method.
 
 Sniff provides the following settings:
 
@@ -69,7 +69,7 @@ constants, properties, static properties, methods, all public methods, all prote
 
 			<element value="enum cases"/>
 
-			<!-- Public constants are first but you don't care about the order of protected or private constants -->
+			<!-- Public constants are first, but you don't care about the order of protected or private constants -->
 			<element value="public constants"/>
 			<element value="constants"/>
 
@@ -113,6 +113,14 @@ Disallows multi constant definition.
 
 Disallows multi property definition.
 
+#### SlevomatCodingStandard.Classes.DisallowMultiPropertyDefinition 🔧
+
+Disallows multi property definition.
+
+#### SlevomatCodingStandard.Classes.DisallowStringExpressionPropertyFetch 🔧
+
+Disallows string expression property fetch `$object->{'foo'}` when the property name is compatible with identifier access.
+
 #### SlevomatCodingStandard.Classes.EmptyLinesAroundClassBraces 🔧
 
 Enforces one configurable number of lines after opening class/interface/trait brace and one empty line before the closing brace.
@@ -121,6 +129,17 @@ Sniff provides the following settings:
 
 * `linesCountAfterOpeningBrace`: allows to configure the number of lines after opening brace.
 * `linesCountBeforeClosingBrace`: allows to configure the number of lines before closing brace.
+
+#### SlevomatCodingStandard.Classes.EnumCaseSpacing 🔧
+
+Checks that there is a certain number of blank lines between enum cases.
+
+Sniff provides the following settings:
+
+* `minLinesCountBeforeWithComment`: minimum number of lines before enum case with a documentation comment or attribute
+* `maxLinesCountBeforeWithComment`: maximum number of lines before enum case with a documentation comment or attribute
+* `minLinesCountBeforeWithoutComment`: minimum number of lines before enum case without a documentation comment or attribute
+* `maxLinesCountBeforeWithoutComment`: maximum number of lines before enum case without a documentation comment or attribute
 
 #### SlevomatCodingStandard.Classes.ForbiddenPublicProperty
 
@@ -197,15 +216,20 @@ This sniff provides the following setting:
 
 #### SlevomatCodingStandard.Classes.RequireMultiLineMethodSignature 🔧
 
-Enforces method signature to be splitted to more lines so each parameter is on its own line.
+Enforces method signature to be split to more lines so each parameter is on its own line.
 
 Sniff provides the following settings:
 
-* `minLineLength`: specifies min line length to enforce signature to be splitted. Use 0 value to enforce for all methods, regardless of length.
+* `minLineLength`: specifies min line length to enforce signature to be split. Use 0 value to enforce for all methods, regardless of length.
+* `minParametersCount`: specifies min parameters count to enforce signature to be split.
 
 * `includedMethodPatterns`: allows to configure which methods are included in sniff detection. This is an array of regular expressions (PCRE) with delimiters. You should not use this with `excludedMethodPatterns`, as it will not work properly.
 
 * `excludedMethodPatterns`: allows to configure which methods are excluded from sniff detection. This is an array of regular expressions (PCRE) with delimiters. You should not use this with `includedMethodPatterns`, as it will not work properly.
+
+#### SlevomatCodingStandard.Classes.RequireSelfReference 🔧
+
+Requires `self` for local reference.
 
 #### SlevomatCodingStandard.Classes.RequireSingleLineMethodSignature 🔧
 
@@ -213,7 +237,7 @@ Enforces method signature to be on a single line.
 
 Sniff provides the following settings:
 
-* `maxLineLength`: specifies max allowed line length. If signature would fit on it, it's enforced. Use 0 value to enforce for all methods, regardless of length.
+* `maxLineLength`: specifies max allowed line length. If signature fit on it, it's enforced. Use 0 value to enforce for all methods, regardless of length.
 
 * `includedMethodPatterns`: allows to configure which methods are included in sniff detection. This is an array of regular expressions (PCRE) with delimiters. You should not use this with `excludedMethodPatterns`, as it will not work properly.
 

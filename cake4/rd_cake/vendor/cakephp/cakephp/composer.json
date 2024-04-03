@@ -22,11 +22,11 @@
         }
     ],
     "require": {
-        "php": ">=7.4.0",
+        "php": ">=7.4.0,<9",
         "ext-intl": "*",
         "ext-json": "*",
         "ext-mbstring": "*",
-        "cakephp/chronos": "^2.2",
+        "cakephp/chronos": "^2.4.0-RC2",
         "composer/ca-bundle": "^1.2",
         "laminas/laminas-diactoros": "^2.2.2",
         "laminas/laminas-httphandlerrunner": "^1.1 || ^2.0",
@@ -58,14 +58,22 @@
     "require-dev": {
         "cakephp/cakephp-codesniffer": "^4.5",
         "mikey179/vfsstream": "^1.6.10",
-        "paragonie/csp-builder": "^2.3",
+        "paragonie/csp-builder": "^2.3 || ^3.0",
         "phpunit/phpunit": "^8.5 || ^9.3"
     },
     "suggest": {
         "ext-curl": "To enable more efficient network calls in Http\\Client.",
         "ext-openssl": "To use Security::encrypt() or have secure CSRF token generation.",
-        "lib-ICU": "The intl PHP library, to use Text::transliterate() or Text::slug()",
+        "lib-ICU": "To use locale-aware features in the I18n and Database packages",
         "paragonie/csp-builder": "CSP builder, to use the CSP Middleware"
+    },
+    "provide": {
+        "psr/container-implementation": "^1.0 || ^2.0",
+        "psr/http-client-implementation": "^1.0",
+        "psr/http-server-handler-implementation": "^1.0",
+        "psr/http-server-middleware-implementation": "^1.0",
+        "psr/log-implementation": "^1.0 || ^2.0",
+        "psr/simple-cache-implementation": "^1.0 || ^2.0"
     },
     "config": {
         "process-timeout": 900,
@@ -80,6 +88,7 @@
         },
         "files": [
             "src/Core/functions.php",
+            "src/Error/functions.php",
             "src/Collection/functions.php",
             "src/I18n/functions.php",
             "src/Routing/functions.php",
@@ -107,15 +116,15 @@
         ],
         "cs-check": "phpcs --colors --parallel=16 -p src/ tests/",
         "cs-fix": "phpcbf --colors --parallel=16 -p src/ tests/",
-        "phpstan": "phpstan.phar analyse",
-        "psalm": "psalm.phar --show-info=false",
+        "phpstan": "tools/phpstan analyse",
+        "psalm": "tools/psalm --show-info=false",
         "stan": [
             "@phpstan",
             "@psalm"
         ],
         "stan-tests": "phpstan.phar analyze -c tests/phpstan.neon",
         "stan-baseline": "phpstan.phar --generate-baseline",
-        "stan-setup": "cp composer.json composer.backup && composer require --dev symfony/polyfill-php81 phpstan/phpstan:~1.9.0 psalm/phar:~4.30.0 && mv composer.backup composer.json",
+        "stan-setup": "phive install",
         "lowest": "validate-prefer-lowest",
         "lowest-setup": "composer update --prefer-lowest --prefer-stable --prefer-dist --no-interaction && cp composer.json composer.backup && composer require --dev dereuromark/composer-prefer-lowest && mv composer.backup composer.json",
         "test": "phpunit",

@@ -42,12 +42,9 @@ final class Path
      *
      * @var array<string, string>
      */
-    private static $buffer = [];
+    private static array $buffer = [];
 
-    /**
-     * @var int
-     */
-    private static $bufferSize = 0;
+    private static int $bufferSize = 0;
 
     /**
      * Canonicalizes the given path.
@@ -257,7 +254,7 @@ final class Path
      * @param string|null $extension if specified, only that extension is cut
      *                               off (may contain leading dot)
      */
-    public static function getFilenameWithoutExtension(string $path, string $extension = null): string
+    public static function getFilenameWithoutExtension(string $path, ?string $extension = null): string
     {
         if ('' === $path) {
             return '';

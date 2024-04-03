@@ -2,17 +2,17 @@
 declare(strict_types=1);
 
 /**
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         0.1.0
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://www.opensource.org/licenses/mit-license.php MIT License
  */
 namespace Bake\Command;
 
@@ -233,7 +233,7 @@ class ModelCommand extends BakeCommand
         ];
 
         $primary = $table->getPrimaryKey();
-        $associations = $this->findBelongsTo($table, $associations);
+        $associations = $this->findBelongsTo($table, $associations, $args);
 
         if (is_array($primary) && count($primary) > 1) {
             $io->warning(
@@ -329,9 +329,10 @@ class ModelCommand extends BakeCommand
      *
      * @param \Cake\ORM\Table $model Database\Table instance of table being generated.
      * @param array $associations Array of in progress associations
+     * @param \Cake\Console\Arguments|null $args CLI arguments
      * @return array Associations with belongsTo added in.
      */
-    public function findBelongsTo(Table $model, array $associations): array
+    public function findBelongsTo(Table $model, array $associations, ?Arguments $args = null): array
     {
         $schema = $model->getSchema();
         foreach ($schema->columns() as $fieldName) {
@@ -362,11 +363,13 @@ class ModelCommand extends BakeCommand
                     get_class($associationTable) === Table::class &&
                     !in_array(Inflector::tableize($tmpModelName), $tables, true)
                 ) {
+                    $allowAliasRelations = $args && $args->getOption('skip-relation-check');
                     $found = $this->findTableReferencedBy($schema, $fieldName);
-                    if (!$found) {
+                    if ($found) {
+                        $tmpModelName = Inflector::camelize($found);
+                    } elseif (!$allowAliasRelations) {
                         continue;
                     }
-                    $tmpModelName = Inflector::camelize($found);
                 }
                 $assoc = [
                     'alias' => $tmpModelName,
@@ -1319,6 +1322,10 @@ class ModelCommand extends BakeCommand
         ])->addOption('no-fixture', [
             'boolean' => true,
             'help' => 'Do not generate a test fixture skeleton.',
+        ])->addOption('skip-relation-check', [
+            'boolean' => true,
+            'help' => 'Generate relations for all "example_id" fields'
+            . ' without checking the database if a table "examples" exists.',
         ])->setEpilog(
             'Omitting all arguments and options will list the table names you can generate models for.'
         );

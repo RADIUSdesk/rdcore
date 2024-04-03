@@ -211,7 +211,7 @@ class PlatformRepository extends ArrayRepository
                     }
 
                     // AMQP protocol version => 0-9-1
-                    if (Preg::isMatch('/^AMQP protocol version => (?<version>.+)$/im', $info, $protocolMatches)) {
+                    if (Preg::isMatchStrictGroups('/^AMQP protocol version => (?<version>.+)$/im', $info, $protocolMatches)) {
                         $this->addLibrary($name.'-protocol', str_replace('-', '.', $protocolMatches['version']), 'AMQP protocol version');
                     }
                     break;
@@ -232,23 +232,28 @@ class PlatformRepository extends ArrayRepository
                     $info = $this->runtime->getExtensionInfo($name);
 
                     // SSL Version => OpenSSL/1.0.1t
-                    if (Preg::isMatch('{^SSL Version => (?<library>[^/]+)/(?<version>.+)$}im', $info, $sslMatches)) {
+                    if (Preg::isMatchStrictGroups('{^SSL Version => (?<library>[^/]+)/(?<version>.+)$}im', $info, $sslMatches)) {
                         $library = strtolower($sslMatches['library']);
                         if ($library === 'openssl') {
                             $parsedVersion = Version::parseOpenssl($sslMatches['version'], $isFips);
                             $this->addLibrary($name.'-openssl'.($isFips ? '-fips' : ''), $parsedVersion, 'curl OpenSSL version ('.$parsedVersion.')', [], $isFips ? ['curl-openssl'] : []);
                         } else {
-                            $this->addLibrary($name.'-'.$library, $sslMatches['version'], 'curl '.$library.' version ('.$sslMatches['version'].')', ['curl-openssl']);
+                            if ($library === '(securetransport) openssl') {
+                                $shortlib = 'securetransport';
+                            } else {
+                                $shortlib = $library;
+                            }
+                            $this->addLibrary($name.'-'.$shortlib, $sslMatches['version'], 'curl '.$library.' version ('.$sslMatches['version'].')', ['curl-openssl']);
                         }
                     }
 
                     // libSSH Version => libssh2/1.4.3
-                    if (Preg::isMatch('{^libSSH Version => (?<library>[^/]+)/(?<version>.+?)(?:/.*)?$}im', $info, $sshMatches)) {
+                    if (Preg::isMatchStrictGroups('{^libSSH Version => (?<library>[^/]+)/(?<version>.+?)(?:/.*)?$}im', $info, $sshMatches)) {
                         $this->addLibrary($name.'-'.strtolower($sshMatches['library']), $sshMatches['version'], 'curl '.$sshMatches['library'].' version');
                     }
 
                     // ZLib Version => 1.2.8
-                    if (Preg::isMatch('{^ZLib Version => (?<version>.+)$}im', $info, $zlibMatches)) {
+                    if (Preg::isMatchStrictGroups('{^ZLib Version => (?<version>.+)$}im', $info, $zlibMatches)) {
                         $this->addLibrary($name.'-zlib', $zlibMatches['version'], 'curl zlib version');
                     }
                     break;
@@ -257,14 +262,14 @@ class PlatformRepository extends ArrayRepository
                     $info = $this->runtime->getExtensionInfo($name);
 
                     // timelib version => 2018.03
-                    if (Preg::isMatch('/^timelib version => (?<version>.+)$/im', $info, $timelibMatches)) {
+                    if (Preg::isMatchStrictGroups('/^timelib version => (?<version>.+)$/im', $info, $timelibMatches)) {
                         $this->addLibrary($name.'-timelib', $timelibMatches['version'], 'date timelib version');
                     }
 
                     // Timezone Database => internal
-                    if (Preg::isMatch('/^Timezone Database => (?<source>internal|external)$/im', $info, $zoneinfoSourceMatches)) {
+                    if (Preg::isMatchStrictGroups('/^Timezone Database => (?<source>internal|external)$/im', $info, $zoneinfoSourceMatches)) {
                         $external = $zoneinfoSourceMatches['source'] === 'external';
-                        if (Preg::isMatch('/^"Olson" Timezone Database Version => (?<version>.+?)(\.system)?$/im', $info, $zoneinfoMatches)) {
+                        if (Preg::isMatchStrictGroups('/^"Olson" Timezone Database Version => (?<version>.+?)(?:\.system)?$/im', $info, $zoneinfoMatches)) {
                             // If the timezonedb is provided by ext/timezonedb, register that version as a replacement
                             if ($external && in_array('timezonedb', $loadedExtensions, true)) {
                                 $this->addLibrary('timezonedb-zoneinfo', $zoneinfoMatches['version'], 'zoneinfo ("Olson") database for date (replaced by timezonedb)', [$name.'-zoneinfo']);
@@ -289,19 +294,19 @@ class PlatformRepository extends ArrayRepository
 
                     $info = $this->runtime->getExtensionInfo($name);
 
-                    if (Preg::isMatch('/^libJPEG Version => (?<version>.+?)(?: compatible)?$/im', $info, $libjpegMatches)) {
+                    if (Preg::isMatchStrictGroups('/^libJPEG Version => (?<version>.+?)(?: compatible)?$/im', $info, $libjpegMatches)) {
                         $this->addLibrary($name.'-libjpeg', Version::parseLibjpeg($libjpegMatches['version']), 'libjpeg version for gd');
                     }
 
-                    if (Preg::isMatch('/^libPNG Version => (?<version>.+)$/im', $info, $libpngMatches)) {
+                    if (Preg::isMatchStrictGroups('/^libPNG Version => (?<version>.+)$/im', $info, $libpngMatches)) {
                         $this->addLibrary($name.'-libpng', $libpngMatches['version'], 'libpng version for gd');
                     }
 
-                    if (Preg::isMatch('/^FreeType Version => (?<version>.+)$/im', $info, $freetypeMatches)) {
+                    if (Preg::isMatchStrictGroups('/^FreeType Version => (?<version>.+)$/im', $info, $freetypeMatches)) {
                         $this->addLibrary($name.'-freetype', $freetypeMatches['version'], 'freetype version for gd');
                     }
 
-                    if (Preg::isMatch('/^libXpm Version => (?<versionId>\d+)$/im', $info, $libxpmMatches)) {
+                    if (Preg::isMatchStrictGroups('/^libXpm Version => (?<versionId>\d+)$/im', $info, $libxpmMatches)) {
                         $this->addLibrary($name.'-libxpm', Version::convertLibxpmVersionId((int) $libxpmMatches['versionId']), 'libxpm version for gd');
                     }
 
@@ -327,14 +332,16 @@ class PlatformRepository extends ArrayRepository
                     }
 
                     // ICU TZData version => 2019c
-                    if (Preg::isMatch('/^ICU TZData version => (?<version>.*)$/im', $info, $zoneinfoMatches) && null !== ($version = Version::parseZoneinfoVersion($zoneinfoMatches['version']))) {
+                    if (Preg::isMatchStrictGroups('/^ICU TZData version => (?<version>.*)$/im', $info, $zoneinfoMatches) && null !== ($version = Version::parseZoneinfoVersion($zoneinfoMatches['version']))) {
                         $this->addLibrary('icu-zoneinfo', $version, 'zoneinfo ("Olson") database for icu');
                     }
 
                     // Add a separate version for the CLDR library version
                     if ($this->runtime->hasClass('ResourceBundle')) {
-                        $cldrVersion = $this->runtime->invoke(['ResourceBundle', 'create'], ['root', 'ICUDATA', false])->get('Version');
-                        $this->addLibrary('icu-cldr', $cldrVersion, 'ICU CLDR project version');
+                        $resourceBundle = $this->runtime->invoke(['ResourceBundle', 'create'], ['root', 'ICUDATA', false]);
+                        if ($resourceBundle !== null) {
+                            $this->addLibrary('icu-cldr', $resourceBundle->get('Version'), 'ICU CLDR project version');
+                        }
                     }
 
                     if ($this->runtime->hasClass('IntlChar')) {
@@ -358,7 +365,7 @@ class PlatformRepository extends ArrayRepository
                 case 'ldap':
                     $info = $this->runtime->getExtensionInfo($name);
 
-                    if (Preg::isMatch('/^Vendor Version => (?<versionId>\d+)$/im', $info, $matches) && Preg::isMatch('/^Vendor Name => (?<vendor>.+)$/im', $info, $vendorMatches)) {
+                    if (Preg::isMatchStrictGroups('/^Vendor Version => (?<versionId>\d+)$/im', $info, $matches) && Preg::isMatchStrictGroups('/^Vendor Name => (?<vendor>.+)$/im', $info, $vendorMatches)) {
                         $this->addLibrary($name.'-'.strtolower($vendorMatches['vendor']), Version::convertOpenldapVersionId((int) $matches['versionId']), $vendorMatches['vendor'].' version of ldap');
                     }
                     break;
@@ -402,7 +409,7 @@ class PlatformRepository extends ArrayRepository
 
                 case 'openssl':
                     // OpenSSL 1.1.1g  21 Apr 2020
-                    if (Preg::isMatch('{^(?:OpenSSL|LibreSSL)?\s*(?<version>\S+)}i', $this->runtime->getConstant('OPENSSL_VERSION_TEXT'), $matches)) {
+                    if (Preg::isMatchStrictGroups('{^(?:OpenSSL|LibreSSL)?\s*(?<version>\S+)}i', $this->runtime->getConstant('OPENSSL_VERSION_TEXT'), $matches)) {
                         $parsedVersion = Version::parseOpenssl($matches['version'], $isFips);
                         $this->addLibrary($name.($isFips ? '-fips' : ''), $parsedVersion, $this->runtime->getConstant('OPENSSL_VERSION_TEXT'), [], $isFips ? [$name] : []);
                     }
@@ -414,7 +421,7 @@ class PlatformRepository extends ArrayRepository
                     $info = $this->runtime->getExtensionInfo($name);
 
                     // PCRE Unicode Version => 12.1.0
-                    if (Preg::isMatch('/^PCRE Unicode Version => (?<version>.+)$/im', $info, $pcreUnicodeMatches)) {
+                    if (Preg::isMatchStrictGroups('/^PCRE Unicode Version => (?<version>.+)$/im', $info, $pcreUnicodeMatches)) {
                         $this->addLibrary($name.'-unicode', $pcreUnicodeMatches['version'], 'PCRE Unicode version support');
                     }
 
@@ -424,7 +431,7 @@ class PlatformRepository extends ArrayRepository
                 case 'pdo_mysql':
                     $info = $this->runtime->getExtensionInfo($name);
 
-                    if (Preg::isMatch('/^(?:Client API version|Version) => mysqlnd (?<version>.+?) /mi', $info, $matches)) {
+                    if (Preg::isMatchStrictGroups('/^(?:Client API version|Version) => mysqlnd (?<version>.+?) /mi', $info, $matches)) {
                         $this->addLibrary($name.'-mysqlnd', $matches['version'], 'mysqlnd library version for '.$name);
                     }
                     break;
@@ -432,21 +439,53 @@ class PlatformRepository extends ArrayRepository
                 case 'mongodb':
                     $info = $this->runtime->getExtensionInfo($name);
 
-                    if (Preg::isMatch('/^libmongoc bundled version => (?<version>.+)$/im', $info, $libmongocMatches)) {
+                    if (Preg::isMatchStrictGroups('/^libmongoc bundled version => (?<version>.+)$/im', $info, $libmongocMatches)) {
                         $this->addLibrary($name.'-libmongoc', $libmongocMatches['version'], 'libmongoc version of mongodb');
                     }
 
-                    if (Preg::isMatch('/^libbson bundled version => (?<version>.+)$/im', $info, $libbsonMatches)) {
+                    if (Preg::isMatchStrictGroups('/^libbson bundled version => (?<version>.+)$/im', $info, $libbsonMatches)) {
                         $this->addLibrary($name.'-libbson', $libbsonMatches['version'], 'libbson version of mongodb');
                     }
                     break;
 
                 case 'pgsql':
+                    if ($this->runtime->hasConstant('PGSQL_LIBPQ_VERSION')) {
+                        $this->addLibrary('pgsql-libpq', $this->runtime->getConstant('PGSQL_LIBPQ_VERSION'), 'libpq for pgsql');
+                        break;
+                    }
+                // intentional fall-through to next case...
+
                 case 'pdo_pgsql':
                     $info = $this->runtime->getExtensionInfo($name);
 
                     if (Preg::isMatch('/^PostgreSQL\(libpq\) Version => (?<version>.*)$/im', $info, $matches)) {
                         $this->addLibrary($name.'-libpq', $matches['version'], 'libpq for '.$name);
+                    }
+                    break;
+
+                case 'pq':
+                    $info = $this->runtime->getExtensionInfo($name);
+
+                    // Used Library => Compiled => Linked
+                    // libpq => 14.3 (Ubuntu 14.3-1.pgdg22.04+1) => 15.0.2
+                    if (Preg::isMatch('/^libpq => (?<compiled>.+) => (?<linked>.+)$/im', $info, $matches)) {
+                        $this->addLibrary($name.'-libpq', $matches['linked'], 'libpq for '.$name);
+                    }
+                    break;
+
+                case 'rdkafka':
+                    if ($this->runtime->hasConstant('RD_KAFKA_VERSION')) {
+                        /**
+                         * Interpreted as hex \c MM.mm.rr.xx:
+                         *  - MM = Major
+                         *  - mm = minor
+                         *  - rr = revision
+                         *  - xx = pre-release id (0xff is the final release)
+                         *
+                         * pre-release ID in practice is always 0xff even for RCs etc, so we ignore it
+                         */
+                        $libRdKafkaVersionInt = $this->runtime->getConstant('RD_KAFKA_VERSION');
+                        $this->addLibrary($name.'-librdkafka', sprintf('%d.%d.%d', ($libRdKafkaVersionInt & 0xFF000000) >> 24, ($libRdKafkaVersionInt & 0x00FF0000) >> 16, ($libRdKafkaVersionInt & 0x0000FF00) >> 8), 'librdkafka for '.$name);
                     }
                     break;
 
@@ -611,7 +650,7 @@ class PlatformRepository extends ArrayRepository
             $version = $this->versionParser->normalize($prettyVersion);
         } catch (\UnexpectedValueException $e) {
             $extraDescription = ' (actual version: '.$prettyVersion.')';
-            if (Preg::isMatch('{^(\d+\.\d+\.\d+(?:\.\d+)?)}', $prettyVersion, $match)) {
+            if (Preg::isMatchStrictGroups('{^(\d+\.\d+\.\d+(?:\.\d+)?)}', $prettyVersion, $match)) {
                 $prettyVersion = $match[1];
             } else {
                 $prettyVersion = '0';

@@ -4,16 +4,16 @@
  *
  * PHP 5
  *
- * CakePHP(tm) : Rapid Development Framework (http://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (http://cakefoundation.org)
- * @link          http://cakephp.org CakePHP(tm) Project
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
  * @since         DebugKit 0.1
- * @license       http://www.opensource.org/licenses/mit-license.php MIT License
+ * @license       https://www.opensource.org/licenses/mit-license.php MIT License
  */
 
 /**
@@ -21,14 +21,11 @@
  * @var array $tables
  * @var \DebugKit\Database\Log\DebugLog[] $loggers
  */
-$noOutput = true;
 
-// Configure sqlformatter colours.
-SqlFormatter::$quote_attributes = 'style="color: #004d40;"';
-SqlFormatter::$backtick_quote_attributes = 'style="color: #26a69a;"';
-SqlFormatter::$number_attributes = 'style="color: #ec407a;"';
-SqlFormatter::$word_attributes = 'style="color: #9c27b0;"';
-SqlFormatter::$pre_attributes = 'style="color: #222; background-color: transparent;"';
+use Doctrine\SqlFormatter\HtmlHighlighter;
+use Doctrine\SqlFormatter\SqlFormatter;
+
+$noOutput = true;
 ?>
 
 <div class="c-sql-log-panel">
@@ -77,7 +74,20 @@ SqlFormatter::$pre_attributes = 'style="color: #222; background-color: transpare
                     <tbody>
                         <?php foreach ($queries as $query) : ?>
                         <tr>
-                            <td><?= SqlFormatter::format($query['query']) ?></td>
+                            <td>
+                                <?=
+                                    (new SqlFormatter(
+                                        new HtmlHighlighter([
+                                            HtmlHighlighter::HIGHLIGHT_QUOTE => 'style="color: #004d40;"',
+                                            HtmlHighlighter::HIGHLIGHT_BACKTICK_QUOTE => 'style="color: #26a69a;"',
+                                            HtmlHighlighter::HIGHLIGHT_NUMBER => 'style="color: #ec407a;"',
+                                            HtmlHighlighter::HIGHLIGHT_WORD => 'style="color: #9c27b0;"',
+                                            HtmlHighlighter::HIGHLIGHT_PRE => 'style="color: #222; background-color: transparent;"',
+                                        ])
+                                    ))
+                                    ->format($query['query'])
+                                ?>
+                            </td>
                             <td><?= h($query['rows']) ?></td>
                             <td><?= h($query['took']) ?></td>
                         </tr>

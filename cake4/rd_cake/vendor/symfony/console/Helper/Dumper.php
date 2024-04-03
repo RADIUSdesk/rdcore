@@ -26,7 +26,7 @@ final class Dumper
     private ?ClonerInterface $cloner;
     private \Closure $handler;
 
-    public function __construct(OutputInterface $output, CliDumper $dumper = null, ClonerInterface $cloner = null)
+    public function __construct(OutputInterface $output, ?CliDumper $dumper = null, ?ClonerInterface $cloner = null)
     {
         $this->output = $output;
         $this->dumper = $dumper;
@@ -40,14 +40,12 @@ final class Dumper
                 return rtrim($dumper->dump(($this->cloner ??= new VarCloner())->cloneVar($var)->withRefHandles(false), true));
             };
         } else {
-            $this->handler = function ($var): string {
-                return match (true) {
-                    null === $var => 'null',
-                    true === $var => 'true',
-                    false === $var => 'false',
-                    \is_string($var) => '"'.$var.'"',
-                    default => rtrim(print_r($var, true)),
-                };
+            $this->handler = fn ($var): string => match (true) {
+                null === $var => 'null',
+                true === $var => 'true',
+                false === $var => 'false',
+                \is_string($var) => '"'.$var.'"',
+                default => rtrim(print_r($var, true)),
             };
         }
     }

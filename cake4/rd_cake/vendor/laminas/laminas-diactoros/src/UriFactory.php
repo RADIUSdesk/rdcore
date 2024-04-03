@@ -9,10 +9,11 @@ use Psr\Http\Message\UriInterface;
 
 use function array_change_key_case;
 use function array_key_exists;
+use function assert;
+use function count;
 use function explode;
 use function gettype;
 use function implode;
-use function is_array;
 use function is_bool;
 use function is_scalar;
 use function is_string;
@@ -76,7 +77,9 @@ class UriFactory implements UriFactoryInterface
 
         $fragment = '';
         if (str_contains($path, '#')) {
-            [$path, $fragment] = explode('#', $path, 2);
+            $parts = explode('#', $path, 2);
+            assert(count($parts) >= 2);
+            [$path, $fragment] = $parts;
         }
 
         return $uri
@@ -228,16 +231,14 @@ class UriFactory implements UriFactoryInterface
     }
 
     /**
-     * @param string|list<string> $host
+     * @internal
+     *
      * @return array{string, int|null} Array of two items, host and port, in that order (can be
      *     passed to a list() operation).
+     * @psalm-mutation-free
      */
-    private static function marshalHostAndPortFromHeader($host): array
+    public static function marshalHostAndPortFromHeader(string $host): array
     {
-        if (is_array($host)) {
-            $host = implode(', ', $host);
-        }
-
         $port = null;
 
         // works for regname, IPv4 & IPv6

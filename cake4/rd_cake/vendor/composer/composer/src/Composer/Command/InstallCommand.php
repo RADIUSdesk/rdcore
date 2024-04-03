@@ -46,6 +46,7 @@ class InstallCommand extends BaseCommand
                 new InputOption('prefer-dist', null, InputOption::VALUE_NONE, 'Forces installation from package dist (default behavior).'),
                 new InputOption('prefer-install', null, InputOption::VALUE_REQUIRED, 'Forces installation from package dist|source|auto (auto chooses source for dev versions, dist for the rest).', null, $this->suggestPreferInstall()),
                 new InputOption('dry-run', null, InputOption::VALUE_NONE, 'Outputs the operations but will not execute anything (implicitly enables --verbose).'),
+                new InputOption('download-only', null, InputOption::VALUE_NONE, 'Download only, do not install packages.'),
                 new InputOption('dev', null, InputOption::VALUE_NONE, 'DEPRECATED: Enables installation of require-dev packages (enabled by default, only present for BC).'),
                 new InputOption('no-suggest', null, InputOption::VALUE_NONE, 'DEPRECATED: This flag does not exist anymore.'),
                 new InputOption('no-dev', null, InputOption::VALUE_NONE, 'Disables installation of require-dev packages.'),
@@ -78,7 +79,7 @@ EOT
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = $this->getIO();
         if ($input->getOption('dev')) {
@@ -124,6 +125,7 @@ EOT
 
         $install
             ->setDryRun($input->getOption('dry-run'))
+            ->setDownloadOnly($input->getOption('download-only'))
             ->setVerbose($input->getOption('verbose'))
             ->setPreferSource($preferSource)
             ->setPreferDist($preferDist)
@@ -134,6 +136,7 @@ EOT
             ->setApcuAutoloader($apcu, $apcuPrefix)
             ->setPlatformRequirementFilter($this->getPlatformRequirementFilter($input))
             ->setAudit($input->getOption('audit'))
+            ->setErrorOnAudit($input->getOption('audit'))
             ->setAuditFormat($this->getAuditFormat($input))
         ;
 

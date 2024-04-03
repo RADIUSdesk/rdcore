@@ -27,6 +27,7 @@ use Cake\ORM\Marshaller;
 use Cake\ORM\Query;
 use Cake\ORM\Table;
 use Cake\Utility\Hash;
+use function Cake\Core\pluginSplit;
 
 /**
  * This class provides a way to translate dynamic data by keeping translations
@@ -266,7 +267,6 @@ class ShadowTableStrategy implements TranslateStrategyInterface
                     return $c;
                 }
 
-                /** @psalm-suppress ParadoxicalCondition */
                 if (in_array($field, $fields, true)) {
                     $joinRequired = true;
                     $field = "$alias.$field";
@@ -323,7 +323,6 @@ class ShadowTableStrategy implements TranslateStrategyInterface
                     return;
                 }
 
-                /** @psalm-suppress ParadoxicalCondition */
                 if (in_array($field, $mainTableFields, true)) {
                     $expression->setField("$mainTableAlias.$field");
                 }
@@ -537,7 +536,10 @@ class ShadowTableStrategy implements TranslateStrategyInterface
     public function groupTranslations($results): CollectionInterface
     {
         return $results->map(function ($row) {
-            $translations = (array)$row['_i18n'];
+            if (!($row instanceof EntityInterface)) {
+                return $row;
+            }
+            $translations = (array)$row->get('_i18n');
             if (empty($translations) && $row->get('_translations')) {
                 return $row;
             }

@@ -79,6 +79,7 @@ class Installer
     public const ERROR_LOCK_FILE_INVALID = 4;
     // used/declared in SolverProblemsException, carried over here for completeness
     public const ERROR_DEPENDENCY_RESOLUTION_FAILED = 2;
+    public const ERROR_AUDIT_FAILED = 5;
 
     /**
      * @var IOInterface
@@ -148,6 +149,8 @@ class Installer
     /** @var bool */
     protected $dryRun = false;
     /** @var bool */
+    protected $downloadOnly = false;
+    /** @var bool */
     protected $verbose = false;
     /** @var bool */
     protected $update = false;
@@ -162,11 +165,15 @@ class Installer
     /** @var bool */
     protected $preferLowest = false;
     /** @var bool */
+    protected $minimalUpdate = false;
+    /** @var bool */
     protected $writeLock;
     /** @var bool */
     protected $executeOperations = true;
     /** @var bool */
     protected $audit = true;
+    /** @var bool */
+    protected $errorOnAudit = false;
     /** @var Auditor::FORMAT_* */
     protected $auditFormat = Auditor::FORMAT_SUMMARY;
 
@@ -175,7 +182,7 @@ class Installer
     /**
      * Array of package names/globs flagged for update
      *
-     * @var string[]|null
+     * @var non-empty-list<string>|null
      */
     protected $updateAllowList = null;
     /** @var Request::UPDATE_* */
@@ -237,7 +244,7 @@ class Installer
         gc_collect_cycles();
         gc_disable();
 
-        if ($this->updateAllowList && $this->updateMirrors) {
+        if ($this->updateAllowList !== null && $this->updateMirrors) {
             throw new \RuntimeException("The installer options updateMirrors and updateAllowList are mutually exclusive.");
         }
 
@@ -256,6 +263,10 @@ class Installer
             $this->writeLock = false;
             $this->dumpAutoloader = false;
             $this->mockLocalRepositories($this->repositoryManager);
+        }
+
+        if ($this->downloadOnly) {
+            $this->dumpAutoloader = false;
         }
 
         if ($this->update && !$this->install) {
@@ -340,7 +351,18 @@ class Installer
             $this->autoloadGenerator->setApcu($this->apcuAutoloader, $this->apcuAutoloaderPrefix);
             $this->autoloadGenerator->setRunScripts($this->runScripts);
             $this->autoloadGenerator->setPlatformRequirementFilter($this->platformRequirementFilter);
-            $this->autoloadGenerator->dump($this->config, $localRepo, $this->package, $this->installationManager, 'composer', $this->optimizeAutoloader);
+            $this
+                ->autoloadGenerator
+                ->dump(
+                    $this->config,
+                    $localRepo,
+                    $this->package,
+                    $this->installationManager,
+                    'composer',
+                    $this->optimizeAutoloader,
+                    null,
+                    $this->locker
+                );
         }
 
         if ($this->install && $this->executeOperations) {
@@ -350,22 +372,30 @@ class Installer
             }
         }
 
-        $fundingCount = 0;
-        foreach ($localRepo->getPackages() as $package) {
-            if ($package instanceof CompletePackageInterface && !$package instanceof AliasPackage && $package->getFunding()) {
-                $fundingCount++;
-            }
+        $fundEnv = Platform::getEnv('COMPOSER_FUND');
+        $showFunding = true;
+        if (is_numeric($fundEnv)) {
+            $showFunding = intval($fundEnv) !== 0;
         }
-        if ($fundingCount > 0) {
-            $this->io->writeError([
-                sprintf(
-                    "<info>%d package%s you are using %s looking for funding.</info>",
-                    $fundingCount,
-                    1 === $fundingCount ? '' : 's',
-                    1 === $fundingCount ? 'is' : 'are'
-                ),
-                '<info>Use the `composer fund` command to find out more!</info>',
-            ]);
+
+        if ($showFunding) {
+            $fundingCount = 0;
+            foreach ($localRepo->getPackages() as $package) {
+                if ($package instanceof CompletePackageInterface && !$package instanceof AliasPackage && $package->getFunding()) {
+                    $fundingCount++;
+                }
+            }
+            if ($fundingCount > 0) {
+                $this->io->writeError([
+                    sprintf(
+                        "<info>%d package%s you are using %s looking for funding.</info>",
+                        $fundingCount,
+                        1 === $fundingCount ? '' : 's',
+                        1 === $fundingCount ? 'is' : 'are'
+                    ),
+                    '<info>Use the `composer fund` command to find out more!</info>',
+                ]);
+            }
         }
 
         if ($this->runScripts) {
@@ -394,7 +424,10 @@ class Installer
                     foreach ($this->repositoryManager->getRepositories() as $repo) {
                         $repoSet->addRepository($repo);
                     }
-                    $auditor->audit($this->io, $repoSet, $packages, $this->auditFormat);
+
+                    $auditConfig = $this->config->get('audit');
+
+                    return $auditor->audit($this->io, $repoSet, $packages, $this->auditFormat, true, $auditConfig['ignore'] ?? [], $auditConfig['abandoned'] ?? Auditor::ABANDONED_FAIL) > 0 && $this->errorOnAudit ? self::ERROR_AUDIT_FAILED : 0;
                 } catch (TransportException $e) {
                     $this->io->error('Failed to audit '.$target.' packages.');
                     if ($this->io->isVerbose()) {
@@ -424,7 +457,7 @@ class Installer
                 $lockedRepository = $this->locker->getLockedRepository(true);
             }
         } catch (\Seld\JsonLint\ParsingException $e) {
-            if ($this->updateAllowList || $this->updateMirrors) {
+            if ($this->updateAllowList !== null || $this->updateMirrors) {
                 // in case we are doing a partial update or updating mirrors, the lock file is needed so we error
                 throw $e;
             }
@@ -432,7 +465,7 @@ class Installer
             // doing a full update
         }
 
-        if (($this->updateAllowList || $this->updateMirrors) && !$lockedRepository) {
+        if (($this->updateAllowList !== null || $this->updateMirrors) && !$lockedRepository) {
             $this->io->writeError('<error>Cannot update ' . ($this->updateMirrors ? 'lock file information' : 'only a partial set of packages') . ' without a lock file present. Run `composer update` to generate a lock file.</error>', true, IOInterface::QUIET);
 
             return self::ERROR_NO_LOCK_FILE_FOR_PARTIAL_UPDATE;
@@ -441,7 +474,7 @@ class Installer
         $this->io->writeError('<info>Loading composer repositories with package information</info>');
 
         // creating repository set
-        $policy = $this->createPolicy(true);
+        $policy = $this->createPolicy(true, $lockedRepository);
         $repositorySet = $this->createRepositorySet(true, $platformRepo, $aliases);
         $repositories = $this->repositoryManager->getRepositories();
         foreach ($repositories as $repository) {
@@ -455,7 +488,7 @@ class Installer
         $this->requirePackagesForUpdate($request, $lockedRepository, true);
 
         // pass the allow list into the request, so the pool builder can apply it
-        if ($this->updateAllowList) {
+        if ($this->updateAllowList !== null) {
             $request->setUpdateAllowList($this->updateAllowList, $this->updateAllowTransitiveDependencies);
         }
 
@@ -580,7 +613,14 @@ class Installer
 
             // output op if lock file is enabled, but alias op only in debug verbosity
             if ($this->config->get('lock') && (false === strpos($operation->getOperationType(), 'Alias') || $this->io->isDebug())) {
-                $this->io->writeError('  - ' . $operation->show(true));
+                $sourceRepo = '';
+                if ($this->io->isVeryVerbose() && false === strpos($operation->getOperationType(), 'Alias')) {
+                    $operationPkg = ($operation instanceof UpdateOperation ? $operation->getTargetPackage() : $operation->getPackage());
+                    if ($operationPkg->getRepository() !== null) {
+                        $sourceRepo = ' from ' . $operationPkg->getRepository()->getRepoName();
+                    }
+                }
+                $this->io->writeError('  - ' . $operation->show(true) . $sourceRepo);
             }
         }
 
@@ -599,16 +639,6 @@ class Installer
         );
         if ($updatedLock && $this->writeLock && $this->executeOperations) {
             $this->io->writeError('<info>Writing lock file</info>');
-        }
-
-        // see https://github.com/composer/composer/issues/2764
-        if ($this->executeOperations && count($lockTransaction->getOperations()) > 0) {
-            $vendorDir = $this->config->get('vendor-dir');
-            if (is_dir($vendorDir)) {
-                // suppress errors as this fails sometimes on OSX for no apparent reason
-                // see https://github.com/composer/composer/issues/4070#issuecomment-129792748
-                @touch($vendorDir);
-            }
         }
 
         if ($doInstall) {
@@ -705,6 +735,13 @@ class Installer
                 $this->io->writeError('<warning>Warning: The lock file is not up to date with the latest changes in composer.json. You may be getting outdated dependencies. It is recommended that you run `composer update` or `composer update <package name>`.</warning>', true, IOInterface::QUIET);
             }
 
+            $missingRequirementInfo = $this->locker->getMissingRequirementInfo($this->package, $this->devMode);
+            if ($missingRequirementInfo !== []) {
+                $this->io->writeError($missingRequirementInfo);
+
+                return self::ERROR_LOCK_FILE_INVALID;
+            }
+
             foreach ($lockedRepository->getPackages() as $package) {
                 $request->fixLockedPackage($package);
             }
@@ -745,22 +782,20 @@ class Installer
         $localRepoTransaction = new LocalRepoTransaction($lockedRepository, $localRepo);
         $this->eventDispatcher->dispatchInstallerEvent(InstallerEvents::PRE_OPERATIONS_EXEC, $this->devMode, $this->executeOperations, $localRepoTransaction);
 
-        if (!$localRepoTransaction->getOperations()) {
-            $this->io->writeError('Nothing to install, update or remove');
+        $installs = $updates = $uninstalls = [];
+        foreach ($localRepoTransaction->getOperations() as $operation) {
+            if ($operation instanceof InstallOperation) {
+                $installs[] = $operation->getPackage()->getPrettyName().':'.$operation->getPackage()->getFullPrettyVersion();
+            } elseif ($operation instanceof UpdateOperation) {
+                $updates[] = $operation->getTargetPackage()->getPrettyName().':'.$operation->getTargetPackage()->getFullPrettyVersion();
+            } elseif ($operation instanceof UninstallOperation) {
+                $uninstalls[] = $operation->getPackage()->getPrettyName();
+            }
         }
 
-        if ($localRepoTransaction->getOperations()) {
-            $installs = $updates = $uninstalls = [];
-            foreach ($localRepoTransaction->getOperations() as $operation) {
-                if ($operation instanceof InstallOperation) {
-                    $installs[] = $operation->getPackage()->getPrettyName().':'.$operation->getPackage()->getFullPrettyVersion();
-                } elseif ($operation instanceof UpdateOperation) {
-                    $updates[] = $operation->getTargetPackage()->getPrettyName().':'.$operation->getTargetPackage()->getFullPrettyVersion();
-                } elseif ($operation instanceof UninstallOperation) {
-                    $uninstalls[] = $operation->getPackage()->getPrettyName();
-                }
-            }
-
+        if ($installs === [] && $updates === [] && $uninstalls === []) {
+            $this->io->writeError('Nothing to install, update or remove');
+        } else {
             $this->io->writeError(sprintf(
                 "<info>Package operations: %d install%s, %d update%s, %d removal%s</info>",
                 count($installs),
@@ -783,7 +818,17 @@ class Installer
 
         if ($this->executeOperations) {
             $localRepo->setDevPackageNames($this->locker->getDevPackageNames());
-            $this->installationManager->execute($localRepo, $localRepoTransaction->getOperations(), $this->devMode, $this->runScripts);
+            $this->installationManager->execute($localRepo, $localRepoTransaction->getOperations(), $this->devMode, $this->runScripts, $this->downloadOnly);
+
+            // see https://github.com/composer/composer/issues/2764
+            if (count($localRepoTransaction->getOperations()) > 0) {
+                $vendorDir = $this->config->get('vendor-dir');
+                if (is_dir($vendorDir)) {
+                    // suppress errors as this fails sometimes on OSX for no apparent reason
+                    // see https://github.com/composer/composer/issues/4070#issuecomment-129792748
+                    @touch($vendorDir);
+                }
+            }
         } else {
             foreach ($localRepoTransaction->getOperations() as $operation) {
                 // output op, but alias op only in debug verbosity
@@ -876,7 +921,7 @@ class Installer
         return $repositorySet;
     }
 
-    private function createPolicy(bool $forUpdate): DefaultPolicy
+    private function createPolicy(bool $forUpdate, ?LockArrayRepository $lockedRepo = null): DefaultPolicy
     {
         $preferStable = null;
         $preferLowest = null;
@@ -893,7 +938,18 @@ class Installer
             $preferLowest = $this->preferLowest;
         }
 
-        return new DefaultPolicy($preferStable, $preferLowest);
+        $preferredVersions = null;
+        if ($forUpdate && $this->minimalUpdate && $this->updateAllowList !== null && $lockedRepo !== null) {
+            $preferredVersions = [];
+            foreach ($lockedRepo->getPackages() as $pkg) {
+                if ($pkg instanceof AliasPackage || in_array($pkg->getName(), $this->updateAllowList, true)) {
+                    continue;
+                }
+                $preferredVersions[$pkg->getName()] = $pkg->getVersion();
+            }
+        }
+
+        return new DefaultPolicy($preferStable, $preferLowest, $preferredVersions);
     }
 
     /**
@@ -1086,6 +1142,18 @@ class Installer
     public function isDryRun(): bool
     {
         return $this->dryRun;
+    }
+
+    /**
+     * Whether to download only or not.
+     *
+     * @return Installer
+     */
+    public function setDownloadOnly(bool $downloadOnly = true): self
+    {
+        $this->downloadOnly = $downloadOnly;
+
+        return $this;
     }
 
     /**
@@ -1308,7 +1376,11 @@ class Installer
      */
     public function setUpdateAllowList(array $packages): self
     {
-        $this->updateAllowList = array_flip(array_map('strtolower', $packages));
+        if (count($packages) === 0) {
+            $this->updateAllowList = null;
+        } else {
+            $this->updateAllowList = array_values(array_unique(array_map('strtolower', $packages)));
+        }
 
         return $this;
     }
@@ -1340,7 +1412,7 @@ class Installer
      */
     public function setPreferStable(bool $preferStable = true): self
     {
-        $this->preferStable = (bool) $preferStable;
+        $this->preferStable = $preferStable;
 
         return $this;
     }
@@ -1352,7 +1424,21 @@ class Installer
      */
     public function setPreferLowest(bool $preferLowest = true): self
     {
-        $this->preferLowest = (bool) $preferLowest;
+        $this->preferLowest = $preferLowest;
+
+        return $this;
+    }
+
+    /**
+     * Only relevant for partial updates (with setUpdateAllowList), if this is enabled currently locked versions will be preferred for packages which are not in the allowlist
+     *
+     * This reduces the update to
+     *
+     * @return Installer
+     */
+    public function setMinimalUpdate(bool $minimalUpdate = true): self
+    {
+        $this->minimalUpdate = $minimalUpdate;
 
         return $this;
     }
@@ -1366,7 +1452,7 @@ class Installer
      */
     public function setWriteLock(bool $writeLock = true): self
     {
-        $this->writeLock = (bool) $writeLock;
+        $this->writeLock = $writeLock;
 
         return $this;
     }
@@ -1380,7 +1466,7 @@ class Installer
      */
     public function setExecuteOperations(bool $executeOperations = true): self
     {
-        $this->executeOperations = (bool) $executeOperations;
+        $this->executeOperations = $executeOperations;
 
         return $this;
     }
@@ -1393,6 +1479,19 @@ class Installer
     public function setAudit(bool $audit): self
     {
         $this->audit = $audit;
+
+        return $this;
+    }
+
+    /**
+     * Should exit with status code 5 on audit error
+     *
+     * @param bool $errorOnAudit
+     * @return Installer
+     */
+    public function setErrorOnAudit(bool $errorOnAudit): self
+    {
+        $this->errorOnAudit = $errorOnAudit;
 
         return $this;
     }

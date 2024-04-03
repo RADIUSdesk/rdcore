@@ -133,6 +133,7 @@ class Filesystem
      *
      * @throws \RuntimeException
      * @return PromiseInterface
+     * @phpstan-return PromiseInterface<bool>
      */
     public function removeDirectoryAsync(string $directory)
     {
@@ -250,10 +251,27 @@ class Filesystem
                     $directory.' exists and is not a directory.'
                 );
             }
+
+            if (is_link($directory) && !@$this->unlinkImplementation($directory)) {
+                throw new \RuntimeException('Could not delete symbolic link '.$directory.': '.(error_get_last()['message'] ?? ''));
+            }
+
             if (!@mkdir($directory, 0777, true)) {
-                throw new \RuntimeException(
-                    $directory.' does not exist and could not be created.'
-                );
+                $e = new \RuntimeException($directory.' does not exist and could not be created: '.(error_get_last()['message'] ?? ''));
+
+                // in pathological cases with paths like path/to/broken-symlink/../foo is_dir will fail to detect path/to/foo
+                // but normalizing the ../ away first makes it work so we attempt this just in case, and if it still fails we
+                // report the initial error we had with the original path, and ignore the normalized path exception
+                // see https://github.com/composer/composer/issues/11864
+                $normalized = $this->normalizePath($directory);
+                if ($normalized !== $directory) {
+                    try {
+                        $this->ensureDirectoryExists($normalized);
+                        return;
+                    } catch (\Throwable $ignoredEx) {}
+                }
+
+                throw $e;
             }
         }
     }
@@ -345,6 +363,9 @@ class Filesystem
      */
     public function copy(string $source, string $target)
     {
+        // refs https://github.com/composer/composer/issues/11864
+        $target = $this->normalizePath($target);
+
         if (!is_dir($source)) {
             return copy($source, $target);
         }
@@ -440,13 +461,19 @@ class Filesystem
             $commonPath = strtr(\dirname($commonPath), '\\', '/');
         }
 
-        if (0 !== strpos($from, $commonPath) || '/' === $commonPath) {
+        // no commonality at all
+        if (0 !== strpos($from, $commonPath)) {
             return $to;
         }
 
         $commonPath = rtrim($commonPath, '/') . '/';
         $sourcePathDepth = substr_count((string) substr($from, \strlen($commonPath)), '/');
         $commonPathCode = str_repeat('../', $sourcePathDepth);
+
+        // allow top level /foo & /bar dirs to be addressed relatively as this is common in Docker setups
+        if ('/' === $commonPath && $sourcePathDepth > 1) {
+            return $to;
+        }
 
         $result = $commonPathCode . substr($to, \strlen($commonPath));
         if (\strlen($result) === 0) {
@@ -481,15 +508,22 @@ class Filesystem
             $commonPath = strtr(\dirname($commonPath), '\\', '/');
         }
 
-        if (0 !== strpos($from, $commonPath) || '/' === $commonPath || '.' === $commonPath) {
+        // no commonality at all
+        if (0 !== strpos($from, $commonPath) || '.' === $commonPath) {
             return var_export($to, true);
         }
 
         $commonPath = rtrim($commonPath, '/') . '/';
-        if (strpos($to, $from.'/') === 0) {
+        if (str_starts_with($to, $from.'/')) {
             return '__DIR__ . '.var_export((string) substr($to, \strlen($from)), true);
         }
         $sourcePathDepth = substr_count((string) substr($from, \strlen($commonPath)), '/') + (int) $directories;
+
+        // allow top level /foo & /bar dirs to be addressed relatively as this is common in Docker setups
+        if ('/' === $commonPath && $sourcePathDepth > 1) {
+            return var_export($to, true);
+        }
+
         if ($staticCode) {
             $commonPathCode = "__DIR__ . '".str_repeat('/..', $sourcePathDepth)."'";
         } else {
@@ -551,7 +585,7 @@ class Filesystem
         }
 
         // extract a prefix being a protocol://, protocol:, protocol://drive: or simply drive:
-        if (Preg::isMatch('{^( [0-9a-z]{2,}+: (?: // (?: [a-z]: )? )? | [a-z]: )}ix', $path, $match)) {
+        if (Preg::isMatchStrictGroups('{^( [0-9a-z]{2,}+: (?: // (?: [a-z]: )? )? | [a-z]: )}ix', $path, $match)) {
             $prefix = $match[1];
             $path = substr($path, \strlen($prefix));
         }
@@ -574,6 +608,7 @@ class Filesystem
 
         // ensure c: is normalized to C:
         $prefix = Preg::replaceCallback('{(^|://)[a-z]:$}i', static function (array $m) {
+            assert(is_string($m[0]));
             return strtoupper($m[0]);
         }, $prefix);
 
@@ -770,6 +805,12 @@ class Filesystem
         if (!is_dir($target)) {
             throw new IOException(sprintf('Cannot junction to "%s" as it is not a directory.', $target), 0, null, $target);
         }
+
+        // Removing any previously junction to ensure clean execution.
+        if (!is_dir($junction) || $this->isJunction($junction)) {
+            @rmdir($junction);
+        }
+
         $cmd = sprintf(
             'mklink /J %s %s',
             ProcessExecutor::escape(str_replace('/', DIRECTORY_SEPARATOR, $junction)),
@@ -853,10 +894,8 @@ class Filesystem
 
     /**
      * Copy file using stream_copy_to_stream to work around https://bugs.php.net/bug.php?id=6463
-     *
-     * @return void
      */
-    public function safeCopy(string $source, string $target)
+    public function safeCopy(string $source, string $target): void
     {
         if (!file_exists($target) || !file_exists($source) || !$this->filesAreEqual($source, $target)) {
             $sourceHandle = fopen($source, 'r');
@@ -867,6 +906,8 @@ class Filesystem
             stream_copy_to_stream($sourceHandle, $targetHandle);
             fclose($sourceHandle);
             fclose($targetHandle);
+
+            touch($target, (int) filemtime($source), (int) fileatime($source));
         }
     }
 

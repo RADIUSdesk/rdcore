@@ -1,6 +1,5 @@
 ## Control structures
 
-
 #### SlevomatCodingStandard.ControlStructures.AssignmentInCondition
 
 Disallows assignments in `if`, `elseif` and `do-while` loop conditions:
@@ -111,6 +110,22 @@ Sniff provides the following settings:
 
 * `fixable`: the sniff is fixable by default, however in strict code it makes sense to forbid this weakly typed form of ternary altogether, you can disable fixability with this option.
 
+#### SlevomatCodingStandard.ControlStructures.DisallowTrailingMultiLineTernaryOperator 🔧
+
+Ternary operator has to be reformatted when the operator is not leading the line.
+
+```php
+# wrong
+$t = $someCondition ?
+	$thenThis :
+	$otherwiseThis;
+
+# correct
+$t = $someCondition
+	? $thenThis
+	: $otherwiseThis;
+```
+
 #### SlevomatCodingStandard.ControlStructures.JumpStatementsSpacing 🔧
 
 Enforces configurable number of lines around jump statements (continue, return, ...).
@@ -154,12 +169,12 @@ Reports `new` with useless parentheses.
 
 #### SlevomatCodingStandard.ControlStructures.RequireMultiLineCondition 🔧
 
-Enforces conditions of `if`, `elseif`, `while` and `do-while` with one or more boolean operators to be splitted to more lines
+Enforces conditions of `if`, `elseif`, `while` and `do-while` with one or more boolean operators to be split to more lines
 so each condition part is on its own line.
 
 Sniff provides the following settings:
 
-* `minLineLength`: specifies minimum line length to enforce condition to be splitted. Use 0 value to enforce for all conditions, regardless of length.
+* `minLineLength`: specifies minimum line length to enforce condition to be split. Use 0 value to enforce for all conditions, regardless of length.
 * `booleanOperatorOnPreviousLine`: boolean operator is placed at the end of previous line when fixing.
 * `alwaysSplitAllConditionParts`: require all condition parts to be on its own line - it reports error even if condition is already multi-line but there are some condition parts on the same line.
 

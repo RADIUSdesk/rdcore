@@ -22,6 +22,7 @@ use Cake\Datasource\Paging\Exception\PageOutOfBoundsException;
 use Cake\Datasource\QueryInterface;
 use Cake\Datasource\RepositoryInterface;
 use Cake\Datasource\ResultSetInterface;
+use function Cake\Core\deprecationWarning;
 
 /**
  * This class is used to handle automatic model data pagination.
@@ -42,6 +43,13 @@ class NumericPaginator implements PaginatorInterface
      * - `allowedParameters` - A list of parameters users are allowed to set using request
      *   parameters. Modifying this list will allow users to have more influence
      *   over pagination, be careful with what you permit.
+     * - `sortableFields` - A list of fields which can be used for sorting. By
+     *   default all table columns can be used for sorting. You can use this option
+     *   to restrict sorting only by particular fields. If you want to allow
+     *   sorting on either associated columns or calculated fields then you will
+     *   have to explicity specify them (along with other fields). Using an empty
+     *   array will disable sorting alltogether.
+     * - `finder` - The table finder to use. Defaults to `all`.
      *
      * @var array<string, mixed>
      */
@@ -50,6 +58,8 @@ class NumericPaginator implements PaginatorInterface
         'limit' => 20,
         'maxLimit' => 100,
         'allowedParameters' => ['limit', 'sort', 'page', 'direction'],
+        'sortableFields' => null,
+        'finder' => 'all',
     ];
 
     /**
@@ -207,10 +217,17 @@ class NumericPaginator implements PaginatorInterface
      */
     protected function getQuery(RepositoryInterface $object, ?QueryInterface $query, array $data): QueryInterface
     {
+        $options = $data['options'];
+        unset(
+            $options['scope'],
+            $options['sort'],
+            $options['direction'],
+        );
+
         if ($query === null) {
-            $query = $object->find($data['finder'], $data['options']);
+            $query = $object->find($data['finder'], $options);
         } else {
-            $query->applyOptions($data['options']);
+            $query->applyOptions($options);
         }
 
         return $query;
@@ -240,6 +257,20 @@ class NumericPaginator implements PaginatorInterface
     {
         $alias = $object->getAlias();
         $defaults = $this->getDefaults($alias, $settings);
+
+        $validSettings = array_merge(
+            array_keys($this->_defaultConfig),
+            ['whitelist', 'sortWhitelist', 'order', 'scope']
+        );
+        $extraSettings = array_diff_key($defaults, array_flip($validSettings));
+        if ($extraSettings) {
+            deprecationWarning(
+                'Passing query options as paginator settings is deprecated.'
+                . ' Use a custom finder through `finder` config instead.'
+                . ' Extra keys found are: ' . implode(',', array_keys($extraSettings))
+            );
+        }
+
         $options = $this->mergeOptions($params, $defaults);
         $options = $this->validateSort($object, $options);
         $options = $this->checkLimit($options);
@@ -389,7 +420,14 @@ class NumericPaginator implements PaginatorInterface
     protected function _extractFinder(array $options): array
     {
         $type = !empty($options['finder']) ? $options['finder'] : 'all';
-        unset($options['finder'], $options['maxLimit']);
+        unset(
+            $options['finder'],
+            $options['maxLimit'],
+            $options['allowedParameters'],
+            $options['whitelist'],
+            $options['sortableFields'],
+            $options['sortWhitelist'],
+        );
 
         if (is_array($type)) {
             $options = (array)current($type) + $options;
@@ -604,6 +642,13 @@ class NumericPaginator implements PaginatorInterface
     {
         $result = [];
         foreach ($fields as $field => $sort) {
+            if (is_int($field)) {
+                throw new CakeException(sprintf(
+                    'The `order` config must be an associative array. Found invalid value with numeric key: `%s`',
+                    $sort
+                ));
+            }
+
             if (strpos($field, '.') === false) {
                 $result[$field] = $sort;
                 continue;

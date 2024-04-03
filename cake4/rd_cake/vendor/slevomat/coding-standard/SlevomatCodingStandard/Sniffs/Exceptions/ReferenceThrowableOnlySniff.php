@@ -108,9 +108,8 @@ class ReferenceThrowableOnlySniff implements Sniff
 
 			$phpcsFile->fixer->beginChangeset();
 
-			FixerHelper::removeBetweenIncluding($phpcsFile, $referencedName->getStartPointer(), $referencedName->getEndPointer());
+			FixerHelper::change($phpcsFile, $referencedName->getStartPointer(), $referencedName->getEndPointer(), '\Throwable');
 
-			$phpcsFile->fixer->addContent($referencedName->getStartPointer(), '\Throwable');
 			$phpcsFile->fixer->endChangeset();
 		}
 	}
@@ -126,8 +125,8 @@ class ReferenceThrowableOnlySniff implements Sniff
 				break;
 			}
 
-			$catchedTypes = CatchHelper::findCatchedTypesInCatch($phpcsFile, $nextCatchToken);
-			if (in_array('\\Throwable', $catchedTypes, true)) {
+			$caughtTypes = CatchHelper::findCaughtTypesInCatch($phpcsFile, $nextCatchToken);
+			if (in_array('\\Throwable', $caughtTypes, true)) {
 				return true;
 			}
 

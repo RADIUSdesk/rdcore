@@ -21,6 +21,8 @@ use Cake\Core\Exception\CakeException;
 use Cake\I18n\Number;
 use Cake\View\Helper;
 use Cake\View\View;
+use function Cake\Core\deprecationWarning;
+use function Cake\Core\h;
 
 /**
  * Number helper library.
@@ -67,9 +69,16 @@ class NumberHelper extends Helper
         $config = $this->_config;
 
         /** @psalm-var class-string<\Cake\I18n\Number>|null $engineClass */
-        $engineClass = App::className($config['engine'], 'Utility');
+        $engineClass = App::className($config['engine'], 'I18n');
         if ($engineClass === null) {
-            throw new CakeException(sprintf('Class for %s could not be found', $config['engine']));
+            // Legacy namespace lookup
+            $engineClass = App::className($config['engine'], 'Utility');
+        }
+        if ($engineClass === null) {
+            throw new CakeException(sprintf('Class for `%s` could not be found', $config['engine']));
+        }
+        if ($engineClass !== Number::class) {
+            deprecationWarning('4.5.0 - The `engine` option for NumberHelper will be removed in 5.0');
         }
 
         $this->_engine = new $engineClass($config);
@@ -90,7 +99,7 @@ class NumberHelper extends Helper
     /**
      * Formats a number with a level of precision.
      *
-     * @param string|float $number A floating point number.
+     * @param string|float|int $number A floating point number.
      * @param int $precision The precision of the returned number.
      * @param array<string, mixed> $options Additional options.
      * @return string Formatted float.
@@ -105,7 +114,7 @@ class NumberHelper extends Helper
     /**
      * Returns a formatted-for-humans file size.
      *
-     * @param string|int $size Size in bytes
+     * @param string|float|int $size Size in bytes
      * @return string Human readable size
      * @see \Cake\I18n\Number::toReadableSize()
      * @link https://book.cakephp.org/4/en/views/helpers/number.html#interacting-with-human-readable-values
@@ -122,7 +131,7 @@ class NumberHelper extends Helper
      *
      * - `multiply`: Multiply the input value by 100 for decimal percentages.
      *
-     * @param string|float $number A floating point number
+     * @param string|float|int $number A floating point number
      * @param int $precision The precision of the returned number
      * @param array<string, mixed> $options Options
      * @return string Percentage string

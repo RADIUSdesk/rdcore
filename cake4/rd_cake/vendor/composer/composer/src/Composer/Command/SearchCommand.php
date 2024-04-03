@@ -67,7 +67,7 @@ EOT
         }
 
         if (!($composer = $this->tryComposer())) {
-            $composer = Factory::create($this->getIO(), [], $input->hasParameterOption('--no-plugins'));
+            $composer = $this->createComposerInstance($input, $this->getIO(), []);
         }
         $localRepo = $composer->getRepositoryManager()->getLocalRepository();
         $installedRepo = new CompositeRepository([$localRepo, $platformRepo]);
@@ -95,7 +95,7 @@ EOT
 
         $results = $repos->search($query, $mode, $type);
 
-        if ($results && $format === 'text') {
+        if (\count($results) > 0 && $format === 'text') {
             $width = $this->getTerminalWidth();
 
             $nameLength = 0;

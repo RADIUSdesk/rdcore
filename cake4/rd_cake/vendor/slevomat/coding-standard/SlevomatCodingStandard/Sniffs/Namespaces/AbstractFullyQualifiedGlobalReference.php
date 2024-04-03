@@ -17,6 +17,7 @@ use function array_map;
 use function sprintf;
 use function strtolower;
 use const T_OPEN_TAG;
+use const T_OPEN_USE_GROUP;
 
 /**
  * @internal
@@ -26,16 +27,16 @@ abstract class AbstractFullyQualifiedGlobalReference implements Sniff
 
 	public const CODE_NON_FULLY_QUALIFIED = 'NonFullyQualified';
 
-	/** @var string[] */
+	/** @var list<string> */
 	public $exclude = [];
 
-	/** @var string[] */
+	/** @var list<string> */
 	public $include = [];
 
-	/** @var string[]|null */
+	/** @var list<string>|null */
 	private $normalizedExclude;
 
-	/** @var string[]|null */
+	/** @var list<string>|null */
 	private $normalizedInclude;
 
 	abstract protected function getNotFullyQualifiedMessage(): string;
@@ -61,6 +62,10 @@ abstract class AbstractFullyQualifiedGlobalReference implements Sniff
 	public function process(File $phpcsFile, $openTagPointer): void
 	{
 		if (TokenHelper::findPrevious($phpcsFile, T_OPEN_TAG, $openTagPointer - 1) !== null) {
+			return;
+		}
+
+		if (TokenHelper::findNext($phpcsFile, T_OPEN_USE_GROUP, $openTagPointer) !== null) {
 			return;
 		}
 
@@ -126,7 +131,7 @@ abstract class AbstractFullyQualifiedGlobalReference implements Sniff
 	}
 
 	/**
-	 * @return string[]
+	 * @return list<string>
 	 */
 	protected function getNormalizedInclude(): array
 	{
@@ -137,7 +142,7 @@ abstract class AbstractFullyQualifiedGlobalReference implements Sniff
 	}
 
 	/**
-	 * @return string[]
+	 * @return list<string>
 	 */
 	private function getNormalizedExclude(): array
 	{
@@ -148,8 +153,8 @@ abstract class AbstractFullyQualifiedGlobalReference implements Sniff
 	}
 
 	/**
-	 * @param string[] $names
-	 * @return string[]
+	 * @param list<string> $names
+	 * @return list<string>
 	 */
 	private function normalizeNames(array $names): array
 	{

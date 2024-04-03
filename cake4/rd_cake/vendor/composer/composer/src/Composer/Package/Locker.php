@@ -15,7 +15,10 @@ namespace Composer\Package;
 use Composer\Json\JsonFile;
 use Composer\Installer\InstallationManager;
 use Composer\Pcre\Preg;
+use Composer\Repository\InstalledRepository;
 use Composer\Repository\LockArrayRepository;
+use Composer\Repository\PlatformRepository;
+use Composer\Repository\RootPackageRepository;
 use Composer\Util\ProcessExecutor;
 use Composer\Package\Dumper\ArrayDumper;
 use Composer\Package\Loader\ArrayLoader;
@@ -471,7 +474,11 @@ class Locker
             return null;
         }
 
-        $path = realpath($this->installationManager->getInstallPath($package));
+        $path = $this->installationManager->getInstallPath($package);
+        if ($path === null) {
+            return null;
+        }
+        $path = realpath($path);
         $sourceType = $package->getSourceType();
         $datetime = null;
 
@@ -495,5 +502,62 @@ class Locker
         }
 
         return $datetime ? $datetime->format(DATE_RFC3339) : null;
+    }
+
+    /**
+     * @return array<string>
+     */
+    public function getMissingRequirementInfo(RootPackageInterface $package, bool $includeDev): array
+    {
+        $missingRequirementInfo = [];
+        $missingRequirements = false;
+        $sets = [['repo' => $this->getLockedRepository(false), 'method' => 'getRequires', 'description' => 'Required']];
+        if ($includeDev === true) {
+            $sets[] = ['repo' => $this->getLockedRepository(true), 'method' => 'getDevRequires', 'description' => 'Required (in require-dev)'];
+        }
+        $rootRepo = new RootPackageRepository(clone $package);
+
+        foreach ($sets as $set) {
+            $installedRepo = new InstalledRepository([$set['repo'], $rootRepo]);
+
+            foreach (call_user_func([$package, $set['method']]) as $link) {
+                if (PlatformRepository::isPlatformPackage($link->getTarget())) {
+                    continue;
+                }
+                if ($link->getPrettyConstraint() === 'self.version') {
+                    continue;
+                }
+                if ($installedRepo->findPackagesWithReplacersAndProviders($link->getTarget(), $link->getConstraint()) === []) {
+                    $results = $installedRepo->findPackagesWithReplacersAndProviders($link->getTarget());
+
+                    if ($results !== []) {
+                        $provider = reset($results);
+                        $description = $provider->getPrettyVersion();
+                        if ($provider->getName() !== $link->getTarget()) {
+                            foreach (['getReplaces' => 'replaced as %s by %s', 'getProvides' => 'provided as %s by %s'] as $method => $text) {
+                                foreach (call_user_func([$provider, $method]) as $providerLink) {
+                                    if ($providerLink->getTarget() === $link->getTarget()) {
+                                        $description = sprintf($text, $providerLink->getPrettyConstraint(), $provider->getPrettyName().' '.$provider->getPrettyVersion());
+                                        break 2;
+                                    }
+                                }
+                            }
+                        }
+                        $missingRequirementInfo[] = '- ' . $set['description'].' package "' . $link->getTarget() . '" is in the lock file as "'.$description.'" but that does not satisfy your constraint "'.$link->getPrettyConstraint().'".';
+                    } else {
+                        $missingRequirementInfo[] = '- ' . $set['description'].' package "' . $link->getTarget() . '" is not present in the lock file.';
+                    }
+                    $missingRequirements = true;
+                }
+            }
+        }
+
+        if ($missingRequirements) {
+            $missingRequirementInfo[] = 'This usually happens when composer files are incorrectly merged or the composer.json file is manually edited.';
+            $missingRequirementInfo[] = 'Read more about correctly resolving merge conflicts https://getcomposer.org/doc/articles/resolving-merge-conflicts.md';
+            $missingRequirementInfo[] = 'and prefer using the "require" command over editing the composer.json file directly https://getcomposer.org/doc/03-cli.md#require-r';
+        }
+
+        return $missingRequirementInfo;
     }
 }

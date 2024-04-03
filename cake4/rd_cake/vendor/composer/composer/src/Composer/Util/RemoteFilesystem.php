@@ -52,7 +52,7 @@ class RemoteFilesystem
     private $options = [];
     /** @var bool */
     private $disableTls = false;
-    /** @var string[] */
+    /** @var list<string> */
     private $lastHeaders;
     /** @var bool */
     private $storeAuth = false;
@@ -159,7 +159,7 @@ class RemoteFilesystem
     /**
      * Returns the headers of the last request
      *
-     * @return string[]
+     * @return list<string>
      */
     public function getLastHeaders()
     {
@@ -509,6 +509,8 @@ class RemoteFilesystem
      * @param int      $maxFileSize The maximum allowed file size
      *
      * @return string|false The response contents or false on failure
+     *
+     * @param-out list<string> $responseHeaders
      */
     protected function getRemoteContents(string $originUrl, string $fileUrl, $context, ?array &$responseHeaders = null, ?int $maxFileSize = null)
     {

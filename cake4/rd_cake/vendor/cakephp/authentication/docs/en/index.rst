@@ -6,7 +6,7 @@ Project's ROOT directory (where the **composer.json** file is located)
 
 .. code-block:: bash
 
-    php composer.phar require "cakephp/authentication:^2.0"
+    php composer.phar require cakephp/authentication
 
 Version 2 of the Authentication Plugin is compatible with CakePHP 4.
 
@@ -23,7 +23,7 @@ Load the plugin by adding the following statement in your project's ``src/Applic
 Getting Started
 ===============
 
-The authentication plugin integrates with your application as a `middleware <http://book.cakephp.org/4/en/controllers/middleware.html>`_. It can also
+The authentication plugin integrates with your application as a `middleware <https://book.cakephp.org/4/en/controllers/middleware.html>`_. It can also
 be used as a component to make unauthenticated access simpler. First, let's
 apply the middleware. In **src/Application.php**, add the following to the class
 imports::
@@ -44,8 +44,6 @@ on your application::
     class Application extends BaseApplication implements AuthenticationServiceProviderInterface
 
 
-Then add ``AuthenticationMiddleware`` to the middleware queue in your ``middleware()`` function::
-
 Then update your application's ``middleware()`` method to look like::
 
     public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
@@ -60,7 +58,7 @@ Then update your application's ``middleware()`` method to look like::
             // after routing and body parser.
             ->add(new AuthenticationMiddleware($this));
 
-        return $middlewareQueue();
+        return $middlewareQueue;
     }
 
 .. warning::
@@ -127,7 +125,7 @@ to handle a login form at the ``loginUrl``. Finally we attach an :doc:`identifie
 
 If one of the configured authenticators was able to validate the credentials,
 the middleware will add the authentication service to the request object as an
-`attribute <http://www.php-fig.org/psr/psr-7/>`_.
+`attribute <https://www.php-fig.org/psr/psr-7/>`_.
 
 Next, in your ``AppController`` load the :doc:`/authentication-component`::
 
@@ -151,7 +149,7 @@ Building a Login Action
 =======================
 
 Once you have the middleware applied to your application you'll need a way for
-users to login. First generate a Users model and controller with bake:
+users to login. Please ensure your database has been created with the Users table structure used in :doc:`tutorial </tutorials-and-examples/cms/database>`. First generate a Users model and controller with bake:
 
 .. code-block:: shell
 
@@ -170,7 +168,7 @@ like::
             $target = $this->Authentication->getLoginRedirect() ?? '/home';
             return $this->redirect($target);
         }
-        if ($this->request->is('post') && !$result->isValid()) {
+        if ($this->request->is('post')) {
             $this->Flash->error('Invalid username or password');
         }
     }
@@ -246,8 +244,10 @@ Further Reading
 * :doc:`/identifiers`
 * :doc:`/password-hashers`
 * :doc:`/identity-object`
+* :doc:`/middleware`
 * :doc:`/authentication-component`
-* :doc:`/migration-from-the-authcomponent`
+* :doc:`/impersonation`
 * :doc:`/url-checkers`
 * :doc:`/testing`
 * :doc:`/view-helper`
+* :doc:`/migration-from-the-authcomponent`

@@ -9,6 +9,7 @@ use SlevomatCodingStandard\Helpers\FunctionHelper;
 use SlevomatCodingStandard\Helpers\IndentationHelper;
 use SlevomatCodingStandard\Helpers\SniffSettingsHelper;
 use SlevomatCodingStandard\Helpers\TokenHelper;
+use UnexpectedValueException;
 use function count;
 use function preg_match;
 use function sprintf;
@@ -19,20 +20,24 @@ class RequireMultiLineMethodSignatureSniff extends AbstractMethodSignature
 {
 
 	public const CODE_REQUIRED_MULTI_LINE_SIGNATURE = 'RequiredMultiLineSignature';
+	private const DEFAULT_MIN_LINE_LENGTH = 121;
 
-	/** @var int */
-	public $minLineLength = 121;
+	/** @var int|null */
+	public $minLineLength = null;
 
-	/** @var string[] */
+	/** @var int|null */
+	public $minParametersCount = null;
+
+	/** @var list<string> */
 	public $includedMethodPatterns = [];
 
-	/** @var string[]|null */
+	/** @var list<string>|null */
 	public $includedMethodNormalizedPatterns;
 
-	/** @var string[] */
+	/** @var list<string> */
 	public $excludedMethodPatterns = [];
 
-	/** @var string[]|null */
+	/** @var list<string>|null */
 	public $excludedMethodNormalizedPatterns;
 
 	/**
@@ -41,7 +46,17 @@ class RequireMultiLineMethodSignatureSniff extends AbstractMethodSignature
 	 */
 	public function process(File $phpcsFile, $methodPointer): void
 	{
-		$this->minLineLength = SniffSettingsHelper::normalizeInteger($this->minLineLength);
+		$this->minLineLength = SniffSettingsHelper::normalizeNullableInteger($this->minLineLength);
+		$this->minParametersCount = SniffSettingsHelper::normalizeNullableInteger($this->minParametersCount);
+
+		if ($this->minLineLength !== null && $this->minParametersCount !== null) {
+			throw new UnexpectedValueException('Either minLineLength or minParametersCount can be set.');
+		}
+
+		// Maintain backward compatibility if no configuration provided
+		if ($this->minLineLength === null && $this->minParametersCount === null) {
+			$this->minLineLength = self::DEFAULT_MIN_LINE_LENGTH;
+		}
 
 		if (!FunctionHelper::isMethod($phpcsFile, $methodPointer)) {
 			return;
@@ -56,7 +71,8 @@ class RequireMultiLineMethodSignatureSniff extends AbstractMethodSignature
 		}
 
 		$parameters = $phpcsFile->getMethodParameters($methodPointer);
-		if (count($parameters) === 0) {
+		$parametersCount = count($parameters);
+		if ($parametersCount === 0) {
 			return;
 		}
 
@@ -78,7 +94,11 @@ class RequireMultiLineMethodSignatureSniff extends AbstractMethodSignature
 			return;
 		}
 
-		if ($this->minLineLength !== 0 && strlen($signatureWithoutTabIndentation) < $this->minLineLength) {
+		if ($this->minLineLength !== null && $this->minLineLength !== 0 && strlen($signatureWithoutTabIndentation) < $this->minLineLength) {
+			return;
+		}
+
+		if ($this->minParametersCount !== null && $parametersCount < $this->minParametersCount) {
 			return;
 		}
 
@@ -114,7 +134,7 @@ class RequireMultiLineMethodSignatureSniff extends AbstractMethodSignature
 	}
 
 	/**
-	 * @param string[] $normalizedPatterns
+	 * @param list<string> $normalizedPatterns
 	 */
 	private function isMethodNameInPatterns(string $methodName, array $normalizedPatterns): bool
 	{
@@ -132,7 +152,7 @@ class RequireMultiLineMethodSignatureSniff extends AbstractMethodSignature
 	}
 
 	/**
-	 * @return string[]
+	 * @return list<string>
 	 */
 	private function getIncludedMethodNormalizedPatterns(): array
 	{
@@ -143,7 +163,7 @@ class RequireMultiLineMethodSignatureSniff extends AbstractMethodSignature
 	}
 
 	/**
-	 * @return string[]
+	 * @return list<string>
 	 */
 	private function getExcludedMethodNormalizedPatterns(): array
 	{

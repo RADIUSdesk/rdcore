@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace CsvView\View;
 
+use Cake\Core\Exception\CakeException;
 use Cake\Datasource\EntityInterface;
 use Cake\Utility\Hash;
 use Cake\View\SerializedView;
@@ -11,9 +12,9 @@ use Exception;
 /**
  * A view class that is used for CSV responses.
  *
- * By setting the '_serialize' key in your controller, you can specify a view variable
+ * By setting the 'serialize' view builder option, you can specify a view variable
  * that should be serialized to CSV and used as the response for the request.
- * This allows you to omit views + layouts, if your just need to emit a single view
+ * This allows you to omit templates + layouts, if your just need to emit a single view
  * variable as the CSV response.
  *
  * In your controller, you could do the following:
@@ -44,18 +45,18 @@ use Exception;
  * $this->viewBuilder()->setOption('serialize', ['posts', 'users']);
  * ```
  *
- * Each of the viewVars in `serialize` would then be output into the csv
+ * Each of the view vars in `serialize` would then be output into the CSV output.
  *
  * If you don't use the `serialize` option, you will need a view. You can use extended
  * views to provide layout like functionality.
  *
  * When not using custom views, you may specify the following view options:
  *
- * - array `$header`: (default null)    A flat array of header column names
- * - array `$footer`: (default null)    A flat array of footer column names
- * - string `$delimiter`: (default ',') CSV Delimiter, defaults to comma
- * - string `$enclosure`: (default '"') CSV Enclosure for use with fputcsv()
- * - string `$eol`: (default '\n')      End-of-line character the csv
+ * - array `header`: (default null)    A flat array of header column names
+ * - array `footer`: (default null)    A flat array of footer column names
+ * - string `delimiter`: (default ',') CSV Delimiter, defaults to comma
+ * - string `enclosure`: (default '"') CSV Enclosure for use with fputcsv()
+ * - string `eol`: (default '\n')      End-of-line character the csv
  *
  * @link https://github.com/friendsofcake/cakephp-csvview
  */
@@ -143,7 +144,7 @@ class CsvView extends SerializedView
      * - 'dataEncoding': (default 'UTF-8') Encoding of data to be serialized
      * - 'transcodingExtension': (default 'iconv') PHP extension to use for character encoding conversion
      *
-     * @var array
+     * @var array<string, mixed>
      */
     protected $_defaultConfig = [
         'extract' => null,
@@ -304,7 +305,11 @@ class CsvView extends SerializedView
         }
 
         if ($fp === false) {
-            $fp = fopen('php://temp', 'r+');
+            $stream = 'php://temp';
+            $fp = fopen($stream, 'r+');
+            if ($fp === false) {
+                throw new CakeException(sprintf('Cannot open stream `%s`', $stream));
+            }
 
             $setSeparator = $this->getConfig('setSeparator');
             if ($setSeparator) {

@@ -4,7 +4,7 @@ Chronos
 O Chronos oferece uma coleção independente de extensões para lidar com o objeto
 ``DateTime``. Além de métodos de conveniência, o Chronos oferece:
 
-* Objetos ``Date`` para representar datas de calendário.
+* Objetos ``ChronosDate`` para representar datas de calendário.
 * Objetos *date* e *datetime* imutáveis.
 * Um sistema de tradução acoplável. Apenas traduções em inglês estão incluídas
   na biblioteca. Todavia, ``cakephp/i18n`` pode ser usado para suporte completo
@@ -27,7 +27,7 @@ cobrem variantes de data/hora mutáveis e imutáveis e uma extensão do objeto
 ``DateInterval``.
 
 * ``Cake\Chronos\Chronos`` é um objeto *date & time* imutável.
-* ``Cake\Chronos\Date`` é um objeto *date* imutável.
+* ``Cake\Chronos\ChronosDate`` é um objeto *date* imutável.
 * ``Cake\Chronos\MutableDateTime`` é um objeto *date and time* mutável.
 * ``Cake\Chronos\MutableDate`` é um objeto *date* mutável.
 * ``Cake\Chronos\ChronosInterval`` é uma extensão do objeto ``DateInterval``.
@@ -97,13 +97,13 @@ Objetos Date
 O PHP disponibiliza um único objeto DateTime. Representar datas de calendário
 pode ser um pouco desconfortável por essa classe, uma vez que ela inclui
 *timezones* e componentes de hora que realmente não se encaixam no conceito de
-'dia'. O Chronos oferece um objeto ``Date`` para representar datas. A hora e a
+'dia'. O Chronos oferece um objeto ``ChronosDate`` para representar datas. A hora e a
 zona desse objeto é sempre fixado em ``00:00:00 UTC`` e todos os métodos de
 formatação/diferença operam sob a resolução de dia::
 
-    use Cake\Chronos\Date;
+    use Cake\Chronos\ChronosDate;
 
-    $today = Date::today();
+    $today = ChronosDate::today();
 
     // Mudanças na hora/timezone são ignoradas
     $today->modify('+1 hours');
@@ -268,7 +268,7 @@ de testes, você pode incluir o seguinte::
 
     Chronos::setTestNow(Chronos::now());
     MutableDateTime::setTestNow(MutableDateTime::now());
-    Date::setTestNow(Date::now());
+    ChronosDate::setTestNow(ChronosDate::now());
     MutableDate::setTestNow(MutableDate::now());
 
 Isso irá corrigir a hora atual de todos os objetos para o momento em que o

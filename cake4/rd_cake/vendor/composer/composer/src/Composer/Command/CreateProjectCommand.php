@@ -193,7 +193,7 @@ EOT
         $this->suggestedPackagesReporter = new SuggestedPackagesReporter($io);
 
         if ($packageName !== null) {
-            $installedFromVcs = $this->installRootPackage($io, $config, $packageName, $platformRequirementFilter, $directory, $packageVersion, $stability, $preferSource, $preferDist, $installDevPackages, $repositories, $disablePlugins, $disableScripts, $noProgress, $secureHttp);
+            $installedFromVcs = $this->installRootPackage($input, $io, $config, $packageName, $platformRequirementFilter, $directory, $packageVersion, $stability, $preferSource, $preferDist, $installDevPackages, $repositories, $disablePlugins, $disableScripts, $noProgress, $secureHttp);
         } else {
             $installedFromVcs = false;
         }
@@ -202,7 +202,7 @@ EOT
             unlink('composer.lock');
         }
 
-        $composer = Factory::create($io, null, $disablePlugins, $disableScripts);
+        $composer = $this->createComposerInstance($input, $io, null, $disablePlugins, $disableScripts);
 
         // add the repository to the composer.json and use it for the install run later
         if ($repositories !== null && $addRepository) {
@@ -221,7 +221,7 @@ EOT
                     $configSource->addRepository($name, $repoConfig, false);
                 }
 
-                $composer = Factory::create($io, null, $disablePlugins);
+                $composer = $this->createComposerInstance($input, $io, null, $disablePlugins);
             }
         }
 
@@ -336,7 +336,7 @@ EOT
      *
      * @throws \Exception
      */
-    protected function installRootPackage(IOInterface $io, Config $config, string $packageName, PlatformRequirementFilterInterface $platformRequirementFilter, ?string $directory = null, ?string $packageVersion = null, ?string $stability = 'stable', bool $preferSource = false, bool $preferDist = false, bool $installDevPackages = false, ?array $repositories = null, bool $disablePlugins = false, bool $disableScripts = false, bool $noProgress = false, bool $secureHttp = true): bool
+    protected function installRootPackage(InputInterface $input, IOInterface $io, Config $config, string $packageName, PlatformRequirementFilterInterface $platformRequirementFilter, ?string $directory = null, ?string $packageVersion = null, ?string $stability = 'stable', bool $preferSource = false, bool $preferDist = false, bool $installDevPackages = false, ?array $repositories = null, bool $disablePlugins = false, bool $disableScripts = false, bool $noProgress = false, bool $secureHttp = true): bool
     {
         if (!$secureHttp) {
             $config->merge(['config' => ['secure-http' => false]], Config::SOURCE_COMMAND);
@@ -375,7 +375,7 @@ EOT
         if (null === $stability) {
             if (null === $packageVersion) {
                 $stability = 'stable';
-            } elseif (Preg::isMatch('{^[^,\s]*?@('.implode('|', array_keys(BasePackage::$stabilities)).')$}i', $packageVersion, $match)) {
+            } elseif (Preg::isMatchStrictGroups('{^[^,\s]*?@('.implode('|', array_keys(BasePackage::$stabilities)).')$}i', $packageVersion, $match)) {
                 $stability = $match[1];
             } else {
                 $stability = VersionParser::parseStability($packageVersion);
@@ -388,7 +388,7 @@ EOT
             throw new \InvalidArgumentException('Invalid stability provided ('.$stability.'), must be one of: '.implode(', ', array_keys(BasePackage::$stabilities)));
         }
 
-        $composer = Factory::create($io, $config->all(), $disablePlugins, $disableScripts);
+        $composer = $this->createComposerInstance($input, $io, $config->all(), $disablePlugins, $disableScripts);
         $config = $composer->getConfig();
         $rm = $composer->getRepositoryManager();
 
@@ -468,6 +468,13 @@ EOT
 
         $io->writeError('<info>Created project in ' . $directory . '</info>');
         chdir($directory);
+
+        // ensure that the env var being set does not interfere with create-project
+        // as it is probably not meant to be used here, so we do not use it if a composer.json can be found
+        // in the project
+        if (file_exists($directory.'/composer.json') && Platform::getEnv('COMPOSER') !== false) {
+            Platform::clearEnv('COMPOSER');
+        }
 
         Platform::putEnv('COMPOSER_ROOT_VERSION', $package->getPrettyVersion());
 

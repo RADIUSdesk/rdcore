@@ -3,7 +3,6 @@
 namespace SlevomatCodingStandard\Helpers;
 
 use PHP_CodeSniffer\Files\File;
-use function array_merge;
 use function array_reverse;
 use function sprintf;
 use const T_ANON_CLASS;
@@ -82,7 +81,7 @@ class ClassHelper
 	}
 
 	/**
-	 * @return int[]
+	 * @return list<int>
 	 */
 	public static function getTraitUsePointers(File $phpcsFile, int $classPointer): array
 	{
@@ -107,12 +106,12 @@ class ClassHelper
 	}
 
 	/**
-	 * @return array<int>
+	 * @return list<int>
 	 */
 	private static function getAllClassPointers(File $phpcsFile): array
 	{
 		$lazyValue = static function () use ($phpcsFile): array {
-			return TokenHelper::findNextAll($phpcsFile, array_merge(TokenHelper::$typeKeywordTokenCodes, [T_ANON_CLASS]), 0);
+			return TokenHelper::findNextAll($phpcsFile, TokenHelper::$typeWithAnonymousClassKeywordTokenCodes, 0);
 		};
 
 		return SniffLocalCache::getAndSetIfNotCached($phpcsFile, 'classPointers', $lazyValue);

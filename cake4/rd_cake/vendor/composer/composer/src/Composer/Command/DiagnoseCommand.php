@@ -12,14 +12,23 @@
 
 namespace Composer\Command;
 
+use Composer\Advisory\Auditor;
 use Composer\Composer;
 use Composer\Factory;
 use Composer\Config;
 use Composer\Downloader\TransportException;
+use Composer\IO\BufferIO;
+use Composer\Json\JsonFile;
+use Composer\Package\RootPackage;
+use Composer\Package\Version\VersionParser;
 use Composer\Pcre\Preg;
+use Composer\Repository\ComposerRepository;
+use Composer\Repository\FilesystemRepository;
 use Composer\Repository\PlatformRepository;
 use Composer\Plugin\CommandEvent;
 use Composer\Plugin\PluginEvents;
+use Composer\Repository\RepositorySet;
+use Composer\Repository\RootPackageRepository;
 use Composer\Util\ConfigValidator;
 use Composer\Util\Git;
 use Composer\Util\IniHelper;
@@ -67,7 +76,7 @@ EOT
         ;
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $composer = $this->tryComposer();
         $io = $this->getIO();
@@ -153,9 +162,12 @@ EOT
             $io->write('Checking pubkeys: ', false);
             $this->outputResult($this->checkPubKeys($config));
 
-            $io->write('Checking composer version: ', false);
+            $io->write('Checking Composer version: ', false);
             $this->outputResult($this->checkVersion($config));
         }
+
+        $io->write('Checking Composer and its dependencies for vulnerabilities: ', false);
+        $this->outputResult($this->checkComposerAudit($config));
 
         $io->write(sprintf('Composer version: <comment>%s</comment>', Composer::getVersion()));
 
@@ -163,7 +175,7 @@ EOT
         $platformRepo = new PlatformRepository([], $platformOverrides);
         $phpPkg = $platformRepo->findPackage('php', '*');
         $phpVersion = $phpPkg->getPrettyVersion();
-        if ($phpPkg instanceof CompletePackageInterface && false !== strpos($phpPkg->getDescription(), 'overridden')) {
+        if ($phpPkg instanceof CompletePackageInterface && str_contains((string) $phpPkg->getDescription(), 'overridden')) {
             $phpVersion .= ' - ' . $phpPkg->getDescription();
         }
 
@@ -251,7 +263,7 @@ EOT
      */
     private function checkHttp(string $proto, Config $config)
     {
-        $result = $this->checkConnectivity();
+        $result = $this->checkConnectivityAndComposerNetworkHttpEnablement();
         if ($result !== true) {
             return $result;
         }
@@ -290,7 +302,7 @@ EOT
      */
     private function checkHttpProxy()
     {
-        $result = $this->checkConnectivity();
+        $result = $this->checkConnectivityAndComposerNetworkHttpEnablement();
         if ($result !== true) {
             return $result;
         }
@@ -314,11 +326,11 @@ EOT
     }
 
     /**
-     * @return string|true|\Exception
+     * @return string|\Exception
      */
     private function checkGithubOauth(string $domain, string $token)
     {
-        $result = $this->checkConnectivity();
+        $result = $this->checkConnectivityAndComposerNetworkHttpEnablement();
         if ($result !== true) {
             return $result;
         }
@@ -327,11 +339,17 @@ EOT
         try {
             $url = $domain === 'github.com' ? 'https://api.'.$domain.'/' : 'https://'.$domain.'/api/v3/';
 
-            $this->httpDownloader->get($url, [
+            $response = $this->httpDownloader->get($url, [
                 'retry-auth-failure' => false,
             ]);
 
-            return true;
+            $expiration = $response->getHeader('github-authentication-token-expiration');
+
+            if ($expiration === null) {
+                return '<info>OK</> <comment>does not expire</>';
+            }
+
+            return '<info>OK</> <comment>expires on '. $expiration .'</>';
         } catch (\Exception $e) {
             if ($e instanceof TransportException && $e->getCode() === 401) {
                 return '<comment>The oauth token for '.$domain.' seems invalid, run "composer config --global --unset github-oauth.'.$domain.'" to remove it</comment>';
@@ -348,7 +366,7 @@ EOT
      */
     private function getGithubRateLimit(string $domain, ?string $token = null)
     {
-        $result = $this->checkConnectivity();
+        $result = $this->checkConnectivityAndComposerNetworkHttpEnablement();
         if ($result !== true) {
             return $result;
         }
@@ -419,7 +437,7 @@ EOT
      */
     private function checkVersion(Config $config)
     {
-        $result = $this->checkConnectivity();
+        $result = $this->checkConnectivityAndComposerNetworkHttpEnablement();
         if ($result !== true) {
             return $result;
         }
@@ -433,6 +451,48 @@ EOT
 
         if (Composer::VERSION !== $latest['version'] && Composer::VERSION !== '@package_version@') {
             return '<comment>You are not running the latest '.$versionsUtil->getChannel().' version, run `composer self-update` to update ('.Composer::VERSION.' => '.$latest['version'].')</comment>';
+        }
+
+        return true;
+    }
+
+    /**
+     * @return string|true
+     */
+    private function checkComposerAudit(Config $config)
+    {
+        $result = $this->checkConnectivityAndComposerNetworkHttpEnablement();
+        if ($result !== true) {
+            return $result;
+        }
+
+        $auditor = new Auditor();
+        $repoSet = new RepositorySet();
+        $installedJson = new JsonFile(__DIR__ . '/../../../vendor/composer/installed.json');
+        if (!$installedJson->exists()) {
+            return '<warning>Could not find Composer\'s installed.json, this must be a non-standard Composer installation.</>';
+        }
+
+        $localRepo = new FilesystemRepository($installedJson);
+        $version = Composer::getVersion();
+        $packages = $localRepo->getCanonicalPackages();
+        if ($version !== '@package_version@') {
+            $versionParser = new VersionParser();
+            $normalizedVersion = $versionParser->normalize($version);
+            $rootPkg = new RootPackage('composer/composer', $normalizedVersion, $version);
+            $packages[] = $rootPkg;
+        }
+        $repoSet->addRepository(new ComposerRepository(['type' => 'composer', 'url' => 'https://packagist.org'], new NullIO(), $config, $this->httpDownloader));
+
+        try {
+            $io = new BufferIO();
+            $result = $auditor->audit($io, $repoSet, $packages, Auditor::FORMAT_TABLE, true, [], Auditor::ABANDONED_IGNORE);
+        } catch (\Throwable $e) {
+            return '<warning>Failed performing audit: '.$e->getMessage().'</>';
+        }
+
+        if ($result > 0) {
+            return '<error>Audit found some issues:</>' . PHP_EOL . $io->getOutput();
         }
 
         return true;
@@ -499,7 +559,7 @@ EOT
 
         if ($result) {
             foreach ($result as $message) {
-                $io->write($message);
+                $io->write(trim($message));
             }
         }
     }
@@ -573,14 +633,14 @@ EOT
         ob_start();
         phpinfo(INFO_GENERAL);
         $phpinfo = ob_get_clean();
-        if (Preg::isMatch('{Configure Command(?: *</td><td class="v">| *=> *)(.*?)(?:</td>|$)}m', $phpinfo, $match)) {
+        if (is_string($phpinfo) && Preg::isMatchStrictGroups('{Configure Command(?: *</td><td class="v">| *=> *)(.*?)(?:</td>|$)}m', $phpinfo, $match)) {
             $configure = $match[1];
 
-            if (false !== strpos($configure, '--enable-sigchild')) {
+            if (str_contains($configure, '--enable-sigchild')) {
                 $warnings['sigchild'] = true;
             }
 
-            if (false !== strpos($configure, '--with-curlwrappers')) {
+            if (str_contains($configure, '--with-curlwrappers')) {
                 $warnings['curlwrappers'] = true;
             }
         }
@@ -722,6 +782,11 @@ EOT
             $out($iniMessage, 'comment');
         }
 
+        if (in_array(Platform::getEnv('COMPOSER_IPRESOLVE'), ['4', '6'], true)) {
+            $warnings['ipresolve'] = true;
+            $out('The COMPOSER_IPRESOLVE env var is set to ' . Platform::getEnv('COMPOSER_IPRESOLVE') .' which may result in network failures below.', 'comment');
+        }
+
         return count($warnings) === 0 && count($errors) === 0 ? true : $output;
     }
 
@@ -733,7 +798,39 @@ EOT
     private function checkConnectivity()
     {
         if (!ini_get('allow_url_fopen')) {
-            return '<info>Skipped because allow_url_fopen is missing.</info>';
+            return '<info>SKIP</> <comment>Because allow_url_fopen is missing.</>';
+        }
+
+        return true;
+    }
+
+    /**
+     * @return string|true
+     */
+    private function checkConnectivityAndComposerNetworkHttpEnablement()
+    {
+        $result = $this->checkConnectivity();
+        if ($result !== true) {
+            return $result;
+        }
+
+        $result = $this->checkComposerNetworkHttpEnablement();
+        if ($result !== true) {
+            return $result;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if Composer network is enabled for HTTP/S
+     *
+     * @return string|true
+     */
+    private function checkComposerNetworkHttpEnablement()
+    {
+        if ((bool) Platform::getEnv('COMPOSER_DISABLE_NETWORK')) {
+            return '<info>SKIP</> <comment>Network is disabled by COMPOSER_DISABLE_NETWORK.</>';
         }
 
         return true;

@@ -56,7 +56,7 @@ class I18nInitCommand extends Command
             return static::CODE_ERROR;
         }
 
-        $paths = App::path('locales');
+        $paths = array_values(App::path('locales'));
         if ($args->hasOption('plugin')) {
             $plugin = Inflector::camelize((string)$args->getOption('plugin'));
             $paths = [Plugin::path($plugin) . 'resources' . DIRECTORY_SEPARATOR . 'locales' . DIRECTORY_SEPARATOR];
@@ -66,7 +66,7 @@ class I18nInitCommand extends Command
         $sourceFolder = rtrim($response, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
         $targetFolder = $sourceFolder . $language . DIRECTORY_SEPARATOR;
         if (!is_dir($targetFolder)) {
-            mkdir($targetFolder, 0775, true);
+            mkdir($targetFolder, 0770, true);
         }
 
         $count = 0;

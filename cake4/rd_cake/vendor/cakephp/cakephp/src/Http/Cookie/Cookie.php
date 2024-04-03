@@ -20,6 +20,8 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use InvalidArgumentException;
+use function Cake\Core\deprecationWarning;
+use function Cake\Core\getTypeName;
 
 /**
  * Cookie object to build a cookie and turn it into a header value
@@ -284,7 +286,10 @@ class Cookie implements CookieInterface
             $parts = preg_split('/\;[ \t]*/', $cookie);
         }
 
-        [$name, $value] = explode('=', array_shift($parts), 2);
+        $nameValue = explode('=', array_shift($parts), 2);
+        $name = array_shift($nameValue);
+        $value = array_shift($nameValue) ?? '';
+
         $data = [
                 'name' => urldecode($name),
                 'value' => urldecode($value),
@@ -621,7 +626,7 @@ class Cookie implements CookieInterface
     public function withExpired()
     {
         $new = clone $this;
-        $new->expiresAt = new DateTimeImmutable('1970-01-01 00:00:01');
+        $new->expiresAt = new DateTimeImmutable('@1');
 
         return $new;
     }

@@ -13,8 +13,8 @@ using the Password Identifier looks like::
        ],
        'resolver' => [
            'className' => 'Authentication.Orm',
-           'userModel' => 'Users'
-           'finder' => 'active'
+           'userModel' => 'Users',
+           'finder' => 'active', // default: 'all'
        ],
        'passwordHasher' => [
            'className' => 'Authentication.Fallback',
@@ -22,10 +22,10 @@ using the Password Identifier looks like::
                'Authentication.Default',
                [
                    'className' => 'Authentication.Legacy',
-                   'hashType' => 'md5'
+                   'hashType' => 'md5',
                ],
-           ]
-       ]
+           ],
+       ],
    ]);
 
 Password
@@ -59,6 +59,9 @@ Configuration options:
    Default is ``token``.
 -  **resolver**: The identity resolver. Default is
    ``Authentication.Orm`` which uses CakePHP ORM.
+-  **hashAlgorithm**: The algorithm used to hash the incoming token
+   with before compairing it to the ``tokenField``. Recommended value is
+   ``sha256```. Default is ``null``.
 
 JWT Subject
 ===========
@@ -92,9 +95,11 @@ Configuration options:
    ``\Authentication\Identifier\Ldap\ExtensionAdapter``. You can pass a
    custom object/classname here if it implements the
    ``AdapterInterface``.
--  **options**: Additional LDAP options, like
-   ``LDAP_OPT_PROTOCOL_VERSION`` or ``LDAP_OPT_NETWORK_TIMEOUT``. See
-   `php.net <http://php.net/manual/en/function.ldap-set-option.php>`__
+-  **options**: Array of additional LDAP options, including
+    ``tls``: Boolean. If ``true``, tries to start TLS on the connection.
+    Also LDAP config options such as
+    ``LDAP_OPT_PROTOCOL_VERSION`` or ``LDAP_OPT_NETWORK_TIMEOUT``. See
+   `php.net <https://php.net/manual/en/function.ldap-set-option.php>`__
    for more valid options.
 
 Callback
@@ -124,7 +129,7 @@ messages::
             }
 
             return null;
-        }
+        },
     ]);
 
     // Using a result object to return error messages.
@@ -141,7 +146,7 @@ messages::
                 Result::FAILURE_OTHER,
                 ['message' => 'Removed user.']
             );
-        }
+        },
     ]);
 
 
@@ -183,8 +188,8 @@ Resolver can be configured using ``resolver`` config option::
             // can be a full class name: \Some\Other\Custom\Resolver::class
            'className' => 'MyResolver',
            // Pass additional options to the resolver constructor.
-           'option' => 'value'
-       ]
+           'option' => 'value',
+       ],
    ]);
 
 Or injected using a setter::

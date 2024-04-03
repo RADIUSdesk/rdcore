@@ -113,7 +113,7 @@ example.
    If provided will be used instead of the secret key.
 
 You need to add the lib `firebase/php-jwt <https://github.com/firebase/php-jwt>`_
-v5.5 or above to your app to use the ``JwtAuthenticator``.
+v6.2 or above to your app to use the ``JwtAuthenticator``.
 
 By default the ``JwtAuthenticator`` uses ``HS256`` symmetric key algorithm and uses
 the value of ``Cake\Utility\Security::salt()`` as encryption key.
@@ -310,9 +310,9 @@ Configuration options:
    ``null`` and all pages will be checked.
 -  **passwordHasher**: Password hasher to use for token hashing. Default
    is ``DefaultPasswordHasher::class``.
--  **salt**: When ``false`` no salt is used. When a string is passed that value is used as a salt value. 
-   When ``true`` the default Security.salt is used. Default is ``true``. When a salt is used, the cookie value 
-   will contain `hash(username + password + hmac(username + password, salt))`. This helps harden tokens against possible 
+-  **salt**: When ``false`` no salt is used. When a string is passed that value is used as a salt value.
+   When ``true`` the default Security.salt is used. Default is ``true``. When a salt is used, the cookie value
+   will contain `hash(username + password + hmac(username + password, salt))`. This helps harden tokens against possible
    database leaks and enables cookie values to be invalidated by rotating the salt value.
 
 Usage
@@ -324,7 +324,7 @@ after their session expires for as long as the cookie is valid. If a user is
 explicity logged out via ``AuthenticationComponent::logout()`` the
 authentication cookie is **also destroyed**. An example configuration would be::
 
-    // In Application::getAuthService()
+    // In Application::getAuthenticationService()
 
     // Reuse fields in multiple authenticators.
     $fields = [
@@ -335,11 +335,8 @@ authentication cookie is **also destroyed**. An example configuration would be::
     // Put form authentication first so that users can re-login via
     // the login form if necessary.
     $service->loadAuthenticator('Authentication.Form', [
+        'fields' => $fields,
         'loginUrl' => '/users/login',
-        'fields' => [
-            IdentifierInterface::CREDENTIAL_USERNAME => 'email',
-            IdentifierInterface::CREDENTIAL_PASSWORD => 'password',
-        ],
     ]);
     // Then use sessions if they are active.
     $service->loadAuthenticator('Authentication.Session');
@@ -358,6 +355,34 @@ You'll also need to add a checkbox to your login form to have cookies created::
 After logging in, if the checkbox was checked you should see a ``CookieAuth``
 cookie in your browser dev tools. The cookie stores the username field and
 a hashed token that is used to reauthenticate later.
+
+Environment Variables
+=====================
+
+The ``EnvironmentAuthenticator`` can authenticate users based on mapped
+environment variables exposed by the webserver. This enables authentication via
+`Shibboleth <https://shibboleth.atlassian.net/wiki/spaces/CONCEPT/overview>`_
+and similar SAML 1.1 implementations. An example configuration is::
+
+    // Configure a token identifier that maps `USER_ID` to the
+    // username column
+    $service->loadIdentifier('Authentication.Token', [
+        'tokenField' => 'username',
+        'dataField' => 'USER_NAME',
+    ]);
+
+    $service->loadAuthenticator('Authentication.Environment', [
+        'loginUrl' => '/sso',
+        'fields' => [
+            // Choose which environment variables exposed by your
+            // authentication provider are used to authenticate
+            // in your application.
+            'USER_NAME',
+        ],
+    ]);
+
+.. versionadded:: 2.10.0
+    ``EnvironmentAuthenticator`` was added.
 
 Events
 ======

@@ -19,6 +19,8 @@ namespace Cake\Utility;
 use Cake\Core\Exception\CakeException;
 use InvalidArgumentException;
 use Transliterator;
+use function Cake\Core\deprecationWarning;
+use function Cake\I18n\__d;
 
 /**
  * Text handling methods.
@@ -376,14 +378,6 @@ class Text
             $options = ['width' => $options];
         }
         $options += ['width' => 72, 'wordWrap' => true, 'indent' => null, 'indentAt' => 0];
-
-        /** @phpstan-ignore-next-line */
-        if (!empty($options['indentAt']) && $options['indentAt'] === 0) {
-            $indentLength = !empty($options['indent']) ? strlen($options['indent']) : 0;
-            $options['width'] -= $indentLength;
-
-            return self::wrap($text, $options);
-        }
 
         $wrapped = self::wrap($text, $options);
 

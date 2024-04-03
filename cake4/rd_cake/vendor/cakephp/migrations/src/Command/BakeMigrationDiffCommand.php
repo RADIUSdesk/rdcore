@@ -141,7 +141,7 @@ class BakeMigrationDiffCommand extends BakeSimpleMigrationCommand
     protected function setup(Arguments $args)
     {
         $this->migrationsPath = $this->getPath($args);
-        $this->migrationsFiles = glob($this->migrationsPath . '*.php');
+        $this->migrationsFiles = glob($this->migrationsPath . '*.php') ?: [];
         $this->phinxTable = $this->getPhinxTable($this->plugin);
 
         $connection = ConnectionManager::get($this->connection);
@@ -451,7 +451,7 @@ class BakeMigrationDiffCommand extends BakeSimpleMigrationCommand
             $lastVersion = $this->migratedItems[0]['version'];
             $lastFile = end($this->migrationsFiles);
 
-            return (bool)strpos($lastFile, (string)$lastVersion);
+            return $lastFile && (bool)strpos($lastFile, (string)$lastVersion);
         }
 
         return false;
@@ -473,15 +473,7 @@ class BakeMigrationDiffCommand extends BakeSimpleMigrationCommand
         $newArgs = [];
         $newArgs[] = $name;
 
-        if ($args->getOption('connection')) {
-            $newArgs[] = '-c';
-            $newArgs[] = $args->getOption('connection');
-        }
-
-        if ($args->getOption('plugin')) {
-            $newArgs[] = '-p';
-            $newArgs[] = $args->getOption('plugin');
-        }
+        $newArgs = array_merge($newArgs, $this->parseOptions($args));
 
         $exitCode = $this->executeCommand(BakeMigrationSnapshotCommand::class, $newArgs, $io);
 
@@ -524,7 +516,7 @@ class BakeMigrationDiffCommand extends BakeSimpleMigrationCommand
             $this->io->abort($msg);
         }
 
-        return unserialize(file_get_contents($path));
+        return unserialize((string)file_get_contents($path));
     }
 
     /**

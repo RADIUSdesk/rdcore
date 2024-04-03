@@ -12,12 +12,14 @@
 
 namespace Composer\Command;
 
+use Composer\Advisory\Auditor;
 use Composer\Pcre\Preg;
 use Composer\Util\Filesystem;
 use Composer\Util\Platform;
 use Composer\Util\Silencer;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputArgument;
+use Composer\Console\Input\InputArgument;
+use Symfony\Component\Console\Completion\CompletionInput;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Composer\Config;
@@ -34,6 +36,26 @@ use Composer\Package\BasePackage;
  */
 class ConfigCommand extends BaseCommand
 {
+    /**
+     * List of additional configurable package-properties
+     *
+     * @var string[]
+     */
+    protected const CONFIGURABLE_PACKAGE_PROPERTIES = [
+        'name',
+        'type',
+        'description',
+        'homepage',
+        'version',
+        'minimum-stability',
+        'prefer-stable',
+        'keywords',
+        'license',
+        'repositories',
+        'suggest',
+        'extra',
+    ];
+
     /**
      * @var Config
      */
@@ -76,7 +98,7 @@ class ConfigCommand extends BaseCommand
                 new InputOption('merge', 'm', InputOption::VALUE_NONE, 'Merge the setting value with the current value, to be used with extra.* keys in combination with --json'),
                 new InputOption('append', null, InputOption::VALUE_NONE, 'When adding a repository, append it (lowest priority) to the existing ones instead of prepending it (highest priority)'),
                 new InputOption('source', null, InputOption::VALUE_NONE, 'Display where the config value is loaded from'),
-                new InputArgument('setting-key', null, 'Setting key'),
+                new InputArgument('setting-key', null, 'Setting key', null, $this->suggestSettingKeys()),
                 new InputArgument('setting-value', InputArgument::IS_ARRAY, 'Setting value'),
             ])
             ->setHelp(
@@ -161,11 +183,7 @@ EOT
         $io = $this->getIO();
         $this->config = Factory::createConfig($io);
 
-        // Get the local composer.json, global config.json, or if the user
-        // passed in a file to use
-        $configFile = $input->getOption('global')
-            ? ($this->config->get('home') . '/config.json')
-            : ($input->getOption('file') ?: Factory::getComposerFile());
+        $configFile = $this->getComposerConfigFile($input, $this->config);
 
         // Create global composer.json if this was invoked using `composer global config`
         if (
@@ -179,9 +197,7 @@ EOT
         $this->configFile = new JsonFile($configFile, null, $io);
         $this->configSource = new JsonConfigSource($this->configFile);
 
-        $authConfigFile = $input->getOption('global')
-            ? ($this->config->get('home') . '/auth.json')
-            : dirname($configFile) . '/auth.json';
+        $authConfigFile = $this->getAuthConfigFile($input, $this->config);
 
         $this->authConfigFile = new JsonFile($authConfigFile, null, $io);
         $this->authConfigSource = new JsonConfigSource($this->authConfigFile, true);
@@ -237,6 +253,8 @@ EOT
             $this->config->merge(['config' => $this->authConfigFile->exists() ? $this->authConfigFile->read() : []], $this->authConfigFile->getPath());
         }
 
+        $this->getIO()->loadConfiguration($this->config);
+
         // List the configuration of the file settings
         if (true === $input->getOption('list')) {
             $this->listConfiguration($this->config->all(), $this->config->raw(), $output, null, $input->getOption('source'));
@@ -256,9 +274,22 @@ EOT
 
         // show the value if no value is provided
         if ([] === $input->getArgument('setting-value') && !$input->getOption('unset')) {
-            $properties = ['name', 'type', 'description', 'homepage', 'version', 'minimum-stability', 'prefer-stable', 'keywords', 'license', 'extra'];
+            $properties = self::CONFIGURABLE_PACKAGE_PROPERTIES;
+            $propertiesDefaults = [
+                'type' => 'library',
+                'description' => '',
+                'homepage' => '',
+                'minimum-stability' => 'stable',
+                'prefer-stable' => false,
+                'keywords' => [],
+                'license' => [],
+                'suggest' => [],
+                'extra' => [],
+            ];
             $rawData = $this->configFile->read();
             $data = $this->config->all();
+            $source = $this->config->getSourceOfValue($settingKey);
+
             if (Preg::isMatch('/^repos?(?:itories)?(?:\.(.+))?/', $settingKey, $matches)) {
                 if (!isset($matches[1]) || $matches[1] === '') {
                     $value = $data['repositories'] ?? [];
@@ -271,7 +302,7 @@ EOT
                 }
             } elseif (strpos($settingKey, '.')) {
                 $bits = explode('.', $settingKey);
-                if ($bits[0] === 'extra') {
+                if ($bits[0] === 'extra' || $bits[0] === 'suggest') {
                     $data = $rawData;
                 } else {
                     $data = $data['config'];
@@ -294,19 +325,33 @@ EOT
                 $value = $data;
             } elseif (isset($data['config'][$settingKey])) {
                 $value = $this->config->get($settingKey, $input->getOption('absolute') ? 0 : Config::RELATIVE_PATHS);
+                // ensure we get {} output for properties which are objects
+                if ($value === []) {
+                    $schema = JsonFile::parseJson((string) file_get_contents(JsonFile::COMPOSER_SCHEMA_PATH));
+                    if (
+                        isset($schema['properties']['config']['properties'][$settingKey]['type'])
+                        && in_array('object', (array) $schema['properties']['config']['properties'][$settingKey]['type'], true)
+                    ) {
+                        $value = new \stdClass;
+                    }
+                }
             } elseif (isset($rawData[$settingKey]) && in_array($settingKey, $properties, true)) {
                 $value = $rawData[$settingKey];
+                $source = $this->configFile->getPath();
+            } elseif (isset($propertiesDefaults[$settingKey])) {
+                $value = $propertiesDefaults[$settingKey];
+                $source = 'defaults';
             } else {
                 throw new \RuntimeException($settingKey.' is not defined');
             }
 
-            if (is_array($value)) {
+            if (is_array($value) || is_object($value) || is_bool($value)) {
                 $value = JsonFile::encode($value, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
             }
 
             $sourceOfConfigValue = '';
             if ($input->getOption('source')) {
-                $sourceOfConfigValue = ' (' . $this->config->getSourceOfValue($settingKey) . ')';
+                $sourceOfConfigValue = ' (' . $source . ')';
             }
 
             $this->getIO()->write($value . $sourceOfConfigValue, true, IOInterface::QUIET);
@@ -396,7 +441,7 @@ EOT
             ],
             'bin-compat' => [
                 static function ($val): bool {
-                    return in_array($val, ['auto', 'full', 'symlink']);
+                    return in_array($val, ['auto', 'full', 'proxy', 'symlink']);
                 },
                 static function ($val) {
                     return $val;
@@ -468,6 +513,14 @@ EOT
                     return $val !== 'false' && (bool) $val;
                 },
             ],
+            'audit.abandoned' => [
+                static function ($val): bool {
+                    return in_array($val, [Auditor::ABANDONED_IGNORE, Auditor::ABANDONED_REPORT, Auditor::ABANDONED_FAIL], true);
+                },
+                static function ($val) {
+                    return $val;
+                },
+            ],
         ];
         $multiConfigValues = [
             'github-protocols' => [
@@ -512,7 +565,26 @@ EOT
                     return $vals;
                 },
             ],
+            'audit.ignore' => [
+                static function ($vals) {
+                    if (!is_array($vals)) {
+                        return 'array expected';
+                    }
+
+                    return true;
+                },
+                static function ($vals) {
+                    return $vals;
+                },
+            ],
         ];
+
+        // allow unsetting audit config entirely
+        if ($input->getOption('unset') && $settingKey === 'audit') {
+            $this->configSource->removeConfigSetting($settingKey);
+
+            return 0;
+        }
 
         if ($input->getOption('unset') && (isset($uniqueConfigValues[$settingKey]) || isset($multiConfigValues[$settingKey]))) {
             if ($settingKey === 'disable-tls' && $this->config->get('disable-tls')) {
@@ -647,7 +719,7 @@ EOT
         }
 
         // handle repositories
-        if (Preg::isMatch('/^repos?(?:itories)?\.(.+)/', $settingKey, $matches)) {
+        if (Preg::isMatchStrictGroups('/^repos?(?:itories)?\.(.+)/', $settingKey, $matches)) {
             if ($input->getOption('unset')) {
                 $this->configSource->removeRepository($matches[1]);
 
@@ -911,5 +983,137 @@ EOT
                 $io->write('[<fg=yellow;href=' . $link .'>' . $k . $key . '</>] <info>' . $value . '</info>' . $source, true, IOInterface::QUIET);
             }
         }
+    }
+
+    /**
+     * Get the local composer.json, global config.json, or the file passed by the user
+     */
+    private function getComposerConfigFile(InputInterface $input, Config $config): string
+    {
+        return $input->getOption('global')
+            ? ($config->get('home') . '/config.json')
+            : ($input->getOption('file') ?: Factory::getComposerFile())
+        ;
+    }
+
+    /**
+     * Get the local auth.json or global auth.json, or if the user passed in a file to use,
+     * the corresponding auth.json
+     */
+    private function getAuthConfigFile(InputInterface $input, Config $config): string
+    {
+        return $input->getOption('global')
+            ? ($config->get('home') . '/auth.json')
+            : dirname($this->getComposerConfigFile($input, $config)) . '/auth.json'
+        ;
+    }
+
+    /**
+     * Suggest setting-keys, while taking given options in acount.
+     */
+    private function suggestSettingKeys(): \Closure
+    {
+        return function (CompletionInput $input): array {
+            if ($input->getOption('list') || $input->getOption('editor') || $input->getOption('auth')) {
+                return [];
+            }
+
+            // initialize configuration
+            $config = Factory::createConfig();
+
+            // load configuration
+            $configFile = new JsonFile($this->getComposerConfigFile($input, $config));
+            if ($configFile->exists()) {
+                $config->merge($configFile->read(), $configFile->getPath());
+            }
+
+            // load auth-configuration
+            $authConfigFile = new JsonFile($this->getAuthConfigFile($input, $config));
+            if ($authConfigFile->exists()) {
+                $config->merge(['config' => $authConfigFile->read()], $authConfigFile->getPath());
+            }
+
+            // collect all configuration setting-keys
+            $rawConfig = $config->raw();
+            $keys = array_merge(
+                $this->flattenSettingKeys($rawConfig['config']),
+                $this->flattenSettingKeys($rawConfig['repositories'], 'repositories.')
+            );
+
+            // if unsetting …
+            if ($input->getOption('unset')) {
+                // … keep only the currently customized setting-keys …
+                $sources = [$configFile->getPath(), $authConfigFile->getPath()];
+                $keys = array_filter(
+                    $keys,
+                    static function (string $key) use ($config, $sources): bool {
+                        return in_array($config->getSourceOfValue($key), $sources, true);
+                    }
+                );
+
+            // … else if showing or setting a value …
+            } else {
+                // … add all configurable package-properties, no matter if it exist
+                $keys = array_merge($keys, self::CONFIGURABLE_PACKAGE_PROPERTIES);
+
+                // it would be nice to distinguish between showing and setting
+                // a value, but that makes the implementation much more complex
+                // and partially impossible because symfony's implementation
+                // does not complete arguments followed by other arguments
+            }
+
+            // add all existing configurable package-properties
+            if ($configFile->exists()) {
+                $properties = array_filter(
+                    $configFile->read(),
+                    static function (string $key): bool {
+                        return in_array($key, self::CONFIGURABLE_PACKAGE_PROPERTIES, true);
+                    },
+                    ARRAY_FILTER_USE_KEY
+                );
+
+                $keys = array_merge(
+                    $keys,
+                    $this->flattenSettingKeys($properties)
+                );
+            }
+
+            // filter settings-keys by completion value
+            $completionValue = $input->getCompletionValue();
+
+            if ($completionValue !== '') {
+                $keys = array_filter(
+                    $keys,
+                    static function (string $key) use ($completionValue): bool {
+                        return str_starts_with($key, $completionValue);
+                    }
+                );
+            }
+
+            sort($keys);
+
+            return array_unique($keys);
+        };
+    }
+
+    /**
+     * build a flat list of dot-separated setting-keys from given config
+     *
+     * @param array<mixed[]|string>  $config
+     * @return string[]
+     */
+    private function flattenSettingKeys(array $config, string $prefix = ''): array
+    {
+        $keys = [];
+        foreach ($config as $key => $value) {
+            $keys[] = [$prefix . $key];
+            // array-lists must not be added to completion
+            // sub-keys of repository-keys must not be added to completion
+            if (is_array($value) && !array_is_list($value) && $prefix !== 'repositories.') {
+                $keys[] = $this->flattenSettingKeys($value, $prefix . $key . '.');
+            }
+        }
+
+        return array_merge(...$keys);
     }
 }

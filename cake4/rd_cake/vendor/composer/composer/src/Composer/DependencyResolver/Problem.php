@@ -114,7 +114,8 @@ class Problem
         $deduplicatableRuleTypes = [Rule::RULE_PACKAGE_REQUIRES, Rule::RULE_PACKAGE_CONFLICT];
         foreach ($rules as $rule) {
             $message = $rule->getPrettyString($repositorySet, $request, $pool, $isVerbose, $installedMap, $learnedPool);
-            if (in_array($rule->getReason(), $deduplicatableRuleTypes, true) && Preg::isMatch('{^(?P<package>\S+) (?P<version>\S+) (?P<type>requires|conflicts)}', $message, $m)) {
+            if (in_array($rule->getReason(), $deduplicatableRuleTypes, true) && Preg::isMatchStrictGroups('{^(?P<package>\S+) (?P<version>\S+) (?P<type>requires|conflicts)}', $message, $m)) {
+                $message = str_replace('%', '%%', $message);
                 $template = Preg::replace('{^\S+ \S+ }', '%s%s ', $message);
                 $messages[] = $template;
                 $templates[$template][$m[1]][$parser->normalize($m[2])] = $m[2];
@@ -452,22 +453,22 @@ class Problem
     }
 
     /**
-     * @param string[] $versions an array of pretty versions, with normalized versions as keys
+     * @param array<string|int, string> $versions an array of pretty versions, with normalized versions as keys
      * @return list<string> a list of pretty versions and '...' where versions were removed
      */
     private static function condenseVersionList(array $versions, int $max, int $maxDev = 16): array
     {
         if (count($versions) <= $max) {
-            return $versions;
+            return array_values($versions);
         }
 
         $filtered = [];
         $byMajor = [];
         foreach ($versions as $version => $pretty) {
-            if (0 === stripos($version, 'dev-')) {
+            if (0 === stripos((string) $version, 'dev-')) {
                 $byMajor['dev'][] = $pretty;
             } else {
-                $byMajor[Preg::replace('{^(\d+)\..*}', '$1', $version)][] = $pretty;
+                $byMajor[Preg::replace('{^(\d+)\..*}', '$1', (string) $version)][] = $pretty;
             }
         }
         foreach ($byMajor as $majorVersion => $versionsForMajor) {
@@ -556,6 +557,19 @@ class Problem
      */
     protected static function constraintToText(?ConstraintInterface $constraint = null): string
     {
+        if ($constraint instanceof Constraint && $constraint->getOperator() === Constraint::STR_OP_EQ && !str_starts_with($constraint->getVersion(), 'dev-')) {
+            if (!Preg::isMatch('{^\d+(?:\.\d+)*$}', $constraint->getPrettyString())) {
+                return ' '.$constraint->getPrettyString() .' (exact version match)';
+            }
+
+            $versions = [$constraint->getPrettyString()];
+            for ($i = 3 - substr_count($versions[0], '.'); $i > 0; $i--) {
+                $versions[] = end($versions) . '.0';
+            }
+
+            return ' ' . $constraint->getPrettyString() . ' (exact version match: ' . (count($versions) > 1 ? implode(', ', array_slice($versions, 0, -1)) . ' or ' . end($versions) : $versions[0]) . ')';
+        }
+
         return $constraint ? ' '.$constraint->getPrettyString() : '';
     }
 }

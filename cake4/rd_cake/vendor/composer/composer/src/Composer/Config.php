@@ -12,6 +12,7 @@
 
 namespace Composer;
 
+use Composer\Advisory\Auditor;
 use Composer\Config\ConfigSourceInterface;
 use Composer\Downloader\TransportException;
 use Composer\IO\IOInterface;
@@ -37,6 +38,7 @@ class Config
         'allow-plugins' => [],
         'use-parent-dir' => 'prompt',
         'preferred-install' => 'dist',
+        'audit' => ['ignore' => [], 'abandoned' => Auditor::ABANDONED_FAIL],
         'notify-on-install' => true,
         'github-protocols' => ['https', 'ssh', 'git'],
         'gitlab-protocol' => null,
@@ -102,6 +104,8 @@ class Config
     private $configSource;
     /** @var ConfigSourceInterface */
     private $authConfigSource;
+    /** @var ConfigSourceInterface|null */
+    private $localAuthConfigSource = null;
     /** @var bool */
     private $useEnvironment;
     /** @var array<string, true> */
@@ -153,6 +157,16 @@ class Config
         return $this->authConfigSource;
     }
 
+    public function setLocalAuthConfigSource(ConfigSourceInterface $source): void
+    {
+        $this->localAuthConfigSource = $source;
+    }
+
+    public function getLocalAuthConfigSource(): ?ConfigSourceInterface
+    {
+        return $this->localAuthConfigSource;
+    }
+
     /**
      * Merges new config values with the existing ones (overriding)
      *
@@ -195,6 +209,11 @@ class Config
                         $this->config[$key] = $val;
                         $this->setSourceOfConfigValue($val, $key, $source);
                     }
+                } elseif ('audit' === $key) {
+                    $currentIgnores = $this->config['audit']['ignore'];
+                    $this->config[$key] = array_merge($this->config['audit'], $val);
+                    $this->setSourceOfConfigValue($val, $key, $source);
+                    $this->config['audit']['ignore'] = array_merge($currentIgnores, $val['ignore'] ?? []);
                 } else {
                     $this->config[$key] = $val;
                     $this->setSourceOfConfigValue($val, $key, $source);
@@ -417,6 +436,20 @@ class Config
 
                 return $this->process($this->config[$key], $flags);
 
+            case 'audit':
+                $result = $this->config[$key];
+                $abandonedEnv = $this->getComposerEnv('COMPOSER_AUDIT_ABANDONED');
+                if (false !== $abandonedEnv) {
+                    if (!in_array($abandonedEnv, $validChoices = [Auditor::ABANDONED_IGNORE, Auditor::ABANDONED_REPORT, Auditor::ABANDONED_FAIL], true)) {
+                        throw new \RuntimeException(
+                            "Invalid value for COMPOSER_AUDIT_ABANDONED: {$abandonedEnv}. Expected ".Auditor::ABANDONED_IGNORE.", ".Auditor::ABANDONED_REPORT." or ".Auditor::ABANDONED_FAIL
+                        );
+                    }
+                    $result['abandoned'] = $abandonedEnv;
+                }
+
+                return $result;
+
             default:
                 if (!isset($this->config[$key])) {
                     return null;
@@ -496,6 +529,7 @@ class Config
         }
 
         return Preg::replaceCallback('#\{\$(.+)\}#', function ($match) use ($flags) {
+            assert(is_string($match[1]));
             return $this->get($match[1], $flags);
         }, $value);
     }
@@ -519,6 +553,8 @@ class Config
      *
      * This should be used to read COMPOSER_ environment variables
      * that overload config values.
+     *
+     * @param non-empty-string $var
      *
      * @return string|false
      */

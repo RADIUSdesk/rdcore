@@ -7,9 +7,6 @@
     <a href="LICENSE" target="_blank">
         <img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square">
     </a>
-    <a href="https://github.com/cakephp/cakephp/actions?query=workflow%3ACI+branch%3A4.x" target="_blank">
-        <img alt="Build Status" src="https://img.shields.io/github/workflow/status/cakephp/cakephp/CI/master?style=flat-square">
-    </a>
     <a href="https://codecov.io/gh/cakephp/cakephp/branch/4.x" target="_blank">
         <img alt="Coverage Status" src="https://img.shields.io/codecov/c/github/cakephp/cakephp?style=flat-square">
     </a>
@@ -69,7 +66,7 @@ tests for CakePHP by doing the following:
 
 ## Get Support!
 
-* [Slack](https://cakesf.herokuapp.com/) - Join us on Slack.
+* [Slack](https://slack-invite.cakephp.org/) - Join us on Slack.
 * [Discord](https://discord.gg/k4trEMPebj) - Join us on Discord.
 * [#cakephp](https://webchat.freenode.net/?channels=#cakephp) on irc.freenode.net - Come chat with us, we have cake.
 * [Forum](https://discourse.cakephp.org/) - Official CakePHP forum.

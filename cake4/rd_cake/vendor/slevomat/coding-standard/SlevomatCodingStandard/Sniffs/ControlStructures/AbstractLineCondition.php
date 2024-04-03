@@ -7,6 +7,7 @@ use PHP_CodeSniffer\Sniffs\Sniff;
 use SlevomatCodingStandard\Helpers\IndentationHelper;
 use SlevomatCodingStandard\Helpers\SniffSettingsHelper;
 use SlevomatCodingStandard\Helpers\TokenHelper;
+use function array_key_exists;
 use function in_array;
 use function preg_replace;
 use function rtrim;
@@ -24,7 +25,7 @@ abstract class AbstractLineCondition implements Sniff
 	protected const WHILE_CONTROL_STRUCTURE = 'while';
 	protected const DO_CONTROL_STRUCTURE = 'do';
 
-	/** @var string[] */
+	/** @var list<string> */
 	public $checkedControlStructures = [
 		self::IF_CONTROL_STRUCTURE,
 		self::WHILE_CONTROL_STRUCTURE,
@@ -60,6 +61,15 @@ abstract class AbstractLineCondition implements Sniff
 	{
 		$tokens = $phpcsFile->getTokens();
 
+		if (
+			!array_key_exists('parenthesis_opener', $tokens[$controlStructurePointer])
+			|| $tokens[$controlStructurePointer]['parenthesis_opener'] === null
+			|| !array_key_exists('parenthesis_closer', $tokens[$controlStructurePointer])
+			|| $tokens[$controlStructurePointer]['parenthesis_closer'] === null
+		) {
+			return true;
+		}
+
 		if ($tokens[$controlStructurePointer]['code'] === T_WHILE) {
 			$isPartOfDo = $this->isPartOfDo($phpcsFile, $controlStructurePointer);
 
@@ -89,9 +99,9 @@ abstract class AbstractLineCondition implements Sniff
 		$tokens = $phpcsFile->getTokens();
 
 		$parenthesisCloserPointer = $tokens[$whilePointer]['parenthesis_closer'];
-		$pointerAfterParentesisCloser = TokenHelper::findNextEffective($phpcsFile, $parenthesisCloserPointer + 1);
+		$pointerAfterParenthesisCloser = TokenHelper::findNextEffective($phpcsFile, $parenthesisCloserPointer + 1);
 
-		return $tokens[$pointerAfterParentesisCloser]['code'] !== T_OPEN_CURLY_BRACKET;
+		return $tokens[$pointerAfterParenthesisCloser]['code'] !== T_OPEN_CURLY_BRACKET;
 	}
 
 	protected function getLineStart(File $phpcsFile, int $pointer): string

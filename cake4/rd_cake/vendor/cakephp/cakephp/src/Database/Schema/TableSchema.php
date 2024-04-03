@@ -19,6 +19,7 @@ namespace Cake\Database\Schema;
 use Cake\Database\Connection;
 use Cake\Database\Exception\DatabaseException;
 use Cake\Database\TypeFactory;
+use function Cake\Core\deprecationWarning;
 
 /**
  * Represents a single table in a database schema.
@@ -471,13 +472,6 @@ class TableSchema implements TableSchemaInterface, SqlGeneratorInterface
             throw new DatabaseException(sprintf(
                 'Invalid index type "%s" in index "%s" in table "%s".',
                 $attrs['type'],
-                $name,
-                $this->_table
-            ));
-        }
-        if (empty($attrs['columns'])) {
-            throw new DatabaseException(sprintf(
-                'Index "%s" in table "%s" must have at least one column.',
                 $name,
                 $this->_table
             ));

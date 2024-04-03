@@ -6,6 +6,8 @@ use PHP_CodeSniffer\Files\File;
 use function array_key_exists;
 use function array_merge;
 use function count;
+use const T_ANON_CLASS;
+use const T_ARRAY;
 use const T_ARRAY_HINT;
 use const T_BREAK;
 use const T_CALLABLE;
@@ -31,6 +33,7 @@ use const T_NAME_QUALIFIED;
 use const T_NAME_RELATIVE;
 use const T_NS_SEPARATOR;
 use const T_NULL;
+use const T_OPEN_SHORT_ARRAY;
 use const T_PARENT;
 use const T_PHPCS_DISABLE;
 use const T_PHPCS_ENABLE;
@@ -60,8 +63,23 @@ class TokenHelper
 {
 
 	/** @var array<int, (int|string)> */
+	public static $arrayTokenCodes = [
+		T_ARRAY,
+		T_OPEN_SHORT_ARRAY,
+	];
+
+	/** @var array<int, (int|string)> */
 	public static $typeKeywordTokenCodes = [
 		T_CLASS,
+		T_TRAIT,
+		T_INTERFACE,
+		T_ENUM,
+	];
+
+	/** @var array<int, (int|string)> */
+	public static $typeWithAnonymousClassKeywordTokenCodes = [
+		T_CLASS,
+		T_ANON_CLASS,
 		T_TRAIT,
 		T_INTERFACE,
 		T_ENUM,
@@ -78,6 +96,16 @@ class TokenHelper
 		T_DOC_COMMENT_STRING,
 		T_DOC_COMMENT_TAG,
 		T_DOC_COMMENT_WHITESPACE,
+		T_PHPCS_DISABLE,
+		T_PHPCS_ENABLE,
+		T_PHPCS_IGNORE,
+		T_PHPCS_IGNORE_FILE,
+		T_PHPCS_SET,
+	];
+
+	/** @var array<int, (int|string)> */
+	public static $annotationTokenCodes = [
+		T_DOC_COMMENT_TAG,
 		T_PHPCS_DISABLE,
 		T_PHPCS_ENABLE,
 		T_PHPCS_IGNORE,
@@ -133,7 +161,7 @@ class TokenHelper
 
 	/**
 	 * @param int|string|array<int|string, int|string> $types
-	 * @return int[]
+	 * @return list<int>
 	 */
 	public static function findNextAll(File $phpcsFile, $types, int $startPointer, ?int $endPointer = null): array
 	{
@@ -446,7 +474,6 @@ class TokenHelper
 	}
 
 	/**
-	 * @internal
 	 * @return array<int, (int|string)>
 	 */
 	public static function getNameTokenCodes(): array
@@ -455,7 +482,6 @@ class TokenHelper
 	}
 
 	/**
-	 * @internal
 	 * @return array<int, (int|string)>
 	 */
 	public static function getOnlyNameTokenCodes(): array

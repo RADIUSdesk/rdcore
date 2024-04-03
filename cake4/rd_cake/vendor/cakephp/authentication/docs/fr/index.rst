@@ -9,6 +9,8 @@ répertoire ROOT de votre projet CakePHP (là où se trouve le fichier
 
     php composer.phar require "cakephp/authentication:^2.0"
 
+La version 2 du Plugin Authentication est compatible avec CakePHP 4.
+
 Chargez le plugin en ajoutant l'instruction suivante dans le fichier
 ``src/Application.php`` de votre projet::
 
@@ -24,7 +26,7 @@ Pour commencer
 ==============
 
 Le plugin d'authentification s'intègre dans votre application comme un
-`middleware <http://book.cakephp.org/4/en/controllers/middleware.html>`_. Il
+`middleware <https://book.cakephp.org/4/en/controllers/middleware.html>`_. Il
 peut aussi être utilisé comme un composant pour faciliter l'accès sans
 authentification. Tout d'abord, mettons en place le middleware. Dans votre
 **src/Application.php**, ajoutez ce qui suit aux imports de la classe::
@@ -37,7 +39,7 @@ authentification. Tout d'abord, mettons en place le middleware. Dans votre
     use Cake\Http\MiddlewareQueue;
     use Cake\Routing\Router;
     use Psr\Http\Message\ServerRequestInterface;
-    
+
 
 Ensuite, ajoutez ``AuthenticationServiceProviderInterface`` aux interfaces implémentées
 par votre application::
@@ -45,15 +47,28 @@ par votre application::
     class Application extends BaseApplication implements AuthenticationServiceProviderInterface
 
 
-Puis ajoutez ``AuthenticationMiddleware`` à la liste des middlewares dans votre
-fonction ``middleware()``::
+Puis modifier votre méthode ``middleware()`` pour la faire ressembler à ceci::
 
-    $middlewareQueue->add(new AuthenticationMiddleware($this));
-    
-.. note::
-    Assurez-vous d'ajouter ``AuthenticationMiddleware`` avant
-    ``AuthorizationMiddleware`` si vous avez les deux, et après
-    ``RoutingMiddleware``.
+    public function middleware(MiddlewareQueue $middlewareQueue): MiddlewareQueue
+    {
+        $middlewareQueue->add(new ErrorHandlerMiddleware(Configure::read('Error')))
+            // Autres middleware fournis par CakePHP.
+            ->add(new AssetMiddleware())
+            ->add(new RoutingMiddleware($this))
+            ->add(new BodyParserMiddleware())
+
+            // Ajoutez le AuthenticationMiddleware. Il doit se trouver
+            // après routing et body parser.
+            ->add(new AuthenticationMiddleware($this));
+
+        return $middlewareQueue();
+    }
+
+.. warning::
+    L'ordre des middlewares est important. Assurez-vous d'avoir
+    ``AuthenticationMiddleware`` après les middlewares routing et body parser.
+    Si vous avez des problèmes pour vous connecter avec des requêtes JSON ou si
+    les redirections sont incorrectes, revérifiez l'ordre de vos middlewares.
 
 ``AuthenticationMiddleware`` appellera une méthode-crochet (*hook*) dans votre
 application quand il commencera à traiter la requête. Cette méthode-crochet
@@ -117,7 +132,7 @@ identifiants que l'utilisateur nous donnera en une
 
 Si l'un des authentificateurs configurés a été en mesure de valider les
 identifiants utilisateur, le middleware ajoutera le service d'authentification à
-l'objet requête en tant qu'\ `attribut <http://www.php-fig.org/psr/psr-7/>`_.
+l'objet requête en tant qu'\ `attribut <https://www.php-fig.org/psr/psr-7/>`_.
 
 Ensuite, chargez le :doc:`/authentication-component` dans votre
 ``AppController``::
@@ -162,7 +177,7 @@ Ensuite, nous allons ajouter une action de connexion basique à votre
             $target = $this->Authentication->getLoginRedirect() ?? '/home';
             return $this->redirect($target);
         }
-        if ($this->request->is('post') && !$result->isValid()) {
+        if ($this->request->is('post')) {
             $this->Flash->error('Identifiant ou mot de passe invalide');
         }
     }

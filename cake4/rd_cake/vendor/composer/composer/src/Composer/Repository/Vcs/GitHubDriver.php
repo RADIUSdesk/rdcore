@@ -63,9 +63,11 @@ class GitHubDriver extends VcsDriver
             throw new \InvalidArgumentException(sprintf('The GitHub repository URL %s is invalid.', $this->url));
         }
 
+        assert(is_string($match[3]));
+        assert(is_string($match[4]));
         $this->owner = $match[3];
         $this->repository = $match[4];
-        $this->originUrl = strtolower(!empty($match[1]) ? $match[1] : $match[2]);
+        $this->originUrl = strtolower($match[1] ?? (string) $match[2]);
         if ($this->originUrl === 'www.github.com') {
             $this->originUrl = 'github.com';
         }
@@ -172,6 +174,9 @@ class GitHubDriver extends VcsDriver
 
             if ($composer !== null) {
                 // specials for github
+                if (isset($composer['support']) && !is_array($composer['support'])) {
+                    $composer['support'] = [];
+                }
                 if (!isset($composer['support']['source'])) {
                     $label = array_search($identifier, $this->getTags()) ?: array_search($identifier, $this->getBranches()) ?: $identifier;
                     $composer['support']['source'] = sprintf('https://%s/%s/%s/tree/%s', $this->originUrl, $this->owner, $this->repository, $label);
@@ -227,27 +232,27 @@ class GitHubDriver extends VcsDriver
         $key = null;
         foreach (Preg::split('{\r?\n}', $funding) as $line) {
             $line = trim($line);
-            if (Preg::isMatch('{^(\w+)\s*:\s*(.+)$}', $line, $match)) {
+            if (Preg::isMatchStrictGroups('{^(\w+)\s*:\s*(.+)$}', $line, $match)) {
                 if ($match[2] === '[') {
                     $key = $match[1];
                     continue;
                 }
-                if (Preg::isMatch('{^\[(.*)\](?:\s*#.*)?$}', $match[2], $match2)) {
+                if (Preg::isMatchStrictGroups('{^\[(.*)\](?:\s*#.*)?$}', $match[2], $match2)) {
                     foreach (array_map('trim', Preg::split('{[\'"]?\s*,\s*[\'"]?}', $match2[1])) as $item) {
                         $result[] = ['type' => $match[1], 'url' => trim($item, '"\' ')];
                     }
-                } elseif (Preg::isMatch('{^([^#].*?)(\s+#.*)?$}', $match[2], $match2)) {
+                } elseif (Preg::isMatchStrictGroups('{^([^#].*?)(?:\s+#.*)?$}', $match[2], $match2)) {
                     $result[] = ['type' => $match[1], 'url' => trim($match2[1], '"\' ')];
                 }
                 $key = null;
-            } elseif (Preg::isMatch('{^(\w+)\s*:\s*#\s*$}', $line, $match)) {
+            } elseif (Preg::isMatchStrictGroups('{^(\w+)\s*:\s*#\s*$}', $line, $match)) {
                 $key = $match[1];
-            } elseif ($key && (
-                Preg::isMatch('{^-\s*(.+)(\s+#.*)?$}', $line, $match)
-                || Preg::isMatch('{^(.+),(\s*#.*)?$}', $line, $match)
+            } elseif ($key !== null && (
+                Preg::isMatchStrictGroups('{^-\s*(.+)(?:\s+#.*)?$}', $line, $match)
+                || Preg::isMatchStrictGroups('{^(.+),(?:\s*#.*)?$}', $line, $match)
             )) {
                 $result[] = ['type' => $key, 'url' => trim($match[1], '"\' ')];
-            } elseif ($key && $line === ']') {
+            } elseif ($key !== null && $line === ']') {
                 $key = null;
             }
         }
@@ -305,7 +310,7 @@ class GitHubDriver extends VcsDriver
             $resource = $this->getContents($resource['git_url'])->decodeJson();
         }
 
-        if (empty($resource['content']) || $resource['encoding'] !== 'base64' || !($content = base64_decode($resource['content']))) {
+        if (!isset($resource['content']) || $resource['encoding'] !== 'base64' || false === ($content = base64_decode($resource['content']))) {
             throw new \RuntimeException('Could not retrieve ' . $file . ' for '.$identifier);
         }
 
@@ -395,7 +400,7 @@ class GitHubDriver extends VcsDriver
             return false;
         }
 
-        $originUrl = !empty($matches[2]) ? $matches[2] : $matches[3];
+        $originUrl = $matches[2] ?? (string) $matches[3];
         if (!in_array(strtolower(Preg::replace('{^www\.}i', '', $originUrl)), $config->get('github-domains'))) {
             return false;
         }

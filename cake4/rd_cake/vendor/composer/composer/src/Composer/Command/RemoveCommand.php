@@ -20,6 +20,7 @@ use Composer\Plugin\CommandEvent;
 use Composer\Plugin\PluginEvents;
 use Composer\Json\JsonFile;
 use Composer\Factory;
+use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Input\InputInterface;
 use Composer\Console\Input\InputOption;
 use Composer\Console\Input\InputArgument;
@@ -42,9 +43,10 @@ class RemoveCommand extends BaseCommand
     {
         $this
             ->setName('remove')
+            ->setAliases(['rm'])
             ->setDescription('Removes a package from the require or require-dev')
             ->setDefinition([
-                new InputArgument('packages', InputArgument::IS_ARRAY | InputArgument::REQUIRED, 'Packages that should be removed.', null, $this->suggestRootRequirement()),
+                new InputArgument('packages', InputArgument::IS_ARRAY, 'Packages that should be removed.', null, $this->suggestRootRequirement()),
                 new InputOption('dev', null, InputOption::VALUE_NONE, 'Removes a package from the require-dev section.'),
                 new InputOption('dry-run', null, InputOption::VALUE_NONE, 'Outputs the operations but will not execute anything (implicitly enables --verbose).'),
                 new InputOption('no-progress', null, InputOption::VALUE_NONE, 'Do not output download progress.'),
@@ -57,6 +59,7 @@ class RemoveCommand extends BaseCommand
                 new InputOption('update-with-all-dependencies', 'W', InputOption::VALUE_NONE, 'Allows all inherited dependencies to be updated, including those that are root requirements.'),
                 new InputOption('with-all-dependencies', null, InputOption::VALUE_NONE, 'Alias for --update-with-all-dependencies'),
                 new InputOption('no-update-with-dependencies', null, InputOption::VALUE_NONE, 'Does not allow inherited dependencies to be updated with explicit dependencies.'),
+                new InputOption('minimal-changes', 'm', InputOption::VALUE_NONE, 'During an update with -w/-W, only perform absolutely necessary changes to transitive dependencies (can also be set via the COMPOSER_MINIMAL_CHANGES=1 env var).'),
                 new InputOption('unused', null, InputOption::VALUE_NONE, 'Remove all packages which are locked but not required by any other package.'),
                 new InputOption('ignore-platform-req', null, InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY, 'Ignore a specific platform requirement (php & ext- packages).'),
                 new InputOption('ignore-platform-reqs', null, InputOption::VALUE_NONE, 'Ignore all platform requirements (php & ext- packages).'),
@@ -72,17 +75,24 @@ list of installed packages
 
 <info>php composer.phar remove</info>
 
-Read more at https://getcomposer.org/doc/03-cli.md#remove
+Read more at https://getcomposer.org/doc/03-cli.md#remove-rm
 EOT
             )
         ;
     }
 
     /**
-     * @return void
+     * @throws \Seld\JsonLint\ParsingException
      */
-    protected function interact(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        if ($input->getArgument('packages') === [] && !$input->getOption('unused')) {
+            throw new InvalidArgumentException('Not enough arguments (missing: "packages").');
+        }
+
+        $packages = $input->getArgument('packages');
+        $packages = array_map('strtolower', $packages);
+
         if ($input->getOption('unused')) {
             $composer = $this->requireComposer();
             $locker = $composer->getLocker();
@@ -117,24 +127,14 @@ EOT
             foreach ($lockedPackages as $package) {
                 $unused[] = $package->getName();
             }
-            $input->setArgument('packages', array_merge($input->getArgument('packages'), $unused));
+            $packages = array_merge($packages, $unused);
 
-            if (count($input->getArgument('packages')) === 0) {
+            if (count($packages) === 0) {
                 $this->getIO()->writeError('<info>No unused packages to remove</info>');
-                $this->setCode(static function (): int {
-                    return 0;
-                });
+
+                return 0;
             }
         }
-    }
-
-    /**
-     * @throws \Seld\JsonLint\ParsingException
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
-        $packages = $input->getArgument('packages');
-        $packages = array_map('strtolower', $packages);
 
         $file = Factory::getComposerFile();
 
@@ -287,6 +287,7 @@ EOT
             ->setDryRun($dryRun)
             ->setAudit(!$input->getOption('no-audit'))
             ->setAuditFormat($this->getAuditFormat($input))
+            ->setMinimalUpdate($input->getOption('minimal-changes'))
         ;
 
         // if no lock is present, we do not do a partial update as

@@ -4,6 +4,8 @@ namespace SlevomatCodingStandard\Sniffs\TypeHints;
 
 use PHP_CodeSniffer\Files\File;
 use PHP_CodeSniffer\Sniffs\Sniff;
+use PHPStan\PhpDocParser\Ast\PhpDoc\ParamTagValueNode;
+use PHPStan\PhpDocParser\Ast\PhpDoc\VarTagValueNode;
 use PHPStan\PhpDocParser\Ast\Type\ArrayShapeNode;
 use PHPStan\PhpDocParser\Ast\Type\ArrayTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\CallableTypeNode;
@@ -11,9 +13,10 @@ use PHPStan\PhpDocParser\Ast\Type\GenericTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\IdentifierTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\IntersectionTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\NullableTypeNode;
+use PHPStan\PhpDocParser\Ast\Type\ObjectShapeNode;
 use PHPStan\PhpDocParser\Ast\Type\ThisTypeNode;
 use PHPStan\PhpDocParser\Ast\Type\UnionTypeNode;
-use SlevomatCodingStandard\Helpers\Annotation\VariableAnnotation;
+use SlevomatCodingStandard\Helpers\Annotation;
 use SlevomatCodingStandard\Helpers\AnnotationHelper;
 use SlevomatCodingStandard\Helpers\AnnotationTypeHelper;
 use SlevomatCodingStandard\Helpers\DocCommentHelper;
@@ -30,6 +33,7 @@ use function array_merge;
 use function array_unique;
 use function array_values;
 use function count;
+use function current;
 use function implode;
 use function in_array;
 use function sprintf;
@@ -79,7 +83,7 @@ class PropertyTypeHintSniff implements Sniff
 	/** @var bool|null */
 	public $enableStandaloneNullTrueFalseTypeHints = null;
 
-	/** @var string[] */
+	/** @var list<string> */
 	public $traversableTypeHints = [];
 
 	/** @var array<int, string>|null */
@@ -146,16 +150,22 @@ class PropertyTypeHintSniff implements Sniff
 			return;
 		}
 
-		if (DocCommentHelper::hasInheritdocAnnotation($phpcsFile, $propertyPointer)) {
-			return;
+		$docCommentOpenPointer = DocCommentHelper::findDocCommentOpenPointer($phpcsFile, $propertyPointer);
+		if ($docCommentOpenPointer !== null) {
+			if (DocCommentHelper::hasInheritdocAnnotation($phpcsFile, $docCommentOpenPointer)) {
+				return;
+			}
+
+			$varAnnotations = AnnotationHelper::getAnnotations($phpcsFile, $docCommentOpenPointer, '@var');
+			$prefixedPropertyAnnotations = $this->getValidPrefixedAnnotations($phpcsFile, $docCommentOpenPointer);
+
+			$propertyAnnotation = count($varAnnotations) > 0 ? current($varAnnotations) : null;
+		} else {
+			$propertyAnnotation = null;
+			$prefixedPropertyAnnotations = [];
 		}
 
-		/** @var VariableAnnotation[] $varAnnotations */
-		$varAnnotations = AnnotationHelper::getAnnotationsByName($phpcsFile, $propertyPointer, '@var');
-		$prefixedPropertyAnnotations = $this->getValidPrefixedAnnotations($phpcsFile, $propertyPointer);
-
 		$propertyTypeHint = PropertyHelper::findTypeHint($phpcsFile, $propertyPointer);
-		$propertyAnnotation = count($varAnnotations) > 0 ? $varAnnotations[0] : null;
 
 		$this->checkTypeHint($phpcsFile, $propertyPointer, $propertyTypeHint, $propertyAnnotation, $prefixedPropertyAnnotations);
 		$this->checkTraversableTypeHintSpecification(
@@ -169,13 +179,14 @@ class PropertyTypeHintSniff implements Sniff
 	}
 
 	/**
-	 * @param VariableAnnotation[] $prefixedPropertyAnnotations
+	 * @param Annotation<VarTagValueNode|ParamTagValueNode>|null $propertyAnnotation
+	 * @param list<Annotation<VarTagValueNode>> $prefixedPropertyAnnotations
 	 */
 	private function checkTypeHint(
 		File $phpcsFile,
 		int $propertyPointer,
 		?TypeHint $propertyTypeHint,
-		?VariableAnnotation $propertyAnnotation,
+		?Annotation $propertyAnnotation,
 		array $prefixedPropertyAnnotations
 	): void
 	{
@@ -217,7 +228,7 @@ class PropertyTypeHintSniff implements Sniff
 			return;
 		}
 
-		$typeNode = $propertyAnnotation->getType();
+		$typeNode = $propertyAnnotation->getValue()->type;
 		$originalTypeNode = $typeNode;
 		if ($typeNode instanceof NullableTypeNode) {
 			$typeNode = $typeNode->type;
@@ -230,7 +241,7 @@ class PropertyTypeHintSniff implements Sniff
 		$nullableTypeHint = false;
 
 		if (AnnotationTypeHelper::containsOneType($typeNode)) {
-			/** @var ArrayTypeNode|ArrayShapeNode|IdentifierTypeNode|ThisTypeNode|GenericTypeNode|CallableTypeNode $typeNode */
+			/** @var ArrayTypeNode|ArrayShapeNode|ObjectShapeNode|IdentifierTypeNode|ThisTypeNode|GenericTypeNode|CallableTypeNode $typeNode */
 			$typeNode = $typeNode;
 			$typeHints[] = AnnotationTypeHelper::getTypeHintFromOneType($typeNode, false, $this->enableStandaloneNullTrueFalseTypeHints);
 
@@ -242,7 +253,7 @@ class PropertyTypeHintSniff implements Sniff
 					return;
 				}
 
-				/** @var ArrayTypeNode|ArrayShapeNode|IdentifierTypeNode|ThisTypeNode|GenericTypeNode|CallableTypeNode $innerTypeNode */
+				/** @var ArrayTypeNode|ArrayShapeNode|ObjectShapeNode|IdentifierTypeNode|ThisTypeNode|GenericTypeNode|CallableTypeNode $innerTypeNode */
 				$innerTypeNode = $innerTypeNode;
 
 				$typeHint = AnnotationTypeHelper::getTypeHintFromOneType($innerTypeNode, $canTryUnionTypeHint);
@@ -364,7 +375,7 @@ class PropertyTypeHintSniff implements Sniff
 			sprintf(
 				'Property %s does not have native type hint for its value but it should be possible to add it based on @var annotation "%s".',
 				PropertyHelper::getFullyQualifiedName($phpcsFile, $propertyPointer),
-				AnnotationTypeHelper::export($typeNode)
+				AnnotationTypeHelper::print($typeNode)
 			),
 			$propertyPointer,
 			self::CODE_MISSING_NATIVE_TYPE_HINT
@@ -415,13 +426,14 @@ class PropertyTypeHintSniff implements Sniff
 	}
 
 	/**
-	 * @param VariableAnnotation[] $prefixedPropertyAnnotations
+	 * @param Annotation<VarTagValueNode|ParamTagValueNode>|null $propertyAnnotation
+	 * @param list<Annotation<VarTagValueNode>> $prefixedPropertyAnnotations
 	 */
 	private function checkTraversableTypeHintSpecification(
 		File $phpcsFile,
 		int $propertyPointer,
 		?TypeHint $propertyTypeHint,
-		?VariableAnnotation $propertyAnnotation,
+		?Annotation $propertyAnnotation,
 		array $prefixedPropertyAnnotations
 	): void
 	{
@@ -453,7 +465,7 @@ class PropertyTypeHintSniff implements Sniff
 			return;
 		}
 
-		$typeNode = $propertyAnnotation->getType();
+		$typeNode = $propertyAnnotation->getValue()->type;
 
 		if (
 			!$hasTraversableTypeHint
@@ -491,7 +503,7 @@ class PropertyTypeHintSniff implements Sniff
 		File $phpcsFile,
 		int $propertyPointer,
 		?TypeHint $propertyTypeHint,
-		?VariableAnnotation $propertyAnnotation
+		?Annotation $propertyAnnotation
 	): void
 	{
 		if ($propertyAnnotation === null) {
@@ -533,7 +545,6 @@ class PropertyTypeHintSniff implements Sniff
 		}
 
 		if ($this->isDocCommentUseless($phpcsFile, $propertyPointer)) {
-			/** @var int $docCommentOpenPointer */
 			$docCommentOpenPointer = DocCommentHelper::findDocCommentOpenPointer($phpcsFile, $propertyPointer);
 			$docCommentClosePointer = $phpcsFile->getTokens()[$docCommentOpenPointer]['comment_closer'];
 
@@ -550,6 +561,7 @@ class PropertyTypeHintSniff implements Sniff
 
 		/** @var int $changeStart */
 		$changeStart = TokenHelper::findPrevious($phpcsFile, T_DOC_COMMENT_STAR, $propertyAnnotation->getStartPointer() - 1);
+
 		/** @var int $changeEnd */
 		$changeEnd = TokenHelper::findNext(
 			$phpcsFile,
@@ -568,10 +580,13 @@ class PropertyTypeHintSniff implements Sniff
 			return false;
 		}
 
-		$annotations = AnnotationHelper::getAnnotations($phpcsFile, $propertyPointer);
-		unset($annotations['@var']);
+		foreach (AnnotationHelper::getAnnotations($phpcsFile, $propertyPointer) as $annotation) {
+			if ($annotation->getName() !== '@var') {
+				return false;
+			}
+		}
 
-		return count($annotations) === 0;
+		return true;
 	}
 
 	private function reportUselessSuppress(File $phpcsFile, int $pointer, bool $isSuppressed, string $suppressName): void
@@ -597,7 +612,7 @@ class PropertyTypeHintSniff implements Sniff
 	}
 
 	/**
-	 * @return array<int, string>
+	 * @return list<string>
 	 */
 	private function getTraversableTypeHints(): array
 	{
@@ -611,16 +626,19 @@ class PropertyTypeHintSniff implements Sniff
 		return $this->normalizedTraversableTypeHints;
 	}
 
-	private function hasAnnotation(?VariableAnnotation $propertyAnnotation): bool
+	private function hasAnnotation(?Annotation $propertyAnnotation): bool
 	{
-		return $propertyAnnotation !== null && $propertyAnnotation->getContent() !== null && !$propertyAnnotation->isInvalid();
+		return $propertyAnnotation !== null && $propertyAnnotation->getValue() instanceof VarTagValueNode;
 	}
 
+	/**
+	 * @param Annotation<VarTagValueNode|ParamTagValueNode>|null $propertyAnnotation
+	 */
 	private function hasTraversableTypeHint(
 		File $phpcsFile,
 		int $propertyPointer,
 		?TypeHint $propertyTypeHint,
-		?VariableAnnotation $propertyAnnotation
+		?Annotation $propertyAnnotation
 	): bool
 	{
 		if (
@@ -640,7 +658,7 @@ class PropertyTypeHintSniff implements Sniff
 		return
 			$this->hasAnnotation($propertyAnnotation)
 			&& AnnotationTypeHelper::containsTraversableType(
-				$propertyAnnotation->getType(),
+				$propertyAnnotation->getValue()->type,
 				$phpcsFile,
 				$propertyPointer,
 				$this->getTraversableTypeHints()
@@ -648,24 +666,27 @@ class PropertyTypeHintSniff implements Sniff
 	}
 
 	/**
-	 * @return VariableAnnotation[]
+	 * @return list<Annotation<VarTagValueNode>>
 	 */
-	private function getValidPrefixedAnnotations(File $phpcsFile, int $propertyPointer): array
+	private function getValidPrefixedAnnotations(File $phpcsFile, int $docCommentOpenPointer): array
 	{
-		$returnAnnotations = [];
+		$varAnnotations = [];
 
-		foreach (AnnotationHelper::PREFIXES as $prefix) {
-			/** @var VariableAnnotation[] $annotations */
-			$annotations = AnnotationHelper::getAnnotationsByName($phpcsFile, $propertyPointer, sprintf('@%s-var', $prefix));
+		$annotations = AnnotationHelper::getAnnotations($phpcsFile, $docCommentOpenPointer);
+
+		foreach (AnnotationHelper::STATIC_ANALYSIS_PREFIXES as $prefix) {
 			foreach ($annotations as $annotation) {
-				if (!$annotation->isInvalid()) {
-					$returnAnnotations[] = $annotation;
-					break;
+				if ($annotation->isInvalid()) {
+					continue;
+				}
+
+				if ($annotation->getName() === sprintf('@%s-var', $prefix)) {
+					$varAnnotations[] = $annotation;
 				}
 			}
 		}
 
-		return $returnAnnotations;
+		return $varAnnotations;
 	}
 
 }

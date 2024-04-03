@@ -18,10 +18,10 @@ class UseOnlyWhitelistedNamespacesSniff implements Sniff
 	/** @var bool */
 	public $allowUseFromRootNamespace = false;
 
-	/** @var string[] */
+	/** @var list<string> */
 	public $namespacesRequiredToUse = [];
 
-	/** @var string[]|null */
+	/** @var list<string>|null */
 	private $normalizedNamespacesRequiredToUse;
 
 	/**
@@ -40,10 +40,7 @@ class UseOnlyWhitelistedNamespacesSniff implements Sniff
 	 */
 	public function process(File $phpcsFile, $usePointer): void
 	{
-		if (
-			UseStatementHelper::isAnonymousFunctionUse($phpcsFile, $usePointer)
-			|| UseStatementHelper::isTraitUse($phpcsFile, $usePointer)
-		) {
+		if (!UseStatementHelper::isImportUse($phpcsFile, $usePointer)) {
 			return;
 		}
 
@@ -67,7 +64,7 @@ class UseOnlyWhitelistedNamespacesSniff implements Sniff
 	}
 
 	/**
-	 * @return string[]
+	 * @return list<string>
 	 */
 	private function getNamespacesRequiredToUse(): array
 	{
