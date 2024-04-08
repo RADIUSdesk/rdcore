@@ -300,10 +300,10 @@ class SettingsController extends AppController{
              $data[$i->{'name'}] = $i->{'value'};
         }
         
-        $this->set(array(
+        $this->set([
             'data' => $data,
             'success' => true
-        ));
+        ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
     
@@ -360,9 +360,17 @@ class SettingsController extends AppController{
     
     //=== EMAIL ======   
      public function viewEmail(){
-        if(!$this->Aa->admin_check($this)){   //Only for admin users!
+     
+        $user = $this->_ap_right_check();
+        if (!$user) {
             return;
-        } 
+        }
+        $ap_flag 	= true;
+     
+        if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
+     
         $nr         = 1;
         $enabled    = false;
         $req_q      = $this->request->getQuery(); 
@@ -379,6 +387,16 @@ class SettingsController extends AppController{
             if(preg_match("/^Clouds_/", $edit_cloud_id)){
             	$cloud_id = preg_replace('/^Clouds_/', '', $edit_cloud_id);
             }
+            
+            if(($edit_cloud_id == -1)&&($ap_flag == true)){
+	    		$this->set([
+					'message' 	=> 'Not enough rights for action',
+					'success'	=> false
+				]);
+				$this->viewBuilder()->setOption('serialize', true);
+				return;
+	    	} 
+            
 
             //System is (cloud_id -1) UserSettings
             if($edit_cloud_id == -1){             
@@ -402,9 +420,15 @@ class SettingsController extends AppController{
       
     public function saveEmail(){
     
-        if(!$this->Aa->admin_check($this)){   //Only for admin users!
+        $user = $this->_ap_right_check();
+        if (!$user) {
             return;
         }
+        $ap_flag 	= true;
+     
+        if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
        
         if ($this->request->is('post')) {
         
@@ -435,6 +459,16 @@ class SettingsController extends AppController{
 						}
 						
 						$model = $this->main_model;
+						
+						if(($edit_cloud_id == -1)&&($ap_flag == true)){
+	                		$this->set([
+					            'message' 	=> 'Not enough rights for action',
+					            'success'	=> false
+				            ]);
+				            $this->viewBuilder()->setOption('serialize', true);
+				            return;
+	                	} 
+	                							
 
 						//System is (cloud_id -1) UserSettings
 						if($edit_cloud_id == -1){             

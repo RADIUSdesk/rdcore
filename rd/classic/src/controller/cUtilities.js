@@ -13,11 +13,12 @@ Ext.define('Rd.controller.cUtilities', {
         });
         me.populated = true;
     },
-
     views:  [
         'utilities.pnlUtilities',
         'alerts.gridAlerts',
-        'softflows.pnlSoftflows'
+        'softflows.pnlSoftflows',
+        'testRadius.pnlTestRadius',
+        'qrcode.pnlQrcode'
     ],
     stores: [],
     models: [],
@@ -56,6 +57,9 @@ Ext.define('Rd.controller.cUtilities', {
             },
             'pnlUtilities #btnTestRadius' : {
 				click 	: me.openTestRadius
+			},
+			'pnlUtilities #btnQrcode' : {
+				click 	: me.openQrcode
 			},
         });
     },
@@ -170,5 +174,27 @@ Ext.define('Rd.controller.cUtilities', {
 	        }         
         });
         tp.setActiveTab('pnlTestRadius');
+    },
+     openQrcode: function(btn){
+        var me  = this;
+        var pnl = me.getPnlUtilities();
+        var tp  = pnl.up('tabpanel');
+        var check_if_there = tp.down('#pnlQrcode');     
+        if(check_if_there){
+            tp.setActiveTab('pnlQrcode');
+            return;
+        }     
+        tp.add({
+             title   : 'QR Code Generator',
+             closable: true,
+             xtype   : 'pnlQrcode',
+             glyph   : Rd.config.icnQrcode,
+             itemId  : 'pnlQrcode',
+             padding : 5,
+	         tabConfig   : {
+	            ui : 'tab-brown'
+	        }         
+        });
+        tp.setActiveTab('pnlQrcode');
     }
 });

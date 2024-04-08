@@ -867,6 +867,14 @@ class DashboardController extends AppController{
                 'scale'   => 'large',
                 'itemId'  => 'btnTestRadius',
                 'textAlign' => $ta 
+            ],
+            [
+                'xtype'   => 'button',
+                'text'    => 'QR Code Generator',
+                'glyph'   => Configure::read('icnQrcode'),
+                'scale'   => 'large',
+                'itemId'  => 'btnQrcode',
+                'textAlign' => $ta 
             ]
                         
         ];      
