@@ -70,8 +70,7 @@ Ext.define('Rd.view.qrcode.pnlQrcode', {
 				    anchor		: '-5',
 				    name		: 'ssid',
 				    allowBlank  : false,
-				    emptyText   : 'SSID',
-				    value       : 'Sub-Eynsham-909'
+				    emptyText   : 'SSID'
 				}, 
 				 {
                     xtype       : 'checkbox',      
@@ -97,8 +96,7 @@ Ext.define('Rd.view.qrcode.pnlQrcode', {
 				    anchor		: '-5',
 				    name		: 'key',
 				    allowBlank  : false,
-				    minLength   : 8,
-				    value       : '11223344'
+				    minLength   : 8
 				}	    
 		    ]
 		},

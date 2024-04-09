@@ -191,6 +191,7 @@ $config['icnBus']   	= 'xf207@'.$config['webFont'];
 $config['icnChainBroken'] = 'xf127@'.$config['webFont'];
 $config['icnCompress']    = 'xf066@'.$config['webFont'];
 $config['icnCalculator']  = 'xf1ec@'.$config['webFont'];
+$config['icnQrcode']    = 'xf029@'.$config['webFont'];
 
 
 //=== Dynamic RADIUS Clients 23/1/17 ===
