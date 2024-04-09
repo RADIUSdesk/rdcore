@@ -6,16 +6,29 @@ $pdf->setFontSubsetting(true);
 $pdf->SetFont('dejavusans', '', 14, '', true);
 $pdf->AddPage();
 
-$ssid= 'Sub-Eynsham-909';
+$ssid   = $query['ssid'];
+$key    = false;       
+if(isset($query['key'])){
+    $key = $query['key'];
+}
 
-$html = <<<EOD
-<i>Scan QR Code to connect</i>
-<br>
-<br>
-<b>Network</b> <span style="color:blue;">$ssid</span>
-<br>
-<b>Wi-Fi Password</b> <span style="color:blue;">11223344</span>
-EOD;
+if($key){
+    $html = <<<EOD
+    <i>Scan QR Code to connect</i>
+    <br>
+    <br>
+    <b>Network</b> <span style="color:blue;">$ssid</span>
+    <br>
+    <b>Wi-Fi Password</b> <span style="color:blue;">$key</span>
+    EOD;
+}else{
+    $html = <<<EOD
+    <i>Scan QR Code to connect</i>
+    <br>
+    <br>
+    <b>Network</b> <span style="color:blue;">$ssid</span>
+    EOD;
+}
 
 // Print text using writeHTMLCell()
 $pdf->writeHTMLCell(0, 0, '', '', "<img src=\"$data\" width=\"200\" height=\"200\">", 0, 1, 0, true, '', true);

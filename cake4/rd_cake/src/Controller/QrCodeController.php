@@ -79,7 +79,8 @@ class QrCodeController extends AppController{
 
         $this->set('title', 'WiFi QR Code');
         $this->set('file_name', 'WiFi-QR-Code.pdf'); 
-        $this->set('data', $dataUri);      	
+        $this->set('data', $dataUri);
+        $this->set('query',$this->request->getQuery());     	
   		$this->response = $this->response->withType('pdf');  		
     }
     
