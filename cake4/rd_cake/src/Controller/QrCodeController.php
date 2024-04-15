@@ -62,6 +62,9 @@ class QrCodeController extends AppController{
             return;
         }
         
+        $this->viewBuilder()->setLayout('pdf');
+        $this->response = $this->response->withType('pdf');
+        
         //Build the string
         $qr_string  = $this->_wifiString();        
         $writer     = new PngWriter();  
@@ -80,8 +83,7 @@ class QrCodeController extends AppController{
         $this->set('title', 'WiFi QR Code');
         $this->set('file_name', 'WiFi-QR-Code.pdf'); 
         $this->set('data', $dataUri);
-        $this->set('query',$this->request->getQuery());     	
-  		$this->response = $this->response->withType('pdf');  		
+        $this->set('query',$this->request->getQuery()); 		
     }
     
     private function _wifiString(){

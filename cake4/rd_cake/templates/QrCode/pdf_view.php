@@ -31,6 +31,7 @@ if($key){
 }
 
 // Print text using writeHTMLCell()
+$pdf->writeHTMLCell(0, 0, '', '', '<br>', 0, 1, 0, true, '', true);
 $pdf->writeHTMLCell(0, 0, '', '', "<img src=\"$data\" width=\"200\" height=\"200\">", 0, 1, 0, true, '', true);
 $pdf->writeHTMLCell(0, 0, '', '', $html, 0, 1, 0, true, '', true);
 
