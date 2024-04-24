@@ -34,6 +34,7 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
         var data_hidden = true;
         var block_hidden= true;
         var val_ip_pool = '';
+        var val_lan     = '';
 
         if(me.d){
             val_name = me.d.name;
@@ -68,6 +69,9 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
             }
             if(me.d.ip_pool){
                 val_ip_pool = me.d.ip_pool;
+            }
+            if(me.d.vlan){
+                val_lan = me.d.vlan;
             }
         }else{
             time_hidden = false;//New one = default show time
@@ -236,7 +240,17 @@ Ext.define('Rd.view.profiles.pnlFupComponent', {
 			    width       : w_prim,
                 margin      : Rd.config.fieldMargin,
                 value       : val_ip_pool
-		    }
+		    },
+		    {
+                xtype       : 'numberfield',
+                fieldLabel  : 'VLAN Nr(Optional)',
+                maxValue    : 4094,
+                minValue    : 1,
+                name        : prefix+'vlan',           
+                hideTrigger : true,
+                value       : val_lan,
+                width       : w_prim
+            }
             
         ];       
         this.callParent(arguments);

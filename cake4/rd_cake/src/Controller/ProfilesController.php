@@ -899,6 +899,20 @@ class ProfilesController extends AppController
             $this->{'Radgroupchecks'}->save($e_ip);        
         } 
         
+        if((isset($this->reqData['fup_vlan']))&&($this->reqData['fup_vlan'] !== '')){ //IP Pool
+        	$d_vlan = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Fup-Vlan',
+                'op'        => ':=',
+                'value'     => $this->reqData['fup_vlan'],
+                'comment'   => 'FupProfile'
+            ];
+            
+            $e_vlan = $this->{'Radgroupchecks'}->newEntity($d_vlan);
+            $this->{'Radgroupchecks'}->save($e_vlan);        
+        } 
+        
+        
         //Fall Through      
         $d_fall_through = [
             'groupname' => $groupname,
@@ -1309,6 +1323,10 @@ class ProfilesController extends AppController
              
             if($e->attribute == 'Rd-Fup-Ip-Pool'){
             	$data['fup_ip_pool']    = $e->value;           
+            }
+            
+            if($e->attribute == 'Rd-Fup-Vlan'){
+            	$data['fup_vlan']    = $e->value;           
             }                  
         }
     

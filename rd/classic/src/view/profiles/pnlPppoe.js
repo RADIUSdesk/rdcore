@@ -88,7 +88,15 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
 			            name        : 'fup_ip_pool',
 			            allowBlank  : true,
 			            blankText   : i18n("sSupply_a_value")
-		            }
+		            },
+		            {
+                        xtype       : 'numberfield',
+                        fieldLabel  : 'VLAN Nr(Optional)',
+                        maxValue    : 4094,
+                        minValue    : 1,
+                        name        : 'fup_vlan',
+                        hideTrigger : true
+                    }
                 ]
             }
         ];       
