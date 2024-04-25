@@ -280,7 +280,7 @@ class ApProfilesController extends AppController {
         
         $cdata = $this->request->getData();
         
-        $check_items = ['hidden','isolate','chk_maxassoc','accounting','auto_nasid','chk_schedule','hotspot2_enable','ieee802r','ft_pskgenerate_local','ft_auto_nasid'];
+        $check_items = ['hidden','isolate','apply_to_all','chk_maxassoc','accounting','auto_nasid','chk_schedule','hotspot2_enable','ieee802r','ft_pskgenerate_local','ft_auto_nasid'];
         foreach($check_items as $i){
             if(isset($cdata[$i])){
 				if($cdata[$i] == 'null'){
