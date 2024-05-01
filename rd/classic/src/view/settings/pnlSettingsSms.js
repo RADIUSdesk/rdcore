@@ -35,7 +35,8 @@ Ext.define('Rd.view.settings.pnlSettingsSms', {
     requires: [
         'Rd.view.settings.vcSettingsSms',
         'Rd.view.settings.winSettingsSmsTest',
-        'Rd.view.settigs.gridSmsHistories'
+        'Rd.view.settigs.gridSmsHistories',
+        'Rd.view.components.cmbSmsMethods'
     ],
     controller  : 'vcSettingsSms',
     listeners       : {
@@ -43,46 +44,55 @@ Ext.define('Rd.view.settings.pnlSettingsSms', {
     },
     initComponent: function(){
         var me      = this;
-        var w_prim  = 550; 
+        var w_prim  = 550;
         
-        var cntGeneral  = {
-            xtype       : 'container',
-            width       : w_prim,
-            layout      : 'anchor',
-            defaults    : {
+        var cntTwilio = {
+            xtype           : 'container',
+            itemId          : 'cntTwilio',
+            layout          : 'anchor',
+            hidden          : true,
+            disabled        : true,
+            defaults        : {
                 anchor  : '100%'
             },
-            defaultType : 'textfield',
-            items       : [
-                 { 
-                    name            : 'nr',
-                    value           : me.nr,
-                    hidden          : true,
-                    itemId          : 'hiddenNr'
-                 },
-                 { 
-                    name            : 'edit_cloud_id',
-                    value           : me.cloud_id,
-                    hidden          : true,
-                    itemId          : 'editCloudId'          
-                 },
-                 { 
-                    fieldLabel      : 'Enable', 
-                    name            : 'sms_'+me.nr+'_enabled', 
-                    inputValue      : '1',
-                    itemId          : 'chkSmsEnabled',
-                    labelClsExtra   : 'lblRdReq',
-                    checked         : true, 
-                    xtype           : 'checkbox'
-                },
+            defaultType     : 'textfield',
+            items           : [
                 {
-			        xtype           : 'textfield',
-			        fieldLabel      : 'URL',
-			        name            : 'sms_'+me.nr+'_url',
-			        allowBlank      : false,
-			        vtype           : 'url'
-			    },
-			    {
+	                fieldLabel      : 'Twilio SSID',
+	                name            : 'sms_'+me.nr+'_twilio_ssid',
+	                allowBlank      : false
+	            },            
+                {
+	                fieldLabel      : 'Twilio Token',
+	                name            : 'sms_'+me.nr+'_twilio_token',
+	                allowBlank      : false
+	            },
+                {
+	                fieldLabel      : 'Twilio Number',
+	                name            : 'sms_'+me.nr+'_twilio_from',
+	                allowBlank      : false
+	            }
+            ]       
+        };
+         
+        var cntApiMain = {
+            xtype           : 'container',
+            itemId          : 'cntApiMain',
+            layout          : 'anchor',
+           // hidden          : true,
+          // disabled        : true,
+            defaults        : {
+                anchor  : '100%'
+            },
+            defaultType     : 'textfield',
+            items           : [
+                {
+	                fieldLabel      : 'URL',
+	                name            : 'sms_'+me.nr+'_url',
+	                allowBlank      : false,
+	                vtype           : 'url'
+	            },
+	            {
                     fieldLabel      : 'Sender Parameter',
                     name            : 'sms_'+me.nr+'_sender_parameter',
                     allowBlank      : true,
@@ -115,9 +125,52 @@ Ext.define('Rd.view.settings.pnlSettingsSms', {
                     name            : 'sms_'+me.nr+'_key_value',
                     allowBlank      : true,
                     labelClsExtra   : 'lblRd'
-                }     
+                }
+            ]
+        };
+        
+        
+        var cntGeneral  = {
+            xtype       : 'container',
+            width       : w_prim,
+            layout      : 'anchor',
+            defaults    : {
+                anchor  : '100%'
+            },
+            defaultType : 'textfield',
+            items       : [
+                 { 
+                    name            : 'nr',
+                    value           : me.nr,
+                    hidden          : true,
+                    itemId          : 'hiddenNr'
+                 },
+                 { 
+                    name            : 'edit_cloud_id',
+                    value           : me.cloud_id,
+                    hidden          : true,
+                    itemId          : 'editCloudId'          
+                 },
+                 { 
+                    fieldLabel      : 'Enable', 
+                    name            : 'sms_'+me.nr+'_enabled', 
+                    inputValue      : '1',
+                    itemId          : 'chkSmsEnabled',
+                    labelClsExtra   : 'lblRdReq',
+                    checked         : true, 
+                    xtype           : 'checkbox'
+                },
+                {
+                    xtype           : 'cmbSmsMethods',
+                    name            : 'sms_'+me.nr+'_method'
+                },
+                cntApiMain,
+                cntTwilio    
             ]
         }
+        
+        
+        
                        
         var cntClient  = {
             xtype       : 'container',
@@ -170,6 +223,7 @@ Ext.define('Rd.view.settings.pnlSettingsSms', {
             },
             {
                 xtype       : 'panel',
+                itemId      : 'pnlApiClient',
                 title       : "HTTP Client Options",
                 glyph       : Rd.config.icnGlobe,
                 ui          : 'panel-green',

@@ -20,7 +20,8 @@
         "hybridauth/hybridauth": "~3.0",
         "mobiledetect/mobiledetectlib": "^2.8",
         "sprintcube/cakephp-sendgrid": "^4.0",
-        "tecnickcom/tcpdf": "^6.5"
+        "tecnickcom/tcpdf": "^6.5",
+        "twilio/sdk": "^8.0"
     },
     "require-dev": {
         "cakephp/bake": "^2.6",

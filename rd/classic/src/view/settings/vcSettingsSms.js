@@ -12,6 +12,33 @@ Ext.define('Rd.view.settings.vcSettingsSms', {
         },
         'pnlSettingsSms #save'    : {
             click   : 'save'
+        },
+        'cmbSmsMethods' : {
+            change : 'onCmbSmsMethodsChange'
+        }  
+    },
+    onCmbSmsMethodsChange : function(cmb){
+        var me      = this;
+        var form    = cmb.up('form');
+        console.log(cmb.getValue());
+        if(cmb.getValue() == 'api'){
+            form.down('#cntApiMain').show(); 
+            form.down('#cntApiMain').enable();
+            form.down('#pnlApiClient').show();
+            form.down('#pnlApiClient').enable();
+            
+            form.down('#cntTwilio').hide(); 
+            form.down('#cntTwilio').disable(); 
+        }
+
+        if(cmb.getValue() == 'twilio'){
+            form.down('#cntApiMain').hide(); 
+            form.down('#cntApiMain').disable();
+            form.down('#pnlApiClient').hide();
+            form.down('#pnlApiClient').disable(); 
+            
+            form.down('#cntTwilio').show(); 
+            form.down('#cntTwilio').enable(); 
         }
     },
     onViewActivate: function(pnl){
@@ -33,7 +60,7 @@ Ext.define('Rd.view.settings.vcSettingsSms', {
         }else{
             pnl.down('#btnSmsTest').setDisabled(true);
         }    
-        pnl.query('field').forEach(function(item){
+       /* pnl.query('field').forEach(function(item){
             var n   = item.getName();
             if(value){ 
                 item.setDisabled(false);                     
@@ -42,7 +69,7 @@ Ext.define('Rd.view.settings.vcSettingsSms', {
                     item.setDisabled(true);   
                 }        
            }                 
-        });
+        });*/
         pnl.down('#hiddenNr').setDisabled(false);  //Needed to know which one to enable / disable  
     },
     save: function(button){

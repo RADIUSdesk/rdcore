@@ -11,6 +11,11 @@ use Cake\Controller\Component;
 use Cake\ORM\TableRegistry;
 use Cake\Http\Client;
 
+use Twilio\Exceptions\ConfigurationException;
+use Twilio\Exceptions\TwilioException;
+use Twilio\Rest\Client as TwilioClient;
+
+
 class RdSmsComponent extends Component {
 
 	protected $main_model   = 'UserSettings';
@@ -92,55 +97,93 @@ class RdSmsComponent extends Component {
               
         if(($active_config == 1)||($active_config == 2)){
         
-            $nr         = $active_config;      
-            $url        = $config['sms_'.$nr.'_url'];
-            $sender_p   = $config['sms_'.$nr.'_sender_parameter'];
-            $sender_v   = $config['sms_'.$nr.'_sender_value'];
-            if($sender_p !== ''){
-                $query_items[$sender_p] = $sender_v;
+            $nr         = $active_config;
+            
+            //May 2024 - Add support for different methods
+            $method     = $config['sms_'.$nr.'_method']; //supported currenlty is twilio and api
+            
+            if($method == 'twilio'){
+
+                $data['url']    = 'Twilio SDK';
+                $data['query']  = 'Twilio SDK';
+                $reply          = 'WIP';
+                $data['reply']  = $reply;  
+                
+                
+                $sid    = $config['sms_'.$nr.'_twilio_ssid'];
+                $token  = $config['sms_'.$nr.'_twilio_token'];
+                $from   = $config['sms_'.$nr.'_twilio_from'];
+                if (!str_starts_with($phone, '+')){
+                    $phone  = '+'.$phone;
+                }
+                                
+                try {
+                             
+                    $client = new TwilioClient($sid, $token);
+                    $message = $client->messages->create(
+                        $phone,
+                        [
+                            'from' => $from,
+                            'body' => $message
+                        ]
+                    );
+                    $data['reply']  = $client->lastResponse->body; 
+                        
+                } catch (TwilioException $e) {
+                        $data['reply'] = $e->getMessage();
+                }                                       
             }
-            
-            $message_p  = $config['sms_'.$nr.'_message_parameter'];
-            $query_items[$message_p] = $message;
-            
-            $key_p   = $config['sms_'.$nr.'_key_parameter'];
-            $key_v   = $config['sms_'.$nr.'_key_value'];
-            if($key_p !== ''){
-                $query_items[$key_p] = $key_v;
+                       
+            if($method == 'api'){              
+                $url        = $config['sms_'.$nr.'_url'];
+                $sender_p   = $config['sms_'.$nr.'_sender_parameter'];
+                $sender_v   = $config['sms_'.$nr.'_sender_value'];
+                if($sender_p !== ''){
+                    $query_items[$sender_p] = $sender_v;
+                }
+                
+                $message_p  = $config['sms_'.$nr.'_message_parameter'];
+                $query_items[$message_p] = $message;
+                
+                $key_p   = $config['sms_'.$nr.'_key_parameter'];
+                $key_v   = $config['sms_'.$nr.'_key_value'];
+                if($key_p !== ''){
+                    $query_items[$key_p] = $key_v;
+                }
+                
+                $rec_p  = $config['sms_'.$nr.'_receiver_parameter'];
+                $query_items[$rec_p] = $phone;
+                
+                //==Client Options==
+                $options = [];
+                $v_peer = $config['sms_'.$nr.'_ssl_verify_peer'];
+                $v_host = $config['sms_'.$nr.'_ssl_verify_host'];
+                if($v_peer == '0'){ //Default is true
+                    $options['ssl_verify_peer'] = false;
+                }
+                if($v_host == '0'){ //Default is true
+                    $options['ssl_verify_host'] = false;
+                }
+                
+                if($config['sms_'.$nr.'_header_content_type'] !== ''){
+                    $options['type'] = $config['sms_'.$nr.'_header_content_type'];
+                }
+                
+                if($config['sms_'.$nr.'_header_authorization'] !== ''){
+                    $basic_pwd = $config['sms_'.$nr.'_header_authorization'];
+                    $options['auth'] = ['type' => 'basic','username' => 'SMS Placeholder', 'password' => $basic_pwd];
+                }
+                
+                $http           = new Client();
+                
+                // Simple get
+                $response       = $http->get($url,$query_items,$options);        
+                $data['url']    = $url;
+                $data['query']  = http_build_query($query_items);
+                
+                $reply          = $response->getStringBody();
+                $data['reply']  = $reply;
             }
-            
-            $rec_p  = $config['sms_'.$nr.'_receiver_parameter'];
-            $query_items[$rec_p] = $phone;
-            
-            //==Client Options==
-            $options = [];
-            $v_peer = $config['sms_'.$nr.'_ssl_verify_peer'];
-            $v_host = $config['sms_'.$nr.'_ssl_verify_host'];
-            if($v_peer == '0'){ //Default is true
-                $options['ssl_verify_peer'] = false;
-            }
-            if($v_host == '0'){ //Default is true
-                $options['ssl_verify_host'] = false;
-            }
-            
-            if($config['sms_'.$nr.'_header_content_type'] !== ''){
-                $options['type'] = $config['sms_'.$nr.'_header_content_type'];
-            }
-            
-            if($config['sms_'.$nr.'_header_authorization'] !== ''){
-                $basic_pwd = $config['sms_'.$nr.'_header_authorization'];
-                $options['auth'] = ['type' => 'basic','username' => 'SMS Placeholder', 'password' => $basic_pwd];
-            }
-            
-            $http           = new Client();
-            
-            // Simple get
-            $response       = $http->get($url,$query_items,$options);        
-            $data['url']    = $url;
-            $data['query']  = http_build_query($query_items);
-            
-            $reply          = $response->getStringBody();
-            $data['reply']  = $reply;
          
          	//Log the action
          	$cloud_active = $cloud_1;

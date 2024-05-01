@@ -52,6 +52,10 @@ $config['nas_types'][5]     = ['name' => 'Private PSK',	        'id' => 'private
 $config['mail_transports'][0]	= ['name' => 'Smtp',        'id' => 'smtp',		'className' => 'Smtp'];
 $config['mail_transports'][1]   = ['name' => 'Sendgrid',	'id' => 'sendgrid',	'className' => 'SendGrid.SendGrid'];
 
+//Define SMS Providers (May 2024)
+$config['sms_methods'][0]   = ['name' => 'API Call',  'id' => 'api',		'active' => true];
+$config['sms_methods'][1]   = ['name' => 'Twilio SDK','id' => 'twilio',	'active' => true];
+
 
 $config['paths']['wallpaper_location']  = "/rd/resources/images/wallpapers/";
 $config['paths']['dynamic_photos']      = "/cake4/rd_cake/img/dynamic_photos/";   

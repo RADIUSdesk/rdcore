@@ -794,6 +794,22 @@ class SettingsController extends AppController{
         $this->viewBuilder()->setOption('serialize', true);
     }
     
+    public function smsMethods(){
+        $items = [];
+        $ct = Configure::read('sms_methods');
+        foreach($ct as $i){
+            if($i['active'] == true){
+                array_push($items, $i);
+            }
+        }
+        
+        $this->set([
+            'items' 	=> $items,
+            'success' 	=> true
+        ]);      
+        $this->viewBuilder()->setOption('serialize', true);
+    }
+    
     public function wip(){
     
     	
