@@ -813,6 +813,16 @@ class DashboardController extends AppController{
 	            	'ui' =>  'tab-brown'
 	        	]   
             ]);
+            
+            array_push($items,[
+                "title"	=> "Private PSKs",
+                "glyph"	=> "xf023@FontAwesome",
+                "id"	=> "cPrivatePsks",
+                "layout"=> "fit",
+                'tabConfig' =>  [
+	            	'ui' =>  'tab-brown'
+	        	]  
+            ]);
                 		                       
         }
         

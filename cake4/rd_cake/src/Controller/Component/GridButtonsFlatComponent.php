@@ -802,6 +802,71 @@ class GridButtonsFlatComponent extends Component {
         
         if($type == 'RealmSsids'){          
             $menu = $this->_fetchRealmSsids();       
+        }
+        
+        if($type == 'ppsk'){
+        
+            $cmb_ppsk_groups = [
+                'xtype'     => 'cmbPpskGroups',
+                'margin'    => '5 0 5 0',
+                'width'		=> 230,
+                'itemId'    => 'cmbPpskGroups',
+                'fieldLabel'=> '',
+                'value'		=> 0,
+                'include_all_option' => true 
+            ];
+        
+            $b = [
+            	'xtype' => 'buttongroup', 
+            	'title' => $this->t,
+            	'items' => [
+            		$cmb_ppsk_groups                   
+            	]
+            ];             
+       
+        	$a = [
+            'xtype' => 'buttongroup',
+            'title' => null, 
+            'items' => [
+		            $this->btnReload,
+		            $this->btnAdd,
+		            [
+                        'xtype'     => 'button',
+                        'glyph'     => Configure::read('icnGroup'),
+                        'scale'     => $this->scale,
+                        'itemId'    => 'addGroup',
+                        'tooltip'   => __('Add PSK Group'),
+                        'ui'        => $this->btnUiAdd
+                    ],		            
+		            [
+                        'xtype'     => 'button',
+                        'glyph'     => Configure::read('icnUserPlus'),
+                        'scale'     => $this->scale,
+                        'itemId'    => 'add',
+                        'tooltip'   => __('Add PSK'),
+                        'ui'        => $this->btnUiAdd
+                    ],
+		            $this->btnDelete,
+		            $this->btnEdit
+		        ]
+        	];
+        	$c = [
+                'xtype' => 'buttongroup',
+                'title' => null, 
+                'width' => 110,
+                'items' => [
+                    $this->btnCSV,
+                    [
+                        'xtype'     => 'button',
+                        'glyph'     => Configure::read('icnUpload'),
+                        'scale'     => $this->scale,
+                        'itemId'    => 'upload',
+                        'tooltip'   => __('Upload PSK List'),
+                        'ui'        => 'default'
+                    ]
+                ]
+            ];      
+        	$menu = [$a,$b,$c];
         }       
                                          
         return $menu;

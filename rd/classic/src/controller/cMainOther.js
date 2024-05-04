@@ -48,6 +48,11 @@ Ext.define('Rd.controller.cMainOther', {
 		    afterrender	: function(pnl){
 		        Ext.getApplication().runAction('cHomeServerPools','Index',pnl);
 		    }
+	    },
+	    '#tabMainOther #cPrivatePsks' : {
+		    afterrender	: function(pnl){
+		        Ext.getApplication().runAction('cPrivatePsks','Index',pnl);
+		    }
 	    }
     },
     actionIndex: function(pnl,itemId){
