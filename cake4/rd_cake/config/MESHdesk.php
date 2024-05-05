@@ -5,13 +5,14 @@ $config = [];
 
 //== Encryption types ==
 //Define the encryption types and if they are active or not
-$config['encryption'][0]     = array('name' => __('None'),              'id' => 'none',     'active' => true);
-$config['encryption'][1]     = array('name' => __('WEP'),               'id' => 'wep',      'active' => true);
-$config['encryption'][2]     = array('name' => __('WPA Personal'),      'id' => 'psk',      'active' => true);
-$config['encryption'][3]     = array('name' => __('WPA2 Personal'),     'id' => 'psk2',     'active' => true);
-$config['encryption'][4]     = array('name' => __('Private PSK Key (PPSK)'),     'id' => 'ppsk',     'active' => true);
-$config['encryption'][5]     = array('name' => __('WPA Enterprise'),    'id' => 'wpa',      'active' => true);
-$config['encryption'][6]     = array('name' => __('WPA2 Enterprise'),   'id' => 'wpa2',     'active' => true);
+$config['encryption'][0]     = ['name' => __('None'),              'id' => 'none',     'active' => true];
+$config['encryption'][1]     = ['name' => __('WEP'),               'id' => 'wep',      'active' => false];
+$config['encryption'][2]     = ['name' => __('WPA Personal'),      'id' => 'psk',      'active' => false];
+$config['encryption'][3]     = ['name' => __('WPA2 Personal'),     'id' => 'psk2',     'active' => true];
+$config['encryption'][4]     = ['name' => __('PPSK without RADIUS'),'id' => 'ppsk_no_radius',     'active' => true];
+$config['encryption'][5]     = ['name' => __('PPSK with RADIUS'),  'id' => 'ppsk',     'active' => true];
+$config['encryption'][6]     = ['name' => __('WPA Enterprise'),    'id' => 'wpa',      'active' => false];
+$config['encryption'][7]     = ['name' => __('WPA2 Enterprise'),   'id' => 'wpa2',     'active' => true];
 
 //== Default mesh settings ==
 //Define default settings for the mesh which can be overwritten

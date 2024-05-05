@@ -13,6 +13,8 @@ class MeshEntriesTable extends Table
         $this->hasMany('NodeMeshEntries',['dependent' => true]);
         $this->hasMany('NodeStations',['dependent' => true]);
         $this->hasMany('MeshEntrySchedules',['dependent' => true]);
+        $this->belongsTo('Realms');
+        $this->belongsTo('PrivatePsks');
     }
         
 }

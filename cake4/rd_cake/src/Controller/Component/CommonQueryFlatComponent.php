@@ -68,6 +68,10 @@ class CommonQueryFlatComponent extends Component {
     	if($model == 'Aps'){ //With devices we use the PermanentUsers as filter
     		$m_cid = "ApProfiles.cloud_id";
     	}
+    	
+    	if($model == 'PrivatePskEntries'){ //With private_psk_entries we use the PrivatePsks as filter
+    		$m_cid = "PrivatePsks.cloud_id";
+    	}
     	    	
 
     	$query->where([$m_cid => $cloud_id]);
@@ -139,6 +143,12 @@ class CommonQueryFlatComponent extends Component {
 			    if($req_q['sort'] == 'permanent_user'){
 			        $sort = 'PermanentUsers.username';
 			    }
+			    
+			    //Special case for PrivatePsks
+			    if($req_q['sort'] == 'ppsk_name'){
+			        $sort = 'PrivatePsks.name';
+			    }
+			    
 			    				    
 			    $dir  = isset($req_q['dir']) ? $req_q['dir'] : $dir;
 				    				
@@ -178,6 +188,8 @@ class CommonQueryFlatComponent extends Component {
                         array_push($where_clause,array("Meshes.name LIKE" => '%'.$f->value.'%'));
                     }elseif($f->property == 'ap_profile'){ //For ApProfiles                      
                         array_push($where_clause,array("ApProfiles.name LIKE" => '%'.$f->value.'%'));
+                    }elseif($f->property == 'ppsk_name'){ //For PrivatePskEntries                      
+                        array_push($where_clause,array("PrivatePsks.name LIKE" => '%'.$f->value.'%'));
                     }else{
                     
                         $col = $model.'.'.$f->property;
@@ -190,7 +202,11 @@ class CommonQueryFlatComponent extends Component {
                      $col = $model.'.'.$f->property;
                      if($f->property == 'for_system'){
                      	if($f->value == true){
-                     		array_push($where_clause,array($model.'.cloud_id' => -1));
+                     	    if($model = 'PrivatePskEntries'){
+                                array_push($where_clause,['PrivatePsks.cloud_id' => -1]);
+                            }else{                    	
+                     		    array_push($where_clause,array($model.'.cloud_id' => -1));
+                     	    }
                      	}
                      }else{
                      	array_push($where_clause,array("$col" => $f->value));

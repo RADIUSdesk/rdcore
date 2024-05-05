@@ -43,6 +43,9 @@ Ext.define('Rd.view.privatePsks.vcPrivatePsks', {
         },
         'gridPrivatePsks actioncolumn': { 
             itemClick  : 'onActionColumnItemClick'
+        },
+        'gridPrivatePsks cmbPpskGroups': {
+           change   : 'cmbPpskGroupsChange'
         }
     },
     reload: function(){
@@ -228,5 +231,11 @@ Ext.define('Rd.view.privatePsks.vcPrivatePsks', {
         if(action == 'delete'){
             me.del(); 
         }
+    },
+    cmbPpskGroupsChange: function(cmb,new_value){
+    	var me = this;
+    	console.log("Filter TO "+new_value);
+    	me.getView().getStore().getProxy().setExtraParams({id:new_value});
+ 		me.reload();
     }
 });

@@ -84,6 +84,7 @@ Ext.define('Rd.view.privatePsks.gridPrivatePsks' ,{
                     "</tpl>"
                 ),
                 dataIndex   : 'vlan',
+                filter      : 'number',
                 stateId     : 'StateGridPPSK6'
             },
             { 
@@ -96,7 +97,7 @@ Ext.define('Rd.view.privatePsks.gridPrivatePsks' ,{
                         "<div class=\"fieldBlue\">{mac}</div>",
                     "</tpl>"
                 ),
-                dataIndex   : 'vlan',
+                dataIndex   : 'mac',
                 filter      : {type: 'string'},
                 stateId     : 'StateGridPPSK7',
                 flex        : 1

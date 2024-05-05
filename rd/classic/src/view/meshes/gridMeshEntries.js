@@ -96,7 +96,8 @@ Ext.define('Rd.view.meshes.gridMeshEntries' ,{
                     '<tpl if="encryption==\'psk2\'"><div class="fieldGreyWhite"><i class="fa fa-lock"></i> '+' '+i18n('sWPA2_Personal')+'</div></tpl>',
                     '<tpl if="encryption==\'wpa\'"><div class="fieldGreyWhite"><i class="fa fa-lock"></i> '+' '+i18n('sWPA_Enterprise')+'</div></tpl>',
                     '<tpl if="encryption==\'wpa2\'"><div class="fieldGreyWhite"><i class="fa fa-lock"></i> '+' '+i18n('sWPA2_Enterprise')+'</div></tpl>',
-                    '<tpl if="encryption==\'ppsk\'"><div class="fieldGreyWhite"><i class="fa fa-lock"></i> '+' '+'Private PSK Key (PPSK)'+'</div></tpl>'
+                    '<tpl if="encryption==\'ppsk\'"><div class="fieldGreyWhite"><i class="fa fa-lock"></i> '+' '+'PPSK with RADIUS'+'</div></tpl>',
+                    '<tpl if="encryption==\'ppsk_no_radius\'"><div class="fieldGreyWhite"><i class="fa fa-lock"></i> '+' '+'PPSK without RADIUS'+'</div></tpl>'
                 ),   
                 stateId: 'StateGridMeshEntries3'
             },

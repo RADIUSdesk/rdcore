@@ -34,6 +34,19 @@ if not exists (select * from information_schema.columns
 
 end if;
 
+alter table ap_profile_entries modify `encryption` enum('none','wep','psk','psk2','wpa','wpa2','ppsk','ppsk_no_radius') DEFAULT 'none';
+alter table mesh_entries modify `encryption` enum('none','wep','psk','psk2','wpa','wpa2','ppsk','ppsk_no_radius') DEFAULT 'none';
+
+if not exists (select * from information_schema.columns
+    where column_name = 'private_psk_id' and table_name = 'ap_profile_entries' and table_schema = 'rd') then
+    alter table ap_profile_entries add column `private_psk_id` int(11) DEFAULT NULL;
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'private_psk_id' and table_name = 'mesh_entries' and table_schema = 'rd') then
+    alter table mesh_entries add column `private_psk_id` int(11) DEFAULT NULL;
+end if;
+
 
 end//
 

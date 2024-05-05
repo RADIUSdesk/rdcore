@@ -30,7 +30,7 @@ class PrivatePsksController extends AppController{
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
-            'model' => 'PrivatePsks'
+            'model' => 'PrivatePskEntries'
         ]);             
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');    
@@ -50,7 +50,7 @@ class PrivatePsksController extends AppController{
        	$cloud_id = $req_q['cloud_id'];
         $query 	  = $this->{$this->main_model}->find();
                   
-        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,[]);
+        $query->where(['OR'=>[["cloud_id" => -1],["cloud_id" => $cloud_id]]]);
 
 
         //===== PAGING (MUST BE LAST) ======
@@ -102,6 +102,13 @@ class PrivatePsksController extends AppController{
 		$cquery     = $this->request->getQuery();
 		$cloud_id 	= $cquery['cloud_id'];
 		$this->CommonQueryFlat->cloud_with_system($query,$cloud_id,['PrivatePsks']);
+		
+		if(isset($cquery['id'])){
+        	if($cquery['id'] > 0){
+        		$query->where(['PrivatePsks.id' => $cquery['id']]);
+        	}	   
+        }
+		
         $limit  = 50;
         $page   = 1;
         $offset = 0;

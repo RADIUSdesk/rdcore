@@ -176,6 +176,11 @@ Ext.define('Rd.view.components.frmWifiEntryPoint', {
                                 allowBlank      : false 
                             },
                             {
+                                xtype               : 'cmbPpskGroups',
+                                include_all_option  : false,
+                                labelClsExtra   : 'lblRdReq',
+                            },
+                            {
                                 xtype       : 'textfield',
                                 fieldLabel  : i18n("sKey"),
                                 name        : 'special_key',

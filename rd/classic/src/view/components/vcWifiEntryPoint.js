@@ -48,6 +48,7 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
         var	pnlFr	= form.down('#pnlFastRoaming');
         var	chkFrNid= form.down('#chkFtNasid');
         var	txtFrNid= form.down('#txtFtNasid');
+        var ppsk_groups = form.down('cmbPpskGroups');
 
         var val     = cmb.getValue();
         if(val == 'none'){
@@ -64,14 +65,6 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
             auto.setVisible(false);
             auto.setDisabled(true);
 
-            d_vlan.setHidden(true);
-            d_vlan.setDisabled(true);
-            d_key.setHidden(true);
-            d_key.setDisabled(true);
-            
-            realm.setHidden(true);
-            realm.setDisabled(true);  
-            
             chkFr.hide();
             chkFr.disable();
             pnlFr.hide();
@@ -79,7 +72,8 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
             
         }
         
-        if((val == 'wpa')|(val == 'wpa2')|(val == 'ppsk')|(val == 'psk')|(val =='psk2')){        
+        //Fast Roaming
+        if((val == 'wpa')|(val == 'wpa2')|(val == 'ppsk')|(val == 'psk')|(val =='psk2')|(val == 'ppsk_no_radius')){        
         	if(chkFr.getValue()){
         		pnlFr.show();
             	pnlFr.enable();
@@ -117,13 +111,7 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
             acct.setVisible(false);
             acct.setDisabled(true);  
             auto.setVisible(false);
-            auto.setDisabled(true);
-
-            d_vlan.setHidden(true);
-            d_vlan.setDisabled(true);
-            d_key.setHidden(true);
-            d_key.setDisabled(true); 
-   
+            auto.setDisabled(true);            
         }
 
         if((val == 'wpa')|(val == 'wpa2')){
@@ -143,12 +131,7 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
             }else{
                 nasid.setVisible(true);
                 nasid.setDisabled(false);  
-            }
-
-            d_vlan.setHidden(true);
-            d_vlan.setDisabled(true);
-            d_key.setHidden(true);
-            d_key.setDisabled(true);    
+            }              
         }
         
         if(val == 'wpa2'){
@@ -184,8 +167,40 @@ Ext.define('Rd.view.components.vcWifiEntryPoint', {
             
             realm.setHidden(false);
             realm.setDisabled(false);    
+        }else{
+            //These items are only for ppsk (with RADIUS)
+            realm.setHidden(true);
+            realm.setDisabled(true); 
+            d_vlan.setHidden(true);
+            d_vlan.setDisabled(true);
+            d_key.setHidden(true);
+            d_key.setDisabled(true);      
         }
-
+        
+        if(val == 'ppsk_no_radius'){ 
+            //Show these          
+            ppsk_groups.setHidden(false);
+            ppsk_groups.setDisabled(false);
+            
+            //Hide these
+            key.setVisible(false);
+            key.setDisabled(true); 
+            srv.setVisible(false);
+            srv.setDisabled(true);
+            scrt.setVisible(false);
+            scrt.setDisabled(true);
+            nasid.setVisible(false);
+            nasid.setDisabled(true); 
+            acct.setVisible(false);
+            acct.setDisabled(true);  
+            auto.setVisible(false);
+            auto.setDisabled(true);
+                
+        }else{
+            //These items are only for ppsk-no-radius
+            ppsk_groups.setHidden(true);
+            ppsk_groups.setDisabled(true);                        
+        }       
     },
     chkMaxassocChange: function(chk){
         var me      = this;
