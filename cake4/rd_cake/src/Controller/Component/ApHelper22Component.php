@@ -46,6 +46,8 @@ class ApHelper22Component extends Component {
     
     protected $ppsk_flag		= false;
     protected $private_psks     = [];
+    protected $ppsk_unset       = [ 'key','nasid','auth_server','auth_secret','acct_server','acct_secret','acct_interval', 'nasid', 'radius_auth_req_attr','radius_acct_req_attr'];
+
     
     protected $stp_dflt			= 0;
     protected $acct_interval	= 300;
@@ -1495,21 +1497,6 @@ class ApHelper22Component extends Component {
 								    $this->ppsk_flag = true;
 							    }
 							    
-							    //== May 2024== PPSK without RADIUS Support===
-							    if($ap_profile_e->encryption == 'ppsk_no_radius'){
-								    $base_array['encryption']	= 'psk2';
-								    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-								    $base_array['vlan_bridge']  = 'br-ex_vlan';
-								    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
-								    $base_array['vlan_naming']	= '0';
-								    $base_array['wpa_psk_file'] = '/etc/hostapd-'.$ap_profile_e->private_psk_id.'.psk';
-					                $base_array['vlan_file'] = '/etc/hostapd-vlan';								
-								    //Set the flag
-								    $this->ppsk_flag = true;
-								    $this->private_psks[$ap_profile_e->private_psk_id] = []; //Populate it with an empty list first;
-							    }
-							    
-							    
 							    //NASID: We can probaly send along regardless and we use a convention of: m_ / a_<entry_id>_<radio_number>_<ap_id>/node_id 
                                 if($ap_profile_e->auto_nasid){                         
                                     //We do not go to deep when generating the nasid we will use radius_acct_req_attr to contain all the detail
@@ -1527,6 +1514,27 @@ class ApHelper22Component extends Component {
                                 	    $base_array['radius_acct_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;                            	
                                 	}                            
                                 }
+							    
+							    							    
+							    //== May 2024== PPSK without RADIUS Support===
+							    if($ap_profile_e->encryption == 'ppsk_no_radius'){
+								    $base_array['encryption']	= 'psk2';
+								    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+								    $base_array['vlan_bridge']  = 'br-ex_vlan';
+								    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
+								    $base_array['vlan_naming']	= '0';
+								    $base_array['wpa_psk_file'] = '/etc/hostapd-'.$ap_profile_e->private_psk_id.'.psk';
+					                $base_array['vlan_file'] = '/etc/hostapd-vlan';								
+								    //Set the flag
+								    $this->ppsk_flag = true;
+								    $this->private_psks[$ap_profile_e->private_psk_id] = []; //Populate it with an empty list first;
+								    
+								    //Unset some items
+								    foreach($this->ppsk_unset as $u){
+								        unset($base_array[$u]);
+								    }							    							    
+							    }
+							    							    
                                 
                                 if($ap_profile_e->macfilter != 'disable'){
 
@@ -1719,20 +1727,6 @@ class ApHelper22Component extends Component {
 					    $this->ppsk_flag = true;
 				    }
 				    
-				    //== May 2024== PPSK without RADIUS Support===
-				    if($ap_profile_e->encryption == 'ppsk_no_radius'){
-					    $base_array['encryption']	= 'psk2';
-					    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-					    $base_array['vlan_bridge']  = 'br-ex_vlan';
-					    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
-					    $base_array['vlan_naming']	= '0';
-					    $base_array['wpa_psk_file'] = '/etc/hostapd-'.$ap_profile_e->private_psk_id.'.psk';
-					    $base_array['vlan_file'] = '/etc/hostapd-vlan';							
-					    //Set the flag
-					    $this->ppsk_flag = true;
-					    $this->private_psks[$ap_profile_e->private_psk_id] = []; //Populate it with an empty list first;
-				    }
-				    
 				    //NASID: We can probaly send along regardless and we use a convention of: m_ / a_<entry_id>_<radio_number>_<ap_id>/node_id 
                     if($ap_profile_e->auto_nasid){                   
                         //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id**                       
@@ -1749,7 +1743,26 @@ class ApHelper22Component extends Component {
                             $base_array['radius_acct_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;                            	
                     	}                            
                     }
-                    
+				    
+				    //== May 2024== PPSK without RADIUS Support===
+				    if($ap_profile_e->encryption == 'ppsk_no_radius'){
+					    $base_array['encryption']	= 'psk2';
+					    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+					    $base_array['vlan_bridge']  = 'br-ex_vlan';
+					    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
+					    $base_array['vlan_naming']	= '0';
+					    $base_array['wpa_psk_file'] = '/etc/hostapd-'.$ap_profile_e->private_psk_id.'.psk';
+					    $base_array['vlan_file'] = '/etc/hostapd-vlan';							
+					    //Set the flag
+					    $this->ppsk_flag = true;
+					    $this->private_psks[$ap_profile_e->private_psk_id] = []; //Populate it with an empty list first;
+					    
+					    //Unset some items
+					    foreach($this->ppsk_unset as $u){
+					        unset($base_array[$u]);
+					    }
+				    }
+				    				                      
                     if($ap_profile_e->macfilter != 'disable'){
 
                         $base_array['macfilter']    = $ap_profile_e->macfilter;
