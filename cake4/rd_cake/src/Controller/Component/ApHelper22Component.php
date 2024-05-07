@@ -1523,8 +1523,8 @@ class ApHelper22Component extends Component {
 								    $base_array['vlan_bridge']  = 'br-ex_vlan';
 								    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
 								    $base_array['vlan_naming']	= '0';
-								    $base_array['wpa_psk_file'] = '/etc/hostapd-'.$ap_profile_e->private_psk_id.'.psk';
-					                $base_array['vlan_file'] = '/etc/hostapd-vlan';								
+								    $base_array['wpa_psk_file'] = '/etc/hostapd-'.$ap_profile_e->private_psk_id.'.wpa_psk';
+					                $base_array['vlan_file'] = '/etc/hostapd.vlan';								
 								    //Set the flag
 								    $this->ppsk_flag = true;
 								    $this->private_psks[$ap_profile_e->private_psk_id] = []; //Populate it with an empty list first;
@@ -1751,8 +1751,8 @@ class ApHelper22Component extends Component {
 					    $base_array['vlan_bridge']  = 'br-ex_vlan';
 					    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
 					    $base_array['vlan_naming']	= '0';
-					    $base_array['wpa_psk_file'] = '/etc/hostapd-'.$ap_profile_e->private_psk_id.'.psk';
-					    $base_array['vlan_file'] = '/etc/hostapd-vlan';							
+					    $base_array['wpa_psk_file'] = '/etc/hostapd-'.$ap_profile_e->private_psk_id.'.wpa_psk';
+					    $base_array['vlan_file'] = '/etc/hostapd.vlan';							
 					    //Set the flag
 					    $this->ppsk_flag = true;
 					    $this->private_psks[$ap_profile_e->private_psk_id] = []; //Populate it with an empty list first;
