@@ -45,6 +45,7 @@ class ApHelper22Component extends Component {
     protected $reboot_setting   = [];
     
     protected $ppsk_flag		= false;
+    protected $private_psks     = [];
     
     protected $stp_dflt			= 0;
     protected $acct_interval	= 300;
@@ -70,7 +71,8 @@ class ApHelper22Component extends Component {
         $this->OpenvpnServerClients   = TableRegistry::get('OpenvpnServerClients');
         $this->Devices          = TableRegistry::get('Devices');   
         
-        $this->ApConnectionSettings     = TableRegistry::get('ApConnectionSettings');   
+        $this->ApConnectionSettings     = TableRegistry::get('ApConnectionSettings');
+        $this->PrivatePskEntries= TableRegistry::get('PrivatePskEntries');    
     }
     
     public function JsonForAp($mac){
@@ -140,7 +142,13 @@ class ApHelper22Component extends Component {
             	$adv_firewall = $this->MdFirewall->JsonForMac($mac);
             	if($adv_firewall){
             		$json['config_settings']['adv_firewall'] = $adv_firewall;
-            	}            	
+            	}
+            	
+            	//Populate the ppsk files if there are any
+            	foreach(array_keys($this->private_psks) as $ppsk_id){
+            	    $this->private_psks[$ppsk_id] = $this->_formulate_ppsk_file($ppsk_id);
+            	} 
+            	$json['config_settings']['ppsk_files'] = $this->private_psks;      	
                                
                 return $json;
             }
@@ -1487,6 +1495,21 @@ class ApHelper22Component extends Component {
 								    $this->ppsk_flag = true;
 							    }
 							    
+							    //== May 2024== PPSK without RADIUS Support===
+							    if($ap_profile_e->encryption == 'ppsk_no_radius'){
+								    $base_array['encryption']	= 'psk2';
+								    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+								    $base_array['vlan_bridge']  = 'br-ex_vlan';
+								    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
+								    $base_array['vlan_naming']	= '0';
+								    $base_array['wpa_psk_file'] = '/etc/hostapd-'.$ap_profile_e->private_psk_id.'.psk';
+					                $base_array['vlan_file'] = '/etc/hostapd-vlan';								
+								    //Set the flag
+								    $this->ppsk_flag = true;
+								    $this->private_psks[$ap_profile_e->private_psk_id] = []; //Populate it with an empty list first;
+							    }
+							    
+							    
 							    //NASID: We can probaly send along regardless and we use a convention of: m_ / a_<entry_id>_<radio_number>_<ap_id>/node_id 
                                 if($ap_profile_e->auto_nasid){                         
                                     //We do not go to deep when generating the nasid we will use radius_acct_req_attr to contain all the detail
@@ -1694,6 +1717,20 @@ class ApHelper22Component extends Component {
 					    $base_array['vlan_naming']	= '0';								
 					    //Set the flag
 					    $this->ppsk_flag = true;
+				    }
+				    
+				    //== May 2024== PPSK without RADIUS Support===
+				    if($ap_profile_e->encryption == 'ppsk_no_radius'){
+					    $base_array['encryption']	= 'psk2';
+					    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+					    $base_array['vlan_bridge']  = 'br-ex_vlan';
+					    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
+					    $base_array['vlan_naming']	= '0';
+					    $base_array['wpa_psk_file'] = '/etc/hostapd-'.$ap_profile_e->private_psk_id.'.psk';
+					    $base_array['vlan_file'] = '/etc/hostapd-vlan';							
+					    //Set the flag
+					    $this->ppsk_flag = true;
+					    $this->private_psks[$ap_profile_e->private_psk_id] = []; //Populate it with an empty list first;
 				    }
 				    
 				    //NASID: We can probaly send along regardless and we use a convention of: m_ / a_<entry_id>_<radio_number>_<ap_id>/node_id 
@@ -1912,6 +1949,29 @@ class ApHelper22Component extends Component {
 		}
 				
 		return false; // Default is NOT disabled	
+	}
+	
+	private function _formulate_ppsk_file($ppsk_id){
+	
+	    $lines = [];
+	    $items = $this->PrivatePskEntries->find()->where(['PrivatePskEntries.private_psk_id' => $ppsk_id])->all();
+	    foreach($items as $i){
+	        if($i->active){
+	            if(strlen($i->comment)>0){
+	                array_push($lines, '#'.$i->comment);
+	            }
+	            $mac  = '00:00:00:00:00:00';
+	            if(strlen($i->mac)>0){
+	                $mac = $i->mac;
+	            }
+	            if($i->vlan > 0){
+	                array_push($lines,"vlan=".$i->vlan.' '.$mac.' '.$i->name);
+	            }else{
+	                array_push($lines, $mac.' '.$i->name);  
+	            }
+	        }
+	    }
+	    return implode("\n",$lines);	
 	}
 
 }
