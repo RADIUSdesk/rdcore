@@ -1978,7 +1978,7 @@ class ApHelper22Component extends Component {
 	                $mac = $i->mac;
 	            }
 	            if($i->vlan > 0){
-	                array_push($lines,"vlan=".$i->vlan.' '.$mac.' '.$i->name);
+	                array_push($lines,"vlanid=".$i->vlan.' '.$mac.' '.$i->name);
 	            }else{
 	                array_push($lines, $mac.' '.$i->name);  
 	            }
