@@ -34,6 +34,8 @@ class MeshHelper22Component extends Component {
     protected $week_days 	    = [ 1 => 'mo',2 => 'tu',3 => 'we',4 => 'th',5 => 'fr',6 => 'sa',7 => 'su'];
     
     protected $ppsk_flag		= false;
+    protected $private_psks     = [];
+    protected $ppsk_unset       = [ 'key','nasid','auth_server','auth_secret','acct_server','acct_secret','acct_interval', 'nasid', 'radius_auth_req_attr','radius_acct_req_attr'];
     
     protected $MeshSettings		= [];
     
@@ -53,7 +55,8 @@ class MeshHelper22Component extends Component {
         $this->Hardwares        = TableRegistry::get('Hardwares');
         $this->NodeConnectionSettings = TableRegistry::get('NodeConnectionSettings');
         $this->UserSettings     = TableRegistry::get('UserSettings');
-        $this->Timezones        = TableRegistry::get('Timezones');    
+        $this->Timezones        = TableRegistry::get('Timezones');
+         $this->PrivatePskEntries= TableRegistry::get('PrivatePskEntries');      
     }
 
     public function JsonForMeshNode($ent_node,$gw){
@@ -124,6 +127,12 @@ class MeshHelper22Component extends Component {
             if($adv_firewall){
             	$json['config_settings']['adv_firewall'] = $adv_firewall;
             }
+            
+            //Populate the ppsk files if there are any
+        	foreach(array_keys($this->private_psks) as $ppsk_id){
+        	    $this->private_psks[$ppsk_id] = $this->_formulate_ppsk_file($ppsk_id);
+        	} 
+        	$json['config_settings']['ppsk_files'] = $this->private_psks;      	
             
             return $json; 
         }
@@ -1739,7 +1748,26 @@ class MeshHelper22Component extends Component {
                                 	            $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId;
                                 	        }                          	         		                         	
 				                    	}                            
-				                    }									
+				                    }
+				                    
+				                    //== May 2024== PPSK without RADIUS Support===
+							        if($me->encryption == 'ppsk_no_radius'){
+								        $base_array['encryption']	= 'psk2';
+								        $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+								        $base_array['vlan_bridge']  = 'br-ex_vlan';
+								        //$base_array['vlan_tagged_interface']  = $this->br_int; //Is this needed?
+								        $base_array['vlan_naming']	= '0';
+								        $base_array['wpa_psk_file'] = '/etc/hostapd-'.$me->private_psk_id.'.wpa_psk';
+					                    $base_array['vlan_file'] = '/etc/hostapd.vlan';								
+								        //Set the flag
+								        $this->ppsk_flag = true;
+								        $this->private_psks[$me->private_psk_id] = []; //Populate it with an empty list first;
+								        
+								        //Unset some items
+								        foreach($this->ppsk_unset as $u){
+								            unset($base_array[$u]);
+								        }							    							    
+							        }									
 
                                     if($me->macfilter != 'disable'){
                                         $base_array['macfilter']    = $me->macfilter;
@@ -1907,7 +1935,26 @@ class MeshHelper22Component extends Component {
                                 	                            $base_array['radius_acct_req_attr'] = '126:s:m_hosta_'.$me->mesh_id.'_'.$me->id.'_'.$y.'_'.$this->NodeId; 
                                 	                        }                          	
 												    	}                            
-												    }	
+												    }
+												    
+												    //== May 2024== PPSK without RADIUS Support===
+							                        if($me->encryption == 'ppsk_no_radius'){
+								                        $base_array['encryption']	= 'psk2';
+								                        $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+								                        $base_array['vlan_bridge']  = 'br-ex_vlan';
+								                        //$base_array['vlan_tagged_interface']  = $this->br_int; //Is this needed?
+								                        $base_array['vlan_naming']	= '0';
+								                        $base_array['wpa_psk_file'] = '/etc/hostapd-'.$me->private_psk_id.'.wpa_psk';
+					                                    $base_array['vlan_file'] = '/etc/hostapd.vlan';								
+								                        //Set the flag
+								                        $this->ppsk_flag = true;
+								                        $this->private_psks[$me->private_psk_id] = []; //Populate it with an empty list first;
+								                        
+								                        //Unset some items
+								                        foreach($this->ppsk_unset as $u){
+								                            unset($base_array[$u]);
+								                        }							    							    
+							                        }			
                                                     
                                                    	if($me->macfilter != 'disable'){
                                                         $base_array['macfilter']    = $me->macfilter;
@@ -2222,6 +2269,29 @@ class MeshHelper22Component extends Component {
 		}
 						
 		return false; // Default is NOT disabled	
+	}
+	
+	private function _formulate_ppsk_file($ppsk_id){
+	
+	    $lines = [];
+	    $items = $this->PrivatePskEntries->find()->where(['PrivatePskEntries.private_psk_id' => $ppsk_id])->all();
+	    foreach($items as $i){
+	        if($i->active){
+	            if(strlen($i->comment)>0){
+	                array_push($lines, '#'.$i->comment);
+	            }
+	            $mac  = '00:00:00:00:00:00';
+	            if(strlen($i->mac)>0){
+	                $mac = $i->mac;
+	            }
+	            if($i->vlan > 0){
+	                array_push($lines,"vlanid=".$i->vlan.' '.$mac.' '.$i->name);
+	            }else{
+	                array_push($lines, $mac.' '.$i->name);  
+	            }
+	        }
+	    }
+	    return implode("\n",$lines);	
 	}
        
 }
