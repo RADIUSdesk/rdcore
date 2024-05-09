@@ -672,19 +672,7 @@ class ApHelper22Component extends Component {
                    }                    
                 }           
             }
-            
-            foreach($ap_profile->ap_static_entry_overrides as $override){ 
-            
-                /*foreach($entry_point_data as $entry_point_data){
-                    print_r($entry_point_data);
-                }       
-                if($override->ap_profile_entry_id == $ap_profile_e->id){               
-                    if($override->item == 'vlan'){
-                        $vlan = $override->value;
-                    }                   
-                }   */       
-            }
-                       
+                                   
             if($type == 'tagged_bridge_l3'){
                 $has_entries_attached = true;
             }
@@ -755,9 +743,10 @@ class ApHelper22Component extends Component {
                     if($this->ppsk_flag){                 
                 		$interfaces = ['eth'.$dummy_start]; 
 	            		$dummy_start++; //Increment it with one;
-	            	}	   
+	            	}
+	            	            		   
                     if($eth_one_bridge == true){
-                        array_merge($interfaces,$this->_lan_for($this->Hardware));
+                        $interfaces = array_merge($interfaces,$this->_lan_for($this->Hardware));
                     }
                     
                     if($exit_id == $wan_bridge_id){
@@ -801,14 +790,14 @@ class ApHelper22Component extends Component {
                 if($type=='bridge'){  
                     $current_interfaces = $network[1]['lists']['ports'];                  
                     if($eth_one_bridge == true){
-                        array_merge($current_interfaces,$this->_lan_for($this->Hardware));
+                        $current_interfaces = array_merge($current_interfaces,$this->_lan_for($this->Hardware));
                     }   
                 
                     if(($this->WbwActive == true)||($this->QmiActive == true)){
                         $this->if_wbw_nat_br = $if_name;
                         $interfaces =  ["nat.".$start_number];
                         if($eth_one_bridge == true){
-                            array_merge($interfaces,$this->_lan_for($this->Hardware));
+                            $current_interfaces = array_merge($interfaces,$this->_lan_for($this->Hardware));
                         }
                         if($exit_id == $wan_bridge_id){
                             array_push($interfaces,$br_int);    
