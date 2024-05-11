@@ -4,6 +4,7 @@ namespace App\Controller;
 use Cake\I18n\FrozenTime;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
+use Cake\ORM\Query;
 
 class RadacctsController extends AppController {
 
@@ -26,7 +27,6 @@ class RadacctsController extends AppController {
         $this->loadComponent('Aa');
         $this->loadComponent('Kicker');
         $this->loadComponent('Counters');
-        $this->loadComponent('GridFilter');
         $this->loadComponent('TimeCalculations');
     }
 
@@ -436,55 +436,29 @@ class RadacctsController extends AppController {
 
         foreach($q_r as $i){
               
-            $user_type      = 'unknown';
-            $online_human   = '';
+            $i->user_type     = 'unknown';
+            $i->online_human  = '';
 
             if($i->acctstoptime == null){
-                $online_time    = time()-strtotime($i->acctstarttime);
-                $active         = true; 
-                $online_human   = $this->TimeCalculations->time_elapsed_string($i->acctstarttime,false,true);
+                $online_time        = time()-strtotime($i->acctstarttime);
+                $i->active          = true; 
+                $i->online_human    = $this->TimeCalculations->time_elapsed_string($i->acctstarttime,false,true);
             }else{
                 $online_time    = $i->acctstoptime->setTimezone($tz)->format('Y-m-d H:i:s');
-                //$online_time    = $i->acctstoptime;
-                $active         = false;
+                $i->active      = false;
+            }           
+            $i->acctstarttime = $i->acctstarttime->setTimezone($tz)->format('Y-m-d H:i:s');
+            
+            if($i->permanent_user){
+            
+                $i->pu_active   = $i->permanent_user->active;
+                $i->pu_site     = $i->permanent_user->site;
+                $i->pu_extra_name = $i->permanent_user->extra_name;
+                $i->pu_extra_value = $i->permanent_user->extra_value;
             }
-
-            array_push($items,
-                [
-                    'id'                => $i->radacctid,
-                    'acctsessionid'     => $i->acctsessionid,
-                    'acctuniqueid'      => $i->acctuniqueid,
-                    'username'          => $i->username,
-                    'groupname'         => $i->groupname,
-                    'realm'             => $i->realm,
-                    'nasipaddress'      => $i->nasipaddress,
-                    'nasidentifier'     => $i->nasidentifier,
-                    'nasportid'         => $i->nasportid,
-                    'nasporttype'       => $i->nasporttype,
-                    //'acctstarttime'     => $i->acctstarttime,
-                    'acctstarttime'     => $i->acctstarttime->setTimezone($tz)->format('Y-m-d H:i:s'),   
-                    'acctstoptime'      => $online_time,
-                    'acctsessiontime'   => $i->acctsessiontime,
-                    'acctauthentic'     => $i->acctauthentic,
-                    'connectinfo_start' => $i->connectinfo_start,
-                    'connectinfo_stop'  => $i->connectinfo_stop,
-                    'acctinputoctets'   => $i->acctinputoctets,
-                    'acctoutputoctets'  => $i->acctoutputoctets,
-                    'calledstationid'   => $i->calledstationid,
-                    'callingstationid'  => $i->callingstationid,
-                    'acctterminatecause'=> $i->acctterminatecause,
-                    'servicetype'       => $i->servicetype,
-                    'framedprotocol'    => $i->framedprotocol,
-                    'framedipaddress'   => $i->framedipaddress,
-                    'acctstartdelay'    => $i->acctstartdelay,
-                    'acctstopdelay'     => $i->acctstopdelay,
-                    'xascendsessionsvrkey' => $i->xascendsessionsvrkey,
-                    'operator_name'     => $i->operator_name,
-                    'user_type'         => $user_type,
-                    'active'            => $active,
-                    'online_human'      => $online_human
-                ]
-            );
+                                          
+            array_push($items,$i);
+           
         }                
         $this->set([
             'items'         => $items,
@@ -497,6 +471,7 @@ class RadacctsController extends AppController {
                 'totalIn'       => $t_q->total_in,
                 'totalOut'      => $t_q->total_out,
                 'totalInOut'    => $t_q->total,
+                'totalCount'    => $total
             ]
         ]);
         $this->viewBuilder()->setOption('serialize', true);
@@ -704,15 +679,26 @@ class RadacctsController extends AppController {
                 ],
                 [
                     'xtype'         => 'cmbTimezones', 
-                    'width'         => 300, 
+                    'width'         => 200, 
                     'itemId'        => 'cmbTimezone',
                     'name'          => 'timezone_id', 
-                    'labelClsExtra' => 'lblRdReq',
-                    'labelWidth'    => 75, 
+                    'fieldLabel'    => '',
                     'padding'       => '7 0 0 0',
                     'margin'        => 0,
                     'value'         => $timezone_id
-                ]
+                ],
+                [
+                    'xtype' => 'tbseparator'
+                ],
+                [
+                        'xtype'         => 'button',
+                        'glyph'         => Configure::read('icnInfoCircle'),
+                        'pressed'       => false,                               
+                        'scale'         => $scale,
+                        'itemId'        => 'btnInfo',
+                        'enableToggle'  => true,
+                        'tooltip'       => __('Include more info (loads slower)')
+                ],               
                 ]],
                 ['xtype' => 'buttongroup','title' => null, 'items' => [
                     ['xtype' => 'button', 'glyph'     => Configure::read('icnCsv'), 'scale' => $scale, 'itemId' => 'csv',      'tooltip'=> __('Export CSV')],
@@ -721,8 +707,22 @@ class RadacctsController extends AppController {
                 ['xtype' => 'buttongroup','title' => null, 'items' => [
                     ['xtype' => 'button', 'glyph'     => Configure::read('icnKick'),'scale' => $scale, 'itemId' => 'kick', 'tooltip'=> __('Kick user off')],
                     ['xtype' => 'button', 'glyph'     => Configure::read('icnClose'),'scale' => $scale, 'itemId' => 'close','tooltip'=> __('Close session')],
-                ]]
-           
+                ]],
+                [
+                    'xtype'   => 'component', 
+                    'itemId'  => 'totals',  
+                     'tpl'    => [
+                        "<div style='font-size:larger;width:400px;'>",
+                        "<ul class='fa-ul'>",
+                        "<li style='padding:2px;'>",
+                        "<span class='fa-li' style='font-family:FontAwesome;'>&#xf1c0</span> {in} in {out} out {total} total</span></li>",
+                        "<li style='padding:2px;'><i class='fa-li fa fa-arrow-right'></i> {total_connected} items</li>",
+                        "</ul>",
+                        "</div>"                    
+                    ],
+                    'data'   =>  [],
+                    'cls'    => 'lblRd'
+                ]               
         ];
         
 
@@ -740,7 +740,7 @@ class RadacctsController extends AppController {
         $where = [];
         $joins = [];     
         $req_q = $this->request->getQuery();
-        
+               
 		//Make sure there is a cloud id
         if(!isset($req_q['cloud_id'])){
         	$this->Aa->fail_no_rights("Required Cloud ID Missing");
@@ -749,21 +749,35 @@ class RadacctsController extends AppController {
                       
         //====== Only_connectd filter ==========
         $only_connected = false;
-        if(null !== $this->request->getQuery('only_connected')){
+        $extra_info     = false;
+        if($this->request->getQuery('only_connected')){
             if($this->request->getQuery('only_connected') == 'true'){
                 $only_connected = true;
                 array_push($where,$this->main_model.".acctstoptime IS NULL");
             }
-        }                  
-
+        } 
+        
+        if($this->request->getQuery('extra_info')){
+            if($this->request->getQuery('extra_info') == 'true'){
+                $extra_info = true;
+            }
+        } 
+                         
         //===== SORT =====
         //Default values for sort and dir
         $sort   = 'Radaccts.username';
         $dir    = 'DESC';
 
-        if(null !== $this->request->getQuery('sort')){
-            $sort = $this->main_model.'.'.$this->request->getQuery('sort');
-            //Here we do a trick if we onlt list active connections since we can't order by null
+        if($this->request->getQuery('sort')){
+            //Permanent users (extra info)
+            if((str_starts_with($this->request->getQuery('sort'), 'pu_'))&&($extra_info)){
+                $pu_sort = $this->request->getQuery('sort');
+                $pu_sort = str_replace('pu_','',$pu_sort);
+                $sort = 'PermanentUsers.'.$pu_sort;                   
+            }else{                  
+                $sort = $this->main_model.'.'.$this->request->getQuery('sort');
+            }
+            //Here we do a trick if we only list active connections since we can't order by null
             if(($sort == 'Radaccts.acctstoptime') && ($only_connected)){
                 $sort = 'Radaccts.acctstarttime';
             }
@@ -774,39 +788,47 @@ class RadacctsController extends AppController {
         //==== END SORT ===
 
         //======= For a specified username filter *Usually on the edit of user / voucher ======
-        if(null !== $this->request->getQuery('username')){
+        if($this->request->getQuery('username')){
             $un = $this->request->getQuery('username');
             array_push($where, [$this->main_model.".username" => $un]);
         }
 
         //======= For a specified callingstationid filter *Usually on the edit of device ======
-        if(null !== $this->request->getQuery('callingstationid')){
+        if($this->request->getQuery('callingstationid')){
             $cs_id = $this->request->getQuery('callingstationid');
             array_push($where, [$this->main_model.".callingstationid" => $cs_id]);
         }
 
         //====== REQUEST FILTER =====
-        if(null !== $this->request->getQuery('filter')){
-            $filter = json_decode($this->request->getQuery('filter'));
+        if($this->request->getQuery('filter')){
+            $req_q 	= $this->request->getQuery(); 
+            $filter = json_decode($req_q['filter']); 
+
             foreach($filter as $f){
-
-                $f = $this->GridFilter->xformFilter($f);
-
+                          
                 //Strings
-                if($f->type == 'string'){
-
-                    $col = $this->main_model.'.'.$f->field;
+                if($f->operator == 'like'){
+                    //Permanent Users' properties will start with pu_
+                    if((str_starts_with($f->property, 'pu_'))&&($extra_info)){
+                        $pu_col = $f->property;
+                        $pu_col = str_replace('pu_','',$pu_col);
+                        $col = 'PermanentUsers.'.$pu_col;                   
+                    }else{                 
+                        $col = $this->main_model.'.'.$f->property;
+                    }
                     array_push($where, ["$col LIKE" => '%'.$f->value.'%']);
- 
                 }
+                
                 //Bools
-                if($f->type == 'boolean'){
-                   
+                if($f->operator == '=='){
+                    if(($f->property == 'pu_active')&&($extra_info)){
+                        array_push($where, ["PermanentUsers.active" => $f->value]);
+                    }
                 }
                 //Date
-                if($f->type == 'date'){
+                if(($f->operator == 'gt')||($f->operator == 'lt')||($f->operator == 'eq')){
                     //date we want it in "2013-03-12"
-                    $col = $this->main_model.'.'.$f->field;
+                    $col = $this->main_model.'.'.$f->property;
                     if($f->comparison == 'eq'){
                         array_push($where, ["DATE($col)" => $f->value]);
                     }
@@ -819,8 +841,8 @@ class RadacctsController extends AppController {
                     }
                 }
                 //Lists
-                if($f->type == 'list'){
-                    if($f->field == 'user_type'){
+                if($f->operator == 'in'){
+                    if($f->property == 'user_type'){
                         $list_array = [];
                         foreach($f->value as $filter_list){
                             array_push($list_array, ["Radchecks.attribute" => "Rd-User-Type", "Radchecks.value" => $filter_list]);
@@ -840,7 +862,16 @@ class RadacctsController extends AppController {
             }
         }
         //====== END REQUEST FILTER =====
-        
+                
+        if($only_connected){
+            if($extra_info){     
+                $query->contain('PermanentUsers', function (Query $q) {
+                    return $q
+                        ->select(['active', 'site','ppsk','extra_name','extra_value']);
+                });
+            }
+         }
+           
         //====== CLOUD's Realms FILTER =====  
       	$this->loadModel('Realms'); 	
       	$realm_clause = [];
@@ -856,9 +887,10 @@ class RadacctsController extends AppController {
      		$this->Aa->fail_no_rights("No Realms owned by this cloud"); //If the list of realms for this cloud is empty reject the request
         	return false;
      	}      
-        //====== END Realm FILTER ===== 
+        //====== END Realm FILTER =====        
         
-        $query->where($where);           
+        $query->where($where);  
+                
         return true;
     }
 

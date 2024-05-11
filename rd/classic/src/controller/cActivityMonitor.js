@@ -64,6 +64,9 @@ Ext.define('Rd.controller.cActivityMonitor', {
             'gridRadaccts #connected': {
                 click:      me.reload
             },
+            'gridRadaccts #btnInfo': {
+                click:      me.btnInfo
+            },
             'gridRadaccts #csv'  : {
                 click:      me.csvExportAcct
             },
@@ -122,26 +125,57 @@ Ext.define('Rd.controller.cActivityMonitor', {
     reload: function(){
         var me      = this;
         var btn     = me.getGrid().down('#connected');
-        var tz      = me.getGrid().down('#cmbTimezone');   
+        var tz      = me.getGrid().down('#cmbTimezone');
+        var info    = me.getGrid().down('#btnInfo'); 
+         
         var only_connected  = false;
+        var extra_info  = false;
         if(btn){
             only_connected = btn.pressed; //Default only active
             if(btn.pressed){
                btn.setGlyph(Rd.config.icnLightbulb);
+               info.enable();               
             }else{
                btn.setGlyph(Rd.config.icnTime); 
+               info.setPressed(false); //release it only here
+               info.disable();
             }
-        }      
+        }
+        
+        if(info){
+            extra_info = info.pressed; //Default only active
+        }
+                   
         me.getStore('sRadaccts').getProxy().setExtraParam('only_connected', only_connected);
         me.getStore('sRadaccts').getProxy().setExtraParam('timezone_id',tz.getValue());
+        me.getStore('sRadaccts').getProxy().setExtraParam('extra_info',extra_info);
         me.getStore('sRadaccts').reload();
     },
+    btnInfo: function(){
+        var me  = this;
+        var btn = me.getGrid().down('#btnInfo');
+        if(btn.pressed){
+            console.log("Info Button Pressed");
+            me.getGrid().down('#clmPuExtraValue').enable();
+            me.getGrid().down('#clmPuExtraName').enable();
+            me.getGrid().down('#clmPuSite').enable();
+            me.getGrid().down('#clmPuActive').enable();
+        }else{
+            console.log("Info Button Released");  
+            me.getGrid().down('#clmPuExtraValue').disable();
+            me.getGrid().down('#clmPuExtraName').disable();
+            me.getGrid().down('#clmPuSite').disable();
+            me.getGrid().down('#clmPuActive').disable(); 
+            me.getStore('sRadaccts').setSorters([]);    
+        }
+        me.reload();  
+    },    
     onStoreRadacctsMetachange: function(store,meta_data) {
         var me          = this;
         var totalIn     = Ext.ux.bytesToHuman(meta_data.totalIn);
         var totalOut    = Ext.ux.bytesToHuman(meta_data.totalOut);
         var totalInOut  = Ext.ux.bytesToHuman(meta_data.totalInOut);
-        me.getGrid().down('#totals').update({'in': totalIn, 'out': totalOut, 'total': totalInOut });
+        me.getGrid().down('#totals').update({'in': totalIn, 'out': totalOut, 'total': totalInOut, total_connected: meta_data.totalCount });
     },
     gridActivate: function(g){
         var me = this;

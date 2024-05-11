@@ -157,6 +157,7 @@ class DataUsagesController extends AppController {
                     'Radaccts.realm' => $this->item_name,
                     'Radaccts.acctstoptime IS NULL'
                 ])->all();
+                $active_total = 0;
                 foreach($q_acct as $i){
                     $online_time    = time()-strtotime($i->acctstarttime);
                     $active         = true; 
@@ -168,8 +169,10 @@ class DataUsagesController extends AppController {
                         'online_human'      => $online_human,
                         'online'            => $online_time
                     ]);
+                    $active_total++;
                 }
                 $data['daily']['active_sessions'] = $active_sessions;
+                $data['daily']['active_total']    = $active_total;
             }          
         }
         

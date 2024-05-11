@@ -144,6 +144,12 @@ class CommonQueryFlatComponent extends Component {
 			        $sort = 'PermanentUsers.username';
 			    }
 			    
+			    //Special case for Devices / PermanentUser
+			    if($req_q['sort'] == 'vlan'){
+			        $sort = 'RealmVlans.vlan';
+			    }
+			    
+			    
 			    //Special case for PrivatePsks
 			    if($req_q['sort'] == 'ppsk_name'){
 			        $sort = 'PrivatePsks.name';
@@ -182,8 +188,7 @@ class CommonQueryFlatComponent extends Component {
                             array_push($where_clause,array("Users.username LIKE" => '%'.$f->value.'%'));
                         }   
                     }elseif($f->property == 'permanent_user'){ //For Devices                       
-                        array_push($where_clause,array("PermanentUsers.username LIKE" => '%'.$f->value.'%'));
-                        
+                        array_push($where_clause,array("PermanentUsers.username LIKE" => '%'.$f->value.'%'));                     
                     }elseif($f->property == 'mesh'){ //For Meshes                      
                         array_push($where_clause,array("Meshes.name LIKE" => '%'.$f->value.'%'));
                     }elseif($f->property == 'ap_profile'){ //For ApProfiles                      
@@ -225,6 +230,11 @@ class CommonQueryFlatComponent extends Component {
                 if(($f->operator == 'gt')||($f->operator == 'lt')||($f->operator == 'eq')){
                     //date we want it in "2018-03-12"
                     $col = $model.'.'.$f->property;
+                    
+                    if($f->property == 'vlan'){
+                        $col = 'RealmVlans'.'.'.$f->property;
+                    }
+                    
                     $date_array = ['created', 'modified'];
                     if(in_array($f->property,$date_array)){
                         if($f->operator == 'eq'){

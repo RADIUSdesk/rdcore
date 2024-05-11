@@ -27,8 +27,8 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
                     'ux-progressbarpager': true
                 }
             },
-            '->',
-            {   xtype: 'component', itemId: 'totals',  tpl: i18n('tpl_In_{in}_Out_{out}_Total_{total}'),   style: 'margin-right:5px', cls: 'lblRd' }
+           // '->',
+           // {   xtype: 'component', itemId: 'totals',  tpl: i18n('tpl_In_{in}_Out_{out}_Total_{total}'),   style: 'margin-right:5px', cls: 'lblRd' }
         ];
 
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
@@ -95,7 +95,61 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
             { text: i18n('sAcct_start_delay'), dataIndex: 'acctstartdelay',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts25'},
             { text: i18n('sAcct_stop_delay'), dataIndex: 'acctstopdelay',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts26'},
             { text: i18n('sX_Ascend_session_svr_key'), dataIndex: 'xascendsessionsvrkey',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts27'},
-            { text: 'Operator-Name', dataIndex: 'operator_name',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts28'}
+            { text: 'Operator-Name', dataIndex: 'operator_name',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts28'},
+            {   
+                text        : "<i class=\"fa fa-info-circle\"></i> "+'Account Active',  
+                dataIndex   : 'pu_active',  
+                tdCls       : 'gridTree',   
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    "<tpl if='pu_active == true'><div class=\"fieldGreen\"><i class=\"fa fa-check-circle\"></i> "+i18n("sYes")+"</div></tpl>",
+                    "<tpl if='pu_active == false'><div class=\"fieldRed\"><i class=\"fa fa-times-circle\"></i> "+i18n("sNo")+"</div></tpl>"
+                ),
+                flex    : 1,
+                filter  : {
+                        type            : 'boolean',
+                        defaultValue    : false,
+                        yesText         : 'Yes',
+                        noText          : 'No'
+                },             
+                hidden  : true,
+                stateId : 'StateGridRadaccts29',
+                disabled: true,
+                itemId  : 'clmPuActive'
+            },
+            {   
+                text    : "<i class=\"fa fa-info-circle\"></i> "+'Site',  
+                dataIndex: 'pu_site',  
+                tdCls   : 'gridTree', 
+                flex    : 1,
+                filter  : {type: 'string'},        
+                hidden  : true,
+                stateId : 'StateGridRadaccts30',
+                disabled: true,
+                itemId  : 'clmPuSite'
+            },
+            {   
+                text    : "<i class=\"fa fa-info-circle\"></i> "+'Extra Name',  
+                dataIndex: 'pu_extra_name',  
+                tdCls   : 'gridTree', 
+                flex    : 1,
+                filter  : {type: 'string'},       
+                hidden  : true,
+                stateId : 'StateGridRadaccts31',
+                disabled: true,
+                itemId  : 'clmPuExtraName'
+            },
+            {   
+                text    : "<i class=\"fa fa-info-circle\"></i> "+'Extra Value',  
+                dataIndex: 'pu_extra_value',  
+                tdCls   : 'gridTree', 
+                flex    : 1,
+                filter  : {type: 'string'},        
+                hidden  : true,
+                stateId : 'StateGridRadaccts32',
+                disabled: true,
+                itemId  : 'clmPuExtraValue'
+            } 
         ];
 
         me.callParent(arguments);

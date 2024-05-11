@@ -222,6 +222,7 @@ Ext.define('Rd.controller.cDataUsage', {
         var totalWeek   = me.getPnlDataUsageWeek().down('#weeklyTotal');
         var totalMonth  = me.getPnlDataUsageMonth().down('#monthlyTotal');
         var cntBanner   = me.getCntBanner();
+        var gridActive  = me.getPnlDataUsageDay().down('#gridActive');
         
         cntBanner.setData(data.query_info);
         
@@ -242,6 +243,8 @@ Ext.define('Rd.controller.cDataUsage', {
         data.monthly.totals.data_total  = Ext.ux.bytesToHuman(data.monthly.totals.data_total);
         
         totalMonth.setData(data.monthly.totals);
+        
+        gridActive.setTitle(data.daily.active_total + ' Active Sessions');
         
         Ext.data.StoreManager.lookup('dayStore').setData(data.daily.top_ten);
         Ext.data.StoreManager.lookup('activeStore').setData(data.daily.active_sessions);
