@@ -31,7 +31,7 @@ class PermanentUsersController extends AppController{
         $this->loadComponent('Formatter');
         $this->loadComponent('MailTransport');
         $this->loadComponent('RdLogger');
-        $this->loadComponent('IspPlumbing');           
+        $this->loadComponent('IspPlumbing');       
     }
 
     public function exportCsv(){
@@ -148,6 +148,22 @@ class PermanentUsersController extends AppController{
             //Unset password and token fields
             unset($row["password"]);
             unset($row["token"]);
+            
+            //Get more detail on the activity
+            //select acctstarttime,acctstoptime,framedipaddress from radacct where username='ord221115509@lintegfibre' order by acctstarttime DESC LIMIT 1;          
+            $last_session = $this->{'Radaccts'}->find()->where(['username' => $i->username])->select(['acctstarttime','acctstoptime','framedipaddress'])->order('acctstarttime DESC')->first();
+            if($last_session){
+                if(!$last_session->acctstoptime){
+                    $row['last_seen']['status'] = 'online';
+                    $row['last_seen']['span']   = $this->TimeCalculations->time_elapsed_string($last_session->acctstarttime,false,true);                
+                }else{
+                    $row['last_seen']['status'] = 'offline';
+                    $row['last_seen']['span']   = $this->TimeCalculations->time_elapsed_string($last_session->acctstoptime,false,true);
+                }
+                $row['framedipaddress'] = $last_session->framedipaddress;
+            }else{
+                $row['last_seen'] = ['status' => 'never'];
+            }           
                  
 			$row['update']	= true;
 			$row['delete']	= true; 			

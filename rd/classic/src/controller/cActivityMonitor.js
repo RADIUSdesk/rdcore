@@ -136,9 +136,13 @@ Ext.define('Rd.controller.cActivityMonitor', {
                btn.setGlyph(Rd.config.icnLightbulb);
                info.enable();               
             }else{
-               btn.setGlyph(Rd.config.icnTime); 
-               info.setPressed(false); //release it only here
-               info.disable();
+                btn.setGlyph(Rd.config.icnTime); 
+                info.setPressed(false); //release it only here
+                info.disable();
+                me.getGrid().down('#clmPuExtraValue').disable();
+                me.getGrid().down('#clmPuExtraName').disable();
+                me.getGrid().down('#clmPuSite').disable();
+                me.getGrid().down('#clmPuActive').disable(); 
             }
         }
         
@@ -166,7 +170,6 @@ Ext.define('Rd.controller.cActivityMonitor', {
             me.getGrid().down('#clmPuExtraName').disable();
             me.getGrid().down('#clmPuSite').disable();
             me.getGrid().down('#clmPuActive').disable(); 
-            me.getStore('sRadaccts').setSorters([]);    
         }
         me.reload();  
     },    

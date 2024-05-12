@@ -165,7 +165,34 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                 tdCls       : 'gridTree',
                 hidden      : true,
                 filter      : {type: 'string'},stateId: 'StateGridPermanentUsers17'
-            },  
+            },
+            { 
+                text        : 'Last Seen',
+                dataIndex   : 'last_seen',
+                tdCls       : 'gridTree',
+                hidden      : false, 
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    "<tpl if='last_seen.status == \"never\"'><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span>  Never</tpl>",
+                    "<tpl if='last_seen.status == \"offline\"'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span>  Offline for {last_seen.span}</tpl>",
+                    "<tpl if='last_seen.status == \"online\"'>",
+                        "<tpl if='active == true'><span style='color:green;'><i class=\"fa fa-circle\"></i></span></tpl>",
+                        "<tpl if='active == false'><span style='color:orange;'><i class=\"fa fa-circle\"></i></span></tpl>",
+                        '  Online for {last_seen.span}',
+                    '</tpl>'
+                ),
+                width       : 180,
+                stateId		: 'StateGridPermanentUsers17a'
+            },
+            {
+                text        : 'Framed IP Address',
+                dataIndex   : 'framedipaddress',
+                tdCls       : 'gridTree',
+                hidden      : true,
+                sortable    : false,
+                width       : 180,
+                stateId     : 'StateGridPermanentUsers17b'
+            }, 
             {
                 header      : i18n('sData_used'),
                 hidden      : true,
