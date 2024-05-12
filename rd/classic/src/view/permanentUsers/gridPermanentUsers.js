@@ -170,7 +170,8 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                 text        : 'Last Seen',
                 dataIndex   : 'last_seen',
                 tdCls       : 'gridTree',
-                hidden      : false, 
+                hidden      : false,
+                sortable    : false, 
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
                     "<tpl if='last_seen.status == \"never\"'><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span>  Never</tpl>",
