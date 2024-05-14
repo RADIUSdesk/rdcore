@@ -1755,7 +1755,7 @@ var sConnect = (function () {
                     currentRetry = currentRetry+1;
                     if(currentRetry <= retryCount){
                         fDebug("Trying to get status retry #"+currentRetry);
-                        coovaRefresh();
+                        mtRefresh();
                     }else{
                         fDebug("Timed out");
                         fShowError(i18n('sThe_hotspot_is_not_responding_to_status_queries'));
