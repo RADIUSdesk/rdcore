@@ -155,9 +155,8 @@ Ext.define('Rd.view.vouchers.gridVouchers' ,{
             },
             { 
                 text        : i18n('sStatus'),
-                flex        : 1,  
                 tdCls       : 'gridTree',
-                xtype       : 'templatecolumn', 
+                xtype       : 'templatecolumn',
                 tpl         : new Ext.XTemplate(
                                 "<tpl if='status == \"new\"'><div class=\"fieldGreen\">"+i18n('sNew')+"</div></tpl>",
                                 "<tpl if='status == \"used\"'><div class=\"fieldYellow\">"+i18n('sUsed')+"</div></tpl>",
@@ -167,7 +166,7 @@ Ext.define('Rd.view.vouchers.gridVouchers' ,{
                 dataIndex   : 'status',
                 filter      : {
                 type    : 'list',
-                store   : status
+                store   : status       
               },stateId: 'StateGridVouchers10'
             },
             { 
@@ -220,6 +219,30 @@ Ext.define('Rd.view.vouchers.gridVouchers' ,{
                 hidden      : true,
                 filter      : {type: 'string'},stateId: 'StateGridVouchers15'
             },
+            { 
+                text        : 'Last Seen',
+                dataIndex   : 'last_seen',
+                tdCls       : 'gridTree',
+                hidden      : false,
+                sortable    : false, 
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    "<tpl if='last_seen.status == \"never\"'><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span>  Never</tpl>",
+                    "<tpl if='last_seen.status == \"offline\"'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span>  Offline for {last_seen.span}</tpl>",
+                    "<tpl if='last_seen.status == \"online\"'><span style='color:green;'><i class=\"fa fa-circle\"></i></span>  Online for {last_seen.span}</tpl>"
+                ),
+                width       : 180,
+                stateId		: 'StateGridVouchers15a'
+            },
+            {
+                text        : 'Framed IP Address',
+                dataIndex   : 'framedipaddress',
+                tdCls       : 'gridTree',
+                hidden      : true,
+                sortable    : false,
+                width       : 180,
+                stateId     : 'StateGridVouchers15b'
+            }, 
             {
                 text        : 'Extra field name',
                 flex        : 1,

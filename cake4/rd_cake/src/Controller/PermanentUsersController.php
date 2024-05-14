@@ -150,7 +150,7 @@ class PermanentUsersController extends AppController{
             unset($row["token"]);
             
             //Get more detail on the activity
-            //select acctstarttime,acctstoptime,framedipaddress from radacct where username='ord221115509@lintegfibre' order by acctstarttime DESC LIMIT 1;          
+            //select acctstarttime,acctstoptime,framedipaddress from radacct where username='ord9555@superfibre' order by acctstarttime DESC LIMIT 1;          
             $last_session = $this->{'Radaccts'}->find()->where(['username' => $i->username])->select(['acctstarttime','acctstoptime','framedipaddress'])->order('acctstarttime DESC')->first();
             if($last_session){
                 if(!$last_session->acctstoptime){

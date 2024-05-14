@@ -332,7 +332,24 @@ class VouchersController extends AppController{
                         $row['last_reject_time_in_words'] = __("Never");
                     }
                 }        
-            } 
+            }
+            
+            //Get more detail on the activity
+            //select acctstarttime,acctstoptime,framedipaddress from radacct where username='ord9555@superfibre' order by acctstarttime DESC LIMIT 1;          
+            $last_session = $this->{'Radaccts'}->find()->where(['username' => $i->name])->select(['acctstarttime','acctstoptime','framedipaddress'])->order('acctstarttime DESC')->first();
+            if($last_session){
+                if(!$last_session->acctstoptime){
+                    $row['last_seen']['status'] = 'online';
+                    $row['last_seen']['span']   = $this->TimeCalculations->time_elapsed_string($last_session->acctstarttime,false,true);                
+                }else{
+                    $row['last_seen']['status'] = 'offline';
+                    $row['last_seen']['span']   = $this->TimeCalculations->time_elapsed_string($last_session->acctstoptime,false,true);
+                }
+                $row['framedipaddress'] = $last_session->framedipaddress;
+            }else{
+                $row['last_seen'] = ['status' => 'never'];
+            }           
+             
             
 			$row['update']	= true;
 			$row['delete']	= true; 
