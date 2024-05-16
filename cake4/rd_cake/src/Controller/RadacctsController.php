@@ -443,15 +443,13 @@ class RadacctsController extends AppController {
                 $online_time        = time()-strtotime($i->acctstarttime);
                 $i->active          = true; 
                 $i->online_human    = $this->TimeCalculations->time_elapsed_string($i->acctstarttime,false,true);
-                $i->acctstoptime    = $i->online_human; 
             }else{
                 $online_time    = $i->acctstoptime->setTimezone($tz)->format('Y-m-d H:i:s');
                 $i->active      = false;
-                $i->acctstoptime= $i->acctstoptime->setTimezone($tz)->format('Y-m-d H:i:s');
             }           
-            $i->acctstarttime = $i->acctstarttime->setTimezone($tz)->format('Y-m-d H:i:s');
-            
-            $i->id  = $i->radacctid;
+            $i->acctstarttime   = $i->acctstarttime->setTimezone($tz)->format('Y-m-d H:i:s');
+            $i->id              = $i->radacctid;
+            $i->acctstoptime    = $online_time;
             
             if($i->permanent_user){
             
