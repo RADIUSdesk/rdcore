@@ -1,28 +1,31 @@
 Ext.define('Rd.controller.cPrivatePsks', {
     extend: 'Ext.app.Controller',
-    actionIndex: function(pnl){
-    
-        var me = this;      
-        if (me.populated) {
-            return; 
-        }      
-        pnl.add({
-            xtype   : 'gridPrivatePsks',
-            padding : Rd.config.gridSlim,
-            border  : false,
-            plain	: true
-        }); 
-        pnl.on({activate : me.gridActivate,scope: me});  
-        me.populated = true; 
-            
+   actionIndex: function(pnl){
+        var me      = this;
+        var itemId  = 'gridPrivatePsksId';
+        var item    = pnl.down('#'+itemId);
+        if(!item){
+            pnl.add({ 
+                itemId  : itemId,
+                xtype  : 'gridPrivatePsks',
+                border : false,
+                plain  : true,
+                padding : Rd.config.gridSlim,
+            });
+            pnl.on({activate : me.reload,scope: me});
+        }
     },
-    views:  [
+    refs    : [
+        {  ref: 'grid',  selector: 'gridPrivatePsks'}       
+    ],
+    views   :  [
     	'privatePsks.gridPrivatePsks'
     ],
     stores  : ['sPrivatePsks'],
     models  : ['mPrivatePsk'],
-    gridActivate: function(p){     
-        var g = p.down('grid');
-        g.getStore().load();
+    reload: function(){
+        var me =this;
+        me.getGrid().getSelectionModel().deselectAll(true);
+        me.getGrid().getStore().load();
     }
 });

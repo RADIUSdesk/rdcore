@@ -1,23 +1,20 @@
 Ext.define('Rd.controller.cHomeServerPools', {
     extend: 'Ext.app.Controller',
     actionIndex: function(pnl){
-
-        var me = this;      
-        if (me.populated) {
-            return; 
+        var me      = this;
+        var itemId  = 'gridHomeServerPoolsId';
+        var item    = pnl.down('#'+itemId);
+        if(!item){
+            pnl.add({ 
+                itemId  : itemId,
+                xtype  : 'gridHomeServerPools',
+                border : false,
+                plain  : true,
+                padding : Rd.config.gridSlim,
+            });
+            pnl.on({activate : me.reload,scope: me});
         }
-        
-        pnl.add({
-            xtype   : 'gridHomeServerPools',
-            padding : Rd.config.gridSlim,
-            border  : false,
-            plain	: true
-        });      
-        pnl.on({activate : me.gridActivate,scope: me});      
-        me.populated = true;     
-       
     },
-
     views:  [
         'homeServerPools.gridHomeServerPools',           
         'homeServerPools.winHomeServerPoolAdd',
@@ -68,11 +65,11 @@ Ext.define('Rd.controller.cHomeServerPools', {
                  itemClick  : me.onActionColumnItemClick
             }
         });
-    },
-    
-    gridActivate: function(p){     
-        var g = p.down('grid');
-        g.getStore().load();
+    },    
+    reload: function(){
+        var me =this;
+        me.getGrid().getSelectionModel().deselectAll(true);
+        me.getGrid().getStore().load();
     },
 	reload: function(){
         var me =this;

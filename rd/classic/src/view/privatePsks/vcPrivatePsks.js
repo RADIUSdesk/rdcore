@@ -15,6 +15,7 @@ Ext.define('Rd.view.privatePsks.vcPrivatePsks', {
         UrlGroupAdd : '/cake4/rd_cake/private-psks/add.json',
         UrlPskAdd   : '/cake4/rd_cake/private-psks/psk-add.json',
         UrlPskEdit  : '/cake4/rd_cake/private-psks/psk-edit.json',
+        UrlCsvImport: '/cake4/rd_cake/private-psks/csv-import.json'
     },
     control: {
         'gridPrivatePsks #reload': {
@@ -32,6 +33,9 @@ Ext.define('Rd.view.privatePsks.vcPrivatePsks', {
         'gridPrivatePsks #delete': {
             click   : 'del'
         },
+        'gridPrivatePsks #upload': {
+            click   : 'upload'
+        },
         'winPrivatePskGroupAdd #btnSave': {
             click: 'addGroupSave'
         },
@@ -44,8 +48,11 @@ Ext.define('Rd.view.privatePsks.vcPrivatePsks', {
         'gridPrivatePsks actioncolumn': { 
             itemClick  : 'onActionColumnItemClick'
         },
-        'gridPrivatePsks cmbPpskGroups': {
+        'gridPrivatePsks #cmbPpskGroups': {
            change   : 'cmbPpskGroupsChange'
+        },
+        'winPrivatePskImport #btnSave': {
+            click: 'csvImport'
         }
     },
     reload: function(){
@@ -221,6 +228,17 @@ Ext.define('Rd.view.privatePsks.vcPrivatePsks', {
             scope: me
         });
     },
+    upload  : function(){
+        var me      = this;
+        var c_name 	= Rd.getApplication().getCloudName();
+        var c_id	= Rd.getApplication().getCloudId()    
+        if(!Ext.WindowManager.get('winPrivatePskImportId')){
+            var w = Ext.widget('winPrivatePskImport',{id:'winPrivatePskImportId',cloudId: c_id, cloudName: c_name, root: me.root});
+            this.getView().add(w);
+            let appBody = Ext.getBody();
+            w.showBy(appBody);        
+        }  
+    },
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         var me = this;
         var grid = view.up('grid');
@@ -234,8 +252,30 @@ Ext.define('Rd.view.privatePsks.vcPrivatePsks', {
     },
     cmbPpskGroupsChange: function(cmb,new_value){
     	var me = this;
-    	console.log("Filter TO "+new_value);
     	me.getView().getStore().getProxy().setExtraParams({id:new_value});
  		me.reload();
+    },
+    csvImport: function(button){
+        var me      = this;
+        var form    = button.up('form');
+        var window  = form.up('window');
+        form.submit({
+            clientValidation: true,
+            waitMsg     : 'Uploading your CSV list...',
+            url         : me.getUrlCsvImport(),
+            success     : function(form, action) {              
+                if(action.result.success){ 
+                    me.reload();
+                    window.close();
+                } 
+                Ext.ux.Toaster.msg(
+                    'List Uploaded',
+                    action.result.message,
+                    Ext.ux.Constants.clsInfo,
+                    Ext.ux.Constants.msgInfo
+                );
+            },
+            failure : Ext.ux.formFail
+        });
     }
 });

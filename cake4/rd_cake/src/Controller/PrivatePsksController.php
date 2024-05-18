@@ -39,7 +39,7 @@ class PrivatePsksController extends AppController{
      //____ BASIC CRUD Manager ________
      
      
-      public function indexCombo(){
+    public function indexCombo(){
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
         if (!$user) {
@@ -90,7 +90,7 @@ class PrivatePsksController extends AppController{
         $this->viewBuilder()->setOption('serialize', true);
     }
      
-      public function index(){
+    public function index(){
 
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
@@ -372,6 +372,90 @@ class PrivatePsksController extends AppController{
             ));
         }
 	}
+	
+	public function csvImport(){
+	
+		$user = $this->Aa->user_for_token($this);
+        if(!$user){   //If not a valid user
+            return;
+        } 
+	
+		$ap_flag 	= true;		
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
+
+        //This is a deviation from the standard JSON serialize view since extjs requires a html type reply when files
+        //are posted to the server.    
+        $this->viewBuilder()->setLayout('ext_file_upload');
+
+        $path_parts         = pathinfo($_FILES['csv_file']['name']);
+        $entity             = $this->{$this->main_model}->get($this->request->getData('private_psk_id'));
+        
+        //Refuse for system-wide and Access Provider
+        if(($entity->cloud_id == -1)&&($ap_flag == true)){
+			$this->set([
+					'message' 	=> 'Not enough rights for action',
+					'success'	=> false
+				]);
+			$this->viewBuilder()->setOption('serialize', true);
+			return;
+		}
+		
+		$tmpName    = $_FILES['csv_file']['tmp_name'];
+        $csvAsArray = array_map('str_getcsv', file($tmpName));
+
+        $errors     = [];
+        foreach ($csvAsArray as $index => $row) {
+            $row_errors = [];
+            if ($index === 0 && $row[0] === 'PSK') {
+                continue;
+            }
+            if (strlen($row[0]) < 8) {
+                $row_errors[] = "Field 0 must be 8 characters or longer";
+            }
+            if (!in_array($row[2], ['Yes', 'No'])) {
+                $row_errors[] = "Field 2 must be either 'Yes' or 'No'";
+            }
+            
+            $active = 1;
+            if($row[2] == 'No'){
+                $active = 0;
+            }
+            
+            $vlan = $row[3];
+            if ($row[3] == '') {
+                $vlan = 0;
+            }
+            
+            if(empty($row_errors)){
+                $e_data    = [
+                    'private_psk_id'    => $this->request->getData('private_psk_id'),
+                    'name'              => $row[0],
+                    'comment'           => $row[1],
+                    'active'            => $active,
+                    'vlan'              => $vlan,
+                    'mac'               => $row[4]
+                ];
+                $e_entry    = $this->{'PrivatePskEntries'}->newEntity($e_data);      
+                $this->{'PrivatePskEntries'}->save($e_entry);                     
+            
+            }
+        }
+        
+        $error_string = '';
+        if (!empty($errors)) {
+            $error_string = 'The following errors occurred:<br>';
+            $error_string .= implode('<br>', $errors);
+        }
+				
+        $this->set([
+            'message' 	=> $error_string,
+            'success'	=> true,
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);     
+        
+    }
 		
     public function menuForGrid(){
         $user = $this->Aa->user_for_token($this);
@@ -386,5 +470,5 @@ class PrivatePsksController extends AppController{
             '_serialize' => array('items', 'success')
         ));
     }
-      
+    
 }

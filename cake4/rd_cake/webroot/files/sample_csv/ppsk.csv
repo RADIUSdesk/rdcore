@@ -1,0 +1,5 @@
+PSK,Comment,Actvie (Yes/No),VLAN,MAC Address
+11223341,One,Yes,,aa:bb:cc:dd:ee:ff
+11223342,Two,Yes,,
+11223343,Three,Yes,105,
+11223344,Four,Yes,100,aa:bb:cc:dd:ee:f1

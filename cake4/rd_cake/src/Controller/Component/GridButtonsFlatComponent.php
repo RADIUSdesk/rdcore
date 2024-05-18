@@ -855,15 +855,15 @@ class GridButtonsFlatComponent extends Component {
                 'title' => null, 
                 'width' => 110,
                 'items' => [
-                    $this->btnCSV,
-                    [
+                     [
                         'xtype'     => 'button',
                         'glyph'     => Configure::read('icnUpload'),
                         'scale'     => $this->scale,
                         'itemId'    => 'upload',
                         'tooltip'   => __('Upload PSK List'),
                         'ui'        => 'default'
-                    ]
+                    ],
+                    $this->btnCSV                   
                 ]
             ];      
         	$menu = [$a,$b,$c];

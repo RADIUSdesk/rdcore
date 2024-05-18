@@ -15,6 +15,7 @@ Ext.define('Rd.view.privatePsks.gridPrivatePsks' ,{
         'Rd.view.privatePsks.winPrivatePskGroupAdd',
         'Rd.view.privatePsks.winPrivatePskAdd',
         'Rd.view.privatePsks.winPrivatePskEdit',
+        'Rd.view.privatePsks.winPrivatePskImport'
     ],
     viewConfig: {
         loadMask:true
