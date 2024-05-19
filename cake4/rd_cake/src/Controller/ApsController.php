@@ -523,40 +523,6 @@ class ApsController extends AppController {
                     }
                 }
 
-/*
-                //List any OpenVPN connections
-                if(count($i->openvpn_server_clients) > 0){
-                    $iopenvpn_list = [];
-                    $OpenvpnServerLookup = [];
-                    foreach($i->openvpn_server_clients as $vpn){
-                        //Do a lookup to save Query time
-                        $s_id = $vpn->openvpn_server_id;
-                        if(!isset($OpenvpnServerLookup[$s_id])){
-                            $q_s                = $this->OpenvpnServers->find()->where(['OpenvpnServers.id' => $vpn->openvpn_server_id])->first();
-                            $vpn_name           = $q_s->name;
-                            $vpn_description    = $q_s->description;
-                            $l_array = ['name' => $vpn_name, 'description' => $vpn_description];
-                            $OpenvpnServerLookup[$s_id] = $l_array;
-                        }else{
-                            $vpn_name           = $OpenvpnServerLookup[$s_id]['name'];
-                            $vpn_description    = $OpenvpnServerLookup[$s_id]['description'];
-                        }
-
-                        $last_contact_to_server  = $vpn->last_contact_to_server;
-                        if($last_contact_to_server != null){
-                            $lc_human           = $this->TimeCalculations->time_elapsed_string($last_contact_to_server);
-                        }else{
-                            $lc_human = 'never';
-                        }
-                        $vpn_state              = $vpn['state'];
-                        array_push($mao->{'openvpn_list'}, [
-                            'name'          => $vpn_name,
-                            'description'   => $vpn_description,
-                            'lc_human'      => $lc_human,
-                            'state'         => $vpn_state
-                        ]);
-                    }
-                }*/
                 //print_r($i);
 
                 // Uptime Visualization
@@ -758,9 +724,9 @@ class ApsController extends AppController {
 
         //___ FINAL PART ___
         $this->set([
-            'items' => $items,
-            'success' => true,
-            'totalCount' => $total,
+            'items'         => $items,
+            'success'       => true,
+            'totalCount'    => $total,
             'metaData'		=> [
             	'total'	=> $total
             ]
@@ -768,30 +734,6 @@ class ApsController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
     
-    private function _find_parents($id){
-
-        $q_r        = $this->Users->find('path', ['for' => $id]);
-        $path_string= '';
-        if($q_r){
-            foreach($q_r as $line_num => $i){
-                $username       = $i->username;
-                if($line_num == 0){
-                    $path_string    = $username;
-                }else{
-                    $path_string    = $path_string.' -> '.$username;
-                }
-            }
-            if($line_num > 0){
-                return $username." (".$path_string.")";
-            }else{
-                return $username;
-            }
-        }else{
-            return __("orphaned");
-        }
-    }
-
-
     //___________________ AP Settings and related functions _________________
     private function  _build_json($ap_profile){
 

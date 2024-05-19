@@ -1,10 +1,10 @@
-Ext.define('Rd.view.privatePsks.winPrivatePskImport', {
+Ext.define('Rd.view.aps.winApImport', {
     extend      : 'Ext.window.Window',
-    alias       : 'widget.winPrivatePskImport',
+    alias       : 'widget.winApImport',
     closable    : true,
     draggable   : true,
     resizable   : true,
-    title       : 'Import PSKs',
+    title       : 'Import Access Points',
     width       : 500,
     height      : 300,
     plain       : true,
@@ -54,16 +54,15 @@ Ext.define('Rd.view.privatePsks.winPrivatePskImport', {
             ],
             items: [
 				{
-                    itemId      : 'private_psk_id',
                     xtype       : 'textfield',
-                    name        : 'private_psk_id',
+                    name        : 'cloud_id',
                     hidden      : true,
-                    value       : me.private_psk_id
+                    value       : me.cloud_id
                 },
                 {
-                    xtype               : 'cmbPpskGroups',
+                    xtype               : 'cmbApProfile',
                     include_all_option  : false,
-                    labelClsExtra   : 'lblRdReq',
+                    labelClsExtra       : 'lblRdReq'
                 },
                 {
                     xtype       : 'filefield',
@@ -87,7 +86,7 @@ Ext.define('Rd.view.privatePsks.winPrivatePskImport', {
                     margin      : 10,
                     autoEl      : {
                         tag     : 'a',
-                        href    : '/cake4/rd_cake/files/sample_csv/ppsk.csv',
+                        href    : '/cake4/rd_cake/files/sample_csv/ap.csv',
                         html    : 'Example Document',
                         target  : "_blank"
                     }

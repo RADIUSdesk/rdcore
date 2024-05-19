@@ -583,7 +583,7 @@ class GridButtonsFlatComponent extends Component {
         
         if($type == 'MeshNodes'){        
             $b  = $this->_fetchBasicMeshNodes();
-          	$d  = $this->_fetchDocument();
+          	$d  = $this->_fetchCsvUpDown();
             $menu = [$b,$d];     
         }
         
@@ -620,7 +620,7 @@ class GridButtonsFlatComponent extends Component {
         
         if($type == 'Aps'){
             $b = $this->_fetchAps();
-            $d  = $this->_fetchDocument();
+            $d  = $this->_fetchCsvUpDown();
             $menu = [$b,$d]; 
         }
         
@@ -850,22 +850,7 @@ class GridButtonsFlatComponent extends Component {
 		            $this->btnEdit
 		        ]
         	];
-        	$c = [
-                'xtype' => 'buttongroup',
-                'title' => null, 
-                'width' => 110,
-                'items' => [
-                     [
-                        'xtype'     => 'button',
-                        'glyph'     => Configure::read('icnUpload'),
-                        'scale'     => $this->scale,
-                        'itemId'    => 'upload',
-                        'tooltip'   => __('Upload PSK List'),
-                        'ui'        => 'default'
-                    ],
-                    $this->btnCSV                   
-                ]
-            ];      
+        	$c = $this->_fetchCsvUpDown();
         	$menu = [$a,$b,$c];
         }       
                                          
@@ -1578,5 +1563,34 @@ class GridButtonsFlatComponent extends Component {
         ];          
         return $menu;
     }
+    
+    private function _fetchCsvUpDown(){
+    
+        $menu = [
+            'xtype' => 'buttongroup',
+            'title' => null, 
+            'width' => 110,
+            'items' => [
+                 [
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnUpload'),
+                    'scale'     => $this->scale,
+                    'itemId'    => 'upload',
+                    'tooltip'   => __('Upload CSV list'),
+                    'ui'        => 'default'
+                ],
+                [
+                    'xtype'     => 'button',     
+                    'glyph'     => Configure::read('icnCsv'), 
+                    'scale'     => $this->scale, 
+                    'itemId'    => 'csv',      
+                    'tooltip'   => __('Download CSV list'),
+                    'ui'        => $this->btnUiCSV
+                ]                  
+            ]
+        ];       
+        return $menu;    
+    }
+    
           
 }

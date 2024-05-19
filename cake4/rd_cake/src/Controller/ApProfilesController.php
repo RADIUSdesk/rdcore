@@ -35,6 +35,8 @@ class ApProfilesController extends AppController {
         
         $this->loadModel('Hardwares');
         $this->loadModel('Timezones');
+        
+        $this->loadModel('ApWifiSettings');
 
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat'); 
@@ -2746,7 +2748,197 @@ class ApProfilesController extends AppController {
             }
         } 
     }
+      
+    public function apProfileApImport(){
     
+        $user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
+        $this->loadModel('Aps');
+               
+        $tmpName    = $_FILES['csv_file']['tmp_name'];
+        $csvAsArray = array_map('str_getcsv', file($tmpName));        
+        foreach ($csvAsArray as $index => $row) {         
+            if($this->_testCsvRow($row)){    
+                $ap_data    = [
+                    'ap_profile_id' => $this->request->getData('ap_profile_id'),
+                    'name'          => $row[0],
+                    'description'   => $row[1],
+                    'hardware'      => $row[2],
+                    'mac'           => $row[3]
+                ];
+                $ap_e  = $this->{'Aps'}->newEntity($ap_data);
+                if($this->{'Aps'}->save($ap_e)){      
+                    $this->_ssidOverrides($ap_e,$row);
+                    $this->_radioSettings($ap_e,$row);                
+                }                                   
+            }        
+        }
+    
+        $this->set([
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);      
+    }
+    
+    private function _radioSettings($ap_e,$row){
+    
+        $hw = $this->{'Hardwares'}->find()->where(['Hardwares.fw_id' => $row[2],'Hardwares.for_ap' => true])->contain(['HardwareRadios'])->first();
+        
+        $radios = [];
+        
+        foreach($hw->hardware_radios as $hr){     
+            $radios[$hr->band] = $hr;              
+        }
+               
+        $wifi_items = ['disabled','band','mode','txpower','width','cell_density','ht_capab'];
+        $wifi_hash_2g  = [];
+        $wifi_hash_5g  = [];
+
+        if($radios['2g']){
+            $radio_number = $radios['2g']['radio_number'];
+            foreach($wifi_items as $item_2g){
+                $wifi_hash_2g['radio'.$radio_number.'_'.$item_2g] =  $radios['2g'][$item_2g]; //populate if with the defaults           
+            }
+            $wifi_hash_2g['radio'.$radio_number.'_'.'channel_two'] = 'auto';
+                    
+            foreach(array_keys($wifi_hash_2g) as $key_2g){
+                $d_setting = [];
+                $d_setting['ap_id']     = $ap_e->id;
+                $d_setting['name']      = $key_2g;
+                $d_setting['value']     = $wifi_hash_2g["$key_2g"];
+                $ent_s = $this->{'ApWifiSettings'}->newEntity($d_setting);  
+                $this->{'ApWifiSettings'}->save($ent_s);                      
+            }           
+        }
+        
+        if($radios['5g']){
+            $radio_number = $radios['5g']['radio_number'];
+            foreach($wifi_items as $item_5g){
+                $wifi_hash_5g['radio'.$radio_number.'_'.$item_5g] =  $radios['5g'][$item_5g]; //populate if with the defaults           
+            }
+            $wifi_hash_5g['radio'.$radio_number.'_'.'channel_five'] = 'auto';
+            
+            foreach(array_keys($wifi_hash_5g) as $key_5g){
+                $d_setting = [];
+                $d_setting['ap_id']     = $ap_e->id;
+                $d_setting['name']      = $key_5g;
+                $d_setting['value']     = $wifi_hash_5g["$key_5g"];
+                $ent_s = $this->{'ApWifiSettings'}->newEntity($d_setting);  
+                $this->{'ApWifiSettings'}->save($ent_s);                      
+            }                  
+        }                                
+    }
+        
+    private function _ssidOverrides($ap_e,$row){
+    
+        if (strlen($row[4]) > 1) { //2.4G static entry points
+              
+            //select * from ap_profile_entries where ap_profile_id=17 and frequency_band='two' and apply_to_all=0;
+            $two_g = $this->{'ApProfileEntries'}->find()->where([
+                'ApProfileEntries.ap_profile_id'    => $ap_e->ap_profile_id,
+                'ApProfileEntries.frequency_band'   => 'two',
+                'ApProfileEntries.apply_to_all'     => false
+            ])->first();
+            if($two_g){
+                //Apply the static one and apply an override
+                $data['ap_id']       = $ap_e->id;
+                $data['ap_profile_entry_id'] = $two_g->id;
+                $ent_se = $this->{'ApApProfileEntries'}->newEntity($data);
+                $this->{'ApApProfileEntries'}->save($ent_se);
+                
+                //---Do the SSID---
+                $o_data  = [
+                    'ap_profile_entry_id' => $two_g->id,
+                    'ap_id' => $ap_e->id,
+                    'item'  => 'ssid',
+                    'value' => $row[4]                                           
+                ];
+                $ent_o = $this->{'ApStaticEntryOverrides'}->newEntity($o_data);
+                $this->{'ApStaticEntryOverrides'}->save($ent_o);
+                
+                //IF   $row[5] is bigger or equal than 8 chars AND ApProfileEntries encryption = 'psk2'
+                if ((strlen($row[5]) >= 8)&&($two_g->encryption == 'psk2')){ //Key
+                    //---Do the Key---
+                    $o_data  = [
+                        'ap_profile_entry_id' => $two_g->id,
+                        'ap_id' => $ap_e->id,
+                        'item'  => 'key',
+                        'value' => $row[5]                                           
+                    ];
+                    $ent_o = $this->{'ApStaticEntryOverrides'}->newEntity($o_data);
+                    $this->{'ApStaticEntryOverrides'}->save($ent_o);   
+                }
+            }       
+        } 
+        
+        if (strlen($row[6]) > 1) { //5G static entry points
+              
+            //select * from ap_profile_entries where ap_profile_id=17 and frequency_band='two' and apply_to_all=0;
+            $five_g = $this->{'ApProfileEntries'}->find()->where([
+                'ApProfileEntries.ap_profile_id'    => $ap_e->ap_profile_id,
+                'ApProfileEntries.apply_to_all'     => false,
+                'ApProfileEntries.frequency_band LIKE'   => 'five%' //five or five_upper or five_lower
+            ])->first();
+            if($five_g){
+                //Apply the static one and apply an override
+                $data['ap_id']       = $ap_e->id;
+                $data['ap_profile_entry_id'] = $five_g->id;
+                $ent_se = $this->{'ApApProfileEntries'}->newEntity($data);
+                $this->{'ApApProfileEntries'}->save($ent_se);
+                
+                //---Do the SSID---
+                $o_data  = [
+                    'ap_profile_entry_id' => $five_g->id,
+                    'ap_id' => $ap_e->id,
+                    'item'  => 'ssid',
+                    'value' => $row[6]                                           
+                ];
+                $ent_o = $this->{'ApStaticEntryOverrides'}->newEntity($o_data);
+                $this->{'ApStaticEntryOverrides'}->save($ent_o);
+                
+                //IF   $row[7] is bigger or equal than 8 chars AND ApProfileEntries encryption = 'psk2'
+                if ((strlen($row[7]) >= 8)&&($five_g->encryption == 'psk2')){ //Key
+                    //---Do the Key---
+                    $o_data  = [
+                        'ap_profile_entry_id' => $five_g->id,
+                        'ap_id' => $ap_e->id,
+                        'item'  => 'key',
+                        'value' => $row[7]                                           
+                    ];
+                    $ent_o = $this->{'ApStaticEntryOverrides'}->newEntity($o_data);
+                    $this->{'ApStaticEntryOverrides'}->save($ent_o);   
+                }
+            }       
+        }          
+    }
+    
+    
+    private function _testCsvRow($row){
+        $pass = true;   
+        if (strlen($row[0]) < 1) { //Name must be at least longer that 1 character
+            $pass = false;
+        }
+        
+        if (strlen($row[2]) > 1) { //Hardware Model must be present
+            $pass = false;
+            $hw = $this->{'Hardwares'}->find()->where(['Hardwares.fw_id' => $row[2],'Hardwares.for_ap' => true])->first();
+            if($hw){
+                $pass = true;
+            }          
+        }else{
+            $pass = false;
+        }
+        
+        if (!filter_var($row[3], FILTER_VALIDATE_MAC)){
+            $pass = false;
+        }
+                      
+        return $pass;   
+    }
+        
      public function apProfileApView(){
 
         $this->loadModel('Aps');
@@ -2923,30 +3115,6 @@ class ApProfilesController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
    
-	
-	private function _find_parents($id){
-
-        $q_r        = $this->Users->find('path', ['for' => $id]);
-        $path_string= '';
-        if($q_r){
-
-            foreach($q_r as $line_num => $i){
-                $username       = $i->username;
-                if($line_num == 0){
-                    $path_string    = $username;
-                }else{
-                    $path_string    = $path_string.' -> '.$username;
-                }
-            }
-            if($line_num > 0){
-                return $username." (".$path_string.")";
-            }else{
-                return $username;
-            }
-        }else{
-            return __("orphaned");
-        }
-    }
     
     private function _make_linux_password($pwd){
 		return exec("openssl passwd -1 $pwd");

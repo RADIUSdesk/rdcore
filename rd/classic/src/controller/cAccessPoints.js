@@ -42,12 +42,13 @@ Ext.define('Rd.controller.cAccessPoints', {
     config: {
         urlAdd          : '/cake4/rd_cake/ap-profiles/add.json',
         urlDelete       : '/cake4/rd_cake/ap-profiles/delete.json',      
-        urlAddAp        : '/cake4/rd_cake/ap-profiles/ap_profile_ap_add.json',
-        urlViewAp       : '/cake4/rd_cake/ap-profiles/ap_profile_ap_view.json',
-        urlEditAp       : '/cake4/rd_cake/ap-profiles/ap_profile_ap_edit.json',
-        urlAdvancedSettingsForModel : '/cake4/rd_cake/ap-profiles/advanced_settings_for_model.json',
+        urlAddAp        : '/cake4/rd_cake/ap-profiles/ap-profile-ap-add.json',
+        urlViewAp       : '/cake4/rd_cake/ap-profiles/ap-profile-ap-view.json',
+        urlEditAp       : '/cake4/rd_cake/ap-profiles/ap-profile-ap-edit.json',
+        urlAdvancedSettingsForModel : '/cake4/rd_cake/ap-profiles/advanced-settings-for-model.json',
         urlApProfileAddApAction :  '/cake4/rd_cake/ap-actions/add.json',
         urlRestartAps   : '/cake4/rd_cake/ap-actions/restart_aps.json',
+        urlCsvImport    : '/cake4/rd_cake/ap-profiles/ap-profile-ap-import.json',
         urlExportCsv 	: '/cake4/rd_cake/aps/export-csv',
     },
     refs: [
@@ -129,6 +130,12 @@ Ext.define('Rd.controller.cAccessPoints', {
 			'gridApLists #restart' : {
 				click	: me.restart
 			},
+			'gridApLists #upload' : {
+				click	: me.csvImport
+			},
+			'winApImport #btnSave': {
+                click:  me.csvImportSubmit
+            },		
 			'gridApLists #csv' : {
 				click	: me.csvExport
 			},
@@ -458,6 +465,40 @@ Ext.define('Rd.controller.cAccessPoints', {
         }
     },
     
+    csvImport: function(button,format) {
+        var me      = this;
+        var c_name 	= Rd.getApplication().getCloudName();
+        var c_id	= Rd.getApplication().getCloudId()    
+        if(!Ext.WindowManager.get('winApImportId')){
+            var w = Ext.widget('winApImport',{id:'winApImportId',cloudId: c_id, cloudName: c_name});
+            w.show()      
+        }  
+    },
+    csvImportSubmit : function(button){
+        var me      = this;
+        var form    = button.up('form');
+        var window  = form.up('window');
+        var store   = me.getGridApLists().getStore();
+        form.submit({
+            clientValidation: true,
+            waitMsg     : 'Uploading your CSV list...',
+            url         : me.getUrlCsvImport(),
+            success     : function(form, action) {              
+                if(action.result.success){
+                    store.load();
+                    window.close();                   
+                } 
+                Ext.ux.Toaster.msg(
+                    'APs Uploaded',
+                    action.result.message,
+                    Ext.ux.Constants.clsInfo,
+                    Ext.ux.Constants.msgInfo
+                );
+            },
+            failure : Ext.ux.formFail
+        });
+    },
+       
     csvExport: function(button,format) {
         var me          = this;
         var tab     	= me.getTabAccessPoints();

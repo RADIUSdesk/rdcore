@@ -1,0 +1,2 @@
+name,description,hardware_model,mac-address,static_entry_points_2g_ssid,static_entry_points_2g_key,static_entry_points_5g_ssid,static_entry_points_5g_key,radio_2.4g_enabled,radio_5g_enabled,radio_2.4g_channel,radio_5g_channel
+Unit 1,AP In Unbit 1,cudy_x6_2,11-AA-CC-DD-EE-FF,Koos se 2G,22222222,Koos se 5G,5555555567890,on,on,auto,auto,30,30,20,80
