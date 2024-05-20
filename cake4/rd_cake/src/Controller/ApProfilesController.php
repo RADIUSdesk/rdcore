@@ -2802,7 +2802,24 @@ class ApProfilesController extends AppController {
             foreach($wifi_items as $item_2g){
                 $wifi_hash_2g['radio'.$radio_number.'_'.$item_2g] =  $radios['2g'][$item_2g]; //populate if with the defaults           
             }
-            $wifi_hash_2g['radio'.$radio_number.'_'.'channel_two'] = 'auto';
+            $wifi_hash_2g['radio'.$radio_number.'_channel_two'] = 'auto';
+            
+            //Check for 2g overrides
+            if (isset($row[8]) && 'off' === $row[8]) {
+                $wifi_hash_2g['radio' . $radio_number . '_disabled'] = true;
+            }
+            
+            if (isset($row[10])) {
+                $wifi_hash_2g['radio' . $radio_number . '_channel_two'] = $row[10];
+            }
+            
+            if (isset($row[12])) {
+                $wifi_hash_2g['radio' . $radio_number . '_txpower'] = $row[12];
+            }
+            
+            if (isset($row[14])) {
+                $wifi_hash_2g['radio' . $radio_number . '_width'] = $row[14];
+            }
                     
             foreach(array_keys($wifi_hash_2g) as $key_2g){
                 $d_setting = [];
@@ -2820,6 +2837,23 @@ class ApProfilesController extends AppController {
                 $wifi_hash_5g['radio'.$radio_number.'_'.$item_5g] =  $radios['5g'][$item_5g]; //populate if with the defaults           
             }
             $wifi_hash_5g['radio'.$radio_number.'_'.'channel_five'] = 'auto';
+            
+            //Check for 5g overrides
+            if (isset($row[9]) && 'off' === $row[9]) {
+                $wifi_hash_5g['radio' . $radio_number . '_disabled'] = true;
+            }
+            
+            if (isset($row[11])) {
+                $wifi_hash_5g['radio' . $radio_number . '_channel_five'] = $row[11];
+            }
+            
+            if (isset($row[13])) {
+                $wifi_hash_5g['radio' . $radio_number . '_txpower'] = $row[13];
+            }
+            
+            if (isset($row[15])) {
+                $wifi_hash_5g['radio' . $radio_number . '_width'] = $row[15];
+            }
             
             foreach(array_keys($wifi_hash_5g) as $key_5g){
                 $d_setting = [];
