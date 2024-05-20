@@ -188,5 +188,6 @@ Rd.config = {
     'icnBus'		: 'xf207@FontAwesome',
     'icnMeter'		: 'xf0e4@FontAwesome',
     'icnQrcode'     : 'xf029@FontAwesome',
+    'icnUpoad'      : 'xf093@FontAwesome'
 }
 
