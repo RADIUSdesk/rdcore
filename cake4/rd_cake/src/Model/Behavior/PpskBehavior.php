@@ -35,13 +35,15 @@ class PpskBehavior extends Behavior {
            
         $realm_id   = $entity->realm_id;
         $new_ppsk   = $entity->ppsk;
-              
-        if($entity->isDirty('ppsk')){               
-            $old_ppsk = $entity->getOriginal('ppsk');                        
-            if($old_ppsk == ''){ //Added
+     
+        if($entity->isDirty('ppsk')){  
+                     
+            $old_ppsk = $entity->getOriginal('ppsk');
+                                    
+            if(($old_ppsk == '')&&(strlen($new_ppsk)>7)){ //Added
                 $this->_addNewEntries($realm_id,$new_ppsk);
             }
-            if($new_ppsk == ''){ //Removed
+            if(($new_ppsk == '')&&(strlen($old_ppsk)>7)){ //Removed
                 $this->_removeEntries($realm_id,$old_ppsk);
             }
             
@@ -50,7 +52,7 @@ class PpskBehavior extends Behavior {
             }       
         } 
         
-        if($entity->isNew()){ 
+        if(($entity->isNew())&&(strlen($new_ppsk)>7)){         
              $this->_addNewEntries($realm_id,$new_ppsk);
         }    
     }

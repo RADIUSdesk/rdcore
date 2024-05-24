@@ -286,16 +286,7 @@ class GridButtonsFlatComponent extends Component {
             'tooltip'   => __('BYOD'),
             'ui'        => $this->btnUiByod
         ];
-        
-        $this->btnUnknownDevices = [
-            'xtype'     => 'button', 
-            'glyph'     => Configure::read('icnBus'), 
-            'scale'     => $this->scale,
-            'itemId'    => 'unclaimed_devices',
-            'tooltip'   => __('New Arrivals'),
-            'ui'        => $this->btnUiUnknownClients
-        ];
-        
+               
         $this->btnProfComp = [
             'xtype'     => 'button', 
             'glyph'     => Configure::read('icnComponent'), 
@@ -488,32 +479,11 @@ class GridButtonsFlatComponent extends Component {
             $menu = [$b];
         }
         
-         if($type == 'permanent_users'){
-            $b  = $this->_fetchBasic(true);
-            $d  = $this->_fetchDocument();
-            
-            //Some overrides and additions            
-            //$d['width'] = 160;
-            $d['width'] = 110;
-            array_push($d['items'],[
-                'xtype'     => 'button', 
-                'glyph'     => Configure::read('icnEmail'),
-                'scale'     => $this->scale, 
-                'itemId'    => 'email', 
-                'tooltip'   => __('e-Mail Credentials'),
-                'ui'        => $this->btnUiMail
-            ]);
-          /*  array_push($d['items'],[
-                'xtype'     => 'button', 
-                'glyph'     => Configure::read('icnMobile'),
-                'scale'     => $this->scale, 
-                'itemId'    => 'sms', 
-                'tooltip'   => __('SMS Credentials'),
-                'ui'        => $this->btnUiMail
-            ]);*/
-                        
-            $a  = $this->_fetchPermanentUserExtras();
-            $menu = [$b,$d,$a];
+        if($type == 'permanent_users'){
+            $a  = $this->_fetchBasic(true);
+            $b  = $this->_fetchCsvUpDown();                               
+            $c  = $this->_fetchPermanentUserExtras();
+            $menu = [$a,$b,$c];
         }
         
         if($type == 'DynamicClientMacs'){
@@ -1251,12 +1221,19 @@ class GridButtonsFlatComponent extends Component {
             'xtype' => 'buttongroup',
             'title' => $t, 
             'items' => [
+                [
+                    'xtype'     => 'button', 
+                    'glyph'     => Configure::read('icnEmail'),
+                    'scale'     => $this->scale, 
+                    'itemId'    => 'email', 
+                    'tooltip'   => __('e-Mail Credentials'),
+                    'ui'        => $this->btnUiMail
+               ],
                $this->btnPassword,
                $this->btnEnable,
                $this->btnRadius,
                $this->btnGraph,
-               $this->btnByod,
-               $this->btnUnknownDevices
+               $this->btnByod
             ]
         ];                   
         return $menu;

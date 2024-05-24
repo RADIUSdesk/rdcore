@@ -1,12 +1,12 @@
-Ext.define('Rd.view.aps.winApImport', {
+Ext.define('Rd.view.permanentUsers.winPermanentUserImport', {
     extend      : 'Ext.window.Window',
-    alias       : 'widget.winApImport',
+    alias       : 'widget.winPermanentUserImport',
     closable    : true,
     draggable   : true,
     resizable   : true,
-    title       : 'Import Access Points',
+    title       : 'Import Permanent Users',
     width       : 500,
-    height      : 350,
+    height      : 300,
     plain       : true,
     border      : false,
     layout      : 'fit',
@@ -23,7 +23,7 @@ Ext.define('Rd.view.aps.winApImport', {
         if(me.root){
             hide_system = false;
         } 
-                     
+                       
         var frmData = Ext.create('Ext.form.Panel',{
             border:     false,
             layout:     'anchor',
@@ -63,12 +63,7 @@ Ext.define('Rd.view.aps.winApImport', {
                     xtype       : 'textfield',
                     name        : 'cloud_id',
                     hidden      : true,
-                    value       : me.cloud_id
-                },
-                {
-                    xtype               : 'cmbApProfile',
-                    include_all_option  : false,
-                    labelClsExtra       : 'lblRdReq'
+                    value       : me.cloudId
                 },
                 {
                     xtype       : 'filefield',
@@ -92,14 +87,15 @@ Ext.define('Rd.view.aps.winApImport', {
                     margin      : 10,
                     autoEl      : {
                         tag     : 'a',
-                        href    : '/cake4/rd_cake/files/sample_csv/ap.csv',
+                        href    : '/cake4/rd_cake/files/sample_csv/permanent_user.csv',
                         html    : 'Example Document',
                         target  : "_blank"
                     }
                 }             
             ]
         });
-        me.items = frmData;
+       me.items = frmData;
+
         me.callParent(arguments);
     }
 });

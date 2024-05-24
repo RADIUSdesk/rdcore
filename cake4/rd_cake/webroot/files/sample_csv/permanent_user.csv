@@ -1,0 +1,5 @@
+username,password,realm,profile,personal_info_name,personal_info_surname,optional_fields_static_ip,optional_fields_site,optional_fields_ppsk,optional_fields_vlan,optional_fields_auto-add-device
+dirk,testing123,PPSK Demo,PPSK Demo,dirk,van der Walt,192.168.1.1,ZA-1,88888887,105,true
+kirk,testing123,PPSK Demo,PPSK Demo,kirk,van der Walt,192.168.1.2,ZA-1,88888888,next_available,false
+zirk,testing123,PPSK Demo,PPSK Demo,zirk,van der Walt,192.168.1.3,ZA-1,88888889,next_available,true
+vurk,testing123,PPSK Demo,PPSK Demo,,,,,,,false

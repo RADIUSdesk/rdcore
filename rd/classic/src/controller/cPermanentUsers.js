@@ -27,6 +27,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
        	'components.cmbVendor',   'components.cmbAttribute', 'permanentUsers.gridUserDevices', 'components.pnlUsageGraph',
         'permanentUsers.pnlPermanentUserGraphs',
         'permananetUsers.winUserEmailDetail',
+        'permanentUsers.winPermanentUserImport'
     ],
     stores: ['sLanguages', 'sPermanentUsers', 'sRealms', 'sProfiles', 'sAttributes', 'sVendors'],
     models: [
@@ -40,6 +41,10 @@ Ext.define('Rd.controller.cPermanentUsers', {
         urlEditBasic        : '/cake4/rd_cake/permanent-users/edit-basic-info.json',
         urlViewPersonal     : '/cake4/rd_cake/permanent-users/view-personal-info.json',
         urlEditPersonal     : '/cake4/rd_cake/permanent-users/edit-personal-info.json',
+        
+        urlCsvImport        : '/cake4/rd_cake/permanent-users/import.json',
+        
+        urlEmailSend        : '/cake4/rd_cake/permanent-users/email-user-details.json',
         urlEnableDisable    : '/cake4/rd_cake/permanent-users/enable-disable.json',
         urlChangePassword   : '/cake4/rd_cake/permanent-users/change-password.json',
         urlDelete           : '/cake4/rd_cake/permanent-users/delete.json', 
@@ -47,7 +52,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
         urlAutoAddMac       : '/cake4/rd_cake/permanent-users/auto-mac-on-off.json',        
         urlDeleteRadaccts   : '/cake4/rd_cake/radaccts/delete.json',
         urlDeletePostAuths  : '/cake4/rd_cake/radpostauths/delete.json',
-        urlEmailSend        : '/cake4/rd_cake/permanent-users/email-user-details.json',
+
     },
     refs: [
         {  ref: 'grid',         selector:   'gridPermanentUsers'},
@@ -77,8 +82,17 @@ Ext.define('Rd.controller.cPermanentUsers', {
             'gridPermanentUsers #edit'   : {
                 click:      me.edit
             },
+            'gridPermanentUsers #upload' : {
+				click	: me.csvImport
+			},
+			'winPermanentUserImport #btnSave': {
+                click:  me.csvImportSubmit
+            },	
             'gridPermanentUsers #csv'  : {
                 click:      me.csvExport
+            },
+            '#winCsvColumnSelectPermanentUsers #save': {
+                click:  me.csvExportSubmit
             },
             'gridPermanentUsers #email': {
                 click:    me.email
@@ -97,9 +111,6 @@ Ext.define('Rd.controller.cPermanentUsers', {
             },
             'gridPermanentUsers #byod'   : {
                 click:      me.byod
-            },
-            'gridPermanentUsers #unclaimed_devices' : {
-            	click	: me.unclaimed_devices
             },
             'gridPermanentUsers'   : {
                 select          : me.select,
@@ -128,10 +139,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
             },
             'winPermanentUserAdd #from_date' : {
                 change:  me.fromDateChange
-            },
-            '#winCsvColumnSelectPermanentUsers #save': {
-                click:  me.csvExportSubmit
-            },
+            },           
             'pnlPermanentUser gridUserRadpostauths #reload' :{
                 click:      me.gridUserRadpostauthsReload
             },
@@ -473,6 +481,40 @@ Ext.define('Rd.controller.cPermanentUsers', {
         }
     },
     
+    csvImport: function(button,format) {
+        var me      = this;
+        var c_name 	= Rd.getApplication().getCloudName();
+        var c_id	= Rd.getApplication().getCloudId()    
+        if(!Ext.WindowManager.get('winPermanentUserImportId')){
+            var w = Ext.widget('winPermanentUserImport',{id:'winPermanentUserImportId',cloudId: c_id, cloudName: c_name});
+            w.show()      
+        }  
+    },
+    csvImportSubmit : function(button){
+        var me      = this;
+        var form    = button.up('form');
+        var window  = form.up('window');
+        var store   = me.getGrid().getStore();
+        form.submit({
+            clientValidation: true,
+            waitMsg     : 'Uploading your CSV list...',
+            url         : me.getUrlCsvImport(),
+            success     : function(form, action) {              
+                if(action.result.success){
+                    store.load();
+                    window.close();                   
+                } 
+                Ext.ux.Toaster.msg(
+                    'Permanent Users Uploaded',
+                    action.result.message,
+                    Ext.ux.Constants.clsInfo,
+                    Ext.ux.Constants.msgInfo
+                );
+            },
+            failure : Ext.ux.formFail
+        });
+    },
+        
     csvExport: function(button,format) {
         var me          = this;
         var columns     = me.getGrid().down('headercontainer').getGridColumns();
@@ -1170,11 +1212,6 @@ Ext.define('Rd.controller.cPermanentUsers', {
         var me = this;
         tp = b.up('tabpanel');
         Ext.getApplication().runAction('cDevices','Index',tp);
-    },
-    unclaimed_devices: function(b){
-        var me = this;
-        tp = b.up('tabpanel');
-        Ext.getApplication().runAction('cDynamicClientMacs','Index',tp);
     },
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");
