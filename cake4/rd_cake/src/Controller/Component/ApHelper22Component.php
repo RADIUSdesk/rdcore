@@ -1486,6 +1486,13 @@ class ApHelper22Component extends Component {
 								    $this->ppsk_flag = true;
 							    }
 							    
+							    if($ap_profile_e->encryption == 'wpa2'){
+								    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+								    $base_array['vlan_bridge']  = 'br-ex_vlan';
+								    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
+								    $base_array['vlan_naming']	= '0';
+							    }							    
+							    
 							    //NASID: We can probaly send along regardless and we use a convention of: m_ / a_<entry_id>_<radio_number>_<ap_id>/node_id 
                                 if($ap_profile_e->auto_nasid){                         
                                     //We do not go to deep when generating the nasid we will use radius_acct_req_attr to contain all the detail
@@ -1715,6 +1722,13 @@ class ApHelper22Component extends Component {
 					    //Set the flag
 					    $this->ppsk_flag = true;
 				    }
+				    
+				    if($ap_profile_e->encryption == 'wpa2'){
+					    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+					    $base_array['vlan_bridge']  = 'br-ex_vlan';
+					    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
+					    $base_array['vlan_naming']	= '0';
+				    }	
 				    
 				    //NASID: We can probaly send along regardless and we use a convention of: m_ / a_<entry_id>_<radio_number>_<ap_id>/node_id 
                     if($ap_profile_e->auto_nasid){                   
