@@ -34,7 +34,7 @@ class PpskBehavior extends Behavior {
     private function _doAfterSave($entity){
            
         $realm_id   = $entity->realm_id;
-        $new_ppsk   = $entity->ppsk;
+        $new_ppsk   = $entity->ppsk ?? '';
      
         if($entity->isDirty('ppsk')){  
                      
@@ -60,7 +60,7 @@ class PpskBehavior extends Behavior {
     private function _doAfterDelete($entity){ 
         $realm_id   = $entity->realm_id;
         $ppsk       = $entity->ppsk;   
-        if(strlen($entity->ppsk)>7){
+        if(strlen($entity->ppsk ?? '')>7){
             $this->_removeEntries($realm_id,$ppsk);
         }        
     }
