@@ -46,5 +46,26 @@ class UtilitiesController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);    
     }
     
+    public function sessionLimits(){
+    
+        $items      = [
+            ['id' => 0, 'name' => 'No Limit'],
+            ['id' => 1, 'name' => '1'],
+            ['id' => 2, 'name' => '2'],
+            ['id' => 3, 'name' => '3'],
+            ['id' => 4, 'name' => '4'],
+            ['id' => 5, 'name' => '5'],
+            ['id' => 10, 'name' => '10'],
+            ['id' => 15, 'name' => '15'],
+            ['id' => 20, 'name' => '20']      
+        ];        
+        $this->set([
+            'items'         => $items,
+            'success'       => true
+        ]); 
+        $this->viewBuilder()->setOption('serialize', true);    
+         
+    }
+    
    
 }

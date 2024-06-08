@@ -12,7 +12,8 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
     margin      : 5,  
     ap_id       : null,
     requires    : [
-        'Rd.view.realms.cmbRealmVlans'
+        'Rd.view.realms.cmbRealmVlans',
+        'Rd.view.components.cmbSessionLimit'
     ],
     fieldDefaults: {
         msgTarget       : 'under',
@@ -41,7 +42,7 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
         var dtTo    = new Date();
         dtTo.setYear(dtTo.getFullYear() + 1);
 
-		var ap_id	= me.record.get('owner_id');
+		var ap_id	 = me.record.get('owner_id');
 		var realm_id = me.record.get('realm_id');
         
         var cntRequired  = {
@@ -155,6 +156,10 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
                     xtype       : 'cmbRealmVlans',
                     labelClsExtra: 'lblRd',
                     realm_id    : realm_id
+                },
+                {
+                    xtype       : 'cmbSessionLimit',
+                    labelClsExtra: 'lblRd'
                 }
             ]
         }

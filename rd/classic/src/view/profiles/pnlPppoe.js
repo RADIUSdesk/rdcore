@@ -96,6 +96,10 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
                         minValue    : 1,
                         name        : 'fup_vlan',
                         hideTrigger : true
+                    },
+                    {
+                        xtype       : 'cmbSessionLimit',
+                        labelClsExtra: 'lblRd'
                     }
                 ]
             }

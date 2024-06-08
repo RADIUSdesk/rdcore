@@ -899,7 +899,7 @@ class ProfilesController extends AppController
             $this->{'Radgroupchecks'}->save($e_ip);        
         } 
         
-        if((isset($this->reqData['fup_vlan']))&&($this->reqData['fup_vlan'] !== '')){ //IP Pool
+        if((isset($this->reqData['fup_vlan']))&&($this->reqData['fup_vlan'] !== '')){ //VLAN
         	$d_vlan = [
                 'groupname' => $groupname,
                 'attribute' => 'Rd-Fup-Vlan',
@@ -912,7 +912,19 @@ class ProfilesController extends AppController
             $this->{'Radgroupchecks'}->save($e_vlan);        
         } 
         
-        
+         if((isset($this->reqData['session_limit']))&&($this->reqData['session_limit'] !== 0)){ //Session Limit
+        	$d_sl = [
+                'groupname' => $groupname,
+                'attribute' => 'Rd-Fup-Session-Limit',
+                'op'        => ':=',
+                'value'     => $this->reqData['session_limit'],
+                'comment'   => 'FupProfile'
+            ];
+            
+            $e_sl = $this->{'Radgroupchecks'}->newEntity($d_sl);
+            $this->{'Radgroupchecks'}->save($e_sl);        
+        } 
+              
         //Fall Through      
         $d_fall_through = [
             'groupname' => $groupname,
@@ -1327,6 +1339,10 @@ class ProfilesController extends AppController
             
             if($e->attribute == 'Rd-Fup-Vlan'){
             	$data['fup_vlan']    = $e->value;           
+            } 
+            
+            if($e->attribute == 'Rd-Fup-Session-Limit'){
+            	$data['session_limit']  = $e->value;           
             }                  
         }
     
