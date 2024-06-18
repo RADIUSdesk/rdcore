@@ -1208,6 +1208,7 @@ var sConnect = (function () {
 	                return;
 		        }
 		    }
+		    		    
 		    $('#btnClickToConnect').button('loading');
 		    if (isMikroTik) {
                 login();
@@ -1618,7 +1619,9 @@ var sConnect = (function () {
                         fDebug("Connected");
                         //Redirect if enabled                      
                         if(cDynamicData.settings.redirect_check){
-                        
+                            const overlay = document.querySelector('.overlay');
+		                    overlay.classList.toggle('show');
+		                    console.log("Show Overlay");
                             window.location = cDynamicData.settings.redirect_url;
                             
                         }else{
@@ -1724,7 +1727,9 @@ var sConnect = (function () {
                         fDebug("Connected");
                         //Redirect if enabled                      
                         if(cDynamicData.settings.redirect_check){
-                        
+                            const overlay = document.querySelector('.overlay');
+		                    overlay.classList.toggle('show');
+		                    console.log("Show Overlay");
                             window.location = cDynamicData.settings.redirect_url;
                             
                         }else{
@@ -2185,6 +2190,11 @@ var sConnect = (function () {
         }
                       
         var execRedirect    = function (redir_url) {
+        
+            const overlay = document.querySelector('.overlay');
+		    overlay.classList.toggle('show');
+		    console.log("Show Overlay");
+		    
             if (redir_url != '' && redir_url != undefined) {
                 window.location = redir_url;
             }else{
