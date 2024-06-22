@@ -914,7 +914,8 @@ class CloudsController extends AppController {
             $lng        = $i->lng;          
             $owner_id   = false;
             $owner      = null;
-            $admins		= null;
+            $admin_rights		= null;
+            $view_rights		= null;
             $cloud_id	= null;
               
             if($level == 'root'){         
@@ -925,14 +926,21 @@ class CloudsController extends AppController {
                 	$owner 		= $i->user->username;
                 }
                 
-                $admins	= [];
+                $admin_rights	= [];
+                $view_rights    = [];
                 foreach($i->cloud_admins as $ca){
                 	if($user_id == $ca->user->id){
 		           		$admin 		= $ca->user->username." (me)";
 		            }else{
 		            	$admin 		= $ca->user->username;
-		            }                
-                	array_push($admins,['username' => $admin, 'id' => $ca->user->id]);
+		            } 
+		            if($ca->permissions === 'admin'){               
+                	    array_push($admin_rights,['username' => $admin, 'id' => $ca->user->id]);
+                    }
+                    if($ca->permissions === 'view'){               
+                	    array_push($view_rights,['username' => $admin, 'id' => $ca->user->id]);
+                    }
+                
                 }
                 $cloud_id = $i->id;
             }
@@ -993,7 +1001,8 @@ class CloudsController extends AppController {
                 'text'      => $alias, 
                 'cls'       => $cls,
                 'owner'     => $owner,
-                'admins'	=> $admins,
+                'admin_rights'	=> $admin_rights,
+                'view_rights'   => $view_rights,
                 'parent_id' => $parent_id,
                 'leaf'      => $leaf,
                 'lat'       => $lat,
@@ -1039,10 +1048,16 @@ class CloudsController extends AppController {
     		$qr = $this->{'Clouds'}->find()->where(['Clouds.id' => $cloud_id])->contain(['CloudAdmins.Users'])->first();    	
     	}
     	
-    	$qr['admins'] = [];
+    	$qr['admin_rights']    = [];
+    	$qr['view_rights']      = [];
     	
     	foreach($qr->cloud_admins as $ca){
-    		array_push($qr['admins'],$ca->user_id);
+    	    if($ca->permissions === 'admin'){ 
+    	        array_push($qr['admin_rights'],$ca->user_id);
+    	    }
+    	    if($ca->permissions === 'view'){               
+                array_push($qr['view_rights'],$ca->user_id);
+            }
     	}
     	
     	unset($qr->cloud_admins);
@@ -1098,7 +1113,7 @@ class CloudsController extends AppController {
         }
     }
       
-     public function saveCloud(){
+    public function saveCloud(){
 
         $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user
@@ -1114,11 +1129,21 @@ class CloudsController extends AppController {
                 if ($this->{$level}->save($entity)) {                
                 	if($level == $this->tree_level_0){
 		            	$this->{'CloudAdmins'}->deleteAll(['CloudAdmins.cloud_id' => $node_id]);
-		            	if (array_key_exists('admins', $req_d)) {
-				            if(!empty($req_d['admins'])){
-				                foreach($req_d['admins'] as $e){
+		            	if (array_key_exists('admin_rights', $req_d)) {
+				            if(!empty($req_d['admin_rights'])){
+				                foreach($req_d['admin_rights'] as $e){
 				                    if($e != ''){
-				                        $e_ca = $this->{'CloudAdmins'}->newEntity(['cloud_id' => $node_id,'user_id' => $e]);
+				                        $e_ca = $this->{'CloudAdmins'}->newEntity(['cloud_id' => $node_id,'user_id' => $e,'permissions' => 'admin']);
+				        				$this->{'CloudAdmins'}->save($e_ca);
+				                    }    
+				                }
+				            }
+				        }
+				        if (array_key_exists('view_rights', $req_d)) {
+				            if(!empty($req_d['view_rights'])){
+				                foreach($req_d['view_rights'] as $e){
+				                    if($e != ''){
+				                        $e_ca = $this->{'CloudAdmins'}->newEntity(['cloud_id' => $node_id,'user_id' => $e,'permissions' => 'view']);
 				        				$this->{'CloudAdmins'}->save($e_ca);
 				                    }    
 				                }
@@ -1160,11 +1185,21 @@ class CloudsController extends AppController {
                 
                 	if($level == $this->tree_level_0){
 		            	$this->{'CloudAdmins'}->deleteAll(['CloudAdmins.cloud_id' => $node_id]);
-		            	if (array_key_exists('admins', $req_d)) {
-				            if(!empty($req_d['admins'])){
-				                foreach($req_d['admins'] as $e){
+		            	if (array_key_exists('admin_rights', $req_d)) {
+				            if(!empty($req_d['admin_rights'])){
+				                foreach($req_d['admin_rights'] as $e){
 				                    if($e != ''){
-				                        $e_ca = $this->{'CloudAdmins'}->newEntity(['cloud_id' => $node_id,'user_id' => $e]);
+				                        $e_ca = $this->{'CloudAdmins'}->newEntity(['cloud_id' => $node_id,'user_id' => $e,'permissions' => 'admin']);
+				        				$this->{'CloudAdmins'}->save($e_ca);
+				                    }    
+				                }
+				            }
+				        }
+				        if (array_key_exists('view_rights', $req_d)) {
+				            if(!empty($req_d['view_rights'])){
+				                foreach($req_d['admin_rights'] as $e){
+				                    if($e != ''){
+				                        $e_ca = $this->{'CloudAdmins'}->newEntity(['cloud_id' => $node_id,'user_id' => $e,'permissions' => 'view']);
 				        				$this->{'CloudAdmins'}->save($e_ca);
 				                    }    
 				                }

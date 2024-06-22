@@ -70,7 +70,16 @@ Ext.define('Rd.view.clouds.pnlCloudDetail', {
                     labelClsExtra: 'lblRdReq'
                 },
                 {
-                    xtype       : 'tagAccessProviders'
+                    xtype       : 'tagAccessProviders',
+                    fieldLabel  : 'Admin Rights',
+                    name        : 'admin_rights[]',
+                    itemId      : 'tagAdminRights'
+                },
+                {
+                    xtype       : 'tagAccessProviders',
+                    fieldLabel  : 'View Rights',
+                    name        : 'view_rights[]',
+                    itemId      : 'tagViewRights'
                 },
                 {
                     xtype       : 'textfield',

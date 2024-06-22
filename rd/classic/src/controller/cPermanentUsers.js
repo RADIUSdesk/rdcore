@@ -112,6 +112,9 @@ Ext.define('Rd.controller.cPermanentUsers', {
             'gridPermanentUsers #byod'   : {
                 click:      me.byod
             },
+            'gridPermanentUsers #topup'   : {
+                click:      me.topup
+            },
             'gridPermanentUsers'   : {
                 select          : me.select,
                 menuItemClick   : me.onActionColumnMenuItemClick
@@ -1212,6 +1215,11 @@ Ext.define('Rd.controller.cPermanentUsers', {
         var me = this;
         tp = b.up('tabpanel');
         Ext.getApplication().runAction('cDevices','Index',tp);
+    },
+    topup: function(b){
+        var me = this;
+        tp = b.up('tabpanel');
+        Ext.getApplication().runAction('cTopUps','Index',tp);
     },
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");

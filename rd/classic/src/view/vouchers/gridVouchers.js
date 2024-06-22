@@ -321,11 +321,11 @@ Ext.define('Rd.view.vouchers.gridVouchers' ,{
 						iconCls : 'txtRed x-fa fa-trash',
 						tooltip : 'Delete',
 						isDisabled: function (grid, rowIndex, colIndex, items, record) {
-                                if (record.get('delete') == true) {
-                                     return false;
-                                } else {
-                                    return true;
-                                }
+                            if (record.get('delete') == true) {
+                                 return false;
+                            } else {
+                                return true;
+                            }
                         },
                         handler: function(view, rowIndex, colIndex, item, e, record, row) {
                             this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'delete');
@@ -335,11 +335,11 @@ Ext.define('Rd.view.vouchers.gridVouchers' ,{
                         iconCls : 'txtBlue x-fa fa-pen',
                         tooltip : 'Edit',
                         isDisabled: function (grid, rowIndex, colIndex, items, record) {
-                                if (record.get('update') == true) {
-                                     return false;
-                                } else {
-                                    return true;
-                                }
+                            if (record.get('update') == true) {
+                                 return false;
+                            } else {
+                                return true;
+                            }
                         },
 						handler: function(view, rowIndex, colIndex, item, e, record, row) {
                             this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'update');
@@ -347,6 +347,13 @@ Ext.define('Rd.view.vouchers.gridVouchers' ,{
 					},{  
                        iconCls :'txtGreen x-fa fa-bars',
                        tooltip : 'More Actions',
+                       isDisabled: function (grid, rowIndex, colIndex, items, record) {
+                            if (record.get('extra') == true) {
+                                 return false;
+                            } else {
+                                return true;
+                            }
+                       },
                        handler: function(view, rowIndex, colIndex, item, e, record) {
                            var position = e.getXY();
                            e.stopEvent();

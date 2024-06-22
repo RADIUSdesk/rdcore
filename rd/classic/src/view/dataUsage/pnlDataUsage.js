@@ -33,9 +33,11 @@ Ext.define('Rd.view.dataUsage.pnlDataUsage', {
                     },
                     {
                         xtype       : 'cmbRealm',
+                        allOption   : true,
                         width       : 250,
                         labelWidth  : 50,
-                        itemId      : 'duCmbRealm' 
+                        itemId      : 'duCmbRealm',
+                        value       : 0 
                     },
                     '|',
                     { 

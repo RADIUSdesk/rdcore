@@ -34,6 +34,7 @@ class GridButtonsFlatComponent extends Component {
     protected $btnUiBan     = 'default';
     protected $btnUiUnknownClients = 'button-green';
     protected $btnUiByod    = 'button-metal';
+    protected $btnUiTopUp   = 'button-metal';
     
     protected $btnUiConfigure = 'default';
     protected $btnUiPolicies  = 'default';
@@ -286,6 +287,15 @@ class GridButtonsFlatComponent extends Component {
             'tooltip'   => __('BYOD'),
             'ui'        => $this->btnUiByod
         ];
+        
+        $this->btnTopUp = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnTopUp'), 
+            'scale'     => $this->scale,
+            'itemId'    => 'topup',
+            'tooltip'   => __('Top-Ups'),
+            'ui'        => $this->btnUiTopUp
+        ];
                
         $this->btnProfComp = [
             'xtype'     => 'button', 
@@ -389,7 +399,7 @@ class GridButtonsFlatComponent extends Component {
                             
     }
 
-    public function returnButtons($title = true,$type='basic'){
+    public function returnButtons($title = true,$type='basic',$right='admin'){
         //First we will ensure there is a token in the request
         $this->controller = $this->_registry->getController();
         
@@ -467,11 +477,20 @@ class GridButtonsFlatComponent extends Component {
             
         }
         
-        if($type == 'vouchers'){
+        if(($type == 'vouchers')&&($right === 'admin')){
             $b  = $this->_fetchBasicVoucher();
             $d  = $this->_fetchDocumentVoucher();
             $a  = $this->_fetchVoucherExtras();
             $menu = array($b,$d,$a);
+        }
+        
+        if(($type == 'vouchers')&&($right === 'view')){
+            $a = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+                $this->btnReloadTimer,
+                $this->btnRadius,
+                $this->btnGraph,
+            ]];
+            $menu = $a; 
         }
         
         if($type == 'fr_acct_and_auth'){
@@ -479,12 +498,22 @@ class GridButtonsFlatComponent extends Component {
             $menu = [$b];
         }
         
-        if($type == 'permanent_users'){
+        if(($type == 'permanent_users')&&($right === 'admin')){
             $a  = $this->_fetchBasic(true);
             $b  = $this->_fetchCsvUpDown();                               
             $c  = $this->_fetchPermanentUserExtras();
             $menu = [$a,$b,$c];
         }
+        
+        if(($type == 'permanent_users')&&($right === 'view')){
+            $a = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+                $this->btnReloadTimer,
+                $this->btnRadius,
+                $this->btnGraph,
+            ]];
+            $menu = $a; 
+        }
+        
         
         if($type == 'DynamicClientMacs'){
         	$menu = [
@@ -1233,7 +1262,8 @@ class GridButtonsFlatComponent extends Component {
                $this->btnEnable,
                $this->btnRadius,
                $this->btnGraph,
-               $this->btnByod
+               $this->btnByod,
+               $this->btnTopUp
             ]
         ];                   
         return $menu;

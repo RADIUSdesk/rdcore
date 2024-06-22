@@ -8,8 +8,8 @@ Ext.define('Rd.view.clouds.winCloudEdit', {
     border      : false,
     layout      : 'fit',
     autoShow    : false,
-    width       : 450,
-    height      : 350,
+    width       : 500,
+    height      : 450,
     glyph       : Rd.config.icnEdit,
     requires: [
         'Rd.view.clouds.tagAccessProviders'
@@ -24,6 +24,7 @@ Ext.define('Rd.view.clouds.winCloudEdit', {
                     labelClsExtra: 'lblRd',
                     labelAlign: 'left',
                     labelSeparator: '',
+                    labelWidth: 120,
                     margin: 15
                 },
                 defaults: {
@@ -50,7 +51,16 @@ Ext.define('Rd.view.clouds.winCloudEdit', {
                         labelClsExtra: 'lblRdReq'
                     },
                     {
-                        xtype       : 'tagAccessProviders'
+                        xtype       : 'tagAccessProviders',
+                        fieldLabel  : 'Admin Rights',
+                        name        : 'admin_rights[]',
+                        itemId      : 'tagAdminRights'
+                    },
+                    {
+                        xtype       : 'tagAccessProviders',
+                        fieldLabel  : 'View Rights',
+                        name        : 'view_rights[]',
+                        itemId      : 'tagViewRights'
                     },
                     {
                         xtype       : 'textfield',

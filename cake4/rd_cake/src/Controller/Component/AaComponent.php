@@ -16,6 +16,12 @@ use Cake\ORM\TableRegistry;
 class AaComponent extends Component {
 
 
+    //-- Jun 2024 -- view or admin permissions for cloud
+    public function rights_on_cloud(){
+        //Rights on a cloud can be admin or view or false
+        return $this->_rights_on_cloud();    
+    }
+
 	public function user_for_token_with_cloud(){
         return $this->_check_if_valid(true);
     }
@@ -65,6 +71,46 @@ class AaComponent extends Component {
             }
         }
     }
+    
+    //-------------
+    
+    private function _rights_on_cloud(){
+    
+        $controller = $this->getController();
+        $request = $controller->getRequest();
+        $token = $request->getData('token') ?? $request->getQuery('token');
+        if (!$token || strlen($token) != 36) {
+            return false;
+        }
+        $result = $this->_find_token_owner($token);
+        if (!$result['success']) {
+            return false;
+        }
+        $user = $result['user'];
+        $cloud_id = $request->getData('cloud_id') ?? $request->getQuery('cloud_id');
+        if (!$cloud_id) {
+            return false;
+        }
+        switch ($user['group_name']) {
+            case Configure::read('group.admin'):
+                return 'admin';
+            case Configure::read('group.ap'):
+                $clouds = TableRegistry::get('Clouds');
+                $is_owner = $clouds->find()->where(['Clouds.id' => $cloud_id, 'Clouds.user_id' => $user['id']])->first();
+                if ($is_owner) {
+                    return 'admin';
+                }
+                $cloud_admins = TableRegistry::get('CloudAdmins');
+                $c_a = $cloud_admins->find()->where(['CloudAdmins.user_id' => $user['id'], 'CloudAdmins.cloud_id' => $cloud_id])->first();
+                if ($c_a) {
+                    return $c_a->permissions;
+                }
+                return false;
+            default:
+                return false;
+        }
+        
+    }   
        
     private function _check_if_valid($with_cloud=true){
         //First we will ensure there is a token in the request

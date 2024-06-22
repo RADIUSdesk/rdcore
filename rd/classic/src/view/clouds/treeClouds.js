@@ -38,16 +38,29 @@ Ext.define('Rd.view.clouds.treeClouds' ,{
             )
         },
         { 
-            text    : 'Admins',
+            text    : "<i class=\"fa fa-key\"></i> Admin Rights",
             sortable: false,
             tdCls   : 'gridTree',
             xtype   :  'templatecolumn', 
             tpl:    new Ext.XTemplate(
-                        '<tpl for="admins">',
+                        '<tpl for="admin_rights">',
                             "<div class=\"fieldGreen\">{username}</div>",
                         '</tpl>'
                     ),
-            dataIndex: 'admins',
+            dataIndex: 'admin_rights',
+            flex        : 1
+        },
+        { 
+            text    : "<i class=\"fa fa-eye\"></i> View Rights",
+            sortable: false,
+            tdCls   : 'gridTree',
+            xtype   :  'templatecolumn', 
+            tpl:    new Ext.XTemplate(
+                        '<tpl for="view_rights">',
+                            "<div class=\"fieldGrey\">{username}</div>",
+                        '</tpl>'
+                    ),
+            dataIndex: 'view_rights',
             flex        : 1
         },
         { 

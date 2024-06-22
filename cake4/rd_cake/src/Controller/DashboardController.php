@@ -66,7 +66,15 @@ class DashboardController extends AppController{
       
     public function navTree(){
     
-    	$items = $this->_nav_tree(); 	  
+        $right = $this->Aa->rights_on_cloud();
+        $items = [];
+        if($right == 'admin'){
+            $items = $this->_nav_tree_admin();
+        }
+        
+        if($right == 'view'){
+            $items = $this->_nav_tree_view();
+        }	  
     	$this->set([
             'items'          => $items,
             'success'       => true
@@ -578,6 +586,8 @@ class DashboardController extends AppController{
         if( $group  == Configure::read('group.admin')){  //Admin
             $isRootUser = true; 
         }
+        
+        $right = $this->Aa->rights_on_cloud();
            
         $req_q    = $this->request->getQuery();
         
@@ -653,68 +663,65 @@ class DashboardController extends AppController{
                     "tabConfig" => [
                         "ui" => "tab-metal"
                     ]
-                ],
-                [
-                    "title" => "Top-Ups",
-                    "glyph" => "xf0f4@FontAwesome",
-                    "id" => "cTopUps",
-                    "layout" => "fit",
-                    "tabConfig" => [
-                        "ui" => "tab-metal"
-                    ]
-                ]       	    	       	
+                ]	       	
         	];        
         }
         
         if($req_q['item_id'] == 'tabMainRadius'){
-        	$items = [
-        		[
-                    "title" => "RADIUS Clients",
-                    "glyph" => "xf1ce@FontAwesome",
-                    "id"    => "cDynamicClients",
-                    "layout"=> "fit",
-                    "tabConfig"=> [
-                        "ui"=> "tab-blue"
+            if($right === 'admin'){
+            	$items = [
+            		[
+                        "title" => "RADIUS Clients",
+                        "glyph" => "xf1ce@FontAwesome",
+                        "id"    => "cDynamicClients",
+                        "layout"=> "fit",
+                        "tabConfig"=> [
+                            "ui"=> "tab-blue"
+                        ]
+                    ],
+                    [
+                        "title" => "NAS",
+                        "glyph" => "xf1cb@FontAwesome",
+                        "id"    => "cNas",
+                        "layout"=> "fit",
+                        "tabConfig"=> [
+                            "ui"=> "tab-blue"
+                        ]
+                    ],
+                    [
+                        "title" => "Profiles",
+                        "glyph" => "xf1b3@FontAwesome",
+                        "id"    => "cProfiles",
+                        "layout"=> "fit",
+                        "tabConfig"=> [
+                            "ui"=> "tab-blue"
+                        ]
+                    ],
+                    [
+                        "title" => "Realms (Groups)",
+                        "glyph" => "xf17d@FontAwesome",
+                        "id"    => "cRealms",
+                        "layout"=> "fit",
+                        "tabConfig"=> [
+                            "ui"=> "tab-orange"
+                        ]
                     ]
-                ],
-                [
-                    "title" => "NAS",
-                    "glyph" => "xf1cb@FontAwesome",
-                    "id"    => "cNas",
-                    "layout"=> "fit",
-                    "tabConfig"=> [
-                        "ui"=> "tab-blue"
+               	];
+            }
+            
+            if($right === 'view'){
+                $items = [
+            		[
+                        "title" => "RADIUS Clients",
+                        "glyph" => "xf1ce@FontAwesome",
+                        "id"    => "cDynamicClients",
+                        "layout"=> "fit",
+                        "tabConfig"=> [
+                            "ui"=> "tab-blue"
+                        ]
                     ]
-                ],
-                [
-                    "title" => "Profiles",
-                    "glyph" => "xf1b3@FontAwesome",
-                    "id"    => "cProfiles",
-                    "layout"=> "fit",
-                    "tabConfig"=> [
-                        "ui"=> "tab-blue"
-                    ]
-                ],
-                [
-                    "title" => "Realms (Groups)",
-                    "glyph" => "xf17d@FontAwesome",
-                    "id"    => "cRealms",
-                    "layout"=> "fit",
-                    "tabConfig"=> [
-                        "ui"=> "tab-orange"
-                    ]
-                ],
-                //NOTE CUSTOM Extension for IPS Specific Add-on fields
-              /*  [
-                    'title' => 'ISP Specifics',
-                    'glyph' => 'xf055@FontAwesome',
-                    'id'    => 'cIspSpecifics',
-                    'layout'=> 'fit',
-                    'tabConfig'=> [
-                        'ui'=> 'tab-brown'
-                    ]
-                ]   */
-           	];
+               	];                      
+            }
         }
         
        	if($req_q['item_id'] == 'tabMainOther'){
@@ -1029,7 +1036,7 @@ class DashboardController extends AppController{
         ];        
     }
     
-    private function _nav_tree(){
+    private function _nav_tree_admin(){
       	   
     	$items = [
 			[
@@ -1080,6 +1087,46 @@ class DashboardController extends AppController{
 				'iconCls'	=> 'x-fa fa-gears',
 				'glyph'		=> 'xf085'	
 			]  
+    	];
+    	
+    	return $items;  
+    }
+    
+     private function _nav_tree_view(){
+      	   
+    	$items = [
+			[
+				'text' 		=> 'OVERVIEW',
+				'leaf' 		=> true,
+				'iconCls' 	=> 'x-fa fa-th-large',
+				'glyph'		=> 'xf009',
+				'controller'	=> 'cMainOverview',
+				'id'		=> 'tabMainOverview'
+			],
+			[
+				'text'		=> 'USERS',
+				'leaf'		=> true,
+				'iconCls'   => 'x-fa fa-user',
+				'controller'=> 'cMainUsers',
+				'id'		=> 'tabMainUsers',
+				'glyph'		=> 'xf2c0'
+			],
+		/*	[
+				'text'		=> 'RADIUS',
+				'leaf'		=> true,
+				'iconCls'	=> 'x-fa fa-circle-o-notch',
+				'controller'=> 'cMainRadius',
+				'id'		=> 'tabMainRadius',
+				'glyph'		=> 'xf1ce'
+			],	
+			[
+				'text' 		=> 'NETWORK',
+				'leaf'	    => true,
+				'controller'=> 'cMainNetworks',
+				'id'		=> 'tabMainNetworks',
+				'iconCls'	=> 'x-fa fa-sitemap',
+				'glyph'		=> 'xf0e8'	
+			],*/
     	];
     	
     	return $items;  

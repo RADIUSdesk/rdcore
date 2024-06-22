@@ -13,8 +13,7 @@ Ext.define('Rd.view.components.cmbRealm', {
     mode            : 'local',
     name            : 'realm_id',
     labelClsExtra   : 'lblRd',
-    type            : 'create',
-    extraParam      : false,
+    allOption       : false,
     initComponent: function() {
         var me  = this;
         var s   = Ext.create('Ext.data.Store', {
@@ -26,12 +25,14 @@ Ext.define('Rd.view.components.cmbRealm', {
                 url             : '/cake4/rd_cake/realms/index-cloud.json',
                 reader: {
                     type            : 'json',
-                    rootProperty            : 'items',
+                    rootProperty    : 'items',
                     messageProperty : 'message'
                 }
             },
-            autoLoad            : true
+            autoLoad            : false
         });
+        
+        s.getProxy().setExtraParam('all_option',me.allOption);        
         me.store = s;
         this.callParent(arguments);
     }

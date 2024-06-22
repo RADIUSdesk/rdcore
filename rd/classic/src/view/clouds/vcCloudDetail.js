@@ -16,8 +16,10 @@ Ext.define('Rd.view.clouds.vcCloudDetail', {
         me.getView().load({url:me.getUrlView(), method:'GET',params:{'edit_cloud_id':me.getView().cloud_id},
 			success : function(a,b){  
 		        me.getView().setLoading(false);
-                var ent  = me.getView().down('tagAccessProviders');
-                ent.setValue(b.result.data.admins);
+                var ar  = me.getView().down('#tagAdminRights');
+                ar.setValue(b.result.data.admin_rights);
+                var vr  = me.getView().down('#tagViewRights');
+                vr.setValue(b.result.data.view_rights);
             }
 		});       
     },

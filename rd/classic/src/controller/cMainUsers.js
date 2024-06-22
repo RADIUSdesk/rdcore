@@ -18,11 +18,6 @@ Ext.define('Rd.controller.cMainUsers', {
             afterrender	: function(pnl){
                 Ext.getApplication().runAction('cActivityMonitor','Index',pnl);
 		    }
-	    },
-        '#tabMainUsers #cTopUps' : {
-            afterrender	: function(pnl){
-                Ext.getApplication().runAction('cTopUps','Index',pnl);
-		    }
 	    }
     },
     actionIndex: function(pnl,itemId){

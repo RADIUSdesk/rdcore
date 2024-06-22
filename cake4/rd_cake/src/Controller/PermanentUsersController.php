@@ -96,6 +96,7 @@ class PermanentUsersController extends AppController{
         if(!$user){
             return;
         }
+        $right    = $this->Aa->rights_on_cloud();
 
       	$req_q    = $this->request->getQuery(); //q_data is the query data
         $cloud_id = $req_q['cloud_id'];
@@ -165,12 +166,17 @@ class PermanentUsersController extends AppController{
                 $row['framedipaddress'] = $last_session->framedipaddress;
             }else{
                 $row['last_seen'] = ['status' => 'never'];
-            }           
-                 
-			$row['update']	= true;
-			$row['delete']	= true; 			
+            }
+            
+            $actions_enabled = true;                       
+            if($right == 'view'){  
+                $actions_enabled = false;                  
+            }             
+            $row['update']	= $actions_enabled;
+			$row['delete']  = $actions_enabled; 
+			$row['extra']   = $actions_enabled; 
+			                  						
 			$row['vlan']    = 'Default VLAN';
-
 			if($i->realm_vlan){
 			    $row['vlan'] = $i->realm_vlan->vlan;
 			}
@@ -1034,8 +1040,9 @@ class PermanentUsersController extends AppController{
         if(!$user){
             return;
         }
+        $right = $this->Aa->rights_on_cloud();
              
-        $menu = $this->GridButtonsFlat->returnButtons(false,'permanent_users');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'permanent_users',$right);
         $this->set(array(
             'items'         => $menu,
             'success'       => true

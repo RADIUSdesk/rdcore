@@ -481,7 +481,42 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailSettings', {
 		            name		: 'permanent_user_id',
 		            itemId		: 'cmbRegTempUser',
                     disabled    : true
-	            }   
+	            },
+	            {
+                    xtype       : 'checkbox',      
+                    boxLabel    : 'Require Private PSK (PPSK)',
+                    itemId      : 'chkRegPpsk',
+                    name        : 'reg_ppsk',
+                    inputValue  : 'reg_ppsk',
+                    disabled    : true,
+                    checked     : false,
+                    cls         : 'lblRd'
+                },
+                {
+                    xtype       : 'radiogroup',
+                //    fieldLabel  : 'VLAN Options',
+                    columns     : 3,
+                    items       : [
+                        { 
+                            boxLabel    : 'No VLAN',
+                            name        : 'reg_rb_vlan',
+                            inputValue  : 'no_vlan',
+                            margin      : '0 0 0 0'
+                        },
+                        { 
+                            boxLabel    : 'Preselect',
+                            name        : 'reg_rb_vlan',
+                            inputValue  : 'pre_select',
+                            margin      : '0 0 0 0'
+                        },
+                        { 
+                            boxLabel    : 'Next Available',
+                            name        : 'reg_rb_vlan',
+                            inputValue  : 'next_available',
+                            margin      : '0 0 0 0'
+                        }
+                    ]
+                }  
             ]     
         }
         

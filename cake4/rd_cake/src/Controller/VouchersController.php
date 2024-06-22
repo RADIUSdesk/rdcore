@@ -243,6 +243,7 @@ class VouchersController extends AppController{
         if(!$user){
             return;
         }
+        $right    = $this->Aa->rights_on_cloud();
 
       	$req_q    = $this->request->getQuery(); //q_data is the query data
         $cloud_id = $req_q['cloud_id'];     
@@ -350,9 +351,14 @@ class VouchersController extends AppController{
                 $row['last_seen'] = ['status' => 'never'];
             }           
              
-            
-			$row['update']	= true;
-			$row['delete']	= true; 
+            $actions_enabled = true;                       
+            if($right == 'view'){  
+                $actions_enabled = false;                  
+            }             
+            $row['update']	= $actions_enabled;
+			$row['delete']  = $actions_enabled; 
+			$row['extra']   = $actions_enabled; 
+
             array_push($items,$row);      
         }
        
@@ -881,8 +887,9 @@ class VouchersController extends AppController{
         if(!$user){   //If not a valid user
             return;
         }
+        $right = $this->Aa->rights_on_cloud();
         
-        $menu = $this->GridButtonsFlat->returnButtons(false,'vouchers');
+        $menu = $this->GridButtonsFlat->returnButtons(false,'vouchers',$right);
         $this->set(array(
             'items'         => $menu,
             'success'       => true

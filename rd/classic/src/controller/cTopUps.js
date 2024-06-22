@@ -1,41 +1,48 @@
 Ext.define('Rd.controller.cTopUps', {
     extend: 'Ext.app.Controller',
-    actionIndex: function(pnl,itemId){
-
+    
+    actionIndex: function(tp){
         var me      = this;
-        var item    = pnl.down('#'+itemId);
-        var added   = false;
-        if(!item){
-            var tp = Ext.create('Ext.tab.Panel',
-            	{          
-		        	border  : false,
-		            itemId  : itemId,
-		            plain	: true,
-		            cls     : 'subTab', //Make darker -> Maybe grey
-		            items   : [
-		                { 
-                            title   : 'TopUps', 
-                            xtype   : 'gridTopUps',
-                            border  : false,
-                            plain   : true,
-                            padding : Rd.config.gridSlim,
-                            glyph   : Rd.config.icnTopUp
-		                },
-		                { 
-		                    title   : 'Transaction History', 
-		                    xtype   : 'gridTopUpTransactions',
-                            padding : Rd.config.gridSlim,
-		                    glyph   : Rd.config.icnHistory,
-                            margin  : 5
-		                }
-		            ]
-		        });      
-            pnl.add(tp);
-            added = true;
-        }
-        return added;
+        me.ui       = Rd.config.tabDevices; //This is set in the config file      
+        var me      = this;  
+        var tab     = tp.items.findBy(function (tab){
+            return tab.getItemId() === 'cTopUps';
+        });
+        
+        if (!tab){
+            tab = tp.insert(1,{
+                xtype   : 'tabpanel',
+                cls     : 'subTab', //Make darker -> Maybe grey               
+                plain	: true,
+                itemId  : 'cTopUps',
+                glyph   : Rd.config.icnTopUp,
+                title   : 'TopUps',
+                closable: true, 
+                tabConfig: {
+                    ui : "tab-metal"
+                },
+                items   : [
+	                { 
+                        title   : 'TopUps', 
+                        xtype   : 'gridTopUps',
+                        border  : false,
+                        plain   : true,
+                        padding : Rd.config.gridSlim,
+                        glyph   : Rd.config.icnTopUp
+	                },
+	                { 
+	                    title   : 'Transaction History', 
+	                    xtype   : 'gridTopUpTransactions',
+                        padding : Rd.config.gridSlim,
+	                    glyph   : Rd.config.icnHistory,
+                        margin  : 5
+	                }
+	            ]
+            });
+        }      
+        tp.setActiveTab(tab);
+        me.populated = true;
     },
-
     views:  [
         'topUps.gridTopUps',            'topUps.winTopUpAdd',
         'components.cmbPermanentUser',  'topUps.winTopUpEdit',
@@ -63,9 +70,6 @@ Ext.define('Rd.controller.cTopUps', {
         me.inited = true;
 
         me.control({
-            '#tabTopUps' : {
-                destroy   :      me.appClose   
-            },
             'gridTopUps #reload': {
                 click:      me.reload
             },
@@ -102,10 +106,10 @@ Ext.define('Rd.controller.cTopUps', {
             'winTopUpEdit #save': {
                 click: me.btnEditSave
             },
-            '#tabTopUps gridTopUpTransactions' : {
+            '#cTopUps gridTopUpTransactions' : {
                 activate:      me.gridActivate
             },
-            '#tabTopUps gridTopUps' : {
+            '#cTopUps gridTopUps' : {
                 activate:      me.gridActivate
             }
         });
@@ -113,13 +117,6 @@ Ext.define('Rd.controller.cTopUps', {
     gridActivate: function(g){
         var me = this;
         g.getStore().load();
-    },
-    appClose:   function(){
-        var me = this;
-        me.populated    = false;
-        if(me.autoReload != undefined){
-            clearInterval(me.autoReload);   //Always clear
-        }
     },
     reloadOptionClick: function(menu_item){
         var me      = this;
