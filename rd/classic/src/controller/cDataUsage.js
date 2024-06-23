@@ -150,9 +150,11 @@ Ext.define('Rd.controller.cDataUsage', {
     },
     realmChange: function(cmb){
         var me = this;
-        me.setType('realm')
-        me.setUsername(cmb.getValue())
-        me.fetchDataUsage();
+        if(cmb.getValue()!== null){
+            me.setType('realm');            
+            me.setUsername(cmb.getValue());
+            me.fetchDataUsage();
+        }
     },
     dateChange: function(dt){
         var me = this;
@@ -164,9 +166,11 @@ Ext.define('Rd.controller.cDataUsage', {
         var dd      = Rd.getApplication().getDashboardData();
         var rn      = dd.data_usage.realm_name;
         var r_id    = dd.data_usage.realm_id;
-        var rec     = Ext.create('Rd.model.mRealm', {name: rn, id: r_id});
-        cmb.getStore().loadData([rec],false);
-        cmb.setValue(r_id);
+        if((r_id !== undefined)||(rn !== undefined)){
+            var rec     = Ext.create('Rd.model.mRealm', {name: rn, id: r_id});
+            cmb.getStore().loadData([rec],false);
+            cmb.setValue(r_id);
+        }
     },
     tzChange: function(cmb){
         var me = this;
@@ -178,6 +182,11 @@ Ext.define('Rd.controller.cDataUsage', {
         me.getPnlDataUsage().setLoading(true);
         var day = me.getPnlDataUsage().down('#dtDate').getRawValue();
         me.setDateday(day);
+
+        if(me.getUsername() == false){ //Sometimes it is not set initially - Set it then
+            me.setUsername(0);    
+        }
+        
         Ext.Ajax.request({
                 url: me.getUrlUsageForRealm(),
                 params: {

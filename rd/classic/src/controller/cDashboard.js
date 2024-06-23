@@ -95,18 +95,7 @@ Ext.define('Rd.controller.cDashboard', {
         form.load({
             url         :me.getUrlViewSettings(), 
             method      :'GET',
-            success     : function(a,b,c){
-
-                //var cmb     = form.down("cmbRealm");
-                //var rec     = Ext.create('Rd.model.mRealm', {name: b.result.data.realm_name, id: b.result.data.realm_id});
-                //cmb.getStore().loadData([rec],false);
-                //cmb.setValue(b.result.data.realm_id); 
-
-                //var cc     = form.down("cmbClouds");
-                //var rec_c  = Ext.create('Rd.model.mClouds', {name: b.result.data.cloud_name, id: b.result.data.cloud_id});
-                //cc.getStore().loadData([rec_c],false);
-                //cc.setValue(b.result.data.cloud_id); 
-  
+            success     : function(a,b,c){ 
                 if(b.result.data.wl_img != null){
                     var img = form.down("#imgWlLogo");
                     img.setSrc(b.result.data.wl_img);
@@ -264,7 +253,11 @@ Ext.define('Rd.controller.cDashboard', {
         //Reload the realm store on the overviews (if included) wit this cloud_id set
         var cmbRealm = pnlD.down('#duCmbRealm');
         if(cmbRealm){
-            cmbRealm.getStore().reload();
+            var rec   = Ext.create('Rd.model.mRealm', {name: '** ALL REALMS **', id: 0});
+            cmbRealm.getStore().loadData([rec],false);
+            cmbRealm.setValue(0);
+            cmbRealm.getStore().load();
+            cmbRealm.fireEvent('change',cmbRealm);
         }
     },
     btnExpandClick: function(btn){

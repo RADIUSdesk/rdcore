@@ -29,7 +29,7 @@ Ext.define('Rd.view.components.cmbRealm', {
                     messageProperty : 'message'
                 }
             },
-            autoLoad            : false
+            autoLoad : true
         });
         
         s.getProxy().setExtraParam('all_option',me.allOption);        

@@ -131,6 +131,10 @@ class DataUsagesController extends AppController {
         $data['query_info']['type']          = $this->type;
         $data['query_info']['item_name']     = $this->item_name;
         $data['query_info']['mac']           = $this->mac;
+        
+        //print_r($data);
+        //exit;
+        
                
         //Try to determine the timezone if it might have been set ....       
         $this->_setTimeZone();
@@ -154,9 +158,11 @@ class DataUsagesController extends AppController {
                 $active_sessions = [];
                 $this->loadModel('Radaccts');
                 $q_acct = $this->Radaccts->find()->where([
-                    'Radaccts.realm' => $this->item_name,
+                    $this->base_search,
                     'Radaccts.acctstoptime IS NULL'
-                ])->all();
+                ])
+                ->select(['radacctid','callingstationid', 'acctstarttime', 'username'])
+                ->all();
                 $active_total = 0;
                 foreach($q_acct as $i){
                     $online_time    = time()-strtotime($i->acctstarttime);
@@ -1318,6 +1324,7 @@ class DataUsagesController extends AppController {
         $type               = 'realm';
         $base_search        = [];
         $username           = $this->request->getQuery('username');
+        $cloud_id           = $this->request->getQuery('cloud_id');        
         $this->item_name    = $username;
 
         if(null !== $this->request->getQuery('type')){
@@ -1334,15 +1341,27 @@ class DataUsagesController extends AppController {
             //Realms
             if($type == 'realm'){
                 $this->loadModel('Realms');
-
-                $q_r = $this->Realms->find()->where(['Realms.id' => $username])->first();
-                        
-                if($q_r){ 
-                    $realm_name = $q_r->name;
-                    $this->item_name= $realm_name;
-                    array_push($base_search, ['realm' => $realm_name]);
+                
+                //Get the data form ALL the realms for this cloud id
+                if($username == 0){
+                    $realm_list = [];
+                    $el_realms = $this->Realms->find()->where(['Realms.cloud_id' => $cloud_id])->all();
+                    foreach($el_realms as $r){
+                        array_push($realm_list,$r->name);
+                    }
+                    array_push($base_search, ['realm IN' => $realm_list]);                 
                 }
-            }
+                
+                //Thisa is for a specific realm (make sure it is a valid ID)
+                if($username > 0){
+                    $q_r = $this->Realms->find()->where(['Realms.id' => $username])->first();                          
+                    if($q_r){ 
+                        $realm_name = $q_r->name;
+                        $this->item_name= $realm_name;
+                        array_push($base_search, ['realm' => $realm_name]);
+                    }
+                }             
+            }            
             //Nas
             if($type == 'nas'){
                 $this->loadModel('Nas');

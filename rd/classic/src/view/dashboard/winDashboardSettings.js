@@ -107,9 +107,11 @@ Ext.define('Rd.view.dashboard.winDashboardSettings', {
                                     },                                    
                                     {
                                         xtype       : 'cmbRealm',
+                                        allOption   : true,
                                         fieldLabel  : 'Default Realm',
                                         hidden      : true,
-                                        disabled    : true
+                                        disabled    : true,
+                                        value       : 0
                                     },
                                     {
                                         xtype       : 'cmbTimezones',
