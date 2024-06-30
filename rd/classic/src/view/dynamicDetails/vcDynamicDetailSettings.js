@@ -70,6 +70,9 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailSettings', {
     onChkRegisterUsersChange: function(chk){
          var me     = this;
          var pnl    = chk.up('panel');
+         
+         var vlan_obj = pnl.down('#rgrpVlan').getValue();
+         
          if(chk.getValue()){     
             pnl.down('cmbRealm').setDisabled(false);
             pnl.down('cmbProfile').setDisabled(false);
@@ -81,6 +84,15 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailSettings', {
             if(!pnl.down('#chkRegOtpEmail').getValue()){ //If NOT (!) selected; disable the user selector
                 pnl.down('#cmbRegTempUser').setDisabled(true);
             }
+            pnl.down('#chkRegPpsk').setDisabled(false);
+            pnl.down('#rgrpVlan').setDisabled(false);
+            
+            if(vlan_obj.reg_rb_vlan == 'pre_select'){
+                pnl.down('#cmbRealmVlans').setDisabled(false);
+            }else{
+                pnl.down('#cmbRealmVlans').setDisabled(true);
+            }
+                        
          }else{
             pnl.down('cmbRealm').setDisabled(true);
             pnl.down('cmbProfile').setDisabled(true);
@@ -90,7 +102,27 @@ Ext.define('Rd.view.dynamicDetails.vcDynamicDetailSettings', {
             pnl.down('#chkRegOtpSms').setDisabled(true);
             pnl.down('#chkRegOtpEmail').setDisabled(true);
             pnl.down('#cmbRegTempUser').setDisabled(true);
+            pnl.down('#chkRegPpsk').setDisabled(true);
+            pnl.down('#rgrpVlan').setDisabled(true);
+            pnl.down('#cmbRealmVlans').setDisabled(true);
          }  
+    },
+    rgrpVlanChange : function(rgrp,new_val,old_val){ 
+        var me  = this;
+        var pnl = rgrp.up('panel');
+        if(new_val.reg_rb_vlan == 'pre_select'){
+            pnl.down('#cmbRealmVlans').setDisabled(false);
+        }else{
+            pnl.down('#cmbRealmVlans').setDisabled(true);
+        }         
+    },
+    cmbRealmChange:   function(cmb){
+        var me      = this;
+        var form    = cmb.up('form');
+        var cmbRealmVlans = form.down('cmbRealmVlans');
+        var realm_id= cmb.getValue();
+        cmbRealmVlans.getStore().getProxy().setExtraParam('realm_id',realm_id);
+        cmbRealmVlans.getStore().load();
     },
     onChkRegAutoSuffixChange: function(chk){
         var me  = this;

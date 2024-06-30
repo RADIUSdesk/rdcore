@@ -411,7 +411,10 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailSettings', {
                     labelClsExtra: 'lblRdReq',
                     itemId      : 'realm',
                     disabled    : true,
-	                extraParam  : me.user_id
+	                extraParam  : me.user_id,
+	                listeners   : {
+                        change : 'cmbRealmChange'
+                    }	                 
                 },
                 {
                     xtype       : 'cmbProfile',
@@ -494,14 +497,19 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailSettings', {
                 },
                 {
                     xtype       : 'radiogroup',
-                //    fieldLabel  : 'VLAN Options',
+                    itemId      : 'rgrpVlan',
                     columns     : 3,
+                    disabled    : true,
+                    listeners   : {
+                        change : 'rgrpVlanChange'
+                    },	
                     items       : [
                         { 
                             boxLabel    : 'No VLAN',
                             name        : 'reg_rb_vlan',
                             inputValue  : 'no_vlan',
-                            margin      : '0 0 0 0'
+                            margin      : '0 0 0 0',
+                            checked     : true
                         },
                         { 
                             boxLabel    : 'Preselect',
@@ -516,6 +524,12 @@ Ext.define('Rd.view.dynamicDetails.pnlDynamicDetailSettings', {
                             margin      : '0 0 0 0'
                         }
                     ]
+                },
+                {
+                    xtype       : 'cmbRealmVlans',
+                    itemId      : 'cmbRealmVlans',
+                    labelClsExtra: 'lblRd',
+                    disabled    : true
                 }  
             ]     
         }
