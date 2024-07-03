@@ -13,6 +13,7 @@ class DynamicDetailsTable extends Table
         $this->belongsTo('Clouds');
               
         $this->belongsTo('PermanentUsers');
+        $this->belongsTo('RealmVlans');
         
         $this->hasMany('DynamicPhotos',['dependent' => true]); 
         $this->hasMany('DynamicPairs',['dependent' => true]);

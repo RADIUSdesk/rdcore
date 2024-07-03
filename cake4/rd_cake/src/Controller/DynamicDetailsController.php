@@ -37,240 +37,25 @@ class DynamicDetailsController extends AppController{
         $this->loadComponent('JsonErrors');
 
     }
-        
+    
     public function infoFor(){
 
         $items      = [];
-		$sl_items	= [];
-		$social_enable = false;
-		
-		$req_q    	= $this->request->getQuery(); 
+        $sl_items   = [];
+        $req_q      = $this->request->getQuery();
 
-        if(isset($req_q['dynamic_id'])){ //preview link will call this page ?dynamic_id=<id>
-        
+        if (isset($req_q['dynamic_id'])) {
             $dynamic_id = $req_q['dynamic_id'];
-
-            $q_r = $this->{$this->main_model}
-                ->find()
-                ->contain([
-                    'DynamicPages',
-                    'DynamicPhotos' => function ($q) {
-                       return $q
-                            ->where(['DynamicPhotos.active' => true]);
-                    },
-                    'DynamicDetailSocialLogins',
-                    'DynamicDetailCtcs'
-                ])
-                ->where([$this->main_model.'.id' =>$dynamic_id])
-                ->first();                
-
-            if($q_r){
-                //Modify the photo path:
-                $c = 0;
-                foreach($q_r->dynamic_photos as $i){
-                
-                    $full_file_name = Configure::read('paths.absolute_photo_path').$i->file_name;
-                    $info           = getimagesize($full_file_name);
-                    $width          = $info[0];
-                    $height         = $info[1];
-                    
-                    $layout = 'landscape';
-                    if($width == $height){
-                        $layout = 'block';
-                    }
-                    if($width < $height){
-                        $layout = 'portrait';
-                    }
-                    
-                    $q_r->dynamic_photos[$c]['file_name']   = Configure::read('paths.dynamic_photos').$i->file_name;
-                    $q_r->dynamic_photos[$c]['width']       = $width;
-                    $q_r->dynamic_photos[$c]['height']      = $height;
-                    $q_r->dynamic_photos[$c]['layout']      = $layout;
-                    $c++;
-                }
-                
-                $items['photos']    = $q_r->dynamic_photos;
-                $items['pages']     = $q_r->dynamic_pages;
-                $items['mobile_app']= $q_r->dynamic_detail_mobile;
-				$sl_items           = $q_r->dynamic_detail_social_logins;
-				$icon_file_name     = Configure::read('paths.dynamic_detail_icon').$q_r->icon_file_name;
-				if($q_r->social_enable == true){
-				    $social_enable = true;
-				}
-				if($q_r->dynamic_detail_ctc){
-				    $items['settings']['click_to_connect'] =  $q_r->dynamic_detail_ctc;
-			    }else{
-			        $items['settings']['click_to_connect'] =  [];
-			    }
-            }
-
-        }else{ //Build a query since it was not called from the preview link
-            $conditions = ["OR" =>[]];
-      
-            foreach(array_keys($req_q) as $key){
-                array_push($conditions["OR"],
-                    ["DynamicPairs.name" => $key, "DynamicPairs.value" =>  $req_q[$key]]
-                ); //OR query all the keys
-            }
-           	
-			$q_r = $this->DynamicPairs
-                ->find()
-                ->contain([
-                    'DynamicDetails' => 
-                        [
-                            'DynamicPhotos' => function ($q) {
-                               return $q
-                                    ->where(['DynamicPhotos.active' => true]);
-                            },
-                            'DynamicPages',
-                            'DynamicDetailSocialLogins',
-                            'DynamicDetailCtcs'
-                        ]
-                ])
-                ->where([$conditions])
-                ->order(['DynamicPairs.priority' => 'DESC'])
-                ->first();                
-
-            //print_r($q_r);
-
-            if($q_r){
-                
-                //Modify the photo path:
-                $c = 0;
-                foreach($q_r->dynamic_detail->dynamic_photos as $i){
-                    $full_file_name = Configure::read('paths.absolute_photo_path').$i->file_name;
-                    $info           = getimagesize($full_file_name);
-                    $width          = $info[0];
-                    $height         = $info[1];
-                    
-                    $layout = 'landscape';
-                    if($width == $height){
-                        $layout = 'block';
-                    }
-                    if($width < $height){
-                        $layout = 'portrait';
-                    }
-                    
-                    $q_r->dynamic_detail->dynamic_photos[$c]['file_name']   = Configure::read('paths.dynamic_photos').$i->file_name;
-                    $q_r->dynamic_detail->dynamic_photos[$c]['width']       = $width;
-                    $q_r->dynamic_detail->dynamic_photos[$c]['height']      = $height;
-                    $q_r->dynamic_detail->dynamic_photos[$c]['layout']      = $layout;
-                    $c++;
-
-                }
-                
-                
-                $items['photos']    = $q_r->dynamic_detail->dynamic_photos;
-                $items['pages']     = $q_r->dynamic_detail->dynamic_pages;
-                $items['mobile_app']= $q_r->dynamic_detail->dynamic_detail_mobile;
-				$sl_items           = $q_r->dynamic_detail->dynamic_detail_social_logins;
-				$icon_file_name     = Configure::read('paths.dynamic_detail_icon').$q_r->dynamic_detail->icon_file_name;
-				if($q_r->dynamic_detail->social_enable == true){
-				    $social_enable = true;
-				}
-				if($q_r->dynamic_detail->dynamic_detail_ctc){
-				    $items['settings']['click_to_connect'] =  $q_r->dynamic_detail->dynamic_detail_ctc;
-			    }else{
-			        $items['settings']['click_to_connect'] =  [];
-			    }
-            }
-            
-        }
-        
-        $detail_fields  = [
-			'id',		'name',			'phone',		'fax',			'cell',		'email',
-			'url',		'street_no',	'street',		'town_suburb',	'city',		'country',
-			'lat',		'lon',	       
-		];
-		
-		$settings_fields    = [
-			't_c_check',	        't_c_url',	        'redirect_check',   'redirect_url',
-			'slideshow_check',      'seconds_per_slide','connect_check',    'connect_username', 'connect_suffix',
-			'connect_delay',        'connect_only',     'user_login_check', 'voucher_login_check',
-			'auto_suffix_check',    'auto_suffix',      'usage_show_check', 'usage_refresh_interval', 
-			'register_users',       'lost_password',    'lost_password_method',
-			'slideshow_enforce_watching',
-			'slideshow_enforce_seconds',
-			'available_languages',
-			'prelogin_check',
-			'show_screen_delay',
-			'show_logo',
-			'show_name',
-			'name_colour',
-			'chilli_json_unavailable',
-			'chilli_use_chap'
-		];
-        
-		//print_r($q_r);
-
-        //Get the detail for the page
-        if($q_r){
-        
-                $direct_flag = true;
-                if($q_r->dynamic_detail != null){
-                    $direct_flag = false;
-                }
-        
-                foreach($detail_fields as $field){
-                    if($direct_flag){
-                        $items['detail']["$field"]= $q_r->{"$field"};  
-                    }else{
-                        $items['detail']["$field"]= $q_r->dynamic_detail->{"$field"}; 
-                    }
-                }
-                $items['detail']['icon_file_name'] = $icon_file_name;
-                
-                foreach($settings_fields as $field){
-                    if($direct_flag){
-                        $items['settings']["$field"]= $q_r->{"$field"};  
-                    }else{
-                        $items['settings']["$field"]= $q_r->dynamic_detail->{"$field"}; 
-                    } 
-                }
-                
-                //IF the available languages are selected we need to get more data on them
-                if($items['settings']["available_languages"] !== ''){
-                    $final_array = [];
-                    $selected_array = explode(",",$items['settings']["available_languages"]);
-                    Configure::load('DynamicLogin','default'); 
-                    $i18n = Configure::read('DynamicLogin.i18n');
-                    foreach($i18n as $i){
-                        if($i['active']){
-                            if(in_array($i['id'],$selected_array)){
-                                array_push($final_array,['value' => $i['name'],'id'=>$i['id']]);   
-                            }
-                        }
-                    }
-                    $items['settings']["available_languages"] = $final_array;
-                }
-                
-			if($social_enable){
-				$items['settings']['social_login']['active'] = true;			
-				//Find the temp username and password
-				if($direct_flag){
-                    $temp_user_id   = $q_r->social_temp_permanent_user_id;  
-                }else{
-                    $temp_user_id   = $q_r->dynamic_detail->social_temp_permanent_user_id; 
-                }
-				
-				$user_detail  = $this->_find_username_and_password($temp_user_id);
-				$items['settings']['social_login']['temp_username'] = $user_detail['username'];
-				$items['settings']['social_login']['temp_password'] = $user_detail['password'];
-				//Find if there are any defined
-				$items['settings']['social_login']['items'] = array();
-				foreach($sl_items as $i){
-					$n = $i->name;
-					array_push($items['settings']['social_login']['items'], array('name' => $n));
-				}
-
-			}else{
-				$items['settings']['social_login']['active'] = false;
-			}
-
+            $q_r = $this->getDynamicData($dynamic_id);
+        } else {
+            $q_r = $this->getDynamicDataFromQuery($req_q);
         }
 
-        $success = true;
-        if(count($items) == 0){ //Not found
+        if ($q_r) {
+            $items    = $this->processDynamicData($q_r);
+            $success  = true;
+        }else{
+            //If we found nothing we simply reply with the query string 
             $success    = false;
             $key_val    = [];
             $q_string   = $this->request->getQuery();
@@ -279,21 +64,14 @@ class DynamicDetailsController extends AppController{
             }
             $items      = $key_val;          
         }
-        
-        $client_info                = []; 
-        $client_info['userAgent']   = $this->request->getHeaderLine('User-Agent');   
-        $client_info['isMobile']    = $this->request->is('mobile');
-        $client_info['isAndroid']   = stripos($client_info['userAgent'], 'Android');
-        $client_info['isIPhone']    = stripos($client_info['userAgent'], 'iPhone');
-        $client_info['isIPad']      = stripos($client_info['userAgent'], 'iPad');  
-        $items['client_info']       = $client_info;
-        
+
         $this->set([
-            'data' => $items,
-            'success' => $success
+            'data'      => $items,
+            'success'   => $success
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
+    
     
     public function idMe(){  
         $info               = []; 
@@ -621,8 +399,8 @@ class DynamicDetailsController extends AppController{
 			'chilli_json_unavailable',
 			'chilli_use_chap',
 			'reg_otp_sms',
-			'reg_otp_email'
-			
+			'reg_otp_email',
+			'reg_ppsk'		
 	    ];
 	    
         foreach($check_items as $i){
@@ -1885,5 +1663,241 @@ class DynamicDetailsController extends AppController{
 		    $redir_to = $pages['coova_desktop'].'?'.$_SERVER['QUERY_STRING']."&i18n=$i18n";
 		}
         return $redir_to;
-	}	
+	}
+	
+	private function getDynamicData($dynamic_id){
+     
+        $q_r = $this->{$this->main_model}
+            ->find()
+            ->contain([
+                'DynamicPages',
+                'DynamicPhotos' => function ($q) {
+                   return $q
+                        ->where(['DynamicPhotos.active' => true]);
+                },
+                'DynamicDetailSocialLogins',
+                'DynamicDetailCtcs'
+            ])
+            ->where([$this->main_model.'.id' =>$dynamic_id])
+            ->first(); 
+                       
+        return $q_r;              
+    }
+
+    private function getDynamicDataFromQuery($req_q){
+    
+        $conditions = ["OR" =>[]];      
+        foreach(array_keys($req_q) as $key){
+            array_push($conditions["OR"],
+                ["DynamicPairs.name" => $key, "DynamicPairs.value" =>  $req_q[$key]]
+            ); //OR query all the keys
+        }
+       	
+		$q_r = $this->DynamicPairs
+            ->find()
+            ->contain([
+                'DynamicDetails' => 
+                    [
+                        'DynamicPhotos' => function ($q) {
+                           return $q
+                                ->where(['DynamicPhotos.active' => true]);
+                        },
+                        'DynamicPages',
+                        'DynamicDetailSocialLogins',
+                        'DynamicDetailCtcs'
+                    ]
+            ])
+            ->where([$conditions])
+            ->order(['DynamicPairs.priority' => 'DESC'])
+            ->first();                
+        return $q_r; 
+        
+    }
+
+    private function processDynamicData($q_r){
+    
+        $items          = [];
+        $social_enable  = false;
+        
+        //---DIRECT QUERY RESULTS---
+        if($q_r->dynamic_photos){
+            $c = 0;
+            foreach($q_r->dynamic_photos as $i){
+            
+                $full_file_name = Configure::read('paths.absolute_photo_path').$i->file_name;
+                $info           = getimagesize($full_file_name);
+                $width          = $info[0];
+                $height         = $info[1];
+                
+                $layout = 'landscape';
+                if($width == $height){
+                    $layout = 'block';
+                }
+                if($width < $height){
+                    $layout = 'portrait';
+                }
+                
+                $q_r->dynamic_photos[$c]['file_name']   = Configure::read('paths.dynamic_photos').$i->file_name;
+                $q_r->dynamic_photos[$c]['width']       = $width;
+                $q_r->dynamic_photos[$c]['height']      = $height;
+                $q_r->dynamic_photos[$c]['layout']      = $layout;
+                $c++;
+            }
+            
+            $items['photos']    = $q_r->dynamic_photos;
+            $items['pages']     = $q_r->dynamic_pages;
+            $items['mobile_app']= $q_r->dynamic_detail_mobile;
+			$sl_items           = $q_r->dynamic_detail_social_logins;
+			$icon_file_name     = Configure::read('paths.dynamic_detail_icon').$q_r->icon_file_name;
+			if($q_r->social_enable == true){
+			    $social_enable = true;
+			}
+			if($q_r->dynamic_detail_ctc){
+			    $items['settings']['click_to_connect'] =  $q_r->dynamic_detail_ctc;
+		    }else{
+		        $items['settings']['click_to_connect'] =  [];
+		    }    
+        }
+        
+        //--QUERY STRING RESULTS--      
+        if($q_r->dynamic_detail){
+            //Modify the photo path:     
+            $c = 0;
+            foreach($q_r->dynamic_detail->dynamic_photos as $i){
+                $full_file_name = Configure::read('paths.absolute_photo_path').$i->file_name;
+                $info           = getimagesize($full_file_name);
+                $width          = $info[0];
+                $height         = $info[1];
+                
+                $layout = 'landscape';
+                if($width == $height){
+                    $layout = 'block';
+                }
+                if($width < $height){
+                    $layout = 'portrait';
+                }
+                
+                $q_r->dynamic_detail->dynamic_photos[$c]['file_name']   = Configure::read('paths.dynamic_photos').$i->file_name;
+                $q_r->dynamic_detail->dynamic_photos[$c]['width']       = $width;
+                $q_r->dynamic_detail->dynamic_photos[$c]['height']      = $height;
+                $q_r->dynamic_detail->dynamic_photos[$c]['layout']      = $layout;
+                $c++;
+
+            }
+            
+            
+            $items['photos']    = $q_r->dynamic_detail->dynamic_photos;
+            $items['pages']     = $q_r->dynamic_detail->dynamic_pages;
+            $items['mobile_app']= $q_r->dynamic_detail->dynamic_detail_mobile;
+		    $sl_items           = $q_r->dynamic_detail->dynamic_detail_social_logins;
+		    $icon_file_name     = Configure::read('paths.dynamic_detail_icon').$q_r->dynamic_detail->icon_file_name;
+		    if($q_r->dynamic_detail->social_enable == true){
+		        $social_enable = true;
+		    }
+		    if($q_r->dynamic_detail->dynamic_detail_ctc){
+		        $items['settings']['click_to_connect'] =  $q_r->dynamic_detail->dynamic_detail_ctc;
+	        }else{
+	            $items['settings']['click_to_connect'] =  [];
+	        }
+	    }
+	    
+	    //--THE REST--	    
+	    $detail_fields  = [
+			'id',		'name',			'phone',		'fax',			'cell',		'email',
+			'url',		'street_no',	'street',		'town_suburb',	'city',		'country',
+			'lat',		'lon',	       
+		];
+		
+		$settings_fields    = [
+			't_c_check',	        't_c_url',	        'redirect_check',   'redirect_url',
+			'slideshow_check',      'seconds_per_slide','connect_check',    'connect_username', 'connect_suffix',
+			'connect_delay',        'connect_only',     'user_login_check', 'voucher_login_check',
+			'auto_suffix_check',    'auto_suffix',      'usage_show_check', 'usage_refresh_interval', 
+			'register_users',       'lost_password',    'lost_password_method',
+			'slideshow_enforce_watching',
+			'slideshow_enforce_seconds',
+			'available_languages',
+			'prelogin_check',
+			'show_screen_delay',
+			'show_logo',
+			'show_name',
+			'name_colour',
+			'chilli_json_unavailable',
+			'chilli_use_chap',
+			'reg_ppsk'			
+		];
+		
+		$direct_flag = true;
+        if($q_r->dynamic_detail != null){
+            $direct_flag = false;
+        }
+    
+        foreach($detail_fields as $field){
+            if($direct_flag){
+                $items['detail']["$field"]= $q_r->{"$field"};  
+            }else{
+                $items['detail']["$field"]= $q_r->dynamic_detail->{"$field"}; 
+            }
+        }
+       
+        $items['detail']['icon_file_name'] = $icon_file_name;
+            
+        foreach($settings_fields as $field){
+            if($direct_flag){
+                $items['settings']["$field"]= $q_r->{"$field"};  
+            }else{
+                $items['settings']["$field"]= $q_r->dynamic_detail->{"$field"}; 
+            } 
+        }
+            
+        //IF the available languages are selected we need to get more data on them
+        if($items['settings']["available_languages"] !== ''){
+            $final_array = [];
+            $selected_array = explode(",",$items['settings']["available_languages"]);
+            Configure::load('DynamicLogin','default'); 
+            $i18n = Configure::read('DynamicLogin.i18n');
+            foreach($i18n as $i){
+                if($i['active']){
+                    if(in_array($i['id'],$selected_array)){
+                        array_push($final_array,['value' => $i['name'],'id'=>$i['id']]);   
+                    }
+                }
+            }
+            $items['settings']["available_languages"] = $final_array;
+        }
+            
+		if($social_enable){
+			$items['settings']['social_login']['active'] = true;			
+			//Find the temp username and password
+			if($direct_flag){
+                $temp_user_id   = $q_r->social_temp_permanent_user_id;  
+            }else{
+                $temp_user_id   = $q_r->dynamic_detail->social_temp_permanent_user_id; 
+            }
+			
+			$user_detail  = $this->_find_username_and_password($temp_user_id);
+			$items['settings']['social_login']['temp_username'] = $user_detail['username'];
+			$items['settings']['social_login']['temp_password'] = $user_detail['password'];
+			//Find if there are any defined
+			$items['settings']['social_login']['items'] = array();
+			foreach($sl_items as $i){
+				$n = $i->name;
+				array_push($items['settings']['social_login']['items'], array('name' => $n));
+			}
+
+		}else{
+			$items['settings']['social_login']['active'] = false;
+		}
+		       
+        $client_info                = []; 
+        $client_info['userAgent']   = $this->request->getHeaderLine('User-Agent');   
+        $client_info['isMobile']    = $this->request->is('mobile');
+        $client_info['isAndroid']   = stripos($client_info['userAgent'], 'Android');
+        $client_info['isIPhone']    = stripos($client_info['userAgent'], 'iPhone');
+        $client_info['isIPad']      = stripos($client_info['userAgent'], 'iPad');  
+        $items['client_info']       = $client_info;
+		
+        return $items;
+    }
+		
 }

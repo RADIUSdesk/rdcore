@@ -1816,6 +1816,12 @@ var sConnect = (function () {
                     `+i18n("sThe_number_must_have_at_least_8_digits")+`
                 </div>
               </div>`;
+           
+            console.log(cDynamicData.settings.reg_ppsk);
+            if(cDynamicData.settings.reg_ppsk){
+                console.log("Add PPSK Field To Register Form");
+            }  
+           
             var ci = $($form);
             $pnl.append(ci);  
         }
