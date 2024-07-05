@@ -118,6 +118,7 @@ localizedStrings: {
     'sEnglish'  : 'English',
     'sItalian'  : 'Italian',
     'sFrench'  	: 'French',
-    'sSpanish'  : 'Spanish'
+    'sSpanish'  : 'Spanish',
+    'sWiFi_Preshared_Key' : 'clave wifi precompartida'
 }
 }

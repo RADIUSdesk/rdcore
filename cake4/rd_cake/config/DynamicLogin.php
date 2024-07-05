@@ -237,6 +237,10 @@ $config['DynamicLogin']['i18n'][2]     = ['name' => 'Italian',     'id' => 'it_I
 $config['DynamicLogin']['i18n'][3]     = ['name' => 'Spanish',     'id' => 'es_ES',   'active' => true];
 $config['DynamicLogin']['i18n'][4]     = ['name' => 'Afrikaans',   'id' => 'af_ZA',   'active' => true];
 $config['DynamicLogin']['i18n'][5]     = ['name' => 'Arabic',      'id' => 'ar_AR',   'active' => true];
+$config['DynamicLogin']['i18n'][6]     = ['name' => 'Dutch (Netherland)',      'id' => 'nl_NL',   'active' => true];
+$config['DynamicLogin']['i18n'][7]     = ['name' => 'Dutch (Belgium)',      'id' => 'nl_BE',   'active' => true];
+$config['DynamicLogin']['i18n'][8]     = ['name' => 'German',      'id' => 'de_DE',   'active' => true];
+
 
 return $config;
 

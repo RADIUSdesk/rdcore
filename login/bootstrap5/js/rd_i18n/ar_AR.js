@@ -116,6 +116,7 @@ localizedStrings: {
     'sEnglish'  : 'الانجليزية',
     'sItalian'  : 'الايطالية',
     'sFrench'  	: 'الفرنسية',
-    'sSpanish'  : 'الاسبانية'
+    'sSpanish'  : 'الاسبانية',
+    'sWiFi_Preshared_Key' : 'مفتاح واي فاي مشترك مسبقًا'
 }
 }
