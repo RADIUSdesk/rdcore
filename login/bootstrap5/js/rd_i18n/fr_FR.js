@@ -148,6 +148,7 @@ localizedStrings: {
     'sEnglish'  : 'English',
     'sItalian'  : 'Italian',
     'sFrench'  	: 'French',
-    'sSpanish'  : 'Spanish'
+    'sSpanish'  : 'Spanish',
+    'sWiFi_Preshared_Key' : 'clé wifi pré-partagée'
 }
 }

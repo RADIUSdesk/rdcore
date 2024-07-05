@@ -1820,6 +1820,14 @@ var sConnect = (function () {
             console.log(cDynamicData.settings.reg_ppsk);
             if(cDynamicData.settings.reg_ppsk){
                 console.log("Add PPSK Field To Register Form");
+		$form = $form.concat(
+			`<div class="mb-3 p-1 bg-secondary border">
+                	<input type="text" placeholder="`+i18n("sWiFi_Preshared_Key")+`" class="form-control" id="txtrPPSK" name="PPSK" pattern="^[0-9]*$" minlength="8">
+                	<div class="invalid-feedback">
+			"sThe_PPSK_must_have_at_least_8_characters"
+                	</div>
+              		</div>`
+		)
             }  
            
             var ci = $($form);
