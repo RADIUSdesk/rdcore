@@ -23,6 +23,8 @@ class RegisterUsersController extends AppController {
         $this->loadModel('DynamicDetails');
         $this->loadModel('UserSettings');
         $this->loadModel('Clouds');
+        $this->loadModel('RealmVlans');
+        
         $this->loadComponent('TimeCalculations');
         $this->loadComponent('MailTransport');
         $this->loadComponent('RdLogger');
@@ -32,11 +34,35 @@ class RegisterUsersController extends AppController {
     }
     
     public function newPermanentUser(){
+    
+        $realm_vlan_id = null;
 
 		//--No login_page_id no reg --
 		if(array_key_exists('login_page_id',$this->request->getData())){
 		    $page_id = $this->request->getData('login_page_id');
-		    $q_r = $this->DynamicDetails->find()->where(['DynamicDetails.id' => $page_id])->first();
+		    $q_r = $this->DynamicDetails->find()->where(['DynamicDetails.id' => $page_id])->contain(['RealmVlans'])->first();
+		    if($q_r->reg_rb_vlan === 'next_available'){
+		        //See if there is a next available.
+		        $realm_id  = $q_r->realm_id;
+		        $q_r_vlans = $this->{'RealmVlans'}->find()->where(['RealmVlans.realm_id' => $realm_id])->order(['vlan' => 'ASC'])->all();
+		        foreach($q_r_vlans as $vlan){
+		           // print_r($vlan->vlan);
+		            $vlan_found = $this->{'PermanentUsers'}->find()->where(["PermanentUsers.realm_vlan_id" => $vlan->id])->first();
+		            if(!$vlan_found){
+		                $realm_vlan_id = $vlan->id;
+		                //print_r($vlan->id);
+		                break;
+		            }
+		        }
+		        if($realm_vlan_id === null){
+		            $this->set([
+				        'success'   => false,
+				        'errors'	=> ['VLAN' => 'No VLAN available for Personal Area Network (PAN)']
+			        ]);
+			        $this->viewBuilder()->setOption('serialize', true);
+			        return;	        
+		        }		        		    
+		    }
 		    if(!$q_r){
 		         $this->set([
 				    'success'   => false,
@@ -63,8 +89,6 @@ class RegisterUsersController extends AppController {
 			return; 
 		}
 		
-		
-
 		//--Do the MAC test --
 		$mac_name   = '';
 		$mac_value  = '';
@@ -229,8 +253,13 @@ class RegisterUsersController extends AppController {
 			'extra_value'	=> $mac_value,
 			'name'          => $this->request->getData('name'),
 			'surname'       => $this->request->getData('surname'),
-			'phone'         => $this->request->getData('phone')
+			'phone'         => $this->request->getData('phone'),
+			'realm_vlan_id' => $realm_vlan_id
         ];
+        
+        if($this->request->getData('ppsk')){
+            $postData['ppsk'] = $this->request->getData('ppsk');
+        }
                
 		if($q_r->reg_auto_add){
 		    $postData['auto_add'] = 1;

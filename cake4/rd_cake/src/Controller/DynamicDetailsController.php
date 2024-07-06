@@ -1686,6 +1686,10 @@ class DynamicDetailsController extends AppController{
 
     private function getDynamicDataFromQuery($req_q){
     
+        if (empty($array)) {
+            return;
+        }
+    
         $conditions = ["OR" =>[]];      
         foreach(array_keys($req_q) as $key){
             array_push($conditions["OR"],
