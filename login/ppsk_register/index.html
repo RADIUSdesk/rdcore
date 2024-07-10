@@ -1,146 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Registration</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
-    <link href="css/style.css" rel="stylesheet">
-</head>
-<body>
-
-<div class="container-fluid">
-  <div class="row">
-    <div class="col-12 col-lg-6 d-none d-lg-flex col-img">
-    </div>
-    <div class="col-12 col-lg-6 align-self-center">
-      <div class="m-3 m-lg-5">
-
-        <div class="text-center mt-4 mb-3">
-          <h1 class="h3">Multi-step Form Wizard</h1>
-          <p class="lead">
-            Navigate between steps in this multi-step Bootstrap 5 Form Wizard example.
-          </p>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MDU User Registration</title>
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/style.css" rel="stylesheet">
+    </head>
+    <body style="background-image: url('img/bg.jpg');background-size: 100% 100%;">
+        <div class="container">
+            <div class="row justify-content-center">
+                <header>
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-12 p-2">
+                                <img class="img-fluid ms-auto me-auto d-block" src="img/logo.png">
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                <section class="mt-4">
+                    <div class="container">
+                        <div class="row">
+                            <div class="alert alert-warning collapse" id='alertWarnRegister'>
+                                <div style="font-weight: bold"></div>
+                            </div>
+                        </div>
+                        <div id='crdWizard' class="card">
+                            <div class="card-header">
+                                <nav class="nav nav-pills nav-fill">
+                                    <a class="nav-link tab-pills" href="#">Step 1</a>
+                                    <a class="nav-link tab-pills" href="#">Step 2</a>
+                                    <a class="nav-link tab-pills" href="#">Step 3</a>
+                                </nav>
+                            </div>
+                            <div class="card-body">
+                                <div class="tab d-none">
+                                    <ul class="list-group list-group-flush list-group">
+                                        <li class="list-group-item">Welcome to the registration page for <b>Internet services</b>.</li>
+                                        <li class="list-group-item">Please enter the required information in the next step.</li>
+                                        <li class="list-group-item">One of the details you need to enter is the <b>WiFi Private Pre-Shared Key (PPSK)</b>.</li>
+                                        <li class="list-group-item list-group-item-warning">Use a value that you can easily memorise but that is difficult for a stranger to guess.</li>
+                                        <li class="list-group-item">This pre-shared key can then be used to connect to the WiFi network on the premises.</li>
+                                        <li class="list-group-item list-group-item-secondary">Depending on how the network has been configured, you may be assigned to your own personal network (VLAN).</li>
+                                    </ul>
+                                </div>
+                                <div class="tab d-none">
+                                    <form role="form" data-toggle="validator" id='frmRegister'>
+                                        <div class="mb-3">
+                                            <input type="text" placeholder="First Name" class="form-control" id="txtrFirstName" name="name">
+                                        </div>
+                                        <div class="mb-3">
+                                            <input type="text" placeholder="Last Name" class="form-control" id="txtrSurname" name="surname">
+                                        </div>
+                                        <div class="mb-3 p-1 bg-secondary border">
+                                            <input type="email" placeholder="e-mail" class="form-control" id="txtrEmail" name="username" required>
+                                            <div class="invalid-feedback">
+                                                Please supply a valid email
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 p-1 bg-secondary border">
+                                            <input type="text" placeholder="Password" class="form-control" id="txtrPassword" name="password" minlength="5" required>
+                                            <div class="invalid-feedback">
+                                                The password must have al teast 5 characters
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 p-1 bg-secondary border">
+                                            <input type="text" placeholder="Mobile" class="form-control" id="txtrCell" name="phone" pattern="^[0-9]*$" minlength="8" required>
+                                            <div class="invalid-feedback">
+                                                The number must have at least 8 digits
+                                            </div>
+                                        </div>
+                                        <div class="mb-3 p-1 bg-secondary border">
+                                            <input type="text" placeholder="WiFi PPSK" class="form-control" id="txtrPpsk" name="ppsk" pattern="^[0-9]*$" minlength="8" required>
+                                            <div class="invalid-feedback">
+                                                The PPSK must be at least 8 characters long
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="tab d-none">
+                                    <ul class="list-group list-group-flush list-group">
+                                        <li class="list-group-item">And we are finished!</li>
+                                        <li class="list-group-item">You can now reconnect to the WiFi network on the premises using the WiFi PPSK you entered during registration.</li>
+                                        <li class="list-group-item">As a reminder, you choose <b><span id='spnPpsk'>placeholder<span></b>.</li>
+                                        <li class="list-group-item list-group-item-secondary">The IT team</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="card-footer text-end">
+                                <div class="d-flex">
+                                    <button type="button" id="btnBack" class="btn btn-link">Back</button>
+                                    <button type="button" id='btnRegister' class="btn btn-primary ms-auto collapse">Submit</button>
+                                    <button type="button" id="btnNext" class="btn btn-primary ms-auto">Next</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
         </div>
-
-        <ul id="steps-native" class="nav nav-pills justify-content-center"></ul>
-
-        <form id="wizard" class="my-2 py-2">
-          <section data-step="1. Account">
-            <div class="mb-3">
-              <label class="form-label" for="email">Email</label>
-              <input class="form-control" type="email" name="email" placeholder="Email.." required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="password">Password</label>
-              <input class="form-control" type="password" name="password" placeholder="Password.." required>
-            </div>
-            <div class="row">
-              <div class="col-12 text-right">
-                <button class="btn btn-primary" data-next>Next</button>
-              </div>
-            </div>
-          </section>
-
-          <section data-step="2. Profile">
-            <div class="mb-3">
-              <label class="form-label" for="first-name">First name</label>
-              <input class="form-control" type="text" name="first-name" placeholder="First name.." required>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label" for="last-name">Last name</label>
-              <input class="form-control" type="text" name="last-name" placeholder="Last name.." required>
-            </div>
-
-            <div class="row">
-              <div class="col-6 text-left">
-                <button class="btn btn-outline-primary" data-prev>Previous</button>
-              </div>
-              <div class="col-6 text-right">
-                <button class="btn btn-primary" data-next>Next</button>
-              </div>
-            </div>
-          </section>
-
-          <section data-step="3. Social">
-            <div class="mb-3">
-              <label class="form-label" for="facebook">Facebook</label>
-              <input class="form-control" type="date" name="facebook" placeholder="Facebook.." required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="twitter">Twitter</label>
-              <input class="form-control" type="text" name="twitter" placeholder="Twitter.." required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="instagram">Instagram</label>
-              <input class="form-control" type="text" name="instagram" placeholder="Instagram.." required>
-            </div>
-
-            <div class="row">
-              <div class="col-6 text-left">
-                <button class="btn btn-outline-primary" data-prev>Previous</button>
-              </div>
-              <div class="col-6 text-right">
-                <button class="btn btn-primary" type="submit">Sign up</button>
-              </div>
-            </div>
-          </section>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/zangdar@1.0.25/dist/zangdar.min.js"></script>
-    <script src="js/jquery.min.js"></script>
-    <script>
-        function buildStepsBreadcrumb(wizard, element, steps) {
-  const $steps = document.getElementById(element)
-  $steps.innerHTML = ''
-  for (let label in steps) {
-    if (steps.hasOwnProperty(label)) {
-      const $li = document.createElement('li')
-      const $a = document.createElement('a')
-      $li.classList.add('nav-item')
-      $a.classList.add('nav-link')
-      if (steps[label].active) {
-        $a.classList.add('active')
-      }
-      $a.setAttribute('href', '#')
-      $a.innerText = label
-      $a.addEventListener('click', e => {
-        e.preventDefault()
-        wizard.revealStep(label)
-      })
-      $li.appendChild($a)
-      $steps.appendChild($li)
-    }
-  }
-}
-
-function onStepChange(wizard, selector) {
-  const steps = wizard.getBreadcrumb()
-  buildStepsBreadcrumb(wizard, selector, steps)
-}
-
-const wizard = new window.Zangdar('#wizard', {
-  onStepChange: () => {
-    onStepChange(wizard, 'steps-native')
-  },
-  onSubmit(e) {
-    e.preventDefault()
-    console.log(e.target.elements)
-    return false
-  }
-})
-
-onStepChange(wizard, 'steps-native')
-
-  
-    </script> 
-</body>
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <script src="js/jquery.min.js"></script>
+        <script src="js/sDlite.js"></script>
+        <script src="js/sClite.js"></script>
+        <script>  
+            $(document).ready(function(){     
+                var d = sDlite({});
+                window.sDlite = d;
+                d.init();
+            });
+        </script> 
+    </body>
 </html>
+
