@@ -489,7 +489,7 @@ Ext.define('Rd.controller.cAccessPointEdits', {
             pppoe.setDisabled(true);
         }
  
-        if(type == 'tagged_bridge'){
+         if((type == 'tagged_bridge')||(type == 'nat')){
             vlan.setVisible(true);
             vlan.setDisabled(false);
         }else{
@@ -699,7 +699,7 @@ Ext.define('Rd.controller.cAccessPointEdits', {
                     vpn.setDisabled(true);
                 }
 
-                if(type == 'tagged_bridge'){
+                if((type == 'tagged_bridge')||(type == 'nat')){
                     vlan.setVisible(true);
                     vlan.setDisabled(false);
                 }else{

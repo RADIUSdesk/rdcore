@@ -187,7 +187,7 @@ Ext.define('Rd.view.aps.winAccessPointEditExit', {
                                     xtype   : 'textfield',
                                     name    : 'id',
                                     hidden  : true
-                                }, 
+                                },
                                 {
                                     xtype       : 'numberfield',
                                     name        : 'vlan',
@@ -197,10 +197,11 @@ Ext.define('Rd.view.aps.winAccessPointEditExit', {
                                     maxValue    : 4095,
                                     step        : 1,
                                     minValue    : 0,
-                                    labelClsExtra: 'lblRdReq',
-                                    allowBlank  : false,
-                                    blankText   : i18n("sSupply_a_value")
-                                },
+                                    blankText   : i18n("sSupply_a_value"),
+                                    hideTrigger : true,
+                                    keyNavEnabled  : false,
+                                    mouseWheelEnabled	: false
+                                }, 
                                 tagConnectWith,
                                  {
                                     itemId      : 'chkApplyFirewallProfile',

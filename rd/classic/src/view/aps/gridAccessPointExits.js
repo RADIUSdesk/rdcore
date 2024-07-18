@@ -47,8 +47,18 @@ Ext.define('Rd.view.aps.gridAccessPointExits' ,{
                 flex    : 1, 
                 tdCls   : 'gridTree', 
                 xtype   :  'templatecolumn', 
-                tpl:    new Ext.XTemplate(
-                    '<tpl if="(Ext.isEmpty(connects_with)&&(type!=\'tagged_bridge_l3\'))"><div class=\"fieldRedWhite\"><i class="fa fa-exclamation-circle"></i> '+i18n('sNo_one')+'</div></tpl>', //Warn them when available     to all
+                tpl:    new Ext.XTemplate(                    
+                    '<tpl if="type == \'nat\' && vlan &gt; 0">',
+                        '<div class="fieldBlueWhite">',
+                            '<i class="fa fa-sitemap"></i> LAN Side VLAN: &#8470; {vlan}',
+                        '</div>',
+                    '<tpl else>',
+                        '<tpl if="(Ext.isEmpty(connects_with)&&(type!=\'tagged_bridge_l3\'))">',
+                            '<div class=\"fieldRedWhite\">',
+                                '<i class="fa fa-exclamation-circle"></i> '+i18n('sNo_one'),
+                            '</div>',
+                        '</tpl>',
+                    '</tpl>',
                     '<tpl for="connects_with">',     // interrogate the realms property within the data
                         "<tpl><div class=\"fieldGreyWhite\">{name}</div></tpl>",
                     '</tpl>'

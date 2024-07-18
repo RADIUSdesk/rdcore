@@ -127,7 +127,7 @@ Ext.define('Rd.view.aps.vcAccessPointExitPoint', {
                     pppoe.setDisabled(true);
                 }
          
-                if(t_val == 'tagged_bridge'){
+                if((t_val == 'tagged_bridge')||(t_val == 'nat')){
                     vlan.setVisible(true);
                     vlan.setDisabled(false);
                 }else{

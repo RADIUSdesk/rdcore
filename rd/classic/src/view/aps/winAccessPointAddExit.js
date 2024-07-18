@@ -327,13 +327,15 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
                                     name        : 'vlan',
                                     itemId      : 'vlan',
                                     fieldLabel  : i18n("sVLAN_number"),
-                                    value       : 0,
                                     maxValue    : 4095,
                                     step        : 1,
-                                    minValue    : 0,
-                                    labelClsExtra: 'lblRdReq',
-                                    allowBlank  : false,
-                                    blankText   : i18n("sSupply_a_value")
+                                    minValue    : 1,
+                                    userCls     : 'lblRdReq',
+                                    allowBlank  : true,
+                                    blankText   : i18n("sSupply_a_value"),
+                                    hideTrigger : true,
+                                    keyNavEnabled  : false,
+                                    mouseWheelEnabled	: false
                                 },
                                 tagConnectWith,
                                 {

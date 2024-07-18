@@ -954,11 +954,8 @@ class ApProfilesController extends AppController {
             ]);
         }else{
             $message = 'Error';
-            $this->set([
-                'errors'    => $this->JsonErrors->entityErros($exitEntity, $message),
-                'success'   => false,
-                'message'   => __('Could not create item')
-            ]);
+            $this->JsonErrors->entityErros($exitEntity, $message);
+            return;
         }
         $this->viewBuilder()->setOption('serialize', true);
     }
@@ -1217,6 +1214,12 @@ class ApProfilesController extends AppController {
                     'success' => true
                 ]);
                 $this->viewBuilder()->setOption('serialize', true);
+            }else{
+            
+                $message = 'Error';
+                $this->JsonErrors->entityErros($ent_exit, $message);
+                return;
+            
             }
         } 
     }

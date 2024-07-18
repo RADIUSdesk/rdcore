@@ -3,6 +3,7 @@
 namespace App\Model\Table;
 
 use Cake\ORM\Table;
+use Cake\Validation\Validator;
 
 class ApProfileExitsTable extends Table {
 
@@ -30,5 +31,19 @@ class ApProfileExitsTable extends Table {
         $this->hasOne('ApProfileExitCaptivePortals', ['dependent' => true]);
         $this->hasMany('ApProfileExitSettings', ['dependent' => true]);
         $this->hasOne('ApProfileExitPppoeServers', ['dependent' => true]);
+    }
+    
+    public function validationDefault(Validator $validator):Validator{
+        $validator = new Validator();
+        $validator
+            ->notEmpty('type', 'A type is required')
+            ->add('vlan', [ 
+                'vlanUnique' => [
+                    'message' => 'The VLAN you provided is already taken. Please provide another one.',
+                    'rule'    => ['validateUnique', ['scope' => 'type']], 
+                    'provider' => 'table'
+                ]
+            ]);
+        return $validator;
     }
 }

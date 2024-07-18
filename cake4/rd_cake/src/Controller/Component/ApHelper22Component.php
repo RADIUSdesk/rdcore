@@ -682,7 +682,7 @@ class ApHelper22Component extends Component {
                 $has_entries_attached = true;   
             }
 
-            if($has_entries_attached == true){
+            if(($has_entries_attached == true)||($ap_profile_e->vlan > 0)){
 
             //print_r($ap_profile_e);
 
@@ -726,6 +726,10 @@ class ApHelper22Component extends Component {
                     $if_netmask         = "255.255.255.0";
                     $nat_detail_item    = [];
                     
+                    if($ap_profile_e->vlan > 0){                   
+                        $if_name            = 'ex_vlan'.$ap_profile_e->vlan;                      
+                    }
+                    
                     foreach($ap_profile_e->ap_profile_exit_settings as $s){                        
                         if(preg_match('/^nat_/',$s->name)){
                             $nat_item  = preg_replace('/^nat_/', '', $s->name);
@@ -748,6 +752,15 @@ class ApHelper22Component extends Component {
                     if($eth_one_bridge == true){
                         $interfaces = array_merge($interfaces,$this->_lan_for($this->Hardware));
                     }
+                    
+                    if($ap_profile_e->vlan > 0){
+                        $with_vlan = [];
+                        foreach($this->_lan_for($this->Hardware) as $l){
+                            array_push($with_vlan,$l.'.'.$ap_profile_e->vlan);
+                        }
+                        $interfaces = array_merge($interfaces,$with_vlan);                   
+                    }
+                    
                     
                     if($exit_id == $wan_bridge_id){
                         array_push($interfaces,$br_int);    
