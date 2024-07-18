@@ -53,7 +53,12 @@ Ext.define('Rd.controller.cMainOther', {
 		    afterrender	: function(pnl){
 		        Ext.getApplication().runAction('cPrivatePsks','Index',pnl);
 		    }
-	    }
+	    },
+	    '#tabMainOther #cSqmProfiles' : {
+		    afterrender	: function(pnl){
+		        Ext.getApplication().runAction('cSqmProfiles','Index',pnl);
+		    }
+	    }	    
     },
     actionIndex: function(pnl,itemId){
         var me      = this;

@@ -830,6 +830,16 @@ class DashboardController extends AppController{
 	            	'ui' =>  'tab-brown'
 	        	]  
             ]);
+            
+            array_push($items,[
+                "title"	=> "SQM Profiles",
+                "glyph"	=> "xf091@FontAwesome",
+                "id"	=> "cSqmProfiles",
+                "layout"=> "fit",
+                'tabConfig' =>  [
+	            	'ui' =>  'tab-brown'
+	        	]  
+            ]);
                 		                       
         }
         
