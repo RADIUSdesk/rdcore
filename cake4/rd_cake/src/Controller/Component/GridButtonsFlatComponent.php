@@ -771,6 +771,28 @@ class GridButtonsFlatComponent extends Component {
             $menu = [$b];
         }
         
+        if($type == 'SqmProfiles'){
+            $b  = $this->_fetchBasic();
+            $cmb_sqm_profiles = [
+                'xtype'     => 'cmbSqmProfile',
+                'margin'    => '5 0 5 0',
+                'width'		=> 230,
+                'itemId'    => 'cmbSqmProfile',
+                'fieldLabel'=> '',
+                'value'		=> 0,
+                'include_all_option' => true 
+            ];
+        
+            $d = [
+            	'xtype' => 'buttongroup', 
+            	'title' => $this->t,
+            	'items' => [
+            		$cmb_sqm_profiles                   
+            	]
+            ];         
+            $menu = [$b,$d];
+        }
+        
        	if($type == 'unknown_dynamic'){
             $b  = $this->_fetchUnknownDynamic();
             $menu = [$b]; 

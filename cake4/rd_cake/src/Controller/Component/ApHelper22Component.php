@@ -635,7 +635,9 @@ class ApHelper22Component extends Component {
         //Add the auto-attach entry points
         foreach($ap_profile->ap_profile->ap_profile_exits as $ap_profile_e){
             $has_entries_attached   = false;
-            $if_name                = 'ex_'.$this->_number_to_word($start_number);
+            if($ap_profile_e->vlan === 0){        
+                $if_name                = 'ex_'.$this->_number_to_word($start_number);
+            }
             $exit_id                = $ap_profile_e->id;
             $type                   = $ap_profile_e->type;
             $vlan                   = $ap_profile_e->vlan;

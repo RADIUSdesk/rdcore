@@ -30,36 +30,18 @@ Ext.define('Rd.view.sqmProfiles.vcPnlSqmProfiles', {
         },
         'pnlSqmProfiles cmbSqmProfile': {
            change   : 'cmbSqmProfileChange'
-        },
-        'pnlSqmProfiles #dvSqmProfiles' : {
-        	itemclick	: 'itemSelected'
-        }               
-    },
-    itemSelected: function(dv,record){
-    	var me = this;
-    	//--Add FirewallProfile Component--
-    	if(record.get('type') == 'add'){
-    		if(!me.rightsCheck(record)){
-	    		return;
-	    	}
-		    if(!Ext.WindowManager.get('winFirewallProfileAddId')){
-                var w = Ext.widget('winFirewallProfileEntryAdd',{id:'winFirewallProfileEntryAddId','firewall_profile_id' : record.get('firewall_profile_id'),'firewall_profile_name' : record.get('firewall_profile_name')});
-                me.getView().add(w); 
-                let appBody = Ext.getBody();
-                w.showBy(appBody);             
-            } 
-    	} 	
+        }           
     },
     reload: function(){
         var me = this;
-        me.getView().down('#dvFirewallProfiles').getStore().reload();
+        me.getView().down('#dvSqmProfiles').getStore().reload();
     },
     add: function(button) {	
         var me      = this;
         var c_name 	= Rd.getApplication().getCloudName();
         var c_id	= Rd.getApplication().getCloudId()    
-        if(!Ext.WindowManager.get('winFirewallProfileAddId')){
-            var w = Ext.widget('winFirewallProfileAdd',{id:'winFirewallProfileAddId',cloudId: c_id, cloudName: c_name, root: me.root});
+        if(!Ext.WindowManager.get('winSqmProfileAddId')){
+            var w = Ext.widget('winSqmProfileAdd',{id:'winSqmProfileAddId',cloudId: c_id, cloudName: c_name, root: me.root});
             this.getView().add(w);
             let appBody = Ext.getBody();
             w.showBy(appBody);        
@@ -89,7 +71,7 @@ Ext.define('Rd.view.sqmProfiles.vcPnlSqmProfiles', {
     edit: function(button) {
         var me      = this;
         //Find out if there was something selected
-        if(me.getView().down('#dvFirewallProfiles').getSelectionModel().getCount() == 0){
+        if(me.getView().down('#dvSqmProfiles').getSelectionModel().getCount() == 0){
              Ext.ux.Toaster.msg(
                         i18n('sSelect_an_item'),
                         i18n('sFirst_select_an_item_to_edit'),
@@ -97,27 +79,11 @@ Ext.define('Rd.view.sqmProfiles.vcPnlSqmProfiles', {
                         Ext.ux.Constants.msgWarn
             );
         }else{
-		    var sr   =  me.getView().down('#dvFirewallProfiles').getSelectionModel().getLastSelected();
+		    var sr   =  me.getView().down('#dvSqmlProfiles').getSelectionModel().getLastSelected();
 		    if(!me.rightsCheck(sr)){
 	    		return;
 	    	}
-		    if(sr.get('type') == 'firewall_profile'){
-				if(!Ext.WindowManager.get('winFirewallProfileEditId')){
-		            var w = Ext.widget('winFirewallProfileEdit',{id:'winFirewallProfileEditId',record: sr, firewall_profile_id: sr.get('firewall_profile_id'),root: me.root});
-		            this.getView().add(w);
-		            let appBody = Ext.getBody();
-		            w.showBy(appBody);            
-		        }
-		  	}
-		  	
-		  	 if(sr.get('type') == 'firewall_profile_entry'){
-				if(!Ext.WindowManager.get('winFirewallProfileEntryEditId')){
-			        let appBody = Ext.getBody();
-                    var w = Ext.widget('winFirewallProfileEntryEdit',{id:'winFirewallProfileEntryEditId',record: sr, firewall_profile_entry_id: sr.get('id')});
-                    this.getView().add(w);
-                    w.showBy(appBody);     
-                }  
-		  	}	  			  		  	  
+		    console.log("Complete Edit action"); 			  		  	  
         }     
     },
     btnEditSave:function(button){
@@ -144,7 +110,7 @@ Ext.define('Rd.view.sqmProfiles.vcPnlSqmProfiles', {
     del: function(button) {
         var me      = this;
         
-        if(me.getView().down('#dvFirewallProfiles').getSelectionModel().getCount() == 0){
+        if(me.getView().down('#dvSqmProfiles').getSelectionModel().getCount() == 0){
             Ext.ux.Toaster.msg(
                         i18n('sSelect_an_item'),
                         i18n('sFirst_select_an_item_to_delete'),
@@ -152,30 +118,24 @@ Ext.define('Rd.view.sqmProfiles.vcPnlSqmProfiles', {
                         Ext.ux.Constants.msgWarn
             );
         }else{
-        	var sr   =  me.getView().down('#dvFirewallProfiles').getSelectionModel().getLastSelected();
+        	var sr   =  me.getView().down('#dvSqmProfiles').getSelectionModel().getLastSelected();
         	
         	if(!me.rightsCheck(sr)){
 	    		return;
 	    	}
-        	
-		    if(sr.get('type') == 'firewall_profile'){
-		    	 me.delFirewallProfile();
-		    }
-		    
-		    if(sr.get('type') == 'firewall_profile_entry'){
-		        me.delFirewallProfileEntry();            
-		    }            
+        	//Add delete code
+        	console.log("Add Delete Action")         
         }      
     },           
     cmbSqmProfileChange: function(cmb,new_value){
     	var me = this;
     	console.log("Filter TO "+new_value);
-    	me.getView().down('#dvFirewallProfiles').getStore().getProxy().setExtraParams({id:new_value});
+    	me.getView().down('#dvSqmProfiles').getStore().getProxy().setExtraParams({id:new_value});
  		me.reload();
     },
     reloadComboBox: function(){  
     	var me = this;
-    	me.getView().down('cmbFirewallProfile').getStore().reload();
+    	me.getView().down('cmbSqmProfile').getStore().reload();
     },
     rightsCheck: function(record){
     	var me = this;

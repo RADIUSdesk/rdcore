@@ -25,6 +25,6 @@ Ext.define('Rd.controller.cSqmProfiles', {
     ],
    	dvActivate: function(pnl){
         var me = this;
-        //me.getDv().getStore().reload();            
+        me.getDv().getStore().reload();            
     }
 });
