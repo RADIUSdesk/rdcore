@@ -78,6 +78,72 @@ class SqmProfilesController extends AppController {
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
+
+	//-- List available link layer options --
+   public function linkLayerOptions(){
+
+        $items = [];
+
+	Configure::load('MESHdesk');
+        $ct = Configure::read('link-layer-options');
+        foreach($ct as $i){
+            if($i['active']){
+                array_push($items, $i);
+            }
+        }
+
+        $this->set([
+            'items' => $items,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    }
+
+   //-- List available script options --
+   public function scriptOptions(){
+
+        $items = [];
+
+	Configure::load('MESHdesk');
+        $ct = Configure::read('script-options');
+        foreach($ct as $i){
+            if($i['active']){
+                array_push($items, $i);
+            }
+        }
+
+        $this->set([
+            'items' => $items,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    }
+
+
+
+   //-- List available script options --
+   public function qdiscOptions(){
+
+        $items = [];
+
+	Configure::load('MESHdesk');
+        $ct = Configure::read('qdisc-options');
+        foreach($ct as $i){
+            if($i['active']){
+                array_push($items, $i);
+            }
+        }
+
+        $this->set([
+            'items' => $items,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    }
+
+
+
+
  
     public function indexComboXX(){
         //__ Authentication + Authorization __
@@ -338,3 +404,5 @@ class SqmProfilesController extends AppController {
     }
     
 }
+
+

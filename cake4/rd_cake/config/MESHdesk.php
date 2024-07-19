@@ -14,6 +14,33 @@ $config['encryption'][5]     = ['name' => __('PPSK with RADIUS'),  'id' => 'ppsk
 $config['encryption'][6]     = ['name' => __('WPA Enterprise'),    'id' => 'wpa',      'active' => false];
 $config['encryption'][7]     = ['name' => __('WPA2 Enterprise'),   'id' => 'wpa2',     'active' => true];
 
+//== Link Layer types ==
+//Define the link layer types and if they are active or not
+$config['link-layer-options'][0]     = ['name' => __('None'),   'id' => 'none',     'active' => true];
+$config['link-layer-options'][1]     = ['name' => __('Ethernet'),   'id' => 'ethernet',     'active' => true];
+$config['link-layer-options'][2]     = ['name' => __('Atm'),   'id' => 'atm',     'active' => true];
+
+//== script types ==
+//Define the script types and if they are active or not
+$config['script-options'][0]     = ['name' => __('simple.qos'),   'id' => 'simple.qos',     'active' => true];
+$config['script-options'][1]     = ['name' => __('simplest.qos'),   'id' => 'simplest.qos',     'active' => true];
+$config['script-options'][2]     = ['name' => __('layer_cake.qos'),   'id' => 'layer_cake.qos',     'active' => true];
+$config['script-options'][3]     = ['name' => __('piece_of_cake.qos'),   'id' => 'piece_of_cake.qos',     'active' => true];
+$config['script-options'][4]     = ['name' => __('simplest_tbf.qos'),   'id' => 'simplest_tbf.qos',     'active' => true];
+
+
+//== qdisc types ==
+//Define the qdisc types and if they are active or not
+$config['qdisc-options'][0]     = ['name' => __('fq_codel'),   'id' => 'fq_codel',     'active' => true];
+$config['qdisc-options'][1]     = ['name' => __('efq_codel'),   'id' => 'efq_codel',     'active' => true];
+$config['qdisc-options'][2]     = ['name' => __('nfq_codel'),   'id' => 'nfq_codel',     'active' => true];
+$config['qdisc-options'][3]     = ['name' => __('sfq'),   'id' => 'sfq',     'active' => true];
+$config['qdisc-options'][4]     = ['name' => __('codel'),   'id' => 'codel',     'active' => true];
+$config['qdisc-options'][5]     = ['name' => __('ns2_codel'),   'id' => 'ns2_codel',     'active' => true];
+$config['qdisc-options'][6]     = ['name' => __('pie'),   'id' => 'pie',     'active' => true];
+$config['qdisc-options'][7]     = ['name' => __('cake'),   'id' => 'cake',     'active' => true];
+
+
 //== Default mesh settings ==
 //Define default settings for the mesh which can be overwritten
 $config['mesh_settings']['routing_algo']  			= 'BATMAN_V';  //Aggregation*
