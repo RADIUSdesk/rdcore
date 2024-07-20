@@ -7,7 +7,7 @@ Ext.define('Rd.view.components.rdSliderSpeed', {
     //==VALUES TO SET==
     maxValue    : 1023,
     minValue    : 1,
-    value       : 1,
+    setValue    : 1,
     sliderName  : 'slider_name',
     sliderWidth : 300,
     numberWidth : 60,
@@ -23,6 +23,11 @@ Ext.define('Rd.view.components.rdSliderSpeed', {
 
         //We have a convention of name of amount = me.sliderName+'_amount'
         //And name of unit is me.sliderName+'_unit';
+        
+        var disabled = false;
+        if(me.setValue == 0){
+            disabled = true;
+        }
 
         me.items    = [
             
@@ -46,12 +51,13 @@ Ext.define('Rd.view.components.rdSliderSpeed', {
                 width       : me.numberWidth,
                 margin      : '15 0 0 15',
                 padding     : 0,
-                value       : 1,
+                value       : me.setValue,
                 maxValue    : me.maxValue,
                 minValue    : me.minValue,
                 hideTrigger : true,
                 keyNavEnabled: false,
                 mouseWheelEnabled: false,
+                disabled    : disabled,
                 listeners   : {
 	                change  : 'nrAmountChange'
                 }
@@ -62,6 +68,7 @@ Ext.define('Rd.view.components.rdSliderSpeed', {
                 displayField: 'name',
                 valueField  : 'id',
                 width       : 100,
+                disabled    : disabled,
                 name        : me.sliderName+'_unit',
                 value       : 'mbps', //Default Mbps
                  store: [

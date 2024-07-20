@@ -11,7 +11,12 @@ Ext.define('Rd.view.sqmProfiles.pnlSqmProfiles', {
   	requires    : [
         'Rd.view.components.ajaxToolbar',
         'Rd.view.sqmProfiles.vcPnlSqmProfiles',
-        'Rd.view.components.cmbSqmProfile'
+        'Rd.view.components.cmbSqmProfile',
+        'Rd.view.sqmProfiles.winSqmProfileAdd',
+        'Rd.view.sqmProfiles.cmbSqmScriptOptions',
+        'Rd.view.sqmProfiles.cmbSqmQdiscOptions',
+        'Rd.view.components.rdSliderSpeed',
+        'Rd.view.sqmProfiles.winSqmProfileEdit'       
     ],
     viewConfig  : {
         loadMask:true
@@ -23,10 +28,27 @@ Ext.define('Rd.view.sqmProfiles.pnlSqmProfiles', {
 
         //Create the view for the wallpapers:
 
-        var imageTpl = new Ext.XTemplate(
+        var tpl = new Ext.XTemplate(
             '<tpl for=".">',
-                '<div class="plain-wrap">',
-                 '<h1>{name}</h1>',
+                '<div class="dataview-item">',
+                    '<div class="dataview-field">',
+                        '<label>Name:</label> {name}',
+                    '</div>',
+                    '<div class="dataview-field">',
+                        '<label>Download Speed:</label> {download}',
+                    '</div>',
+                    '<div class="dataview-field">',
+                        '<label>Upload Speed:</label> {upload}',
+                    '</div>',
+                    '<div class="dataview-field">',
+                        '<label>Queueing Discipline:</label> {qdisc}',
+                    '</div>',
+                    '<div class="dataview-field">',
+                        '<label>Queue Setup Script:</label> {script}',
+                    '</div>',
+                    '<div class="dataview-field">',
+                        '<label>System Wide:</label> {[values.for_system ? "Yes" : "No"]}',
+                    '</div>',
                 '</div>',
             '</tpl>'
         );
@@ -35,7 +57,7 @@ Ext.define('Rd.view.sqmProfiles.pnlSqmProfiles', {
             model: 'Rd.model.mDynamicPhoto',
             proxy: {
                 type        :'ajax',
-                url         : '/cake4/rd_cake/firewall-profiles/index-data-view.json',
+                url         : '/cake4/rd_cake/sqm-profiles/index-data-view.json',
                 batchActions: true,
                 format      : 'json',
                 reader      : {
@@ -61,8 +83,8 @@ Ext.define('Rd.view.sqmProfiles.pnlSqmProfiles', {
         var v = Ext.create('Ext.view.View', {
             store       : me.store,
             multiSelect : true,
-            tpl         : imageTpl,
-            itemSelector: 'div.plain-wrap',
+            tpl         : tpl,
+            itemSelector: '.dataview-item',
             itemId		: 'dvSqmProfiles',
             emptyText   : 'No SQM Profiles Defined Yet'
         });

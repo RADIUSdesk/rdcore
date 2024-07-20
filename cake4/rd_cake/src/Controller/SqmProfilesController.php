@@ -81,7 +81,6 @@ class SqmProfilesController extends AppController {
 
 	//-- List available link layer options --
    public function linkLayerOptions(){
-
         $items = [];
 
 	Configure::load('MESHdesk');
@@ -101,7 +100,6 @@ class SqmProfilesController extends AppController {
 
    //-- List available script options --
    public function scriptOptions(){
-
         $items = [];
 
 	Configure::load('MESHdesk');
@@ -119,11 +117,8 @@ class SqmProfilesController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
 
-
-
    //-- List available script options --
    public function qdiscOptions(){
-
         $items = [];
 
 	Configure::load('MESHdesk');
@@ -141,10 +136,6 @@ class SqmProfilesController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
 
-
-
-
- 
     public function indexComboXX(){
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
@@ -238,7 +229,22 @@ class SqmProfilesController extends AppController {
             	$i->for_system = true;
             }else{
                 $i->for_system = false;
-            }			
+            }
+            
+            
+            $i->upload_suffix = 'kbps';
+            $i->download_suffix   = 'kbps';
+            
+            if($i->upload > 1023){
+                $i->upload = $i->upload / 1000;
+                $i->upload_suffix = 'mbps';
+            }
+            
+            if($i->download > 1023){
+                $i->download = $i->download / 1000;
+                $i->download_suffix = 'mbps';
+            }           
+            			
 			array_push($items, $i);
         }
         

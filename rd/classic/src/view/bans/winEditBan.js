@@ -45,7 +45,7 @@ Ext.define('Rd.view.bans.winEditBan', {
             xtype       : 'rdSliderSpeed',
             sliderName  : 'limit_download',
             itemId		: 'bw_down',
-            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up",
+            fieldLabel  : "<i class='fa fa-arrow-down'></i> Down",
             hidden		: true,
             disabled	: true
         });

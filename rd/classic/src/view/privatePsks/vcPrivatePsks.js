@@ -153,7 +153,7 @@ Ext.define('Rd.view.privatePsks.vcPrivatePsks', {
             var sr      = me.getView().getSelectionModel().getLastSelected(); 
             console.log(sr.get('vlan')); 			
 			if(!Ext.WindowManager.get('winPrivatePskEditId')){
-                var w = Ext.widget('winPrivatePskEdit',{id:'winPrivatePskEditd',record: sr,root: me.root});
+                var w = Ext.widget('winPrivatePskEdit',{id:'winPrivatePskEditId',record: sr,root: me.root});
                 me.getView().add(w); 
                 let appBody = Ext.getBody();
                 w.showBy(appBody);      

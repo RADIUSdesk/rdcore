@@ -30,7 +30,13 @@ Ext.define('Rd.view.sqmProfiles.vcPnlSqmProfiles', {
         },
         'pnlSqmProfiles cmbSqmProfile': {
            change   : 'cmbSqmProfileChange'
-        }           
+        },
+        'winSqmProfileAdd #btnAddSave' : {
+            click   : 'btnAddSave'
+        },
+        'winSqmProfileEdit #btnSave' : {
+            click   : 'btnEditSave'
+        }          
     },
     reload: function(){
         var me = this;
@@ -47,7 +53,7 @@ Ext.define('Rd.view.sqmProfiles.vcPnlSqmProfiles', {
             w.showBy(appBody);        
         }
     },
-    btnDataNext:  function(button){
+    btnAddSave:  function(button){
         var me      = this;
         var win     = button.up('window');
         var form    = win.down('form');
@@ -79,11 +85,16 @@ Ext.define('Rd.view.sqmProfiles.vcPnlSqmProfiles', {
                         Ext.ux.Constants.msgWarn
             );
         }else{
-		    var sr   =  me.getView().down('#dvSqmlProfiles').getSelectionModel().getLastSelected();
+		    var sr   =  me.getView().down('#dvSqmProfiles').getSelectionModel().getLastSelected();
 		    if(!me.rightsCheck(sr)){
 	    		return;
 	    	}
-		    console.log("Complete Edit action"); 			  		  	  
+	    	if(!Ext.WindowManager.get('winSqmProfileEditId')){
+                var w = Ext.widget('winSqmProfileEdit',{id:'winSqmProfileEditId',record: sr,root: me.root});
+                me.getView().add(w); 
+                let appBody = Ext.getBody();
+                w.showBy(appBody);      
+            }			  		  	  
         }     
     },
     btnEditSave:function(button){
@@ -96,7 +107,8 @@ Ext.define('Rd.view.sqmProfiles.vcPnlSqmProfiles', {
             url                 : me.getUrlEdit(),
             success             : function(form, action) {
                 me.reload();
-                 win.close();
+                win.close();
+                me.reloadComboBox();
                 Ext.ux.Toaster.msg(
                     i18n('sItems_modified'),
                     i18n('sItems_modified_fine'),
@@ -106,10 +118,10 @@ Ext.define('Rd.view.sqmProfiles.vcPnlSqmProfiles', {
             },
             failure             : Ext.ux.formFail
         });
-    },  
-    del: function(button) {
-        var me      = this;
-        
+    },
+    del:   function(){
+        var me      = this;     
+        //Find out if there was something selected
         if(me.getView().down('#dvSqmProfiles').getSelectionModel().getCount() == 0){
             Ext.ux.Toaster.msg(
                         i18n('sSelect_an_item'),
@@ -118,15 +130,45 @@ Ext.define('Rd.view.sqmProfiles.vcPnlSqmProfiles', {
                         Ext.ux.Constants.msgWarn
             );
         }else{
-        	var sr   =  me.getView().down('#dvSqmProfiles').getSelectionModel().getLastSelected();
-        	
-        	if(!me.rightsCheck(sr)){
-	    		return;
-	    	}
-        	//Add delete code
-        	console.log("Add Delete Action")         
-        }      
-    },           
+            Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
+                if(val== 'yes'){
+                    var selected    = me.getView().down('#dvSqmProfiles').getSelectionModel().getSelection();
+                    var list        = [];
+                    Ext.Array.forEach(selected,function(item){
+                        var id = item.get('id');
+                        Ext.Array.push(list,{'id' : id});
+                    });
+                    Ext.Ajax.request({
+                        url: me.getUrlDelete(),
+                        method: 'POST',          
+                        jsonData: list,
+                        success: function(batch,options){console.log('success');
+                            Ext.ux.Toaster.msg(
+                                i18n('sItem_deleted'),
+                                i18n('sItem_deleted_fine'),
+                                Ext.ux.Constants.clsInfo,
+                                Ext.ux.Constants.msgInfo
+                            );
+                            me.reload(); //Reload from server
+                            me.getView().down('cmbSqmProfile').getStore().load();
+                        },                                    
+                        failure: function (response, options) {
+                            var jsonData = Ext.JSON.decode(response.responseText);
+                            Ext.Msg.show({
+                                title       : "Error",
+                                msg         : response.request.url + '<br>' + response.status + ' ' + response.statusText+"<br>"+jsonData.message,
+                                modal       : true,
+                                buttons     : Ext.Msg.OK,
+                                icon        : Ext.Msg.ERROR,
+                                closeAction : 'destroy'
+                            });
+                            me.reload(); //Reload from server
+                        }
+                    });
+                }
+            });
+        }
+    },
     cmbSqmProfileChange: function(cmb,new_value){
     	var me = this;
     	console.log("Filter TO "+new_value);

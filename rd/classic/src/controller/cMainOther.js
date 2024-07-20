@@ -60,6 +60,64 @@ Ext.define('Rd.controller.cMainOther', {
 		    }
 	    }	    
     },
+    actionIndexWIP: function(pnl,itemId){
+        var me      = this;
+        var item    = pnl.down('#'+itemId);
+        var added   = false;
+        if(!item){
+        
+        
+            var s = Ext.create('Ext.data.Store', {
+                storeId: 'myStore',
+                fields: ['column1', 'column2'],
+                data: [
+                    { column1: 'Item 1A', column2: 'Item 1B' },
+                    { column1: 'Item 2A', column2: 'Item 2B' },
+                    { column1: 'Item 3A', column2: 'Item 3B' }
+                ]
+            });
+            
+            var v = Ext.create('Ext.view.View', {
+                store: Ext.data.StoreManager.lookup('myStore'),
+                tpl: new Ext.XTemplate(
+                    '<tpl for=".">',
+                        '<div class="dataview-item">',
+                            '<div class="dataview-column1">{column1}</div>',
+                            '<div class="dataview-column2">{column2}</div>',
+                        '</div>',
+                    '</tpl>'
+                ),
+                itemSelector: '.dataview-item',
+                listeners: {
+                    itemclick: function(view, record, item, index, e) {
+                        var clickedColumn = e.getTarget('.dataview-column1') ? 'column1' : 'column2';
+                        console.log('Clicked column:', clickedColumn, 'Value:', record.get(clickedColumn));
+                        // Add your selection handling logic here
+                    }
+                }
+            });
+        
+        
+            var tp = Ext.create('Ext.panel.Panel',
+            	{          
+	            	border      : false,
+	                itemId      : itemId,
+	                items       : v,
+	                height      : '100%', 
+                    width       :  550,
+                    layout: {
+                       type: 'vbox',
+                       align: 'stretch'
+                    },
+                    items       : v,
+                    autoScroll  : true,
+	            });      
+            pnl.add(tp);
+                              
+            added = true;
+        }
+        return added;      
+    },
     actionIndex: function(pnl,itemId){
         var me      = this;
         var item    = pnl.down('#'+itemId);
