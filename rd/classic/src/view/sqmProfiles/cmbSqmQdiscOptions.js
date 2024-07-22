@@ -20,7 +20,7 @@ Ext.define('Rd.view.sqmProfiles.cmbSqmQdiscOptions', {
                     type    : 'ajax',
                     format  : 'json',
                     batchActions: true, 
-                    url     : '/cake4/rd_cake/sqm-profiles/qdiscOptions.json',
+                    url     : '/cake4/rd_cake/sqm-profiles/qdisc-options.json',
                     reader: {
                         type            : 'json',
                         rootProperty    : 'items',

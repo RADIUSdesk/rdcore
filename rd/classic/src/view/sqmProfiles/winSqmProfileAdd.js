@@ -73,14 +73,14 @@ Ext.define('Rd.view.sqmProfiles.winSqmProfileAdd', {
                     xtype       : 'rdSliderSpeed',
                     minValue    : 0,
                     setValue    : 0,
-                    sliderName  : 'limit_upload',
+                    sliderName  : 'upload',
                     fieldLabel  : "<i class='fa fa-arrow-up'></i> Up"
                 },
                 {
                     xtype       : 'rdSliderSpeed',
                     minValue    : 0,
                     setValue    : 0,
-                    sliderName  : 'limit_download',
+                    sliderName  : 'download',
                     fieldLabel  : "<i class='fa fa-arrow-down'></i> Down"
                 },
                

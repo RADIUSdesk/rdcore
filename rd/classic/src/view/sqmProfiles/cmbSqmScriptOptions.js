@@ -20,7 +20,7 @@ Ext.define('Rd.view.sqmProfiles.cmbSqmScriptOptions', {
                     type    : 'ajax',
                     format  : 'json',
                     batchActions: true, 
-                    url     : '/cake4/rd_cake/sqm-profiles/scriptOptions.json',
+                    url     : '/cake4/rd_cake/sqm-profiles/script-options.json',
                     reader: {
                         type            : 'json',
                         rootProperty    : 'items',

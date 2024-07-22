@@ -48,7 +48,7 @@ Ext.define('Rd.view.sqmProfiles.winSqmProfileEdit', {
         var cmbQdisc = Ext.create('Rd.view.sqmProfiles.cmbSqmQdiscOptions',{
         });
         
-        //Note you cant specify the value when you declare the item since it will then not do formbind properly with tha save button
+        //Note you can't specify the value when you declare the item since it will then not do formbind properly with the save button
         cmbQdisc.setValue(me.record.get('qdisc'));
 	    cmbScript.setValue(me.record.get('script'));
       
