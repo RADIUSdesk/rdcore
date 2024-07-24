@@ -57,3 +57,60 @@
     font-family: "Open Sans", "Helvetica Neue", helvetica, arial, verdana, sans-serif;
 }
 
+
+/*
+
+.dataview-item {
+    display: flex;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.dataview-column1, .dataview-column2 {
+    flex: 1;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.dataview-column1:hover, .dataview-column2:hover {
+    background-color: #f0f0f0;
+}
+
+.dataview-column1.selected, .dataview-column2.selected {
+    background-color: #d0e5f5;
+}
+*/
+
+
+.dataview-item {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    margin: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.dataview-field {
+    margin: 5px 0;
+    font-size: 18px;
+}
+
+.dataview-field label {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.dataview-item:hover {
+    background-color: #f9f9f9;
+    border-color: #007bff;
+}
+
+.dataview-item.selected {
+    background-color: #e9f5ff;
+    border-color: #007bff;
+}
+
+
