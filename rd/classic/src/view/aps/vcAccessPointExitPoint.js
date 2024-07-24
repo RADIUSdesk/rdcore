@@ -17,6 +17,16 @@ Ext.define('Rd.view.aps.vcAccessPointExitPoint', {
 		}else{
 		    fw_prof.disable();
 		}
+	},     
+	onChkApplySqmProfileChange: function(chk){
+		var me 		    = this;
+		var form        = chk.up('form');
+		var sqm_prof    = form.down('cmbSqmProfile');
+		if(chk.getValue()){
+		    sqm_prof.enable();		   
+		}else{
+		    sqm_prof.disable();
+		}
 	},        
 	onChkDnsOverrideChange: function(chk){
 		var me 		= this;

@@ -625,6 +625,8 @@ class ApHelper22Component extends Component {
         //in the wireless configuration file
 
         $start_number = 0;
+        $ifCounter      = 0;
+        $loopCounter    = 0;      
 
         //We create a data structure which will be used to add the entry points and bridge them with
         //The correct network defined here
@@ -634,10 +636,17 @@ class ApHelper22Component extends Component {
 
         //Add the auto-attach entry points
         foreach($ap_profile->ap_profile->ap_profile_exits as $ap_profile_e){
+                    
             $has_entries_attached   = false;
-            if($ap_profile_e->vlan === 0){        
-                $if_name                = 'ex_'.$this->_number_to_word($start_number);
+            $notVlan                = true;
+
+            if (($ap_profile_e->vlan > 0) && ($ap_profile_e->type === 'nat')) {
+                $if_name     = 'ex_vlan'.$ap_profile_e->vlan;
+                $notVlan    = false;
+            } else {
+                $if_name = 'ex_' . $this->_number_to_word($ifCounter);
             }
+
             $exit_id                = $ap_profile_e->id;
             $type                   = $ap_profile_e->type;
             $vlan                   = $ap_profile_e->vlan;
@@ -716,15 +725,18 @@ class ApHelper22Component extends Component {
                                 "device"	=> "br-$if_name"
                         ]]
                     );
-                    	           	                               		    
-                    $start_number++;
+                    
+                    if($notVlan){
+                        $ifCounter ++;
+                    }
+                    $loopCounter++;
                     continue;   //We don't care about the other if's
                 }
 
                 //== 20May2021 == Modify so it will use custom settings if defined 
                 if($type == 'nat'){
                 
-                    $if_ipaddr          = "10.200.".(100+$start_number).".1";
+                    $if_ipaddr          = "10.200.".(100+$loopCounter).".1";
                     $if_netmask         = "255.255.255.0";
                     $nat_detail_item    = [];
                     
@@ -798,7 +810,10 @@ class ApHelper22Component extends Component {
                     );
                     //Push the nat data
                     array_push($nat_data,$if_name);
-                    $start_number++;
+                    if($notVlan){
+                        $ifCounter ++;
+                    }
+                    $loopCounter++;
                     continue; //We dont care about the other if's
                 }
 
@@ -810,7 +825,7 @@ class ApHelper22Component extends Component {
                 
                     if(($this->WbwActive == true)||($this->QmiActive == true)){
                         $this->if_wbw_nat_br = $if_name;
-                        $interfaces =  ["nat.".$start_number];
+                        $interfaces =  ["nat.".$loopCounter];
                         if($eth_one_bridge == true){
                             $current_interfaces = array_merge($interfaces,$this->_lan_for($this->Hardware));
                         }
@@ -837,7 +852,7 @@ class ApHelper22Component extends Component {
                                 "interface"    => "$if_name",
                                 "options"   => [
                                     "device"    => "br-$if_name",
-                                    'ipaddr'    =>  "10.210.".(100+$start_number).".1",
+                                    'ipaddr'    =>  "10.210.".(100+$loopCounter).".1",
                                     'netmask'   =>  "255.255.255.0",
                                     'proto'     => 'static',
                                     'stp'       => $this->stp_dflt,
@@ -941,7 +956,10 @@ class ApHelper22Component extends Component {
 		            $options_cp['device'] = "br-$if_name";     
                     
                     array_push($network,["interface" => "$if_name","options"=> $options_cp]);
-                    $start_number++;
+                    if($notVlan){
+                        $ifCounter ++;
+                    }
+                    $loopCounter++;
                     continue; //We dont care about the other if's
                 }
 
@@ -985,7 +1003,10 @@ class ApHelper22Component extends Component {
 
                                 ]]
                         );
-                        $start_number++;
+                        if($notVlan){
+                            $ifCounter ++;
+                        }
+                        $loopCounter++;
                         continue; //We dont care about the other if's
                     }
                 }
@@ -1092,7 +1113,10 @@ class ApHelper22Component extends Component {
                         ]]
                     );
 
-                    $start_number++;
+                    if($notVlan){
+                        $ifCounter ++;
+                    }
+                    $loopCounter++;
                     continue; //We dont care about the other if's 
                 }
                 

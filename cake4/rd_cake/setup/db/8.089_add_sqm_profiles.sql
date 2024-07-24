@@ -39,6 +39,18 @@ if not exists (select * from information_schema.columns
 
 end if;
 
+if not exists (select * from information_schema.columns
+    where column_name = 'apply_sqm_profile' and table_name = 'ap_profile_exits' and table_schema = 'rd') then
+    alter table ap_profile_exits add column `apply_sqm_profile` tinyint(1) NOT NULL DEFAULT 0;
+    alter table ap_profile_exits add column `sqm_profile_id` int(11) NOT NULL DEFAULT '0';
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'apply_sqm_profile' and table_name = 'mesh_exits' and table_schema = 'rd') then
+    alter table mesh_exits add column `apply_sqm_profile` tinyint(1) NOT NULL DEFAULT 0;
+    alter table mesh_exits add column `sqm_profile_id` int(11) NOT NULL DEFAULT '0';
+end if;
+
 
 end//
 

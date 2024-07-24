@@ -29,9 +29,36 @@ class SqmProfilesController extends AppController {
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');    
         $this->loadComponent('JsonErrors'); 
-        $this->loadComponent('TimeCalculations');
-        $this->loadComponent('Schedule');
+        $this->loadComponent('Sqm'); 
     }
+    
+    //**http://127.0.0.1/cake4/rd_cake/sqm-profiles/get-config-for-node.json?gateway=true&_dc=1651070922&version=22.03&mac=64-64-4A-DD-07-FC**
+    public function getConfigForNode(){
+
+        $mac        = $this->request->getQuery('mac');
+        $version    = $this->request->getQuery('version');
+
+        if (!$mac || !$version) {
+            $this->set([
+                'success' => false,
+                'error' => 'MAC and version are required',
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
+            return;
+        }
+
+        $config = [];
+
+        if ($version === '22.03') {
+            $config['sqm'] = $this->Sqm->jsonForMac($mac);
+        }
+
+        $this->set([
+            'config_settings'   => $config,
+            'success'           => true,
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    } 
     
     public function indexCombo(){
         // Authentication + Authorization

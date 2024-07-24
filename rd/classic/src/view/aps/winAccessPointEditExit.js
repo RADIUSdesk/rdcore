@@ -33,6 +33,7 @@ Ext.define('Rd.view.aps.winAccessPointEditExit', {
         'Rd.view.aps.tagAccessPointEntryPoints',
         'Rd.view.components.pnlExitPointNatDhcp',
         'Rd.view.components.cmbFirewallProfile',
+        'Rd.view.components.cmbSqmProfile',
         'Rd.view.accel.cmbAccelProfiles'
     ],
     controller  : 'vcAccessPointExitPoint',
@@ -219,6 +220,23 @@ Ext.define('Rd.view.aps.winAccessPointEditExit', {
                                 	include_all_option : false,
                                 	disabled	: true,
                                 	labelClsExtra: 'lblRdReq'                             	
+                                },
+                                {
+                                    itemId      : 'chkApplySqmProfile',
+                                    xtype       : 'checkbox',      
+                                    boxLabel  	: 'Apply SQM Profile',
+                                    boxLabelCls	: 'boxLabelRd',
+                                    name        : 'apply_sqm_profile',
+                                    listeners   : {
+							            change  : 'onChkApplySqmProfileChange'
+							        }
+                                },
+                                {
+                                	xtype		: 'cmbSqmProfile',
+                                	fieldLabel	: 'SQM Profile',
+                                	include_all_option : false,
+                                	disabled	: true,
+                                	labelClsExtra: 'lblRd'                             	
                                 },
                                 {
                                     itemId      : 'chkNasClient',

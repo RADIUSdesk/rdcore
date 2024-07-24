@@ -79,6 +79,21 @@ Ext.define('Rd.view.aps.gridAccessPointExits' ,{
                     '</tpl>'
                 ),
                 dataIndex: 'apply_firewall_profile',stateId: 'StateGridAccessPointExitsId4'
+            },
+            { 
+                text    : 'SQM Profile',
+                sortable: false,
+                flex    : 1, 
+                tdCls   : 'gridTree', 
+                xtype   :  'templatecolumn', 
+                tpl:    new Ext.XTemplate(
+                    '<tpl if="apply_sqm_profile">',
+                    	"<tpl><div class=\"fieldBlueWhite\"><i class=\"fa fa-th\"></i>  {sqm_profile_name}</div></tpl>",
+                    '<tpl else>',
+                        "<tpl><div class=\"fieldGreyWhite\">SQM Not Enabled</div></tpl>",
+                    '</tpl>'
+                ),
+                dataIndex: 'apply_firewall_profile',stateId: 'StateGridAccessPointExitsId5'
             }
         ];
         me.callParent(arguments);

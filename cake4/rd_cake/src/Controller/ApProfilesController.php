@@ -688,7 +688,7 @@ class ApProfilesController extends AppController {
             ]);       
         }       
         $q_r = $this->ApProfileExits->find()
-            ->contain(['ApProfileExitApProfileEntries.ApProfileEntries','FirewallProfiles'])
+            ->contain(['ApProfileExitApProfileEntries.ApProfileEntries','FirewallProfiles','SqmProfiles'])
             ->where(['ApProfileExits.ap_profile_id' => $ap_profile_id])
             ->all();
 
@@ -715,6 +715,11 @@ class ApProfilesController extends AppController {
             if($m->apply_firewall_profile){
             	$firewall_profile_name = $m->firewall_profile->name;
             }
+            
+            $sqm_profile_name  = 'Unknown SQM Profile';            
+            if($m->apply_sqm_profile){
+            	$sqm_profile_name = $m->sqm_profile->name;
+            }
 
             array_push($items, [
                 'id'            => $m->id,
@@ -724,7 +729,10 @@ class ApProfilesController extends AppController {
                 'connects_with' => $exit_entries,
                 'apply_firewall_profile' 	=> $m->apply_firewall_profile,
                 'firewall_profile_id' 		=> $m->firewall_profile_id,
-                'firewall_profile_name'		=> $firewall_profile_name
+                'firewall_profile_name'		=> $firewall_profile_name,
+                'apply_sqm_profile' 	    => $m->apply_sqm_profile,
+                'sqm_profile_id' 		    => $m->sqm_profile_id,
+                'sqm_profile_name'		    => $sqm_profile_name
             ]);
         }
         //___ FINAL PART ___
@@ -747,7 +755,8 @@ class ApProfilesController extends AppController {
 		$req_d 		= $this->request->getData();
 		
 		$check_items = [
-			'apply_firewall_profile'
+			'apply_firewall_profile',
+			'apply_sqm_profile'
 		];       
         foreach($check_items as $i){
 	        if(isset($req_d[$i])){
@@ -971,7 +980,8 @@ class ApProfilesController extends AppController {
         
         	$req_d 			= $this->request->getData();
         	$g_check_items 	= [
-				'apply_firewall_profile'
+				'apply_firewall_profile',
+				'apply_sqm_profile'
 			];
 			foreach($g_check_items as $i){
 			   	if(isset($req_d[$i])){
@@ -1300,7 +1310,7 @@ class ApProfilesController extends AppController {
                 }
             }
         }
-
+        
         //entry_points
         $q_r['entry_points'] = [];
 
