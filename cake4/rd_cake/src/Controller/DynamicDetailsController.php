@@ -1686,7 +1686,7 @@ class DynamicDetailsController extends AppController{
 
     private function getDynamicDataFromQuery($req_q){
     
-        if (empty($array)) {
+        if (empty($req_q)) {
             return;
         }
     
