@@ -26,6 +26,13 @@ class ApProfileExitsTable extends Table {
                 'className' => 'FirewallProfiles',
                 'foreignKey' => 'firewall_profile_id'
             ]);
+
+        $this->belongsTo('SqmProfiles', [
+                'className' => 'SqmProfiles',
+                'foreignKey' => 'sqm_profile_id'
+            ]);
+
+
         $this->hasMany('ApProfileExitApProfileEntries', ['dependent' => true]);
         $this->hasMany('OpenvpnServerClients', ['dependent' => true]);
         $this->hasOne('ApProfileExitCaptivePortals', ['dependent' => true]);

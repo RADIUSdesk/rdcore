@@ -14,6 +14,12 @@ class MeshExitsTable extends Table{
             'className' => 'FirewallProfiles',
             'foreignKey' => 'firewall_profile_id'
         ]);
+
+        $this->belongsTo('SqmProfiles', [
+            'className' => 'SqmProfiles',
+            'foreignKey' => 'sqm_profile_id'
+        ]);
+
         $this->hasMany('MeshExitMeshEntries',['dependent' => true]);
         $this->hasOne('MeshExitCaptivePortals',['dependent' => true]);
         $this->hasOne('OpenvpnServerClients',['dependent' => true]); 
