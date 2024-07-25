@@ -641,7 +641,7 @@ class ApHelper22Component extends Component {
             $notVlan                = true;
 
             if (($ap_profile_e->vlan > 0) && ($ap_profile_e->type === 'nat')) {
-                $if_name     = 'ex_vlan'.$ap_profile_e->vlan;
+                $if_name     = 'ex_v'.$ap_profile_e->vlan;
                 $notVlan    = false;
             } else {
                 $if_name = 'ex_' . $this->_number_to_word($ifCounter);
@@ -664,7 +664,7 @@ class ApHelper22Component extends Component {
                     if(preg_match('/^-9/',$entry->ap_profile_entry_id)){ 	
 		            	$dynamic_vlan = $entry->ap_profile_entry_id;
 		            	$dynamic_vlan = str_replace("-9","",$dynamic_vlan);
-		            	$if_name = 'ex_vlan'.$dynamic_vlan;
+		            	$if_name = 'ex_v'.$dynamic_vlan;
 		            	$this->ppsk_flag = true; //set the heads-up flag	            
 		            }
 		                               
@@ -741,7 +741,7 @@ class ApHelper22Component extends Component {
                     $nat_detail_item    = [];
                     
                     if($ap_profile_e->vlan > 0){                   
-                        $if_name            = 'ex_vlan'.$ap_profile_e->vlan;                      
+                        $if_name            = 'ex_v'.$ap_profile_e->vlan;                      
                     }
                     
                     foreach($ap_profile_e->ap_profile_exit_settings as $s){                        
@@ -1415,7 +1415,7 @@ class ApHelper22Component extends Component {
                     	//Lets see if there is not perhaps a Dynamic VLAN to override the interface name 
                     	$exit_id = $epd['exit_id'];
                     	foreach($entry_point_data as $epd_vlan){
-                    		if(($epd_vlan['exit_id'] == $exit_id)&&(preg_match('/^ex_vlan/',$epd_vlan['network']))){
+                    		if(($epd_vlan['exit_id'] == $exit_id)&&(preg_match('/^ex_v/',$epd_vlan['network']))){
                     			$epd['network'] = $epd_vlan['network'];
                     		}             	
                     	}
@@ -1518,7 +1518,7 @@ class ApHelper22Component extends Component {
 								    $base_array['encryption']	= 'psk2';
 								    $base_array['ppsk']			= '1';
 								    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-								    $base_array['vlan_bridge']  = 'br-ex_vlan';
+								    $base_array['vlan_bridge']  = 'br-ex_v';
 								    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
 								    $base_array['vlan_naming']	= '0';								
 								    //Set the flag
@@ -1527,7 +1527,7 @@ class ApHelper22Component extends Component {
 							    
 							    if($ap_profile_e->encryption == 'wpa2'){
 								    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-								    $base_array['vlan_bridge']  = 'br-ex_vlan';
+								    $base_array['vlan_bridge']  = 'br-ex_v';
 								    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
 								    $base_array['vlan_naming']	= '0';
 							    }							    
@@ -1555,7 +1555,7 @@ class ApHelper22Component extends Component {
 							    if($ap_profile_e->encryption == 'ppsk_no_radius'){
 								    $base_array['encryption']	= 'psk2';
 								    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-								    $base_array['vlan_bridge']  = 'br-ex_vlan';
+								    $base_array['vlan_bridge']  = 'br-ex_v';
 								    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
 								    $base_array['vlan_naming']	= '0';
 								    $base_array['wpa_psk_file'] = '/etc/hostapd-'.$ap_profile_e->private_psk_id.'.wpa_psk';
@@ -1755,7 +1755,7 @@ class ApHelper22Component extends Component {
 					    $base_array['encryption']	= 'psk2';
 					    $base_array['ppsk']			= '1';
 					    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-					    $base_array['vlan_bridge']  = 'br-ex_vlan';
+					    $base_array['vlan_bridge']  = 'br-ex_v';
 					    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
 					    $base_array['vlan_naming']	= '0';								
 					    //Set the flag
@@ -1764,7 +1764,7 @@ class ApHelper22Component extends Component {
 				    
 				    if($ap_profile_e->encryption == 'wpa2'){
 					    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-					    $base_array['vlan_bridge']  = 'br-ex_vlan';
+					    $base_array['vlan_bridge']  = 'br-ex_v';
 					    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
 					    $base_array['vlan_naming']	= '0';
 				    }	
@@ -1790,7 +1790,7 @@ class ApHelper22Component extends Component {
 				    if($ap_profile_e->encryption == 'ppsk_no_radius'){
 					    $base_array['encryption']	= 'psk2';
 					    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-					    $base_array['vlan_bridge']  = 'br-ex_vlan';
+					    $base_array['vlan_bridge']  = 'br-ex_v';
 					    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
 					    $base_array['vlan_naming']	= '0';
 					    $base_array['wpa_psk_file'] = '/etc/hostapd-'.$ap_profile_e->private_psk_id.'.wpa_psk';
@@ -1847,7 +1847,7 @@ class ApHelper22Component extends Component {
         return $wireless;  
     }
     
-    
+  /*  
 
     private function _number_to_word($number) {
         $dictionary  = [
@@ -1875,6 +1875,35 @@ class ApHelper22Component extends Component {
         ];
         return($dictionary[$number]);
     }
+    */
+    
+    //We shorten this to work with the SQM script (if its to long it truncates and breaks)
+    private function _number_to_word($number) {
+        $dictionary  = [
+            0                   => 'zro',
+            1                   => 'one',
+            2                   => 'two',
+            3                   => 'thr',
+            4                   => 'for',
+            5                   => 'fve',
+            6                   => 'six',
+            7                   => 'svn',
+            8                   => 'egt',
+            9                   => 'nne',
+            10                  => 'ten',
+            11                  => 'elv',
+            12                  => 'tve',
+            13                  => 'trt',
+            14                  => 'frt',
+            15                  => 'fft',
+            16                  => 'sxt',
+            17                  => 'svt',
+            18                  => 'eit',
+            19                  => 'nnt',
+            20                  => 'twt'
+        ];
+        return($dictionary[$number]);
+    }     
 
     private function _wan_for($hw){
 		$return_val = 'eth0'; //some default	

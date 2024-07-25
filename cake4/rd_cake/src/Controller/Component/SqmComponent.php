@@ -69,7 +69,7 @@ class SqmComponent extends Component {
             $notVlan            = true;
 
             if (($apProfileExit->vlan > 0) && ($apProfileExit->type === 'nat')) {
-                $ifName     = 'ex_vlan' . $apProfileExit->vlan;
+                $ifName     = 'ex_v' . $apProfileExit->vlan;
                 $notVlan    = false;
             } else {
                 $ifName = 'ex_' . $this->_number_to_word($ifCounter);
@@ -134,32 +134,33 @@ class SqmComponent extends Component {
           
         return $sqmFinal;
     }  
-    
+   
+    //We shorten this to work with the SQM script (if its to long it truncates and breaks)
     private function _number_to_word($number) {
         $dictionary  = [
-            0                   => 'zero',
+            0                   => 'zro',
             1                   => 'one',
             2                   => 'two',
-            3                   => 'three',
-            4                   => 'four',
-            5                   => 'five',
+            3                   => 'thr',
+            4                   => 'for',
+            5                   => 'fve',
             6                   => 'six',
-            7                   => 'seven',
-            8                   => 'eight',
-            9                   => 'nine',
+            7                   => 'svn',
+            8                   => 'egt',
+            9                   => 'nne',
             10                  => 'ten',
-            11                  => 'eleven',
-            12                  => 'twelve',
-            13                  => 'thirteen',
-            14                  => 'fourteen',
-            15                  => 'fifteen',
-            16                  => 'sixteen',
-            17                  => 'seventeen',
-            18                  => 'eighteen',
-            19                  => 'nineteen',
-            20                  => 'twenty'
+            11                  => 'elv',
+            12                  => 'tve',
+            13                  => 'trt',
+            14                  => 'frt',
+            15                  => 'fft',
+            16                  => 'sxt',
+            17                  => 'svt',
+            18                  => 'eit',
+            19                  => 'nnt',
+            20                  => 'twt'
         ];
         return($dictionary[$number]);
-    }   
+    }     
 }
 
