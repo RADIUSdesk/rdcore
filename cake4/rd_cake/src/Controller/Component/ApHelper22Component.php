@@ -19,7 +19,7 @@ use Cake\I18n\Time;
 
 class ApHelper22Component extends Component {
 
-	protected $components 	= ['Firewall','MdFirewall','AccelPpp'];
+	protected $components 	= ['Firewall','MdFirewall','AccelPpp', 'Sqm'];
     protected $main_model   = 'Aps';
     protected $ApId     = '';
 	protected $Hardware = 'creatcomm_ta8h'; //Some default value
@@ -144,6 +144,11 @@ class ApHelper22Component extends Component {
             	$adv_firewall = $this->MdFirewall->JsonForMac($mac);
             	if($adv_firewall){
             		$json['config_settings']['adv_firewall'] = $adv_firewall;
+            	}
+            	
+            	$sqm_profiles = $this->Sqm->jsonForMac($mac);
+            	if($sqm_profiles){
+            		$json['config_settings']['sqm'] = $sqm_profiles;
             	}
             	
             	//Populate the ppsk files if there are any
