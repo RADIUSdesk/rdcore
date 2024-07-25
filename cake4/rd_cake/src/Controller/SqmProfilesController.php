@@ -29,36 +29,9 @@ class SqmProfilesController extends AppController {
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');    
         $this->loadComponent('JsonErrors'); 
-        $this->loadComponent('Sqm'); 
+        $this->loadComponent('TimeCalculations');
+        $this->loadComponent('Schedule');
     }
-    
-    //**http://127.0.0.1/cake4/rd_cake/sqm-profiles/get-config-for-node.json?gateway=true&_dc=1651070922&version=22.03&mac=64-64-4A-DD-07-FC**
-    public function getConfigForNode(){
-
-        $mac        = $this->request->getQuery('mac');
-        $version    = $this->request->getQuery('version');
-
-        if (!$mac || !$version) {
-            $this->set([
-                'success' => false,
-                'error' => 'MAC and version are required',
-            ]);
-            $this->viewBuilder()->setOption('serialize', true);
-            return;
-        }
-
-        $config = [];
-
-        if ($version === '22.03') {
-            $config['sqm'] = $this->Sqm->jsonForMac($mac);
-        }
-
-        $this->set([
-            'config_settings'   => $config,
-            'success'           => true,
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);
-    } 
     
     public function indexCombo(){
         // Authentication + Authorization
@@ -296,6 +269,8 @@ class SqmProfilesController extends AppController {
         	if($this->request->getData('for_system')){
         		$req_d['cloud_id'] = -1;
 		    }
+		
+	    $req_d = $this->bandwidth($req_d);
 		               
             $entity = $this->{$this->main_model}->newEntity($req_d); 
             if ($this->{$this->main_model}->save($entity)) {
@@ -308,6 +283,19 @@ class SqmProfilesController extends AppController {
                 $this->JsonErrors->entityErros($entity,$message);
             }    
         }
+    }
+    
+        //Determines bandwidth speed
+    public function bandwidth($req_d){
+    	    $req_d['download'] = $req_d['download_amount'];
+    	    $req_d['upload'] = $req_d['upload_amount'];
+	    if($req_d['download_unit'] == 'mbps'){
+		    $req_d['download'] = $req_d['download'] * 1024;
+	    } 
+	    if($req_d['upload_unit'] == 'mbps'){
+		    $req_d['upload'] = $req_d['upload'] * 1024;
+	    }
+	    return $req_d;
     }
     
     public function delete() {
@@ -407,6 +395,8 @@ class SqmProfilesController extends AppController {
             		$this->JsonErrors->errorMessage('Not enough rights for action');
 					return;          	
             	}
+            	
+            	$req_d = $this->bandwidth($req_d);
                         
                 $this->{$this->main_model}->patchEntity($entity, $req_d); 
                 if ($this->{$this->main_model}->save($entity)) {
