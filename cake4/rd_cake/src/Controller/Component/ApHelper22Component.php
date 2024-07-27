@@ -94,6 +94,7 @@ class ApHelper22Component extends Component {
 		        $this->MetaData['ap_id']    = $this->ApId;
 		        $this->MetaData['node_id']  = $this->ApId; //Add this to keep the firmware simple and backward compatible
 		        
+		        
 		        $this->_update_wbw_channel(); //Update the wbw channel if it is included
 		        
                 $query = $this->{$this->main_model}->find()->contain([
@@ -119,7 +120,8 @@ class ApHelper22Component extends Component {
                             'ApProfileExitApProfileEntries',
                             'ApProfileExitCaptivePortals',
                             'ApProfileExitSettings',
-                            'ApProfileExitPppoeServers'
+                            'ApProfileExitPppoeServers',
+                            'SqmProfiles'
                         ]
                     ],
                     'Schedules' => [
@@ -638,6 +640,8 @@ class ApHelper22Component extends Component {
         $entry_point_data = [];
 
        /// print_r($ap_profile['ApProfileExit']);
+       
+       $this->MetaData['exits']= [];
 
         //Add the auto-attach entry points
         foreach($ap_profile->ap_profile->ap_profile_exits as $ap_profile_e){
@@ -656,7 +660,15 @@ class ApHelper22Component extends Component {
             $type                   = $ap_profile_e->type;
             $vlan                   = $ap_profile_e->vlan;
             $eth_one_bridge         = false;
-                       
+            $sqm_active             = $ap_profile_e->apply_sqm_profile;
+            
+            $this->MetaData['exits'][] = [
+                'id'        => $exit_id,
+                'type'      => $type,
+                'device'    => 'br-'.$if_name,
+                'sqm'       => $ap_profile_e->apply_sqm_profile
+            ];
+                                 
             //This is used to fetch info eventually about the entry points
             if(count($ap_profile_e->ap_profile_exit_ap_profile_entries) > 0){
                 $has_entries_attached = true;
@@ -1845,43 +1857,10 @@ class ApHelper22Component extends Component {
                     $start_number++;
                 }
             }                   
-        }
-        
-        
-                   	
+        }                  	
         return $wireless;  
     }
-    
-  /*  
-
-    private function _number_to_word($number) {
-        $dictionary  = [
-            0                   => 'zero',
-            1                   => 'one',
-            2                   => 'two',
-            3                   => 'three',
-            4                   => 'four',
-            5                   => 'five',
-            6                   => 'six',
-            7                   => 'seven',
-            8                   => 'eight',
-            9                   => 'nine',
-            10                  => 'ten',
-            11                  => 'eleven',
-            12                  => 'twelve',
-            13                  => 'thirteen',
-            14                  => 'fourteen',
-            15                  => 'fifteen',
-            16                  => 'sixteen',
-            17                  => 'seventeen',
-            18                  => 'eighteen',
-            19                  => 'nineteen',
-            20                  => 'twenty'
-        ];
-        return($dictionary[$number]);
-    }
-    */
-    
+      
     //We shorten this to work with the SQM script (if its to long it truncates and breaks)
     private function _number_to_word($number) {
         $dictionary  = [
