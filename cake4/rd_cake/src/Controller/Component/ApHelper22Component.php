@@ -664,6 +664,7 @@ class ApHelper22Component extends Component {
             
             $this->MetaData['exits'][] = [
                 'id'        => $exit_id,
+                'ap_profile_exit_id' => $exit_id, // With mesh we will make it mesh_exit_id
                 'type'      => $type,
                 'device'    => 'br-'.$if_name,
                 'sqm'       => $ap_profile_e->apply_sqm_profile

@@ -51,6 +51,30 @@ if not exists (select * from information_schema.columns
     alter table mesh_exits add column `sqm_profile_id` int(11) NOT NULL DEFAULT '0';
 end if;
 
+if not exists (select * from information_schema.columns
+    where table_name = 'sqm_stats' and table_schema = 'rd') then
+     CREATE TABLE `sqm_stats` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `ap_profile_exit_id` int(11) DEFAULT NULL,
+        `mesh_exit_id` int(11) DEFAULT NULL,
+        `bytes` BIGINT NOT NULL,
+        `packets` BIGINT NOT NULL,
+        `drops` BIGINT NOT NULL,
+        `overlimits` BIGINT NOT NULL,
+        `backlog` BIGINT NOT NULL,
+        `qlen` BIGINT NOT NULL,
+        `memory_used` BIGINT NOT NULL,
+        `peak_delay_us` BIGINT NOT NULL,
+        `avg_delay_us` BIGINT NOT NULL,
+        `base_delay_us` BIGINT NOT NULL,
+        `way_misses` BIGINT NOT NULL,
+        `way_indirect_hits` BIGINT NOT NULL,
+        `created` datetime NOT NULL,
+        `modified` datetime NOT NULL,
+     PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+end if;
 
 end//
 
