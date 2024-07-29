@@ -64,6 +64,7 @@ class ApsTable extends Table {
 		$this->hasMany('ApApProfileEntries',  ['dependent' => true]);
         $this->hasMany('ApStaticEntryOverrides',  ['dependent' => true]);		
 	    $this->hasMany('ApConnectionSettings', ['dependent' => true]);
+	    $this->hasMany('ApSqmStats', ['dependent' => true]);   
     }
 
     public function validationDefault(Validator $validator):Validator

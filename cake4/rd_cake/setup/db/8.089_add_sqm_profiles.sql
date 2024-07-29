@@ -52,10 +52,36 @@ if not exists (select * from information_schema.columns
 end if;
 
 if not exists (select * from information_schema.columns
-    where table_name = 'sqm_stats' and table_schema = 'rd') then
-     CREATE TABLE `sqm_stats` (
+    where table_name = 'ap_sqm_stats' and table_schema = 'rd') then
+     CREATE TABLE `ap_sqm_stats` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
+        `ap_id` int(11) DEFAULT NULL,
         `ap_profile_exit_id` int(11) DEFAULT NULL,
+        `bytes` BIGINT NOT NULL,
+        `packets` BIGINT NOT NULL,
+        `drops` BIGINT NOT NULL,
+        `overlimits` BIGINT NOT NULL,
+        `backlog` BIGINT NOT NULL,
+        `qlen` BIGINT NOT NULL,
+        `memory_used` BIGINT NOT NULL,
+        `peak_delay_us` BIGINT NOT NULL,
+        `avg_delay_us` BIGINT NOT NULL,
+        `base_delay_us` BIGINT NOT NULL,
+        `way_misses` BIGINT NOT NULL,
+        `way_indirect_hits` BIGINT NOT NULL,
+        `created` datetime NOT NULL,
+        `modified` datetime NOT NULL,
+     PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+end if;
+
+
+if not exists (select * from information_schema.columns
+    where table_name = 'node_sqm_stats' and table_schema = 'rd') then
+     CREATE TABLE `node_sqm_stats` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `node_id` int(11) DEFAULT NULL,
         `mesh_exit_id` int(11) DEFAULT NULL,
         `bytes` BIGINT NOT NULL,
         `packets` BIGINT NOT NULL,
@@ -75,6 +101,8 @@ if not exists (select * from information_schema.columns
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 end if;
+
+
 
 end//
 

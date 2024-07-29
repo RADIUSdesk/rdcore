@@ -68,7 +68,8 @@ class NodesTable extends Table{
         $this->hasMany('NodeMpSettings',  ['dependent' => true]);
         
         $this->hasMany('NodeScans', ['dependent' => true]);        
-        $this->hasMany('NodeConnectionSettings', ['dependent' => true]);
+        $this->hasMany('NodeConnectionSettings', ['dependent' => true]);      
+        $this->hasMany('NodeSqmStats', ['dependent' => true]);
 
     }
     
