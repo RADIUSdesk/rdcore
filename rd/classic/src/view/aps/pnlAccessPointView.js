@@ -10,7 +10,8 @@ Ext.define('Rd.view.aps.pnlAccessPointView', {
     requires    : [
         'Rd.view.aps.pnlApViewEntries',
         'Rd.view.aps.pnlApViewHardware',
-        'Rd.view.aps.gridApViewActions'
+        'Rd.view.aps.gridApViewActions',
+        'Rd.view.aps.pnlApViewSqm'
     ],
     initComponent: function() {
         var me      = this;
@@ -19,6 +20,12 @@ Ext.define('Rd.view.aps.pnlAccessPointView', {
                 title   : 'SSID &#8660; Device',
                 itemId  : 'tabApViewEntries',
                 xtype   : 'pnlApViewEntries',
+                apId    : me.ap_id
+            },
+            {
+                title   : 'SQM Stats',
+                itemId  : 'tabApViewSqm',
+                xtype   : 'pnlApViewSqm',
                 apId    : me.ap_id
             },
 		    {

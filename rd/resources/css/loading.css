@@ -81,6 +81,15 @@
 }
 */
 
+.dataview-columns {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.dataview-column {
+    flex-basis: 50%;
+}
+
 
 .dataview-item {
     display: flex;

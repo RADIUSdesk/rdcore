@@ -30,5 +30,3 @@ class SqmProfilesTable extends Table {
     }      
 }
 
-?>
-
