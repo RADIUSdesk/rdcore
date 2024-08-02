@@ -661,15 +661,7 @@ class ApHelper22Component extends Component {
             $vlan                   = $ap_profile_e->vlan;
             $eth_one_bridge         = false;
             $sqm_active             = $ap_profile_e->apply_sqm_profile;
-            
-            $this->MetaData['exits'][] = [
-                'id'        => $exit_id,
-                'ap_profile_exit_id' => $exit_id, // With mesh we will make it mesh_exit_id
-                'type'      => $type,
-                'device'    => 'br-'.$if_name,
-                'sqm'       => $ap_profile_e->apply_sqm_profile
-            ];
-                                 
+                                              
             //This is used to fetch info eventually about the entry points
             if(count($ap_profile_e->ap_profile_exit_ap_profile_entries) > 0){
                 $has_entries_attached = true;
@@ -701,6 +693,14 @@ class ApHelper22Component extends Component {
                    }                    
                 }           
             }
+            
+            $this->MetaData['exits'][] = [
+                'id'        => $exit_id,
+                'ap_profile_exit_id' => $exit_id, // With mesh we will make it mesh_exit_id
+                'type'      => $type,
+                'device'    => 'br-'.$if_name,
+                'sqm'       => $ap_profile_e->apply_sqm_profile
+            ];
                                    
             if($type == 'tagged_bridge_l3'){
                 $has_entries_attached = true;

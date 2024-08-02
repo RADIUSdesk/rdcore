@@ -77,6 +77,16 @@ class SqmComponent extends Component {
 
             if (count($apProfileExit->ap_profile_exit_ap_profile_entries) > 0) {
                 $hasEntriesAttached = true;
+                
+                //-- Look for internal VLANs --
+                foreach($apProfileExit->ap_profile_exit_ap_profile_entries as $entry){                
+                    if(preg_match('/^-9/',$entry->ap_profile_entry_id)){ 	
+		            	$dynamicVlan   = $entry->ap_profile_entry_id;
+		            	$dynamicVlan   = str_replace("-9","",$dynamicVlan);
+		            	$ifName         = 'ex_v'.$dynamicVlan;            
+		            }
+		            $notVlan    = false;		                                             
+                }                             
             }
 
             if ($hasEntriesAttached || (($apProfileExit->vlan > 0) && ($apProfileExit->type === 'nat'))) {
