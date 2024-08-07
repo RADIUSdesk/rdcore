@@ -22,7 +22,14 @@ class UsersTable extends Table
         $this->belongsTo('Groups');
         $this->belongsTo('Languages');
         $this->belongsTo('Countries');
-        $this->hasMany('UserSettings');       
+        
+        $this->hasMany('UserSettings',[
+            'dependent' => true
+        ]); 
+         $this->hasMany('CloudAdmins',[
+            'dependent' => true
+        ]);
+               
     }
       
     public function validationDefault(Validator $validator): Validator
