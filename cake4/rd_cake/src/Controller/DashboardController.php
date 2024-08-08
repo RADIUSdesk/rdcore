@@ -833,7 +833,7 @@ class DashboardController extends AppController{
             
             array_push($items,[
                 "title"	=> "SQM Profiles",
-                "glyph"	=> "xf091@FontAwesome",
+                "glyph"	=> "xf00a@FontAwesome",
                 "id"	=> "cSqmProfiles",
                 "layout"=> "fit",
                 'tabConfig' =>  [

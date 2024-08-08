@@ -19,7 +19,7 @@ use Cake\I18n\Time;
 
 class MeshHelper22Component extends Component {
 
-	protected $components 		= ['Firewall','MdFirewall','AccelPpp'];
+	protected $components 		= ['Firewall','MdFirewall','AccelPpp', 'Sqm'];
     protected $RadioSettings    = [];
     protected $l3_vlans         = []; //Layer three VLAN interfaces
     
@@ -127,6 +127,11 @@ class MeshHelper22Component extends Component {
             if($adv_firewall){
             	$json['config_settings']['adv_firewall'] = $adv_firewall;
             }
+            
+            $sqm_profiles = $this->Sqm->jsonForMac($ent_node->mac);
+            	if($sqm_profiles){
+            		$json['config_settings']['sqm'] = $sqm_profiles;
+            	}
             
             //Populate the ppsk files if there are any
         	foreach(array_keys($this->private_psks) as $ppsk_id){
@@ -693,7 +698,10 @@ class MeshHelper22Component extends Component {
         //The members of these bridges will be determined by which entries are assigned to them and specified
         //in the wireless configuration file
 
-        $start_number = 2;
+        $start_number   = 2;
+        
+        $ifCounter      = 2;
+        $loopCounter    = 2; 
 
         //We create a data structure which will be used to add the entry points and bridge them with
         //The correct network defined here
@@ -704,11 +712,21 @@ class MeshHelper22Component extends Component {
         foreach($ent_mesh->mesh_exits as $me){
         
             $has_entries_attached   = false;
-            $if_name                = 'ex_'.$this->_number_to_word($start_number);
+            //$if_name                = 'ex_'.$this->_number_to_word($start_number);
             $exit_id                = $me->id;
             $type                   = $me->type;
             $vlan                   = $me->vlan;
             $openvpn_server_id      = $me->openvpn_server_id;
+            $notVlan                = true;
+            $sqm_active             = $me->apply_sqm_profile;
+            
+            if (($me->vlan > 0) && ($me->type === 'nat')) {
+                $if_name    = 'ex_v'.$me->vlan;
+                $notVlan    = false;
+            } else {
+                $if_name = 'ex_' . $this->_number_to_word($ifCounter);
+            }
+            
             
             //Mar 2021 The eth_br_with will have the ID of the exit point. If it matches we need to add it even if it does not have a macting SSID
             if($eth_br_with == $me->id){
@@ -724,8 +742,9 @@ class MeshHelper22Component extends Component {
 		                if(preg_match('/^-9/',$entry->mesh_entry_id)){ 	
 				        	$dynamic_vlan = $entry->mesh_entry_id;
 				        	$dynamic_vlan = str_replace("-9","",$dynamic_vlan);
-				        	$if_name = 'ex_vlan'.$dynamic_vlan;
-				        	$this->ppsk_flag = true; //set the heads-up flag	            
+				        	$if_name = 'ex_v'.$dynamic_vlan;
+				        	$this->ppsk_flag = true; //set the heads-up flag
+				        	$notVlan    = false;	            
 				        }
                        
                         if(($type == 'bridge')&&($gateway)){ //The gateway needs the entry points to be bridged to the LAN
@@ -736,6 +755,14 @@ class MeshHelper22Component extends Component {
                     }
                 }
             }
+            
+             $this->MetaData['exits'][] = [
+                'id'        => $exit_id,
+                'mesh_exit_id' => $exit_id, // With mesh we will make it mesh_exit_id
+                'type'      => $type,
+                'device'    => 'br-'.$if_name,
+                'sqm'       => $me->apply_sqm_profile
+            ];
                                     
             if($type == 'tagged_bridge_l3'){
                 $has_entries_attached = true;    
@@ -751,7 +778,7 @@ class MeshHelper22Component extends Component {
                 //-- Common to gateway --
                 if($gateway){
                     $eth_one_bridge = false;
-                    $interfaces = ["bat0.".$start_number];
+                    $interfaces = ["bat0.".$loopCounter];
                     foreach($me->mesh_exit_mesh_entries as $cp_ent){
                         if($cp_ent['mesh_entry_id'] == 0){
                             $eth_one_bridge = true;
@@ -761,7 +788,7 @@ class MeshHelper22Component extends Component {
                     if($eth_one_bridge == true){
                         $lan_if = $this->_lan_if_for($this->Hardware);
                         if($lan_if){
-                            //array_push($interfaces,"bat0.".$start_number);
+                            //array_push($interfaces,"bat0.".$ifCounter);
                             array_merge($interfaces,$lan_if);
                         }
                     }
@@ -770,7 +797,7 @@ class MeshHelper22Component extends Component {
                 if(($type == 'tagged_bridge')&&($gateway)){
                                     
 					$br_int = $this->_eth_br_for($this->Hardware);
-					array_push($interfaces,"bat0.".$start_number);
+					array_push($interfaces,"bat0.".$loopCounter);
 					array_push($interfaces,$br_int.".$vlan");
 					
 					array_push($network,
@@ -795,14 +822,17 @@ class MeshHelper22Component extends Component {
                         ]]
                     );
 
-			        $start_number++;                 
+			        if($notVlan){
+                        $ifCounter ++;
+                    }
+                    $loopCounter++;                 
                     continue;   //We don't car about the other if's
                 }
         
                 //== 21May2021 == Modify so it will use custom settings if defined 
                 if(($type == 'nat')&&($gateway)){
                 
-                    $if_ipaddr          = "10.200.".(100+$start_number).".1";
+                    $if_ipaddr          = "10.200.".(100+$loopCounter).".1";
                     $if_netmask         = "255.255.255.0";
                     $nat_detail_item    = [];
                     
@@ -867,7 +897,10 @@ class MeshHelper22Component extends Component {
 					
                     //Push the nat data
                     array_push($nat_data,$if_name);
-                    $start_number++;
+                    if($notVlan){
+                        $ifCounter ++;
+                    }
+                    $loopCounter++;
                     continue; //We dont care about the other if's
                 }
 
@@ -895,7 +928,7 @@ class MeshHelper22Component extends Component {
                                 "interface"    => "$if_name",
                                 "options"   => [
                                     "device"    => "br-$if_name",
-                                    'ipaddr'    =>  "10.210.".(100+$start_number).".1",
+                                    'ipaddr'    =>  "10.210.".(100+$loopCounter).".1",
                                     'netmask'   =>  "255.255.255.0",
                                     'proto'     => 'static'
                             ]]
@@ -907,7 +940,10 @@ class MeshHelper22Component extends Component {
                         $network[1]['lists']['ports'] = array_merge($current_interfaces,$interfaces);
                         $network[1]['options']['stp'] = $this->stp;  
                     }                
-                    $start_number++;
+                    if($notVlan){
+                        $ifCounter ++;
+                    }
+                    $loopCounter++;
                     continue; //We dont care about the other if's
                 }
                                 
@@ -993,7 +1029,10 @@ class MeshHelper22Component extends Component {
                         ]]
                     );
 
-                    $start_number++;
+                    if($notVlan){
+                        $ifCounter ++;
+                    }
+                    $loopCounter++;
                     continue; //We dont care about the other if's
                 }
                 
@@ -1025,7 +1064,7 @@ class MeshHelper22Component extends Component {
                         array_push($openvpn_bridge_data,$a);
                                      
                     }
-                    $interfaces =  ["bat0.".$start_number];
+                    $interfaces =  ["bat0.".$loopCounter];
                     
                     array_push($network,
 	                    [
@@ -1052,7 +1091,10 @@ class MeshHelper22Component extends Component {
                         ]]
                     );
                     
-                    $start_number++;
+                    if($notVlan){
+                        $ifCounter ++;
+                    }
+                    $loopCounter++;
                     continue; //We dont care about the other if's            
                     
                 }
@@ -1161,7 +1203,10 @@ class MeshHelper22Component extends Component {
                         ]]
                     );
 
-                    $start_number++;
+                    if($notVlan){
+                        $ifCounter ++;
+                    }
+                    $loopCounter++;
                     continue; //We dont care about the other if's 
                 }
                                
@@ -1171,7 +1216,7 @@ class MeshHelper22Component extends Component {
                 //=======================================
 
                 if(($type == 'nat')||($type == 'tagged_bridge')||($type == 'bridge')||($type =='captive_portal')||($type =='openvpn_bridge')){
-                    $interfaces =  ["bat0.".$start_number];
+                    $interfaces =  ["bat0.".$loopCounter];
                     
 					//===Check if this standard node has an ethernet bridge that has to be included here (NON LAN bridge)
 					if(
@@ -1203,7 +1248,10 @@ class MeshHelper22Component extends Component {
                         ]]
                     );
 
-                    $start_number++;
+                    if($notVlan){
+                        $ifCounter ++;
+                    }
+                    $loopCounter++;
                     continue; //We dont care about the other if's
                 }
             }
@@ -1722,7 +1770,7 @@ class MeshHelper22Component extends Component {
 										$base_array['encryption']	= 'psk2';
 										$base_array['ppsk']			= '1';
 										$base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-										$base_array['vlan_bridge']  = 'br-ex_vlan';
+										$base_array['vlan_bridge']  = 'br-ex_v';
 										//$base_array['vlan_tagged_interface']  = 'lan1';//Is this needed?
 										$base_array['vlan_naming']	= '0';
 																					
@@ -1754,7 +1802,7 @@ class MeshHelper22Component extends Component {
 							        if($me->encryption == 'ppsk_no_radius'){
 								        $base_array['encryption']	= 'psk2';
 								        $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-								        $base_array['vlan_bridge']  = 'br-ex_vlan';
+								        $base_array['vlan_bridge']  = 'br-ex_v';
 								        //$base_array['vlan_tagged_interface']  = $this->br_int; //Is this needed?
 								        $base_array['vlan_naming']	= '0';
 								        $base_array['wpa_psk_file'] = '/etc/hostapd-'.$me->private_psk_id.'.wpa_psk';
@@ -1912,7 +1960,7 @@ class MeshHelper22Component extends Component {
 														$base_array['encryption']	= 'psk2';
 														$base_array['ppsk']			= '1';
 														$base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-														$base_array['vlan_bridge']  = 'br-ex_vlan';
+														$base_array['vlan_bridge']  = 'br-ex_v';
 														//$base_array['vlan_tagged_interface']  = 'lan1';//Is this needed?
 														$base_array['vlan_naming']	= '0';													
 														//Set the flag
@@ -1941,7 +1989,7 @@ class MeshHelper22Component extends Component {
 							                        if($me->encryption == 'ppsk_no_radius'){
 								                        $base_array['encryption']	= 'psk2';
 								                        $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-								                        $base_array['vlan_bridge']  = 'br-ex_vlan';
+								                        $base_array['vlan_bridge']  = 'br-ex_v';
 								                        //$base_array['vlan_tagged_interface']  = $this->br_int; //Is this needed?
 								                        $base_array['vlan_naming']	= '0';
 								                        $base_array['wpa_psk_file'] = '/etc/hostapd-'.$me->private_psk_id.'.wpa_psk';
@@ -2081,6 +2129,33 @@ class MeshHelper22Component extends Component {
 	}
 	
 	private function _number_to_word($number) {
+        $dictionary  = [
+            0                   => 'zro',
+            1                   => 'one',
+            2                   => 'two',
+            3                   => 'thr',
+            4                   => 'for',
+            5                   => 'fve',
+            6                   => 'six',
+            7                   => 'svn',
+            8                   => 'egt',
+            9                   => 'nne',
+            10                  => 'ten',
+            11                  => 'elv',
+            12                  => 'tve',
+            13                  => 'trt',
+            14                  => 'frt',
+            15                  => 'fft',
+            16                  => 'sxt',
+            17                  => 'svt',
+            18                  => 'eit',
+            19                  => 'nnt',
+            20                  => 'twt'
+        ];
+        return($dictionary[$number]);
+    }     
+	
+	/*private function _number_to_word($number) {
    
    
         $dictionary  = [
@@ -2108,7 +2183,7 @@ class MeshHelper22Component extends Component {
         ];
 
         return($dictionary[$number]);
-    } 
+    } */
     
     private function _find_mac_list($pu_uid){
     

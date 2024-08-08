@@ -3,17 +3,14 @@ Ext.define('Rd.view.aps.pnlApViewSqm', {
     alias   : 'widget.pnlApViewSqm',
     border  : false,
     frame   : false,
-    layout: {
-        type    : 'hbox',         
-        align   : 'stretch'
+    layout  : {
+        type        : 'fit'
     },
     store   : undefined,
   	requires    : [
-        'Rd.view.aps.vcApViewSqm'
+        'Rd.view.aps.vcApViewSqm',
+        'Rd.view.aps.pnlApViewSqmGraph'
     ],
-    viewConfig  : {
-        loadMask:true
-    },
     controller  : 'vcApViewSqm',
     initComponent: function(){
         var me = this;
@@ -56,7 +53,19 @@ Ext.define('Rd.view.aps.pnlApViewSqm', {
                 scale       : 'small', 
                 itemId      : 'week',
                 ui          : 'button-metal'
-            }
+            },
+            {
+            	xtype		: 'tbseparator',
+            	itemId		: 'tbsepTools'
+            },
+            { 
+                scale       : 'small',
+                itemId      : 'btnBack',
+                glyph       : Rd.config.icnBack,  
+                text        : 'Back',
+                hidden      : true,
+                ui          : 'button-pink'
+            }            
         ];
             
         me.store = Ext.create('Ext.data.Store',{
@@ -65,9 +74,6 @@ Ext.define('Rd.view.aps.pnlApViewSqm', {
                 type        :'ajax',
                 url         : '/cake4/rd_cake/sqm-reports/index-data-view.json',
                 batchActions: true,
-                extraParams : {
-                    ap_id   : me.apId
-                },
                 format      : 'json',
                 reader      : {
                     type        : 'json',
@@ -87,36 +93,55 @@ Ext.define('Rd.view.aps.pnlApViewSqm', {
                 },
                 scope: this
             },
-            autoLoad: true
+            autoLoad: false
         });
-           
-     /*   var tpl = new Ext.XTemplate(
-            '<tpl for=".">',
-                '<div class="dataview-item">',
+        
+        var tpl = new Ext.XTemplate(
+    '<tpl for=".">',
+        '<div class="dataview-item">',
+            '<h2 class="dataview-heading">{sqm_profile.name}',
+            '<tpl if="vlan">',
+            '<span class="dataview-extra"> VLAN {vlan}',
+            '</tpl>',
+            '<tpl if="vlan_internal">',
+            ' (<i>Internal</i>)',
+            '</tpl>',
+            '</span></h2>',
+            '<div class="dataview-columns">',
+                '<div class="dataview-column">',
                     '<div class="dataview-field">',
-                        '<label>Name:</label> {sqm_profile.name}',
+                        '<label>Download:</label> {sqm_profile.download} {sqm_profile.download_suffix}',
                     '</div>',
                     '<div class="dataview-field">',
-                        '<label>Download Speed:</label> {sqm_profile.download}',
+                        '<label>Upload:</label> {sqm_profile.upload} {sqm_profile.upload_suffix}',
                     '</div>',
                     '<div class="dataview-field">',
-                        '<label>Upload Speed:</label> {sqm_profile.upload}',
+                        '<label>Type:</label> {[values.type.toUpperCase()]}',
                     '</div>',
                     '<div class="dataview-field">',
-                        '<label>Total Bytes:</label> {totals.bytes}',
-                    '</div>',
-                    '<div class="dataview-field">',
-                        '<label>Total Packets:</label> {totals.packets}',
-                    '</div>',
-                    '<div class="dataview-field">',
-                        '<label>Total Drops:</label> {totals.drops}',
-                    '</div>',
-                    '<div class="dataview-field">',
-                        '<label>Total Overlimits:</label> {totals.overlimits}',
+                        '<label>VLAN:</label> {vlan}',
                     '</div>',
                 '</div>',
-            '</tpl>'
-        );*/
+                '<div class="dataview-column">',
+                    '<div class="dataview-field">',
+                        '<label>Bytes:</label> {[Ext.ux.bytesToHuman(values.totals.bytes)]}',
+                    '</div>',
+                    '<div class="dataview-field">',
+                        '<label>Packets:</label> {totals.packets}',
+                    '</div>',
+                    '<div class="dataview-field">',
+                        '<label>Drops:</label> {totals.drops}',
+                    '</div>',
+                    '<div class="dataview-field">',
+                        '<label>Overlimits:</label> {totals.overlimits}',
+                    '</div>',
+                '</div>',
+            '</div>',
+        '</div>',
+    '</tpl>'
+);
+
+   /*        
         var tpl = new Ext.XTemplate(
             '<tpl for=".">',
                 '<div class="dataview-item">',
@@ -157,29 +182,44 @@ Ext.define('Rd.view.aps.pnlApViewSqm', {
             '</tpl>'
         );
 
-        
+    */    
         var v = Ext.create('Ext.view.View', {
             store       : me.store,
             multiSelect : true,
             tpl         : tpl,
-            itemSelector: 'div.plain-wrap',
+            cls         : 'custom-dataview', // Apply the custom CSS class here
+            itemSelector: 'div.dataview-item',
             itemId		: 'dvApViewSqm',
             emptyText   : 'No SQM Stats Available'
         });
     
-        me.items =  {
+        me.items =  [
+            {
                 xtype       : 'panel',
-                frame       : false,
-                height      : '100%', 
-                width       :  550,
-                itemId      : 'pnlForApViewSqmView',
-                layout: {
-                   type     : 'vbox',
-                   align    : 'stretch'
+                layout      : {
+                    type    : 'hbox',         
+                    align   : 'stretch'
                 },
-                items       : v,
-                autoScroll  : true
-        };         
+                items   : [{
+                    xtype       : 'panel',
+                    frame       : false,
+                    height      : '100%', 
+                    width       :  450,
+                    itemId      : 'pnlForApViewSqmView',
+                    layout: {
+                       type     : 'vbox',
+                       align    : 'stretch'
+                    },
+                    items       : v,
+                    autoScroll  : true
+                },
+                {
+                    xtype       : 'pnlApViewSqmGraph',
+                    flex        : 1
+                }]
+            }
+        ]   
+                                   
         me.callParent(arguments);
     }
 });

@@ -660,7 +660,6 @@ class ApHelper22Component extends Component {
             $type                   = $ap_profile_e->type;
             $vlan                   = $ap_profile_e->vlan;
             $eth_one_bridge         = false;
-            $sqm_active             = $ap_profile_e->apply_sqm_profile;
                                               
             //This is used to fetch info eventually about the entry points
             if(count($ap_profile_e->ap_profile_exit_ap_profile_entries) > 0){
@@ -675,7 +674,8 @@ class ApHelper22Component extends Component {
 		            	$dynamic_vlan = $entry->ap_profile_entry_id;
 		            	$dynamic_vlan = str_replace("-9","",$dynamic_vlan);
 		            	$if_name = 'ex_v'.$dynamic_vlan;
-		            	$this->ppsk_flag = true; //set the heads-up flag	            
+		            	$this->ppsk_flag = true; //set the heads-up flag
+		            	$notVlan    = false;	            
 		            }
 		                               
                     if($type == 'bridge'){ //The gateway needs the entry points to be bridged to the LAN

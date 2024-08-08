@@ -6,7 +6,7 @@ Ext.define('Rd.view.meshes.winMeshEditExit', {
     resizable:  true,
     title:      i18n('sEdit_mesh_exit_point'),
     width:      600,
-    height:     530,
+    height:     550,
     plain:      true,
     border:     false,
     layout:     'fit',
@@ -36,6 +36,7 @@ Ext.define('Rd.view.meshes.winMeshEditExit', {
         'Rd.view.meshes.tagMeshEntryPoints',
         'Rd.view.components.pnlExitPointNatDhcp',
         'Rd.view.components.cmbFirewallProfile',
+        'Rd.view.components.cmbSqmProfile',
         'Rd.view.accel.cmbAccelProfiles'
     ],
     controller  : 'vcMeshExitPoint',
@@ -471,6 +472,23 @@ Ext.define('Rd.view.meshes.winMeshEditExit', {
                                 	include_all_option : false,
                                 	disabled	: true,
                                 	labelClsExtra: 'lblRdReq'                             	
+                                },
+                                {
+                                    itemId      : 'chkApplySqmProfile',
+                                    xtype       : 'checkbox',      
+                                    boxLabel  	: 'Apply SQM Profile',
+                                    boxLabelCls	: 'boxLabelRd',
+                                    name        : 'apply_sqm_profile',
+                                    listeners   : {
+							            change  : 'onChkApplySqmProfileChange'
+							        }
+                                },
+                                {
+                                	xtype		: 'cmbSqmProfile',
+                                	fieldLabel	: 'SQM Profile',
+                                	include_all_option : false,
+                                	disabled	: true,
+                                	labelClsExtra: 'lblRd'                             	
                                 },
                                 {
                                     itemId      : 'cmbOpenVpnServers',

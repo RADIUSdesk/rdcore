@@ -265,12 +265,12 @@ class SqmProfilesController extends AppController {
             $i->download_suffix   = 'kbps';
             
             if($i->upload > 1023){
-                $i->upload = $i->upload / 1000;
+                $i->upload = $i->upload / 1024;
                 $i->upload_suffix = 'mbps';
             }
             
             if($i->download > 1023){
-                $i->download = $i->download / 1000;
+                $i->download = $i->download / 1024;
                 $i->download_suffix = 'mbps';
             }           
             			

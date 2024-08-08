@@ -6,7 +6,7 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
     resizable:  true,
     title:      i18n('sNew_mesh_exit_point'),
     width:      600,
-    height:     530,
+    height:     550,
     plain:      true,
     border:     false,
     layout:     'card',
@@ -35,6 +35,7 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
         'Rd.view.meshes.tagMeshEntryPoints',,
         'Rd.view.components.pnlExitPointNatDhcp',
         'Rd.view.components.cmbFirewallProfile',
+        'Rd.view.components.cmbSqmProfile',
         'Rd.view.accel.cmbAccelProfiles'
     ],
     controller  : 'vcMeshExitPoint',
@@ -610,6 +611,23 @@ Ext.define('Rd.view.meshes.winMeshAddExit', {
                                 	include_all_option : false,
                                 	disabled	: true,
                                 	labelClsExtra: 'lblRdReq'                             	
+                                },
+                                {
+                                    itemId      : 'chkApplySqmProfile',
+                                    xtype       : 'checkbox',      
+                                    boxLabel  	: 'Apply SQM Profile',
+                                    boxLabelCls	: 'boxLabelRd',
+                                    name        : 'apply_sqm_profile',
+                                    listeners   : {
+							            change  : 'onChkApplySqmProfileChange'
+							        }
+                                },
+                                {
+                                	xtype		: 'cmbSqmProfile',
+                                	fieldLabel	: 'SQM Profile',
+                                	include_all_option : false,
+                                	disabled	: true,
+                                	labelClsExtra: 'lblRd'                             	
                                 },
                                 {
                                     itemId      : 'chkNasClient',

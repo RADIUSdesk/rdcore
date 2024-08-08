@@ -100,16 +100,22 @@
     border-radius: 5px;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
 }
 
 .dataview-field {
     margin: 5px 0;
     font-size: 18px;
+    font-stretch: expanded;
+    font-weight: 600;
+    color: #333;
 }
 
 .dataview-field label {
-    font-weight: bold;
     margin-right: 5px;
+    font-size: 16px;
+    color: #666;
+    font-weight: 100;
 }
 
 .dataview-item:hover {
@@ -120,6 +126,41 @@
 .dataview-item.selected {
     background-color: #e9f5ff;
     border-color: #007bff;
+}
+
+/* Define custom styles for selected items in the DataView */
+.custom-dataview .x-item-selected {
+    background-color: #337ab7; /* Change background color */
+    color: white; /* Change text color */
+    border: 2px solid #2e6da4; /* Add a border */
+    border-radius: 4px; /* Add rounded corners */
+    padding: 5px; /* Add some padding */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Add a shadow effect */
+}
+
+/* Additional styles for hover state (optional) */
+.custom-dataview .x-item-hover {
+    background-color: #5bc0de; /* Change background color on hover */
+    color: white; /* Change text color on hover */
+    cursor: pointer; /* Change cursor to pointer */
+}
+
+.custom-dataview  .dataview-extra {
+    color: #385a6b;
+    font-stretch: expanded;
+    font-weight: 100;
+}
+
+.custom-dataview .x-item-selected .dataview-extra {
+    color: white;
+}
+
+.custom-dataview .x-item-selected .dataview-field label {
+    color: white;
+}
+
+.custom-dataview .x-item-selected .dataview-field {
+    color: white;
 }
 
 

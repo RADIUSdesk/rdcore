@@ -814,8 +814,10 @@ class MeshesController extends AppController{
 
         $mesh_id    = $this->request->getQuery('mesh_id');
 
-        $q_r        = $this->MeshExits->find()->contain(['MeshExitMeshEntries.MeshEntries','FirewallProfiles'])->where(['MeshExits.mesh_id' => $mesh_id])->all();
-        // print_r($q_r);
+        $q_r        = $this->MeshExits->find()
+            ->contain(['MeshExitMeshEntries.MeshEntries','FirewallProfiles','SqmProfiles'])
+            ->where(['MeshExits.mesh_id' => $mesh_id])
+            ->all();
 
         foreach($q_r as $m){
             $exit_entries = array();
@@ -838,6 +840,11 @@ class MeshesController extends AppController{
             if($m->apply_firewall_profile){
             	$firewall_profile_name = $m->firewall_profile->name;
             }
+            
+            $sqm_profile_name  = 'Unknown SQM Profile';            
+            if($m->apply_sqm_profile){
+            	$sqm_profile_name = $m->sqm_profile->name;
+            }
 
 
             array_push($items,array(
@@ -850,7 +857,10 @@ class MeshesController extends AppController{
                 'auto_detect'   => $m->auto_detect,
                 'apply_firewall_profile' 	=> $m->apply_firewall_profile,
                 'firewall_profile_id' 		=> $m->firewall_profile_id,
-                'firewall_profile_name'		=> $firewall_profile_name
+                'firewall_profile_name'		=> $firewall_profile_name,
+                'apply_sqm_profile' 	    => $m->apply_sqm_profile,
+                'sqm_profile_id' 		    => $m->sqm_profile_id,
+                'sqm_profile_name'		    => $sqm_profile_name
             ));
         }
         //___ FINAL PART ___
@@ -873,7 +883,8 @@ class MeshesController extends AppController{
         
         $check_items = [
 			'auto_detect',
-			'apply_firewall_profile'
+			'apply_firewall_profile',
+			'apply_sqm_profile'
 		];       
         foreach($check_items as $i){
 	        if(isset($req_d[$i])){
@@ -1239,7 +1250,8 @@ class MeshesController extends AppController{
         	$req_d		= $this->request->getData();   	
         	$check_items = [
 				'auto_detect',
-				'apply_firewall_profile'
+				'apply_firewall_profile',
+				'apply_sqm_profile'
 			];
 		    foreach($check_items as $i){
 		        if(isset($req_d[$i])){

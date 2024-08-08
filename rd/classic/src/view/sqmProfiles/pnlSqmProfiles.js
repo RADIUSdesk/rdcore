@@ -31,14 +31,12 @@ Ext.define('Rd.view.sqmProfiles.pnlSqmProfiles', {
         var tpl = new Ext.XTemplate(
             '<tpl for=".">',
                 '<div class="dataview-item">',
+                    '<h2 class="dataview-heading">{name}</h2>',
                     '<div class="dataview-field">',
-                        '<label>Name:</label> {name}',
+                        '<label>Download Speed:</label> {download} {download_suffix}',
                     '</div>',
                     '<div class="dataview-field">',
-                        '<label>Download Speed:</label> {download}',
-                    '</div>',
-                    '<div class="dataview-field">',
-                        '<label>Upload Speed:</label> {upload}',
+                        '<label>Upload Speed:</label> {upload} {upload_suffix}',
                     '</div>',
                     '<div class="dataview-field">',
                         '<label>Queueing Discipline:</label> {qdisc}',
@@ -83,6 +81,7 @@ Ext.define('Rd.view.sqmProfiles.pnlSqmProfiles', {
         var v = Ext.create('Ext.view.View', {
             store       : me.store,
             multiSelect : true,
+            cls         : 'custom-dataview', // Apply the custom CSS class here
             tpl         : tpl,
             itemSelector: '.dataview-item',
             itemId		: 'dvSqmProfiles',
