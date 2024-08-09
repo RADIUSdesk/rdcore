@@ -1,7 +1,7 @@
 Ext.define('Rd.view.sqmProfiles.cmbSqmQdiscOptions', {
     extend          : 'Ext.form.ComboBox',
     alias           : 'widget.cmbSqmQdiscOptions',
-    fieldLabel      : 'Queueing Discipline',
+    fieldLabel      : 'Queuing Discipline',
     labelSeparator  : '',
     queryMode       : 'local',
     valueField      : 'id',

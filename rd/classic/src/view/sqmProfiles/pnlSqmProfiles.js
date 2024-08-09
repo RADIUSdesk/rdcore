@@ -39,7 +39,7 @@ Ext.define('Rd.view.sqmProfiles.pnlSqmProfiles', {
                         '<label>Upload Speed:</label> {upload} {upload_suffix}',
                     '</div>',
                     '<div class="dataview-field">',
-                        '<label>Queueing Discipline:</label> {qdisc}',
+                        '<label>Queuing Discipline:</label> {qdisc}',
                     '</div>',
                     '<div class="dataview-field">',
                         '<label>Queue Setup Script:</label> {script}',
