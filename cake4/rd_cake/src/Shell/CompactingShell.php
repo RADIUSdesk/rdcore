@@ -35,6 +35,12 @@ class CompactingShell extends Shell{
     
     public function main(){
         $this->out("<info>Start the Compacting of the user_stats table</info>");
+        
+        $this->out("<warning>MOST OF THIS function has been replaced by a trigger on the radacct table - Please apply the SQL patch if you have not yet</warning>");
+        $this->out("<warning>Keep this script in CRON since we will replace it with a Command in CakePHP which acts as a drop in replacement to do some housekeeping</warning>");
+        $this->out("<warning>BYE :-)</warning>");
+        return;
+        
         $start_at = $this->_getStartAt();
         if($start_at){
             $start_of_today = FrozenTime::now()->startOfDay();
