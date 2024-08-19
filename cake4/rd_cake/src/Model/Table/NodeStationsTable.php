@@ -10,5 +10,10 @@ class NodeStationsTable extends Table{
         $this->belongsTo('Nodes');
         $this->belongsTo('MeshEntries');
         $this->hasMany('NodeEntries');
+        
+        $this->belongsTo('MacAddresses', [
+            'className' => 'MacAddresses',
+            'foreignKey' => 'mac_address_id'
+        ]);
     }  
 }

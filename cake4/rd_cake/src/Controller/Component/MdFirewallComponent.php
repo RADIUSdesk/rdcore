@@ -137,10 +137,10 @@ class MdFirewallComponent extends Component {
 		//Cloud wide rules
 		$cloud_actions = $this->{'MacActions'}->find()
 			->where(['MacActions.cloud_id' => $cloud_id,'MacActions.action' => 'firewall'])
-			->contain(['ClientMacs','FirewallProfiles' => ['FirewallProfileEntries'=>['FirewallProfileEntryFirewallApps'=> 'FirewallApps']]])
+			->contain(['MacAddresses','FirewallProfiles' => ['FirewallProfileEntries'=>['FirewallProfileEntryFirewallApps'=> 'FirewallApps']]])
 			->all();
 		foreach($cloud_actions as $ca){
-			$m 	= strtolower($ca->client_mac->mac);			
+			$m 	= strtolower($ca->mac_address->mac);			
 			$rules = [];			
 			foreach($ca->firewall_profile->firewall_profile_entries as $rule){		
 				unset($rule->created);
@@ -171,10 +171,10 @@ class MdFirewallComponent extends Component {
 		//Ap Profile specific rules 
 		$ap_profile_rules = $this->{'MacActions'}->find()
 			->where(['MacActions.ap_profile_id' => $e_ap->ap_profile->id,'MacActions.action' => 'firewall'])
-			->contain(['ClientMacs','FirewallProfiles' => ['FirewallProfileEntries'=>['FirewallProfileEntryFirewallApps'=> 'FirewallApps']]])
+			->contain(['MacAddresses','FirewallProfiles' => ['FirewallProfileEntries'=>['FirewallProfileEntryFirewallApps'=> 'FirewallApps']]])
 			->all();
 		foreach($ap_profile_rules as $ca){
-			$m 	= strtolower($ca->client_mac->mac);
+			$m 	= strtolower($ca->mac_address->mac);
 						
 			$rules = [];			
 			foreach($ca->firewall_profile->firewall_profile_entries as $rule){		
@@ -214,10 +214,10 @@ class MdFirewallComponent extends Component {
 		//Cloud wide rules
 		$cloud_actions = $this->{'MacActions'}->find()
 			->where(['MacActions.cloud_id' => $cloud_id,'MacActions.action' => 'firewall'])
-			->contain(['ClientMacs','FirewallProfiles' => ['FirewallProfileEntries'=>['FirewallProfileEntryFirewallApps'=> 'FirewallApps']]])
+			->contain(['MacAddresses','FirewallProfiles' => ['FirewallProfileEntries'=>['FirewallProfileEntryFirewallApps'=> 'FirewallApps']]])
 			->all();
 		foreach($cloud_actions as $ca){
-			$m 	= strtolower($ca->client_mac->mac);			
+			$m 	= strtolower($ca->mac_address->mac);			
 			$rules = [];			
 			foreach($ca->firewall_profile->firewall_profile_entries as $rule){		
 				unset($rule->created);
@@ -248,10 +248,10 @@ class MdFirewallComponent extends Component {
 		//MESH specific rules 
 		$mesh_rules = $this->{'MacActions'}->find()
 			->where(['MacActions.mesh_id' => $e_node->mesh->id,'MacActions.action' => 'firewall'])
-			->contain(['ClientMacs','FirewallProfiles' => ['FirewallProfileEntries'=>['FirewallProfileEntryFirewallApps'=> 'FirewallApps']]])
+			->contain(['MacAddresses','FirewallProfiles' => ['FirewallProfileEntries'=>['FirewallProfileEntryFirewallApps'=> 'FirewallApps']]])
 			->all();
 		foreach($mesh_rules as $ca){
-			$m 	= strtolower($ca->client_mac->mac);
+			$m 	= strtolower($ca->mac_address->mac);
 						
 			$rules = [];			
 			foreach($ca->firewall_profile->firewall_profile_entries as $rule){		

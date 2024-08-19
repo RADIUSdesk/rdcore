@@ -9,13 +9,9 @@ class MacAliasesTable extends Table
 {
     public function initialize(array $config):void{
         $this->addBehavior('Timestamp');
+        $this->belongsTo('MacAddresses');
+        
     }
     
-    public function validationDefault(Validator $validator):Validator{
-        $validator = new Validator();
-        $validator
-            ->notEmpty('mac', 'A MAC is required')
-            ->notEmpty('alias', 'An Alias is required');
-        return $validator;
-    }       
+   
 }

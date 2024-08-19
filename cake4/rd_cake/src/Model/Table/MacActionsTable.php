@@ -7,7 +7,7 @@ use Cake\ORM\Table;
 class MacActionsTable extends Table {
     public function initialize(array $config):void{
         $this->addBehavior('Timestamp');
-        $this->belongsTo('ClientMacs');
+        $this->belongsTo('MacAddresses');
         $this->belongsTo('Meshes');
         $this->belongsTo('ApProfiles');
         $this->belongsTo('FirewallProfiles');

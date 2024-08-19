@@ -43,7 +43,7 @@ class WifiChartsController extends AppController{
         $this->loadModel('Aps');
         
         $this->loadModel('MacActions');
-        $this->loadModel('ClientMacs');
+        $this->loadModel('MacAddresses');
         $this->loadModel('NodeActions');
         $this->loadModel('ApActions');
         $this->loadModel('Nodes');
@@ -107,18 +107,18 @@ class WifiChartsController extends AppController{
        	      	
        	//Remove old entries to start with
        	foreach($req_d['items'] as $item){
-			$mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
+			$mac = $this->{'MacAddresses'}->find()->where(['MacAddresses.mac' => $item['mac']])->first();
 			if($mac){ 
-				$client_mac_id = $mac->id;
+				$mac_address_id = $mac->id;
 				if($this->cloud_wide){ //This we only delete if it is specified ans cloud wide else we ignore it
-					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.cloud_id' => $cloud_id]);
+					$this->{'MacActions'}->deleteAll(['MacActions.mac_address_id' => $mac_address_id, 'MacActions.cloud_id' => $cloud_id]);
 				}
 				//These we always remove to start clean
 				if($mesh_id){
-					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.mesh_id' => $mesh_id]);
+					$this->{'MacActions'}->deleteAll(['MacActions.mac_address_id' => $mac_address_id, 'MacActions.mesh_id' => $mesh_id]);
 				}
 				if($ap_profile_id){
-					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.ap_profile_id' => $ap_profile_id]);
+					$this->{'MacActions'}->deleteAll(['MacActions.mac_address_id' => $mac_address_id, 'MacActions.ap_profile_id' => $ap_profile_id]);
 				}
 			}			
 		}
@@ -126,14 +126,14 @@ class WifiChartsController extends AppController{
    		if(!isset($req_d['remove_block'])){
 		
 			foreach($req_d['items'] as $item){
-				$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
+				$e_mac = $this->{'MacAddresses'}->find()->where(['MacAddresses.mac' => $item['mac']])->first();
 				if(!$e_mac){			
-					$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $item['mac']]);
-					$this->{'ClientMacs'}->save($e_mac);
+					$e_mac = $this->{'MacAddresses'}->newEntity(['mac' => $item['mac']]);
+					$this->{'MacAddresses'}->save($e_mac);
 				}
 				$d_action = [
-					'client_mac_id' => $e_mac->id,
-					'action'		=> 'block'	
+					'mac_address_id' => $e_mac->id,
+					'action'		 => 'block'	
 				];
 				if($this->cloud_wide){
 					$d_action['cloud_id'] = $cloud_id;
@@ -234,18 +234,18 @@ class WifiChartsController extends AppController{
        	
        	//Remove old entries to start with
        	foreach($req_d['items'] as $item){
-			$mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
+			$mac = $this->{'MacAddresses'}->find()->where(['MacAddresses.mac' => $item['mac']])->first();
 			if($mac){ 
-				$client_mac_id = $mac->id;
+				$mac_address_id = $mac->id;
 				if($this->cloud_wide){ //This we only delete if it is specified ans cloud wide else we ignore it
-					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.cloud_id' => $cloud_id]);
+					$this->{'MacActions'}->deleteAll(['MacActions.mac_address_id' => $mac_address_id, 'MacActions.cloud_id' => $cloud_id]);
 				}
 				//These we always remove to start clean
 				if($mesh_id){
-					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.mesh_id' => $mesh_id]);
+					$this->{'MacActions'}->deleteAll(['MacActions.mac_address_id' => $mac_address_id, 'MacActions.mesh_id' => $mesh_id]);
 				}
 				if($ap_profile_id){
-					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.ap_profile_id' => $ap_profile_id]);
+					$this->{'MacActions'}->deleteAll(['MacActions.mac_address_id' => $mac_address_id, 'MacActions.ap_profile_id' => $ap_profile_id]);
 				}
 			}			
 		}
@@ -273,16 +273,16 @@ class WifiChartsController extends AppController{
 	   		}
 	   		   		
 	   		foreach($req_d['items'] as $item){
-				$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
+				$e_mac = $this->{'MacAddresses'}->find()->where(['MacAddresses.mac' => $item['mac']])->first();
 				if(!$e_mac){			
-					$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $item['mac']]);
-					$this->{'ClientMacs'}->save($e_mac);
+					$e_mac = $this->{'MacAddresses'}->newEntity(['mac' => $item['mac']]);
+					$this->{'MacAddresses'}->save($e_mac);
 				}
 				$d_action = [
-					'client_mac_id' => $e_mac->id,
-					'action'		=> 'limit',
-					'bw_up'			=> $bw_up,
-					'bw_down'		=> $bw_down	
+					'mac_address_id' => $e_mac->id,
+					'action'		 => 'limit',
+					'bw_up'			 => $bw_up,
+					'bw_down'		 => $bw_down	
 				];
 				if($this->cloud_wide){
 					$d_action['cloud_id'] = $cloud_id;
@@ -369,18 +369,18 @@ class WifiChartsController extends AppController{
        	       	
        	//Remove old entries to start with
        	foreach($req_d['items'] as $item){
-			$mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
+			$mac = $this->{'MacAddresses'}->find()->where(['MacAddresses.mac' => $item['mac']])->first();
 			if($mac){ 
-				$client_mac_id = $mac->id;
+				$mac_address_id = $mac->id;
 				if($this->cloud_wide){ //This we only delete if it is specified and cloud wide else we ignore it
-					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.cloud_id' => $cloud_id]);
+					$this->{'MacActions'}->deleteAll(['MacActions.mac_address_id' => $mac_address_id, 'MacActions.cloud_id' => $cloud_id]);
 				}
 				//These we always remove to start clean
 				if($mesh_id){
-					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.mesh_id' => $mesh_id]);
+					$this->{'MacActions'}->deleteAll(['MacActions.mac_address_id' => $mac_address_id, 'MacActions.mesh_id' => $mesh_id]);
 				}
 				if($ap_profile_id){
-					$this->{'MacActions'}->deleteAll(['MacActions.client_mac_id' => $client_mac_id, 'MacActions.ap_profile_id' => $ap_profile_id]);
+					$this->{'MacActions'}->deleteAll(['MacActions.mac_address_id' => $mac_address_id, 'MacActions.ap_profile_id' => $ap_profile_id]);
 				}
 			}			
 		}
@@ -388,14 +388,14 @@ class WifiChartsController extends AppController{
    		if(!isset($req_d['remove_firewall'])){
    			   		   		
 	   		foreach($req_d['items'] as $item){
-				$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $item['mac']])->first();
+				$e_mac = $this->{'MacAddresses'}->find()->where(['MacAddresses.mac' => $item['mac']])->first();
 				if(!$e_mac){			
-					$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $item['mac']]);
-					$this->{'ClientMacs'}->save($e_mac);
+					$e_mac = $this->{'MacAddresses'}->newEntity(['mac' => $item['mac']]);
+					$this->{'MacAddresses'}->save($e_mac);
 				}
 				$d_action = [
-					'client_mac_id' => $e_mac->id,
-					'action'		=> 'firewall',
+					'mac_address_id' => $e_mac->id,
+					'action'		 => 'firewall',
 					'firewall_profile_id'	=> $req_d['firewall_profile_id']
 				];
 				if($this->cloud_wide){
@@ -440,19 +440,14 @@ class WifiChartsController extends AppController{
         $post_data 	= $this->request->getData();
         $cloud_id	= $post_data['cloud_id'];
 
-        $list_of_macs = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $this->request->getData('mac'),'MacAliases.cloud_id' => $this->request->getData('cloud_id')])->all();
-        $entity = null;
-        foreach($list_of_macs as $mac_alias){    
-            if($mac_alias->cloud_id == $cloud_id){
-                $entity = $mac_alias;
-                break;
-            }
-        }     
-        $post_data              = $this->request->getData();
-        
+        //==== MacAliases.mac ====
+        $mac_address_id = $this->_findMacAddressId($this->request->getData('mac'));
+        $post_data                      = $this->request->getData();
+        $post_data['mac_address_id']    = $mac_address_id;
+        $macAlias  = $this->MacAliases->find()->where(['MacAliases.mac_address_id' => $mac_address_id,'MacAliases.cloud_id' => $this->request->getData('cloud_id')])->first();          
         if(isset($post_data['remove_alias'])&&($post_data['remove_alias']!== 'null')){
 
-	        $this->{'MacAliases'}->delete($entity);
+	        $this->{'MacAliases'}->delete($macAlias);
 	        $this->set([
 	            'success' => true
 	        ]);
@@ -461,13 +456,13 @@ class WifiChartsController extends AppController{
 
         }	
         
-        if($entity){
-            $this->{'MacAliases'}->patchEntity($entity, $post_data);
+        if($macAlias){
+            $this->MacAliases->patchEntity($macAlias, $post_data);
         }else{
-            $entity = $this->{'MacAliases'}->newEntity($post_data);
+            $macAlias = $this->MacAliases->newEntity($post_data);
         }
         
-        if ($this->{'MacAliases'}->save($entity)) {
+        if ($this->MacAliases->save($macAlias)) {
             $this->set(array(
                 'success' => true
             ));
@@ -496,7 +491,7 @@ class WifiChartsController extends AppController{
            
         $q_ap  = $this->{'Aps'}->find()
             ->where(['Aps.id' => $ap_id])
-            ->contain(['ApProfiles' => 'ApProfileEntries'])->first();    
+            ->contain(['ApProfiles' => 'ApProfileEntries','MacAdresses'])->first();    
         if($q_ap){
         	$this->ap_profile_id = $q_ap->ap_profile_id;      
             $ap_profile_entries_list = [];
@@ -569,7 +564,8 @@ class WifiChartsController extends AppController{
         //Try to determine the timezone if it might have been set ....       
         $this->_setTimeZone();
         $span       = $this->request->getQuery('span');
-        
+        $data   = [];
+   
         //==============================================
         //==== MESH ENTRIES ====
         $where_clause = [];
@@ -580,6 +576,7 @@ class WifiChartsController extends AppController{
             $mesh_id        = $this->request->getQuery('mesh_id');
             $mesh_entry_id  = $this->request->getQuery('mesh_entry_id');
             $mac            = $this->request->getQuery('mac');
+            $mac_address_id = $this->_findMacAddressId($mac);
             $this->loadModel('MeshEntries');
             $me_list    = $this->{'MeshEntries'}->find()->where(['MeshEntries.mesh_id' => $mesh_id])->all();
             $mesh_entries_list = [];
@@ -599,12 +596,13 @@ class WifiChartsController extends AppController{
             $this->base_search_no_mac = $this->base_search = $where_clause;
             //IS this for a device
             if($mac !=='false'){
-                $this->graph_item   = 'device';
-                $this->mac          = $mac;
-                array_push($where_clause,['NodeStations.mac' =>$mac]);
+                $this->graph_item       = 'device';
+                $this->mac_address_id   = $mac_address_id;
+                array_push($where_clause,['NodeStations.mac_address_id' => $mac_address_id]);
             }            
         }
         
+     
         //==== MESH NODES ====
         if($this->request->getQuery('type')=='mesh_nodes'){ 
         
@@ -613,6 +611,8 @@ class WifiChartsController extends AppController{
             $mesh_id        = $this->request->getQuery('mesh_id');
             $node_id        = $this->request->getQuery('node_id');
             $mac            = $this->request->getQuery('mac');
+            $mac_address_id = $this->_findMacAddressId($mac);
+            
             $this->loadModel('Nodes');
             $n_list         = $this->{'Nodes'}->find()->where(['Nodes.mesh_id' => $mesh_id])->all();
             $nodes_list     = [];
@@ -623,7 +623,7 @@ class WifiChartsController extends AppController{
                 }else{
                     if($node_id == $n->id){ //Only the selected one 
                         $this->node = $n->name;
-                        array_push($nodes_list,['NodeStations.node_id' =>$n->id]);
+                        array_push($nodes_list,['NodeStations.node_id' => $node_id]);
                         break;
                     }  
                 }     
@@ -632,16 +632,19 @@ class WifiChartsController extends AppController{
             $this->base_search_no_mac = $this->base_search = $where_clause;
             //IS this for a device
             if($mac !=='false'){
-                $this->graph_item   = 'device';
-                $this->mac          = $mac;
-                array_push($where_clause,['NodeStations.mac' =>$mac]);
+                $this->graph_item       = 'device';
+              //  $this->mac              = $mac;
+                $this->mac_address_id   = $mac_address_id;
+                array_push($where_clause,['NodeStations.mac_address_id' => $mac_address_id]);
             }       
         }
+        
         
         $this->base_search = $where_clause;        
         //==================================
         
-                 
+        $data = [];
+               
         //---- GRAPHS ----- 
         $ft_now = FrozenTime::now();
         $graph_items = []; 
@@ -649,6 +652,7 @@ class WifiChartsController extends AppController{
             $graph_items    = $this->_getHourlyGraph($ft_now);
             $ft_start       = $ft_now->subHour(1);
         }
+        
         if($span == 'day'){
             $graph_items = $this->_getDailyGraph($ft_now);
             $ft_start    = $ft_now->subHour(24);
@@ -657,13 +661,14 @@ class WifiChartsController extends AppController{
             $graph_items = $this->_getWeeklyGraph($ft_now);
             $ft_start    = $ft_now->subHour((24*7));
         }
+
       
         //---- TOP TEN -----
         $top_ten    = $this->_getTopTen($ft_start,$ft_now);
         
         //---- TOTAL DATA ----
         $totals     = $this->_getTotals($ft_start,$ft_now);
-      
+
         $data               = [];
         $data['graph']      = $graph_items;              
         $data['top_ten']    = $top_ten;
@@ -677,6 +682,7 @@ class WifiChartsController extends AppController{
         if($this->graph_item == 'device'){  
             $data['device_info'] = $this->_device_info();
         }
+        
            
         $this->set([
             'data'          => $data,
@@ -723,19 +729,19 @@ class WifiChartsController extends AppController{
         $di             = [];      
         $where          = $this->base_search;
         $table          = 'NodeStations'; //By default use this table
-        $contain        = ['MeshEntries','Nodes'];  
+        $contain        = ['MeshEntries','Nodes','MacAddresses'];  
         
         if(($this->graph_item == 'ap')||($this->graph_item == 'ap_device')){
             $table      = 'ApStations';
-            $contain    = ['ApProfileEntries','Aps']; 
+            $contain    = ['ApProfileEntries','Aps','MacAddresses']; 
         }
                    
         $qr             = $this->{"$table"}->find()->where($where)->order(["$table.modified DESC"])->contain($contain)->first();
+
         if($qr){
             $di = $qr;
             $di['last_seen'] = $qr->modified->timeAgoInWords();
-            $di['vendor']    = $this->MacVendors->vendorFor($this->mac);
-            
+            $di['vendor']    = $this->MacVendors->vendorFor($qr->mac_address->mac);         
             //CURRENT
             $signal     = round($qr->signal_now);
             if ($signal < -95) {
@@ -883,26 +889,36 @@ class WifiChartsController extends AppController{
         if(($this->graph_item == 'ap')||($this->graph_item == 'ap_device')){
             $table = 'ApStations';
         }
+
+        array_push($where, ["$table.modified >=" => $ft_start]);
+        array_push($where, ["$table.modified <=" => $ft_end]);
         
-        $fields         = $this->fields;
-        array_push($fields, 'mac');
-        array_push($where, ["modified >=" => $ft_start]);
-        array_push($where, ["modified <=" => $ft_end]);
+        $fields = [
+        'mac_address_id',
+        'mac'           => 'MacAddresses.mac',
+        'data_in'       => 'sum(tx_bytes)',
+        'data_out'      => 'sum(rx_bytes)',
+        'data_total'    => 'sum(tx_bytes) + sum(rx_bytes)'      
+        ];
               
         $q_r = $this->{$table}->find()->select($fields)
             ->where($where)
             ->order(['data_total' => 'DESC'])
-            ->group(['mac'])
+            ->group(['mac_address_id'])
+            ->contain(['MacAddresses'])
             ->limit($limit)
             ->all();
     
         $id = 1;
         foreach($q_r as $tt){
+
             $mac        = $tt->mac;
             $name       = $mac;
             $alias      = '';
-            $alias_name = $this->_find_alias($mac);
+            $alias_name = $this->_find_alias($tt->mac_address_id);
+            
             $vendor     = $this->MacVendors->vendorFor($mac);
+            
             if($alias_name){
                 $name = $alias_name;
                 $alias= $alias_name;
@@ -914,12 +930,11 @@ class WifiChartsController extends AppController{
             $cloud_flag = false;
             $bw_up		= '';
             $bw_down	= '';
-            $fw_profile = '';
-			$mac 		= $this->mac;          
-            $e_cm = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $tt->mac])->first();
-            if($e_cm){
-                        	
-            	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
+            $fw_profile = '';                  
+            $macAddresses = $this->{'MacAddresses'}->find()->where(['MacAddresses.id' => $tt->mac_address_id])->first();
+
+            if($macAddresses){                     	
+            	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $macAddresses->id,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
             	if($e_ma){
             		$cloud_flag = true;
             		if($e_ma->action == 'block'){
@@ -952,7 +967,7 @@ class WifiChartsController extends AppController{
             	}
             	//If there is an mesh level override
             	if($mesh_id){
-		        	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->contain(['FirewallProfiles'])->first();
+		        	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $macAddresses->id,'MacActions.mesh_id' => $mesh_id ])->contain(['FirewallProfiles'])->first();
 		        	if($e_ma){
 		        		$cloud_flag = false;
 		        		if($e_ma->action == 'block'){
@@ -984,7 +999,7 @@ class WifiChartsController extends AppController{
 		        
 		        //If there is an AP Profile level override 
 		        if($this->ap_profile_id){
-		        	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.ap_profile_id' => $this->ap_profile_id ])->contain(['FirewallProfiles'])->first();
+		        	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $macAddresses->id,'MacActions.ap_profile_id' => $this->ap_profile_id ])->contain(['FirewallProfiles'])->first();
 		        	if($e_ma){
 		        		$cloud_flag = false;
 		        		if($e_ma->action == 'block'){
@@ -1011,14 +1026,15 @@ class WifiChartsController extends AppController{
 			    			$firewall_flag 	= true;
 			    			$fw_profile		= $e_ma->firewall_profile->name;
 			    		}
-		        	}		        	
-		        }                 
+		        	}		        			        	
+		        }                
             }
                       
             array_push($top_ten, 
                 [
                     'id'            => $id,
-                    'mac'           => $tt->mac,
+                    'mac'           => $mac,
+                    'mac_address_id'=> $tt->mac_address_id,
                     'vendor'        => $vendor,
                     'alias'         => $alias,
                     'name'          => $name,
@@ -1034,6 +1050,7 @@ class WifiChartsController extends AppController{
 		            'fw_profile'	=> $fw_profile,
                 ]
             );
+
             $id++;
         } 
         return $top_ten;
@@ -1074,17 +1091,24 @@ class WifiChartsController extends AppController{
         return $totals;   
     }
      
-    private function _find_alias($mac){
+    private function _find_alias($mac_address_id){
     
     	$req_q    = $this->request->getQuery();    
        	$cloud_id = $req_q['cloud_id'];
       
         $alias = false;
-        $qr = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id'=> $cloud_id])->first();
+        $qr = $this->{'MacAliases'}->find()->where(['MacAliases.mac_address_id' => $mac_address_id,'MacAliases.cloud_id'=> $cloud_id])->first();
         if($qr){
         	$alias = $qr->alias;
         } 
         return $alias;
+    }
+    
+    private function _findMacAddressId($mac){ 
+        $macAddress = $this->MacAddresses->find()->where(['MacAddresses.mac' => $mac])->first();
+        if($macAddress){
+            return $macAddress->id;
+        }    
     }
        
     private function _setTimezone(){ 

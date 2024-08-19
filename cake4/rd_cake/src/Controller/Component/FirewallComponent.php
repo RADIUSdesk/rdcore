@@ -11,7 +11,7 @@ class FirewallComponent extends Component {
 	public function initialize(array $config):void{
         $this->Nodes 		= TableRegistry::get('Nodes');
         $this->Aps   		= TableRegistry::get('Aps'); 
-        $this->ClientMacs   = TableRegistry::get('ClientMacs');
+        $this->MacAddresses = TableRegistry::get('MacAddresses');
         $this->MacActions   = TableRegistry::get('MacActions');
         $this->Meshes		= TableRegistry::get('Meshes');
         $this->ApProfiles	= TableRegistry::get('ApProfiles');
@@ -26,9 +26,9 @@ class FirewallComponent extends Component {
 
     		$cloud_id = $e_ap->ap_profile->cloud_id;
     		//Cloud wide rules
-    		$cloud_actions = $this->{'MacActions'}->find()->where(['MacActions.cloud_id' => $cloud_id,['NOT' => ['MacActions.action' => 'firewall']]])->contain(['ClientMacs'])->all();
+    		$cloud_actions = $this->{'MacActions'}->find()->where(['MacActions.cloud_id' => $cloud_id,['NOT' => ['MacActions.action' => 'firewall']]])->contain(['MacAddresses'])->all();
     		foreach($cloud_actions as $ca){
-    			$mac 	= strtolower($ca->client_mac->mac);
+    			$mac 	= strtolower($ca->mac_address->mac);
     			$action = $ca->action;
     			$bw_up	= false;
     			$bw_down= false;
@@ -39,9 +39,9 @@ class FirewallComponent extends Component {
     			array_push($firewall_list,['mac' => $mac,'action' => $action,'bw_up' => $bw_up,'bw_down' => $bw_down]);
     		}
     		//Ap Profile specific rules 
-    		$ap_profile_rules = $this->{'MacActions'}->find()->where(['MacActions.ap_profile_id' => $e_ap->ap_profile->id,['NOT' => ['MacActions.action' => 'firewall']]])->contain(['ClientMacs'])->all();
+    		$ap_profile_rules = $this->{'MacActions'}->find()->where(['MacActions.ap_profile_id' => $e_ap->ap_profile->id,['NOT' => ['MacActions.action' => 'firewall']]])->contain(['MacAddresses'])->all();
     		foreach($ap_profile_rules as $ca){
-    			$mac 	= strtolower($ca->client_mac->mac);
+    			$mac 	= strtolower($ca->mac_address->mac);
     			$action = $ca->action;
     			$bw_up	= false;
     			$bw_down= false;
@@ -57,9 +57,9 @@ class FirewallComponent extends Component {
     		$e_node 	= $this->Nodes->find()->where(['Nodes.mac' => $mac])->contain(['Meshes'])->first(); //If not try for Mesh Nodes
     		$cloud_id 	= $e_node->mesh->cloud_id;
     		//Cloud wide rules
-    		$cloud_actions = $this->{'MacActions'}->find()->where(['MacActions.cloud_id' => $cloud_id,['NOT' => ['MacActions.action' => 'firewall']]])->contain(['ClientMacs'])->all();
+    		$cloud_actions = $this->{'MacActions'}->find()->where(['MacActions.cloud_id' => $cloud_id,['NOT' => ['MacActions.action' => 'firewall']]])->contain(['MacAddresses'])->all();
     		foreach($cloud_actions as $ca){
-    			$mac 	= strtolower($ca->client_mac->mac);
+    			$mac 	= strtolower($ca->mac_address->mac);
     			$action = $ca->action;
     			$bw_up	= false;
     			$bw_down= false;
@@ -70,9 +70,9 @@ class FirewallComponent extends Component {
     			array_push($firewall_list,['mac' => $mac,'action' => $action,'bw_up' => $bw_up,'bw_down' => $bw_down]);
     		}
     		//Mesh specific rules
-    		$mesh_rules = $this->{'MacActions'}->find()->where(['MacActions.mesh_id' => $e_node->mesh->id,['NOT' => ['MacActions.action' => 'firewall']]])->contain(['ClientMacs'])->all();
+    		$mesh_rules = $this->{'MacActions'}->find()->where(['MacActions.mesh_id' => $e_node->mesh->id,['NOT' => ['MacActions.action' => 'firewall']]])->contain(['MacAddresses'])->all();
     		foreach($mesh_rules as $ca){
-    			$mac 	= strtolower($ca->client_mac->mac);
+    			$mac 	= strtolower($ca->mac_address->mac);
     			$action = $ca->action;
     			$bw_up	= false;
     			$bw_down= false;
