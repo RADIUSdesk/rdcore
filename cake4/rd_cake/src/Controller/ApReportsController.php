@@ -29,10 +29,9 @@ class ApReportsController extends AppController {
         $this->loadModel('ApActions');
         $this->loadModel('ApProfileExits');
         $this->loadModel('ApProfileSettings');
-		$this->loadModel('ApUptmHistories');
-		
+		$this->loadModel('ApUptmHistories');	
 		$this->loadModel('MacActions');
-        $this->loadModel('ClientMacs');
+        $this->loadModel('MacAddresses');
 		
 		$this->loadModel('Hardwares');
 		$this->loadModel('MacAliases');         
@@ -500,17 +499,25 @@ class ApReportsController extends AppController {
 		        	$entry_name     = $entry->name.' <i class="fa  fa-calendar" style="color:#1272c7"></i>';
 		        }
                
-                $q_s = $this->{'ApStations'}->find()->select(['mac'])->distinct(['mac'])->where([
-                    'ApStations.ap_id'               => $ap_id,
-                    'ApStations.ap_profile_entry_id' => $ap_profile_entry_id,
-                    'ApStations.modified >='         => $modified
-                ])->all();
+                $q_s = $this->{'ApStations'}->find()
+                    ->select([
+                        'mac_address_id',
+                        'mac'   => 'MacAddresses.mac'
+                    ])
+                    ->distinct(['mac_address_id'])
+                    ->contain(['MacAddresses'])
+                    ->where([
+                        'ApStations.ap_id'               => $ap_id,
+                        'ApStations.ap_profile_entry_id' => $ap_profile_entry_id,
+                        'ApStations.modified >='         => $modified
+                    ])
+                    ->all();
 
                 if($q_s->count()>0){
                     foreach($q_s as $s){
                         $mac = $s->mac;
                         $q_t = $this->ApStations->find()->select($this->fields)->where([
-                            'ApStations.mac'                 => $mac,
+                            'ApStations.mac_address_id'      => $s->mac_address_id,
                             'ApStations.ap_id'               => $ap_id,
                             'ApStations.ap_profile_entry_id' => $ap_profile_entry_id,
                             'ApStations.modified >='         => $modified
@@ -532,7 +539,7 @@ class ApReportsController extends AppController {
 
                         //Get the latest entry
                         $lastCreated = $this->ApStations->find()->where([
-                            'ApStations.mac'                 => $mac,
+                            'ApStations.mac_address_id'      => $s->mac_address_id,
                             'ApStations.ap_id'               => $ap_id,
                             'ApStations.ap_profile_entry_id' => $ap_profile_entry_id,
                         ])->order(['ApStations.created' => 'desc'])
@@ -560,77 +567,77 @@ class ApReportsController extends AppController {
 		                $bw_up		= '';
 		                $bw_down	= '';
 		                $fw_profile = '';
-		                $alias		= $this->_find_alias($mac);
-                                        
-		                $e_cm = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
-		                if($e_cm){
-		                	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
-		                	if($e_ma){
-		                		$cloud_flag = true;
-		                		if($e_ma->action == 'block'){
-		                			$block_flag = true;
-		                			$cloud_flag = true;
-		                		}
-		                		if($e_ma->action == 'limit'){
-		                			$limit_flag = true;
-		                			$cloud_flag = true;
-		                			$limit_flag = true;
-		                			$bw_up_suffix = 'kbps';
-		                			$bw_up = ($e_ma->bw_up * 8);
-		                			if($bw_up >= 1000){
-		                				$bw_up = $bw_up / 1000;
-		                				$bw_up_suffix = 'mbps';
-		                			}
-		                			$bw_up = $bw_up.' '.$bw_up_suffix;
-		                			$bw_down_suffix = 'kbps';
-		                			$bw_down = ($e_ma->bw_down * 8);
-		                			if($bw_down >= 1000){
-		                				$bw_down = $bw_down / 1000;
-		                				$bw_down_suffix = 'mbps';
-		                			}
-		                			$bw_down = $bw_down.' '.$bw_down_suffix;
-		                		}
-		                		if($e_ma->action == 'firewall'){
-		                			$firewall_flag 	= true;
-		                			$fw_profile		= $e_ma->firewall_profile->name;
-		                		}
-		                	}
-		                	//If there is an ap profile level override
-		                	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.ap_profile_id' => $q_ap->ap_profile_id])->contain(['FirewallProfiles'])->first();
-		                	if($e_ma){
-		                		$cloud_flag = false;
-		                		if($e_ma->action == 'block'){
-		                			$block_flag = true;
-		                		}
-		                		if($e_ma->action == 'limit'){
-		                			$limit_flag = true;
-		                			$bw_up_suffix = 'kbps';
-		                			$bw_up = ($e_ma->bw_up * 8);
-		                			if($bw_up >= 1000){
-		                				$bw_up = $bw_up / 1000;
-		                				$bw_up_suffix = 'mbps';
-		                			}
-		                			$bw_up = $bw_up.' '.$bw_up_suffix;
-		                			$bw_down_suffix = 'kbps';
-		                			$bw_down = ($e_ma->bw_down * 8);
-		                			if($bw_down >= 1000){
-		                				$bw_down = $bw_down / 1000;
-		                				$bw_down_suffix = 'mbps';
-		                			}
-		                			$bw_down = $bw_down.' '.$bw_down_suffix;
-		                		}
-		                		if($e_ma->action == 'firewall'){
-		                			$firewall_flag 	= true;
-		                			$fw_profile		= $e_ma->firewall_profile->name;
-		                		}
-		                	}                   
-		                }
+		                $alias		= $this->_find_alias($s->mac_address_id);                                        
+
+	                	$macAction = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $s->mac_address_id ,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
+	                	if($macAction){
+
+	                		$cloud_flag = true;
+	                		if($macAction->action == 'block'){
+	                			$block_flag = true;
+	                			$cloud_flag = true;
+	                		}
+	                		if($macAction->action == 'limit'){
+	                			$limit_flag = true;
+	                			$cloud_flag = true;
+	                			$limit_flag = true;
+	                			$bw_up_suffix = 'kbps';
+	                			$bw_up = ($macAction->bw_up * 8);
+	                			if($bw_up >= 1000){
+	                				$bw_up = $bw_up / 1000;
+	                				$bw_up_suffix = 'mbps';
+	                			}
+	                			$bw_up = $bw_up.' '.$bw_up_suffix;
+	                			$bw_down_suffix = 'kbps';
+	                			$bw_down = ($macAction->bw_down * 8);
+	                			if($bw_down >= 1000){
+	                				$bw_down = $bw_down / 1000;
+	                				$bw_down_suffix = 'mbps';
+	                			}
+	                			$bw_down = $bw_down.' '.$bw_down_suffix;
+	                		}
+	                		if($macAction->action == 'firewall'){
+	                			$firewall_flag 	= true;
+	                			$fw_profile		= $macAction->firewall_profile->name;
+	                		}
+	                	}
+	                	//If there is an ap profile level override
+	                	$macAction = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $s->mac_address_id ,'MacActions.ap_profile_id' => $q_ap->ap_profile_id ])->contain(['FirewallProfiles'])->first();
+	                	if($macAction){
+	                		$cloud_flag = false;
+	                		if($macAction->action == 'block'){
+	                			$block_flag = true;
+	                		}
+	                		if($macAction->action == 'limit'){
+	                			$limit_flag = true;
+	                			$bw_up_suffix = 'kbps';
+	                			$bw_up = ($macAction->bw_up * 8);
+	                			if($bw_up >= 1000){
+	                				$bw_up = $bw_up / 1000;
+	                				$bw_up_suffix = 'mbps';
+	                			}
+	                			$bw_up = $bw_up.' '.$bw_up_suffix;
+	                			$bw_down_suffix = 'kbps';
+	                			$bw_down = ($macAction->bw_down * 8);
+	                			if($bw_down >= 1000){
+	                				$bw_down = $bw_down / 1000;
+	                				$bw_down_suffix = 'mbps';
+	                			}
+	                			$bw_down = $bw_down.' '.$bw_down_suffix;
+	                		}
+	                		if($macAction->action == 'firewall'){
+	                			$firewall_flag 	= true;
+	                			$fw_profile		= $macAction->firewall_profile->name;
+	                		}
+	                	}                   
+
                         
                         array_push($items, [
                             'id'                => $id,
                             'name'              => $entry_name,
                             'ap_profile_entry_id'=> $ap_profile_entry_id,
                             'mac'               => $mac,
+                            'mac_address_id'    => $s->mac_address_id,
                             'vendor'            => $lastCreated->vendor,
                             'tx_bytes'          => $t_bytes,
                             'rx_bytes'          => $r_bytes,
@@ -1259,13 +1266,26 @@ class ApReportsController extends AppController {
         return $hw;
     }
     
-   	private function _find_alias($mac){
+   	private function _find_aliasZZ($mac){
     
     	$req_q    = $this->request->getQuery();    
        	$cloud_id = $req_q['cloud_id'];
       
         $alias = false;
         $qr = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id'=> $cloud_id])->first();
+        if($qr){
+        	$alias = $qr->alias;
+        } 
+        return $alias;
+    }
+    
+     private function _find_alias($mac_address_id){
+    
+    	$req_q    = $this->request->getQuery();    
+       	$cloud_id = $req_q['cloud_id'];
+      
+        $alias = false;
+        $qr = $this->{'MacAliases'}->find()->where(['MacAliases.mac_address_id' => $mac_address_id,'MacAliases.cloud_id'=> $cloud_id])->first();
         if($qr){
         	$alias = $qr->alias;
         } 

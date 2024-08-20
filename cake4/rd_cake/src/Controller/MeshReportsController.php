@@ -53,7 +53,7 @@ class MeshReportsController extends AppController {
         $this->loadModel('OpenvpnServerClients');
         
         $this->loadModel('MacActions');
-        $this->loadModel('ClientMacs');
+        $this->loadModel('MacAddresses');
         
         $this->loadModel('Hardwares');
         $this->loadModel('Timezones'); 
@@ -733,8 +733,12 @@ class MeshReportsController extends AppController {
             }
 
             $q_s = $this->NodeStations->find()
-                ->select(['mac'])
-                ->distinct(['mac'])
+                ->select([
+                    'mac_address_id',
+                    'mac'   => 'MacAddresses.mac'
+                ])
+                ->distinct(['mac_address_id'])
+                ->contain(['MacAddresses'])
                 ->where([
                     'NodeStations.mesh_entry_id' => $mesh_entry_id,
                     'NodeStations.modified >='   => $modified
@@ -742,10 +746,9 @@ class MeshReportsController extends AppController {
 
             if ($q_s->count()>0) {
                 foreach ($q_s as $j) {
-                    $mac = $j->mac;
                     //Get the sum of Bytes and avg of signal
                     $q_t = $this->NodeStations->find()->select($this->fields)->where([
-                        'NodeStations.mac'           => $mac,
+                        'NodeStations.mac_address_id'=> $j->mac_address_id,
                         'NodeStations.mesh_entry_id' => $mesh_entry_id,
                         'NodeStations.modified >='   => $modified
                     ])->first();
@@ -767,10 +770,9 @@ class MeshReportsController extends AppController {
 
                     //Get the latest entry
                     $lastCreated = $this->NodeStations->find()->where([
-                        'NodeStations.mac'           => $mac,
-                        'NodeStations.mesh_entry_id' => $mesh_entry_id
-                    ])->order(['NodeStations.created' => 'desc'])->first();
-                   // print_r($lastCreated);
+                        'NodeStations.mac_address_id'   => $j->mac_address_id,
+                        'NodeStations.mesh_entry_id'    => $mesh_entry_id
+                    ])->order(['NodeStations.created'   => 'desc'])->first();
 
                     $signal = $lastCreated->signal_now;
 
@@ -816,79 +818,78 @@ class MeshReportsController extends AppController {
                     $bw_up		= '';
                     $bw_down	= '';
                     $fw_profile = '';
-                    $alias		= $this->_find_alias($mac);
+                    $alias		= $this->_find_alias($j->mac_address_id);
                     
-                    
-                    $e_cm = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
-                    if($e_cm){
-                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
-                    	if($e_ma){
-                    		$cloud_flag = true;
-                    		if($e_ma->action == 'block'){
-                    			$block_flag = true;
-                    			$cloud_flag = true;
-                    		}
-                    		if($e_ma->action == 'limit'){
-                    			$limit_flag = true;
-                    			$cloud_flag = true;
-                    			$limit_flag = true;
-                    			$bw_up_suffix = 'kbps';
-                    			$bw_up = ($e_ma->bw_up * 8);
-                    			if($bw_up >= 1000){
-                    				$bw_up = $bw_up / 1000;
-                    				$bw_up_suffix = 'mbps';
-                    			}
-                    			$bw_up = $bw_up.' '.$bw_up_suffix;
-                    			$bw_down_suffix = 'kbps';
-                    			$bw_down = ($e_ma->bw_down * 8);
-                    			if($bw_down >= 1000){
-                    				$bw_down = $bw_down / 1000;
-                    				$bw_down_suffix = 'mbps';
-                    			}
-                    			$bw_down = $bw_down.' '.$bw_down_suffix;
-                    		}
-                    		if($e_ma->action == 'firewall'){
-	                			$firewall_flag 	= true;
-	                			$fw_profile		= $e_ma->firewall_profile->name;
-	                		}
-                    	}
-                    	//If there is an mesh level override
-                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->contain(['FirewallProfiles'])->first();
-                    	if($e_ma){
-                    		$cloud_flag = false;
-                    		if($e_ma->action == 'block'){
-                    			$block_flag = true;
-                    		}
-                    		if($e_ma->action == 'limit'){
-                    			$limit_flag = true;
-                    			$bw_up_suffix = 'kbps';
-                    			$bw_up = ($e_ma->bw_up * 8);
-                    			if($bw_up >= 1000){
-                    				$bw_up = $bw_up / 1000;
-                    				$bw_up_suffix = 'mbps';
-                    			}
-                    			$bw_up = $bw_up.' '.$bw_up_suffix;
-                    			$bw_down_suffix = 'kbps';
-                    			$bw_down = ($e_ma->bw_down * 8);
-                    			if($bw_down >= 1000){
-                    				$bw_down = $bw_down / 1000;
-                    				$bw_down_suffix = 'mbps';
-                    			}
-                    			$bw_down = $bw_down.' '.$bw_down_suffix;
-                    		}
-                    		if($e_ma->action == 'firewall'){
-	                			$firewall_flag 	= true;
-	                			$fw_profile		= $e_ma->firewall_profile->name;
-	                		}
-                    	}                   
-                    }
+                
+                	$macAction = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $j->mac_address_id,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
+                	if($macAction){
+                		$cloud_flag = true;
+                		if($macAction->action == 'block'){
+                			$block_flag = true;
+                			$cloud_flag = true;
+                		}
+                		if($macAction->action == 'limit'){
+                			$limit_flag = true;
+                			$cloud_flag = true;
+                			$limit_flag = true;
+                			$bw_up_suffix = 'kbps';
+                			$bw_up = ($macAction->bw_up * 8);
+                			if($bw_up >= 1000){
+                				$bw_up = $bw_up / 1000;
+                				$bw_up_suffix = 'mbps';
+                			}
+                			$bw_up = $bw_up.' '.$bw_up_suffix;
+                			$bw_down_suffix = 'kbps';
+                			$bw_down = ($macAction->bw_down * 8);
+                			if($bw_down >= 1000){
+                				$bw_down = $bw_down / 1000;
+                				$bw_down_suffix = 'mbps';
+                			}
+                			$bw_down = $bw_down.' '.$bw_down_suffix;
+                		}
+                		if($macAction->action == 'firewall'){
+                			$firewall_flag 	= true;
+                			$fw_profile		= $macAction->firewall_profile->name;
+                		}
+                	}
+                	//If there is an mesh level override
+                	$macAction = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $j->mac_address_id,'MacActions.mesh_id' => $mesh_id ])->contain(['FirewallProfiles'])->first();
+                	if($macAction){
+                		$cloud_flag = false;
+                		if($macAction->action == 'block'){
+                			$block_flag = true;
+                		}
+                		if($macAction->action == 'limit'){
+                			$limit_flag = true;
+                			$bw_up_suffix = 'kbps';
+                			$bw_up = ($macAction->bw_up * 8);
+                			if($bw_up >= 1000){
+                				$bw_up = $bw_up / 1000;
+                				$bw_up_suffix = 'mbps';
+                			}
+                			$bw_up = $bw_up.' '.$bw_up_suffix;
+                			$bw_down_suffix = 'kbps';
+                			$bw_down = ($macAction->bw_down * 8);
+                			if($bw_down >= 1000){
+                				$bw_down = $bw_down / 1000;
+                				$bw_down_suffix = 'mbps';
+                			}
+                			$bw_down = $bw_down.' '.$bw_down_suffix;
+                		}
+                		if($macAction->action == 'firewall'){
+                			$firewall_flag 	= true;
+                			$fw_profile		= $macAction->firewall_profile->name;
+                		}
+                	}                   
+
                     
                     array_push($items, [
                         'id'                => $id,
                         'name'              => $entry_name,
                         'mesh_entry_id'     => $mesh_entry_id,
-                        'mac'               => $mac,
-                        'vendor'            => $this->_lookup_vendor($mac),
+                        'mac'               => $j->mac,
+                        'mac_address_id'    => $j->mac_address_id,
+                        'vendor'            => $this->_lookup_vendor($j->mac),
                         'tx_bytes'          => $t_bytes,
                         'rx_bytes'          => $r_bytes,
                         'signal_avg'        => $signal_avg ,
@@ -1016,20 +1017,26 @@ class MeshReportsController extends AppController {
                 }
             }
 
-            $q_s = $this->NodeStations->find()->select(['mac'])->distinct(['mac'])->where([
-                'NodeStations.node_id'       => $node_id,
-                'NodeStations.modified >='   => $modified
-            ])->all();
+            $q_s = $this->NodeStations->find()
+                ->select([
+                    'mac_address_id',
+                    'mac'   => 'MacAddresses.mac'
+                ])
+                ->distinct(['mac_address_id'])
+                ->contain(['MacAddresses'])
+                ->where([
+                    'NodeStations.node_id'       => $node_id,
+                    'NodeStations.modified >='   => $modified
+                ])
+                ->all();
 
             if ($q_s) {
                 foreach ($q_s as $j) {
-                    //print_r($j);
-                    $mac = $j->mac;
                     //Get the sum of Bytes and avg of signal
                     $q_t = $this->NodeStations->find()->select($this->fields)->where([
-                        'NodeStations.mac'           => $mac,
-                        'NodeStations.node_id'       => $node_id,
-                        'NodeStations.modified >='   => $modified
+                        'NodeStations.mac_address_id'   => $j->mac_address_id,
+                        'NodeStations.node_id'          => $node_id,
+                        'NodeStations.modified >='      => $modified
                     ])->first();
 
                    // print_r($q_t);
@@ -1049,8 +1056,8 @@ class MeshReportsController extends AppController {
 
                     //Get the latest entry
                     $lastCreated = $this->NodeStations->find()->where([
-                        'NodeStations.mac'       => $mac,
-                        'NodeStations.node_id'   => $node_id
+                        'NodeStations.mac_address_id'   => $j->mac_address_id,
+                        'NodeStations.node_id'          => $node_id
                     ])->order(['NodeStations.created' => 'desc'])->first();
 
                    // print_r($lastCreated);
@@ -1087,81 +1094,76 @@ class MeshReportsController extends AppController {
                     $bw_up		= '';
                     $bw_down	= '';
                     $fw_profile = '';
-                    $alias		= $this->_find_alias($mac);
-                    
-                    
-                    $e_cm = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
-                    if($e_cm){
-                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
-                    	if($e_ma){
-                    		$cloud_flag = true;
-                    		if($e_ma->action == 'block'){
-                    			$block_flag = true;
-                    			$cloud_flag = true;
-                    		}
-                    		if($e_ma->action == 'limit'){
-                    			$limit_flag = true;
-                    			$cloud_flag = true;
-                    			$limit_flag = true;
-                    			$bw_up_suffix = 'kbps';
-                    			$bw_up = ($e_ma->bw_up * 8);
-                    			if($bw_up >= 1000){
-                    				$bw_up = $bw_up / 1000;
-                    				$bw_up_suffix = 'mbps';
-                    			}
-                    			$bw_up = $bw_up.' '.$bw_up_suffix;
-                    			$bw_down_suffix = 'kbps';
-                    			$bw_down = ($e_ma->bw_down * 8);
-                    			if($bw_down >= 1000){
-                    				$bw_down = $bw_down / 1000;
-                    				$bw_down_suffix = 'mbps';
-                    			}
-                    			$bw_down = $bw_down.' '.$bw_down_suffix;
-                    		}
-                    		if($e_ma->action == 'firewall'){
-	                			$firewall_flag 	= true;
-	                			$fw_profile		= $e_ma->firewall_profile->name;
-	                		}
-                    	}
-                    	//If there is an mesh level override
-                    	$e_ma = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_cm->id,'MacActions.mesh_id' => $mesh_id ])->contain(['FirewallProfiles'])->first();
-                    	if($e_ma){
-                    		$cloud_flag = false;
-                    		if($e_ma->action == 'block'){
-                    			$block_flag = true;
-                    		}
-                    		if($e_ma->action == 'limit'){
-                    			$limit_flag = true;
-                    			$bw_up_suffix = 'kbps';
-                    			$bw_up = ($e_ma->bw_up * 8);
-                    			if($bw_up >= 1000){
-                    				$bw_up = $bw_up / 1000;
-                    				$bw_up_suffix = 'mbps';
-                    			}
-                    			$bw_up = $bw_up.' '.$bw_up_suffix;
-                    			$bw_down_suffix = 'kbps';
-                    			$bw_down = ($e_ma->bw_down * 8);
-                    			if($bw_down >= 1000){
-                    				$bw_down = $bw_down / 1000;
-                    				$bw_down_suffix = 'mbps';
-                    			}
-                    			$bw_down = $bw_down.' '.$bw_down_suffix;
-                    		}
-                    		if($e_ma->action == 'firewall'){
-	                			$firewall_flag 	= true;
-	                			$fw_profile		= $e_ma->firewall_profile->name;
-	                		}
-                    	}                   
-                    }
-                    
-                    
-                   
+                    $alias		= $this->_find_alias($j->mac_address_id);
+
+                	$macAction = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $j->mac_address_id,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
+                	if($macAction){
+                		$cloud_flag = true;
+                		if($macAction->action == 'block'){
+                			$block_flag = true;
+                			$cloud_flag = true;
+                		}
+                		if($macAction->action == 'limit'){
+                			$limit_flag = true;
+                			$cloud_flag = true;
+                			$limit_flag = true;
+                			$bw_up_suffix = 'kbps';
+                			$bw_up = ($macAction->bw_up * 8);
+                			if($bw_up >= 1000){
+                				$bw_up = $bw_up / 1000;
+                				$bw_up_suffix = 'mbps';
+                			}
+                			$bw_up = $bw_up.' '.$bw_up_suffix;
+                			$bw_down_suffix = 'kbps';
+                			$bw_down = ($macAction->bw_down * 8);
+                			if($bw_down >= 1000){
+                				$bw_down = $bw_down / 1000;
+                				$bw_down_suffix = 'mbps';
+                			}
+                			$bw_down = $bw_down.' '.$bw_down_suffix;
+                		}
+                		if($macAction->action == 'firewall'){
+                			$firewall_flag 	= true;
+                			$fw_profile		= $macAction->firewall_profile->name;
+                		}
+                	}
+                	//If there is an mesh level override
+                	$macAction = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $j->mac_address_id,'MacActions.mesh_id' => $mesh_id ])->contain(['FirewallProfiles'])->first();
+                	if($macAction){
+                		$cloud_flag = false;
+                		if($macAction->action == 'block'){
+                			$block_flag = true;
+                		}
+                		if($macAction->action == 'limit'){
+                			$limit_flag = true;
+                			$bw_up_suffix = 'kbps';
+                			$bw_up = ($macAction->bw_up * 8);
+                			if($bw_up >= 1000){
+                				$bw_up = $bw_up / 1000;
+                				$bw_up_suffix = 'mbps';
+                			}
+                			$bw_up = $bw_up.' '.$bw_up_suffix;
+                			$bw_down_suffix = 'kbps';
+                			$bw_down = ($macAction->bw_down * 8);
+                			if($bw_down >= 1000){
+                				$bw_down = $bw_down / 1000;
+                				$bw_down_suffix = 'mbps';
+                			}
+                			$bw_down = $bw_down.' '.$bw_down_suffix;
+                		}
+                		if($macAction->action == 'firewall'){
+                			$firewall_flag 	= true;
+                			$fw_profile		= $macAction->firewall_profile->name;
+                		}
+                	}                   
+                 
                     array_push($items, array(
                         'id'                => $id,
                         'name'              => $node_name,
                         'node_id'           => $node_id,
-                        'mac'               => $mac,
-                        'vendor'            => $this->_lookup_vendor($mac),
+                        'mac'               => $j->mac,
+                        'mac_address_id'    => $j->mac_address_id,
+                        'vendor'            => $this->_lookup_vendor($j->mac),
                         'tx_bytes'          => $t_bytes,
                         'rx_bytes'          => $r_bytes,
                         'signal_avg'        => $signal_avg ,
@@ -2649,17 +2651,24 @@ class MeshReportsController extends AppController {
         }
     }
     
-    private function _find_alias($mac){
+    private function _find_alias($mac_address_id){
     
     	$req_q    = $this->request->getQuery();    
        	$cloud_id = $req_q['cloud_id'];
       
         $alias = false;
-        $qr = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id'=> $cloud_id])->first();
+        $qr = $this->{'MacAliases'}->find()->where(['MacAliases.mac_address_id' => $mac_address_id,'MacAliases.cloud_id'=> $cloud_id])->first();
         if($qr){
         	$alias = $qr->alias;
         } 
         return $alias;
+    }
+      
+    private function _findMacAddressId($mac){ 
+        $macAddress = $this->MacAddresses->find()->where(['MacAddresses.mac' => $mac])->first();
+        if($macAddress){
+            return $macAddress->id;
+        }    
     }
 
 }

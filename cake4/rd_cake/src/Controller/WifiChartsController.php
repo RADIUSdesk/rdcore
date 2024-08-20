@@ -482,6 +482,7 @@ class WifiChartsController extends AppController{
         $this->loadModel('Aps');
         $ap_id          = $this->request->getQuery('ap_id');
         $mac            = $this->request->getQuery('mac');
+        $mac_address_id = $this->_findMacAddressId($mac);
         $ap_entry_id    = $this->request->getQuery('ap_entry_id');
         
         //FOR APdesk we add the AP as a start 
@@ -491,7 +492,7 @@ class WifiChartsController extends AppController{
            
         $q_ap  = $this->{'Aps'}->find()
             ->where(['Aps.id' => $ap_id])
-            ->contain(['ApProfiles' => 'ApProfileEntries','MacAdresses'])->first();    
+            ->contain(['ApProfiles' => 'ApProfileEntries'])->first();    
         if($q_ap){
         	$this->ap_profile_id = $q_ap->ap_profile_id;      
             $ap_profile_entries_list = [];
@@ -513,8 +514,9 @@ class WifiChartsController extends AppController{
             //IS this for a device
             if($mac !=='false'){
                 $this->graph_item   = 'ap_device';
-                $this->mac          = $mac;
-                array_push($where_clause,['ApStations.mac' =>$mac]);
+                //$this->mac          = $mac;
+                $this->mac_address_id   = $mac_address_id;
+                array_push($where_clause,['ApStations.mac_address_id' =>$mac_address_id]);
             }       
         }
         $this->base_search = $where_clause;

@@ -428,7 +428,7 @@ class ApsController extends AppController {
 
                 $entries_list = [];
 
-                $q_s = $this->ApStations->find()->contain(['ApProfileEntries'])->distinct(['mac'])
+                $q_s = $this->ApStations->find()->contain(['ApProfileEntries'])->distinct(['mac_address_id'])
                     ->where([
                         'ApStations.ap_id'       => $ap_id,
                         'ApStations.modified >='   => $modified

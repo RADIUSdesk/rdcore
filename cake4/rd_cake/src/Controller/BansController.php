@@ -21,7 +21,8 @@ class BansController extends AppController {
         $this->loadModel('Meshes');
         $this->loadModel('ApProfiles');
         $this->loadModel('MacAliases');
-        $this->loadModel('ClientMacs');
+
+        $this->loadModel('MacAddresses');
         $this->loadModel('MacAliases');
         
         $this->loadComponent('Aa');
@@ -67,7 +68,7 @@ class BansController extends AppController {
      		$filter = json_decode($req_q['filter']);
      		foreach($filter as $f){
      			if($f->property == 'mac'){
-     				array_push($where_clause,["ClientMacs.mac LIKE" => '%'.$f->value.'%']);     			
+     				array_push($where_clause,["MacAddresses.mac LIKE" => '%'.$f->value.'%']);     			
      			} 
      			if($f->property == 'mesh_name'){
      				array_push($where_clause,["Meshes.name LIKE" => '%'.$f->value.'%']);     			
@@ -119,14 +120,14 @@ class BansController extends AppController {
      	}     	
      	$query->where($where_clause);
      	
-     	$sort = 'ClientMacs.mac';
+     	$sort = 'MacAddresses.mac';
      	$dir  = 'ASC';
      	
      	if(isset($req_q['sort'])){
      		$dir    = 'ASC';
     
             if($req_q['sort'] == 'mac'){
-                $sort = 'ClientMacs.mac';
+                $sort = 'MacAddresses.mac';
             }elseif($req_q['sort'] == 'mesh_name'){
                 $sort = 'Meshes.name';
             }elseif($req_q['sort'] == 'ap_profile_name'){
@@ -139,7 +140,7 @@ class BansController extends AppController {
         $query->order([$sort => $dir]); 
      	   	
                 
-        $query->contain(['Meshes','ApProfiles','ClientMacs','FirewallProfiles']);
+        $query->contain(['Meshes','ApProfiles','MacAddresses','FirewallProfiles']);
     
     
     	//===== PAGING (MUST BE LAST) ======
@@ -162,7 +163,7 @@ class BansController extends AppController {
         
         foreach($q_r as $q){
         
-        	$q->mac			= $q->client_mac->mac;
+        	$q->mac			= $q->mac_address->mac;
         	$q->cloud_wide 	= true;
         	if($q->cloud_id == null){
         		$q->cloud_wide = false;
@@ -174,7 +175,7 @@ class BansController extends AppController {
         		$q->mesh_name = $q->mesh->name;
         	}
         	
-        	$q_alias = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $q->mac])->first();
+        	$q_alias = $this->{'MacAliases'}->find()->where(['MacAliases.mac_address_id' => $q->mac_address_id])->first();
         	if($q_alias){
         		$q->alias = $q_alias->alias;
         	}
@@ -259,32 +260,32 @@ class BansController extends AppController {
        	$mac = str_replace('-', ':', $req_d['mac']);
        	$mac = strtoupper($mac);
        	
+       	$e_mac = $this->{'MacAddresses'}->find()->where(['MacAddresses.mac' => $mac])->first();
+		if(!$e_mac){			
+			$e_mac = $this->{'MacAddresses'}->newEntity(['mac' => $mac]);
+			$this->{'MacAddresses'}->save($e_mac);
+		}       	
+       	$add_data['mac_address_id'] = $e_mac->id;
+       	
        	//Test the MAC Address
        	if($req_d['alias'] == ''){
-        	$ad = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id' => $cloud_id])->first();
+        	$ad = $this->{'MacAliases'}->find()->where(['MacAliases.mac_address_id' => $e_mac->id,'MacAliases.cloud_id' => $cloud_id])->first();
         	if($ad){
         		$this->{'MacAliases'}->delete($ad);
         	}          	
        	}
        	     	
        	if($req_d['alias'] !== ''){
-       		$alias = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id' => $cloud_id])->first();
+       		$alias = $this->{'MacAliases'}->find()->where(['MacAliases.mac_address_id' => $e_mac->id,'MacAliases.cloud_id' => $cloud_id])->first();
        		if($alias){
        			$alias->alias = $req_d['alias'];//Update it
        			$this->{'MacAliases'}->save($alias);
        		}else{
-       			$a = $this->{'MacAliases'}->newEntity(['mac' => $mac,'cloud_id' => $cloud_id,'alias' => $req_d['alias']]);
+       			$a = $this->{'MacAliases'}->newEntity(['mac_address_id' => $e_mac->id,'cloud_id' => $cloud_id,'alias' => $req_d['alias']]);
        			$this->{'MacAliases'}->save($a);
        		}
        	}       	      	
-       	      	
-       	$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
-		if(!$e_mac){			
-			$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $mac]);
-			$this->{'ClientMacs'}->save($e_mac);
-		}       	
-       	$add_data['client_mac_id'] = $e_mac->id;
-
+       	      	      	
   		$add_data['action'] = $req_d['action'];
        	
        	if($req_d['action'] == 'limit'){
@@ -318,14 +319,14 @@ class BansController extends AppController {
 	   	   	
 	   	//Now we also have to check if it not already there ....
 	   	
-	   	$e_mac_action = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_mac->id,'MacActions.cloud_id' => $cloud_id])->first();
+	   	$e_mac_action = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $e_mac->id,'MacActions.cloud_id' => $cloud_id])->first();
 	   	if($e_mac_action){
 	   		$this->JsonErrors->errorMessage('Cloud Wide Entry Already Present');
 	   		return;
 	   	}
 	   	
 	   	if(isset($req_d['ap_profile_id'])){
-	   		$e_mac_action_ap_profile = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_mac->id,'MacActions.ap_profile_id' => $req_d['ap_profile_id']])->first();
+	   		$e_mac_action_ap_profile = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $e_mac->id,'MacActions.ap_profile_id' => $req_d['ap_profile_id']])->first();
 	   		if($e_mac_action_ap_profile){
 		   		$this->JsonErrors->errorMessage('AP Profile Entry Already Present');
 		   		return;
@@ -333,7 +334,7 @@ class BansController extends AppController {
 	   	}
 	   	
 	   	if(isset($req_d['mesh_id'])){
-	   		$e_mac_action_mesh = $this->{'MacActions'}->find()->where(['MacActions.client_mac_id' => $e_mac->id,'MacActions.mesh_id' => $req_d['mesh_id']])->first();
+	   		$e_mac_action_mesh = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $e_mac->id,'MacActions.mesh_id' => $req_d['mesh_id']])->first();
 	   		if($e_mac_action_mesh){
 		   		$this->JsonErrors->errorMessage('Mesh Entry Already Present');
 		   		return;
@@ -371,40 +372,41 @@ class BansController extends AppController {
         
         $mac = str_replace('-', ':', $req_d['mac']);
        	$mac = strtoupper($mac);
-        
+       	
+       	//Update / change of MAC Address
+       	$e_mac = $this->{'MacAddresses'}->find()->where(['MacAddresses.mac' => $mac])->first();
+		if(!$e_mac){			
+			$e_mac = $this->{'MacAddresses'}->newEntity(['mac' => $mac]);
+			$this->{'MacAddresses'}->save($e_mac);
+			$current_ent->mac_address_id = $e_mac->id;
+			$this->{'MacActions'}->save($current_ent);	
+		}else{
+			if($e_mac->id !== $current_ent->mac_address_id){
+				$current_ent->mac_address_id = $e_mac->id;
+				$this->{'MacActions'}->save($current_ent);		
+			}
+		}     	
+       	$mac_address_id = $this->_findMacAddressId($mac);       
         
         //Test the MAC Address
         if($req_d['alias'] == ''){
-        	$a_delete = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id' => $cloud_id])->first();
+        	$a_delete = $this->{'MacAliases'}->find()->where(['MacAliases.mac_address_id' => $mac_address_id,'MacAliases.cloud_id' => $cloud_id])->first();
         	if($a_delete){
         		$this->{'MacAliases'}->delete($a_delete);
         	}          	
        	}
        	
        	if($req_d['alias'] !== ''){     	
-       		$a_view = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id' => $cloud_id])->first();
+       		$a_view = $this->{'MacAliases'}->find()->where(['MacAliases.mac_address_id' => $mac_address_id,'MacAliases.cloud_id' => $cloud_id])->first();
        		if($a_view){
        			$a_view->alias = $req_d['alias'];//Update it
        			$this->{'MacAliases'}->save($a_view);
        		}else{
-       			$a_add = $this->{'MacAliases'}->newEntity(['mac' => $mac,'cloud_id' => $cloud_id,'alias' => $req_d['alias']]);
+       			$a_add = $this->{'MacAliases'}->newEntity(['mac_address_id' => $mac_address_id,'cloud_id' => $cloud_id,'alias' => $req_d['alias']]);
        			$this->{'MacAliases'}->save($a_add);
        		}
        	}
-       	
-       	//Update / change of MAC Address
-       	$e_mac = $this->{'ClientMacs'}->find()->where(['ClientMacs.mac' => $mac])->first();
-		if(!$e_mac){			
-			$e_mac = $this->{'ClientMacs'}->newEntity(['mac' => $mac]);
-			$this->{'ClientMacs'}->save($e_mac);
-			$current_ent->client_mac_id = $e_mac->id;
-			$this->{'MacActions'}->save($current_ent);	
-		}else{
-			if($e_mac->id !== $current_ent->client_mac_id){
-				$current_ent->client_mac_id = $e_mac->id;
-				$this->{'MacActions'}->save($current_ent);		
-			}
-		}       
+       	      	     
        	           
         //If the orig one has cloud ID and the new one has mesh_id
         if(isset($req_d['mesh_id'])){
@@ -541,5 +543,12 @@ class BansController extends AppController {
             'success' => true
         ]);
         $this->viewBuilder()->setOption('serialize', true);
+    }
+    
+    private function _findMacAddressId($mac){ 
+        $macAddress = $this->MacAddresses->find()->where(['MacAddresses.mac' => $mac])->first();
+        if($macAddress){
+            return $macAddress->id;
+        }    
     }
 }

@@ -460,52 +460,7 @@ function _node_stations($d,$node_id){
     }
 }
 
-
-function _node_stationsZZ($d, $node_id) {
-    global $conn;
-
-    // Loop through radios and interfaces
-    foreach ($d['radios'] as $radio => $radioData) {
-        if (isset($radioData['interfaces'])) {
-            foreach ($radioData['interfaces'] as $interface) {
-                if (!empty($interface['stations'])) {
-                
-                
-                    if ($interface['type'] == 'AP' && $interface['mesh_entry_id'] !== 0) {
-                        foreach ($interface['stations'] as $s_mac => $stationData) {
-                            // Get or create MAC address ID
-                            $mac_address_id = getOrCreateMacAddressId($s_mac);
-
-                            // Prepare station data
-                            $s_data                 = array_merge($interface, $stationData);
-                            $s_data['radio_number'] = $radio;
-                            $s_data['created']      = date("Y-m-d H:i:s", $s_data['first_timestamp']);
-                            $s_data['modified']     = date("Y-m-d H:i:s", $s_data['unix_timestamp']);
-                            $s_data['mac_address_id'] = $mac_address_id; // Use MAC address ID
-                            unset($s_data['stations']);
-                            
-                            print_r($s_data);
-
-                            // Insert station data
-                            $stmt = $conn->prepare("INSERT INTO node_stations 
-                                (node_id, radio_number, frequency_band, mesh_entry_id, mac_address_id, tx_bytes, rx_bytes, tx_packets, rx_packets, tx_bitrate, rx_bitrate, authenticated, authorized, tdls_peer, preamble, tx_failed, wmm_wme, tx_retries, mfp, signal_now, signal_avg, created, modified) 
-                                VALUES 
-                                (:node_id, :radio_number, :frequency_band, :mesh_entry_id, :mac_address_id, :tx_bytes, :rx_bytes, :tx_packets, :rx_packets, :tx_bitrate, :rx_bitrate, :authenticated, :authorized, :tdls_peer, :preamble, :tx_failed, :wmm_wme, :tx_retries, :mfp, :signal_now, :signal_avg, :created, :modified)");
-                            $stmt->execute($s_data);
-                        }
-                    }
-
-                   
-                   
-                }
-            }
-        }
-    }
-}
-
-
-
-function _ap_stationsZZ($d,$ap_id){
+function _ap_stations($d,$ap_id){
     global $conn;
     foreach(array_keys($d['radios']) as $radio) {
         if (array_key_exists('interfaces',$d['radios'][$radio])){
@@ -521,13 +476,16 @@ function _ap_stationsZZ($d,$ap_id){
                             $s_data                     = array_merge($s_data, $interface['stations'][$s_mac]);                             
                             $s_data['created']          = date("Y-m-d H:i:s", $s_data['first_timestamp']);
                             $s_data['modified']         = date("Y-m-d H:i:s", $s_data['unix_timestamp']);
-                            $stmt = $conn->prepare("INSERT into ap_stations (ap_id,radio_number,frequency_band,ap_profile_entry_id,mac,tx_bytes,rx_bytes,tx_bitrate,rx_bitrate,tx_packets,rx_packets,authenticated,authorized,tdls_peer,preamble,tx_failed,wmm_wme,tx_retries,mfp,signal_now,signal_avg,created,modified)VALUES(:ap_id,:radio_number,:frequency_band,:ap_profile_entry_id,:mac,:tx_bytes,:rx_bytes,:tx_packets,:rx_packets,:tx_bitrate,:rx_bitrate,:authenticated,:authorized,:tdls_peer,:preamble,:tx_failed,:wmm_wme,:tx_retries,:mfp,:signal_now,:signal_avg,:created,:modified)");
+                            $s_data['mac_address_id']   = getOrCreateMacAddressId($s_data['mac']);
+                            unset($s_data['mac']);
+                            
+                            $stmt = $conn->prepare("INSERT into ap_stations (ap_id,radio_number,frequency_band,ap_profile_entry_id,mac_address_id,tx_bytes,rx_bytes,tx_bitrate,rx_bitrate,tx_packets,rx_packets,authenticated,authorized,tdls_peer,preamble,tx_failed,wmm_wme,tx_retries,mfp,signal_now,signal_avg,created,modified)VALUES(:ap_id,:radio_number,:frequency_band,:ap_profile_entry_id,:mac_address_id,:tx_bytes,:rx_bytes,:tx_packets,:rx_packets,:tx_bitrate,:rx_bitrate,:authenticated,:authorized,:tdls_peer,:preamble,:tx_failed,:wmm_wme,:tx_retries,:mfp,:signal_now,:signal_avg,:created,:modified)");
                             $stmt->execute([
                                 'ap_id'             => $s_data['node_id'],//1
                                 'radio_number'      => $s_data['radio_number'],//2
                                 'frequency_band'    => $s_data['frequency_band'],//3
                                 'ap_profile_entry_id'     => $s_data['mesh_entry_id'],//4
-                                'mac'               => $s_data['mac'],//5
+                                'mac_address_id'    => $s_data['mac_address_id'],//5
                                 'rx_bytes'          => $s_data['rx_bytes'],//6
                                 'tx_bytes'          => $s_data['tx_bytes'],//7
                                 'rx_bitrate'        => $s_data['rx_bitrate'],//8
@@ -552,40 +510,6 @@ function _ap_stationsZZ($d,$ap_id){
                 }
             }
         } 
-    }
-}
-
-function _ap_stations($d, $ap_id) {
-    global $conn;
-
-    // Loop through radios and interfaces
-    foreach ($d['radios'] as $radio => $radioData) {
-        if (isset($radioData['interfaces'])) {
-            foreach ($radioData['interfaces'] as $interface) {
-                if (!empty($interface['stations'])) {
-                    if ($interface['type'] == 'AP' && $interface['mesh_entry_id'] !== 0) {
-                        foreach ($interface['stations'] as $s_mac => $stationData) {
-                            // Get or create MAC address ID
-                            $mac_id = getOrCreateMacAddressId($s_mac);
-
-                            // Prepare station data
-                            $s_data = array_merge($interface, $stationData);
-                            $s_data['radio_number'] = $radio;
-                            $s_data['created'] = date("Y-m-d H:i:s", $s_data['first_timestamp']);
-                            $s_data['modified'] = date("Y-m-d H:i:s", $s_data['unix_timestamp']);
-                            $s_data['mac_id'] = $mac_id; // Use MAC address ID
-
-                            // Insert station data
-                            $stmt = $conn->prepare("INSERT INTO ap_stations 
-                                (ap_id, radio_number, frequency_band, ap_profile_entry_id, mac_id, tx_bytes, rx_bytes, tx_bitrate, rx_bitrate, tx_packets, rx_packets, authenticated, authorized, tdls_peer, preamble, tx_failed, wmm_wme, tx_retries, mfp, signal_now, signal_avg, created, modified) 
-                                VALUES 
-                                (:ap_id, :radio_number, :frequency_band, :ap_profile_entry_id, :mac_id, :tx_bytes, :rx_bytes, :tx_packets, :rx_packets, :tx_bitrate, :rx_bitrate, :authenticated, :authorized, :tdls_peer, :preamble, :tx_failed, :wmm_wme, :tx_retries, :mfp, :signal_now, :signal_avg, :created, :modified)");
-                            $stmt->execute($s_data);
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
