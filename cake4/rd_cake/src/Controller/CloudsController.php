@@ -1771,7 +1771,7 @@ class CloudsController extends AppController {
             $data_in            = $q_r->data_in;
             $data_out           = $q_r->data_out;
         }
-        $users_grand_total = $this->{$table}->find()->distinct(['mac'])->where($where)->count();
+        $users_grand_total = $this->{$table}->find()->distinct(['mac_address_id'])->where($where)->count();
         
         if($this->graph_item == 'mesh'){
             $this->mesh_data_total  = $data_grand_total;
@@ -1859,7 +1859,7 @@ class CloudsController extends AppController {
             $data_in            = $q_r->data_in;
             $data_out           = $q_r->data_out;
         }
-        $users_grand_total = $this->{$table}->find()->distinct(['mac'])->where($where)->count();
+        $users_grand_total = $this->{$table}->find()->distinct(['mac_address_id'])->where($where)->count();
         
         if($this->graph_item == 'mesh'){
             $this->mesh_data_total  = $data_grand_total;
@@ -1948,7 +1948,7 @@ class CloudsController extends AppController {
             $data_in            = $q_r->data_in;
             $data_out           = $q_r->data_out;
         }
-        $users_grand_total = $this->{$table}->find()->distinct(['mac'])->where($where)->count();
+        $users_grand_total = $this->{$table}->find()->distinct(['mac_address_id'])->where($where)->count();
         
         if($this->graph_item == 'mesh'){
             $this->mesh_data_total  = $data_grand_total;
