@@ -1,6 +1,5 @@
-version: '3'
 services:
- 
+
   radiusdesk:
     build:
       context: ./
@@ -33,12 +32,12 @@ services:
       - "MARIADB_USER=rd"
       - "MARIADB_DATABASE=rd"
       - "MARDIADB_PASSWORD=rd"
-   
+
     volumes:
       - ${RADIUSDESK_VOLUME}/db_conf/my_custom.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf:ro
       - rd_data:/bitnami/mariadb
       - ${RADIUSDESK_VOLUME}/db_startup:/tmp
-      
+
 volumes:
   rd_data:
 

@@ -2,7 +2,7 @@
 
 set -xu
 
-docker network create --attachable -d bridge radiusdesk-bridge
+docker network create --attachable -d bridge radiusdesk-bridge || exit 1
 
 source ./.env
 
@@ -17,42 +17,42 @@ echo
 echo Starting Build ....
 echo
 echo Copying database files to volume mounts for MariaDB ...
-mkdir  -p /mnt/data/radiusdesk
-mkdir  -p /mnt/data/radiusdesk/db_startup
-mkdir  -p /mnt/data/radiusdesk/db_conf
-chmod -R 777 /mnt/data/radiusdesk
-chmod -R 777 /mnt/data/radiusdesk/db_startup
-chmod -R 777 /mnt/data/radiusdesk/db_conf
+mkdir  -p /mnt/data/radiusdesk || exit 1
+mkdir  -p /mnt/data/radiusdesk/db_startup || exit 1
+mkdir  -p /mnt/data/radiusdesk/db_conf || exit 1
+chmod -R 777 /mnt/data/radiusdesk || exit 1
+chmod -R 777 /mnt/data/radiusdesk/db_startup || exit 1
+chmod -R 777 /mnt/data/radiusdesk/db_conf || exit 1
 
-if [ -d "rdcore" ] 
+if [ -d "rdcore" ]
 then
     echo "Directory rdcore exists."
 else
-    git clone https://github.com/RADIUSdesk/rdcore
+    git clone https://github.com/RADIUSdesk/rdcore || exit 1
 fi
 
-cp rdcore/cake4/rd_cake/setup/db/rd.sql $RADIUSDESK_VOLUME/db_startup
-cp db_priveleges.sql $RADIUSDESK_VOLUME/db_startup
-cp startup.sh $RADIUSDESK_VOLUME/db_startup
-cp my_custom.cnf $RADIUSDESK_VOLUME/db_conf
+cp rdcore/cake4/rd_cake/setup/db/rd.sql $RADIUSDESK_VOLUME/db_startup || exit 1
+cp db_priveleges.sql $RADIUSDESK_VOLUME/db_startup || exit 1
+cp startup.sh $RADIUSDESK_VOLUME/db_startup || exit 1
+cp my_custom.cnf $RADIUSDESK_VOLUME/db_conf || exit 1
 
-echo 
+echo
 echo Building docker database container ...
 #docker-compose config
-docker-compose up -d rdmariadb
+docker compose up -d rdmariadb || exit 1
 
-echo 
+echo
 echo Waiting for MariaDB to come up ...
 sleep 60
 
 echo Creating database for Radiusdesk ...
 # Build daatabase
-docker exec -u 0 -it radiusdesk-mariadb /tmp/startup.sh
+docker exec -u 0 -it radiusdesk-mariadb /tmp/startup.sh || exit 1
 echo
 echo Building Radiusdesk container with nginx, php-fpm and freeradius ...
 
-docker-compose build
-docker-compose up -d radiusdesk
+docker compose build || exit 1
+docker compose up -d radiusdesk || exit 1
 
 echo
 echo All done!
