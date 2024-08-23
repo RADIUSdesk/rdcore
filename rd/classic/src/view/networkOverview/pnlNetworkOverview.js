@@ -71,7 +71,30 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverview', {
                          click: 'onClickWeekButton'
                     }
                 },
-                '|',               
+                '|',
+                { 
+                    xtype       : 'button', 
+                    glyph       : Rd.config.icnNetwork,
+                    scale       : 'small',
+                    pressed     : true,
+                    tooltip     : 'Mesh Networks',
+                    enableToggle: true,
+                    listeners   : {
+                        // click: 'onClickMesh'
+                    }
+                },
+                { 
+                    xtype       : 'button', 
+                    glyph       : Rd.config.icnSsid,
+                    scale       : 'small',
+                    pressed     : true,
+                    tooltip     : 'Access Points',
+                    enableToggle: true,
+                    listeners   : {
+                      //   click: 'onClickMesh'
+                    }
+                },
+                '|',              
                 {
                     xtype       : 'button',
                     glyph       : Rd.config.icnMap,
@@ -80,25 +103,17 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverview', {
                     listeners   : {
                          click: 'onClickMap'
                     } 
-                },
-                { 
-                    xtype       : 'button', 
-                    glyph       : Rd.config.icnMesh,
-                    scale       : 'small',
-                    tooltip     : 'View Meshes',
-                    listeners   : {
-                         click: 'onClickMesh'
-                    }
                 }
             ]
         },
-        {
+   /*     {
             itemId      : 'cntBanner',
             reference   : 'cntBanner',
             xtype       : 'container',
             dock        : 'top',
+            hidden      : true,
             style       : { 
-                background  : '#adc2eb'            
+            //    background  : '#adc2eb'            
             },
             height      : 70,
             tpl         : new Ext.XTemplate(            
@@ -142,7 +157,7 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverview', {
                 'text': 'HOME',
                 'fa_icon': 'home'
             }
-        }
+        }*/
     ],
     initComponent: function() {
         var me      = this;        
@@ -157,7 +172,8 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverview', {
             layout  : 'fit',
             ui      : 'panel-green',
             title   : 'NAVIGATION',
-            padding : 10
+            padding : 10,
+            border  : true
         },
         {
             region  : 'center',  

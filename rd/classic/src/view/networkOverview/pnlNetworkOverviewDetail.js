@@ -2,7 +2,7 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverviewDetail', {
    extend      : 'Ext.panel.Panel',
     alias       : 'widget.pnlNetworkOverviewDetail',
 	layout: {
-        type    : 'vbox',
+        type    : 'hbox',
         pack    : 'start',
         align   : 'stretch'
     },
@@ -16,15 +16,12 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverviewDetail', {
         var data_graph = {
             xtype: 'cartesian',
             width: '100%',
-            height: 300,
+            flex:   1,
             store: {
                 data: []
             },
 
-            legend: {
-                type: 'sprite',
-                docked: 'bottom'
-            },
+            legend: false,
 
             axes: [
                 {
@@ -50,6 +47,7 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverviewDetail', {
                 xField  : 'time_unit',
                 yField  : ['data_in', 'data_out'],
                 stacked : true,
+                colors: ['#56b3fa', '#3e8ebe' ], // Custom color set
                 style   : {
                     opacity: 0.80,
                     minGapWidth: 30
@@ -75,132 +73,153 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverviewDetail', {
                 ptype: 'chartitemevents',
                 moveEvents: true
             }
-    };
-    
-    var plrOnline =  {
-         xtype: 'polar',
-         width: '100%',
-         height: 200,
-        interactions: ['rotate', 'itemhighlight'],
-        innerPadding: 10,
-        store: {
-             fields: ['name', 'data1'],
-             data: [{
-                 name: '20 ONLINE',
-                 data1: 30
-             }, {
-                 name: '20 OFFLINE',
-                 data1: 20
-             }]
-         },
+        };
+        
+        var plrOnline =  {
+             xtype: 'polar',
+             width: '100%',
+             height: 200,
+            interactions: ['rotate', 'itemhighlight'],
+            innerPadding: 10,
+            store: {
+                 fields: ['name', 'data1'],
+                 data: [{
+                     name: '20 ONLINE',
+                     data1: 30
+                 }, {
+                     name: '20 OFFLINE',
+                     data1: 20
+                 }]
+             },
 
-         series: {
-             type: 'pie',
-             highlight: true,
-             angleField: 'data1',
-             /*label: {
-                 field: 'name',
-                 display: 'rotate'
-             },*/
-             donut: 50
-         },
-         flex: 1
-     };
-        
-        
-              
-        me.items = [
-        {
-            xtype       : 'container',
-            layout      : 'hbox',
-            scrollable  : true,
+             series: {
+                 type: 'pie',
+                 highlight: true,
+                 angleField: 'data1',
+                 colors: ['#009933', '#ffad33'], // specify colors for each slice
+                 /*label: {
+                     field: 'name',
+                     display: 'rotate'
+                 },*/
+                 donut: 50
+             },
+             
+            flex: 1
+         };
+         
+         var pnlMeshes = {
+            xtype       : 'panel',
+            itemId      : 'pnlMeshes',
+            title       : 'MESH NODES',
             flex        : 1,
+            ui          : 'panel-blue',
+            padding     : 10,
+            glyph       : Rd.config.icnNetwork,
+            layout      : {
+                type    : 'vbox',
+                align   : 'stretch'
+            },
             items       : [
                 {
-                    xtype       : 'panel',
-                    itemId      : 'pnlMeshes',
-                    title       : 'MESH NODES',
-                    flex        : 1,
-                    ui          : 'panel-blue',
-                    padding     : 10,
-                    glyph       : Rd.config.icnMesh,
-                    items       : [
+                    xtype   : 'container',
+                    layout  : {
+                        type    : 'hbox',                            
+                        pack    : 'start',
+                        align   : 'stretch'
+                    },
+                    items   : [
+                        plrOnline,
                         {
                             xtype   : 'container',
-                            layout  : {
-                                type    : 'hbox',                            
-                                pack    : 'start',
-                                align   : 'stretch'
+                            itemId  : 'cntInfo',
+
+                            tpl     : new Ext.XTemplate(
+                                '<div class="parent-div">',
+                                  '<div class="sub-div-1">',
+                                    '<p style="font-size:250%;font-weight:bolder;color:#29465b;"><i class="fa fa-user"></i> {users}</p>',
+                                    '<p style="font-size:130%;color:#808080;font-weight:bolder;">',
+                                        '<i class="fa fa-share-alt"></i> {total_networks} NETWORKS <span style="color:green;">({total_networks_online} <i class="fa fa-circle"></i>)</span>',
+                                        '<br><br>',
+                                        '<i class="fa fa-cube"></i> {total_nodes} NODES <span style="color:green;">({total_nodes_online} <i class="fa fa-circle"></i>)</span>',
+                                    '</p>',
+                                  '</div>',
+                                  '<div class="sub-div-2">',
+                                  '<p style="font-size:250%;font-weight:bolder;color:#29465b;"><i class="fa fa-database"></i> {data_total}</p>',
+                                  '<p style="font-size:130%;color:#808080;font-weight:bolder;">',
+                                    '<i class="fa fa-arrow-circle-down"></i> {data_in}',
+                                    '&nbsp;&nbsp;&nbsp;&nbsp;',
+                                    '<i class="fa fa-arrow-circle-up"></i> {data_out}',
+                                  '</p>',
+                                  '</div>',                                
+                                '</div>'
+                            ),
+                            data    : {
                             },
-                            items   : [
-                                {
-                                    xtype   : 'container',
-                                    itemId  : 'cntInfo',
-                                    tpl     : new Ext.XTemplate(
-                                        '<div class="divInfo">',   
-                                        '<h1 style="font-size:250%;font-weight:lighter;"><i class="fa fa-database"></i> {data_total}</h1>',       
-                                        '<p style="font-size:110%;" class="txtGrey txtBold">',
-                                            '<i class="fa fa-arrow-circle-down"></i> {data_in}',
-                                            '&nbsp;&nbsp;&nbsp;&nbsp;',
-                                            '<i class="fa fa-arrow-circle-up"></i> {data_out}',
-                                        '</p>',
-                                         '<h1 style="font-size:250%;font-weight:lighter;"><i class="fa fa-user"></i> {users}</h1>', 
-                                        '</div>'
-                                    ),
-                                    data    : {
-                                    },
-                                    flex :1
-                                },
-                                plrOnline
-                            ]
-                        },
-                        data_graph
+                            flex :2
+                        }
+                        
                     ]
                 },
+                data_graph
+            ]
+        };
+        
+        var pnlAps = {
+                        xtype       : 'panel',
+            itemId      : 'pnlAps',
+            title       : 'APs/ROUTERS',
+           // hidden      : true,
+            flex        : 1,
+            ui          : 'panel-blue',
+            padding     : 10,
+            layout      : {
+                type    : 'vbox',
+                align   : 'stretch'
+            },
+            glyph       : Rd.config.icnSsid,
+            items       : [
                 {
-                    xtype       : 'panel',
-                    itemId      : 'pnlAps',
-                    title       : 'APs/ROUTERS',
-                    flex        : 1,
-                    ui          : 'panel-blue',
-                    padding     : 10,
-                    glyph       : Rd.config.icnSsid,
-                    items       : [
+                    xtype   : 'container',
+                    layout  : {
+                        type    : 'hbox',                            
+                        pack    : 'start',
+                        align   : 'stretch'
+                    },
+                    items   : [
+                        plrOnline,
                         {
                             xtype   : 'container',
-                            layout  : {
-                                type    : 'hbox',                            
-                                pack    : 'start',
-                                align   : 'stretch'
+                            itemId  : 'cntInfo',
+                            tpl     : new Ext.XTemplate(
+                                '<div class="parent-div">',
+                                  '<div class="sub-div-1">',
+                                    '<p style="font-size:270%;font-weight:bolder;color:#29465b;"><i class="fa fa-user"></i> {users}</p>',
+                                    '<p style="font-size:130%;color:#808080;font-weight:bolder;">',
+                                        '<i class="fa fa-wifi"></i> {total_aps} AP <span style="color:green;">({total_aps_online} <i class="fa fa-circle"></i>)</span>',
+                                    '</p>',
+                                  '</div>',
+                                  '<div class="sub-div-2">',
+                                  '<p style="font-size:270%;font-weight:bolder;color:#29465b;"><i class="fa fa-database"></i> {data_total}</p>',
+                                  '<p style="font-size:130%;color:#808080;font-weight:bolder;">',
+                                    '<i class="fa fa-arrow-circle-down"></i> {data_in}',
+                                    '&nbsp;&nbsp;&nbsp;&nbsp;',
+                                    '<i class="fa fa-arrow-circle-up"></i> {data_out}',
+                                  '</p>',
+                                  '</div>',                                
+                                '</div>'
+                            ),
+                            data    : {
                             },
-                            items   : [
-                                {
-                                    xtype   : 'container',
-                                    itemId  : 'cntInfo',
-                                    tpl     : new Ext.XTemplate(
-                                        '<div class="divInfo">',   
-                                        '<h1 style="font-size:250%;font-weight:lighter;"><i class="fa fa-database"></i> {data_total}</h1>',       
-                                        '<p style="font-size:110%;" class="txtGrey txtBold">',
-                                            '<i class="fa fa-arrow-circle-down"></i> {data_in}',
-                                            '&nbsp;&nbsp;&nbsp;&nbsp;',
-                                            '<i class="fa fa-arrow-circle-up"></i> {data_out}',
-                                        '</p>',
-                                         '<h1 style="font-size:250%;font-weight:lighter;"><i class="fa fa-user"></i> {users}</h1>', 
-                                        '</div>'
-                                    ),
-                                    data    : {
-                                    },
-                                    flex :1
-                                },
-                                plrOnline
-                            ]
+                            flex :2
                         },
-                        data_graph
                     ]
-                }
+                },
+                data_graph
             ]
-        } 
-    ];
-    me.callParent(arguments);
+        };
+                     
+        me.items = [ pnlMeshes, pnlAps ];
+
+        me.callParent(arguments);
     }
 });

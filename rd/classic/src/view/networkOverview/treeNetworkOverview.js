@@ -4,6 +4,7 @@ Ext.define('Rd.view.networkOverview.treeNetworkOverview' ,{
     alias       : 'widget.treeNetworkOverview',
     rootVisible : false,
     rowLines    : true,
+    stripeRows  : true,
     border      : false,
     location    : 'overview',
     initComponent: function(){

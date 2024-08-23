@@ -198,10 +198,12 @@ class CloudsController extends AppController {
 
         $data_graph_mesh = $this->_build_data_graph('mesh');
         $data['meshdesk']['graph'] = $data_graph_mesh;
+        $data['meshdesk']['totals']                 = $this->meta_data;
         $data['meshdesk']['totals']['data_total']   = $this->Formatter->formatted_bytes($this->mesh_data_total);
         $data['meshdesk']['totals']['data_in']      = $this->Formatter->formatted_bytes($this->mesh_data_in);
         $data['meshdesk']['totals']['data_out']     = $this->Formatter->formatted_bytes($this->mesh_data_out);
         $data['meshdesk']['totals']['users']        = $this->mesh_user_total;
+        
         
         //APdesk
         $aps          = $this->meta_data['total_aps'];
@@ -220,6 +222,7 @@ class CloudsController extends AppController {
         
         $data_graph_ap = $this->_build_data_graph('ap');
         $data['apdesk']['graph'] = $data_graph_ap;
+        $data['apdesk']['totals']                   = $this->meta_data;
         $data['apdesk']['totals']['data_total']     = $this->Formatter->formatted_bytes($this->ap_data_total);
         $data['apdesk']['totals']['data_in']        = $this->Formatter->formatted_bytes($this->ap_data_in);
         $data['apdesk']['totals']['data_out']       = $this->Formatter->formatted_bytes($this->ap_data_out);

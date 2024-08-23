@@ -124,12 +124,18 @@ Ext.define('Rd.view.networkOverview.vcNetworkOverview', {
     },
     doMetaData: function(md){
         var me      = this;    
-        var main    = me.getView();     
+        var main    = me.getView(); 
+        //FIXME WE WILL HAVE TO CHANGE THIS
+ /*       
+            
         if(md.level == -1){
             main.down('#cntBanner').setStyle('background','#adc2eb');
+            }            
         }        
         if(md.level == 0){
-            main.down('#cntBanner').setStyle('background','#c2c2a3');
+            main.down('#cntBanner').setStyle('background','#c2c2a3');        
+            }
+            
         }
         if(md.level == 1){
             main.down('#cntBanner').setStyle('background','#00cccc');
@@ -138,5 +144,6 @@ Ext.define('Rd.view.networkOverview.vcNetworkOverview', {
             main.down('#cntBanner').setStyle('background','#adc2eb');
         }          
         main.down('#cntBanner').setData(md);
+*/
     }
 });
