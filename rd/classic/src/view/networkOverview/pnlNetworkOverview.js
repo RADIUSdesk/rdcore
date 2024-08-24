@@ -74,24 +74,28 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverview', {
                 '|',
                 { 
                     xtype       : 'button', 
+                    ui          : 'button-metal',
                     glyph       : Rd.config.icnNetwork,
+                    itemId      : 'btnMeshView',
                     scale       : 'small',
                     pressed     : true,
                     tooltip     : 'Mesh Networks',
                     enableToggle: true,
                     listeners   : {
-                        // click: 'onClickMesh'
+                         click: 'onClickMeshView'
                     }
                 },
                 { 
                     xtype       : 'button', 
+                    ui          : 'button-metal',
                     glyph       : Rd.config.icnSsid,
+                    itemId      : 'btnApView',
                     scale       : 'small',
                     pressed     : true,
                     tooltip     : 'Access Points',
                     enableToggle: true,
                     listeners   : {
-                      //   click: 'onClickMesh'
+                         click: 'onClickApView'
                     }
                 },
                 '|',              
@@ -103,6 +107,21 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverview', {
                     listeners   : {
                          click: 'onClickMap'
                     } 
+                },
+                '|',
+                {   
+                    xtype   : 'component', 
+                    itemId  : 'cmpNavigation',  
+                    tpl     : [
+                        "<div>",
+                        "<ul class='fa-ul' style=\"color:#808080;\">",
+                        '<li style="padding:2px;"><i class="fa-li fa fa-cloud"></i> South Africa <i class="fa fa-building"></i> Gauteng <span style="color:#29465b;"><i class="fa fa-sitemap"></i> Henley On Klip</span></li>',
+                        "</ul>",
+                        "</div>"
+                    ],
+                    style  : 'margin-right:5px',
+                    data   : [],
+                    cls    : 'lblRd'
                 }
             ]
         },

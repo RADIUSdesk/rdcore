@@ -100,7 +100,23 @@ Ext.define('Rd.view.networkOverview.vcNetworkOverview', {
             glyph   : Rd.config.icnMesh
         });
         tp.setActiveTab(map_tab_id);
-	},    
+	},
+	onClickMeshView : function(button){
+	    var me  = this;
+	    if(button.pressed){
+	        me.getView().down('#pnlMeshes').show();
+	    }else{
+	        me.getView().down('#pnlMeshes').hide();    
+	    }	
+	}, 
+	onClickApView : function(button){
+	    var me  = this;
+	    if(button.pressed){
+	        me.getView().down('#pnlAps').show();
+	    }else{
+	        me.getView().down('#pnlAps').hide();	    
+	    }		
+	},   
     onClickMap : function(button){
     
         var me          = this

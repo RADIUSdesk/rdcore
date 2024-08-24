@@ -163,4 +163,14 @@
     color: white;
 }
 
+.parent-div {
+  display: flex; /* or inline-flex */
+}
+
+.sub-div-1, .sub-div-2 {
+  flex: 1; /* or width: 50% */
+}
+
+
+
 
