@@ -29,16 +29,6 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverview', {
 				        click : 'onBtnHome'
 		            }
                 },
-                {
-                    ui      : 'button-orange', 
-                    glyph   : Rd.config.icnReload, 
-                    scale   : 'small', 
-                    itemId  : 'reload', 
-                    tooltip : i18n('sReload'),
-                    listeners       : {
-				        click : 'onBtnReload'
-		            }
-                },
                 '|',
                 { 
                     xtype       : 'button', 
@@ -112,71 +102,23 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverview', {
                 {   
                     xtype   : 'component', 
                     itemId  : 'cmpNavigation',  
-                    tpl     : [
-                        "<div>",
-                        "<ul class='fa-ul' style=\"color:#808080;\">",
-                        '<li style="padding:2px;"><i class="fa-li fa fa-cloud"></i> South Africa <i class="fa fa-building"></i> Gauteng <span style="color:#29465b;"><i class="fa fa-sitemap"></i> Henley On Klip</span></li>',
-                        "</ul>",
+                    tpl     : new Ext.XTemplate(
+                        "<div style=\"color:#808080;\">",
+                        "<tpl if='level_name == \"Networks\"'>",  
+                            '<i class="fa fa-cloud"></i> {cloud} <i class="fa fa-building"></i> {site} ',      
+                        "</tpl>",
+                        "<tpl if='level_name == \"Sites\"'>",  
+                            '<i class="fa fa-cloud"></i> {cloud} ',      
+                        "</tpl>",
+                            '<span style="color:#29465b;"><i class="fa fa-{fa_icon}"></i> {text}</span>',
                         "</div>"
-                    ],
+                    ),
                     style  : 'margin-right:5px',
                     data   : [],
                     cls    : 'lblRd'
                 }
             ]
-        },
-   /*     {
-            itemId      : 'cntBanner',
-            reference   : 'cntBanner',
-            xtype       : 'container',
-            dock        : 'top',
-            hidden      : true,
-            style       : { 
-            //    background  : '#adc2eb'            
-            },
-            height      : 70,
-            tpl         : new Ext.XTemplate(            
-                "<div class='info_bnr' style='font-size:110%;font-stretch:ultra-expanded;font-family:Arial,Helvetica, sans-serif;'>",
-                    "<div class='info_bnr_row'>",     
-                      '<div class="info_bnr_column">',      
-                        "<div class=\"info_bnr_container\" style='height:70px;float:left; width:50%;'>",
-                          "<div class=\"info_bnr_vertical-center\" style='padding-left:10px;'>",
-                            "<div class=\"info_bnr_place\">",
-                                "<i class=\"fa fa-{fa_icon}\"></i> {text}",
-                            "</div>",
-                          "</div>",
-                        "</div>",
-                        '<div style="float:left; width:50%;">',
-                            '<ul class="fa-ul">',
-                            '<tpl for="level_stats">',
-                                '<li><i class="fa-li fa fa-{fa_icon}"></i> {name} {count}</li>',
-                            '</tpl>',
-                            '</ul>',
-                        '</div>',      
-                      "</div>",
-                      '<div class="info_bnr_column">',     
-                        '<div style="font-size:larger;">',
-                            '<ul class="fa-ul">',
-                              '<li style="padding:2px;"><span class="fa-li" style="font-family:FontAwesome;">&#xf20e</span> MESHES {total_networks} <span style="color:green;">({total_networks_online} ONLINE)</span></li>',
-                              '<li style="padding:2px;"><i class="fa-li fa fa-cube"></i> Nodes {total_nodes} <span style="color:green;">({total_nodes_online} ONLINE)</span></li>',
-                            '</ul>',
-                        '</div>', 
-                      '</div>',
-                      '<div class="info_bnr_column">',
-                        '<div style="font-size:larger;">',
-                            '<ul class="fa-ul">',
-                              '<li style="padding:2px;"><i class="fa-li fa fa-wifi"></i> APs/ROUTERS {total_aps} <span style="color:green;">({total_aps_online} ONLINE)</span></li>',
-                            '</ul>',
-                        '</div>',                  
-                      '</div>',
-                    '</div>',
-                '</div>'
-            ),
-            data    : {
-                'text': 'HOME',
-                'fa_icon': 'home'
-            }
-        }*/
+        }
     ],
     initComponent: function() {
         var me      = this;        
@@ -191,6 +133,16 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverview', {
             layout  : 'fit',
             ui      : 'panel-green',
             title   : 'NAVIGATION',
+            tools   : [
+                {
+                    tooltip : 'Reload Tree',
+                    itemId  : 'toolReload',
+                    glyph   : Rd.config.icnReload,
+                    listeners       : {
+				        click : 'onBtnReload'
+		            }
+                }
+            ],
             padding : 10,
             border  : true
         },

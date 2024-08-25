@@ -1418,13 +1418,29 @@ class CloudsController extends AppController {
     private function _meta_data_for_level_and_id($level,$id,$tt_level){
         $config_level = $tt_level-1;
         if($level == '0'){  
-            $this->meta_data['text']    = 'HOME';
+            $this->meta_data['text']    = '** ALL CLOUDS **';
             $this->meta_data['fa_icon'] = 'home';
             $this->meta_data['level']   = $config_level;
             $this->meta_data['level_name']   = 'HOME';
         }else{
-            $qr = $this->{$level}->find()->where([$level.'.id' => $id])->first();
+        
+            $contain = [];
+            if($level == 'Networks'){
+                $contain = ['Sites' => ['Clouds']];
+            }
+            if($level == 'Sites'){
+                $contain = ['Clouds'];
+            }
+            $qr = $this->{$level}->find()->where([$level.'.id' => $id])->contain($contain)->first();
+            
             if($qr){
+                if($level == 'Networks'){
+                    $this->meta_data['site']  =    $qr->site->name;
+                    $this->meta_data['cloud'] =    $qr->site->cloud->name;  
+                }
+                if($level == 'Sites'){
+                    $this->meta_data['cloud'] =    $qr->cloud->name;  
+                }
                 $this->meta_data['text']        = $qr->name;
                 $this->meta_data['level_name']  = $this->{'tree_level_'.$config_level};
                 $this->meta_data['fa_icon']     = preg_replace('/.*fa-/', '', $this->{'cls_level_'.$config_level});
