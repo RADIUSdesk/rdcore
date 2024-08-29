@@ -37,9 +37,9 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
          //   {xtype: 'rownumberer',stateId: 'StateGridRadaccts1'},
             { text: i18n('sAcct_session_id'),dataIndex: 'acctsessionid',tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true,stateId: 'StateGridRadaccts2'},
             { text: i18n('sAcct_unique_id'),dataIndex: 'acctuniqueid',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true,stateId: 'StateGridRadaccts3'},
-            { text: i18n('sUsername'),      dataIndex: 'username',      tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridRadaccts4'},
+            { text: i18n('sUsername'),      dataIndex: 'username',      tdCls: 'gridMain x-selectable', flex: 1,filter: {type: 'string'},stateId: 'StateGridRadaccts4' },
             { text: i18n('sGroupname'),     dataIndex: 'groupname',     tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true,stateId: 'StateGridRadaccts5'},
-            { text: i18n('sRealm'),         dataIndex: 'realm',         tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridRadaccts6'},
+            { text: i18n('sRealm'),         dataIndex: 'realm',         tdCls: 'gridTree x-selectable', flex: 1,filter: {type: 'string'},stateId: 'StateGridRadaccts6'},
             { text: i18n('sNAS_IP_Address'),dataIndex: 'nasipaddress',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true, stateId: 'StateGridRadaccts7'},
             { text: i18n('sNAS_Identifier'),dataIndex: 'nasidentifier', tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridRadaccts8'},
             { text: i18n('sNAS_port_id'),   dataIndex: 'nasportid',     tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true,stateId: 'StateGridRadaccts9'},
@@ -87,11 +87,11 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
                 },stateId: 'StateGridRadaccts18'
             }, //Format!
             { text: i18n('sCalled_station_id'), dataIndex: 'calledstationid',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true,stateId: 'StateGridRadaccts19'},
-            { text: i18n('sCalling_station_id_MAC'), dataIndex: 'callingstationid',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridRadaccts20'}, 
+            { text: i18n('sCalling_station_id_MAC'), dataIndex: 'callingstationid',    tdCls: 'gridTree x-selectable', flex: 1,filter: {type: 'string'},stateId: 'StateGridRadaccts20'}, 
             { text: i18n('sTerminate_cause'), dataIndex: 'acctterminatecause',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'},   hidden: true,stateId: 'StateGridRadaccts21'},
             { text: i18n('sService_type'), dataIndex: 'servicetype',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts22'},
             { text: i18n('sFramed_protocol'), dataIndex: 'framedprotocol',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts23'},
-            { text: i18n('sFramed_ipaddress'), dataIndex: 'framedipaddress',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridRadaccts24'},
+            { text: i18n('sFramed_ipaddress'), dataIndex: 'framedipaddress',  tdCls: 'gridTree x-selectable', flex: 1,filter: {type: 'string'},stateId: 'StateGridRadaccts24'},
             { text: i18n('sAcct_start_delay'), dataIndex: 'acctstartdelay',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts25'},
             { text: i18n('sAcct_stop_delay'), dataIndex: 'acctstopdelay',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts26'},
             { text: i18n('sX_Ascend_session_svr_key'), dataIndex: 'xascendsessionsvrkey',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts27'},
@@ -131,7 +131,7 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
             {   
                 text    : "<i class=\"fa fa-info-circle\"></i> "+'Extra Name',  
                 dataIndex: 'pu_extra_name',  
-                tdCls   : 'gridTree', 
+                tdCls   : 'gridTree x-selectable', 
                 flex    : 1,
                 filter  : {type: 'string'},       
                 hidden  : true,
@@ -142,7 +142,7 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
             {   
                 text    : "<i class=\"fa fa-info-circle\"></i> "+'Extra Value',  
                 dataIndex: 'pu_extra_value',  
-                tdCls   : 'gridTree', 
+                tdCls   : 'gridTree x-selectable', 
                 flex    : 1,
                 filter  : {type: 'string'},        
                 hidden  : true,

@@ -136,7 +136,7 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverviewDetail', {
                             tpl     : new Ext.XTemplate(
                                 '<div class="parent-div">',
                                   '<div class="sub-div-1">',
-                                    '<p style="font-size:250%;font-weight:bolder;color:#29465b;"><i class="fa fa-user"></i> {users}</p>',
+                                    '<p style="font-size:250%;font-weight:bolder;color:#29465b;"><i class="fa fa-laptop"></i> {users}</p>',
                                     "<tpl if='total_networks == total_networks_online'>",
                                         '<p style="font-size:130%;color:#808080;font-weight:bolder;">',
                                     "<tpl else>",
@@ -212,7 +212,7 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverviewDetail', {
                             tpl     : new Ext.XTemplate(
                                 '<div class="parent-div">',
                                   '<div class="sub-div-1">',
-                                    '<p style="font-size:270%;font-weight:bolder;color:#29465b;"><i class="fa fa-user"></i> {users}</p>',
+                                    '<p style="font-size:270%;font-weight:bolder;color:#29465b;"><i class="fa fa-laptop"></i> {users}</p>',
                                     "<tpl if='total_aps == total_aps_online'>",
                                         '<p style="font-size:130%;color:#808080;font-weight:bolder;">',
                                     "<tpl else>",
