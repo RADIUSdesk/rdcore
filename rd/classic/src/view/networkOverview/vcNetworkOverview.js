@@ -10,6 +10,12 @@ Ext.define('Rd.view.networkOverview.vcNetworkOverview', {
         'treeNetworkOverview': {
            // select      : 'onTreeNodeSelect',
             itemclick   : 'onTreeNodeClick' //FIXME Might cause double call 
+        },
+        '#pnlMeshes' : {
+            render  : 'pnlMeshesRender'
+        },
+        '#pnlAps' : {
+            render  : 'pnlApsRender'
         }
     },
     //FROM treeNetworkOverview
@@ -105,16 +111,20 @@ Ext.define('Rd.view.networkOverview.vcNetworkOverview', {
 	    var me  = this;
 	    if(button.pressed){
 	        me.getView().down('#pnlMeshes').show();
+	        Ext.util.Cookies.clear("rdNtwrkHideMesh");
 	    }else{
-	        me.getView().down('#pnlMeshes').hide();    
+	        me.getView().down('#pnlMeshes').hide();
+	        Ext.util.Cookies.set("rdNtwrkHideMesh", "yes");    
 	    }	
 	}, 
 	onClickApView : function(button){
 	    var me  = this;
 	    if(button.pressed){
 	        me.getView().down('#pnlAps').show();
+	        Ext.util.Cookies.clear("rdNtwrkHideAp");
 	    }else{
-	        me.getView().down('#pnlAps').hide();	    
+	        me.getView().down('#pnlAps').hide();
+	        Ext.util.Cookies.set("rdNtwrkHideAp", "yes");	        	    
 	    }		
 	},   
     onClickMap : function(button){
@@ -142,5 +152,19 @@ Ext.define('Rd.view.networkOverview.vcNetworkOverview', {
         var me      = this;    
         var main    = me.getView(); 
         main.down('#cmpNavigation').setData(md);
+    },
+    pnlMeshesRender: function(pnl){
+        var me = this;
+        if (Ext.util.Cookies.get("rdNtwrkHideMesh")) {
+            pnl.hide();
+            me.getView().down('#btnMeshView').setPressed(false);
+        }
+    },
+    pnlApsRender: function(pnl){
+        var me = this;
+        if (Ext.util.Cookies.get("rdNtwrkHideAp")) {
+            pnl.hide();
+            me.getView().down('#btnApView').setPressed(false);
+        } 
     }
 });
