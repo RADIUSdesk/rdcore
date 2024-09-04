@@ -13,7 +13,7 @@ begin
         CREATE INDEX idx_radacct_id ON user_stats (radacct_id);
     END IF;
 
-    IF NOT EXISTS (SELECT 1 FROM information_schema.statistics WHERE table_schema = 'your_database_name' AND table_name = 'user_stats' AND index_name = 'idx_radacct_timestamp') THEN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.statistics WHERE table_schema = 'rd' AND table_name = 'user_stats' AND index_name = 'idx_radacct_timestamp') THEN
         CREATE INDEX idx_radacct_timestamp ON user_stats (radacct_id, timestamp);
     END IF;
 

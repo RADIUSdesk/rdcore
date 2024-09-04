@@ -127,6 +127,7 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
       	
       	var cmbCloud = {
         	xtype	: 'cmbClouds',
+        	width   : 380,
             labelWidth: 70
         }
         
