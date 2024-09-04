@@ -164,11 +164,12 @@ Ext.define('Rd.view.aps.gridApLists' ,{
 			},
 			{ 
                 text        : "<i class=\"fa fa-gears\"></i> "+'Config Fetched', 
-                dataIndex   : 'config_state',  
+                dataIndex   : 'config_fetched',  
                 tdCls       : 'gridTree', 
                 flex        : 1,
-                renderer    : function(value,metaData, record){
-                    var config_fetched_human     = record.get('config_fetched_human');  
+                renderer    : function(v,metaData, record){
+                    var config_fetched_human     = record.get('config_fetched_human'); 
+                    var value =  record.get('config_state');
                     var config;
                     if(value != 'never'){                    
                         if(value == 'up'){
@@ -188,11 +189,12 @@ Ext.define('Rd.view.aps.gridApLists' ,{
             },
             { 
                 text        : "<i class=\"fa fa-heartbeat\"></i> "+'Heartbeat Received',   
-                dataIndex   : 'state',  
+                dataIndex   : 'last_contact',  
                 tdCls       : 'gridTree', 
                 flex        : 1,
-                renderer    : function(value,metaData, record){    
+                renderer    : function(v,metaData, record){    
                     var heartbeat;
+                    var value =  record.get('state');
                     if(value != 'never'){                    
                         var last_contact     = record.get('last_contact_human');
                         if(value == 'up'){

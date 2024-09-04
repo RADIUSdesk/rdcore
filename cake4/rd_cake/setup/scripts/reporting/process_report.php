@@ -827,12 +827,16 @@ function _do_sqm_stats($sqm_stats, $type = 'ap'){
     global $conn;
     $not_these = ['id','type','device','sqm'];  
     if($type == 'ap'){
-        foreach($sqm_stats as $stat){            
+	    foreach($sqm_stats as $stat){ 
+	    print_r($stat);	    
             foreach($not_these as $remove){
                 unset($stat[$remove]);
-            }       
-            $stmt   = $conn->prepare("INSERT into ap_sqm_stats (ap_id,ap_profile_exit_id,bytes,packets,drops,overlimits,backlog,qlen,memory_used,peak_delay_us,avg_delay_us,base_delay_us,way_misses,way_indirect_hits,created,modified)VALUES(:ap_id,:ap_profile_exit_id,:bytes,:packets,:drops,:overlimits,:backlog,:qlen,:memory_used,:peak_delay_us,:avg_delay_us,:base_delay_us,:way_misses,:way_indirect_hits,NOW(),NOW())");
-            $stmt->execute($stat);       
+	    }
+	    if(isset($stat['memory_used'])){ 
+      	       print_r($stat);	    
+               $stmt   = $conn->prepare("INSERT into ap_sqm_stats (ap_id,ap_profile_exit_id,bytes,packets,drops,overlimits,backlog,qlen,memory_used,peak_delay_us,avg_delay_us,base_delay_us,way_misses,way_indirect_hits,created,modified)VALUES(:ap_id,:ap_profile_exit_id,:bytes,:packets,:drops,:overlimits,:backlog,:qlen,:memory_used,:peak_delay_us,:avg_delay_us,:base_delay_us,:way_misses,:way_indirect_hits,NOW(),NOW())");
+               $stmt->execute($stat);
+	   }       
         }      
     }
 }

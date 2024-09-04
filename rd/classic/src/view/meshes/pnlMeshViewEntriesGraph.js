@@ -65,17 +65,41 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                     align   : 'stretch'
                 },
                 items : [
+                    
                     {
                         xtype   : 'panel',
                         margin  : m,
                         padding : p,
                         flex    : 1,
-                        bodyCls : 'pnlInfo',
+                      //  bodyCls : 'pnlInfo',
                         layout  : 'fit',
                         border  : true,
                         ui      : 'light',
                         itemId  : 'total',
-                        tpl     : new Ext.XTemplate(
+                        tpl     : new Ext.XTemplate(                       
+                            '<div class="sub-div-2" style="text-align: center;">',
+                                '<p style="font-size:130%;color:#808080;font-weight:bolder;">',
+                                    '<tpl if="graph_item==\'ssid\'">',
+                                        '<span><i class="fa fa-wifi"></i>  {ssid}</span>',
+                                    '</tpl>',
+                                    '<tpl if="graph_item==\'device\'">',
+                                        '<span><i class="fa fa-laptop"></i>  {mac}</span>',
+                                    '</tpl>',
+                                    '<tpl if="graph_item==\'node\'">',
+                                        '<span><i class="fa fa-cube"></i>  {node}</span>',
+                                    '</tpl>',   
+                                '</p>', 
+                                '<p style="font-size:250%;font-weight:bolder;color:#29465b;"><i class="fa fa-database"></i> {data_total}</p>',
+                                    '<p style="font-size:130%;color:#808080;font-weight:bolder;">',
+                                    '<i class="fa fa-arrow-circle-down"></i> {data_in}',
+                                    '&nbsp;&nbsp;&nbsp;&nbsp;',
+                                    '<i class="fa fa-arrow-circle-up"></i> {data_out}',
+                                '</p>',
+                            '</div>'
+                        ),  
+                        
+                        
+                     /*   tpl     : new Ext.XTemplate(
                             '<div class="divInfo">', 
                                 '<div>',
                                     '<tpl if="graph_item==\'ssid\'">',
@@ -95,23 +119,16 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                                     '<span class="grpDown"><i class="fa fa-arrow-circle-up"></i></span> Out: {data_out}',
                                 '</p>',
                             '</div>'
-                        ),
+                        ),*/
                         data    : {
                         }
                     },
                     {
-                        xtype           : 'pnlMeshViewDeviceDetail',
-                        margin          : m,
-                        padding         : p,
-                        hidden          : true,
-                        flex            : 1,
-                        itemId          : 'pnlMeshViewUser'  
-                    },
-                    {
                         flex            : 1,
                         margin          : m,
                         padding         : p,
-                        border          : false,
+                        border          : true,
+                        ui              : 'light',
                         itemId          : 'plrTopTen',
                         xtype           : 'polar',
                         innerPadding    : 10,
@@ -136,6 +153,15 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                             }    
                         }
                     },
+                    {
+                        xtype           : 'pnlMeshViewDeviceDetail',
+                        margin          : m,
+                        padding         : p,
+                        hidden          : true,
+                        flex            : 1,
+                        itemId          : 'pnlMeshViewUser'  
+                    },
+                    
                     {
                         xtype   : 'grid',
                         margin  : m,

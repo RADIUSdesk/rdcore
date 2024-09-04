@@ -33,12 +33,14 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverviewDetail', {
                     renderer    : function(axis, label, layoutContext) {
                         return Ext.ux.bytesToHuman(label);
                     },
-                    minimum: 0
+                    minimum: 0,
+                    label       : Rd.config.rdGraphLabel
                 }, {
                     type        : 'category',
                     position    : 'bottom',
                     grid        : false,
-                    fields      : ['time_unit']
+                    fields      : ['time_unit'],
+                    label       : Rd.config.rdGraphLabel
                 }
             ],
             series: [{
@@ -47,7 +49,7 @@ Ext.define('Rd.view.networkOverview.pnlNetworkOverviewDetail', {
                 xField  : 'time_unit',
                 yField  : ['data_in', 'data_out'],
                 stacked : true,
-                colors: ['#56b3fa', '#3e8ebe' ], // Custom color set
+                colors  : Rd.config.rdGraphBarColors, // Custom color set
                 style   : {
                     opacity: 0.80,
                     minGapWidth: 30

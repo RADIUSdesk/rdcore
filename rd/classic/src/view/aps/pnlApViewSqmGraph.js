@@ -56,17 +56,20 @@ Ext.define('Rd.view.aps.pnlApViewSqmGraph', {
                     adjustByMajorUnit: true,
                     grid        : true,
                     title: {
-                        text: 'Count',
-                        fontSize: 15
+                        text    : 'Count',
+                        fontSize: 15,
+                        fill    : Rd.config.rdTextColor
                     },
                     fields      : ['packets', 'drops', 'processed'],
-                    minimum     : 0
+                    minimum     : 0,
+                    label       : Rd.config.rdGraphLabel
                 }, 
                 {
                     type        : 'category',
                     position    : 'bottom',
                     grid        : false,
-                    fields      : ['time_unit']
+                    fields      : ['time_unit'],
+                    label       : Rd.config.rdGraphLabel
                 }
             ],
             interactions: ['itemhighlight'],
@@ -93,63 +96,7 @@ Ext.define('Rd.view.aps.pnlApViewSqmGraph', {
                 }
             ]
         });
-        
-        
-       
-        var crtPackets = Ext.create('Ext.chart.CartesianChart', {
-            store: sLine,
-            itemId  : 'crtPackets',
-            margin  : m,
-            padding : p,
-            flex    : 1,
-            axes: [
-                {
-                    type        : 'numeric',
-                    position    : 'left',
-                    adjustByMajorUnit: true,
-                    grid        : true,
-                    title: {
-                        text: 'Count',
-                        fontSize: 15
-                    },
-                    fields      : ['packets', 'drops', 'processed'],
-                    minimum     : 0
-                }, 
-                {
-                    type        : 'category',
-                    position    : 'bottom',
-                    grid        : false,
-                    fields      : ['time_unit']
-                }
-            ],
-            interactions: ['itemhighlight'],
-            series: [
-                {
-                    type    : 'bar',
-                    title   : ['Packets'],
-                    xField  : 'time_unit',
-                    yField  : ['processed', 'drops'],
-                    stacked : true,
-                    style   : {
-                        opacity: 0.80
-                    },
-                    highlight: {
-                        fillStyle: 'yellow'
-                    },
-                    tooltip: {
-                        renderer: function (tooltip, record, item) {
-                            var p = record.get("processed");
-                            var d = record.get("drops");
-                            var bytes = Ext.ux.bytesToHuman(record.get('bytes'));
-                            tooltip.setHtml("Processed <b>"+p+"</b><br>Dropped <b>"+d+"</b><br>Bytes <b>"+bytes+"</b>");    
-                            
-                        }
-                    }
-                }
-            ]
-        });
- 
-                 
+                      
         me.items = [
            {
                 xtype   : 'panel',
@@ -187,28 +134,33 @@ Ext.define('Rd.view.aps.pnlApViewSqmGraph', {
                         }]                    
                     },
                     {
-                        flex  : 2,  
-                        xtype: 'cartesian',
-                        reference: 'chart',
+                        flex    : 2,  
+                        xtype   : 'cartesian',
+                       // reference: 'chart',
                         store: sLine,
                         axes: [{
                             type: 'numeric',
                             position: 'left',
                             title: {
-                                text: 'Delay (us)',
-                                fontSize: 15
-                            }
+                                text    : 'Delay (us)',
+                                fontSize: 15,
+                                fill    : Rd.config.rdTextColor
+                            },
+                            label       : Rd.config.rdGraphLabel
                         }, {
                             type: 'category',
                             position: 'bottom',
                             title: {
-                                text: 'Time',
-                                fontSize: 15
+                                text    : 'Time',
+                                fontSize: 15,
+                                fill    : Rd.config.rdTextColor
                             },
-                            fields: ['time_unit']
+                            fields: ['time_unit'],
+                            label       : Rd.config.rdGraphLabel
                         }],
-                        series: [{
-                            type: 'line',
+                        series: [
+                         {
+                            type: 'bar', //should be 'line' but we have some issues when building optimised code
                             xField: 'time_unit',
                             yField: 'peak_delay_us',
                             title: 'Peak Delay (us)',
@@ -227,7 +179,7 @@ Ext.define('Rd.view.aps.pnlApViewSqmGraph', {
                                 }
                             }
                         }, {
-                            type: 'line',
+                            type: 'bar',  //should be 'line' but we have some issues when building optimised code
                             xField: 'time_unit',
                             yField: 'avg_delay_us',
                             title: 'Average Delay (us)',
@@ -246,7 +198,7 @@ Ext.define('Rd.view.aps.pnlApViewSqmGraph', {
                                 }
                             }
                         }, {
-                            type: 'line',
+                            type: 'bar',  //should be 'line' but we have some issues when building optimised code
                             xField: 'time_unit',
                             yField: 'base_delay_us',
                             title: 'Base Delay (us)',

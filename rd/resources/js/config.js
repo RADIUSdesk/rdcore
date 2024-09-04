@@ -2,6 +2,15 @@ Rd = {};
 
 Rd.config = {
 
+    //Graph Related
+    rdGraphLabel    : {
+        fontSize    : '14px',
+        fontFamily  : 'Roboto, Arial, san-serif',
+        fill        : '#29465b'
+    },
+    rdGraphBarColors: ['#56b3fa', '#3e8ebe' ],
+    rdTextColor     : '#29465b',
+    
     //GUI Improvements
     gridPadding     : 10,
     gridSlim        : '0 3 0 3',

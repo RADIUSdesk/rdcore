@@ -93,12 +93,22 @@ Ext.define('Rd.view.dataUsage.pnlDataUsageMonth', {
                         margin  : m,
                         padding : p,
                         flex    : 1,
-                        bodyCls : 'pnlInfo',
+                     //   bodyCls : 'pnlInfo',
                         layout  : 'fit',
                         border  : true,
                         ui      : 'light',
                         itemId  : 'monthlyTotal',
-                        tpl     : new Ext.XTemplate(
+                         tpl     : new Ext.XTemplate(                       
+                            '<div class="sub-div-2" style="text-align: center;">', 
+                                '<p style="font-size:250%;font-weight:bolder;color:#29465b;"><i class="fa fa-database"></i> {data_total}</p>',
+                                    '<p style="font-size:130%;color:#808080;font-weight:bolder;">',
+                                    '<i class="fa fa-arrow-circle-down"></i> {data_in}',
+                                    '&nbsp;&nbsp;&nbsp;&nbsp;',
+                                    '<i class="fa fa-arrow-circle-up"></i> {data_out}',
+                                '</p>',
+                            '</div>'
+                        ),  
+                     /*   tpl     : new Ext.XTemplate(
                             '<div class="divInfo">',
                             '<h1 style="font-size:250%;font-weight:lighter;">{data_total}</h1>',       
                             '<p style="color: #000000; font-size:110%;">',
@@ -107,7 +117,7 @@ Ext.define('Rd.view.dataUsage.pnlDataUsageMonth', {
                                 '<span class="grpDown"><i class="fa fa-arrow-circle-up"></i></span> Out: {data_out}',
                             '</p>',
                             '</div>'
-                        ),
+                        ),*/
                         data    : {
                         }/*,
                         bbar    : ['->',{ 

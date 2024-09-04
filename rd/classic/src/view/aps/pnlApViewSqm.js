@@ -141,48 +141,6 @@ Ext.define('Rd.view.aps.pnlApViewSqm', {
     '</tpl>'
 );
 
-   /*        
-        var tpl = new Ext.XTemplate(
-            '<tpl for=".">',
-                '<div class="dataview-item">',
-                    '<div class="dataview-columns">',
-                        '<div class="dataview-column">',
-                            '<div class="dataview-field">',
-                                '<label>Name:</label> {sqm_profile.name}',
-                            '</div>',
-                            '<div class="dataview-field">',
-                                '<label>Download Speed:</label> {sqm_profile.download}',
-                            '</div>',
-                            '<div class="dataview-field">',
-                                    '<label>Upload Speed:</label> {sqm_profile.upload}',
-                            '</div>',
-                            '<div class="dataview-field">',
-                                    '<label>Type:</label> {type}',
-                            '</div>',
-                            '<div class="dataview-field">',
-                                    '<label>VLAN:</label> {vlan}',
-                            '</div>',
-                        '</div>',
-                        '<div class="dataview-column">',
-                            '<div class="dataview-field">',
-                                '<label>Total Bytes:</label> {totals.bytes}',
-                            '</div>',
-                            '<div class="dataview-field">',
-                                '<label>Total Packets:</label> {totals.packets}',
-                            '</div>',
-                            '<div class="dataview-field">',
-                                '<label>Total Drops:</label> {totals.drops}',
-                            '</div>',
-                            '<div class="dataview-field">',
-                                '<label>Total Overlimits:</label> {totals.overlimits}',
-                            '</div>',
-                        '</div>',
-                    '</div>',
-                '</div>',
-            '</tpl>'
-        );
-
-    */    
         var v = Ext.create('Ext.view.View', {
             store       : me.store,
             multiSelect : true,

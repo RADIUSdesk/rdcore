@@ -31,12 +31,14 @@ Ext.define('Rd.view.dataUsage.pnlDataUsageGraph', {
                     renderer    : function(axis, label, layoutContext) {
                         return Ext.ux.bytesToHuman(label);
                     },
+                    label       : Rd.config.rdGraphLabel,
                     minimum: 0
                 }, {
                     type        : 'category',
                     position    : 'bottom',
                     grid        : false,
-                    fields      : ['time_unit']
+                    fields      : ['time_unit'],
+                    label       : Rd.config.rdGraphLabel,
                 }
             ],
             interactions: ['itemhighlight'],
@@ -47,6 +49,7 @@ Ext.define('Rd.view.dataUsage.pnlDataUsageGraph', {
                     xField  : 'time_unit',
                     yField  : ['data_in', 'data_out'],
                     stacked : true,
+                    colors  : Rd.config.rdGraphBarColors, // Custom color set
                     style   : {
                         opacity: 0.80
                     },
