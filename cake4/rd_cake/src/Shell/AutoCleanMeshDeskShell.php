@@ -17,17 +17,28 @@ class AutoCleanMeshDeskShell extends Shell {
         $this->loadModel('NodeIbssConnections');
         $this->loadModel('NodeStations');
         $this->loadModel('TempReports');
+        
+        $this->loadModel('NodeUptmHistories');
+        $this->loadModel('ApStations');
+        $this->loadModel('ApUptmHistories');
+        
+        
     }
 
     public function main() {
 		$hour   	= (60*60);
         $day    	= $hour*24;
-        $week   	= $day*31;//Change to month
+        $week   	= $day*8;//Change to 8 days
 		$modified 	= date("Y-m-d H:i:s", time()-$week);
         $this->out("<comment>Auto Clean-up of MESHdesk data older than one week".APP."</comment>");
         $this->NodeStations->deleteAll(['NodeStations.modified <' => $modified]);
 		$this->NodeIbssConnections->deleteAll(['NodeIbssConnections.modified <' => $modified]);
 		
+		$this->NodeUptmHistories->deleteAll(['NodeUptmHistories.modified <' => $modified]);
+		
+		$this->ApStations->deleteAll(['ApStations.modified <' => $modified]);
+		$this->ApUptmHistories->deleteAll(['ApUptmHistories.modified <' => $modified]);
+			
 		//--Delete TempReports if it is older than 30 minutes--;
 		$now        = new FrozenTime();
 		$hour_old	= $now->subMinute(30);
