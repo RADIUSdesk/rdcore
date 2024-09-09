@@ -46,11 +46,11 @@ class ApHelper22Component extends Component {
     
     protected $ppsk_flag		= false;
     protected $private_psks     = [];
-    protected $ppsk_unset       = [ 'key','nasid','auth_server','auth_secret','acct_server','acct_secret','acct_interval', 'nasid', 'radius_auth_req_attr','radius_acct_req_attr'];
-
-    
+      
     protected $stp_dflt			= 0;
-    protected $acct_interval	= 300;
+    
+    protected $acct_interval	= 300; //Heads-up if you have larde deployments and want to reduce the RADIUS Accounting traffic, increate this value to 3600(hour) or 1800 (half hour)
+    
     protected $br_int			= 'eth0'; //bogus filler
     
     //Jan 2024 - Add a flag which will be triggered if wan interface is defined as 'eth0 eth1' This is to accomodate a special config to get VLANs to work on certain Mediatek based hardware
@@ -1410,8 +1410,7 @@ class ApHelper22Component extends Component {
                 //Check if it is assigned to an exit point                  
                 foreach($entry_point_data as $epd){
                     if($epd['entry_id'] == $entry_id){ //We found our man :-) This means the Entry has been 'connected' to an exit point
-                    
-                    
+                                        
                     	//We start off by adding WiFi Scedules
                     	$ssid_name = $ap_profile_e->name;
                         $script    = "/etc/MESHdesk/utils/ssid_on_off.lua";
@@ -1473,7 +1472,7 @@ class ApHelper22Component extends Component {
                                     $epd['network'] = $this->if_wbw_nat_br;
                                 }
                                 
-                                //If it is NOT disabled in hardware BUT we have to diesable it on the schedule ($start_disabled) then make it disabled
+                                //If it is NOT disabled in hardware BUT we have to disable it on the schedule ($start_disabled) then make it disabled
                                 $disabled = $this->RadioSettings[$y]['radio'.$y.'_disabled'];
                                 if(($start_disabled)&&(!$disabled)){
                                 	$disabled = $start_disabled;
@@ -1489,24 +1488,16 @@ class ApHelper22Component extends Component {
                                     "key"           => $ap_profile_e->special_key,
                                     "hidden"        => $ap_profile_e->hidden,
                                     "isolate"       => $ap_profile_e->isolate,
-                                    "auth_server"   => $ap_profile_e->auth_server,
-                                    "auth_secret"   => $ap_profile_e->auth_secret,
                                     "disabled"      => $disabled 
                                 ];
                                 
                                 if($ap_profile_e->chk_maxassoc){
                                     $base_array['maxassoc'] = $ap_profile_e->maxassoc;
                                 }
-                                
-                                if($ap_profile_e->accounting){
-                                    $base_array['acct_server']	= $ap_profile_e->auth_server;
-                                    $base_array['acct_secret']	= $ap_profile_e->auth_secret;
-                                    $base_array['acct_interval']= $this->acct_interval;
-                                }
-                                
+                                                                
                                 if($ap_profile_e->ieee802r){
 	                                $base_array['ieee80211r']				= $ap_profile_e->ieee802r; //FIXME A Typo slipped in ... OpenWrt looking for ieee80211r and not ieee802r
-	                                $base_array['ft_over_ds']			= $ap_profile_e->ft_over_ds;
+	                                $base_array['ft_over_ds']			    = $ap_profile_e->ft_over_ds;
 	                                $base_array['ft_psk_generate_local']	= $ap_profile_e->ft_pskgenerate_local; //FIXME Another Type slipped in ... OpenWrt looking for ft_psk_generate_local
 	                                
 	                                if($ap_profile_e->mobility_domain !== ''){
@@ -1532,42 +1523,21 @@ class ApHelper22Component extends Component {
 								    option vlan_bridge 'br-vlan'
 								    option vlan_naming '0'
 							    */
-							    if($ap_profile_e->encryption == 'ppsk'){
-								    $base_array['encryption']	= 'psk2';
-								    $base_array['ppsk']			= '1';
-								    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-								    $base_array['vlan_bridge']  = 'br-ex_v';
-								    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
-								    $base_array['vlan_naming']	= '0';								
-								    //Set the flag
-								    $this->ppsk_flag = true;
-							    }
 							    
+							    if($ap_profile_e->encryption == 'ppsk'){				                
+				                    $base_array = $this->_addPpskSettings($base_array);								
+					                //Set the flag
+					                $this->ppsk_flag = true;
+				                }
+							    
+							    							    
 							    if($ap_profile_e->encryption == 'wpa2'){
 								    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
 								    $base_array['vlan_bridge']  = 'br-ex_v';
 								    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
 								    $base_array['vlan_naming']	= '0';
 							    }							    
-							    
-							    //NASID: We can probaly send along regardless and we use a convention of: m_ / a_<entry_id>_<radio_number>_<ap_id>/node_id 
-                                if($ap_profile_e->auto_nasid){                         
-                                    //We do not go to deep when generating the nasid we will use radius_acct_req_attr to contain all the detail
-                                    //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id**
-                                	$base_array['nasid'] = 'a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id;
-                                	//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id** 
-                                	$base_array['radius_auth_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId; 
-                                	$base_array['radius_acct_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;
-                                	                         
-                                }else{
-                                	if($ap_profile_e->nasid !== ''){
-                                		$base_array['nasid'] = $ap_profile_e->nasid;
-                                		//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id** 
-                                		$base_array['radius_auth_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId; 
-                                	    $base_array['radius_acct_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;                            	
-                                	}                            
-                                }
-							    
+							    						    
 							    							    
 							    //== May 2024== PPSK without RADIUS Support===
 							    if($ap_profile_e->encryption == 'ppsk_no_radius'){
@@ -1582,10 +1552,8 @@ class ApHelper22Component extends Component {
 								    $this->ppsk_flag = true;
 								    $this->private_psks[$ap_profile_e->private_psk_id] = []; //Populate it with an empty list first;
 								    
-								    //Unset some items
-								    foreach($this->ppsk_unset as $u){
-								        unset($base_array[$u]);
-								    }							    							    
+								    //Unset the key (We use the file)
+								    unset($base_array['key']);					    							    
 							    }
 							    							    
                                 
@@ -1614,6 +1582,9 @@ class ApHelper22Component extends Component {
 								    $base_array = array_merge($base_array,$options);
 								    $lists	 = Configure::read('Hotspot2.lists');                                  
                                 }
+                                
+                                //Check if we need to mix in the RADIUS items
+                                $base_array = $this->_includeRadius($base_array,$ap_profile_e,$y);
 
                                 array_push( $wireless,
                                     [
@@ -1631,7 +1602,7 @@ class ApHelper22Component extends Component {
                 
             }
         } 
-         
+               
         foreach($ap_profile->ap_ap_profile_entries as $ap_ap_profile_entry){
                
             //We start off by adding WiFi Scedules
@@ -1710,7 +1681,7 @@ class ApHelper22Component extends Component {
                         $epd['network'] = $this->if_wbw_nat_br;
                     }
                     
-                    //If it is NOT disabled in hardware BUT we have to diesable it on the schedule ($start_disabled) then make it disabled
+                    //If it is NOT disabled in hardware BUT we have to disable it on the schedule ($start_disabled) then make it disabled
                     $disabled = $this->RadioSettings[$y]['radio'.$y.'_disabled'];
                     if(($start_disabled)&&(!$disabled)){
                     	$disabled = $start_disabled;
@@ -1726,8 +1697,6 @@ class ApHelper22Component extends Component {
                         "key"           => $key,
                         "hidden"        => $ap_profile_e->hidden,
                         "isolate"       => $ap_profile_e->isolate,
-                        "auth_server"   => $ap_profile_e->auth_server,
-                        "auth_secret"   => $ap_profile_e->auth_secret,
                         "disabled"      => $disabled 
                     ];
                     
@@ -1735,11 +1704,6 @@ class ApHelper22Component extends Component {
                         $base_array['maxassoc'] = $ap_profile_e->maxassoc;
                     }
                     
-                    if($ap_profile_e->accounting){
-                        $base_array['acct_server']	= $ap_profile_e->auth_server;
-                        $base_array['acct_secret']	= $ap_profile_e->auth_secret;
-                        $base_array['acct_interval']= $this->acct_interval;
-                    }
                     
                     if($ap_profile_e->ieee802r){
                         $base_array['ieee80211r']				= $ap_profile_e->ieee802r; //FIXME A Typo slipped in ... OpenWrt looking for ieee80211r and not ieee802r
@@ -1770,12 +1734,8 @@ class ApHelper22Component extends Component {
 					    option vlan_naming '0'
 				    */
 				    if($ap_profile_e->encryption == 'ppsk'){
-					    $base_array['encryption']	= 'psk2';
-					    $base_array['ppsk']			= '1';
-					    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
-					    $base_array['vlan_bridge']  = 'br-ex_v';
-					    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
-					    $base_array['vlan_naming']	= '0';								
+				    
+				        $base_array = $this->_addPpskSettings($base_array);								
 					    //Set the flag
 					    $this->ppsk_flag = true;
 				    }
@@ -1787,22 +1747,6 @@ class ApHelper22Component extends Component {
 					    $base_array['vlan_naming']	= '0';
 				    }	
 				    
-				    //NASID: We can probaly send along regardless and we use a convention of: m_ / a_<entry_id>_<radio_number>_<ap_id>/node_id 
-                    if($ap_profile_e->auto_nasid){                   
-                        //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id**                       
-                    	$base_array['nasid'] = 'a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id;
-                    	//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id**
-                    	$base_array['radius_auth_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;   
-                        $base_array['radius_acct_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;
-                         
-                    }else{
-                    	if($ap_profile_e->nasid !== ''){
-                    		$base_array['nasid'] = $ap_profile_e->nasid;
-                    		//MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id** 
-                    		$base_array['radius_auth_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;   
-                            $base_array['radius_acct_req_attr'] = '126:s:a_hosta_'.$ap_profile_e->ap_profile_id.'_'.$ap_profile_e->id.'_'.$y.'_'.$this->ApId;                            	
-                    	}                            
-                    }
 				    
 				    //== May 2024== PPSK without RADIUS Support===
 				    if($ap_profile_e->encryption == 'ppsk_no_radius'){
@@ -1818,9 +1762,7 @@ class ApHelper22Component extends Component {
 					    $this->private_psks[$ap_profile_e->private_psk_id] = []; //Populate it with an empty list first;
 					    
 					    //Unset some items
-					    foreach($this->ppsk_unset as $u){
-					        unset($base_array[$u]);
-					    }
+					    unset($base_array['key']);
 				    }
 				    				                      
                     if($ap_profile_e->macfilter != 'disable'){
@@ -1848,6 +1790,9 @@ class ApHelper22Component extends Component {
 					    $base_array = array_merge($base_array,$options);
 					    $lists	 = Configure::read('Hotspot2.lists');                                  
                     }
+                    
+                    //Check if we need to mix in the RADIUS items                    
+                    $base_array = $this->_includeRadius($base_array,$ap_profile_e,$y);
                     
                     array_push( $wireless,
                         [
@@ -2041,6 +1986,50 @@ class ApHelper22Component extends Component {
 	        }
 	    }
 	    return implode("\n",$lines);	
+	}
+	
+	private function _includeRadius($base_array, $apProfileEntry,$radioNumber){
+	
+        if(
+            ($apProfileEntry->encryption == 'ppsk')||
+            ($apProfileEntry->encryption == 'wpa')||
+            ($apProfileEntry->encryption == 'wpa2')
+        ){
+
+            $base_array['auth_server']  = $apProfileEntry->auth_server;
+            $base_array['auth_secret']  = $apProfileEntry->auth_secret;
+            
+            if($apProfileEntry->accounting){
+                $base_array['acct_server']	= $apProfileEntry->auth_server;
+                $base_array['acct_secret']	= $apProfileEntry->auth_secret;
+                $base_array['acct_interval']= $this->acct_interval;
+            }
+            
+            //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id** _ **radio_number** _ **node id / ap id**
+            $req_attr                               = '126:s:a_hosta_'.$apProfileEntry->ap_profile_id.'_'.$apProfileEntry->id.'_'.$radioNumber.'_'.$this->ApId;           
+            $base_array['radius_auth_req_attr']     = $req_attr;
+            $base_array['radius_acct_req_attr']     = $req_attr;
+            
+            if($apProfileEntry->auto_nasid){                   
+                //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id**                       
+                $base_array['nasid'] = 'a_hosta_'.$apProfileEntry->ap_profile_id.'_'.$apProfileEntry->id;                                
+            }else{
+            	if($ap_profile_e->nasid !== ''){
+            		$base_array['nasid'] = $ap_profile_e->nasid;             	
+            	}                            
+            }
+        }
+        return $base_array;	
+	}
+	
+	private function _addPpskSettings($base_array){
+	    $base_array['encryption']	= 'psk2';
+	    $base_array['ppsk']			= '1';
+	    $base_array['dynamic_vlan'] = '1'; //1 allows VLAN=0 
+	    $base_array['vlan_bridge']  = 'br-ex_v';
+	    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
+	    $base_array['vlan_naming']	= '0';
+	    return $base_array;	
 	}
 
 }
