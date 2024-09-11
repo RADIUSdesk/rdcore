@@ -115,7 +115,33 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                         yesText         : 'Yes',
                         noText          : 'No'
                 },stateId: 'StateGridPermanentUsers12'
-            },   
+            },
+            {
+                text        : i18n('sFrom'),
+                dataIndex   : 'from_date',
+                tdCls       : 'gridTree',
+                hidden      : true,
+                xtype       : 'templatecolumn',
+                tpl         : new Ext.XTemplate(
+                                "<div class=\"fieldBlue\">{from_date_in_words}</div>"
+                            ),
+                flex        : 1,
+                filter      : {type: 'date', dateFormat: 'Y-m-d'},
+                stateId		: 'StateGridPermanentUsers27'
+            },
+            {
+                text        : i18n('sTo'),
+                dataIndex   : 'to_date',
+                tdCls       : 'gridTree',
+                hidden      : true,
+                xtype       : 'templatecolumn',
+                tpl         : new Ext.XTemplate(
+                                "<div style=\"padding: 2px;\" class=\"fieldOrange\">{to_date_in_words}</div>"
+                            ),
+                flex        : 1,
+                filter      : {type: 'date', dateFormat: 'Y-m-d'},
+                stateId		: 'StateGridPermanentUsers28'
+            },
             { 
                 text        : i18n('sLast_accept_time'),
                 dataIndex   : 'last_accept_time',
