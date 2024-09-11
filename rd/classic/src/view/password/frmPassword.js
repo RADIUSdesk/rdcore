@@ -32,6 +32,15 @@ Ext.define('Rd.view.password.frmPassword', {
             iconCls : 'b-btn_ok',
             glyph   : Rd.config.icnYes,
             margin  : Rd.config.buttonMargin
+        },
+        {
+            itemId  : 'get_certificate',
+            formBind: false,
+            text    : 'Get Certificate',
+            scale   : 'large',
+            iconCls : 'b-btn_ok',
+            glyph   : Rd.config.icnCertificate,
+            margin  : Rd.config.buttonMargin
         }
     ],
     initComponent: function(){

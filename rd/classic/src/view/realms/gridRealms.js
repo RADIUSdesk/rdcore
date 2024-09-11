@@ -21,6 +21,9 @@ Ext.define('Rd.view.realms.gridRealms' ,{
         var me      = this;
         me.menu_grid = new Ext.menu.Menu({
             items: [
+                { text: 'Get Certificate', glyph: Rd.config.icnCertificate, handler: function(){
+                     me.fireEvent('menuItemClick',me,'certificate');
+                }},
                 { text: 'Graphs', glyph: Rd.config.icnGraph,   handler: function(){
                      me.fireEvent('menuItemClick',me,'graph'); 
                 }},
