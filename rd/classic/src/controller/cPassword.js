@@ -76,8 +76,15 @@ Ext.define('Rd.controller.cPassword', {
             },
             'frmPassword #save': {
                 click:       me.changePasswordSubmit
+            },
+            'frmPassword #get_certificate': {
+                click:       me.getCertificate
             }
         });
+    },
+    getCertificate: function(button) {
+        console.log(button);
+        window.location = button.uri;
     },
     userChanged: function(cmb){
         var me      = this;
@@ -87,6 +94,7 @@ Ext.define('Rd.controller.cPassword', {
         var from    = form.down('#from_date');
         var to      = form.down('#to_date');
         var chk     = form.down('checkbox');
+        var certificateLink = form.down('#get_certificate');
         Ext.Ajax.request({
             url: me.getUrlGetPwd(),
             method: 'GET',
@@ -95,6 +103,7 @@ Ext.define('Rd.controller.cPassword', {
                 var jsonData    = Ext.JSON.decode(response.responseText);
                 if(jsonData.success){
                     label.setValue(jsonData.value);
+                    certificateLink.uri = '/cert/get?realm=' + jsonData.realm;
                     if((jsonData.activate == false)&&(jsonData.expire == false)){
                         chk.setValue(true);
                     }else{

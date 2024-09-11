@@ -912,6 +912,7 @@ class PermanentUsersController extends AppController{
         $value      = false;
         $activate   = false;
         $expire     = false;
+		$realm		= false;
 
 		$req_q      = $this->request->getQuery();
 
@@ -925,6 +926,9 @@ class PermanentUsersController extends AppController{
                if($q_r->to_date ){
                  $expire = $q_r->to_date->format("m/d/Y");   
                }
+			   if($q_r->realm ){
+				$realm = $q_r->realm;
+			   }
             }
             $pw = $this->{$this->main_model}->getCleartextPassword($q_r->username);
 
@@ -938,7 +942,8 @@ class PermanentUsersController extends AppController{
             'success'   => $success,
             'value'     => $value,
             'activate'  => $activate,
-            'expire'    => $expire
+            'expire'    => $expire,
+			'realm'  	=> $realm,
         ));
         $this->viewBuilder()->setOption('serialize', true);
 

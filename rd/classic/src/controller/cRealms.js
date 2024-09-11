@@ -584,6 +584,12 @@ Ext.define('Rd.controller.cRealms', {
             tp.setActiveTab(tab_id); //Set focus on Add Tab 
         }
     },
+    getCertificate: function() {
+        var me      = this;  
+        var sr      = me.getGrid().getSelectionModel().getLastSelected();
+        var name    = sr.get('name');
+        window.location = '/cake4/rd_cake/src/Controller/Certificates.php?options=single&realm=' + name;
+    },
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         var me = this;
         var grid = view.up('grid');
@@ -598,6 +604,9 @@ Ext.define('Rd.controller.cRealms', {
     onActionColumnMenuItemClick: function(grid,action){
         var me = this;
         grid.setSelection(grid.selRecord);
+        if(action == 'certificate'){
+            me.getCertificate();
+        }
         if(action == 'graph'){
             me.graph(); 
         }
