@@ -128,11 +128,11 @@ Ext.define('Rd.controller.cActivityMonitor', {
         var tz      = me.getGrid().down('#cmbTimezone');
         var info    = me.getGrid().down('#btnInfo'); 
          
-        var only_connected  = false;
+        var only_connected  = true;
         var extra_info  = false;
         if(btn){
-            only_connected = btn.pressed; //Default only active
-            if(btn.pressed){
+            only_connected = !btn.pressed; //Default only active
+            if(!btn.pressed){
                btn.setGlyph(Rd.config.icnLightbulb);
                info.enable();               
             }else{
