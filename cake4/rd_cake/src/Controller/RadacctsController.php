@@ -750,14 +750,16 @@ class RadacctsController extends AppController {
        	}      	
                       
         //====== Only_connectd filter ==========
-        $only_connected = false;
+        $only_connected = true;
         $extra_info     = false;
         if($this->request->getQuery('only_connected')){
-            if($this->request->getQuery('only_connected') == 'true'){
-                $only_connected = true;
-                array_push($where,$this->main_model.".acctstoptime IS NULL");
+            if($this->request->getQuery('only_connected') == 'false'){
+                $only_connected = false;
             }
-        } 
+        }
+        if ($only_connected) {
+            array_push($where, $this->main_model.".acctstoptime IS NULL");
+        }
         
         if($this->request->getQuery('extra_info')){
             if($this->request->getQuery('extra_info') == 'true'){

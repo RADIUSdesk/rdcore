@@ -47,7 +47,8 @@ Ext.define('Rd.controller.cActivityMonitor', {
         if (me.inited) {
             return;
         }
-        me.inited = true;  
+        me.inited = true;
+        me.getStore('sRadaccts').getProxy().setExtraParam('only_connected', true);
         me.getStore('sRadaccts').addListener('metachange',  me.onStoreRadacctsMetachange,   me);
         
         //me.getGrid.addListener('metachange',  me.onStoreRadacctsMetachange,   me);
@@ -128,11 +129,11 @@ Ext.define('Rd.controller.cActivityMonitor', {
         var tz      = me.getGrid().down('#cmbTimezone');
         var info    = me.getGrid().down('#btnInfo'); 
          
-        var only_connected  = false;
+        var only_connected  = true;
         var extra_info  = false;
         if(btn){
-            only_connected = btn.pressed; //Default only active
-            if(btn.pressed){
+            only_connected = !btn.pressed; //Default only active
+            if(!btn.pressed){
                btn.setGlyph(Rd.config.icnLightbulb);
                info.enable();               
             }else{
