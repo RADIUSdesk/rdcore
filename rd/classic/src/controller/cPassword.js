@@ -103,7 +103,7 @@ Ext.define('Rd.controller.cPassword', {
                 var jsonData    = Ext.JSON.decode(response.responseText);
                 if(jsonData.success){
                     label.setValue(jsonData.value);
-                    certificateLink.uri = '/cert/get.php?u=' + cmb.rawValue + '&p=' + jsonData.value;
+                    certificateLink.uri = '/cert/get?realm=' + jsonData.realm;
                     if((jsonData.activate == false)&&(jsonData.expire == false)){
                         chk.setValue(true);
                     }else{

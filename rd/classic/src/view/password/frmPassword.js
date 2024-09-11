@@ -39,7 +39,7 @@ Ext.define('Rd.view.password.frmPassword', {
             text    : 'Get Certificate',
             scale   : 'large',
             iconCls : 'b-btn_ok',
-            glyph   : Rd.config.icnYes,
+            glyph   : Rd.config.icnCertificate,
             margin  : Rd.config.buttonMargin
         }
     ],
