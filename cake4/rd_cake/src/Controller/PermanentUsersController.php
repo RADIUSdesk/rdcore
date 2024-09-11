@@ -274,7 +274,7 @@ class PermanentUsersController extends AppController{
         ];
         foreach($extDateSelects as $d){
             if(isset($req_d[$d])){
-                $newDate = date_create_from_format('m/d/Y', $req_d[$d]);
+                $newDate = $this->date_create_without_time('m/d/Y', $req_d[$d]);
                 $req_d[$d] = $newDate;
             }  
         }
@@ -633,7 +633,7 @@ class PermanentUsersController extends AppController{
 		    ];
 		    foreach($extDateSelects as $d){
 		        if(isset($req_d[$d])){
-		            $newDate = date_create_from_format('m/d/Y', $req_d[$d]);
+		            $newDate = $this->date_create_without_time('m/d/Y', $req_d[$d]);
 		            $req_d[$d] = $newDate;
 		        }  
 		    }
@@ -966,7 +966,7 @@ class PermanentUsersController extends AppController{
         ];
         foreach($extDateSelects as $d){
             if(isset($req_d[$d])){
-                $newDate = date_create_from_format('m/d/Y', $req_d[$d]);
+                $newDate = $this->date_create_without_time('m/d/Y', $req_d[$d]);
                 $req_d[$d] = $newDate;
             }  
         }
@@ -1144,6 +1144,12 @@ class PermanentUsersController extends AppController{
         ));
         $this->viewBuilder()->setOption('serialize', true);
     }
+
+	function date_create_without_time($format, $str) {
+		$newDate = date_create_from_format($format, $str);
+		$newDate->setTime(0, 0);
+		return $newDate;
+	}
 }
 
 ?>
