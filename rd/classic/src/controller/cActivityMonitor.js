@@ -47,7 +47,8 @@ Ext.define('Rd.controller.cActivityMonitor', {
         if (me.inited) {
             return;
         }
-        me.inited = true;  
+        me.inited = true;
+        me.getStore('sRadaccts').getProxy().setExtraParam('only_connected', true);
         me.getStore('sRadaccts').addListener('metachange',  me.onStoreRadacctsMetachange,   me);
         
         //me.getGrid.addListener('metachange',  me.onStoreRadacctsMetachange,   me);
