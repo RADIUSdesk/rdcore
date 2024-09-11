@@ -191,7 +191,9 @@ class TopUpsTable extends Table
             $old_value = null;
             $from_date = new Time();
             $to_date   = new Time();
-            $to_date->modify('+ '.$value.' days');  
+            $to_date->modify('+ '.$value.' days');
+            $from_date->setTime(0, 0);
+            $to_date->setTime(0, 0);
             $e->from_date = $from_date;
             $e->to_date   = $to_date;
             $this->PermanentUsers->save($e);
@@ -212,6 +214,7 @@ class TopUpsTable extends Table
                 $updated_val = $now_seconds + ($value * 86400);
             }    
             $e->to_date = Time::createFromTimestamp($updated_val);
+            $e->to_date->setTime(0, 0);
             $this->PermanentUsers->save($e);
         } 
         $q_n = $this->Radchecks->find()->where(['username' => $e->username, 'attribute' => 'Expiration'])->first();
@@ -233,6 +236,7 @@ class TopUpsTable extends Table
         }
        
         $e->to_date = Time::createFromTimestamp($updated_val);
+        $e->to_date->setTime(0, 0);
         $this->PermanentUsers->save($e);
         
         $q_n = $this->Radchecks->find()->where(['username' => $e->username, 'attribute' => 'Expiration'])->first();
@@ -260,6 +264,7 @@ class TopUpsTable extends Table
             }
             
             $e->to_date = Time::createFromTimestamp($updated_val);
+            $e->to_date->setTime(0, 0);
             $this->PermanentUsers->save($e);
 
             $q_n = $this->Radchecks->find()->where(['username' => $e->username, 'attribute' => 'Expiration'])->first();
@@ -270,5 +275,11 @@ class TopUpsTable extends Table
         }
         return false; //return false is nothing changed
         
-    }          
+    }
+
+    function date_create_without_time($format, $str) {
+        $newDate = date_create_from_format($format, $str);
+        $newDate->setTime(0, 0);
+        return $newDate;
+    }
 }
