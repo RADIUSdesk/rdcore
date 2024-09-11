@@ -145,7 +145,21 @@ class PermanentUsersController extends AppController{
                     }else{
                         $row['last_reject_time_in_words'] = __("Never");
                     }
-                }    
+                }
+				if ($field == 'from_date') {
+					if ($i->{"$field"}) {
+						$row['from_date_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
+					} else {
+						$row['from_date_in_words'] = __("Never");
+					}
+				}
+				if ($field == 'to_date') {
+					if ($i->{"$field"}) {
+						$row['to_date_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"}, false, true);
+					} else {
+						$row['to_date_in_words'] = __("Always");
+					}
+				}
             }
             
             //Unset password and token fields

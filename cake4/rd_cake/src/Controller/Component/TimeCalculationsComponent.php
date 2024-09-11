@@ -79,7 +79,11 @@ class TimeCalculationsComponent extends Component {
 
             if ( ! $full ) $string = array_slice( $string, 0, 1 );
             if($no_suffix){
-                return implode( ', ', $string );
+				if ($future_flag) {
+                    return implode(', ', $string);
+				} else {
+					return '(' . implode(', ', $string) . ')';
+				}
             }else{
                 if($future_flag){
                     return $string ? implode( ', ', $string ) . ' from now' : 'just now';
