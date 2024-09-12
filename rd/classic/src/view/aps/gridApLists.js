@@ -113,15 +113,19 @@ Ext.define('Rd.view.aps.gridApLists' ,{
 				filter		: {type: 'string'},
 				stateId     : 'StateGridApLists6'
 			},
-            { 
-				text		: i18n("sHardware"),      
-				dataIndex	: 'hw_human',     
+			{ 
+				text		: i18n('sHardware'),      
+				dataIndex	: 'hardware',     
 				tdCls		: 'gridTree', 
 				flex		: 1,
 				filter		: {type: 'string'},
-				stateId		: 'StateGridApLists7',
-				hidden      : true
-			},				
+				hidden      : true,
+				xtype       :  'templatecolumn', 
+                tpl         :  new Ext.XTemplate(
+                    '{hw_human}'
+                ),
+				stateId		: 'StateGridApLists7'
+			},			
 			{
 				text        : 'Last 24 Hours',
 				width       : 150,

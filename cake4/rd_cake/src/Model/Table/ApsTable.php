@@ -75,7 +75,7 @@ class ApsTable extends Table {
             ->add('name', [
                 'nameUnique' => [
                     'message' => 'This Device name is already taken',
-                    'rule' => 'validateUnique',
+                    'rule'    => ['validateUnique', ['scope' => 'ap_profile_id']],
                     'provider' => 'table'
                 ]
             ])

@@ -14,4 +14,18 @@ class SitesTable extends Table {
             'dependent' => true
         ]);
     }
+    
+    public function validationDefault(Validator $validator):Validator{
+        $validator = new Validator();
+        $validator
+            ->notEmpty('name', 'A name is required')
+            ->add('name', [ 
+                'nameUnique' => [
+                    'message' => 'The name you provided is already taken. Please provide another one.',
+                    'rule'    => ['validateUnique', ['scope' => 'cloud_id']], 
+                    'provider' => 'table'
+                ]
+            ]);
+        return $validator;
+    }
 }

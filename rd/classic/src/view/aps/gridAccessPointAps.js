@@ -35,10 +35,21 @@ Ext.define('Rd.view.aps.gridAccessPointAps' ,{
         
         me.columns  = [
        //     {xtype: 'rownumberer',stateId: 'StateGAPD1'},
-            { text: i18n("sName"),              dataIndex: 'name',           tdCls: 'gridMain', flex: 1,stateId: 'StateGAPD2'},
-            { text: i18n("sDescription"),       dataIndex: 'description',    tdCls: 'gridTree', flex: 1,stateId: 'StateGAPD3'},
-            { text: i18n("sMAC_address"),       dataIndex: 'mac',            tdCls: 'gridTree', flex: 1,stateId: 'StateGAPD4'},
-            { text: i18n("sHardware"),          dataIndex: 'hw_human',       tdCls: 'gridTree', flex: 1,stateId: 'StateGAPD5'},
+            { text: i18n("sName"),              dataIndex: 'name',           tdCls: 'gridMain', flex: 1,stateId: 'StateGAPD2', filter      : {type: 'string'}},
+            { text: i18n("sDescription"),       dataIndex: 'description',    tdCls: 'gridTree', flex: 1,stateId: 'StateGAPD3', filter      : {type: 'string'}},
+            { text: i18n("sMAC_address"),       dataIndex: 'mac',            tdCls: 'gridTree', flex: 1,stateId: 'StateGAPD4', filter      : {type: 'string'}},
+            { 
+				text		: i18n('sHardware'),    
+				dataIndex	: 'hardware',     
+				tdCls		: 'gridTree', 
+				flex		: 1,
+				filter		: {type: 'string'},
+				xtype       :  'templatecolumn', 
+                tpl         :  new Ext.XTemplate(
+                    '{hardware}'
+                ),
+				stateId		: 'StateGAPD5'
+			},
             { 
                 text        : i18n("sLast_contact"),  
                 dataIndex   : 'last_contact',  
