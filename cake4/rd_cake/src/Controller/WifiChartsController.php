@@ -16,6 +16,7 @@ class WifiChartsController extends AppController{
     protected $owner_tree   = [];
     protected $main_model   = 'Meshes';   
     protected $time_zone    = 'UTC'; //Default for timezone
+    protected $span         = 'hour'; //hour, day or week
     
     protected $graph_item   = 'ssid'; //ssid or node or device or ap or ap_device
     protected $ssid         = '';
@@ -486,7 +487,8 @@ class WifiChartsController extends AppController{
     
         //Try to determine the timezone if it might have been set ....       
         $this->_setTimeZone();
-        $span       = $this->request->getQuery('span');  
+        $span       = $this->request->getQuery('span');
+        $this->span = $span;  
         
         $this->loadModel('Aps');
         $ap_id          = $this->request->getQuery('ap_id');
@@ -495,7 +497,7 @@ class WifiChartsController extends AppController{
         $ap_entry_id    = $this->request->getQuery('ap_entry_id');
         
         //FOR APdesk we add the AP as a start 
-        $where_clause   = ['ApStations.ap_id' =>$ap_id];
+        $where_clause   = ['ap_id' =>$ap_id];
         
         $this->graph_item = 'ap';
            
@@ -508,11 +510,11 @@ class WifiChartsController extends AppController{
             foreach($q_ap->ap_profile->ap_profile_entries as $e){
                 if($ap_entry_id == -1){ //Everyone
                     $this->ssid = "** ALL SSIDs **";
-                    array_push($ap_profile_entries_list,['ApStations.ap_profile_entry_id' =>$e->id]);
+                    array_push($ap_profile_entries_list,['ap_profile_entry_id' =>$e->id]);
                 }else{
                     if($ap_entry_id == $e->id){ //Only the selected one 
                         $this->ssid = $e->name;
-                        array_push($ap_profile_entries_list,['ApStations.ap_profile_entry_id' =>$e->id]);
+                        array_push($ap_profile_entries_list,['ap_profile_entry_id' =>$e->id]);
                         break;
                     }  
                 }     
@@ -525,7 +527,7 @@ class WifiChartsController extends AppController{
                 $this->graph_item   = 'ap_device';
                 //$this->mac          = $mac;
                 $this->mac_address_id   = $mac_address_id;
-                array_push($where_clause,['ApStations.mac_address_id' =>$mac_address_id]);
+                array_push($where_clause,['mac_address_id' =>$mac_address_id]);
             }       
         }
         $this->base_search = $where_clause;
@@ -576,8 +578,9 @@ class WifiChartsController extends AppController{
     
         //Try to determine the timezone if it might have been set ....       
         $this->_setTimeZone();
-        $span   = $this->request->getQuery('span');
-        $data   = [];
+        $span       = $this->request->getQuery('span');
+        $this->span = $span;
+        $data       = [];
    
         //==============================================
         //==== MESH ENTRIES ====
@@ -709,143 +712,11 @@ class WifiChartsController extends AppController{
         ]);
         $this->viewBuilder()->setOption('serialize', true);    
     }
-       
-    public function usageForSsidZZ(){
-    
-        //Try to determine the timezone if it might have been set ....       
-        $this->_setTimeZone();
-        $span       = $this->request->getQuery('span');
-        $data   = [];
-   
-        //==============================================
-        //==== MESH ENTRIES ====
-        $where_clause = [];
-        if($this->request->getQuery('type')=='mesh_entries'){ 
         
-            $this->graph_item = 'ssid';
-                   
-            $mesh_id        = $this->request->getQuery('mesh_id');
-            $mesh_entry_id  = $this->request->getQuery('mesh_entry_id');
-            $mac            = $this->request->getQuery('mac');
-            $mac_address_id = $this->_findMacAddressId($mac);
-            $this->loadModel('MeshEntries');
-            $me_list    = $this->{'MeshEntries'}->find()->where(['MeshEntries.mesh_id' => $mesh_id])->all();
-            $mesh_entries_list = [];
-            foreach($me_list as $me){
-                if($mesh_entry_id == -1){ //Everyone
-                    $this->ssid = "** ALL SSIDs **";
-                    array_push($mesh_entries_list,['NodeStations.mesh_entry_id' =>$me->id]);
-                }else{
-                    if($mesh_entry_id == $me->id){ //Only the selected one 
-                        $this->ssid = $me->name;
-                        array_push($mesh_entries_list,['NodeStations.mesh_entry_id' =>$me->id]);
-                        break;
-                    }  
-                }     
-            }               
-            array_push($where_clause,['OR' => $mesh_entries_list]);
-            $this->base_search_no_mac = $this->base_search = $where_clause;
-            //IS this for a device
-            if($mac !=='false'){
-                $this->graph_item       = 'device';
-                $this->mac_address_id   = $mac_address_id;
-                array_push($where_clause,['NodeStations.mac_address_id' => $mac_address_id]);
-            }            
-        }
-        
-     
-        //==== MESH NODES ====
-        if($this->request->getQuery('type')=='mesh_nodes'){ 
-        
-            $this->graph_item = 'node';
-                   
-            $mesh_id        = $this->request->getQuery('mesh_id');
-            $node_id        = $this->request->getQuery('node_id');
-            $mac            = $this->request->getQuery('mac');
-            $mac_address_id = $this->_findMacAddressId($mac);
-            
-            $this->loadModel('Nodes');
-            $n_list         = $this->{'Nodes'}->find()->where(['Nodes.mesh_id' => $mesh_id])->all();
-            $nodes_list     = [];
-            foreach($n_list as $n){
-                if($node_id == -1){ //Everyone
-                    $this->node = "** ALL NODES **";
-                    array_push($nodes_list,['NodeStations.node_id' =>$n->id]);
-                }else{
-                    if($node_id == $n->id){ //Only the selected one 
-                        $this->node = $n->name;
-                        array_push($nodes_list,['NodeStations.node_id' => $node_id]);
-                        break;
-                    }  
-                }     
-            }               
-            array_push($where_clause,['OR' => $nodes_list]);
-            $this->base_search_no_mac = $this->base_search = $where_clause;
-            //IS this for a device
-            if($mac !=='false'){
-                $this->graph_item       = 'device';
-              //  $this->mac              = $mac;
-                $this->mac_address_id   = $mac_address_id;
-                array_push($where_clause,['NodeStations.mac_address_id' => $mac_address_id]);
-            }       
-        }
-        
-        
-        $this->base_search = $where_clause;        
-        //==================================
-        
-        $data = [];
-               
-        //---- GRAPHS ----- 
-        $ft_now = FrozenTime::now();
-        $graph_items = []; 
-        if($span == 'hour'){
-            $graph_items    = $this->_getHourlyGraph($ft_now);
-            $ft_start       = $ft_now->subHour(1);
-        }
-        
-        if($span == 'day'){
-            $graph_items = $this->_getDailyGraph($ft_now);
-            $ft_start    = $ft_now->subHour(24);
-        }
-        if($span == 'week'){
-            $graph_items = $this->_getWeeklyGraph($ft_now);
-            $ft_start    = $ft_now->subHour((24*7));
-        }
-
-      
-        //---- TOP TEN -----
-        $top_ten    = $this->_getTopTen($ft_start,$ft_now);
-        
-        //---- TOTAL DATA ----
-        $totals     = $this->_getTotals($ft_start,$ft_now);
-
-        $data               = [];
-        $data['graph']      = $graph_items;              
-        $data['top_ten']    = $top_ten;
-        $data['totals']     = $totals;
-        
-        //---- DATA PER NODE ---
-        if($this->request->getQuery('type')=='mesh_nodes'){
-            $data['node_data']  = $this->_getNodeData($ft_start,$ft_now);
-        }      
-        
-        if($this->graph_item == 'device'){  
-            $data['device_info'] = $this->_device_info();
-        }
-        
-           
-        $this->set([
-            'data'          => $data,
-            'success'       => true
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);    
-    }
-    
-    
     private function _getNodeData($ft_start,$ft_end){
+    
         $node_data      = [];
-        $table          = 'NodeStations'; //By default use this table  
+        $table          = 'NodeStations';
         $where          = $this->base_search;     
         $fields         = $this->fields;
         array_push($fields, 'node_id');
@@ -853,49 +724,93 @@ class WifiChartsController extends AppController{
         array_push($where, ["$table.modified >=" => $ft_start]);
         array_push($where, ["$table.modified <=" => $ft_end]);
               
-        $q_r = $this->{$table}->find()->select($fields)
+        $nodes = $this->{$table}->find()->select($fields)
             ->where($where)
             ->order(['data_total' => 'DESC'])
             ->group(['node_id'])
             ->contain(['Nodes'])
             ->all();
-               
-        $id = 1;
-        foreach($q_r as $ns){
+            
+        foreach($nodes as $ns){
             $name = $ns->node->name;
             array_push($node_data, 
                 [
-                    'id'            => $id,
+                    'id'            => $ns->node_id,
                     'name'          => $name,
+                    'node_id'       => $ns->node_id,
                     'data_in'       => $ns->data_in,
                     'data_out'      => $ns->data_out,
                     'data_total'    => $ns->data_total,
                 ]
             );
-            $id++;
-        } 
+        }
+        
+        //--- Hourlies (for day and week) ---
+        if($this->span !== 'hour'){              
+            $where_h    = $this->base_search;
+            $tHourlies  = 'NodeStationHourlies';
+            array_push($where_h , ["$tHourlies.modified >=" => $ft_start]);
+            array_push($where_h , ["$tHourlies.modified <=" => $ft_end]); 
+            
+            $nodes_h = $this->{$tHourlies}->find()->select($fields)
+                ->where($where_h)
+                ->order(['data_total' => 'DESC'])
+                ->group(['node_id'])
+                ->contain(['Nodes'])
+                ->all(); 
+            
+            foreach($nodes_h as $ns){
+                // Loop through the array to find the matching node_id
+                $found = false;
+                foreach ($node_data as $key => $entry) {
+                    if ($entry['node_id'] == $ns->node_id) {
+                        // Update data_in, data_out, and data_total
+                        $node_data[$key]['data_in']     = $node_data[$key]['data_in']+$ns->data_in;
+                        $node_data[$key]['data_out']    = $node_data[$key]['data_out']+$ns->data_out;
+                        $node_data[$key]['data_total']  = $node_data[$key]['data_total']+$ns->data_total; 
+                        $found = true;                 
+                        break; // Exit the loop once the node is found and updated
+                    }
+                }
+                
+                //Add it if not found
+                if(!$found){
+                    $name = $ns->node->name;
+                    array_push($node_data, 
+                        [
+                            'id'            => $ns->node_id,
+                            'name'          => $name,
+                            'node_id'       => $ns->node_id,
+                            'data_in'       => $ns->data_in,
+                            'data_out'      => $ns->data_out,
+                            'data_total'    => $ns->data_total,
+                        ]
+                    );                       
+                }                    
+            }              
+        }
         return $node_data;
     }
     
     private function _device_info(){
         $di             = [];      
         $where          = $this->base_search;
-        $table          = 'NodeStations'; //By default use this table
+        $table_raw      = 'NodeStations'; //By default use this table
         $contain        = ['MeshEntries','Nodes','MacAddresses'];  
         
         if(($this->graph_item == 'ap')||($this->graph_item == 'ap_device')){
-            $table      = 'ApStations';
+            $table_raw  = 'ApStations';
             $contain    = ['ApProfileEntries','Aps','MacAddresses']; 
         }
                    
-        $qr             = $this->{"$table"}->find()->where($where)->order(["$table.modified DESC"])->contain($contain)->first();
+        $station        = $this->{"$table_raw"}->find()->where($where)->order(["$table_raw.modified DESC"])->contain($contain)->first();
 
-        if($qr){
-            $di = $qr;
-            $di['last_seen'] = $qr->modified->timeAgoInWords();
-            $di['vendor']    = $this->MacVendors->vendorFor($qr->mac_address->mac);         
+        if($station){
+            $di = $station;
+            $di['last_seen'] = $station->modified->timeAgoInWords();
+            $di['vendor']    = $this->MacVendors->vendorFor($station->mac_address->mac);         
             //CURRENT
-            $signal     = round($qr->signal_now);
+            $signal     = round($station->signal_now);
             if ($signal < -95) {
                 $signal_bar = 0.01;
             }
@@ -909,7 +824,7 @@ class WifiChartsController extends AppController{
             $di['signal_bar'] = $signal_bar;
                   
             //AVG
-            $signal_avg     = round($qr->signal_avg);
+            $signal_avg     = round($station->signal_avg);
             if ($signal_avg < -95) {
                 $signal_avg_bar = 0.01;
             }
@@ -922,7 +837,36 @@ class WifiChartsController extends AppController{
             }
             $di['signal_avg_bar'] = $signal_avg_bar;     
             
-        }       
+        }else{ //Get it from the hourlies table (use signal_avg as signal_now)
+        
+            if($table_raw == 'NodeStations'){
+                $tHourlies = 'NodeStationHourlies';
+            }
+            if($table_raw == 'ApStations'){
+                $tHourlies = 'ApStationHourlies';
+            }
+            $station_h       = $this->{"$tHourlies"}->find()->where($where)->order(["$tHourlies.modified DESC"])->contain($contain)->first();
+            if($station_h){
+                $di = $station_h;
+                $di['last_seen'] = $station_h->modified->timeAgoInWords();
+                $di['vendor']    = $this->MacVendors->vendorFor($station_h->mac_address->mac);                               
+                //AVG
+                $signal_avg     = round($station_h->signal_avg);
+                $station_h->signal_now = $signal_avg;
+                if ($signal_avg < -95) {
+                    $signal_avg_bar = 0.01;
+                }
+                if (($signal_avg >= -95)&($signal_avg <= -35)) {
+                        $p_val = 95-(abs($signal_avg));
+                        $signal_avg_bar = round($p_val/60, 1);
+                }
+                if ($signal_avg > -35) {
+                    $signal_avg_bar = 1;
+                }
+                $di['signal_avg_bar'] = $signal_avg_bar;     
+                $di['signal_bar']     = $signal_avg_bar;            
+            }      
+        }             
         return $di;
     }
     
@@ -970,8 +914,7 @@ class WifiChartsController extends AppController{
         if(($this->graph_item == 'ap')||($this->graph_item == 'ap_device')){
             $table = 'ApStations';
         }
-        
-        
+                
         while($slot_start < $day_end){  
             $slot_start_h_m = $slot_start->i18nFormat("E\nHH:mm",$this->time_zone);
             $slot_end       = $slot_start->addHour(1)->subSecond(1);   
@@ -1097,41 +1040,45 @@ class WifiChartsController extends AppController{
             ->limit($limit)
             ->all();
      
-        if($table == 'NodeStations'){
-            $tHourlies = 'NodeStationHourlies';
-        }
-        if($table == 'ApStations'){
-            $tHourlies = 'ApStationHourlies';
-        }
-        
-        array_push($where_h, ["$tHourlies.modified >=" => $ft_start]);
-        array_push($where_h, ["$tHourlies.modified <=" => $ft_end]);
-        
-        
-        $stations_h  = $this->{$tHourlies}->find()->select($fields)
-            ->where($where_h)
-            ->order(['data_total' => 'DESC'])
-            ->group(['mac_address_id'])
-            ->contain(['MacAddresses'])
-            ->limit($limit)
-            ->all();
-            
         $stations_combined = [];
        
         //First the raw
         foreach($stations as $station){       
             $stations_combined[$station->mac_address_id] = $station;           
         }
+     
+        //===Daily and Weekly===
+        if($this->span !== 'hour'){
         
-        foreach($stations_h as $station_h){  
-            if(isset($stations_combined[$station_h->mac_address_id])){
-                $station_raw            = $stations_combined[$station_h->mac_address_id];
-                $station_h->data_in     = $station_h->data_in + $station_raw->data_in;
-                $station_h->data_out    = $station_h->data_out + $station_raw->data_out;
-                $station_h->data_total  = $station_h->data_total + $station_raw->data_total;                
+            if($table == 'NodeStations'){
+                $tHourlies = 'NodeStationHourlies';
             }
-            $stations_combined[$station_h->mac_address_id] = $station_h;        
+            if($table == 'ApStations'){
+                $tHourlies = 'ApStationHourlies';
+            }
+            
+            array_push($where_h, ["$tHourlies.modified >=" => $ft_start]);
+            array_push($where_h, ["$tHourlies.modified <=" => $ft_end]);
+            
+            
+            $stations_h  = $this->{$tHourlies}->find()->select($fields)
+                ->where($where_h)
+                ->order(['data_total' => 'DESC'])
+                ->group(['mac_address_id'])
+                ->contain(['MacAddresses'])
+                ->limit($limit)
+                ->all();          
+            foreach($stations_h as $station_h){  
+                if(isset($stations_combined[$station_h->mac_address_id])){
+                    $station_raw            = $stations_combined[$station_h->mac_address_id];
+                    $station_h->data_in     = $station_h->data_in + $station_raw->data_in;
+                    $station_h->data_out    = $station_h->data_out + $station_raw->data_out;
+                    $station_h->data_total  = $station_h->data_total + $station_raw->data_total;                
+                }
+                $stations_combined[$station_h->mac_address_id] = $station_h;        
+            }           
         } 
+              
         $id = 1;
         
         foreach ($stations_combined  as $mac_address_id => $tt) {
@@ -1309,18 +1256,20 @@ class WifiChartsController extends AppController{
             $dataTotal  = $dataTotal + $stations->data_total;                       
         }
         
-        //--Hourlies--
-        if($table == 'NodeStations'){
-            $tHourlies = 'NodeStationHourlies';
-        }
-        if($table == 'ApStations'){
-            $tHourlies = 'ApStationHourlies';
-        }
-        $stations_h  = $this->{$tHourlies}->find()->select($this->fields)->where($where)->first();        
-        if($stations_h){
-            $dataIn     = $dataIn + $stations_h->data_in;
-            $dataOut    = $dataOut + $stations_h->data_out;
-            $dataTotal  = $dataTotal + $stations_h->data_total;                           
+        if($this->span !== 'hour'){ 
+            //--Hourlies--
+            if($table == 'NodeStations'){
+                $tHourlies = 'NodeStationHourlies';
+            }
+            if($table == 'ApStations'){
+                $tHourlies = 'ApStationHourlies';
+            }
+            $stations_h  = $this->{$tHourlies}->find()->select($this->fields)->where($where)->first();        
+            if($stations_h){
+                $dataIn     = $dataIn + $stations_h->data_in;
+                $dataOut    = $dataOut + $stations_h->data_out;
+                $dataTotal  = $dataTotal + $stations_h->data_total;                           
+            }
         }                       
         
         $totals['data_in']      = $dataIn;
