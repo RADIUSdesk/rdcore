@@ -783,19 +783,22 @@ class MeshReportsController extends AppController {
                             'modified >='   => $modified
                         ])
                         ->first();
+                        
+                    if($q_t){
 
-                    $t_bytes    = $t_bytes + $q_t->tx_bytes;
-                    $r_bytes    = $r_bytes + $q_t->rx_bytes;
-                    $signal_avg = round($q_t->signal_avg);
-                    if ($signal_avg < -95) {
-                        $signal_avg_bar = 0.01;
-                    }
-                    if (($signal_avg >= -95)&($signal_avg <= -35)) {
-                            $p_val = 95-(abs($signal_avg));
-                            $signal_avg_bar = round($p_val/60, 1);
-                    }
-                    if ($signal_avg > -35) {
-                        $signal_avg_bar = 1;
+                        $t_bytes    = $t_bytes + $q_t->tx_bytes;
+                        $r_bytes    = $r_bytes + $q_t->rx_bytes;
+                        $signal_avg = round($q_t->signal_avg);
+                        if ($signal_avg < -95) {
+                            $signal_avg_bar = 0.01;
+                        }
+                        if (($signal_avg >= -95)&($signal_avg <= -35)) {
+                                $p_val = 95-(abs($signal_avg));
+                                $signal_avg_bar = round($p_val/60, 1);
+                        }
+                        if ($signal_avg > -35) {
+                            $signal_avg_bar = 1;
+                        }
                     }
                     
                     if($this->timespan !== 'hour'){
@@ -995,19 +998,20 @@ class MeshReportsController extends AppController {
                         ])
                         ->first();
 
-
-                    $t_bytes    = $t_bytes + $q_t->tx_bytes;
-                    $r_bytes    = $r_bytes + $q_t->rx_bytes;
-                    $signal_avg = round($q_t->signal_avg);
-                    if ($signal_avg < -95) {
-                        $signal_avg_bar = 0.01;
-                    }
-                    if (($signal_avg >= -95)&($signal_avg <= -35)) {
-                            $p_val = 95-(abs($signal_avg));
-                            $signal_avg_bar = round($p_val/60, 1);
-                    }
-                    if ($signal_avg > -35) {
-                        $signal_avg_bar = 1;
+                    if($q_t){
+                        $t_bytes    = $t_bytes + $q_t->tx_bytes;
+                        $r_bytes    = $r_bytes + $q_t->rx_bytes;
+                        $signal_avg = round($q_t->signal_avg);
+                        if ($signal_avg < -95) {
+                            $signal_avg_bar = 0.01;
+                        }
+                        if (($signal_avg >= -95)&($signal_avg <= -35)) {
+                                $p_val = 95-(abs($signal_avg));
+                                $signal_avg_bar = round($p_val/60, 1);
+                        }
+                        if ($signal_avg > -35) {
+                            $signal_avg_bar = 1;
+                        }
                     }
                     
                     if($this->timespan !== 'hour'){
@@ -1033,8 +1037,7 @@ class MeshReportsController extends AppController {
                         }
                         if ($signal_avg > -35) {
                             $signal_avg_bar = 1;
-                        }
-                 
+                        }               
                     }                      
                                 
                     $basic = [
