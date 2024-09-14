@@ -782,9 +782,9 @@ class MeshReportsController extends AppController {
                             'mesh_entry_id' => $meshEntryId,
                             'modified >='   => $modified
                         ])
-                        ->first();
+                        ->first();                 
                         
-                    if($q_t){
+                    if($q_t->signal_avg){
 
                         $t_bytes    = $t_bytes + $q_t->tx_bytes;
                         $r_bytes    = $r_bytes + $q_t->rx_bytes;
@@ -810,20 +810,24 @@ class MeshReportsController extends AppController {
                                 'modified >='   => $modified
                             ])
                             ->first();
-
-                        $t_bytes    = $t_bytes + $q_t_h->tx_bytes;
-                        $r_bytes    = $r_bytes + $q_t_h->rx_bytes;
-                        //-- Here we use the older ones for average
-                        $signal_avg = round($q_t_h->signal_avg);
-                        if ($signal_avg < -95) {
-                            $signal_avg_bar = 0.01;
-                        }
-                        if (($signal_avg >= -95)&($signal_avg <= -35)) {
-                                $p_val = 95-(abs($signal_avg));
-                                $signal_avg_bar = round($p_val/60, 1);
-                        }
-                        if ($signal_avg > -35) {
-                            $signal_avg_bar = 1;
+                            
+                        if($q_t_h->signal_avg){
+                        
+                            $t_bytes    = $t_bytes + $q_t_h->tx_bytes;
+                            $r_bytes    = $r_bytes + $q_t_h->rx_bytes;
+                            //-- Here we use the older ones for average
+                            $signal_avg = round($q_t_h->signal_avg);
+                            if ($signal_avg < -95) {
+                                $signal_avg_bar = 0.01;
+                            }
+                            if (($signal_avg >= -95)&($signal_avg <= -35)) {
+                                    $p_val = 95-(abs($signal_avg));
+                                    $signal_avg_bar = round($p_val/60, 1);
+                            }
+                            if ($signal_avg > -35) {
+                                $signal_avg_bar = 1;
+                            }
+                            
                         }                  
                     }
                     
@@ -998,7 +1002,7 @@ class MeshReportsController extends AppController {
                         ])
                         ->first();
 
-                    if($q_t){
+                    if($q_t->signal_avg){
                         $t_bytes    = $t_bytes + $q_t->tx_bytes;
                         $r_bytes    = $r_bytes + $q_t->rx_bytes;
                         $signal_avg = round($q_t->signal_avg);
@@ -1023,20 +1027,21 @@ class MeshReportsController extends AppController {
                                 'modified >='      => $modified
                             ])
                             ->first();
-
-                        $t_bytes    = $t_bytes + $q_t_h->tx_bytes;
-                        $r_bytes    = $r_bytes + $q_t_h->rx_bytes;
-                        //-- Here we use the older ones for average
-                        $signal_avg = round($q_t_h->signal_avg);
-                        if ($signal_avg < -95) {
-                            $signal_avg_bar = 0.01;
-                        }
-                        if (($signal_avg >= -95)&($signal_avg <= -35)) {
-                                $p_val = 95-(abs($signal_avg));
-                                $signal_avg_bar = round($p_val/60, 1);
-                        }
-                        if ($signal_avg > -35) {
-                            $signal_avg_bar = 1;
+                        if($q_t_h->signal_avg){
+                            $t_bytes    = $t_bytes + $q_t_h->tx_bytes;
+                            $r_bytes    = $r_bytes + $q_t_h->rx_bytes;
+                            //-- Here we use the older ones for average
+                            $signal_avg = round($q_t_h->signal_avg);
+                            if ($signal_avg < -95) {
+                                $signal_avg_bar = 0.01;
+                            }
+                            if (($signal_avg >= -95)&($signal_avg <= -35)) {
+                                    $p_val = 95-(abs($signal_avg));
+                                    $signal_avg_bar = round($p_val/60, 1);
+                            }
+                            if ($signal_avg > -35) {
+                                $signal_avg_bar = 1;
+                            }
                         }               
                     }                      
                                 
