@@ -6,23 +6,22 @@ use Cake\Core\Configure;
 
 class ApReportsController extends AppController {
 
-    public $main_model  = 'ApReports';
-    
-    private $rebootFlag = false;  
-    
+     private $rebootFlag = false;
+     private $timespan   = 'hour';   
      protected $fields   = [
-        'tx_bytes' => 'SUM(ApStations.tx_bytes)',
-        'rx_bytes' => 'SUM(ApStations.rx_bytes)',
-        'signal_avg' => 'AVG(ApStations.signal_avg)',
+        'tx_bytes'      => 'SUM(tx_bytes)',
+        'rx_bytes'      => 'SUM(rx_bytes)',
+        'signal_avg'    => 'AVG(signal_avg)'
     ];
+   
+    public function initialize() : void{
 
-    public function initialize() : void
-    {
         parent::initialize();
         $this->loadModel('Aps');
         $this->loadModel('ApProfiles');
         $this->loadModel('ApLoads');
         $this->loadModel('ApStations');
+        $this->loadModel('ApStationHourlies');
         $this->loadModel('ApSystems');
         $this->loadModel('ApProfileEntries');
         $this->loadModel('ApProfileSettings');
@@ -41,58 +40,7 @@ class ApReportsController extends AppController {
         $this->loadComponent('Formatter');
         $this->loadComponent('TimeCalculations');
     }
-	
-    public function submitReport(){
-
-        //Source the vendors file and keep in memory
-        $vendor_file        = APP."..".DS."setup".DS."scripts".DS."mac_lookup.txt";
-
-        $this->vendor_list  = file($vendor_file);
-
-        $this->log('Got a new report submission', 'debug');
-        $fb = $this->_new_report();
-
-		//Handy for debug to see what has been submitted
-        //file_put_contents('/tmp/ap_report.txt', print_r($this->request->getData(), true));
-        $this->set([
-            'items'         => $fb,
-            'reboot_flag'   => $this->rebootFlag,
-            'success'       => true
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);
-    }
-    
-    //______ AP View ______________
-       
-    //List of SSIDs (Entry Points) defined for Access Point
-    public function viewEntryPoints(){
-    
-        $items = [['id' => 0,'name' => '(All)']];
-    
-        if(null !== $this->request->getQuery('ap_id')){
-
-            $q_r = $this->Aps->find()->where(['Aps.id' => $this->request->getQuery('ap_id')])->first();
-
-            if($q_r){
-                $ap_profile_id = $q_r->ap_profile_id;
-
-                $q_ent = $this->ApProfileEntries->find()->select(['ApProfileEntries.id', 'ApProfileEntries.name'])->where(['ApProfileEntries.ap_profile_id' => $ap_profile_id])->all();
-
-                foreach($q_ent as $ent){
-                    $id     = $ent->id;
-                    $name   = $ent->name;
-                    array_push($items, ['id' => $id,'name' => $name]);
-                }
-            }
-         
-        }
-        $this->set([
-            'items'   => $items,
-            'success' => true
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);
-    }
-    
+	 
     //Overview of Access Point Hardware and Firmware
     public function viewOverview(){
         $data = [];
@@ -196,272 +144,9 @@ class ApReportsController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
       
-    //Chart for AccessPoint Data Usage
-    public function viewDataUsage(){
-    
-        $ap_id      = $this->request->getQuery('ap_id');
-        
-        $items      = [];
-        $totalIn    = 0;
-        $totalOut   = 0;
-        $totalInOut = 0;
-         
-        $time_span = 'hour';
-        if(null !== $this->request->getQuery('timespan')){
-            $time_span = $this->request->getQuery('timespan');
-        }
-        
-        $ap_profile_entry_id = 0;
-        if(null !== $this->request->getQuery('entry_id')){
-            $ap_profile_entry_id = $this->request->getQuery('entry_id');
-        }
-        
-        if($time_span == 'week'){
-            $span       = 7;
-            $unit       = 'days';
-            $slot       = (60*60)*24;//A day
-            $start_time = time();
-        }
-        
-        if($time_span == 'day'){
-            $span       = 24;
-            $unit       = 'hours';
-            $slot       = (60*60);//An hour
-           // $start_time = strtotime("tomorrow", time()) - 1;
-           //$start_time = time();
-           $start_time  = mktime(date("H"), 0, 0);
-        }
-        
-        if($time_span == 'hour'){
-            $span       = 4;
-            $unit       = 'quater_hours';
-            $slot       = (60*15);//15 minutes
-            $start_time = time();
-            
-        }
-        
-        $carry_overs = [];
-        
-        for ($x = 0; $x <= $span; $x++) {
-                     
-            if($time_span == 'week'){
-                $beginOfPeriod  = strtotime("midnight", $start_time);
-                $endOfPeriod    = strtotime("tomorrow", $beginOfPeriod) - 1;
-                $unit           = "$x Day";
-            }
-            
-            if($time_span == 'day'){
-                $beginOfPeriod  = $start_time-$slot;
-                $endOfPeriod    = $start_time;
-                $unit           = "$x Hour";
-            }
-            
-            if($time_span == 'hour'){
-                $beginOfPeriod  = $start_time-$slot;
-                $endOfPeriod    = $start_time;
-                $unit           = ($x * 15)." Min";
-            }
-            
-            $start_time     = $start_time - $slot;
-            
-            //print("=========\n");
-            //print(date("Y-m-d H:i:s", $beginOfPeriod)." ".date("Y-m-d H:i:s", $endOfPeriod)."\n");
-            
-            $tx_bytes = 0;
-            $rx_bytes = 0;
-            
-            foreach($carry_overs as $co){
-                //print_r($co);
-                if($co['started'] <= $beginOfPeriod){
-                  //  print("Carry over taking place ...");
-                    $tx_bytes = $tx_bytes + $co['tx_for_period'];
-                    $rx_bytes = $rx_bytes + $co['rx_for_period'];
-                }
-            }
-
-            $where = [
-                'ApStations.ap_id'           => $ap_id,
-                'ApStations.modified >='     => date("Y-m-d H:i:s", $beginOfPeriod),
-                'ApStations.modified <='     => date("Y-m-d H:i:s", $endOfPeriod)
-            ];
-           
-            if($ap_profile_entry_id != 0){
-                array_push($where, ['ApStations.ap_profile_entry_id' => $ap_profile_entry_id]);
-            }
-           
-            $q_s = $this->ApStations->find()->select([
-                'ApStations.mac',
-                'ApStations.tx_bytes',
-                'ApStations.rx_bytes',
-                'ApStations.created',
-                'ApStations.modified'
-            ])->where($where)->all();
-
-            foreach($q_s as $i){
-                //We need to determine if the created and modified stamps fall within this slot
-                if(strtotime($i->created) >= $beginOfPeriod){
-                   $tx_bytes = $tx_bytes +$i->tx_bytes;
-                   $rx_bytes = $rx_bytes +$i->rx_bytes;
-                   //print_r($i);
-                }else{
-                    //print("We need to work out a weight for the timespan\n");
-                    //print_r($i);
-                    $start  = strtotime($i->created);
-                    $end    = strtotime($i->modified);
-                    //get the bytes per second
-                    $time_period = $end - $start;
-                    $tx_per_second = ($i->tx_bytes) / $time_period;
-                    $rx_per_second = ($i->rx_bytes) / $time_period;
-                    //Now we know the bytes per second we can multiply it with the period in the slot we occupied
-                    $slot_period   = $end - $beginOfPeriod;
-                    
-                    $tx_for_period = intval($tx_per_second * $slot_period);
-                    $rx_for_period = intval($rx_per_second * $slot_period);
-                    array_push($carry_overs, ['started' => $start,'tx_for_period' => $tx_for_period, 'rx_for_period' => $rx_for_period]);
-                    $tx_bytes = $tx_bytes + $tx_for_period;
-                    $rx_bytes = $rx_bytes + $rx_for_period;    
-                }
-            }
-            array_push($items, ['id' => $x,'time_unit' => "$unit",'tx_bytes' => $tx_bytes,'rx_bytes' => $rx_bytes]);
-            $totalIn    = $totalIn+$rx_bytes;
-            $totalOut   = $totalOut+$tx_bytes;
-            $totalInOut = $totalOut+($tx_bytes+$rx_bytes); 
-        } 
-        $this->set([
-            'items'   => $items,
-            'success' => true,
-            'totalIn'   => $totalIn,
-            'totalOut'  => $totalOut,
-            'totalInOut'=> $totalInOut
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);
-    }
-    
-    //Chart for AccessPiont Connected users
-    public function viewConnectedUsers(){
-    
-        $totalUsers = 0;
-        $items      = [];
-        $ap_id      = $this->request->getQuery('ap_id');
-        $time_span = 'hour';
-        
-        if(null !== $this->request->getQuery('timespan')){
-            $time_span = $this->request->getQuery('timespan');
-        }
-        
-        $ap_profile_entry_id = 0;
-        if(null !== $this->request->getQuery('entry_id')){
-            $ap_profile_entry_id = $this->request->getQuery('entry_id');
-        }
-        
-        if($time_span == 'week'){
-            $span       = 7;
-            $unit       = 'days';
-            $slot       = (60*60)*24;//A day
-            $start_time = time();
-        }
-        
-        if($time_span == 'day'){
-            $span       = 24;
-            $unit       = 'hours';
-            $slot       = (60*60);//An hour
-           // $start_time = strtotime("tomorrow", time()) - 1;
-           //$start_time = time();
-           $start_time  = mktime(date("H"), 0, 0);
-        }
-        
-        if($time_span == 'hour'){
-            $span       = 4;
-            $unit       = 'quater_hours';
-            $slot       = (60*15);//15 minutes
-            $start_time = time();
-            
-        }
-        
-        $carry_overs = [];
-        
-        $master_mac_count = [];
-        
-        for ($x = 0; $x <= $span; $x++) {
-                     
-            if($time_span == 'week'){
-                $beginOfPeriod  = strtotime("midnight", $start_time);
-                $endOfPeriod    = strtotime("tomorrow", $beginOfPeriod) - 1;
-                $unit           = "$x Day";
-            }
-            
-            if($time_span == 'day'){
-                $beginOfPeriod  = $start_time-$slot;
-                $endOfPeriod    = $start_time;
-                $unit           = "$x Hour";
-            }
-            
-            if($time_span == 'hour'){
-                $beginOfPeriod  = $start_time-$slot;
-                $endOfPeriod    = $start_time;
-                $unit           = ($x * 15)." Min";
-            }
-            
-            $start_time     = $start_time - $slot;
-            
-           // print("=========\n");
-          //  print(date("Y-m-d H:i:s", $beginOfPeriod)." ".date("Y-m-d H:i:s", $endOfPeriod)."\n");
-            
-            $mac_count = [];
-            
-            foreach($carry_overs as $co){
-                //print_r($co);
-                if($co['started'] <= $beginOfPeriod){
-                  //  print("Carry over taking place ...");
-                   $mac = $co['mac'];
-                   $mac_count[$mac] = '';
-                }
-            }
-
-            $where = [
-                'ApStations.ap_id'           => $ap_id,
-                'ApStations.modified >='     => date("Y-m-d H:i:s", $beginOfPeriod),
-                'ApStations.modified <='     => date("Y-m-d H:i:s", $endOfPeriod)
-            ];
-
-            if($ap_profile_entry_id != 0){
-                array_push($where, ['ApStations.ap_profile_entry_id' => $ap_profile_entry_id]);
-            }
-
-            $q_s = $this->ApStations->find()->select([
-                'ApStations.mac',
-                'ApStations.created',
-                'ApStations.modified'
-            ])->where($where)->all();
-
-            foreach($q_s as $i){
-                $mac                    = $i->mac;
-                $mac_count[$mac]        = '';
-                $master_mac_count[$mac] = '';
-                if(strtotime($i->created) <= $beginOfPeriod){
-                    $start  = strtotime($i->created);
-                    array_push($carry_overs, ['started' => $start,'mac' => $mac]);
-                }
-            } 
-            $users = count($mac_count);
-            array_push($items, ['id' => $x,'time_unit' => "$unit",'users' => $users]);
-            
-                
-        } 
-        
-        $totalUsers    = count($master_mac_count);
-        
-        $this->set([
-            'items'         => $items,
-            'success'       => true,
-            'totalUsers'    => $totalUsers
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);
-    }
     
     //------- END AP View ---------------
-
-	
+    
     public function viewEntries(){
 
 		$user = $this->Aa->user_for_token($this);
@@ -477,8 +162,12 @@ class ApReportsController extends AppController {
 		    $this->viewBuilder()->setOption('serialize', true);
 			return;
 		}
-
+            
+        $vendor_file        = APP."StaticData".DS."mac_lookup.txt";
+        $this->vendor_list  = file($vendor_file);
+        
         $items  	= [];
+        $this->timespan   = $this->request->getQuery('timespan'); //hour, day or week
 		$modified 	= $this->_get_timespan();
 		$ap_id      = $this->request->getQuery('ap_id');
 		
@@ -490,16 +179,17 @@ class ApReportsController extends AppController {
 		$q_ap       = $this->Aps->find()->contain(['ApProfiles.ApProfileEntries'=>'ApProfileEntrySchedules'])->where(['Aps.id' => $ap_id])->first();
 
 		if($q_ap){
+		
+            foreach($q_ap->ap_profile->ap_profile_entries as $apProfileEntry){
 
-            foreach($q_ap->ap_profile->ap_profile_entries as $entry){
-            
-                $ap_profile_entry_id = $entry->id;
-                $entry_name          = $entry->name;
-		        if(count($entry->ap_profile_entry_schedules) > 0){
-		        	$entry_name     = $entry->name.' <i class="fa  fa-calendar" style="color:#1272c7"></i>';
+                $apProfileEntryId   = $apProfileEntry->id;
+                $entryName          = $apProfileEntry->name;
+                
+		        if(count($apProfileEntry->ap_profile_entry_schedules) > 0){
+		        	$entryName     = $apProfileEntry->name.' <i class="fa  fa-calendar" style="color:#1272c7"></i>';
 		        }
-               
-                $q_s = $this->{'ApStations'}->find()
+		        
+		        $apStations = $this->ApStations->find()
                     ->select([
                         'mac_address_id',
                         'mac'   => 'MacAddresses.mac'
@@ -507,174 +197,128 @@ class ApReportsController extends AppController {
                     ->distinct(['mac_address_id'])
                     ->contain(['MacAddresses'])
                     ->where([
-                        'ApStations.ap_id'               => $ap_id,
-                        'ApStations.ap_profile_entry_id' => $ap_profile_entry_id,
-                        'ApStations.modified >='         => $modified
-                    ])
-                    ->all();
+                        'ApStations.ap_profile_entry_id'=> $apProfileEntryId,
+                        'ApStations.modified >='        => $modified
+                    ])->all();
+               
+                $apStationLookup = [];  
+                  
+                foreach($apStations as $apStation){
+                    $mac_id = $apStation->mac_address_id;
+                    $apStationLookup[$mac_id] = $apStation->mac;
+                }
+                
+                if($this->timespan !== 'hour'){
+                     $apStationHourlies = $this->ApStationHourlies->find()
+                        ->select([
+                            'mac_address_id',
+                            'mac'   => 'MacAddresses.mac'
+                        ])
+                        ->distinct(['mac_address_id'])
+                        ->contain(['MacAddresses'])
+                        ->where([
+                            'ApStationHourlies.ap_profile_entry_id' => $apProfileEntryId,
+                            'ApStationHourlies.modified >='   => $modified
+                        ])->all();
+                    foreach($apStationHourlies as $apStationHourly){
+                        $mac_id = $apStationHourly->mac_address_id;
+                        $apStationLookup[$mac_id] = $apStationHourly->mac;
+                    }                       
+                }
 
-                if($q_s->count()>0){
-                    foreach($q_s as $s){
-                        $mac = $s->mac;
-                        $q_t = $this->ApStations->find()->select($this->fields)->where([
-                            'ApStations.mac_address_id'      => $s->mac_address_id,
-                            'ApStations.ap_id'               => $ap_id,
-                            'ApStations.ap_profile_entry_id' => $ap_profile_entry_id,
-                            'ApStations.modified >='         => $modified
-                        ])->first();
+                if (count($apStationLookup) > 0 ) {
+                    foreach ($apStationLookup as $mac_address_id => $mac) {
+                    
+                        //==Get the sum of Bytes and avg of signal using the raw data== (for timespan == 'hour' )
+                        $t_bytes = 0;
+                        $r_bytes = 0;
+                        $q_t = $this->ApStations->find()
+                            ->select($this->fields)
+                            ->where([
+                                'mac_address_id'      => $mac_address_id,
+                                'ap_id'               => $ap_id,
+                                'ap_profile_entry_id' => $apProfileEntryId,
+                                'modified >='         => $modified
+                            ])
+                            ->first();                 
+                            
+                        if($q_t->signal_avg){
 
-                        $t_bytes    = $q_t->tx_bytes;
-                        $r_bytes    = $q_t->rx_bytes;
-                        $signal_avg = round($q_t->signal_avg);
-                        if($signal_avg < -95){
-                            $signal_avg_bar = 0.01;
-                        }
-                        if(($signal_avg >= -95)&($signal_avg <= -35)){
-                            $p_val = 95-(abs($signal_avg));
-                            $signal_avg_bar = round($p_val/60,1);
-                        }
-                        if($signal_avg > -35){
-                            $signal_avg_bar = 1;
-                        }
-
-                        //Get the latest entry
-                        $lastCreated = $this->ApStations->find()->where([
-                            'ApStations.mac_address_id'      => $s->mac_address_id,
-                            'ApStations.ap_id'               => $ap_id,
-                            'ApStations.ap_profile_entry_id' => $ap_profile_entry_id,
-                        ])->order(['ApStations.created' => 'desc'])
-                            ->first();
-
-                        // print_r($lastCreated);
-
-                        $signal = $lastCreated->signal_now;
-
-                        if($signal < -95){
-                            $signal_bar = 0.01;
-                        }
-                        if(($signal >= -95)&($signal <= -35)){
-                            $p_val = 95-(abs($signal));
-                            $signal_bar = round($p_val/60,1);
-                        }
-                        if($signal > -35){
-                            $signal_bar = 1;
+                            $t_bytes    = $t_bytes + $q_t->tx_bytes;
+                            $r_bytes    = $r_bytes + $q_t->rx_bytes;
+                            $signal_avg = round($q_t->signal_avg);
+                            if ($signal_avg < -95) {
+                                $signal_avg_bar = 0.01;
+                            }
+                            if (($signal_avg >= -95)&($signal_avg <= -35)) {
+                                    $p_val = 95-(abs($signal_avg));
+                                    $signal_avg_bar = round($p_val/60, 1);
+                            }
+                            if ($signal_avg > -35) {
+                                $signal_avg_bar = 1;
+                            }
                         }
                         
-                        $block_flag = false;
-		                $limit_flag = false;
-		                $firewall_flag = false;
-		                $cloud_flag = false;
-		                $bw_up		= '';
-		                $bw_down	= '';
-		                $fw_profile = '';
-		                $alias		= $this->_find_alias($s->mac_address_id);                                        
+                        if($this->timespan !== 'hour'){
+                            $q_t_h = $this->ApStationHourlies->find()
+                                ->select($this->fields)
+                                ->where([
+                                    'mac_address_id'      => $mac_address_id,
+                                    'ap_id'               => $ap_id,
+                                    'ap_profile_entry_id' => $apProfileEntryId,
+                                    'modified >='         => $modified
+                                ])
+                                ->first();
+                                
+                            if($q_t_h->signal_avg){
+                            
+                                $t_bytes    = $t_bytes + $q_t_h->tx_bytes;
+                                $r_bytes    = $r_bytes + $q_t_h->rx_bytes;
+                                //-- Here we use the older ones for average
+                                $signal_avg = round($q_t_h->signal_avg);
+                                if ($signal_avg < -95) {
+                                    $signal_avg_bar = 0.01;
+                                }
+                                if (($signal_avg >= -95)&($signal_avg <= -35)) {
+                                        $p_val = 95-(abs($signal_avg));
+                                        $signal_avg_bar = round($p_val/60, 1);
+                                }
+                                if ($signal_avg > -35) {
+                                    $signal_avg_bar = 1;
+                                }
+                                
+                            }                  
+                        }
 
-	                	$macAction = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $s->mac_address_id ,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
-	                	if($macAction){
-
-	                		$cloud_flag = true;
-	                		if($macAction->action == 'block'){
-	                			$block_flag = true;
-	                			$cloud_flag = true;
-	                		}
-	                		if($macAction->action == 'limit'){
-	                			$limit_flag = true;
-	                			$cloud_flag = true;
-	                			$limit_flag = true;
-	                			$bw_up_suffix = 'kbps';
-	                			$bw_up = ($macAction->bw_up * 8);
-	                			if($bw_up >= 1000){
-	                				$bw_up = $bw_up / 1000;
-	                				$bw_up_suffix = 'mbps';
-	                			}
-	                			$bw_up = $bw_up.' '.$bw_up_suffix;
-	                			$bw_down_suffix = 'kbps';
-	                			$bw_down = ($macAction->bw_down * 8);
-	                			if($bw_down >= 1000){
-	                				$bw_down = $bw_down / 1000;
-	                				$bw_down_suffix = 'mbps';
-	                			}
-	                			$bw_down = $bw_down.' '.$bw_down_suffix;
-	                		}
-	                		if($macAction->action == 'firewall'){
-	                			$firewall_flag 	= true;
-	                			$fw_profile		= $macAction->firewall_profile->name;
-	                		}
-	                	}
-	                	//If there is an ap profile level override
-	                	$macAction = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $s->mac_address_id ,'MacActions.ap_profile_id' => $q_ap->ap_profile_id ])->contain(['FirewallProfiles'])->first();
-	                	if($macAction){
-	                		$cloud_flag = false;
-	                		if($macAction->action == 'block'){
-	                			$block_flag = true;
-	                		}
-	                		if($macAction->action == 'limit'){
-	                			$limit_flag = true;
-	                			$bw_up_suffix = 'kbps';
-	                			$bw_up = ($macAction->bw_up * 8);
-	                			if($bw_up >= 1000){
-	                				$bw_up = $bw_up / 1000;
-	                				$bw_up_suffix = 'mbps';
-	                			}
-	                			$bw_up = $bw_up.' '.$bw_up_suffix;
-	                			$bw_down_suffix = 'kbps';
-	                			$bw_down = ($macAction->bw_down * 8);
-	                			if($bw_down >= 1000){
-	                				$bw_down = $bw_down / 1000;
-	                				$bw_down_suffix = 'mbps';
-	                			}
-	                			$bw_down = $bw_down.' '.$bw_down_suffix;
-	                		}
-	                		if($macAction->action == 'firewall'){
-	                			$firewall_flag 	= true;
-	                			$fw_profile		= $macAction->firewall_profile->name;
-	                		}
-	                	}                   
-
-                        
-                        array_push($items, [
+	                	 $basic = [
                             'id'                => $id,
-                            'name'              => $entry_name,
-                            'ap_profile_entry_id'=> $ap_profile_entry_id,
+                            'name'              => $entryName,
+                            'ap_profile_entry_id'=> $apProfileEntryId,
                             'mac'               => $mac,
-                            'mac_address_id'    => $s->mac_address_id,
-                            'vendor'            => $lastCreated->vendor,
+                            'mac_address_id'    => $mac_address_id,
+                            'vendor'            => $this->_lookup_vendor($mac),
                             'tx_bytes'          => $t_bytes,
                             'rx_bytes'          => $r_bytes,
                             'signal_avg'        => $signal_avg ,
-                            'signal_avg_bar'    => $signal_avg_bar,
-                            'signal_bar'        => $signal_bar,
-                            'signal'            => $signal,
-                            'l_tx_bitrate'      => $lastCreated->tx_bitrate,
-                            'l_rx_bitrate'      => $lastCreated->rx_bitrate,
-                            'l_signal'          => $lastCreated->signal_now,
-                            'l_signal_avg'      => $lastCreated->signal_avg,
-                            'l_MFP'             => $lastCreated->MFP,
-                            'l_tx_failed'       => $lastCreated->tx_failed,
-                            'l_tx_retries'      => $lastCreated->tx_retries,
-                            'l_modified'        => $lastCreated->modified,
-                            'l_modified_human'  => $this->TimeCalculations->time_elapsed_string($lastCreated->modified),
-                            'l_authenticated'   => $lastCreated->authenticated,
-                            'l_authorized'      => $lastCreated->authorized,
-                            'l_tx_bytes'        => $lastCreated->tx_bytes,
-                            'l_rx_bytes'        => $lastCreated->rx_bytes,
-                            'block_flag'		=> $block_flag,
-		                    'cloud_flag'		=> $cloud_flag,
-		                    'limit_flag'		=> $limit_flag,
-		                    'firewall_flag'		=> $firewall_flag,
-		                    'fw_profile'		=> $fw_profile,
-		                    'bw_up'				=> $bw_up,
-		                    'bw_down'			=> $bw_down,
-		                    'alias'				=> $alias
-                        ]);
+                            'signal_avg_bar'    => $signal_avg_bar            
+                        ];
+                        	      	                		                	
+	                	$dead_after = $this->_get_dead_after($q_ap->ap_profile_id);	                	
+	                	$latestInfo = $this->_getLatsetApInfo($ap_id,$q_ap->ap_profile_id,$mac_address_id,$dead_after);                             
+                        $basic      = (array_merge($basic,$latestInfo));
+                        $mActions   = $this->_getMacActions($cloud_id,$q_ap->ap_profile_id,$mac_address_id);
+                        $basic      = (array_merge($basic,$mActions));            
+                        
+                                                                              
+                        array_push($items, $basic);
                         $id++;
                     }
 
                 }else{
                     array_push($items, [
                         'id'                => $id,
-                        'name'              => $entry_name,
-                        'ap_profile_entry_id'=> $ap_profile_entry_id,
+                        'name'              => $entryName,
+                        'ap_profile_entry_id'=> $apProfileEntryId,
                         'mac'               => 'N/A',
                         'tx_bytes'          => 0,
                         'rx_bytes'          => 0,
@@ -701,338 +345,6 @@ class ApReportsController extends AppController {
 
 
     //---------- Private Functions --------------
-
-    private function _new_report(){ 
-
-        //FIXME Optimise the queries
-            
-         //--- Check if the 'network_info' array is in the data ----
-        $this->log('AP: Checking for network_info in log', 'debug');
-
-        $cdata = $this->request->getData();
-
-        if(array_key_exists('network_info', $cdata)){
-            $this->log('AP: Found network_info', 'debug');
-            $ni = $cdata['network_info'];
-            $id = $this->_format_mac($ni['eth0']);
-
-            $this->log('AP: Locating the ap with MAC '.$id, 'debug');
-
-            $q_r = $this->Aps->find()->where(['Aps.mac' => $id])->first();
-
-            if($q_r){
-                $ap_id          = $q_r->id;
-                $ap_profile_id  = $q_r->ap_profile_id;
-
-                $this->log('AP: The ap id of '.$id.' is '.$ap_id, 'debug');
-
-                if(array_key_exists(0,$ni['radios'])){
-                    $this->log('AP: First RADIO reported for '.$id.' is '.$ap_id, 'debug');
-                $rad_zero_int = $ni['radios'][0]['interfaces'];
-                $this->_do_radio_interfaces($ap_profile_id,$ap_id,$rad_zero_int);
-                }
-
-				//If it is a dual radio --- report on it also ----
-				if(array_key_exists(1,$ni['radios'])){
-					$this->log('AP: Second RADIO reported for '.$id.' is '.$ap_id, 'debug');
-
-					$rad_one_int = $ni['radios'][1]['interfaces'];
-					$this->_do_radio_interfaces($ap_profile_id,$ap_id,$rad_one_int);
-				}
-            }else{
-                $this->log('AP: ap with MAC '.$id.' was not found', 'debug');
-            }
-        }
-        
-        //--- Check if the 'system_info' array is in the data ----
-        $this->log('AP: Checking for system_info in log', 'debug');
-
-        if(array_key_exists('system_info',$cdata)){
-            $this->log('AP: Found system_info', 'debug');
-
-            $ap_profile_id = false;
-            $si = $cdata['system_info'];
-            $id = $this->_format_mac($si['eth0']);
-            $this->log('AP: Locating the node with MAC '.$id, 'debug');
-
-            $q_r = $this->Aps->find()->where(['Aps.mac' => $id])->first();
-
-            if($q_r){ 
-                $ap_id          = $q_r->id;
-                $ap_profile_id  = $q_r->ap_profile_id;
-                $this->log('Ap: The ap id of '.$id.' is '.$ap_id, 'debug');
-
-                $this->_do_ap_system_info($ap_id,$si['sys']);
-                $this->_do_ap_load($ap_id,$si['sys']);
-                $this->_update_last_contact($ap_id);
-            }else{
-                $this->log('AP: ap with MAC '.$id.' was not found', 'debug');
-            }
-        }
-    
-    
-        $items = false;
-		//--- Check if there are any lan_info items here
-        $this->log('AP: Checking for lan_info in log', 'debug');
-
-        if (array_key_exists('lan_info', $cdata)) {
-            $this->log('Ap: Found lan_info', 'debug');
-            $mac = $cdata['lan_info']['mac'];
-
-            $q_r = $this->Aps->find()->where(['Aps.mac' => $mac])->first();
-
-
-            if ($q_r) {
-				//Do uptm history
-				$this->_do_uptm_history($q_r);
-                $ap_id    = $q_r->id;
-                $lan_proto  = $cdata['lan_info']['lan_proto'];
-                $lan_gw     = $cdata['lan_info']['lan_gw'];
-                $lan_ip     = $cdata['lan_info']['lan_ip'];
-
-                $d_lan      = [];
-                $d_lan['lan_gw'] = $lan_gw;
-                $d_lan['lan_ip'] = $lan_ip;
-                $d_lan['lan_proto']  = $lan_proto;
-                $d_lan['ap_profile_id'] = $q_r->ap_profile_id;
-                
-                $d_lan['last_contact']          = date("Y-m-d H:i:s", time());
-                $d_lan['last_contact_from_ip']  = $this->request->clientIp();
-              
-                $this->{'Aps'}->patchEntity($q_r,$d_lan);
-                $this->{'Aps'}->save($q_r);
-                       
-                //Check if there are commands waiting for it
-                $q_a = $this->ApActions->find()->where(['ApActions.ap_id' => $ap_id,'ApActions.status' => 'awaiting'])->all();
-
-				$items	= [];				
-				foreach($q_a as $i){
-					$action_id	= $i->id;
-				    array_push($items,$action_id);
-				}    
-            }         
-        }
-			
-		return $items;       
-    }
-
-    private function _do_radio_interfaces($ap_profile_id,$ap_id,$interfaces){
-
-        foreach($interfaces as $i){
-            if(count($i['stations']) > 0){
-                //Try to find (if type=AP)the Entry ID of the Mesh
-                if($i['type'] == 'AP'){
-                    $q_r = $this->ApProfileEntries->find()->where([
-                        'ApProfileEntries.name'           => $i['ssid'],
-                        'ApProfileEntries.ap_profile_id'  => $ap_profile_id
-                    ])->first();
-
-                    if($q_r){
-                        $entry_id = $q_r->id;
-                        foreach($i['stations'] as $s){
-                            $data = $this->_prep_station_data($s);
-                            $data['ap_profile_entry_id']  = $entry_id;
-                            $data['ap_id']        = $ap_id;
-                            //--Check the last entry for this MAC
-                            $q_mac = $this->ApStations->find()->where([
-                                'ApStations.ap_profile_entry_id' => $entry_id,
-                                'ApStations.ap_id'      => $ap_id,
-                                'ApStations.mac'        => $data['mac'],
-                            ])->order(['ApStations.created' => 'desc'])->first();
-
-                            $new_flag = true;
-
-                            if($q_mac){
-                                $old_tx = $q_mac->tx_bytes;
-                                $old_rx = $q_mac->rx_bytes;
-                                if(($data['tx_bytes'] >= $old_tx)&($data['rx_bytes'] >= $old_rx)){
-                                    $data['id'] =  $q_mac->id;
-                                    $new_flag = false;   
-                                }
-                            }
-                            
-                            if ($new_flag) {
-                                $e_new   = $this->{'ApStations'}->newEntity($data);
-                                $this->{'ApStations'}->save($e_new);
-                            }else{
-                                $this->{'ApStations'}->patchEntity($q_mac,$data);
-                                $this->{'ApStations'}->save($q_mac);
-                            }
-                        }
-                    }      
-                    
-                }  
-            }
-        }
-    }
-
-    private function _do_ap_load($ap_id,$info){
-        $this->log('AP: ====Doing the ap load info for===: '.$ap_id, 'debug');
-        $mem_total  = $this->_mem_kb_to_bytes($info['memory']['total']);
-        $mem_free   = $this->_mem_kb_to_bytes($info['memory']['free']);
-        $u          = $info['uptime'];
-        $time       = preg_replace('/\s+up.*/', "", $u);
-        $load       = preg_replace('/.*.\s+load average:\s+/', "", $u);
-        $loads      = explode(", ",$load);
-        $up         = preg_replace('/.*\s+up\s+/', "", $u);
-        $up         = preg_replace('/,\s*.*/', "", $up);
-        $data       = array();
-        $data['mem_total']  = $mem_total;
-        $data['mem_free']   = $mem_free;
-        $data['uptime']     = $up;
-        $data['system_time']= $time;
-        $data['load_1']     = $loads[0];
-        $data['load_2']     = $loads[1];
-        $data['load_3']     = $loads[2];
-        $data['ap_id']      = $ap_id;
-
-
-        $n_l = $this->ApLoads->find()->where(['ApLoads.ap_id' => $ap_id])->first();
-
-        $new_flag = true;
-        if($n_l){  
-		    $data['id'] =  $n_l->id;
-		    $new_flag 	= false;   
-        }
-        if ($new_flag) {
-            $e_new   = $this->{'ApLoads'}->newEntity($data);
-            $this->{'ApLoads'}->save($e_new);
-        }else{
-            $this->{'ApLoads'}->patchEntity($n_l,$data);
-            $this->{'ApLoads'}->save($n_l);
-        }        
-    }
-
-    private function _do_ap_system_info($ap_id,$info){
-        $this->log('AP: Doing the system info for ap id: '.$ap_id, 'debug');
-
-        $q_r = $this->{'ApSystems'}->find()->where(['ApSystems.ap_id' => $ap_id])->first();
-        if(!$q_r){
-            $this->log('AP: EMPTY ApSystem - Add first one', 'debug');
-            $this->_new_ap_system($ap_id,$info);
-
-        }else{
-            $this->log('AP: ApSystem info exists - Update if needed', 'debug');
-            //We will check the value of DISTRIB_REVISION
-            $dist_rev = false;
-            if(array_key_exists('release',$info)){ 
-                $release_array = explode("\n",$info['release']);
-                foreach($release_array as $r){  
-                    $this->log("AP: There are ".$r, 'debug'); 
-                    $r_entry    = explode('=',$r);
-                    $elements   = count($r_entry);
-                    if($elements == 2){
-                        $value          = preg_replace('/"|\'/', "", $r_entry[1]);
-                        if(preg_match('/DISTRIB_REVISION/',$r_entry[0])){
-                            $dist_rev = $value;
-                            $this->log('AP: Submitted DISTRIB_REVISION '.$dist_rev, 'debug');
-                            break;
-                        }                
-                    }
-                }
-            }
-
-            //Find the current  DISTRIB_REVISION
-            $q_r = $this->ApSystems->find()->where([
-                'ApSystems.ap_id'    => $ap_id,
-                'ApSystems.name'     => 'DISTRIB_REVISION'
-            ])->first();
-
-            if($q_r){
-                $current = $q_r->value;
-                $this->log('AP: Current DISTRIB_REVISION '.$dist_rev, 'debug');
-                if($current !== $dist_rev){
-                    $this->log('AP: Change in DISTRIB_REVISION -> renew', 'debug');
-                    $this->ApSystems->deleteAll(['ApSystems.id' => $ap_id]);
-                    $this->_new_ap_system($ap_id,$info);
-                }else{
-                    $this->log('AP: DISTRIB_REVISION unchanged', 'debug');
-                }
-            }
-        }
-    }
-
-    private function _new_ap_system($ap_id,$info){
-        //--CPU Info--
-        if(array_key_exists('cpu',$info)){
-             $this->log('AP: Adding  CPU info', 'debug');
-            foreach(array_keys($info['cpu']) as $key){
-              //  $this->log('Adding first CPU info '.$key, 'debug');
-                $d['category']  = 'cpu';
-                $d['name']      = $key;
-                $d['value']     = $info['cpu']["$key"];
-                $d['ap_id']     = $ap_id;
-                $apSystemEntity = $this->ApSystems->newEntity($d);
-                $this->ApSystems->save($apSystemEntity);
-            }
-        }
-
-        //--
-        if(array_key_exists('release',$info)){ 
-            $release_array = explode("\n",$info['release']);
-            foreach($release_array as $r){  
-               // $this->log("There are ".$r, 'debug'); 
-                $r_entry    = explode('=',$r);
-                $elements   = count($r_entry);
-                if($elements == 2){
-                   // $this->log('Adding  Release info '.$r, 'debug');
-                    $value          = preg_replace('/"|\'/', "", $r_entry[1]);
-                    $d['category']  = 'release';
-                    $d['name']      = $r_entry[0];
-                    $d['value']     = $value;
-                    $d['ap_id']   = $ap_id;
-                    $apSystemEntity = $this->ApSystems->newEntity($d);
-                    $this->ApSystems->save($apSystemEntity);
-                }
-            }
-        }           
-    }
-      
-   
-    private function _update_last_contact($ap_id){  
-        $ent = $this->Aps->find()->where(['Aps.id' => $ap_id])->first();
-        if($ent){
-            $ent->last_contact = date("Y-m-d H:i:s", time());
-            $ent->last_contact_from_ip = $this->request->clientIp();
-            $this->Aps->save($ent);
-        }
-    }
-
-    private function _do_uptm_history($entity){
-        $ap_id        = $entity->id;
-		
-        $e_uptm = $this->{'ApUptmHistories'}->find()
-                ->where([   
-                'ApUptmHistories.ap_id' => $ap_id,
-                ])
-                ->order(['ApUptmHistories.report_datetime' => 'desc'])
-                ->first();
-                 
-        if($e_uptm){
-			// check to see if last node_state was up or down
-			if ($e_uptm->ap_state == 1) { // UP
-                $e_uptm->report_datetime = time();
-                $this->{'ApUptmHistories'}->save($e_uptm); 
-			} else { // DOWN
-				$data                   = [];
-				$data['ap_state']     = 1;
-				$data['ap_id']        	= $ap_id; 
-				$data['state_datetime'] = time();
-				$data['report_datetime']= time();    
-				$e_new                  = $this->{'ApUptmHistories'}->newEntity($data);    
-				$this->{'ApUptmHistories'}->save($e_new); 		
-			}
-        } else {
-                $data                   = [];
-                $data['ap_state']     = 1;
-                $data['ap_id']        = $ap_id; 
-                $data['state_datetime'] = time();
-                $data['report_datetime']= time();    
-                $e_new                  = $this->{'ApUptmHistories'}->newEntity($data);    
-                $this->{'ApUptmHistories'}->save($e_new); 
-        }
-        $this->UptmTimestamp = time();
-    }
 	
     private function _format_mac($mac){
         return preg_replace('/:/', '-', $mac);
@@ -1041,51 +353,6 @@ class ApReportsController extends AppController {
     private function _mem_kb_to_bytes($kb_val){
         $kb = preg_replace('/\s*kb/i', "", $kb_val);
         return($kb * 1024);
-    }
-
-    private function _prep_station_data($station_info){
-    
-        //Ath10K fix
-        if(!array_key_exists('rx bitrate',$station_info)){
-            $station_info['rx bitrate'] = "N/A";
-        } 
-    
-        $data       = [];
-        $tx_proc    = $station_info['tx bitrate'];
-        $tx_bitrate = preg_replace('/\s+.*/','',$tx_proc);
-        $tx_extra   = preg_replace('/.*\s+/','',$tx_proc);
-        $rx_proc    = $station_info['rx bitrate'];
-        $rx_bitrate = preg_replace('/\s+.*/','',$rx_proc);
-        $rx_extra   = preg_replace('/.*\s+/','',$rx_proc);
-        $incative   = preg_replace('/\s+ms.*/','',$station_info['inactive time']);
-        $s          = preg_replace('/\s+\[.*/','',$station_info['signal']);
-        $a          = preg_replace('/\s+\[.*/','',$station_info['avg']);
-
-        $mac_formatted        = $this->_format_mac($station_info['mac']);
-
-        $data['vendor']        = $this->MacVendors->vendorFor($mac_formatted);
-        $data['mac']           = $mac_formatted;
-        $data['tx_bytes']      = $station_info['tx bytes'];
-        $data['rx_bytes']      = $station_info['rx bytes'];
-        $data['tx_packets']    = $station_info['tx packets'];
-        $data['rx_packets']    = $station_info['rx packets'];
-        $data['tx_bitrate']    = $tx_bitrate;
-        $data['rx_bitrate']    = $rx_bitrate;
-        $data['tx_extra_info'] = $tx_extra;
-        $data['rx_extra_info'] = $rx_extra;
-        $data['authorized']    = $station_info['authorized'];
-        $data['authenticated'] = $station_info['authenticated'];
-        $data['tdls_peer']     = $station_info['TDLS peer'];
-        $data['preamble']      = $station_info['preamble'];
-        $data['tx_failed']     = $station_info['tx failed'];
-        $data['tx_failed']     = $station_info['tx failed'];
-        $data['inactive_time'] = $incative;
-        $data['WMM_WME']       = $station_info['WMM/WME'];
-        $data['tx_retries']    = $station_info['tx retries'];
-        $data['MFP']           = $station_info['MFP'];
-        $data['signal_now']    = $s;
-        $data['signal_avg']    = $a;
-        return $data;
     }
 
     private function _lookup_vendor($mac){
@@ -1265,21 +532,8 @@ class ApReportsController extends AppController {
 		    ->first();    
         return $hw;
     }
-    
-   	private function _find_aliasZZ($mac){
-    
-    	$req_q    = $this->request->getQuery();    
-       	$cloud_id = $req_q['cloud_id'];
-      
-        $alias = false;
-        $qr = $this->{'MacAliases'}->find()->where(['MacAliases.mac' => $mac,'MacAliases.cloud_id'=> $cloud_id])->first();
-        if($qr){
-        	$alias = $qr->alias;
-        } 
-        return $alias;
-    }
-    
-     private function _find_alias($mac_address_id){
+     
+    private function _find_alias($mac_address_id){
     
     	$req_q    = $this->request->getQuery();    
        	$cloud_id = $req_q['cloud_id'];
@@ -1291,4 +545,165 @@ class ApReportsController extends AppController {
         } 
         return $alias;
     }
+    
+    //===============================
+    //---- ACTIONS RELATED  --------
+    //===============================
+    
+    private function _getMacActions($cloud_id, $ap_profile_id, $mac_id){
+        $mActions = [
+            'block_flag' => false,
+            'limit_flag' => false,
+            'firewall_flag' => false,
+            'cloud_flag' => false,
+            'bw_up' => '',
+            'bw_down' => '',
+            'fw_profile' => '',
+            'alias' => $this->_find_alias($mac_id)
+        ];
+
+        $cloudAction = $this->_getCloudAction($cloud_id, $mac_id);
+        if ($cloudAction) {
+            $this->_applyCloudAction($mActions, $cloudAction);
+        }
+
+        $apProfileAction = $this->_getApProfileAction($ap_profile_id, $mac_id);
+        if ($apProfileAction) {
+            $this->_applyApProfileAction($mActions, $apProfileAction);
+        }
+        
+        return $mActions;
+    }
+
+    private function _getCloudAction($cloud_id, $mac_id){
+
+        return $this->{'MacActions'}->find()
+            ->where(['MacActions.mac_address_id' => $mac_id, 'MacActions.cloud_id' => $cloud_id])
+            ->contain(['FirewallProfiles'])
+            ->first();
+    }
+
+    private function _getApProfileAction($ap_profile_id, $mac_id){
+
+        return $this->{'MacActions'}->find()
+            ->where(['MacActions.mac_address_id' => $mac_id, 'MacActions.ap_profile_id' => $ap_profile_id])
+            ->contain(['FirewallProfiles'])
+            ->first();
+    }
+
+    private function _applyCloudAction(&$mActions, $action){
+
+        $mActions['cloud_flag'] = true;
+        switch ($action->action) {
+            case 'block':
+                $mActions['block_flag'] = true;
+                break;
+            case 'limit':
+                $this->_applyLimitAction($mActions, $action);
+                break;
+            case 'firewall':
+                $mActions['firewall_flag'] = true;
+                $mActions['fw_profile'] = $action->firewall_profile->name;
+                break;
+        }
+    }
+
+    private function _applyApProfileAction(&$mActions, $action){
+    
+        $mActions['cloud_flag'] = false;
+        switch ($action->action) {
+            case 'block':
+                $mActions['block_flag'] = true;
+                break;
+            case 'limit':
+                $this->_applyLimitAction($mActions, $action);
+                break;
+            case 'firewall':
+                $mActions['firewall_flag'] = true;
+                $mActions['fw_profile'] = $action->firewall_profile->name;
+                break;
+        }
+    }
+
+    private function _applyLimitAction(&$mActions, $action){
+
+        $mActions['limit_flag'] = true;
+        $mActions['bw_up'] = $this->_formatBandwidth($action->bw_up);
+        $mActions['bw_down'] = $this->_formatBandwidth($action->bw_down);
+    }
+
+    private function _formatBandwidth($bandwidth){
+
+        $bandwidth *= 8;
+        $suffix = 'kbps';
+        if ($bandwidth >= 1000) {
+            $bandwidth /= 1000;
+            $suffix = 'mbps';
+        }
+        return $bandwidth . ' ' . $suffix;
+    }
+    //---- END ACTIONS RELATED ----
+    
+    private function _getLatsetApInfo($apId,$ap_profile_id,$macAddressId,$dead_after){
+    
+         //Get the latest entry
+        $lastCreated = $this->ApStations->find()->where([
+            'mac_address_id' => $macAddressId,
+            'ap_id'          => $apId
+        ])->order(['created' => 'desc'])->first();
+
+        $historical = false;          
+        if(!$lastCreated){
+            $historical = true;
+            $lastCreated = $this->ApStationHourlies->find()->where([
+                'mac_address_id'    => $macAddressId,
+                'ap_id'             => $apId
+            ])->order(['created'   => 'desc'])->first();     
+        }
+        
+        if($historical){
+            $signal = $lastCreated->signal_avg;
+        }else{
+            $signal = $lastCreated->signal_now;
+        }      
+
+        if ($signal < -95) {
+            $signal_bar = 0.01;
+        }
+        if (($signal >= -95)&($signal <= -35)) {
+                $p_val = 95-(abs($signal));
+                $signal_bar = round($p_val/60, 1);
+        }
+        if ($signal > -35) {
+            $signal_bar = 1;
+        }
+        
+        $last_ap_profile_entry_id = $lastCreated->ap_profile_entry_id;
+        
+        $l_client_contact       = $lastCreated->modified;
+        $l_client_contact_human = $this->TimeCalculations->time_elapsed_string($l_client_contact);
+            
+        $last_client_timestamp = strtotime($l_client_contact);
+        if ($last_client_timestamp+$dead_after <= time()) {
+            $client_state = 'down';
+        } else {
+            $client_state = 'up';
+        }           
+    
+        return [
+            'signal_bar'        => $signal_bar,
+            'signal'            => $signal,
+            'l_tx_bitrate'      => $lastCreated->tx_bitrate,
+            'l_rx_bitrate'      => $lastCreated->rx_bitrate,
+            'l_signal'          => $lastCreated->signal_now,
+            'l_signal_avg'      => $lastCreated->signal_avg,
+            'l_tx_failed'       => $lastCreated->tx_failed,
+            'l_tx_retries'      => $lastCreated->tx_retries,
+            'l_modified'        => $lastCreated->modified,
+            'l_modified_human'  => $this->TimeCalculations->time_elapsed_string($lastCreated->modified),
+            'l_tx_bytes'        => $lastCreated->tx_bytes,
+            'l_rx_bytes'        => $lastCreated->rx_bytes,
+            'client_state'      => $client_state       
+        ];    
+    } 
 }

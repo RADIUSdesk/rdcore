@@ -9,8 +9,6 @@ use GuzzleHttp\Client;
 
 class MeshReportsController extends AppController {
 
-    //public $main_model       = 'MeshReports';
-
     private $blue       = '#627dde';
     private $l_red      = '#fb6002';
     private $d_red      = '#dc1a1a';
@@ -29,8 +27,6 @@ class MeshReportsController extends AppController {
     
     private $MeshMacLookup = [];
     
-    private $debug      = true; //25Feb Add it to try and troubleshoot some nodes not being reported about
-
     protected $fields   = [
         'tx_bytes'      => 'SUM(tx_bytes)',
         'rx_bytes'      => 'SUM(rx_bytes)',
@@ -117,22 +113,7 @@ class MeshReportsController extends AppController {
             return $ret; 
         } 
     } 
-  
-    public function submitReport(){
-        //Source the vendors file and keep in memory
-        $vendor_file        = APP.DS."Setup".DS."Scripts".DS."mac_lookup.txt";
-        $this->vendor_list  = file($vendor_file);
-        $this->log('Got a new report submission', 'debug');
-        $fb = $this->_new_report();
-        //Handy for debug to see what has been submitted
-        file_put_contents('/tmp/mesh_report.txt', print_r($this->request->getData(), true));
-        $this->set([
-            'items'   => $fb,
-            'success' => true
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);
-    }
-
+ 
     public function overview(){
 
         $user = $this->Aa->user_for_token($this);
@@ -2121,7 +2102,7 @@ class MeshReportsController extends AppController {
         $lastCreated = $this->NodeStations->find()->where([
             'mac_address_id'   => $macAddressId,
             'node_id'          => $nodeId
-        ])->order(['NodeStations.created' => 'desc'])->first();
+        ])->order(['created' => 'desc'])->first();
 
         $historical = false;          
         if(!$lastCreated){
@@ -2129,8 +2110,7 @@ class MeshReportsController extends AppController {
             $lastCreated = $this->NodeStationHourlies->find()->where([
                 'mac_address_id'   => $macAddressId,
                 'node_id'          => $nodeId
-            ])->order(['created'   => 'desc'])->first();
-     
+            ])->order(['created'   => 'desc'])->first();     
         }
         
         if($historical){
@@ -2176,8 +2156,6 @@ class MeshReportsController extends AppController {
             'l_tx_bytes'        => $lastCreated->tx_bytes,
             'l_rx_bytes'        => $lastCreated->rx_bytes,
             'l_entry'           => $this->entry_lookup[$last_mesh_entry_id],
-
-
             'client_state'      => $client_state       
         ];    
     } 
