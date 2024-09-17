@@ -64,7 +64,9 @@ class CloudsController extends AppController {
         $this->loadModel('Aps');
         $this->loadModel('Timezones');
         $this->loadModel('NodeStations');
+        $this->loadModel('NodeStationHourlies');
         $this->loadModel('ApStations');
+        $this->loadModel('ApStationHourlies');
         $this->loadModel('CloudAdmins');    
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
             'model'     => 'Clouds',
@@ -1845,8 +1847,7 @@ class CloudsController extends AppController {
                 array_push($aps_list,$a->id);
             }
             $base_search = ['ap_id IN' => $aps_list];
-        }
-        
+        }       
         
         while($slot_start < $day_end){  
             $slot_start_h_m = $slot_start->i18nFormat("E\nHH:mm",$this->time_zone);
@@ -1854,14 +1855,31 @@ class CloudsController extends AppController {
             $where          = $base_search;
             array_push($where, ["modified >=" => $slot_start]);
             array_push($where, ["modified <=" => $slot_end]);    
-            $slot_start     = $slot_start->addHour(1); 
-            $q_r = $this->{$table}->find()->select($this->fields)->where($where)->first();
-
-            if($q_r){
-                $d_in   = $q_r->data_in;
-                $d_out  = $q_r->data_out;
-                array_push($items, ['id' => $start, 'time_unit' => $slot_start_h_m, 'data_in' => $d_in, 'data_out' => $d_out]);
+            $slot_start     = $slot_start->addHour(1);
+             
+            $dataIn         = 0;
+            $dataOut        = 0;
+            
+            //-- Raw---
+            $stations  = $this->{$table}->find()->select($this->fields)->where($where)->first();        
+            if($stations){
+                $dataIn = $dataIn + $stations->data_in;
+                $dataOut= $dataOut + $stations->data_out;                          
             }
+            
+            //--Hourlies--
+            if($table == 'NodeStations'){
+                $tHourlies = 'NodeStationHourlies';
+            }
+            if($table == 'ApStations'){
+                $tHourlies = 'ApStationHourlies';
+            }
+            $stations_h  = $this->{$tHourlies}->find()->select($this->fields)->where($where)->first();        
+            if($stations_h){
+                $dataIn = $dataIn + $stations_h->data_in;
+                $dataOut= $dataOut + $stations_h->data_out;                          
+            }                       
+            array_push($items, ['id' => $start, 'time_unit' => $slot_start_h_m, 'data_in' => $dataIn, 'data_out' => $dataOut]);     
             $start++;
         }
         
@@ -1869,16 +1887,32 @@ class CloudsController extends AppController {
         $where          = $base_search;
         array_push($where, ["modified >=" => $grand_start]);
         array_push($where, ["modified <=" => $grand_end]);    
+        //--RAW--  
         $q_r = $this->{$table}->find()->select($this->fields)->where($where)->first();
         $data_grand_total   = 0;
         $data_in            = 0;
         $data_out           = 0;
         if($q_r->data_in){
-            $data_grand_total   = $q_r->data_in+$q_r->data_out;
-            $data_in            = $q_r->data_in;
-            $data_out           = $q_r->data_out;
+            $data_grand_total   = $data_grand_total+$q_r->data_in+$q_r->data_out;
+            $data_in            = $data_in+$q_r->data_in;
+            $data_out           = $data_out+$q_r->data_out;
         }
-        $users_grand_total = $this->{$table}->find()->distinct(['mac_address_id'])->where($where)->count();
+        //$users_grand_total = $this->{$table}->find()->distinct(['mac_address_id'])->where($where)->count();
+        
+        //--Hourlies--
+        if($table == 'NodeStations'){
+            $tHourlies = 'NodeStationHourlies';
+        }
+        if($table == 'ApStations'){
+            $tHourlies = 'ApStationHourlies';
+        }
+        $q_hourlies = $this->{$tHourlies}->find()->select($this->fields)->where($where)->first();
+        if($q_hourlies->data_in){
+            $data_grand_total   = $data_grand_total+$q_hourlies->data_in+$q_hourlies->data_out;
+            $data_in            = $data_in+$q_hourlies->data_in;
+            $data_out           = $data_out+$q_hourlies->data_out;
+        }
+        $users_grand_total = $this->{$tHourlies}->find()->distinct(['mac_address_id'])->where($where)->count(); //FIXME This can be more accurate but will create performance knock       
         
         if($this->graph_item == 'mesh'){
             $this->mesh_data_total  = $data_grand_total;
@@ -1904,7 +1938,8 @@ class CloudsController extends AppController {
         $count          = 0;
         $week_end       = $ft_day;
           
-        $slot_start     = $ft_day->subHour(24*7);
+        //$slot_start     = $ft_day->subHour(24*7);
+        $slot_start     = $ft_day->subHour(24*7)->hour(00)->minute(00)->second(00);
         $slot_start     = $slot_start->minute(00);
         $table          = 'NodeStations';
         
@@ -1940,47 +1975,82 @@ class CloudsController extends AppController {
         while($slot_start < $week_end){
         
             $where          = $base_search; 
-            $slot_start_h_m = $slot_start->i18nFormat("E\nHH:mm",$this->time_zone);
+            $slot_start_h_m = $slot_start->i18nFormat("dd E\nHH:mm",$this->time_zone);
             $slot_end       = $slot_start->addDay(1)->subSecond(1); //Our interval is one day      
             array_push($where, ["modified >=" => $slot_start]);
             array_push($where, ["modified <=" => $slot_end]);    
-            $slot_start     = $slot_start->addDay(1);                 
-            $q_r            = $this->{$table}->find()->select($this->fields)->where($where)->first();          
-            if($q_r){
-                $d_in   = $q_r->data_in;
-                $d_out  = $q_r->data_out;
-                array_push($items, ['id' => $count, 'time_unit' => $slot_start_h_m, 'data_in' => $d_in, 'data_out' => $d_out]);
+            $slot_start     = $slot_start->addDay(1);                                     
+            $dataIn         = 0;
+            $dataOut        = 0;
+            
+            //-- Raw---
+            $stations  = $this->{$table}->find()->select($this->fields)->where($where)->first();        
+            if($stations){
+                $dataIn = $dataIn + $stations->data_in;
+                $dataOut= $dataOut + $stations->data_out;                          
             }
+            
+            //--Hourlies--
+            if($table == 'NodeStations'){
+                $tHourlies = 'NodeStationHourlies';
+            }
+            if($table == 'ApStations'){
+                $tHourlies = 'ApStationHourlies';
+            }
+            $stations_h  = $this->{$tHourlies}->find()->select($this->fields)->where($where)->first();        
+            if($stations_h){
+                $dataIn = $dataIn + $stations_h->data_in;
+                $dataOut= $dataOut + $stations_h->data_out;                          
+            }                       
+            array_push($items, ['id' => $count, 'time_unit' => $slot_start_h_m, 'data_in' => $dataIn, 'data_out' => $dataOut]);                                  
+               
             $count++;
         }
         
         //Total Data
         $where          = $base_search;
         array_push($where, ["modified >=" => $grand_start]);
-        array_push($where, ["modified <=" => $grand_end]);    
+        array_push($where, ["modified <=" => $grand_end]);  
+        
+        //--RAW--  
         $q_r = $this->{$table}->find()->select($this->fields)->where($where)->first();
         $data_grand_total   = 0;
         $data_in            = 0;
         $data_out           = 0;
         if($q_r->data_in){
-            $data_grand_total   = $q_r->data_in+$q_r->data_out;
-            $data_in            = $q_r->data_in;
-            $data_out           = $q_r->data_out;
+            $data_grand_total   = $data_grand_total+$q_r->data_in+$q_r->data_out;
+            $data_in            = $data_in+$q_r->data_in;
+            $data_out           = $data_out+$q_r->data_out;
         }
-        $users_grand_total = $this->{$table}->find()->distinct(['mac_address_id'])->where($where)->count();
+        //$users_grand_total = $this->{$table}->find()->distinct(['mac_address_id'])->where($where)->count();
+        
+        //--Hourlies--
+        if($table == 'NodeStations'){
+            $tHourlies = 'NodeStationHourlies';
+        }
+        if($table == 'ApStations'){
+            $tHourlies = 'ApStationHourlies';
+        }
+        $q_hourlies = $this->{$tHourlies}->find()->select($this->fields)->where($where)->first();
+        if($q_hourlies->data_in){
+            $data_grand_total   = $data_grand_total+$q_hourlies->data_in+$q_hourlies->data_out;
+            $data_in            = $data_in+$q_hourlies->data_in;
+            $data_out           = $data_out+$q_hourlies->data_out;
+        }
+        $users_grand_total = $this->{$tHourlies}->find()->distinct(['mac_address_id'])->where($where)->count(); //FIXME This can be more accurate but will create performance knock       
         
         if($this->graph_item == 'mesh'){
             $this->mesh_data_total  = $data_grand_total;
             $this->mesh_data_in     = $data_in;
             $this->mesh_data_out    = $data_out;
-            $this->mesh_user_total = $users_grand_total;
+            $this->mesh_user_total  = $users_grand_total;
         }
         
         if($this->graph_item == 'ap'){
             $this->ap_data_total    = $data_grand_total;
             $this->ap_data_in       = $data_in;
             $this->ap_data_out      = $data_out;
-            $this->ap_user_total = $users_grand_total;
+            $this->ap_user_total    = $users_grand_total;
         }  
          
         return(['items' => $items]);
