@@ -38,8 +38,8 @@ class NasTable extends Table
             ->add('shortname', [ 
                 'nameUnique' => [
                     'message' => 'The shortname you provided is already taken. Please provide another one.',
-                    'rule' => 'validateUnique', 
-                    'provider' => 'table'
+                    'rule'    => ['validateUnique', ['scope' => 'cloud_id']],
+                    'provider'  => 'table'
                 ]
             ]);
         return $validator;

@@ -80,7 +80,7 @@ class NodesTable extends Table{
             ->add('mac', [ 
                 'nameUnique' => [
                     'message' => 'The MAC you provided is already taken. Please provide another one.',
-                    'rule' => 'validateUnique', 
+                     'rule'    => ['validateUnique', ['scope' => 'mesh_id']],
                     'provider' => 'table'
                 ]
             ]);

@@ -171,6 +171,13 @@
   flex: 1; /* or width: 50% */
 }
 
+.rdCombo .x-form-text-default {
+    color: #29465b; /* Change text color */
+    font-size: 18px; /* Change text size */
+    background-color: #b6b7b982;
+}
+
+
 
 
 

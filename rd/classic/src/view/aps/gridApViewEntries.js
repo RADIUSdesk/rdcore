@@ -82,6 +82,26 @@ Ext.define('Rd.view.aps.gridApViewEntries' ,{
                 }
             },
             { text: 'Vendor',           dataIndex: 'vendor',    tdCls: 'gridTree', flex: 1, stateId: 'StateGridApViewEntries4'},
+            { 
+                text        : 'Last Seen',    
+                tdCls       : 'gridTree', 
+                flex        : 1,
+                renderer    : function(v,metaData, record){
+                    var value = record.get('client_state');
+                    if(value != 'never'){                    
+                        var last_contact_human     = record.get('l_modified_human');
+                        if(value == 'up'){
+                            return "<div class=\"fieldGreen\">"+last_contact_human+"</div>";
+                        }
+                        if(value == 'down'){
+                            return "<div class=\"fieldGrey\">"+last_contact_human+"</div>";
+                        }
+
+                    }else{
+                        return "<div class=\"fieldBlue\">Never</div>";
+                    }              
+                },stateId: 'StateGridApViewEntries4A'
+            },  
             {   text: 'Data Tx',        dataIndex: 'tx_bytes',  tdCls: 'gridTree', flex: 1, stateId: 'StateGridApViewEntries5', itemId: 'txBytes',
                 renderer    : function(value){
                     return Ext.ux.bytesToHuman(value)              
@@ -158,8 +178,6 @@ Ext.define('Rd.view.aps.gridApViewEntries' ,{
                             var lrx     = Ext.ux.bytesToHuman(r.get('l_rx_bytes'));
                             var tx_f    = r.get('l_tx_failed');
                             var tx_r    = r.get('l_tx_retries');
-                            var auth    = r.get('l_authenticated');
-                            var authz   = r.get('l_authorized');
                             var n       = r.get('l_node');
 
                             var t  = Ext.create('Ext.tip.ToolTip', {
@@ -182,10 +200,6 @@ Ext.define('Rd.view.aps.gridApViewEntries' ,{
                                         "<label class='lblTipItem'>Tx failed</label><label class='lblTipValue'>"+tx_f+"</label>",
                                         "<div style='clear:both;'></div>",
                                         "<label class='lblTipItem'>Tx retries</label><label class='lblTipValue'>"+tx_r+"</label>",
-                                        "<div style='clear:both;'></div>",
-                                        "<label class='lblTipItem'>Authenticated</label><label class='lblTipValue'>"+auth+"</label>",
-                                        "<div style='clear:both;'></div>",
-                                        "<label class='lblTipItem'>Authorized</label><label class='lblTipValue'>"+authz+"</label>",
                                         "<div style='clear:both;'></div>",
                                     "</div>" 
                                 ]

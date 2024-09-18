@@ -126,9 +126,12 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
         };
       	
       	var cmbCloud = {
-        	xtype	: 'cmbClouds',
-        	width   : 380,
-            labelWidth: 70
+        	xtype	    : 'cmbClouds',
+        	width       : 380,
+            labelWidth  : 30,
+            userCls     : 'rdCombo',
+         //   labelClsExtra   : 'lblRd',
+            fieldLabel  : '<span style="font-family:FontAwesome;font-size: 24px;">&#xf0c2</span>'
         }
         
         var h_items = [ txtH,'->',cmbCloud,'|',h2,'|',h3];

@@ -1876,7 +1876,19 @@ class ApProfilesController extends AppController {
         $items          = [];
         $total          = 0;
         $ap_profile_id  = $this->request->getQuery('ap_profile_id');
-        $q_r            = $this->Aps->find()->where(['Aps.ap_profile_id' => $ap_profile_id])->all();
+        
+        $conditions     = ['Aps.ap_profile_id' => $ap_profile_id];      
+        $c_filter       = $this->CommonQueryFlat->get_filter_conditions('Aps');
+        
+        $conditions     = array_merge($conditions,$c_filter);
+        $query          = $this->Aps->find(); 
+        
+        if($this->request->getQuery('sort')){
+            $sort = $this->request->getQuery('sort');
+            $dir  = $this->request->getQuery('dir');
+            $query->order([$sort => $dir]);   
+        }                
+        $q_r   = $query->where($conditions)->all();
 
         //Create a hardware lookup for proper names of hardware
         $hardware = [];
