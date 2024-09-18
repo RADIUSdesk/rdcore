@@ -16,42 +16,115 @@ Ext.define('Rd.view.aps.gridApLists' ,{
         loadMask:true
     },
     urlMenu     : '/cake4/rd_cake/ap-profiles/menu_for_aps_grid.json',
+    itemConfig  : {
+        body: {
+            tpl: '<img height="100" src="https://www.sencha.com/wp-content/uploads/2018/11/icon-product-ExtJS.png" />'
+        }
+    },
     plugins     : [
         'gridfilters',
         {
             ptype: 'rowexpander',
-            rowBodyTpl : new Ext.XTemplate(
-                '<div style="color:#2255ce;  background-color:#aeaeae; padding:5px;">',
-                '<img src="/cake4/rd_cake/img/hardwares/{hw_photo}" alt="{hw_human}" style="float: left; padding-right: 20px;">',
-                '<h2>{name}</h2>',
-                '<span>{hw_human}</span>',
-                '</div>',
-                '<div class="sectionHeader">',
-                    '<h2>DEVICE INFORMATION (for the past hour)</h2>',
-                '</div>',
-                "<div style='background-color:white; padding:5px;'>",
-                   '<ul class="fa-ul">',    
-                    "<tpl if='state == \"never\"'>",
-                    "<li style='color:blue;'><i class='fa-li fa fa-question-circle'></i>Never connected before</li>",
-                    "</tpl>",
-                    "<tpl if='state == \"down\"'>",
-                    "<li style='color:red;'><i class='fa-li fa  fa-exclamation-circle'></i>Offline (last check-in <b>{last_contact_human}</b> ago).</li>",
-                    "</tpl>",
-                    "<tpl if='state == \"up\"'>",
-                    '<li style="color:green;"><i class="fa-li fa fa-check-circle"></i>Online (last check-in <b>{last_contact_human}</b> ago).</li>',
-                    "</tpl>",
-                    '<tpl for="ssids">',
-                        '<li><i class="fa-li fa fa-wifi"></i><b>{name}</b> had <b>{users}</b> users.</li>',
-                    '</tpl>',                  
-                    '<li><i class="fa-li fa fa-info-circle"></i>Public IP <b>{last_contact_from_ip}</b>.</li>',
-                    '<li><i class="fa-li fa fa-database"></i>Data usage <b>{data_past_hour}</b>.</li>',
-                    '<li><i class="fa-li fa fa-link"></i>Last connection from <b>{newest_station}</b> which was <b>{newest_time}</b> ({newest_vendor}).</li>',
-                     "<li style='color:blue;'><i class='fa-li fa fa-info-circle'></i>LAN IP: {lan_ip} LAN Gateway: {lan_gw}  ({lan_proto}) </li>",
-                        '</ul>',
+            listeners: {
+                expandbody: function(rowNode, record, expandRow, eOpts) {
+                    console.log("Expanded");
+                },
+                collapsebody: function(){
+                    console.log("Collapsed");
+                }
+            },
+            rowBodyTpl : '<div id="expand-{id}">Loading...</div>' 
+           /* rowBodyTpl : new Ext.XTemplate(
+                '<div id="expand-{id}">',
+                    '<div style="color:#2255ce;  background-color:#aeaeae; padding:5px;">',
+                    '<img src="/cake4/rd_cake/img/hardwares/{hw_photo}" alt="{hw_human}" style="float: left; padding-right: 20px;">',
+                    '<h2>{name}</h2>',
+                    '<span>{hw_human}</span>',
+                    '</div>',
+                    '<div class="sectionHeader">',
+                        '<h2>DEVICE INFORMATION (for the past hour)</h2>',
+                    '</div>',
+                    "<div style='background-color:white; padding:5px;'>",
+                       '<ul class="fa-ul">',    
+                        "<tpl if='state == \"never\"'>",
+                        "<li style='color:blue;'><i class='fa-li fa fa-question-circle'></i>Never connected before</li>",
+                        "</tpl>",
+                        "<tpl if='state == \"down\"'>",
+                        "<li style='color:red;'><i class='fa-li fa  fa-exclamation-circle'></i>Offline (last check-in <b>{last_contact_human}</b> ago).</li>",
+                        "</tpl>",
+                        "<tpl if='state == \"up\"'>",
+                        '<li style="color:green;"><i class="fa-li fa fa-check-circle"></i>Online (last check-in <b>{last_contact_human}</b> ago).</li>',
+                        "</tpl>",
+                        '<tpl for="ssids">',
+                            '<li><i class="fa-li fa fa-wifi"></i><b>{name}</b> had <b>{users}</b> users.</li>',
+                        '</tpl>',                  
+                        '<li><i class="fa-li fa fa-info-circle"></i>Public IP <b>{last_contact_from_ip}</b>.</li>',
+                        '<li><i class="fa-li fa fa-database"></i>Data usage <b>{data_past_hour}</b>.</li>',
+                        '<li><i class="fa-li fa fa-link"></i>Last connection from <b>{newest_station}</b> which was <b>{newest_time}</b> ({newest_vendor}).</li>',
+                         "<li style='color:blue;'><i class='fa-li fa fa-info-circle'></i>LAN IP: {lan_ip} LAN Gateway: {lan_gw}  ({lan_proto}) </li>",
+                            '</ul>',
+                    "</div>",
                 "</div>"
-            )
+            )*/
         }
     ],
+    viewConfig: {
+        trackOver: false,
+        listeners: {
+            'expandbody': function(rowNode, record, expandRow, eOpt){
+                var me              = this;
+                var rowId           = record.getId(); // Get the ID of the row to update the right div
+                var expanderDivId   = 'expand-' + rowId;
+                Ext.Ajax.request({
+                    url     : '/cake4/rd_cake/aps/get-info.json', // Your URL
+                    params  : {
+                        apId: record.getId()
+                    },
+                    method  : 'GET',
+                    success : function(response) {
+                        var jsonData = Ext.JSON.decode(response.responseText);
+                        if (jsonData.success) {
+                            var tpl = new Ext.XTemplate(
+                            "<div style='border: 1px solid #a0a0a0;'>",
+                            '<div style="color: #29495b;background: linear-gradient(135deg, #e6f0ff, #cce0ff, #99ccff);box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);padding:5px;">',
+                                '<img src="/cake4/rd_cake/img/hardwares/{hw_photo}" alt="{hw_human}" style="float: left; padding-right: 20px;">',
+                                '<p style="font-size: 22px;font-weight:400;color:#29495b;">{name}</p>',
+                                '<span>{hw_human}</span>',
+                                '</div>',
+
+                                 '<div style="background: linear-gradient(135deg, #d3d3d3, #a9a9a9, #808080);color: #29495b;box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);padding: 10px;font-size: 16px;">',        
+                                    'DEVICE INFORMATION (for the past hour)',
+                                '</div>',
+                                "<div style='background-color:white;padding:5px;font-size:120%;color:#29495b;'>",    
+                                    "<tpl if='state == \"never\"'>",
+                                    "<div style='color:blue;margin:10px;'><i class='fa fa-question-circle'></i>  Never connected before</div>",
+                                    "</tpl>",
+                                    "<tpl if='state == \"down\"'>",
+                                    "<div style='color:red;margin:10px;'><i class='fa fa-exclamation-circle'></i>  Offline (last check-in <b>{last_contact_human}</b>).</div>",
+                                    "</tpl>",
+                                    "<tpl if='state == \"up\"'>",
+                                    '<div style="color:green;margin:10px;"><i class="fa fa-check-circle"></i>  Online (last check-in <b>{last_contact_human}</b> ago).</div>',
+                                    "</tpl>",
+                                    '<div style="margin:10px;"><i class="fa fa-info-circle"></i>  Public IP <b>{last_contact_from_ip}</b>.</div>',
+                                    '<tpl for="ssids">',
+                                        '<div style="margin:10px;"><i class="fa fa-wifi"></i>  <b>{name}</b> had <b>{users}</b> users. (Data used: {data}.)</div>',
+                                    '</tpl>', 
+                                    '<div style="margin:10px;"><i class="fa fa-database"></i>  Total data usage <b>{data_past_hour}</b>.</div>',                                                                                     
+                                    '<div style="margin:10px;"><i class="fa fa-link"></i>  Last connection from <b>{newest_station}</b> which was <b>{newest_time}</b> ({newest_vendor}).</div>',
+                                     "<div style='color:blue;margin:10px;'><i class='fa fa-info-circle'></i>  LAN IP: {lan_ip} LAN Gateway: {lan_gw}  ({lan_proto}) </div>",
+                                "</div>",
+                                "</div>"
+                            );
+                            tpl.overwrite(Ext.get(expanderDivId), jsonData.data);  // pass the root node of the data object   
+                        }
+                    },
+                    failure: function() {
+                        Ext.get(expanderDivId).setHtml('Failed to load data');
+                    }
+                });
+            }
+        }
+    },
     initComponent: function(){
         var me  = this;  
         me.bbar = [{
@@ -113,15 +186,19 @@ Ext.define('Rd.view.aps.gridApLists' ,{
 				filter		: {type: 'string'},
 				stateId     : 'StateGridApLists6'
 			},
-            { 
-				text		: i18n("sHardware"),      
-				dataIndex	: 'hw_human',     
+			{ 
+				text		: i18n('sHardware'),      
+				dataIndex	: 'hardware',     
 				tdCls		: 'gridTree', 
 				flex		: 1,
 				filter		: {type: 'string'},
-				stateId		: 'StateGridApLists7',
-				hidden      : true
-			},				
+				hidden      : true,
+				xtype       :  'templatecolumn', 
+                tpl         :  new Ext.XTemplate(
+                    '{hw_human}'
+                ),
+				stateId		: 'StateGridApLists7'
+			},			
 			{
 				text        : 'Last 24 Hours',
 				width       : 150,
