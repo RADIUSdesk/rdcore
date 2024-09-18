@@ -29,9 +29,9 @@ class DynamicDetailsTable extends Table
             ->notEmpty('name', 'A name is required')
             ->add('name', [ 
                 'nameUnique' => [
-                    'message' => 'The name you provided is already taken. Please provide another one.',
-                    'rule' => 'validateUnique', 
-                    'provider' => 'table'
+                    'message'   => 'The name you provided is already taken. Please provide another one.',
+                    'rule'    => ['validateUnique', ['scope' => 'cloud_id']],
+                    'provider'  => 'table'
                 ]
             ]);
         return $validator;

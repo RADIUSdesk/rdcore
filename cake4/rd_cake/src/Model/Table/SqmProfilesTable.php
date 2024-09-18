@@ -7,14 +7,11 @@ use Cake\Validation\Validator;
 
 class SqmProfilesTable extends Table {
 
-    public function initialize(array $config):void{
-    
+    public function initialize(array $config):void{  
         $this->addBehavior('Timestamp');  
-        $this->belongsTo('Clouds');
-         
+        $this->belongsTo('Clouds');        
     }
-    
-    
+      
     public function validationDefault(Validator $validator):Validator{
         $validator = new Validator();
         $validator

@@ -103,6 +103,19 @@ Ext.define('Rd.controller.cAccessPoints', {
             },
             			      
             //Known aps
+            'gridApLists'  : {
+               select:   function(){
+                 console.log("Ek sukkel!!!");
+               }
+            },   
+            'gridApLists rowexpander'  : {
+                expandbody: function(rowNode, record, expandRow, eOpts) {
+                    console.log("Expanded");
+                },
+                collapsebody: function(){
+                    console.log("Collapsed");
+                }
+            },                  
 			'gridApLists #reload': {
                 click:      me.gridApListsReload
             },

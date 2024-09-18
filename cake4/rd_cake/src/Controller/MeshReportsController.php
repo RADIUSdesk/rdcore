@@ -9,8 +9,6 @@ use GuzzleHttp\Client;
 
 class MeshReportsController extends AppController {
 
-    //public $main_model       = 'MeshReports';
-
     private $blue       = '#627dde';
     private $l_red      = '#fb6002';
     private $d_red      = '#dc1a1a';
@@ -25,14 +23,14 @@ class MeshReportsController extends AppController {
     private $gw_size    = 20;
     private $node_size  = 10;
     
+    private $timespan   = 'hour';
+    
     private $MeshMacLookup = [];
     
-    private $debug      = true; //25Feb Add it to try and troubleshoot some nodes not being reported about
-
     protected $fields   = [
-        'tx_bytes' => 'SUM(NodeStations.tx_bytes)',
-        'rx_bytes' => 'SUM(NodeStations.rx_bytes)',
-        'signal_avg' => 'AVG(NodeStations.signal_avg)',
+        'tx_bytes'      => 'SUM(tx_bytes)',
+        'rx_bytes'      => 'SUM(rx_bytes)',
+        'signal_avg'    => 'AVG(signal_avg)',
     ];
 
     public function initialize():void
@@ -42,6 +40,7 @@ class MeshReportsController extends AppController {
         $this->loadModel('Nodes');
         $this->loadModel('NodeLoads');
         $this->loadModel('NodeStations');
+        $this->loadModel('NodeStationHourlies');
         $this->loadModel('NodeSystems');
         $this->loadModel('MeshEntries');
         $this->loadModel('Meshes');
@@ -114,22 +113,7 @@ class MeshReportsController extends AppController {
             return $ret; 
         } 
     } 
-  
-    public function submitReport(){
-        //Source the vendors file and keep in memory
-        $vendor_file        = APP.DS."Setup".DS."Scripts".DS."mac_lookup.txt";
-        $this->vendor_list  = file($vendor_file);
-        $this->log('Got a new report submission', 'debug');
-        $fb = $this->_new_report();
-        //Handy for debug to see what has been submitted
-        file_put_contents('/tmp/mesh_report.txt', print_r($this->request->getData(), true));
-        $this->set([
-            'items'   => $fb,
-            'success' => true
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);
-    }
-
+ 
     public function overview(){
 
         $user = $this->Aa->user_for_token($this);
@@ -680,8 +664,7 @@ class MeshReportsController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
 
-    public function viewEntries()
-    {
+    public function viewEntries(){
 
         $user = $this->Aa->user_for_token($this);
         if (!$user) {   //If not a valid user
@@ -697,42 +680,40 @@ class MeshReportsController extends AppController {
             return;
         }
         
-        $vendor_file       = APP."StaticData".DS."mac_lookup.txt";
+        $vendor_file        = APP."StaticData".DS."mac_lookup.txt";
         $this->vendor_list  = file($vendor_file);
 
         $items      = [];
         $id         = 1;
+        $this->timespan   = $this->request->getQuery('timespan'); //hour, day or week
         $modified   = $this->_get_timespan();
         
         $req_q    	= $this->request->getQuery();
         $cloud_id 	= $req_q['cloud_id'];
  
         //Find all the entries for this mesh
-        $mesh_id = $this->request->getQuery('mesh_id');
+        $mesh_id    = $this->request->getQuery('mesh_id');
 
-        $q_r = $this->MeshEntries->find()->where(['MeshEntries.mesh_id' => $mesh_id])->contain(['MeshEntrySchedules'])->all();
+        $meshEntries = $this->MeshEntries->find()->where(['MeshEntries.mesh_id' => $mesh_id])->contain(['MeshEntrySchedules'])->all();
 
         //Create a lookup of all the nodes for this mesh
-        $q_nodes = $this->Nodes->find()->where(['Nodes.mesh_id' => $mesh_id])->all();
-
+        $nodes = $this->Nodes->find()->where(['Nodes.mesh_id' => $mesh_id])->all();
         $this->node_lookup = [];
-
-        foreach ($q_nodes as $n) {
+        foreach ($nodes as $n) {
             $n_id   = $n->id;
             $n_name = $n->name;
             $this->node_lookup[$n_id] = $n_name;
         }
     
-
         //Find all the distinct MACs for this Mesh entry...
-        foreach ($q_r as $i) {
-            $mesh_entry_id  = $i->id;
-            $entry_name     = $i->name;
-            if(count($i->mesh_entry_schedules) > 0){
-            	$entry_name     = $i->name.' <i class="fa  fa-calendar" style="color:#1272c7"></i>';
+        foreach ($meshEntries as $meshEntry) {
+            $meshEntryId    = $meshEntry->id;
+            $entryName      = $meshEntry->name;
+            if(count($meshEntry->mesh_entry_schedules) > 0){
+            	$entryName     = $meshEntry->name.' <i class="fa  fa-calendar" style="color:#1272c7"></i>';
             }
 
-            $q_s = $this->NodeStations->find()
+            $nodeStations = $this->NodeStations->find()
                 ->select([
                     'mac_address_id',
                     'mac'   => 'MacAddresses.mac'
@@ -740,193 +721,122 @@ class MeshReportsController extends AppController {
                 ->distinct(['mac_address_id'])
                 ->contain(['MacAddresses'])
                 ->where([
-                    'NodeStations.mesh_entry_id' => $mesh_entry_id,
+                    'NodeStations.mesh_entry_id' => $meshEntryId,
                     'NodeStations.modified >='   => $modified
                 ])->all();
+           
+            $nodeStationLookup = [];  
+              
+            foreach($nodeStations as $nodeStation){
+                $mac_id = $nodeStation->mac_address_id;
+                $nodeStationLookup[$mac_id] = $nodeStation->mac;
+            }
+            
+            if($this->timespan !== 'hour'){
+                 $nodeStationHourlies = $this->NodeStationHourlies->find()
+                    ->select([
+                        'mac_address_id',
+                        'mac'   => 'MacAddresses.mac'
+                    ])
+                    ->distinct(['mac_address_id'])
+                    ->contain(['MacAddresses'])
+                    ->where([
+                        'NodeStationHourlies.mesh_entry_id' => $meshEntryId,
+                        'NodeStationHourlies.modified >='   => $modified
+                    ])->all();
+                foreach($nodeStationHourlies as $nodeStationHourly){
+                    $mac_id = $nodeStationHourly->mac_address_id;
+                    $nodeStationLookup[$mac_id] = $nodeStationHourly->mac;
+                }                       
+            }
+            
+            if (count($nodeStationLookup) > 0 ) {
+                foreach ($nodeStationLookup as $mac_address_id => $mac) {
+                
+                    //==Get the sum of Bytes and avg of signal using the raw data== (for timespan == 'hour' )
+                    $t_bytes = 0;
+                    $r_bytes = 0;
+                    $q_t = $this->NodeStations->find()
+                        ->select($this->fields)
+                        ->where([
+                            'mac_address_id'=> $mac_address_id,
+                            'mesh_entry_id' => $meshEntryId,
+                            'modified >='   => $modified
+                        ])
+                        ->first();                 
+                        
+                    if($q_t->signal_avg){
 
-            if ($q_s->count()>0) {
-                foreach ($q_s as $j) {
-                    //Get the sum of Bytes and avg of signal
-                    $q_t = $this->NodeStations->find()->select($this->fields)->where([
-                        'NodeStations.mac_address_id'=> $j->mac_address_id,
-                        'NodeStations.mesh_entry_id' => $mesh_entry_id,
-                        'NodeStations.modified >='   => $modified
-                    ])->first();
-
-                    //print_r($q_t);
-                    $t_bytes    = $q_t->tx_bytes;
-                    $r_bytes    = $q_t->rx_bytes;
-                    $signal_avg = round($q_t->signal_avg);
-                    if ($signal_avg < -95) {
-                        $signal_avg_bar = 0.01;
-                    }
-                    if (($signal_avg >= -95)&($signal_avg <= -35)) {
-                            $p_val = 95-(abs($signal_avg));
-                            $signal_avg_bar = round($p_val/60, 1);
-                    }
-                    if ($signal_avg > -35) {
-                        $signal_avg_bar = 1;
-                    }
-
-                    //Get the latest entry
-                    $lastCreated = $this->NodeStations->find()->where([
-                        'NodeStations.mac_address_id'   => $j->mac_address_id,
-                        'NodeStations.mesh_entry_id'    => $mesh_entry_id
-                    ])->order(['NodeStations.created'   => 'desc'])->first();
-
-                    $signal = $lastCreated->signal_now;
-
-                    if ($signal < -95) {
-                        $signal_bar = 0.01;
-                    }
-                    if (($signal >= -95)&($signal <= -35)) {
-                            $p_val = 95-(abs($signal));
-                            $signal_bar = round($p_val/60, 1);
-                    }
-                    if ($signal > -35) {
-                        $signal_bar = 1;
-                    }
-                    
-                    $last_node_id = $lastCreated->node_id;
-                    
-                    
-                    //Find the dead time (only once)
-                    $l_contact = $lastCreated->modified;
-                    if ($l_contact == null) {
-                        $l_contact_human = null;
-                        $state = 'never';
-                    } else {
-                        $dead_after = $this->_get_dead_after($mesh_id);
-                        $last_timestamp = strtotime($l_contact);
-                        $l_contact_human = $this->TimeCalculations->time_elapsed_string($l_contact);
-                        if ($last_timestamp+$dead_after <= time()) {
-                            $state = 'down';
-                        } else {
-                            $state = 'up';
+                        $t_bytes    = $t_bytes + $q_t->tx_bytes;
+                        $r_bytes    = $r_bytes + $q_t->rx_bytes;
+                        $signal_avg = round($q_t->signal_avg);
+                        if ($signal_avg < -95) {
+                            $signal_avg_bar = 0.01;
+                        }
+                        if (($signal_avg >= -95)&($signal_avg <= -35)) {
+                                $p_val = 95-(abs($signal_avg));
+                                $signal_avg_bar = round($p_val/60, 1);
+                        }
+                        if ($signal_avg > -35) {
+                            $signal_avg_bar = 1;
                         }
                     }
                     
-                    $l_node = 'Data Not Available';
-                    if (array_key_exists($last_node_id,$this->node_lookup)){
-                        $l_node = $this->node_lookup[$last_node_id];
+                    if($this->timespan !== 'hour'){
+                        $q_t_h = $this->NodeStationHourlies->find()
+                            ->select($this->fields)
+                            ->where([
+                                'mac_address_id'=> $mac_address_id,
+                                'mesh_entry_id' => $meshEntryId,
+                                'modified >='   => $modified
+                            ])
+                            ->first();
+                            
+                        if($q_t_h->signal_avg){
+                        
+                            $t_bytes    = $t_bytes + $q_t_h->tx_bytes;
+                            $r_bytes    = $r_bytes + $q_t_h->rx_bytes;
+                            //-- Here we use the older ones for average
+                            $signal_avg = round($q_t_h->signal_avg);
+                            if ($signal_avg < -95) {
+                                $signal_avg_bar = 0.01;
+                            }
+                            if (($signal_avg >= -95)&($signal_avg <= -35)) {
+                                    $p_val = 95-(abs($signal_avg));
+                                    $signal_avg_bar = round($p_val/60, 1);
+                            }
+                            if ($signal_avg > -35) {
+                                $signal_avg_bar = 1;
+                            }
+                            
+                        }                  
                     }
                     
-                    $block_flag = false;
-                    $limit_flag = false;
-                    $firewall_flag = false;
-                    $cloud_flag = false;
-                    $bw_up		= '';
-                    $bw_down	= '';
-                    $fw_profile = '';
-                    $alias		= $this->_find_alias($j->mac_address_id);
-                    
-                
-                	$macAction = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $j->mac_address_id,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
-                	if($macAction){
-                		$cloud_flag = true;
-                		if($macAction->action == 'block'){
-                			$block_flag = true;
-                			$cloud_flag = true;
-                		}
-                		if($macAction->action == 'limit'){
-                			$limit_flag = true;
-                			$cloud_flag = true;
-                			$limit_flag = true;
-                			$bw_up_suffix = 'kbps';
-                			$bw_up = ($macAction->bw_up * 8);
-                			if($bw_up >= 1000){
-                				$bw_up = $bw_up / 1000;
-                				$bw_up_suffix = 'mbps';
-                			}
-                			$bw_up = $bw_up.' '.$bw_up_suffix;
-                			$bw_down_suffix = 'kbps';
-                			$bw_down = ($macAction->bw_down * 8);
-                			if($bw_down >= 1000){
-                				$bw_down = $bw_down / 1000;
-                				$bw_down_suffix = 'mbps';
-                			}
-                			$bw_down = $bw_down.' '.$bw_down_suffix;
-                		}
-                		if($macAction->action == 'firewall'){
-                			$firewall_flag 	= true;
-                			$fw_profile		= $macAction->firewall_profile->name;
-                		}
-                	}
-                	//If there is an mesh level override
-                	$macAction = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $j->mac_address_id,'MacActions.mesh_id' => $mesh_id ])->contain(['FirewallProfiles'])->first();
-                	if($macAction){
-                		$cloud_flag = false;
-                		if($macAction->action == 'block'){
-                			$block_flag = true;
-                		}
-                		if($macAction->action == 'limit'){
-                			$limit_flag = true;
-                			$bw_up_suffix = 'kbps';
-                			$bw_up = ($macAction->bw_up * 8);
-                			if($bw_up >= 1000){
-                				$bw_up = $bw_up / 1000;
-                				$bw_up_suffix = 'mbps';
-                			}
-                			$bw_up = $bw_up.' '.$bw_up_suffix;
-                			$bw_down_suffix = 'kbps';
-                			$bw_down = ($macAction->bw_down * 8);
-                			if($bw_down >= 1000){
-                				$bw_down = $bw_down / 1000;
-                				$bw_down_suffix = 'mbps';
-                			}
-                			$bw_down = $bw_down.' '.$bw_down_suffix;
-                		}
-                		if($macAction->action == 'firewall'){
-                			$firewall_flag 	= true;
-                			$fw_profile		= $macAction->firewall_profile->name;
-                		}
-                	}                   
-
-                    
-                    array_push($items, [
+                    $basic = [
                         'id'                => $id,
-                        'name'              => $entry_name,
-                        'mesh_entry_id'     => $mesh_entry_id,
-                        'mac'               => $j->mac,
-                        'mac_address_id'    => $j->mac_address_id,
-                        'vendor'            => $this->_lookup_vendor($j->mac),
+                        'name'              => $entryName,
+                        'mesh_entry_id'     => $meshEntryId,
+                        'mac'               => $mac,
+                        'mac_address_id'    => $mac_address_id,
+                        'vendor'            => $this->_lookup_vendor($mac),
                         'tx_bytes'          => $t_bytes,
                         'rx_bytes'          => $r_bytes,
                         'signal_avg'        => $signal_avg ,
-                        'signal_avg_bar'    => $signal_avg_bar,
-                        'signal_bar'        => $signal_bar,
-                        'signal'            => $signal,
-                        'l_tx_bitrate'      => $lastCreated->tx_bitrate,
-                        'l_rx_bitrate'      => $lastCreated->rx_bitrate,
-                        'l_signal'          => $lastCreated->signal_now,
-                        'l_signal_avg'      => $lastCreated->signal_avg,
-                        'l_MFP'             => $lastCreated->MFP,
-                        'l_tx_failed'       => $lastCreated->tx_failed,
-                        'l_tx_retries'      => $lastCreated->tx_retries,
-                        'l_modified'        => $lastCreated->modified,
-                        'state'             => $state,
-                        'l_modified_human'  => $this->TimeCalculations->time_elapsed_string($lastCreated->modified),
-                        'l_authenticated'   => $lastCreated->authenticated,
-                        'l_authorized'      => $lastCreated->authorized,
-                        'l_tx_bytes'        => $lastCreated->tx_bytes,
-                        'l_rx_bytes'        => $lastCreated->rx_bytes,
-                        'l_node'            => $l_node,
-                        'block_flag'		=> $block_flag,
-                        'cloud_flag'		=> $cloud_flag,
-                        'limit_flag'		=> $limit_flag,
-                        'firewall_flag'		=> $firewall_flag,
-		                'fw_profile'		=> $fw_profile,
-                        'bw_up'				=> $bw_up,
-                        'bw_down'			=> $bw_down,
-                        'alias'				=> $alias
-                    ]);
+                        'signal_avg_bar'    => $signal_avg_bar
+                    ];  
+                    
+                    $latestInfo = $this->_getLatestEntryInfo($meshEntryId,$mesh_id,$mac_address_id);                                      
+                    $basic      = (array_merge($basic,$latestInfo));                                                                         
+                    $mActions   = $this->_getMacActions($cloud_id,$mesh_id,$mac_address_id);
+                    $basic      = (array_merge($basic,$mActions));                               
+                    array_push($items, $basic);
                     $id++;
                 }
             } else {
                  array_push($items, array(
                         'id'                => $id,
-                        'name'              => $entry_name,
-                        'mesh_entry_id'     => $mesh_entry_id,
+                        'name'              => $entryName,
+                        'mesh_entry_id'     => $meshEntryId,
                         'mac'               => 'N/A',
                         'tx_bytes'          => 0,
                         'rx_bytes'          => 0,
@@ -971,6 +881,7 @@ class MeshReportsController extends AppController {
         $items      = [];
         $id         = 1;
         $modified   = $this->_get_timespan();
+        $this->timespan   = $this->request->getQuery('timespan'); //hour, day or week
         
         $req_q    	= $this->request->getQuery();
         $cloud_id 	= $req_q['cloud_id'];
@@ -981,27 +892,26 @@ class MeshReportsController extends AppController {
         //Find all the nodes for this mesh
         $mesh_id = $this->request->getQuery('mesh_id');
 
-        $q_r = $this->Nodes->find()->where(['Nodes.mesh_id' => $mesh_id])->all();
+        $nodes = $this->Nodes->find()->where(['Nodes.mesh_id' => $mesh_id])->all();
 
         //Get the 'dead_after' value
         $dead_after = $this->_get_dead_after($mesh_id);
        
         //Create a lookup of all the entries for this mesh
-        $q_entries = $this->MeshEntries->find()->where(['MeshEntries.mesh_id' => $mesh_id])->all();
+        $meshEntries = $this->MeshEntries->find()->where(['MeshEntries.mesh_id' => $mesh_id])->all();
 
-        $this->entry_lookup = array();
-        foreach ($q_entries as $e) {
-            $e_id   = $e->id;
-            $e_name = $e->name;
+        $this->entry_lookup = [];
+        foreach ($meshEntries as $meshEntry) {
+            $e_id   = $meshEntry->id;
+            $e_name = $meshEntry->name;
             $this->entry_lookup[$e_id] = $e_name;
         }
-
-        
+       
         //Find all the distinct MACs for this Mesh node...
-        foreach ($q_r as $i) {
-            $node_id    = $i->id;
-            $node_name  = $i->name;
-            $l_contact  = $i->last_contact;
+        foreach ($nodes as $node) {
+            $node_id    = $node->id;
+            $node_name  = $node->name;
+            $l_contact  = $node->last_contact;
 
             if ($l_contact == null) {
                 $l_contact_human = null;
@@ -1017,7 +927,7 @@ class MeshReportsController extends AppController {
                 }
             }
 
-            $q_s = $this->NodeStations->find()
+            $nodeStations = $this->NodeStations->find()
                 ->select([
                     'mac_address_id',
                     'mac'   => 'MacAddresses.mac'
@@ -1029,174 +939,115 @@ class MeshReportsController extends AppController {
                     'NodeStations.modified >='   => $modified
                 ])
                 ->all();
+                
+            $nodeStationLookup = [];  
+              
+            foreach($nodeStations as $nodeStation){
+                $mac_id = $nodeStation->mac_address_id;
+                $nodeStationLookup[$mac_id] = $nodeStation->mac;
+            }
+            
+            if($this->timespan !== 'hour'){
+                 $nodeStationHourlies = $this->NodeStationHourlies->find()
+                    ->select([
+                        'mac_address_id',
+                        'mac'   => 'MacAddresses.mac'
+                    ])
+                    ->distinct(['mac_address_id'])
+                    ->contain(['MacAddresses'])
+                    ->where([
+                        'NodeStationHourlies.node_id'       => $node_id,
+                        'NodeStationHourlies.modified >='   => $modified
+                    ])
+                    ->all();
+                foreach($nodeStationHourlies as $nodeStationHourly){
+                    $mac_id = $nodeStationHourly->mac_address_id;
+                    $nodeStationLookup[$mac_id] = $nodeStationHourly->mac;
+                }                       
+            }
+            
+            if (count($nodeStationLookup) > 0 ) {
+                foreach ($nodeStationLookup as $mac_address_id => $mac) {
+                
+                    //==Get the sum of Bytes and avg of signal using the raw data== (for timespan == 'hour' )
+                    $t_bytes = 0;
+                    $r_bytes = 0;     
 
-            if ($q_s) {
-                foreach ($q_s as $j) {
                     //Get the sum of Bytes and avg of signal
-                    $q_t = $this->NodeStations->find()->select($this->fields)->where([
-                        'NodeStations.mac_address_id'   => $j->mac_address_id,
-                        'NodeStations.node_id'          => $node_id,
-                        'NodeStations.modified >='      => $modified
-                    ])->first();
+                    $q_t = $this->NodeStations->find()
+                        ->select($this->fields)
+                        ->where([
+                            'mac_address_id'   => $mac_address_id,
+                            'node_id'          => $node_id,
+                            'modified >='      => $modified
+                        ])
+                        ->first();
 
-                   // print_r($q_t);
-                    $t_bytes    = $q_t->tx_bytes;
-                    $r_bytes    = $q_t->rx_bytes;
-                    $signal_avg = round($q_t->signal_avg);
-                    if ($signal_avg < -95) {
-                        $signal_avg_bar = 0.01;
-                    }
-                    if (($signal_avg >= -95)&($signal_avg <= -35)) {
-                            $p_val = 95-(abs($signal_avg));
-                            $signal_avg_bar = round($p_val/60, 1);
-                    }
-                    if ($signal_avg > -35) {
-                        $signal_avg_bar = 1;
-                    }
-
-                    //Get the latest entry
-                    $lastCreated = $this->NodeStations->find()->where([
-                        'NodeStations.mac_address_id'   => $j->mac_address_id,
-                        'NodeStations.node_id'          => $node_id
-                    ])->order(['NodeStations.created' => 'desc'])->first();
-
-                   // print_r($lastCreated);
-
-                    $signal = $lastCreated->signal_now;
-
-                    if ($signal < -95) {
-                        $signal_bar = 0.01;
-                    }
-                    if (($signal >= -95)&($signal <= -35)) {
-                            $p_val = 95-(abs($signal));
-                            $signal_bar = round($p_val/60, 1);
-                    }
-                    if ($signal > -35) {
-                        $signal_bar = 1;
+                    if($q_t->signal_avg){
+                        $t_bytes    = $t_bytes + $q_t->tx_bytes;
+                        $r_bytes    = $r_bytes + $q_t->rx_bytes;
+                        $signal_avg = round($q_t->signal_avg);
+                        if ($signal_avg < -95) {
+                            $signal_avg_bar = 0.01;
+                        }
+                        if (($signal_avg >= -95)&($signal_avg <= -35)) {
+                                $p_val = 95-(abs($signal_avg));
+                                $signal_avg_bar = round($p_val/60, 1);
+                        }
+                        if ($signal_avg > -35) {
+                            $signal_avg_bar = 1;
+                        }
                     }
                     
-                    $last_mesh_entry_id = $lastCreated->mesh_entry_id;
-                    
-                    $l_client_contact       = $lastCreated->modified;
-                    $l_client_contact_human = $this->TimeCalculations->time_elapsed_string($l_client_contact);
-                        
-                    $last_client_timestamp = strtotime($l_client_contact);
-                    if ($last_client_timestamp+$dead_after <= time()) {
-                        $client_state = 'down';
-                    } else {
-                        $client_state = 'up';
-                    }
-                    
-                    $block_flag = false;
-                    $limit_flag = false;
-                    $firewall_flag = false;
-                    $cloud_flag = false;
-                    $bw_up		= '';
-                    $bw_down	= '';
-                    $fw_profile = '';
-                    $alias		= $this->_find_alias($j->mac_address_id);
-
-                	$macAction = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $j->mac_address_id,'MacActions.cloud_id' => $cloud_id ])->contain(['FirewallProfiles'])->first();
-                	if($macAction){
-                		$cloud_flag = true;
-                		if($macAction->action == 'block'){
-                			$block_flag = true;
-                			$cloud_flag = true;
-                		}
-                		if($macAction->action == 'limit'){
-                			$limit_flag = true;
-                			$cloud_flag = true;
-                			$limit_flag = true;
-                			$bw_up_suffix = 'kbps';
-                			$bw_up = ($macAction->bw_up * 8);
-                			if($bw_up >= 1000){
-                				$bw_up = $bw_up / 1000;
-                				$bw_up_suffix = 'mbps';
-                			}
-                			$bw_up = $bw_up.' '.$bw_up_suffix;
-                			$bw_down_suffix = 'kbps';
-                			$bw_down = ($macAction->bw_down * 8);
-                			if($bw_down >= 1000){
-                				$bw_down = $bw_down / 1000;
-                				$bw_down_suffix = 'mbps';
-                			}
-                			$bw_down = $bw_down.' '.$bw_down_suffix;
-                		}
-                		if($macAction->action == 'firewall'){
-                			$firewall_flag 	= true;
-                			$fw_profile		= $macAction->firewall_profile->name;
-                		}
-                	}
-                	//If there is an mesh level override
-                	$macAction = $this->{'MacActions'}->find()->where(['MacActions.mac_address_id' => $j->mac_address_id,'MacActions.mesh_id' => $mesh_id ])->contain(['FirewallProfiles'])->first();
-                	if($macAction){
-                		$cloud_flag = false;
-                		if($macAction->action == 'block'){
-                			$block_flag = true;
-                		}
-                		if($macAction->action == 'limit'){
-                			$limit_flag = true;
-                			$bw_up_suffix = 'kbps';
-                			$bw_up = ($macAction->bw_up * 8);
-                			if($bw_up >= 1000){
-                				$bw_up = $bw_up / 1000;
-                				$bw_up_suffix = 'mbps';
-                			}
-                			$bw_up = $bw_up.' '.$bw_up_suffix;
-                			$bw_down_suffix = 'kbps';
-                			$bw_down = ($macAction->bw_down * 8);
-                			if($bw_down >= 1000){
-                				$bw_down = $bw_down / 1000;
-                				$bw_down_suffix = 'mbps';
-                			}
-                			$bw_down = $bw_down.' '.$bw_down_suffix;
-                		}
-                		if($macAction->action == 'firewall'){
-                			$firewall_flag 	= true;
-                			$fw_profile		= $macAction->firewall_profile->name;
-                		}
-                	}                   
-                 
-                    array_push($items, array(
+                    if($this->timespan !== 'hour'){
+                        $q_t_h = $this->NodeStationHourlies->find()
+                            ->select($this->fields)
+                            ->where([
+                                'mac_address_id'   => $mac_address_id,
+                                'node_id'          => $node_id,
+                                'modified >='      => $modified
+                            ])
+                            ->first();
+                        if($q_t_h->signal_avg){
+                            $t_bytes    = $t_bytes + $q_t_h->tx_bytes;
+                            $r_bytes    = $r_bytes + $q_t_h->rx_bytes;
+                            //-- Here we use the older ones for average
+                            $signal_avg = round($q_t_h->signal_avg);
+                            if ($signal_avg < -95) {
+                                $signal_avg_bar = 0.01;
+                            }
+                            if (($signal_avg >= -95)&($signal_avg <= -35)) {
+                                    $p_val = 95-(abs($signal_avg));
+                                    $signal_avg_bar = round($p_val/60, 1);
+                            }
+                            if ($signal_avg > -35) {
+                                $signal_avg_bar = 1;
+                            }
+                        }               
+                    }                      
+                                
+                    $basic = [
                         'id'                => $id,
                         'name'              => $node_name,
                         'node_id'           => $node_id,
-                        'mac'               => $j->mac,
-                        'mac_address_id'    => $j->mac_address_id,
-                        'vendor'            => $this->_lookup_vendor($j->mac),
+                        'mac'               => $mac,
+                        'mac_address_id'    => $mac_address_id,
+                        'vendor'            => $this->_lookup_vendor($mac),
                         'tx_bytes'          => $t_bytes,
                         'rx_bytes'          => $r_bytes,
                         'signal_avg'        => $signal_avg ,
                         'signal_avg_bar'    => $signal_avg_bar,
-                        'signal_bar'        => $signal_bar,
-                        'signal'            => $signal,
-                        'l_tx_bitrate'      => $lastCreated->tx_bitrate,
-                        'l_rx_bitrate'      => $lastCreated->rx_bitrate,
-                        'l_signal'          => $lastCreated->signal_now,
-                        'l_signal_avg'      => $lastCreated->signal_avg,
-                        'l_MFP'             => $lastCreated->MFP,
-                        'l_tx_failed'       => $lastCreated->tx_failed,
-                        'l_tx_retries'      => $lastCreated->tx_retries,
-                        'l_modified'        => $lastCreated->modified,
-                        'l_modified_human'  => $this->TimeCalculations->time_elapsed_string($lastCreated->modified),
-                        'l_authenticated'   => $lastCreated->authenticated,
-                        'l_authorized'      => $lastCreated->authorized,
-                        'l_tx_bytes'        => $lastCreated->tx_bytes,
-                        'l_rx_bytes'        => $lastCreated->rx_bytes,
-                        'l_entry'           => $this->entry_lookup[$last_mesh_entry_id],
-                        'l_contact'         => $l_contact,
-                        'l_contact_human'   => $l_contact_human,
                         'state'             => $state,
-                        'client_state'      => $client_state,
-                        'block_flag'		=> $block_flag,
-                        'cloud_flag'		=> $cloud_flag,
-                        'limit_flag'		=> $limit_flag,
-                        'firewall_flag'		=> $firewall_flag,
-		                'fw_profile'		=> $fw_profile,
-                        'bw_up'				=> $bw_up,
-                        'bw_down'			=> $bw_down,
-                        'alias'				=> $alias
-                    ));
+                        'l_contact'         => $l_contact,
+                        'l_contact_human'   => $l_contact_human,                      
+                    ];
+                    
+                    $latestInfo = $this->_getLatsetNodeInfo($node_id,$mesh_id,$mac_address_id,$dead_after);                                   
+                    $basic      = (array_merge($basic,$latestInfo));                  
+                    
+                    $mActions   = $this->_getMacActions($cloud_id,$mesh_id,$mac_address_id);
+                    $basic      = (array_merge($basic,$mActions));                    
+                    array_push($items, $basic);                                        
                     $id++;
                 }
             } else {
@@ -1230,8 +1081,7 @@ class MeshReportsController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
 
-    public function viewNodeNodes()
-    {
+    public function viewNodeNodes(){
 
         $user = $this->Aa->user_for_token($this);
         if (!$user) {   //If not a valid user
@@ -1438,9 +1288,8 @@ class MeshReportsController extends AppController {
     }
 
 
-    public function viewNodeDetails()
-    {
-
+    public function viewNodeDetails(){
+    
         $user = $this->Aa->user_for_token($this);
         if (!$user) {   //If not a valid user
             return;
@@ -1794,8 +1643,7 @@ class MeshReportsController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
 
-    public function restartNodes()
-    {
+    public function restartNodes(){
 
         $user = $this->Aa->user_for_token($this);
         if (!$user) {   //If not a valid user
@@ -1843,600 +1691,7 @@ class MeshReportsController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
 
-    //---------- Private Functions --------------
-
-    private function _new_report(){
-
-        //--- Check if the 'network_info' array is in the data ----
-        $this->log('Checking for network_info in log', 'debug');
-        $req_d		= $this->request->getData();
-        if (array_key_exists('network_info', $req_d)) {
-            $this->log('Found network_info', 'debug');
-            
-            $count = 0;
-            
-            //Jan 2018 - Build a lookup //FIXME Improve this with less queries
-            foreach ($req_d['network_info'] as $ni) {
-                $id = $this->_format_mac($ni['eth0']);
-                
-                $count++;
-                if(($count == 1)&&($this->debug == true)){ //Only the first one and only if debug is true
-                    $file_name = "/tmp/".$this->request->clientIp()."_".$id;
-                    file_put_contents($file_name, print_r($req_d, true));
-                }   
-
-                $q_r = $this->Nodes->find()->where(['Nodes.mac' => $id])->first();
-
-                if ($q_r) {
-                    $node_id = $q_r->id;
-                    $mesh_id = $q_r->mesh_id;
-                    
-                    //Jan 2018
-                    //Also create a lookup table for the mesh's MAC and the Node's ID
-                    if (array_key_exists(0, $ni['radios'])){
-                        foreach($ni['radios'][0]['interfaces'] as $i){
-                            if (($i['type'] == 'IBSS')||($i['type'] == 'mesh point')) {
-                                $m = $i['mac'];
-                                $this->MeshMacLookup[$m] = $node_id;
-                            }
-                        }            
-                    }
-                    
-                    if (array_key_exists(1, $ni['radios'])){
-                        foreach($ni['radios'][1]['interfaces'] as $i){
-                            if (($i['type'] == 'IBSS')||($i['type'] == 'mesh point')) {
-                                $m = $i['mac'];
-                                $this->MeshMacLookup[$m] = $node_id;
-                            }
-                        }            
-                    }
-                }else{
-                    if($this->debug == true){ //IF WE CANT FIND THE MAC ALSO ADD IT
-                        $file_name = "/tmp/".$this->request->clientIp()."_".$id."_MISSING_MAC";
-                        file_put_contents($file_name, print_r($this->request->getData(), true));
-                    }
-                }     
-            }
-            
-            //This means the data was such that it did not pick up a MAC
-            if(($count == 0)&&($this->debug == true)){ 
-                $file_name = "/tmp/".$this->request->clientIp()."_"."PROBLEM";
-                file_put_contents($file_name, print_r($this->request->getData(), true));
-            }   
-            
-            //END Jan 2018
-                       
-            foreach ($this->request->getData('network_info') as $ni) {
-                $id = $this->_format_mac($ni['eth0']);
-                
-                $this->log('Locating the node with MAC '.$id, 'debug');
-
-                $q_r = $this->Nodes->find()->where(['Nodes.mac' => $id])->first();
-
-                if ($q_r) {
-                    $node_id = $q_r->id;
-                    $mesh_id = $q_r->mesh_id;
-                    
-                    $this->log('The node id of '.$id.' is '.$node_id, 'debug');
-                    $rad_zero_int = $ni['radios'][0]['interfaces'];
-                    $this->_do_radio_interfaces($mesh_id, $node_id, $rad_zero_int);
-
-                    //If it is a dual radio --- report on it also ----
-                    if (array_key_exists(1, $ni['radios'])) {
-                        $this->log('Second RADIO reported for '.$id.' is '.$node_id, 'debug');
-                        $rad_one_int = $ni['radios'][1]['interfaces'];
-                        $this->_do_radio_interfaces($mesh_id, $node_id, $rad_one_int);
-                    }
-                } else {
-                    $this->log('Node with MAC '.$id.' was not found', 'debug');
-                }
-            }
-        }
-        
-        //--- Check if the 'vpn_info' array is in the data ----
-        $this->log('MESH: Checking for vpn_info in log', 'debug');
-        if (array_key_exists('vpn_info', $this->request->getData())) {
-            $this->log('MESH: Found vpn_info', 'debug');
-
-            foreach ($this->request->getData('vpn_info') as $vpn_i) {
-                $vpn_gw_list = $vpn_i['vpn_gateways'];
-                foreach ($vpn_gw_list as $gw) {
-                    $vpn_client_id  = $gw['vpn_client_id'];
-                    $vpn_state      = $gw['state'];
-                    $timestamp      = $gw['timestamp'];
-                    $date           = date('Y-m-d H:i:s', $timestamp);
-                    
-                    $d              = array();
-                    $d['id']        = $vpn_client_id;
-                    $d['last_contact_to_server'] =  $date;
-                    $d['state']     = $vpn_state;
-
-                    $openvpnServerClientEntity = $this->OpenvpnServerClients->newEntity($d);
-
-                    $this->OpenvpnServerClients->save($openvpnServerClientEntity);
-                }
-            }
-        }
-        
-        //--- Check if there are any lan_info items here
-        $cdata = $this->request->getData();
-        $this->log('MESH: Checking for lan_info in log', 'debug');
-        if (array_key_exists('lan_info', $cdata)) {
-            $this->log('MESH: Found lan_info', 'debug');
-            $mac = $cdata['lan_info']['mac'];
-
-            $q_r = $this->Nodes->find()->where(['Nodes.mac' => $mac])->first();
-
-            if ($q_r) {
-                $node_id    = $q_r->id;
-                $lan_proto  = $cdata['lan_info']['lan_proto'];
-                $lan_gw     = $cdata['lan_info']['lan_gw'];
-                $lan_ip     = $cdata['lan_info']['lan_ip'];
-                $d_lan      = array();
-                $d_lan['lan_gw'] = $lan_gw;
-                $d_lan['lan_ip'] = $lan_ip;
-                $d_lan['lan_proto']  = $lan_proto;
-                $d_lan['mesh_id'] = $q_r->mesh_id;
-                
-                $this->Node->id = $node_id;
-
-                if ($node_id) {
-                    $nodeEntity = $this->Nodes->newEntity($d_lan);
-                    $this->Nodes->save($nodeEntity);
-                }
-            }         
-        }
-
-       
-        //--- Check if the 'system_info' array is in the data ----
-        $cdata = $this->request->getData();
-
-        $this->log('Checking for system_info in log', 'debug');
-        $m_id = false;
-        if (array_key_exists('system_info', $cdata)) {
-            $this->log('Found system_info', 'debug');
-            $mesh_id = false;
-            foreach ($cdata['system_info'] as $si) {
-                $id = $this->_format_mac($si['eth0']);
-                $this->log('Locating the node with MAC '.$id, 'debug');
-
-                $q_r = $this->Nodes->find()->where(['Nodes.mac' => $id])->first();
-
-                if ($q_r) {
-                    $node_id    = $q_r->id;
-                    $m_id       = $q_r->mesh_id;
-                    $this->log('The node id of '.$id.' is '.$node_id, 'debug');
-                    $this->_do_node_system_info($node_id, $si['sys']);
-                    $this->_do_node_load($node_id, $si['sys']);
-                    $this->_update_last_contact($node_id,$m_id);
-                } else {
-                    $this->log('Node with MAC '.$id.' was not found', 'debug');
-                }
-            }
-        }
-        
-        //See if there are any heartbeats associated with the Mesh these nodes belong to (For the captive portals)
-        if ($m_id) {
-            $this->_update_any_nas_heartbeats($m_id);
-        }
-        
-
-        //----- Check if the 'vis' array is in the data ----
-        $this->log('Checking for vis info in log', 'debug');
-        if (array_key_exists('vis', $cdata)) {
-            $this->log('Found vis', 'debug');
-            //Create a lookup hash:
-            $mac_lookup = array();
-            foreach ($cdata['vis'] as $vis) {
-                $mac = $vis['eth0'];
-                $gw  = $vis['gateway'];
-
-                $q_r = $this->Nodes->find()->where(['Nodes.mac' => $id])->first();
-
-                if ($q_r) {
-                    $node_id    = $q_r->id;
-                    $mac_lookup[$mac] = $node_id;
-                    $gw_val = 'no';
-                    if ($gw == 1) {
-                        $gw_val = 'yes';
-                    }
-                    $this->log("Found VIS node $mac", 'debug');
-                    //Check if there are any entries for this node + neighbor combination
-                    foreach ($vis['neighbors'] as $n) {
-                        $neighbor_mac = $n['eth0'];
-                        $neighbor_id  = false;
-                        $metric       = $n['metric'];
-                        $hwmode       = 'g';
-                        if (array_key_exists('hwmode', $n)) {
-                            $hwmode       = $n['hwmode'];
-                        }
-                        if (!array_key_exists($neighbor_mac, $mac_lookup)) {
-                            //Find the ID of the neighbor
-                            $q_n = $this->Nodes->find()->where(['Nodes.mac' => $neighbor_mac])->first();
-                            if ($q_n) {
-                                $this->log("FOUND $neighbor_mac", 'debug');
-                                $mac_lookup[$neighbor_mac] = $q_n->id;
-                                $neighbor_id =  $q_n->id;
-                            }
-                        } else {
-                            $neighbor_id =  $mac_lookup[$neighbor_mac];
-                        }
-                        if ($neighbor_id) {
-                            $d = [];
-                            $previous = $this->NodeNeighbors->find()->where([
-                                'NodeNeighbors.node_id'      => $node_id,
-                                'NodeNeighbors.neighbor_id'  => $neighbor_id,
-                            ])->first();
-
-                            if ($previous) {
-                                $d['id'] = $previous->id;
-                            }
-                            $d['node_id']       = $node_id;
-                            $d['neighbor_id']   = $neighbor_id;
-                            $d['metric']        = $metric;
-                            $d['gateway']       = $gw_val;
-                            $d['hwmode']        = $hwmode;
-
-                            $nodeNeighborEntity = $this->NodeNeighbors->newEntity($d);
-                            $this->NodeNeighbors->save($nodeNeighborEntity);
-                        }
-                    }
-                }
-            }
-        }
-
-        //--- Finally we may have some commands waiting for the nodes----
-        //--- We assume $this->request->getData() = $cdata['network_info'][0]['eth0'] will contain one of the nodes of the mesh
-        $cdata = $this->request->getData();
-
-        $items = false;
-        if (array_key_exists('network_info', $cdata)) {
-            $this->log('Looking for commands waiting for this mesh', 'debug');
-
-            $id     = $this->_format_mac($cdata['network_info'][0]['eth0']);
-
-            $q_r    = $this->Nodes->find()->where(['Nodes.mac' => $id])->first();
-            if ($q_r) {
-                $items   = array();
-                $node_id = $q_r->id;
-                $mesh_id = $q_r->mesh_id;
-
-                $q_r = $this->NodeActions->find()->contain(['Nodes'])->where([
-                    'Nodes.mesh_id' => $mesh_id,
-                    'NodeActions.status' => 'awaiting'
-                ])->all();
-
-                foreach ($q_r as $i) {
-                    $mac        = strtoupper($i->node->mac);
-                    $action_id  = $i->id;
-                    if (array_key_exists($mac, $items)) {
-                        array_push($items[$mac], $action_id);
-                    } else {
-                        $items[$mac] = array($action_id); //First one
-                    }
-                }
-            } else {
-                $this->log('Node with MAC '.$id.' was not found', 'debug');
-            }
-        }
-
-        return $items;
-    }
-
-    private function _do_radio_interfaces($mesh_id, $node_id, $interfaces){
-
-        return;
-
-        foreach ($interfaces as $i) {
-            if (count($i['stations']) > 0) {
-                //Try to find (if type=AP)the Entry ID of the Mesh
-                if ($i['type'] == 'AP') {
-                    $this->MeshEntry->contain();
-
-                    $q_r = $this->MeshEntries->find()->where([
-                        'MeshEntries.name'    => $i['ssid'],
-                        'MeshEntries.mesh_id' => $mesh_id
-                    ])->first();
-
-                    if ($q_r) {
-                        $entry_id = $q_r->id;
-                        foreach ($i['stations'] as $s) {
-                            $data = $this->_prep_station_data($s);
-                            $data['mesh_entry_id']  = $entry_id;
-                            $data['node_id']        = $node_id;
-                            //--Check the last entry for this MAC
-                            $q_mac = $this->NodeStations->find()->where([
-                                'NodeStations.mesh_entry_id' => $entry_id,
-                                'NodeStations.node_id'       => $node_id,
-                                'NodeStations.mac'           => $data['mac'],
-                            ])->order(['NodeStations.created' => 'desc'])->first();
-
-                            $new_flag = true;
-                            if ($q_mac) {
-                                $old_tx = $q_mac->tx_bytes;
-                                $old_rx = $q_mac->rx_bytes;
-                                if (($data['tx_bytes'] >= $old_tx)&($data['rx_bytes'] >= $old_rx)) {
-                                    $data['id'] =  $q_mac->id;
-                                    $new_flag = false;
-                                    $nodeStationEntity = $this->NodeStations->newEntity($data);
-                                }
-                            }
-
-                            if ($new_flag) {
-                                $nodeStationEntity = $this->NodeStations->newEntity($data);
-                            }
-
-                            $this->NodeStations->save($nodeStationEntity);
-                        }
-                    }
-                }
-
-                //If the type is IBSS we will try to determine which nodes are connected
-                //April 2016 - We now also include support for mesh node (802.11s)
-                if (($i['type'] == 'IBSS')||($i['type'] == 'mesh point')) {
-                    foreach ($i['stations'] as $s) {
-                        $data = $this->_prep_station_data($s);
-                        $data['node_id']    = $node_id;
-                        $m = $s['mac'];
-                          
-                        //Jan 2018 Also see if we can find the station node id
-                        if (array_key_exists($m, $this->MeshMacLookup)){
-                            $data['station_node_id'] = $this->MeshMacLookup[$m];
-                        }
-
-                          //--Check the last entry for this MAC
-                          $q_mac = $this->NodeIbssConnections->find()->where([
-                              'NodeIbssConnections.node_id'    => $node_id,
-                              'NodeIbssConnections.mac'        => $data['mac'],
-                          ])->order(['NodeIbssConnections.created' => 'desc'])->first();
-
-                          $new_flag = true;
-                        if ($q_mac) {
-                            $old_tx = $q_mac->tx_bytes;
-                            $old_rx = $q_mac->rx_bytes;
-                            if (($data['tx_bytes'] >= $old_tx)&($data['rx_bytes'] >= $old_rx)) {
-                                $data['id'] =  $q_mac->id;
-                                $new_flag = false;
-                                $nodeIbssEntity = $this->NodeIbssConnections->newEntity($data);
-                            }
-                        }
-                        if ($new_flag) {
-                            $nodeIbssEntity = $this->NodeIbssConnections->newEntity($data);
-                        }
-                            $this->NodeIbssConnections->save($nodeIbssEntity);
-                    }
-                }
-            }
-        }
-    }
-
-    private function _do_node_load($node_id, $info)
-    {
-        $this->log('====Doing the node load info for===: '.$node_id, 'debug');
-        $mem_total  = $this->_mem_kb_to_bytes($info['memory']['total']);
-        $mem_free   = $this->_mem_kb_to_bytes($info['memory']['free']);
-        $u          = $info['uptime'];
-        $time       = preg_replace('/\s+up.*/', "", $u);
-        $load       = preg_replace('/.*.\s+load average:\s+/', "", $u);
-        $loads      = explode(", ", $load);
-        $up         = preg_replace('/.*\s+up\s+/', "", $u);
-        $up         = preg_replace('/,\s*.*/', "", $up);
-        $data       = array();
-        $data['mem_total']  = $mem_total;
-        $data['mem_free']   = $mem_free;
-        $data['uptime']     = $up;
-        $data['system_time']= $time;
-        $data['load_1']     = $loads[0];
-        $data['load_2']     = $loads[1];
-        $data['load_3']     = $loads[2];
-        $data['node_id']    = $node_id;
-
-
-        $n_l = $this->NodeLoads->find()->where(['NodeLoads.node_id'  => $node_id])->first();
-
-        $new_flag = true;
-        if ($n_l) {
-            $data['id'] =  $n_l->id;
-            $new_flag   = false;
-            $nodeLoadEntity = $this->NodeLoads->newEntity($data);
-        }
-        if ($new_flag) {
-            $nodeLoadEntity = $this->NodeLoads->newEntity($data);
-        }
-        $this->NodeLoads->save($nodeLoadEntity);
-    }
-
-    private function _do_node_system_info($node_id, $info)
-    {
-        $this->log('Doing the system info for node id: '.$node_id, 'debug');
-
-        $q_r = $this->NodeSystem->findByNodeId($node_id);
-        if (!$q_r) {
-            $this->log('EMPTY NodeSystem - Add first one', 'debug');
-            $this->_new_node_system($node_id, $info);
-        } else {
-            $this->log('NodeSystem info exists - Update if needed', 'debug');
-            //We will check the value of DISTRIB_REVISION
-            $dist_rev = false;
-            if (array_key_exists('release', $info)) {
-                $release_array = explode("\n", $info['release']);
-                foreach ($release_array as $r) {
-                    $this->log("There are ".$r, 'debug');
-                    $r_entry    = explode('=', $r);
-                    $elements   = count($r_entry);
-                    if ($elements == 2) {
-                        $value          = preg_replace('/"|\'/', "", $r_entry[1]);
-                        if (preg_match('/DISTRIB_REVISION/', $r_entry[0])) {
-                            $dist_rev = $value;
-                            $this->log('Submitted DISTRIB_REVISION '.$dist_rev, 'debug');
-                            break;
-                        }
-                    }
-                }
-            }
-
-            //Find the current  DISTRIB_REVISION
-            $q_r = $this->NodeSystems->find()->where([
-                'NodeSystems.node_id'    => $node_id,
-                'NodeSystems.name'       => 'DISTRIB_REVISION'
-            ])->first();
-
-            if ($q_r) {
-                $current = $q_r->value;
-
-                $this->log('Current DISTRIB_REVISION '.$dist_rev, 'debug');
-                if ($current !== $dist_rev) {
-                    $this->log('Change in DISTRIB_REVISION -> renew', 'debug');
-
-                    $this->NodeSystems->deleteAll(['NodeSystems.node_id' => $node_id]);
-
-                    $this->_new_node_system($node_id, $info);
-                } else {
-                    $this->log('DISTRIB_REVISION unchanged', 'debug');
-                }
-            }
-        }
-    }
-
-    private function _new_node_system($node_id, $info)
-    {
-        //--CPU Info--
-        if (array_key_exists('cpu', $info)) {
-             $this->log('Adding  CPU info', 'debug');
-            foreach (array_keys($info['cpu']) as $key) {
-              //  $this->log('Adding first CPU info '.$key, 'debug');
-                $d['category']  = 'cpu';
-                $d['name']      = $key;
-                $d['value']     = $info['cpu']["$key"];
-                $d['node_id']   = $node_id;
-
-                $nodeSystemEntity = $this->NodeSystems->newEntity($d);
-                $this->NodeSystems->save($nodeSystemEntity);
-            }
-        }
-
-        //--
-        if (array_key_exists('release', $info)) {
-            $release_array = explode("\n", $info['release']);
-            foreach ($release_array as $r) {
-               // $this->log("There are ".$r, 'debug');
-                $r_entry    = explode('=', $r);
-                $elements   = count($r_entry);
-                if ($elements == 2) {
-                   // $this->log('Adding  Release info '.$r, 'debug');
-                    $value          = preg_replace('/"|\'/', "", $r_entry[1]);
-
-                    $d['category']  = 'release';
-                    $d['name']      = $r_entry[0];
-                    $d['value']     = $value;
-                    $d['node_id']   = $node_id;
-
-                    $nodeSystemEntity = $this->NodeSystems->newEntity($d);
-                    $this->NodeSystems->save($nodeSystemEntity);
-                }
-            }
-        }
-    }
-      
-    private function _update_any_nas_heartbeats($mesh_id){
-        //Only captive portal types
-        $q_r = $this->MeshExits->find()->contain(['MeshExitCaptivePortals'])->where([
-            'MeshExits.mesh_id' => $mesh_id,
-            'MeshExits.type' => 'captive_portal'
-        ])->all();
-        
-        $this->log("**Updating hearbeats on the NAS for mesh $mesh_id**", 'debug');
-        if ($q_r) {
-            $this->loadModel('Nas');
-
-            foreach ($q_r as $i) {
-                $this->log('Found a captive portal on the mesh', 'debug');
-                if (isset($i->mesh_exit_captive_portals->radius_nasid)) {
-                    $nas_id = $i->mesh_exit_captive_portals->radius_nasid;
-
-                    $n_q    = $this->Nas->find()->where([
-                        'Nas.nasidentifier'  => $nas_id,
-                        'Nas.type'           => 'CoovaChilli-Heartbeat',
-                        'Nas.monitor'        => 'heartbeat'
-                    ])->first();
-
-                    if ($n_q) {
-                        $nasEntity = $this->Nas->newEntity();
-
-                        $nasEntity->id = $n_q->id;
-                        $nasEntity->last_contact = date('Y-m-d H:i:s');
-                        $this->Nas->save($nasEntity);
-                    }
-                }
-            }
-        }
-    }
-
-    private function _update_last_contact($node_id,$mesh_id){
-        $nasEntity = $this->Nodes->newEntity();
-        $nasEntity->id = $node_id;
-
-        if ($nasEntity->id) {
-            $nasEntity->last_contact = date('Y-m-d H:i:s', time());
-            $nasEntity->last_contact_from_ip = $this->request->clientIp();
-
-            $this->Nas->save($nasEntity);
-        }
-        
-        $meshEntity = $this->Meshes->newEntity();
-        $meshEntity->id = $mesh_id;
-
-        if ($meshEntity->id) {
-            $meshEntity->last_contact = date("Y-m-d H:i:s", time());
-            $this->Meshes->save($meshEntity);
-        }    
-    }
-
-    private function _format_mac($mac){
-        return preg_replace('/:/', '-', $mac);
-    }
-
-    private function _mem_kb_to_bytes($kb_val){
-        $kb = preg_replace('/\s*kb/i', "", $kb_val);
-        return($kb * 1024);
-    }
-
-    private function _prep_station_data($station_info){
-        $data       = array();
-        $tx_proc    = $station_info['tx bitrate'];
-        $tx_bitrate = preg_replace('/\s+.*/', '', $tx_proc);
-        $tx_extra   = preg_replace('/.*\s+/', '', $tx_proc);
-        $rx_proc    = $station_info['rx bitrate'];
-        $rx_bitrate = preg_replace('/\s+.*/', '', $rx_proc);
-        $rx_extra   = preg_replace('/.*\s+/', '', $rx_proc);
-        $incative   = preg_replace('/\s+ms.*/', '', $station_info['inactive time']);
-        $s          = preg_replace('/\s+\[.*/', '', $station_info['signal']);
-        $a          = preg_replace('/\s+\[.*/', '', $station_info['avg']);
-
-        $data['vendor']        = $this->_lookup_vendor($station_info['mac']);
-        $data['mac']           = $station_info['mac'];
-        $data['tx_bytes']      = $station_info['tx bytes'];
-        $data['rx_bytes']      = $station_info['rx bytes'];
-        $data['tx_packets']    = $station_info['tx packets'];
-        $data['rx_packets']    = $station_info['rx packets'];
-        $data['tx_bitrate']    = $tx_bitrate;
-        $data['rx_bitrate']    = $rx_bitrate;
-        $data['tx_extra_info'] = $tx_extra;
-        $data['rx_extra_info'] = $rx_extra;
-        $data['authorized']    = $station_info['authorized'];
-        $data['authenticated'] = $station_info['authenticated'];
-        $data['tdls_peer']     = $station_info['TDLS peer'];
-        $data['preamble']      = $station_info['preamble'];
-        $data['tx_failed']     = $station_info['tx failed'];
-        $data['tx_failed']     = $station_info['tx failed'];
-        $data['inactive_time'] = $incative;
-        $data['WMM_WME']       = $station_info['WMM/WME'];
-        $data['tx_retries']    = $station_info['tx retries'];
-        $data['MFP']           = $station_info['MFP'];
-        $data['signal_now']    = $s;
-        $data['signal_avg']    = $a;
-        return $data;
-    }
+    //---------- Private Functions -------------- 
 
     private function _lookup_vendor($mac){
         //Convert the MAC to be in the same format as the file
@@ -2651,11 +1906,9 @@ class MeshReportsController extends AppController {
         }
     }
     
-    private function _find_alias($mac_address_id){
-    
+    private function _find_alias($mac_address_id){    
     	$req_q    = $this->request->getQuery();    
-       	$cloud_id = $req_q['cloud_id'];
-      
+       	$cloud_id = $req_q['cloud_id'];      
         $alias = false;
         $qr = $this->{'MacAliases'}->find()->where(['MacAliases.mac_address_id' => $mac_address_id,'MacAliases.cloud_id'=> $cloud_id])->first();
         if($qr){
@@ -2670,5 +1923,240 @@ class MeshReportsController extends AppController {
             return $macAddress->id;
         }    
     }
+    
+    //===============================
+    //---- ACTIONS RELATED  --------
+    //===============================
+    
+    private function _getMacActions($cloud_id, $mesh_id, $mac_id){
+        $mActions = [
+            'block_flag' => false,
+            'limit_flag' => false,
+            'firewall_flag' => false,
+            'cloud_flag' => false,
+            'bw_up' => '',
+            'bw_down' => '',
+            'fw_profile' => '',
+            'alias' => $this->_find_alias($mac_id)
+        ];
 
+        $cloudAction = $this->_getCloudAction($cloud_id, $mac_id);
+        if ($cloudAction) {
+            $this->_applyCloudAction($mActions, $cloudAction);
+        }
+
+        $meshAction = $this->_getMeshAction($mesh_id, $mac_id);
+        if ($meshAction) {
+            $this->_applyMeshAction($mActions, $meshAction);
+        }
+
+        return $mActions;
+    }
+
+    private function _getCloudAction($cloud_id, $mac_id){
+
+        return $this->{'MacActions'}->find()
+            ->where(['MacActions.mac_address_id' => $mac_id, 'MacActions.cloud_id' => $cloud_id])
+            ->contain(['FirewallProfiles'])
+            ->first();
+    }
+
+    private function _getMeshAction($mesh_id, $mac_id){
+
+        return $this->{'MacActions'}->find()
+            ->where(['MacActions.mac_address_id' => $mac_id, 'MacActions.mesh_id' => $mesh_id])
+            ->contain(['FirewallProfiles'])
+            ->first();
+    }
+
+    private function _applyCloudAction(&$mActions, $action){
+
+        $mActions['cloud_flag'] = true;
+        switch ($action->action) {
+            case 'block':
+                $mActions['block_flag'] = true;
+                break;
+            case 'limit':
+                $this->_applyLimitAction($mActions, $action);
+                break;
+            case 'firewall':
+                $mActions['firewall_flag'] = true;
+                $mActions['fw_profile'] = $action->firewall_profile->name;
+                break;
+        }
+    }
+
+    private function _applyMeshAction(&$mActions, $action){
+    
+        $mActions['cloud_flag'] = false;
+        switch ($action->action) {
+            case 'block':
+                $mActions['block_flag'] = true;
+                break;
+            case 'limit':
+                $this->_applyLimitAction($mActions, $action);
+                break;
+            case 'firewall':
+                $mActions['firewall_flag'] = true;
+                $mActions['fw_profile'] = $action->firewall_profile->name;
+                break;
+        }
+    }
+
+    private function _applyLimitAction(&$mActions, $action){
+
+        $mActions['limit_flag'] = true;
+        $mActions['bw_up'] = $this->_formatBandwidth($action->bw_up);
+        $mActions['bw_down'] = $this->_formatBandwidth($action->bw_down);
+    }
+
+    private function _formatBandwidth($bandwidth){
+
+        $bandwidth *= 8;
+        $suffix = 'kbps';
+        if ($bandwidth >= 1000) {
+            $bandwidth /= 1000;
+            $suffix = 'mbps';
+        }
+        return $bandwidth . ' ' . $suffix;
+    }
+    //---- END ACTIONS RELATED ----
+    
+    private function _getLatestEntryInfo($meshEntryId,$mesh_id,$macAddressId){
+ 
+        //Get the latest entry
+        $lastCreated = $this->NodeStations->find()->where([
+                'mac_address_id'   => $macAddressId,
+                'mesh_entry_id'    => $meshEntryId
+            ])->order(['created'   => 'desc'])->first();
+        $historical = false;          
+        if(!$lastCreated){
+            $historical = true;
+            $lastCreated = $this->NodeStationHourlies->find()->where([
+                'mac_address_id'   => $macAddressId,
+                'mesh_entry_id'    => $meshEntryId
+            ])->order(['created'   => 'desc'])->first();       
+        }
+        
+        if($historical){
+            $signal = $lastCreated->signal_avg;
+        }else{
+            $signal = $lastCreated->signal_now;
+        }      
+
+        if ($signal < -95) {
+            $signal_bar = 0.01;
+        }
+        if (($signal >= -95)&($signal <= -35)) {
+                $p_val = 95-(abs($signal));
+                $signal_bar = round($p_val/60, 1);
+        }
+        if ($signal > -35) {
+            $signal_bar = 1;
+        }
+
+        $last_node_id = $lastCreated->node_id;
+
+        //Find the dead time (only once)
+        $l_contact = $lastCreated->modified;
+        if ($l_contact == null) {
+            $l_contact_human = null;
+            $state = 'never';
+        } else {
+            $dead_after = $this->_get_dead_after($mesh_id);
+            $last_timestamp = strtotime($l_contact);
+            $l_contact_human = $this->TimeCalculations->time_elapsed_string($l_contact);
+            if ($last_timestamp+$dead_after <= time()) {
+                $state = 'down';
+            } else {
+                $state = 'up';
+            }
+        }
+
+        $l_node = 'Data Not Available';
+        if (array_key_exists($last_node_id,$this->node_lookup)){
+            $l_node = $this->node_lookup[$last_node_id];
+        }
+        
+        return [  
+            'signal_bar'        => $signal_bar,
+            'signal'            => $signal,              
+            'l_tx_bitrate'      => $lastCreated->tx_bitrate,
+            'l_rx_bitrate'      => $lastCreated->rx_bitrate,
+            'l_signal'          => $lastCreated->signal_now,
+            'l_signal_avg'      => $lastCreated->signal_avg,
+            'l_tx_failed'       => $lastCreated->tx_failed,
+            'l_tx_retries'      => $lastCreated->tx_retries,
+            'l_modified'        => $lastCreated->modified,
+            'state'             => $state,
+            'l_modified_human'  => $this->TimeCalculations->time_elapsed_string($lastCreated->modified),
+            'l_tx_bytes'        => $lastCreated->tx_bytes,
+            'l_rx_bytes'        => $lastCreated->rx_bytes,
+            'l_node'            => $l_node            
+        ];        
+    }
+    
+    private function _getLatsetNodeInfo($nodeId,$mesh_id,$macAddressId,$dead_after){
+    
+         //Get the latest entry
+        $lastCreated = $this->NodeStations->find()->where([
+            'mac_address_id'   => $macAddressId,
+            'node_id'          => $nodeId
+        ])->order(['created' => 'desc'])->first();
+
+        $historical = false;          
+        if(!$lastCreated){
+            $historical = true;
+            $lastCreated = $this->NodeStationHourlies->find()->where([
+                'mac_address_id'   => $macAddressId,
+                'node_id'          => $nodeId
+            ])->order(['created'   => 'desc'])->first();     
+        }
+        
+        if($historical){
+            $signal = $lastCreated->signal_avg;
+        }else{
+            $signal = $lastCreated->signal_now;
+        }      
+
+        if ($signal < -95) {
+            $signal_bar = 0.01;
+        }
+        if (($signal >= -95)&($signal <= -35)) {
+                $p_val = 95-(abs($signal));
+                $signal_bar = round($p_val/60, 1);
+        }
+        if ($signal > -35) {
+            $signal_bar = 1;
+        }
+        
+        $last_mesh_entry_id = $lastCreated->mesh_entry_id;
+        
+        $l_client_contact       = $lastCreated->modified;
+        $l_client_contact_human = $this->TimeCalculations->time_elapsed_string($l_client_contact);
+            
+        $last_client_timestamp = strtotime($l_client_contact);
+        if ($last_client_timestamp+$dead_after <= time()) {
+            $client_state = 'down';
+        } else {
+            $client_state = 'up';
+        }           
+    
+        return [
+            'signal_bar'        => $signal_bar,
+            'signal'            => $signal,
+            'l_tx_bitrate'      => $lastCreated->tx_bitrate,
+            'l_rx_bitrate'      => $lastCreated->rx_bitrate,
+            'l_signal'          => $lastCreated->signal_now,
+            'l_signal_avg'      => $lastCreated->signal_avg,
+            'l_tx_failed'       => $lastCreated->tx_failed,
+            'l_tx_retries'      => $lastCreated->tx_retries,
+            'l_modified'        => $lastCreated->modified,
+            'l_modified_human'  => $this->TimeCalculations->time_elapsed_string($lastCreated->modified),
+            'l_tx_bytes'        => $lastCreated->tx_bytes,
+            'l_rx_bytes'        => $lastCreated->rx_bytes,
+            'l_entry'           => $this->entry_lookup[$last_mesh_entry_id],
+            'client_state'      => $client_state       
+        ];    
+    } 
 }

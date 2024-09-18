@@ -183,8 +183,6 @@ Ext.define('Rd.view.meshes.gridMeshViewEntries' ,{
                             var lrx     = Ext.ux.bytesToHuman(r.get('l_rx_bytes'));
                             var tx_f    = r.get('l_tx_failed');
                             var tx_r    = r.get('l_tx_retries');
-                            var auth    = r.get('l_authenticated');
-                            var authz   = r.get('l_authorized');
                             var n       = r.get('l_node');
 
                             var t  = Ext.create('Ext.tip.ToolTip', {
@@ -209,10 +207,6 @@ Ext.define('Rd.view.meshes.gridMeshViewEntries' ,{
                                         "<label class='lblTipItem'>Tx failed</label><label class='lblTipValue'>"+tx_f+"</label>",
                                         "<div style='clear:both;'></div>",
                                         "<label class='lblTipItem'>Tx retries</label><label class='lblTipValue'>"+tx_r+"</label>",
-                                        "<div style='clear:both;'></div>",
-                                        "<label class='lblTipItem'>Authenticated</label><label class='lblTipValue'>"+auth+"</label>",
-                                        "<div style='clear:both;'></div>",
-                                        "<label class='lblTipItem'>Authorized</label><label class='lblTipValue'>"+authz+"</label>",
                                         "<div style='clear:both;'></div>",
                                     "</div>" 
                                 ]

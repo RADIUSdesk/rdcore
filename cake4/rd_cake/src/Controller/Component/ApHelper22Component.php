@@ -63,7 +63,6 @@ class ApHelper22Component extends Component {
         $this->Aps              = TableRegistry::get('Aps');
         $this->UnknownAps       = TableRegistry::get('UnknownAps');
         $this->ApProfileSettings= TableRegistry::get('ApProfileSettings');
-        $this->ApStations       = TableRegistry::get('ApStations');
         $this->ApProfiles       = TableRegistry::get('ApProfiles');
         $this->OpenvpnServers   = TableRegistry::get('OpenvpnServers');
         $this->ApProfileEntries = TableRegistry::get('ApProfileEntries');
