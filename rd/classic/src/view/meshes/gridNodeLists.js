@@ -254,7 +254,7 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
             {
                 xtype       : 'actioncolumn',
                 text        : 'Actions',
-                width       : 80,
+                width       : 95,
                 stateId     : 'StateGridMeshes11',
                 items       : [				
 					 { 
@@ -283,6 +283,20 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                         },
 						handler: function(view, rowIndex, colIndex, item, e, record, row) {
                             this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'update');
+                        }
+					},
+					{  
+                        iconCls : 'txtGrey x-fa fa-cog',
+                        tooltip : 'Config Call',
+                        isDisabled: function (grid, rowIndex, colIndex, items, record) {
+                                if (record.get('update') == true) {
+                                     return false;
+                                } else {
+                                    return true;
+                                }
+                        },
+						handler: function(view, rowIndex, colIndex, item, e, record, row) {
+                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'config');
                         }
 					},
 					{  
