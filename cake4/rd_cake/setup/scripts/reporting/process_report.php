@@ -61,7 +61,22 @@ function main(){
     global $conn,$rebootFlag,$repSettings;
     _doReports();  
 }
- 
+
+//==== FOR Postgresql =====
+/*
+function doConnection(){
+    global $servername,$username,$password,$conn;
+    try {
+        $conn = new PDO("pgsql:host=$servername;dbname=rd", $username, $password);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+    } catch(PDOException $e){
+        echo "Connection failed: " . $e->getMessage();
+    }
+}
+*/
+
+//==== For Mysql / MariaDB =====
 function doConnection(){
 
     global $servername,$username,$password,$conn;

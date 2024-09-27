@@ -1,0 +1,4 @@
+sudo su
+su postgres
+psql -d rd -U rd -h localhost -p 5432 -f pg.001.acct_trigger.sql
+psql -d rd -U rd -h localhost -p 5432 -f pg.002.cron_station_hourlies.sql
