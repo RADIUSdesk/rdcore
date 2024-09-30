@@ -851,6 +851,128 @@ class DashboardController extends AppController{
       
     }
     
+    public function otherItems(){
+    
+        $items = [
+            [ 
+                'column1'   => 
+                  [
+                    'name'          => 'SETTINGS',
+                    'controller'    => 'cSettings',
+                    'id'            => 'pnlOtherSettings',
+                    'glyph'         => 'xf085',
+                    'class'         => 'other-green',
+                  ]
+            ],
+            [
+                'column1'   => 
+                  [
+                    'name'          => 'CLOUDS',
+                    'controller'    => 'cClouds',
+                    'id'            => 'pnlOtherClouds',
+                    'glyph'         => 'xf0c2',
+                    'class'         => 'other-blue',
+                  ],
+                'column2' => 
+                  [
+                    'name'          => 'ADMINS',
+                    'controller'    => 'cAccessProviders',
+                    'id'            => 'pnlOtherAdmins',
+                    'glyph'         => 'xf084',
+                    'class'         => 'other-blue',
+                  ]
+            ],
+            [
+                'column1'   => 
+                  [
+                    'name'          => 'LOGIN PAGES',
+                    'controller'    => 'cDynamicDetails',
+                    'id'            => 'pnlOtherLogin',
+                    'glyph'         => 'xf0a9',
+                    'class'         => 'other-brown',
+                  ],
+                'column2' => 
+                  [
+                    'name'          => 'HARDWARE',
+                    'controller'    => 'cHardwares',
+                    'id'            => 'pnlOtherHardware',
+                    'glyph'         => 'xf0a0',
+                    'class'         => 'other-brown',
+                  ]
+            ],
+            [
+                'column1'   => 
+                  [
+                    'name'          => 'SCHEDULES',
+                    'controller'    => 'cSchedules',
+                    'id'            => 'pnlOtherSchedules',
+                    'glyph'         => 'xf133',
+                    'class'         => 'other-brown',
+                  ],
+                'column2' => 
+                  [
+                    'name'          => 'FIREWALL',
+                    'controller'    => 'cFirewallProfiles',
+                    'id'            => 'pnlOtherFirewall',
+                    'glyph'         => 'xf06d',
+                    'class'         => 'other-brown',
+                  ]
+            ],
+            [
+                'column1'   => 
+                  [
+                    'name'          => 'SQM PROFILES',
+                    'controller'    => 'cSqmProfiles',
+                    'id'            => 'pnlOtherSqmProfiles',
+                    'glyph'         => 'xf00a',
+                    'class'         => 'other-brown',
+                  ],
+                'column2' => 
+                  [
+                    'name'          => 'PRIVATE PSKS',
+                    'controller'    => 'cPrivatePsks',
+                    'id'            => 'pnlOtherPrivatePsks',
+                    'glyph'         => 'xf023',
+                    'class'         => 'other-brown',
+                  ]
+            ],
+            [
+                'column1'   => 
+                  [
+                    'name'          => 'OPENVPN SERVERS',
+                    'controller'    => 'cOpenvpnServers',
+                    'id'            => 'pnlOtherHomeOpenvpnServers',
+                    'glyph'         => 'xf10e',
+                    'class'         => 'other-brown',
+                  ],
+                'column2' => 
+                  [
+                    'name'          => 'ACCEL-PPP SERVERS',
+                    'controller'    => 'cAccel',
+                    'id'            => 'pnlOtherAccel',
+                    'glyph'         => 'xf10e',
+                    'class'         => 'other-brown',
+                  ]
+            ],
+            [
+                'column1'   => 
+                  [
+                    'name'          => 'FREERADIUS HOME SERVERS',
+                    'controller'    => 'cHomeServerPools',
+                    'id'            => 'pnlOtherHomeServerPools',
+                    'glyph'         => 'xf1ce',
+                    'class'         => 'other-brown',
+                  ]
+            ]           
+        ];
+        
+         $this->set([
+            'success' => true,
+            'items'    => $items
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);   
+    }
+    
      public function utilitiesItems(){
      
         $ta     = 'left';        
@@ -1081,14 +1203,14 @@ class DashboardController extends AppController{
 				'iconCls'	=> 'x-fa fa-sitemap',
 				'glyph'		=> 'xf0e8'	
 			],
-			[
+			/*[
 				'text' 		=> 'LOGIN',
 				'leaf'		=> true,
 				'controller'=> 'cDynamicDetails',
 				'id'		=> 'tabDynamicCDetails',
 				'iconCls'	=> 'x-fa fa-arrow-circle-right',
 				'glyph'		=> 'xf0a9'
-			],
+			],*/
 			[
 				'text' 		=> 'OTHER',
 				'leaf'	    => true,

@@ -11,13 +11,20 @@ Ext.define('Rd.controller.cDynamicDetails', {
 	                itemId  : itemId,
 	                plain	: true,
 	                cls     : 'subSubTab', //Make darker -> Maybe grey
+	                tabBar: {
+                        items: [
+                            { 
+                                xtype   : 'btnOtherBack'
+                            }              
+                       ]
+                    },
 	                items   : [
 	                    { 
 	                        title   : 'Login Pages', 
 	                        xtype   : 'gridDynamicDetails',
 	                        border  : false,
 	                        plain   : true,
-	                        glyph   : 'xf090@FontAwesome',
+	                        glyph   : 'xf0a9@FontAwesome',
                             padding : Rd.config.gridSlim,
 	                    }
 	                ]

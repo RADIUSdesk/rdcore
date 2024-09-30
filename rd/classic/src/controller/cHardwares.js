@@ -4,14 +4,32 @@ Ext.define('Rd.controller.cHardwares', {
         var me      = this;
         var item    = pnl.down('#'+itemId);
         var added   = false;
-        if(!item){  
-            var g = Ext.create('Rd.view.hardwares.gridHardwares',{
-                border  : false,
-                plain   : true,
-                itemId  : itemId,
-                padding : Rd.config.gridSlim
-             }); 
-            pnl.add(g);
+        if(!item){
+            var tp = Ext.create('Ext.tab.Panel',
+            	{          
+	            	border  : false,
+	                itemId  : itemId,
+	                plain	: true,
+	                cls     : 'subSubTab', //Make darker -> Maybe grey
+	                tabBar: {
+                        items: [
+                            { 
+                                xtype   : 'btnOtherBack'
+                            }              
+                       ]
+                    },
+	                items   : [
+	                    { 
+	                        title   : 'Hardware', 
+	                        xtype   : 'gridHardwares',
+	                        border  : false,
+	                        plain   : true,
+	                        glyph   : 'xf0a0@FontAwesome',
+                            padding : Rd.config.gridSlim,
+	                    }
+	                ]
+	            });      
+            pnl.add(tp);
             pnl.on({activate : me.gridActivate,scope: me});
             added = true;
         }
