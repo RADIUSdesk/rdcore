@@ -805,10 +805,9 @@ class MeshHelper22Component extends Component {
                         }
                     }     
                     if($eth_one_bridge == true){
-                        $lan_if = $this->_lan_if_for($this->Hardware);
+                        $lan_if = $this->_lan_if_for($this->Hardware);                      
                         if($lan_if){
-                            //array_push($interfaces,"bat0.".$ifCounter);
-                            array_merge($interfaces,$lan_if);
+                            $interfaces = array_merge($interfaces,$lan_if);
                         }
                     }
                 }             
