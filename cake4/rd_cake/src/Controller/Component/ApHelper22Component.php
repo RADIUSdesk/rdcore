@@ -2032,8 +2032,8 @@ class ApHelper22Component extends Component {
                 //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id**                       
                 $base_array['nasid'] = 'a_hosta_'.$apProfileEntry->ap_profile_id.'_'.$apProfileEntry->id;                                
             }else{
-            	if($ap_profile_e->nasid !== ''){
-            		$base_array['nasid'] = $ap_profile_e->nasid;             	
+            	if($apProfileEntry->nasid !== ''){
+            		$base_array['nasid'] = $apProfileEntry->nasid;             	
             	}                            
             }
         }
