@@ -26,5 +26,21 @@ class MeshExitsTable extends Table{
         $this->hasMany('NodeMeshExits',['dependent' => true]);  
         $this->hasMany('MeshExitSettings',['dependent' => true]);
         $this->hasOne('MeshExitPppoeServers',['dependent' => true]);     
-    }        
+    }
+    
+    public function validationDefault(Validator $validator):Validator{
+        $validator = new Validator();     
+        $validator
+            ->notEmptyString('type', 'A type is required')
+            ->add('vlan', [
+                'vlanUnique' => [
+                    'message' => 'The VLAN you provided is already taken. Please provide another one.',
+                    'rule'    => ['validateUnique', ['scope' => 'mesh_id']],
+                    'provider' => 'table'
+                ]
+            ]);
+
+        return $validator;
+    }
+            
 }
