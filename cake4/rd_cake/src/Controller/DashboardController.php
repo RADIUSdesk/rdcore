@@ -868,6 +868,17 @@ class DashboardController extends AppController{
                 'class'         => 'other-brown',
               ]
         ];
+        
+        $items[] =  [
+            'column1'   => 
+              [
+                'name'          => 'MULTI WAN',
+                'controller'    => 'cMultiWan',
+                'id'            => 'pnlOtherMultiWan',
+                'glyph'         => 'xf10e',
+                'class'         => 'other-brown',
+              ],
+        ];
             
         if($isRootUser){
             $items[] =  [
