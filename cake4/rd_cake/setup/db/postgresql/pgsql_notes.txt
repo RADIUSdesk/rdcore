@@ -1,0 +1,24 @@
+=== Migration of DB from MySQL to Postgresql ===
+
+Install the pgloader package
+sudo apt-get install pgloader
+
+create a config file for pgloader to use:
+
+vi migrate.load
+
+load database
+  from mysql://rd:rd@localhost/rd
+  into postgres://rd:rd@127.0.0.1:5432/rd
+alter schema 'rd' rename to 'public';
+
+Run the pgloader command:
+
+pgloader migrate.load
+
+==== Apply the patches ====
+
+sudo su
+su postgres
+psql -d rd -U rd -h localhost -p 5432 -f pg.001.acct_trigger.sql
+psql -d rd -U rd -h localhost -p 5432 -f pg.002.cron_station_hourlies.sql

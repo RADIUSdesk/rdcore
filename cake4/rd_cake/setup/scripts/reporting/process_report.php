@@ -61,7 +61,22 @@ function main(){
     global $conn,$rebootFlag,$repSettings;
     _doReports();  
 }
- 
+
+//==== FOR Postgresql =====
+/*
+function doConnection(){
+    global $servername,$username,$password,$conn;
+    try {
+        $conn = new PDO("pgsql:host=$servername;dbname=rd", $username, $password);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+    } catch(PDOException $e){
+        echo "Connection failed: " . $e->getMessage();
+    }
+}
+*/
+
+//==== For Mysql / MariaDB =====
 function doConnection(){
 
     global $servername,$username,$password,$conn;
@@ -341,7 +356,7 @@ function _node_stations($d,$node_id){
                             
                             print_r($s_data);
 
-                            $stmt = $conn->prepare("INSERT into node_stations (node_id,radio_number,frequency_band,mesh_entry_id,mac_address_id,tx_bytes,rx_bytes,tx_packets,rx_packets,tx_bitrate,rx_bitrate,authenticated,authorized,tdls_peer,preamble,tx_failed,wmm_wme,tx_retries,mfp,signal_now,signal_avg,created,modified)VALUES(:node_id,:radio_number,:frequency_band,:mesh_entry_id,:mac_address_id,:tx_bytes,:rx_bytes,:tx_packets,:rx_packets,:tx_bitrate,:rx_bitrate,:authenticated,:authorized,:tdls_peer,:preamble,:tx_failed,:wmm_wme,:tx_retries,:mfp,:signal_now,:signal_avg,:created,:modified)");
+                            $stmt = $conn->prepare("INSERT into node_stations (node_id,radio_number,frequency_band,mesh_entry_id,mac_address_id,tx_bytes,rx_bytes,tx_packets,rx_packets,tx_bitrate,rx_bitrate,tx_failed,tx_retries,signal_now,signal_avg,created,modified)VALUES(:node_id,:radio_number,:frequency_band,:mesh_entry_id,:mac_address_id,:tx_bytes,:rx_bytes,:tx_packets,:rx_packets,:tx_bitrate,:rx_bitrate,:tx_failed,:tx_retries,:signal_now,:signal_avg,:created,:modified)");
                             $stmt->execute([
                                 'node_id'           => $s_data['node_id'],//1
                                 'radio_number'      => $s_data['radio_number'],//2
@@ -354,14 +369,8 @@ function _node_stations($d,$node_id){
                                 'tx_bitrate'        => $s_data['tx_bitrate'],//9
                                 'rx_packets'        => $s_data['rx_packets'],//10
                                 'tx_packets'        => $s_data['tx_packets'],//11
-                                'authenticated'     => $s_data['authenticated'],//12
-                                'authorized'        => $s_data['authorized'],//13
-                                'tdls_peer'         => $s_data['tdls_peer'],//14
-                                'preamble'          => $s_data['preamble'],//15
                                 'tx_failed'         => $s_data['tx_failed'],//16
-                                'wmm_wme'           => $s_data['wmm_wme'],//17
                                 'tx_retries'        => $s_data['tx_retries'],//18
-                                'mfp'               => $s_data['mpf'],//Dislectic FIXME//19
                                 'signal_now'        => $s_data['signal_now'],//20
                                 'signal_avg'        => $s_data['signal_avg'],//21,
                                 'created'           => $s_data['created'],//22
@@ -479,7 +488,7 @@ function _ap_stations($d,$ap_id){
                             $s_data['mac_address_id']   = getOrCreateMacAddressId($s_data['mac']);
                             unset($s_data['mac']);
                             
-                            $stmt = $conn->prepare("INSERT into ap_stations (ap_id,radio_number,frequency_band,ap_profile_entry_id,mac_address_id,tx_bytes,rx_bytes,tx_bitrate,rx_bitrate,tx_packets,rx_packets,authenticated,authorized,tdls_peer,preamble,tx_failed,wmm_wme,tx_retries,mfp,signal_now,signal_avg,created,modified)VALUES(:ap_id,:radio_number,:frequency_band,:ap_profile_entry_id,:mac_address_id,:tx_bytes,:rx_bytes,:tx_packets,:rx_packets,:tx_bitrate,:rx_bitrate,:authenticated,:authorized,:tdls_peer,:preamble,:tx_failed,:wmm_wme,:tx_retries,:mfp,:signal_now,:signal_avg,:created,:modified)");
+                            $stmt = $conn->prepare("INSERT into ap_stations (ap_id,radio_number,frequency_band,ap_profile_entry_id,mac_address_id,tx_bytes,rx_bytes,tx_bitrate,rx_bitrate,tx_packets,rx_packets,tx_failed,tx_retries,signal_now,signal_avg,created,modified)VALUES(:ap_id,:radio_number,:frequency_band,:ap_profile_entry_id,:mac_address_id,:tx_bytes,:rx_bytes,:tx_bitrate,:rx_bitrate,:tx_packets,:rx_packets,:tx_failed,:tx_retries,:signal_now,:signal_avg,:created,:modified)");
                             $stmt->execute([
                                 'ap_id'             => $s_data['node_id'],//1
                                 'radio_number'      => $s_data['radio_number'],//2
@@ -492,18 +501,12 @@ function _ap_stations($d,$ap_id){
                                 'tx_bitrate'        => $s_data['tx_bitrate'],//9
                                 'rx_packets'        => $s_data['rx_packets'],//10
                                 'tx_packets'        => $s_data['tx_packets'],//11
-                                'authenticated'     => $s_data['authenticated'],//12
-                                'authorized'        => $s_data['authorized'],//13
-                                'tdls_peer'         => $s_data['tdls_peer'],//14
-                                'preamble'          => $s_data['preamble'],//15
-                                'tx_failed'         => $s_data['tx_failed'],//16
-                                'wmm_wme'           => $s_data['wmm_wme'],//17
-                                'tx_retries'        => $s_data['tx_retries'],//18
-                                'mfp'               => $s_data['mpf'],//Dislectic FIXME//19
-                                'signal_now'        => $s_data['signal_now'],//20
-                                'signal_avg'        => $s_data['signal_avg'],//21,
-                                'created'           => $s_data['created'],//22
-                                'modified'          => $s_data['modified']//23
+                                'tx_failed'         => $s_data['tx_failed'],//12
+                                'tx_retries'        => $s_data['tx_retries'],//13
+                                'signal_now'        => $s_data['signal_now'],//14
+                                'signal_avg'        => $s_data['signal_avg'],//15
+                                'created'           => $s_data['created'],//16
+                                'modified'          => $s_data['modified']//17
                             ]); 
                         }
                     }     

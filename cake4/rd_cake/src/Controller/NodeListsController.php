@@ -63,7 +63,7 @@ class NodeListsController extends AppController{
 		$query          = $this->{$this->main_model}->find();
 		$req_q    		= $this->request->getQuery();      
        	$cloud_id 		= $req_q['cloud_id'];
-       	
+       	      	       	
        	if((isset($req_q['zero_flag']))&&($req_q['zero_flag']=='true')){      	
        		 $this->set([
 		        'items' 	=> [], //$items,
@@ -75,6 +75,7 @@ class NodeListsController extends AppController{
        	}
 						
         $this->CommonQueryFlat->build_cloud_query($query, $cloud_id, ['Meshes','NodeUptmHistories','NodeConnectionSettings']); //AP QUERY is sort of different in a way
+                
 
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50;   //Defaults
@@ -89,10 +90,10 @@ class NodeListsController extends AppController{
         $query->page($page);
         $query->limit($limit);
         $query->offset($offset);
-
+        
         $total = $query->count();
         $q_r = $query->all();
-		
+        		
 	    $hardware = $this->_make_hardware_lookup();
 
         $items = [];
@@ -390,6 +391,7 @@ class NodeListsController extends AppController{
 				}
 				array_push($hist_day,0);
 			}
+			
 			$this_data['dayuptimehist'] = $hist_day;
 			$this_data['uptimhistpct'] = $hist_pct;
             array_push($items,$this_data);

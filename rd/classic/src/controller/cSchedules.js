@@ -4,15 +4,36 @@ Ext.define('Rd.controller.cSchedules', {
         var me      = this;
         var item    = pnl.down('#'+itemId);
         var added   = false;
-        if(!item){  
-            pnl.add({
-                itemId : itemId,
-             	xtype  : 'pnlSchedules',
-                border : false,
-                plain  : true,
-                padding: '0 5 0 5'
-            });
-            pnl.on({activate : me.dvActivate,scope: me});
+        if(!item){
+            var tp = Ext.create('Ext.tab.Panel',
+            	{          
+	            	border  : false,
+	                itemId  : itemId,
+	                plain	: true,
+	                cls     : 'subSubTab', //Make darker -> Maybe grey
+	                tabBar: {
+                        items: [
+                            { 
+                                xtype   : 'btnOtherBack'
+                            }              
+                       ]
+                    },
+	                items   : [
+	                    { 
+	                        title   : 'Schedules', 
+	                        xtype   : 'pnlSchedules',
+	                        border  : false,
+                            plain   : true,
+                            padding : '0 5 0 5',
+	                        glyph   : 'xf133@FontAwesome',
+	                        listeners: {
+                                activate: me.dvActivate,
+                                scope   : me
+                            }
+	                    }
+	                ]
+	            });      
+            pnl.add(tp);
             added = true;
         }
         return added;      

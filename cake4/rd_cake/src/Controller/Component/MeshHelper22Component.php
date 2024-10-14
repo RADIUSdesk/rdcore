@@ -169,15 +169,34 @@ class MeshHelper22Component extends Component {
             $this->NodeConnectionSettings->save($ent_channel);
         }
     }
-    
+       
     private function _update_fetched_info($ent_node){
-        //--Update the fetched info--
-        $data = [];
-		$data['id'] 			        = $this->NodeId;
-		$data['config_fetched']         = FrozenTime::now();
-		$data['last_contact_from_ip']   = $this->getController()->getRequest()->clientIp();
-        $this->Nodes->patchEntity($ent_node, $data);
-        $this->Nodes->save($ent_node);      
+
+        if ($this->_isSampleRequest()) {
+            return;
+        }
+
+        if (!$ent_node) {
+            // Handle invalid entity
+            throw new \InvalidArgumentException('Invalid entity');
+        }
+
+        $fetchedInfo = [];
+        $fetchedInfo['id'] = $this->NodeId;
+        $fetchedInfo['config_fetched'] = FrozenTime::now();
+        $fetchedInfo['last_contact_from_ip'] = $this->getController()->getRequest()->clientIp();
+
+        $this->Nodes->patchEntity($ent_node, $fetchedInfo);
+
+        if (!$this->Nodes->save($ent_node)) {
+            // Handle save error
+            throw new \RuntimeException('Failed to save entity');
+        }
+    }
+    
+    private function _isSampleRequest(){
+
+        return $this->getController()->getRequest()->getQuery('sample') === 'true';
     }
     
     private function  _build_json($ent_mesh,$gateway = false){
@@ -786,10 +805,9 @@ class MeshHelper22Component extends Component {
                         }
                     }     
                     if($eth_one_bridge == true){
-                        $lan_if = $this->_lan_if_for($this->Hardware);
+                        $lan_if = $this->_lan_if_for($this->Hardware);                      
                         if($lan_if){
-                            //array_push($interfaces,"bat0.".$ifCounter);
-                            array_merge($interfaces,$lan_if);
+                            $interfaces = array_merge($interfaces,$lan_if);
                         }
                     }
                 }             

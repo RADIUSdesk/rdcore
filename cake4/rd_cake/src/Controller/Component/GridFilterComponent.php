@@ -24,8 +24,6 @@ class GridFilterComponent extends Component {
 
     public function xformFilter($f){
     
-        
-    
         if(property_exists($f, 'operator')){
         
             if($f->operator == 'like'){
@@ -43,8 +41,7 @@ class GridFilterComponent extends Component {
             if(($f->operator == 'gt')||($f->operator == 'lt')||($f->operator == 'eq')){
                 $f->type = 'date';
                 $f->comparison = $f->operator;
-            }
-        
+            }      
         }
         
         if(property_exists($f, 'property')){

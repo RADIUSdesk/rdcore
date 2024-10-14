@@ -1,19 +1,42 @@
 Ext.define('Rd.controller.cHomeServerPools', {
     extend: 'Ext.app.Controller',
-    actionIndex: function(pnl){
+    actionIndex: function(pnl,itemId){
         var me      = this;
-        var itemId  = 'gridHomeServerPoolsId';
         var item    = pnl.down('#'+itemId);
+        var added   = false;
         if(!item){
-            pnl.add({ 
-                itemId  : itemId,
-                xtype  : 'gridHomeServerPools',
-                border : false,
-                plain  : true,
-                padding : Rd.config.gridSlim,
-            });
-            pnl.on({activate : me.reload,scope: me});
+            var tp = Ext.create('Ext.tab.Panel',
+            	{          
+	            	border  : false,
+	                itemId  : itemId,
+	                plain	: true,
+	                cls     : 'subSubTab', //Make darker -> Maybe grey
+	                tabBar: {
+                        items: [
+                            { 
+                                xtype   : 'btnOtherBack'
+                            }              
+                       ]
+                    },
+	                items   : [
+	                    { 
+	                        title   : 'FreeRADIUS Home Servers', 
+	                        xtype   : 'gridHomeServerPools',
+	                        border  : false,
+                            plain   : true,
+                            padding : '0 5 0 5',
+	                        glyph   : 'xf1ce@FontAwesome',
+	                        listeners: {
+                                activate: me.reload,
+                                scope   : me
+                            }
+	                    }
+	                ]
+	            });      
+            pnl.add(tp);
+            added = true;
         }
+        return added;      
     },
     views:  [
         'homeServerPools.gridHomeServerPools',           
@@ -67,11 +90,6 @@ Ext.define('Rd.controller.cHomeServerPools', {
         });
     },    
     reload: function(){
-        var me =this;
-        me.getGrid().getSelectionModel().deselectAll(true);
-        me.getGrid().getStore().load();
-    },
-	reload: function(){
         var me =this;
         me.getGrid().getSelectionModel().deselectAll(true);
         me.getGrid().getStore().load();

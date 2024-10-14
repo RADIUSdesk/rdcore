@@ -189,15 +189,34 @@ class ApHelper22Component extends Component {
     }
     
     private function _update_fetched_info($ent_ap){
-        //--Update the fetched info--
-        $data = [];
-		$data['id'] 			        = $this->ApId;
-		$data['config_fetched']         = FrozenTime::now();
-		$data['last_contact_from_ip']   = $this->getController()->getRequest()->clientIp();
-        $this->{$this->main_model}->patchEntity($ent_ap, $data);
-        $this->{$this->main_model}->save($ent_ap);       
-    } 
+
+        if ($this->_isSampleRequest()) {
+            return;
+        }
+
+        if (!$ent_ap) {
+            // Handle invalid entity
+            throw new \InvalidArgumentException('Invalid entity');
+        }
+
+        $fetchedInfo = [];
+        $fetchedInfo['id'] = $this->ApId;
+        $fetchedInfo['config_fetched'] = FrozenTime::now();
+        $fetchedInfo['last_contact_from_ip'] = $this->getController()->getRequest()->clientIp();
+
+        $this->{$this->main_model}->patchEntity($ent_ap, $fetchedInfo);
+
+        if (!$this->{$this->main_model}->save($ent_ap)) {
+            // Handle save error
+            throw new \RuntimeException('Failed to save entity');
+        }
+    }
     
+    private function _isSampleRequest(){
+
+        return $this->getController()->getRequest()->getQuery('sample') === 'true';
+    }
+       
      //___________________ AP Settings and related functions _________________
     private function  _build_json($ap_profile){
 
@@ -2013,8 +2032,8 @@ class ApHelper22Component extends Component {
                 //MESHdesk / AP Profile **(m/a)** _ **id** _ **entry_id**                       
                 $base_array['nasid'] = 'a_hosta_'.$apProfileEntry->ap_profile_id.'_'.$apProfileEntry->id;                                
             }else{
-            	if($ap_profile_e->nasid !== ''){
-            		$base_array['nasid'] = $ap_profile_e->nasid;             	
+            	if($apProfileEntry->nasid !== ''){
+            		$base_array['nasid'] = $apProfileEntry->nasid;             	
             	}                            
             }
         }

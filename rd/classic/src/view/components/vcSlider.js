@@ -8,11 +8,15 @@ Ext.define('Rd.view.components.vcSlider', {
         var me 		= this;
 		var fc    	= sldr.up('container');
 		if(sldr.getValue() == 0){
-		    fc.down('textfield').disable();  
-		    fc.down('combobox').disable(); 
+		    fc.down('textfield').disable();
+		    if(fc.down('combobox')){  
+		        fc.down('combobox').disable();
+		    }
 		}else{
 		    fc.down('textfield').enable();
-		    fc.down('combobox').enable();
+		    if(fc.down('combobox')){
+		        fc.down('combobox').enable();
+		    }
 		}
         fc.down('textfield').setValue(sldr.getValue());
     },

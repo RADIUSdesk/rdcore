@@ -3,6 +3,16 @@ Ext.define('Rd.controller.cSettings', {
     views: [
         'settings.pnlSettings'
     ],
+    refs: [
+        {   ref: 'viewP',   	selector: 'viewP',          xtype: 'viewP',    autoCreate: true}
+    ],
+    control : {
+        'pnlSettings #btnBack' : {
+		    click	: function(btn){
+		        Ext.getApplication().runAction('cMainOther','BackButton');
+		    }
+	    }
+    },
     actionIndex: function(pnl,itemId){
         var me      = this;
         var item    = pnl.down('#'+itemId);
@@ -14,7 +24,7 @@ Ext.define('Rd.controller.cSettings', {
 	            border  : false,
 	            plain   : true,
                 padding : '0 5 0 5',
-            });
+            });           
             added = true;
         }
         return added;      

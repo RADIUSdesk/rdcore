@@ -48,7 +48,10 @@ Ext.define('Rd.controller.cMeshes', {
         urlRestartNodes : '/cake4/rd_cake/mesh-reports/restart_nodes.json',
         urlMeshAddNodeAction: '/cake4/rd_cake/node-actions/add.json',
         urlChangeDeviceMode: '/cake4/rd_cake/nodes/change_node_mode.json',
-        urlAdvancedSettingsForModel: '/cake4/rd_cake/meshes/advanced_settings_for_model.json'
+        urlAdvancedSettingsForModel: '/cake4/rd_cake/meshes/advanced_settings_for_model.json',
+        urlConfig       : '/cake4/rd_cake/nodes/get-config-for-node.json',
+        openWrtVersion  : '22.03',
+        gateway         : true
     },
     refs: [
         {  ref: 'grid',             selector: 'gridMeshes'},
@@ -125,6 +128,9 @@ Ext.define('Rd.controller.cMeshes', {
             },
             'gridNodeLists #edit': {
                 click:  me.editNode
+            }, 
+            'gridNodeLists #config': {
+                click:  me.configNode
             },  
             'gridNodeLists #restart': {
                 click:  me.restartNode
@@ -487,6 +493,32 @@ Ext.define('Rd.controller.cMeshes', {
             }
         }   
     },
+    configNode: function(){
+    
+        var me          = this;     
+        var store       = me.getGridNodeLists().getStore();
+		var selCount    = me.getGridNodeLists().getSelectionModel().getCount();
+        if(selCount == 0){
+             Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            ); 
+        }else{
+            if(selCount > 1){
+                Ext.ux.Toaster.msg(
+                    i18n('sSelect_one_only'),
+                    i18n('sSelection_limited_to_one'),
+                    Ext.ux.Constants.clsWarn,
+                    Ext.ux.Constants.msgWarn
+                );
+            }else{
+                var sr      = me.getGridNodeLists().getSelectionModel().getLastSelected();
+                me.getConfig(sr);              
+            }
+        }   
+    },
     restartNode: function(){
     
         var me          = this;     
@@ -672,7 +704,11 @@ Ext.define('Rd.controller.cMeshes', {
     	var tabPanel 	= me.getGrid().up('tabpanel')
 		Ext.getApplication().runAction('cBans','Index',tabPanel,{});
 	},
-	   
+	
+	getConfig: function(record){	
+	    var me = this;
+	    window.open(me.getUrlConfig()+"?mac="+record.get('mac')+'&version='+me.getOpenWrtVersion()+'&gateway='+me.getGateway()+'&sample=true');
+	},		   
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");
         var me = this;
@@ -701,6 +737,7 @@ Ext.define('Rd.controller.cMeshes', {
     onNodeListsActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");
         var me = this;
+        
         var grid = view.up('grid');
         grid.setSelection(record);
         if(action == 'update'){
@@ -711,6 +748,9 @@ Ext.define('Rd.controller.cMeshes', {
         }
         if(action == 'restart'){
             me.restartNode();
-        }      
+        }        
+        if(action == 'config'){
+            me.getConfig(record);
+        }       
     }
 });
