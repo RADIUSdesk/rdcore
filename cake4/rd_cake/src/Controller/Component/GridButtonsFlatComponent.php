@@ -396,7 +396,15 @@ class GridButtonsFlatComponent extends Component {
             'disabled' 	=> true,
             'ui'        => $this->btnUiEdit
         ]; 
-                            
+         
+        $this->btnConfigCall = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnCog'), 
+            'scale'     => $this->scale,
+            'itemId'    => 'config',
+            'tooltip'   => 'Config Call',
+            'ui'        => 'default'       
+        ];                 
     }
 
     public function returnButtons($title = true,$type='basic',$right='admin'){
@@ -1488,6 +1496,7 @@ class GridButtonsFlatComponent extends Component {
 				$this->btnAdd,
 				$this->btnDelete,
 				$this->btnEdit,
+				$this->btnConfigCall,
 				$this->btnRestart
 			]
 		];
@@ -1576,6 +1585,7 @@ class GridButtonsFlatComponent extends Component {
 				$this->btnEdit,
 				$this->btnView,
 				$this->btnExecute,
+				$this->btnConfigCall,
 				$this->btnRestart
 			]
 		];

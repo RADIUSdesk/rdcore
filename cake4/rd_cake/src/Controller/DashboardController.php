@@ -723,132 +723,182 @@ class DashboardController extends AppController{
                	];                      
             }
         }
-        
-       	if($req_q['item_id'] == 'tabMainOther'){
-       	
-       		$items = [];
-       		if($isRootUser){
-       			array_push($items,[
-                    "title"	=> "Settings",
-                    "glyph"	=> "xf085@FontAwesome",
-                    "id"	=> "cSettings",
-                    "layout"=> "fit",
-                    'tabConfig' =>  [
-			        	'ui' =>  'tab-teal'
-			    	]  
-                ]);	
-       		}
-       		        
-            array_push($items,[
-                "title"	=> "Clouds",
-                "glyph"	=> "xf0c2@FontAwesome",
-                "id"	=> "cClouds",
-                "layout"=> "fit",
-                'tabConfig' =>  [
-	            	'ui' =>  'tab-metal'
-	        	]  
-            ]);
-            
-            if($isRootUser){
-            	array_push($items,[
-                    "title"	=> "Admins",
-                    "glyph"	=> "xf084@FontAwesome",
-                    "id" 	=> "cAccessProviders",
-                    "layout"=> "fit",
-                    'tabConfig' =>  [
-			        	'ui' =>  'tab-metal'
-			    	]  
-                ]);	
-       		}
-       		
-       		array_push($items,[
-                "title"	=> "Hardware",
-                "glyph"	=> "xf0a0@FontAwesome",
-                "id"	=> "cHardwares",
-                "layout"=> "fit",
-                'tabConfig' =>  [
-	            	'ui' =>  'tab-brown'
-	        	]  
-            ]);
-                       
-            array_push($items,[
-                "title"	=> "Schedules",
-                "glyph"	=> "xf133@FontAwesome",
-                "id"	=> "cSchedules",
-                "layout"=> "fit",
-                'tabConfig' =>  [
-	            	'ui' =>  'tab-brown'
-	        	]  
-            ]);
-            
-            array_push($items,[
-                "title"	=> "Firewall",
-                "glyph"	=> "xf06d@FontAwesome",
-                "id"	=> "cFirewallProfiles",
-                "layout"=> "fit",
-                'tabConfig' =>  [
-	            	'ui' =>  'tab-brown'
-	        	]  
-            ]);
-       		
-       		array_push($items,[
-                "title" => "OpenVPN Servers",
-                "glyph" => "xf10e@FontAwesome",
-                "id"	=> "cOpenvpnServers",
-                "layout"=> "fit",
-                'tabConfig' =>  [
-	            	'ui' =>  'tab-brown'
-	        	]   
-            ]);
-            
-            array_push($items,[
-                "title" => "Accel-ppp Servers",
-                "glyph" => "xf10e@FontAwesome",
-                "id"	=> "cAccel",
-                "layout"=> "fit",
-                'tabConfig' =>  [
-	            	'ui' =>  'tab-brown'
-	        	]   
-            ]);
-            
-             array_push($items,[
-                "title" => "FreeRADIUS Home Servers",
-                "glyph" => "xf1ce@FontAwesome",
-                "id"	=> "cHomeServerPools",
-                "layout"=> "fit",
-                'tabConfig' =>  [
-	            	'ui' =>  'tab-brown'
-	        	]   
-            ]);
-            
-            array_push($items,[
-                "title"	=> "Private PSKs",
-                "glyph"	=> "xf023@FontAwesome",
-                "id"	=> "cPrivatePsks",
-                "layout"=> "fit",
-                'tabConfig' =>  [
-	            	'ui' =>  'tab-brown'
-	        	]  
-            ]);
-            
-            array_push($items,[
-                "title"	=> "SQM Profiles",
-                "glyph"	=> "xf00a@FontAwesome",
-                "id"	=> "cSqmProfiles",
-                "layout"=> "fit",
-                'tabConfig' =>  [
-	            	'ui' =>  'tab-brown'
-	        	]  
-            ]);
-                		                       
-        }
-        
+              
         $this->set([
             'success' => true,
             'items'    => $items
         ]);
         $this->viewBuilder()->setOption('serialize', true);   
       
+    }
+    
+    public function otherItems(){
+    
+        $user = $this->Aa->user_for_token($this);
+        if(!$user){
+            return;
+        }
+        $user_id  	= $user['id'];
+        $isRootUser = false;
+        $group		= $user['group_name'];
+        
+        if( $group  == Configure::read('group.admin')){  //Admin
+            $isRootUser = true; 
+        }
+    
+        $items = [];
+        
+        if($isRootUser){
+            $items[] = [ 
+                'column1'   => 
+                  [
+                    'name'          => 'SETTINGS',
+                    'controller'    => 'cSettings',
+                    'id'            => 'pnlOtherSettings',
+                    'glyph'         => 'xf085',
+                    'class'         => 'other-green',
+                  ]
+            ];
+        }
+        
+        if($isRootUser){
+            $items[] =  [
+                'column1'   => 
+                  [
+                    'name'          => 'CLOUDS',
+                    'controller'    => 'cClouds',
+                    'id'            => 'pnlOtherClouds',
+                    'glyph'         => 'xf0c2',
+                    'class'         => 'other-blue',
+                  ],
+                'column2' => 
+                  [
+                    'name'          => 'ADMINS',
+                    'controller'    => 'cAccessProviders',
+                    'id'            => 'pnlOtherAdmins',
+                    'glyph'         => 'xf084',
+                    'class'         => 'other-blue',
+                  ]
+            ];
+        }else{
+            $items[] =  [
+                'column1'   => 
+                  [
+                    'name'          => 'CLOUDS',
+                    'controller'    => 'cClouds',
+                    'id'            => 'pnlOtherClouds',
+                    'glyph'         => 'xf0c2',
+                    'class'         => 'other-blue',
+                  ]
+            ];                      
+        }
+        
+        $items[] =   [
+                'column1'   => 
+                  [
+                    'name'          => 'LOGIN PAGES',
+                    'controller'    => 'cDynamicDetails',
+                    'id'            => 'pnlOtherLogin',
+                    'glyph'         => 'xf0a9',
+                    'class'         => 'other-brown',
+                  ],
+                'column2' => 
+                  [
+                    'name'          => 'HARDWARE',
+                    'controller'    => 'cHardwares',
+                    'id'            => 'pnlOtherHardware',
+                    'glyph'         => 'xf0a0',
+                    'class'         => 'other-brown',
+                  ]
+            ];
+            
+        $items[] =  [
+                'column1'   => 
+                  [
+                    'name'          => 'SCHEDULES',
+                    'controller'    => 'cSchedules',
+                    'id'            => 'pnlOtherSchedules',
+                    'glyph'         => 'xf133',
+                    'class'         => 'other-brown',
+                  ],
+                'column2' => 
+                  [
+                    'name'          => 'FIREWALL',
+                    'controller'    => 'cFirewallProfiles',
+                    'id'            => 'pnlOtherFirewall',
+                    'glyph'         => 'xf06d',
+                    'class'         => 'other-brown',
+                  ]
+            ];
+            
+        $items[] =  [
+            'column1'   => 
+              [
+                'name'          => 'SQM PROFILES',
+                'controller'    => 'cSqmProfiles',
+                'id'            => 'pnlOtherSqmProfiles',
+                'glyph'         => 'xf00a',
+                'class'         => 'other-brown',
+              ],
+            'column2' => 
+              [
+                'name'          => 'PRIVATE PSKS',
+                'controller'    => 'cPrivatePsks',
+                'id'            => 'pnlOtherPrivatePsks',
+                'glyph'         => 'xf023',
+                'class'         => 'other-brown',
+              ]
+        ];
+            
+        $items[] =  [
+            'column1'   => 
+              [
+                'name'          => 'OPENVPN SERVERS',
+                'controller'    => 'cOpenvpnServers',
+                'id'            => 'pnlOtherHomeOpenvpnServers',
+                'glyph'         => 'xf10e',
+                'class'         => 'other-brown',
+              ],
+            'column2' => 
+              [
+                'name'          => 'ACCEL-PPP SERVERS',
+                'controller'    => 'cAccel',
+                'id'            => 'pnlOtherAccel',
+                'glyph'         => 'xf10e',
+                'class'         => 'other-brown',
+              ]
+        ];
+        
+        $items[] =  [
+            'column1'   => 
+              [
+                'name'          => 'MULTI WAN',
+                'controller'    => 'cMultiWan',
+                'id'            => 'pnlOtherMultiWan',
+                'glyph'         => 'xf10e',
+                'class'         => 'other-brown',
+              ],
+        ];
+            
+        if($isRootUser){
+            $items[] =  [
+
+                'column1'   => 
+                  [
+                    'name'          => 'FREERADIUS HOME SERVERS',
+                    'controller'    => 'cHomeServerPools',
+                    'id'            => 'pnlOtherHomeServerPools',
+                    'glyph'         => 'xf1ce',
+                    'class'         => 'other-brown',
+                  ]
+            ];
+        }
+        
+         $this->set([
+            'success' => true,
+            'items'    => $items
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);   
     }
     
      public function utilitiesItems(){
@@ -1081,14 +1131,14 @@ class DashboardController extends AppController{
 				'iconCls'	=> 'x-fa fa-sitemap',
 				'glyph'		=> 'xf0e8'	
 			],
-			[
+			/*[
 				'text' 		=> 'LOGIN',
 				'leaf'		=> true,
 				'controller'=> 'cDynamicDetails',
 				'id'		=> 'tabDynamicCDetails',
 				'iconCls'	=> 'x-fa fa-arrow-circle-right',
 				'glyph'		=> 'xf0a9'
-			],
+			],*/
 			[
 				'text' 		=> 'OTHER',
 				'leaf'	    => true,

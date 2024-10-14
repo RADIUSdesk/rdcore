@@ -727,7 +727,7 @@ class WifiChartsController extends AppController{
         $nodes = $this->{$table}->find()->select($fields)
             ->where($where)
             ->order(['data_total' => 'DESC'])
-            ->group(['node_id'])
+            ->group(['node_id','Nodes.name'])
             ->contain(['Nodes'])
             ->all();
             
@@ -755,7 +755,7 @@ class WifiChartsController extends AppController{
             $nodes_h = $this->{$tHourlies}->find()->select($fields)
                 ->where($where_h)
                 ->order(['data_total' => 'DESC'])
-                ->group(['node_id'])
+                ->group(['node_id','Nodes.name'])
                 ->contain(['Nodes'])
                 ->all(); 
             
@@ -1005,7 +1005,7 @@ class WifiChartsController extends AppController{
     }
     
     private function _getTopTen($ft_start,$ft_end){
-    
+      
         $top_ten        = [];
         $limit          = 10;
         $where          = $this->base_search_no_mac;
@@ -1035,7 +1035,7 @@ class WifiChartsController extends AppController{
         $stations = $this->{$table}->find()->select($fields)
             ->where($where)
             ->order(['data_total' => 'DESC'])
-            ->group(['mac_address_id'])
+            ->group(['mac_address_id', 'MacAddresses.mac'])
             ->contain(['MacAddresses'])
             ->limit($limit)
             ->all();
@@ -1064,7 +1064,7 @@ class WifiChartsController extends AppController{
             $stations_h  = $this->{$tHourlies}->find()->select($fields)
                 ->where($where_h)
                 ->order(['data_total' => 'DESC'])
-                ->group(['mac_address_id'])
+                ->group(['mac_address_id','MacAddresses.mac'])
                 ->contain(['MacAddresses'])
                 ->limit($limit)
                 ->all();          

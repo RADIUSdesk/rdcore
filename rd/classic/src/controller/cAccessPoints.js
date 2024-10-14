@@ -50,6 +50,9 @@ Ext.define('Rd.controller.cAccessPoints', {
         urlRestartAps   : '/cake4/rd_cake/ap-actions/restart_aps.json',
         urlCsvImport    : '/cake4/rd_cake/ap-profiles/ap-profile-ap-import.json',
         urlExportCsv 	: '/cake4/rd_cake/aps/export-csv',
+        urlConfig       : '/cake4/rd_cake/nodes/get-config-for-node.json',
+        openWrtVersion  : '22.03',
+        gateway         : true
     },
     refs: [
         {  ref: 'grid',             selector: 'gridApProfiles'},
@@ -140,6 +143,9 @@ Ext.define('Rd.controller.cAccessPoints', {
             '#winHardwareAddActionMain #save' : {
 				click	: me.commitExecute
 			},
+			'gridApLists #config': {
+                click:  me.configNode
+            },  
 			'gridApLists #restart' : {
 				click	: me.restart
 			},
@@ -418,6 +424,29 @@ Ext.define('Rd.controller.cAccessPoints', {
             failure     : Ext.ux.formFail
         });
     },
+    configNode: function(){
+    
+        var me      = this;
+        var tab     = me.getTabAccessPoints(); 
+        var grid    = tab.down("gridApLists");
+         
+        //Find out if there was something selected
+        if(grid.getSelectionModel().getCount() == 0){
+            Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n("sSelect_an_item_on_which_to_execute_the_command"),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{
+        	var sr      = grid.getSelectionModel().getLastSelected();
+            me.getConfig(sr);          
+        }
+    },
+    getConfig: function(record){	
+	    var me = this;
+	    window.open(me.getUrlConfig()+"?mac="+record.get('mac')+'&version='+me.getOpenWrtVersion()+'&gateway='+me.getGateway()+'&sample=true');
+	},	
     
     restart:   function(button){
         var me      = this; 
@@ -768,6 +797,9 @@ Ext.define('Rd.controller.cAccessPoints', {
         }
         if(action == 'restart'){
             me.restart();
-        }      
+        }
+        if(action == 'config'){
+            me.getConfig(record);
+        }         
     }
 });

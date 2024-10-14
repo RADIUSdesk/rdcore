@@ -5,14 +5,34 @@ Ext.define('Rd.controller.cClouds', {
         var item    = pnl.down('#'+itemId);
         var added   = false;
         if(!item){         
-            pnl.add({
+            pnl.add({         
+                xtype   : 'tabpanel',
                 itemId  : itemId,
-                xtype   : 'treeClouds',
-                border  : false,
-                plain   : true,
-                padding : Rd.config.gridSlim
+                cls     : 'subSubTab',
+                border	: false,
+                plain	: true,
+                tabBar: {
+                    items: [
+                        { 
+                            xtype   : 'btnOtherBack'
+                        }              
+                   ]
+                },
+                items   : [           
+                    {
+                        title   : 'Clouds',
+                        xtype   : 'treeClouds',
+                        border  : false,
+                        plain   : true,
+                        padding : Rd.config.gridSlim,
+                        glyph   : "xf0c2@FontAwesome",
+                        tabConfig : {
+                            ui  : 'tab-metal'
+                        }
+                    }
+                ]
             });
-            pnl.on({activate : me.reload,scope: me});
+            //pnl.on({activate : me.reload,scope: me});
             added = true;
         }
         return added;
@@ -21,7 +41,8 @@ Ext.define('Rd.controller.cClouds', {
         'clouds.treeClouds',         
         'clouds.winCloudEdit',
         'clouds.winCloudAdd',
-        'clouds.pnlCloudEdit'
+        'clouds.pnlCloudEdit',
+        'components.btnOtherBack'
     ],
     stores: [],
     models: [],

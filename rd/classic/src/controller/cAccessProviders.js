@@ -2,21 +2,41 @@ Ext.define('Rd.controller.cAccessProviders', {
     extend: 'Ext.app.Controller',
     actionIndex: function(pnl,itemId){
         var me      = this;
-        me.ui       = Rd.config.tabAccPrvdrs; //This is set in the config file    
+        me.ui       = Rd.config.tabAccPrvdrs; //This is set in the config file 
         var item    = pnl.down('#'+itemId);
         var added   = false;
-        if(!item){ 
-            var g = Ext.create('Rd.view.accessProviders.gridAccessProviders',{
-                border  : false,
-                plain   : true,
+        if(!item){              
+            pnl.add({         
+                xtype   : 'tabpanel',
                 itemId  : itemId,
-                padding : Rd.config.gridSlim
-             }); 
-            pnl.add(g);
-            pnl.on({activate : me.reload,scope: me});
+                cls     : 'subSubTab',
+                border	: false,
+                plain	: true,
+                tabBar: {
+                    items: [
+                        { 
+                            xtype   : 'btnOtherBack'
+                        }              
+                   ]
+                },
+                items   : [           
+                    {
+                        title   : 'Admins',
+                        xtype   : 'gridAccessProviders',
+                        border  : false,
+                        plain   : true,
+                        padding : Rd.config.gridSlim,
+                        glyph   : 'xf084@FontAwesome',
+                        tabConfig : {
+                            ui  : 'tab-metal'
+                        }
+                    }
+                ]
+            });
+            //pnl.on({activate : me.reload,scope: me});
             added = true;
         }
-        return added;      
+        return added;
     },
     views:  [
         'accessProviders.pnlAccessProviderDetail', 
