@@ -1,115 +1,74 @@
 Ext.define('Rd.controller.cMainOther', {
     extend  : 'Ext.app.Controller',
     config: {
-        urlGetContent : '/cake4/rd_cake/dashboard/items-for.json'
+        urlGetContent : '/cake4/rd_cake/dashboard/other-items.json'
     },
-    control : {
-        '#tabMainOther #cHardwares' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cHardwares','Index',pnl);
-		    }
-	    },
-        '#tabMainOther #cSettings' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cSettings','Index',pnl);
-		    }
-	    },
-        '#tabMainOther #cOpenvpnServers' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cOpenvpnServers','Index',pnl);
-		    }
-	    },
-        '#tabMainOther #cSchedules' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cSchedules','Index',pnl);
-		    }
-	    },
-        '#tabMainOther #cClouds' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cClouds','Index',pnl);
-		    }
-	    },
-        '#tabMainOther #cAccessProviders' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cAccessProviders','Index',pnl);
-		    }
-	    },
-	    '#tabMainOther #cFirewallProfiles' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cFirewallProfiles','Index',pnl);
-		    }
-	    },
-	    '#tabMainOther #cAccel' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cAccel','Index',pnl);
-		    }
-	    },
-	    '#tabMainOther #cHomeServerPools' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cHomeServerPools','Index',pnl);
-		    }
-	    },
-	    '#tabMainOther #cPrivatePsks' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cPrivatePsks','Index',pnl);
-		    }
-	    },
-	    '#tabMainOther #cSqmProfiles' : {
-		    afterrender	: function(pnl){
-		        Ext.getApplication().runAction('cSqmProfiles','Index',pnl);
-		    }
-	    }	    
-    },
-    actionIndexWIP: function(pnl,itemId){
+    refs: [
+        {   ref: 'viewP',   	selector: 'viewP',          xtype: 'viewP',    autoCreate: true}
+    ],
+    actionIndex: function(pnl,itemId){
         var me      = this;
         var item    = pnl.down('#'+itemId);
         var added   = false;
         if(!item){
         
-        
-            var s = Ext.create('Ext.data.Store', {
-                storeId: 'myStore',
-                fields: ['column1', 'column2'],
-                data: [
-                    { column1: 'Item 1A', column2: 'Item 1B' },
-                    { column1: 'Item 2A', column2: 'Item 2B' },
-                    { column1: 'Item 3A', column2: 'Item 3B' }
-                ]
+            me.store = Ext.create('Ext.data.Store',{
+                storeId : 'myStore',
+                fields  : ['column1', 'column2'],
+                proxy: {
+                    type        :'ajax',
+                    url         : me.getUrlGetContent(),
+                    batchActions: true,
+                    format      : 'json',
+                    reader      : {
+                        type        : 'json',
+                        rootProperty: 'items'
+                    }
+                },
+                listeners: {
+                    load: function(store, records, successful) {
+                        if(!successful){
+                            Ext.ux.Toaster.msg(
+                                'Error encountered',
+                                store.getProxy().getReader().rawData.message.message,
+                                Ext.ux.Constants.clsWarn,
+                                Ext.ux.Constants.msgWarn
+                            );
+                        } 
+                    },
+                    scope: this
+                },
+                autoLoad: true
             });
-            
+                      
             var v = Ext.create('Ext.view.View', {
                 store: Ext.data.StoreManager.lookup('myStore'),
                 tpl: new Ext.XTemplate(
                     '<tpl for=".">',
-                        '<div class="dataview-item">',
-                            '<div class="dataview-column1">{column1}</div>',
-                            '<div class="dataview-column2">{column2}</div>',
+                        '<div class="split-dataview-item">',
+                            '<div class="split-dataview-column1">',
+                                '<span style="font-family:FontAwesome;">&#{column1.glyph};</span>   {column1.name}',
+                            '</div>',
+                            '<tpl if="column2">',
+                                '<div class="split-dataview-column2">',
+                                '<span style="font-family:FontAwesome;">&#{column2.glyph};</span>   {column2.name}',
+                            '</div>',
+                            '</tpl>',
                         '</div>',
                     '</tpl>'
                 ),
-                itemSelector: '.dataview-item',
+                itemSelector: '.split-dataview-item',
                 listeners: {
-                    itemclick: function(view, record, item, index, e) {
-                        var clickedColumn = e.getTarget('.dataview-column1') ? 'column1' : 'column2';
-                        console.log('Clicked column:', clickedColumn, 'Value:', record.get(clickedColumn));
-                        // Add your selection handling logic here
-                    }
+                    itemclick: me.itemClicked,
+                    scope: me
                 }
-            });
-        
-        
+            });         
             var tp = Ext.create('Ext.panel.Panel',
             	{          
 	            	border      : false,
 	                itemId      : itemId,
 	                items       : v,
 	                height      : '100%', 
-                    width       :  550,
-                    layout: {
-                       type: 'vbox',
-                       align: 'stretch'
-                    },
-                    items       : v,
                     autoScroll  : true,
 	            });      
             pnl.add(tp);
@@ -118,34 +77,39 @@ Ext.define('Rd.controller.cMainOther', {
         }
         return added;      
     },
-    actionIndex: function(pnl,itemId){
-        var me      = this;
-        var item    = pnl.down('#'+itemId);
-        var added   = false;
-        if(!item){
-            var tp = Ext.create('Ext.tab.Panel',
-            	{          
-	            	border  : false,
-	                itemId  : itemId,
-	                plain	: true,
-	                cls     : 'subSubTab', //Make darker
-	            });      
-            pnl.add(tp);
-            Ext.Ajax.request({
-                url     : me.getUrlGetContent(),
-                method  : 'GET',
-                params  : { item_id : itemId },
-                success : function (response) {
-                    var jsonData = Ext.JSON.decode(response.responseText);
-                    if (jsonData.success) {
-                        var items = jsonData.items;
-                        tp.add(items);
-                    }
-                },
-                scope: me
-            });
-            added = true;
-        }
-        return added;      
+    actionBackButton: function(){
+        var me              = this;                           
+        var pnlDashboard    = me.getViewP().down('pnlDashboard');
+        var new_data        = Ext.Object.merge(pnlDashboard.down('#tbtHeader').getData(),{fa_value:'&#xf085;', value : 'OTHER'});
+        pnlDashboard.down('#tbtHeader').update(new_data);
+        var pnl             = me.getViewP().down('#pnlCenter');
+        var item            = pnl.down('#tabMainOther');
+        pnl.setActiveItem(item);
+        pnl.getEl().slideIn('r');     
+    },
+    itemClicked: function(view, record, item, index, e){
+    
+        var clickedColumn   = e.getTarget('.split-dataview-column1') ? 'column1' : 'column2';
+        var column          = record.get(clickedColumn);
+        if(column){
+            var pnlDashboard = me.getViewP().down('pnlDashboard');
+
+            var new_data = Ext.Object.merge(pnlDashboard.down('#tbtHeader').getData(),{fa_value:'&#'+column.glyph+';', value : column.name});
+            pnlDashboard.down('#tbtHeader').update(new_data);
+            
+            var id      = column.id;
+            var pnl     = me.getViewP().down('#pnlCenter');
+            var item    = pnl.down('#'+id);
+            if(!item){
+                var added = Ext.getApplication().runAction(column.controller,'Index',pnl,id);
+                if(!added){
+                    pnl.setActiveItem(item);
+                }else{
+                    pnl.setActiveItem(id);
+                }  
+            }else{
+           		pnl.setActiveItem(item);
+           	}   
+        } 
     }
 });

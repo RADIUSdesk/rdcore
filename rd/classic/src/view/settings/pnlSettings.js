@@ -3,13 +3,20 @@ Ext.define('Rd.view.settings.pnlSettings', {
     alias	: 'widget.pnlSettings',
     border	: false,
     plain	: true,
-    cls     : 'subTab',
+    cls     : 'subSubTab',
     requires: [
         'Rd.view.settings.pnlSettingsDefaults',
         'Rd.view.settings.pnlSettingsMqtt',
         'Rd.view.settings.pnlSettingsEmail',
         'Rd.view.settings.pnlSettingsSms'
     ],
+    tabBar: {
+        items: [
+            { 
+                xtype   : 'btnOtherBack'
+            }              
+       ]
+    },
     initComponent: function(){
         var me      = this;
         me.items = [

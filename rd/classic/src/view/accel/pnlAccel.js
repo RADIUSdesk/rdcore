@@ -3,7 +3,14 @@ Ext.define('Rd.view.accel.pnlAccel', {
     alias	: 'widget.pnlAccel',
     border	: false,
     plain	: true,
-    cls     : 'subTab',
+    cls     : 'subSubTab',
+    tabBar: {
+        items: [
+            { 
+                xtype   : 'btnOtherBack'
+            }              
+       ]
+    },
     requires: [
         'Rd.view.accel.gridAccelServers',
     //    'Rd.view.accel.gridAccelClients',

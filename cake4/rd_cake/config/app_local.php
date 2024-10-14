@@ -40,21 +40,37 @@ return [
      */
     'Datasources' => [
         'default' => [
-            'host' => 'localhost',
-            'className' => 'Cake\Database\Connection',
-            'driver' => 'Cake\Database\Driver\Mysql',
-            'persistent' => false,
-            'username' => 'rd',
-            'password' => 'rd',
-            'database' => 'rd',
+            'host'          => 'localhost',
+            'className'     => 'Cake\Database\Connection',
+            'driver'        => 'Cake\Database\Driver\Mysql',
+            'persistent'    => false,
+            'username'      => 'rd',
+            'password'      => 'rd',
+            'database'      => 'rd',
             // Comment out the line below if you are using PostgreSQL
             ////'encoding' => 'utf8mb4',
-         	'encoding' => 'utf8',
-            'timezone' => 'UTC',
+         	'encoding'      => 'utf8',
+            'timezone'      => 'UTC',
             'cacheMetadata' => true,
-            'log'	=> false,
-            'url' => env('DATABASE_URL', null),
+            'log'	        => false,
+            'url'           => env('DATABASE_URL', null),
+        ], 
+
+//==== FOR Postgresql =====
+/*
+	'default' => [
+             'className' => 'Cake\Database\Connection',
+                'driver' => 'Cake\Database\Driver\Postgres',
+                'persistent' => false,
+                'host' => '127.0.0.1',
+                'port' => '5432',
+                'username' => 'rd',
+                'password' => 'rd',
+                'database' => 'rd',
+                'schema' => 'public', // Ensure this is correct
         ],
+*/
+
         /*
         	The CakePHPv3 database with the old structure
         	create database rd_cake3;

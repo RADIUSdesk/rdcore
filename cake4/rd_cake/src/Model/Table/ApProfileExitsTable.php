@@ -47,7 +47,7 @@ class ApProfileExitsTable extends Table {
             ->add('vlan', [ 
                 'vlanUnique' => [
                     'message' => 'The VLAN you provided is already taken. Please provide another one.',
-                    'rule'    => ['validateUnique', ['scope' => 'type']], 
+                    'rule'    => ['validateUnique', ['scope' => 'ap_profile_id']], 
                     'provider' => 'table'
                 ]
             ]);

@@ -4,15 +4,36 @@ Ext.define('Rd.controller.cFirewallProfiles', {
         var me      = this;
         var item    = pnl.down('#'+itemId);
         var added   = false;
-        if(!item){  
-            pnl.add({
-                itemId : itemId,
-             	xtype  : 'pnlFirewallProfiles',
-                border : false,
-                plain  : true,
-                padding: '0 5 0 5'
-            });
-            pnl.on({activate : me.dvActivate,scope: me});
+        if(!item){
+            var tp = Ext.create('Ext.tab.Panel',
+            	{          
+	            	border  : false,
+	                itemId  : itemId,
+	                plain	: true,
+	                cls     : 'subSubTab', //Make darker -> Maybe grey
+	                tabBar: {
+                        items: [
+                            { 
+                                xtype   : 'btnOtherBack'
+                            }              
+                       ]
+                    },
+	                items   : [
+	                    { 
+	                        title   : 'Firewall', 
+	                        xtype   : 'pnlFirewallProfiles',
+	                        border  : false,
+                            plain   : true,
+                            padding : '0 5 0 5',
+	                        glyph   : 'xf06d@FontAwesome',
+	                        listeners: {
+                                activate: me.dvActivate,
+                                scope   : me
+                            }
+	                    }
+	                ]
+	            });      
+            pnl.add(tp);
             added = true;
         }
         return added;      
@@ -29,6 +50,7 @@ Ext.define('Rd.controller.cFirewallProfiles', {
         }
     },
    	dvActivate: function(pnl){
+   	    console.log("Gooi hom");
         var me = this;
         me.getDv().getStore().reload();            
     },

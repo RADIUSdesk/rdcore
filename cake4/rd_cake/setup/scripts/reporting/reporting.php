@@ -87,8 +87,22 @@ function main(){
     header('Content-type: application/json');
     echo json_encode($data);
 }
+
+//==== FOR Postgresql =====
+/*
+function doConnection(){
+    global $servername,$username,$password,$conn;
+    try {
+        $conn = new PDO("pgsql:host=$servername;dbname=rd", $username, $password);
+        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+    } catch(PDOException $e){
+        echo "Connection failed: " . $e->getMessage();
+    }
+}
+*/
  
-  
+//==== For Mysql / MariaDB =====
 function doConnection(){
 
     global $servername,$username,$password,$conn;
@@ -99,8 +113,8 @@ function doConnection(){
     catch(PDOException $e){
         echo "Connection failed: " . $e->getMessage();
     }
-  
 }
+
 
 function _getIdForMac($mac){
     global $conn,$mode;
@@ -380,12 +394,12 @@ function _doFullReport($node){
     } 
     
     if($mode == 'mesh'){
-        $stmt = $conn->prepare("INSERT into temp_reports (node_id,mesh_id,report) VALUES(:node_id,:mesh_id,:report)");
+        $stmt = $conn->prepare("INSERT into temp_reports (ap_id,ap_profile_id,node_id,mesh_id,report) VALUES(0,0,:node_id,:mesh_id,:report)");
         $stmt->execute(['node_id' => $node->id,'mesh_id' => $node->mesh_id,'report'=>$report]);  
     }
     
     if($mode == 'ap'){
-        $stmt = $conn->prepare("INSERT into temp_reports (ap_id,ap_profile_id,report) VALUES(:ap_id,:ap_profile_id,:report)");
+        $stmt = $conn->prepare("INSERT into temp_reports (node_id,mesh_id,ap_id,ap_profile_id,report) VALUES(0,0,:ap_id,:ap_profile_id,:report)");
         $stmt->execute(['ap_id' => $node->id,'ap_profile_id' => $node->ap_profile_id,'report'=>$report]); 
     }
 }
