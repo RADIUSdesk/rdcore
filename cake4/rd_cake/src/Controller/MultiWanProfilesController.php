@@ -18,6 +18,10 @@ class MultiWanProfilesController extends AppController {
     public function initialize():void{
         parent::initialize();  
         $this->loadModel($this->main_model);
+        
+        $this->loadModel('MwanInterfaces');
+        $this->loadModel('MwanInterfaceSettings');
+        
         $this->loadModel('Users');
 	$this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
 		    'model'     => 'MultiWanProfiles',
@@ -73,8 +77,78 @@ class MultiWanProfilesController extends AppController {
         ]);
         $this->viewBuilder()->setOption('serialize', true);
     }
+    
+    public function indexDataView(){
+        //__ Authentication + Authorization __
+        $user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+
+        $req_q    = $this->request->getQuery();      
+       	$cloud_id = $req_q['cloud_id'];
+        $query 	  = $this->{$this->main_model}->find();      
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,['MwanInterfaces' => ['MwanInterfaceSettings']]);
+        
+        if(isset($req_q['id'])){
+        	if($req_q['id'] > 0){
+        		$query->where(['MultiWanProfiles.id' => $req_q['id']]);
+        	}	   
+        }
+
+        //===== PAGING (MUST BE LAST) ======
+        $limit = 50;   //Defaults
+        $page = 1;
+        $offset = 0;
+        if (isset($req_qy['limit'])) {
+            $limit  = $req_q['limit'];
+            $page   = $req_q['page'];
+            $offset = $req_q['start'];
+        }
+
+        $query->page($page);
+        $query->limit($limit);
+        $query->offset($offset);
+
+        $total  = $query->count();
+        $q_r    = $query->all();
+        $items  = [];
+
+        foreach ($q_r as $i) {
+       
+            $row            = [];       
+			$row['id']      = $i->id.'_0'; //Signifies Firewall Profile
+			$row['name']	= $i->name;
+			$row['type']	= 'multi_wan_profile';
+			$row['firewall_profile_id'] = $i->id;
+			
+			$for_system = false;
+            if($i->cloud_id == -1){
+            	$for_system = true;
+            }
+            $row['for_system']  = $for_system;
+							
+			$items[] = $row;
+			
+			//Now the interfaces
+			foreach($i->mwan_interfaces as $mwanInterface){
+			    print_r($mwanInterface);		
+			}
+			
+							
+			$items[] = [ 'id' => '0_'.$i->id, 'type'	=> 'add','name' => 'Multi WAN Connection', 'multi_wan_profile_id' =>  $i->id, 'multi_wan_profile_name' => $i->name, 'for_system' =>  $for_system ];			
+        }
+        
+        //___ FINAL PART ___
+        $this->set([
+            'items'         => $items,
+            'success'       => true,
+            'totalCount'    => $total
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    }
              
-  	public function indexDataView(){
+  	public function indexDataViewZZ(){
         //__ Authentication + Authorization __
         $user = $this->_ap_right_check();
         if (!$user) {
@@ -256,7 +330,50 @@ class MultiWanProfilesController extends AppController {
             }
         }
     }
-    	    	
+    
+    public function interfaceAddEdit(){
+	   
+		if (!$this->request->is('post')) {
+			throw new MethodNotAllowedException();
+		}
+
+        //__ Authentication + Authorization __
+        $user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        
+        $ap_flag 	= true;	
+		if($user['group_name'] == Configure::read('group.admin')){
+			$ap_flag = false; //clear if admin
+		}
+				   
+        if ($this->request->is('post')) { 
+            $req_d  = $this->request->getData();
+            
+            if($req_d['id'] === "0"){
+            
+                //New MwanInterface 
+                $mwanInterface = $this->MwanInterfaces->newEntity($req_d); 
+                if ($this->MwanInterfaces->save($mwanInterface)) {
+                    $this->set([
+                        'success' => true
+                    ]);
+                    $this->viewBuilder()->setOption('serialize', true);
+                } else {
+                    $message = __('Could not update item');
+                    $this->JsonErrors->entityErros($mwanInterface,$message);
+                }          
+            }
+                       
+             $this->set([
+                'success' => true
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);                         
+        }
+    }
+    
+       	    	
     public function menuForGrid(){
         $user = $this->Aa->user_for_token($this);
         if(!$user){   //If not a valid user

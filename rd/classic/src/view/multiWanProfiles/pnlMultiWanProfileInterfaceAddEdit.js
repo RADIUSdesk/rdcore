@@ -41,12 +41,13 @@ Ext.define('Rd.view.multiWanProfiles.pnlMultiWanProfileInterfaceAddEdit', {
     ],
     controller  : 'vcMultiWanProfileInterface',
     initComponent: function() {
-        var me 		= this; 
-        me.setTitle('Add Interface For '+me.multi_wan_profile_name);
+        var me 		= this;
+        if(me.interface_id == 0){
+            me.setTitle('Add Interface To '+me.multi_wan_profile_name);
+        }
         
-        var w_prim  = 550;
-        var w_sec   = w_prim - 30;
-     
+        var w_prim  = 600;
+    
         var pnlStatic = {
             xtype       : 'panel',
             itemId      : 'pnlStatic',
@@ -299,6 +300,26 @@ Ext.define('Rd.view.multiWanProfiles.pnlMultiWanProfileInterfaceAddEdit', {
             ]
         };
         
+        var pnlPingHosts = {
+            xtype       : 'panel',
+            itemId      : 'pnlPingHosts',
+            bodyStyle   : 'background: #e0ebeb',
+            layout      : 'anchor',
+            defaults    : {
+                anchor  : '100%'
+            },
+            items   : [
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : 'Host / IP 1',
+                    name        : 'ping_host_1',
+                    allowBlank  : false,
+                    blankText   : i18n("sSupply_a_value"),
+                    labelClsExtra: 'lblRdReq'
+                }
+            ]
+        };
+        
         var cntGeneral = {
             xtype       : 'container',
             width       : w_prim,
@@ -309,8 +330,14 @@ Ext.define('Rd.view.multiWanProfiles.pnlMultiWanProfileInterfaceAddEdit', {
             items       : [
                 {
                     xtype       : 'textfield',
+                    name        : 'id',
+                    hidden      : true,
+                    value	    : me.interface_id
+                },
+                {
+                    xtype       : 'textfield',
                     fieldLabel  : 'Name',
-                    name        : 'interface_name',
+                    name        : 'name',
                     allowBlank  : false,
                     labelClsExtra: 'lblRdReq'
                 }
@@ -333,7 +360,7 @@ Ext.define('Rd.view.multiWanProfiles.pnlMultiWanProfileInterfaceAddEdit', {
                 },
                 {
                     xtype   : 'textfield',
-                    name    : 'type',
+                    name    : 'con_type',
                     itemId	: 'txtType',
                     hidden  : true,
                     value	: 'ethernet'
@@ -397,7 +424,7 @@ Ext.define('Rd.view.multiWanProfiles.pnlMultiWanProfileInterfaceAddEdit', {
                     name    : 'method',
                     itemId	: 'txtMethod',
                     hidden  : true,
-                    value	: 'ipv4'
+                    value	: 'dhcp'
                 },
                 {
                     xtype       : 'radiogroup',
@@ -417,7 +444,7 @@ Ext.define('Rd.view.multiWanProfiles.pnlMultiWanProfileInterfaceAddEdit', {
 				        toggleGroup: 'method',
 				        allowDepress: false,					
 			        },             
-                    items: [
+                    items: [ //dhcp,static,pppoe
 				        { text: 'DHCP', 	itemId: 'btnDhcp',  flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 0', pressed: true },
 				        { text: 'Static IP Address', itemId: 'btnStatic', flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 5' },
 				        { text: 'PPPoE', 	itemId: 'btnPppoe',  flex:1, ui : 'default-toolbar', 'margin' : '0 0 0 5' }
@@ -425,19 +452,6 @@ Ext.define('Rd.view.multiWanProfiles.pnlMultiWanProfileInterfaceAddEdit', {
                 },
                 pnlStatic,
                 pnPppoe,
-                {
-                    xtype       : 'numberfield',
-                    name        : 'metric',
-                    fieldLabel  : 'Metric',
-                    allowBlank  : true,
-                    maxValue    : 300,
-                    minValue    : 1,
-                    value       : 1,
-                    labelClsExtra : 'lblRd',
-                    hideTrigger : true,
-                    keyNavEnabled  : false,
-                    mouseWheelEnabled	: false
-                },
                 {
                     xtype       : 'numberfield',
                     name        : 'vlan',
@@ -486,7 +500,7 @@ Ext.define('Rd.view.multiWanProfiles.pnlMultiWanProfileInterfaceAddEdit', {
             defaults    : {
                 anchor  : '100%'
             },
-            items       : [
+          /*  items       : [
                 {
                     xtype       : 'checkbox',      
                     boxLabel  	: 'Enable Monitor',
@@ -496,14 +510,8 @@ Ext.define('Rd.view.multiWanProfiles.pnlMultiWanProfileInterfaceAddEdit', {
 			          //  change  : 'onChkApplySqmProfileChange'
 			        }
                 },
-                {
-                    xtype       : 'textfield',
-                    fieldLabel  : 'Host / IP  1',
-                    name        : 'monitor_host_1',
-                    allowBlank  : false,
-                    labelClsExtra: 'lblRdReq'
-                }, 
-                { xtype : 'button', text: 'ADD HOST / IP ADDRESS', 	itemId: 'btnAddHost',  flex:1, ui : 'default-toolbar', 'margin' : '10' },
+                pnlPingHosts,
+                { xtype : 'button', text: 'ADD HOST / IP ADDRESS', 	itemId: 'btnAddHost',  flex:1, ui : 'default-toolbar', 'margin' : '0' },
                 {
                     xtype       : 'numberfield',
                     name        : 'reliability',
@@ -530,7 +538,7 @@ Ext.define('Rd.view.multiWanProfiles.pnlMultiWanProfileInterfaceAddEdit', {
                     keyNavEnabled  : false,
                     mouseWheelEnabled	: false
                 }           
-            ]
+            ]*/
         }            
        
         me.items = [

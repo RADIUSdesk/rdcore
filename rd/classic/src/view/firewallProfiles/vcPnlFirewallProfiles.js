@@ -262,16 +262,7 @@ Ext.define('Rd.view.firewallProfiles.vcPnlFirewallProfiles', {
             	}
             	if(b.result.data.action == 'limit'){
             		form.down('#btnLimit').click();	
-            	}
-            
-                /*form.down('#slideTime').setValue(b.result.data.event_time);       
-                if(b.result.data.type == 'predefined_command'){
-                    var cmb    = form.down("cmbPredefinedCommand");
-                    var rec    = Ext.create('Rd.model.mAp', {name: b.result.data.predefined_command_name, id: b.result.data.predefined_command_id});
-                    cmb.getStore().loadData([rec],false);
-                    cmb.setValue(b.result.data.predefined_command_id);
-                    console.log("Brannas");
-                }*/                          
+            	}                        
             }
         });        
     },

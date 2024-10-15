@@ -4,6 +4,9 @@ Ext.define('Rd.view.multiWanProfiles.vcMultiWanProfileInterface', {
     init    : function() {
     
     },
+    config: {
+        urlSave          : '/cake4/rd_cake/multi-wan-profiles/interface-add-edit.json'
+    },
     control: {
         '#btnEthernet': {
         	click	: 'onBtnEthernetClick'
@@ -34,7 +37,10 @@ Ext.define('Rd.view.multiWanProfiles.vcMultiWanProfileInterface', {
         },
         '#btnPppoe': {
         	click	: 'onBtnPppoeClick'
-        },        
+        },
+        '#save': {
+            click   : 'btnSave'
+        }        
     },
     //Type
     onBtnEthernetClick: function(btn){
@@ -117,5 +123,27 @@ Ext.define('Rd.view.multiWanProfiles.vcMultiWanProfileInterface', {
     	me.getView().down('#pnlStatic').hide();
     	me.getView().down('#pnlStatic').disable();
     	me.getView().down('#txtMethod').setValue('pppoe');
-    }
+    },
+    btnSave:function(button){
+        var me          = this;
+        var formPanel   = this.getView();
+        //Checks passed fine...      
+        formPanel.submit({
+            clientValidation    : true,
+            url                 : me.getUrlSave(),
+            success             : function(form, action) {
+                me.getView().store.reload();
+                if (formPanel.closable) {
+                    formPanel.close();
+                }
+                Ext.ux.Toaster.msg(
+                    i18n('sItems_modified'),
+                    i18n('sItems_modified_fine'),
+                    Ext.ux.Constants.clsInfo,
+                    Ext.ux.Constants.msgInfo
+                );
+            },
+            failure             : Ext.ux.formFail
+        });
+    },  
 });

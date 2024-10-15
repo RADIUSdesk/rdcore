@@ -55,20 +55,25 @@ Ext.define('Rd.view.multiWanProfiles.vcMultiWanProfiles', {
 	    		return;
 	    	}
 	    	var tp      = me.getView().up('tabpanel');
-            var p       = Ext.widget('pnlMultiWanProfileInterfaceAddEdit',{            
-                id                      : 'winMultiWanProfileInterfaceAddId',
-                multi_wan_profile_id    : record.get('multi_wan_profile_id'),
-                multi_wan_profile_name  : record.get('multi_wan_profile_name')               
+	    	var id		= 'tabInterfaceAddEdit'+ 0;
+	    	
+	    	var newTab  = tp.items.findBy(
+            function (tab){
+                return tab.getItemId() === id;
             });
-	    	tp.add(p);
-	    	
-	    	
-		   /* if(!Ext.WindowManager.get('winMultiWanProfileInterfaceAddId')){
-                var w = Ext.widget('winMultiWanProfileInterfaceAdd',{id:'winMultiWanProfileInterfaceAddId','multi_wan_profile_id' : record.get('multi_wan_profile_id'),'multi_wan_profile_name' : record.get('multi_wan_profile_name')});
-                me.getView().add(w); 
-                let appBody = Ext.getBody();
-                w.showBy(appBody);             
-            } */
+         
+            if (!newTab){
+                newTab = tp.add({
+                    itemId                  : id,
+                    interface_id            : 0,
+                    xtype                   : 'pnlMultiWanProfileInterfaceAddEdit',
+                    multi_wan_profile_id    : record.get('multi_wan_profile_id'),
+                    multi_wan_profile_name  : record.get('multi_wan_profile_name'),
+                    store                   : me.getView().down('#dvMultiWanProfiles').getStore()
+                     
+                });
+            }    
+            tp.setActiveTab(newTab);
     	} 	
     },
     reload: function(){
