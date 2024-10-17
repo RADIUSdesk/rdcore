@@ -6,7 +6,7 @@ Ext.define('Rd.view.multiWanProfiles.winMultiWanProfileAdd', {
     resizable:  true,
     title:      'New MultiWan Profile',
     width       : 550,
-    height      : 550,
+    height      : 350,
     plain:      true,
     border:     false,
     layout:     'fit',
@@ -63,6 +63,15 @@ Ext.define('Rd.view.multiWanProfiles.winMultiWanProfileAdd', {
                     blankText   : i18n('sSupply_a_value'),
                     labelClsExtra: 'lblRdReq'
                 },
+                {
+                    xtype       : 'checkbox',      
+                    boxLabel    : 'System Wide',
+                    name        : 'for_system',
+                    inputValue  : 'for_system',
+                    boxLabelCls	: 'boxLabelRd', 
+                    hidden      : hide_system,
+                    disabled    : hide_system
+                }
             ],
             buttons: [
                 {

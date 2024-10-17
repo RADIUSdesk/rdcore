@@ -8,7 +8,7 @@ if not exists (select * from information_schema.columns
     where table_name = 'multi_wan_profiles' and table_schema = 'rd') then
      CREATE TABLE `multi_wan_profiles` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
-        `name` varchar(255) NOT NULL,
+        `name` char(64) NOT NULL,
         `cloud_id` int(11) DEFAULT NULL,
         `created` datetime NOT NULL,
         `modified` datetime NOT NULL,
@@ -17,8 +17,6 @@ if not exists (select * from information_schema.columns
 
 end if;
 
-<<<<<<< Updated upstream
-=======
 
 if not exists (select * from information_schema.columns
     where table_name = 'mwan_interfaces' and table_schema = 'rd') then
@@ -66,7 +64,6 @@ if not exists (select * from information_schema.columns
 end if;
 
 
->>>>>>> Stashed changes
 end//
 
 delimiter ;
