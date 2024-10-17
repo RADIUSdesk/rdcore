@@ -111,7 +111,14 @@ Ext.define('Rd.view.aps.vcApGeneric', {
         }else{
             pnlQmi.setHidden(true);
             pnlQmi.setDisabled(true);
-        }          
+        } 
+        if(cmb.getValue() == 'mwan'){
+            pnlQmi.setHidden(false);
+            pnlQmi.setDisabled(false);   
+        }else{
+            pnlQmi.setHidden(true);
+            pnlQmi.setDisabled(true);
+        }             
     },        
     onCmbEncryptionOptionsChangeWbw : function(cmb){
         var me      = this;

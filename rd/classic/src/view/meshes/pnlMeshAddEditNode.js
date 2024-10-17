@@ -583,6 +583,19 @@ Ext.define('Rd.view.meshes.pnlMeshAddEditNode', {
                 }
             ]
         };
+        
+        var pnlMwan = {
+            xtype   : 'panel',
+            itemId  : 'pnlMwan',
+            hidden  : true,
+            disabled: true,
+            bodyStyle   : 'background: #e0ebeb',
+            items   : [               
+                { 
+                    xtype       : 'cmbMultiWanProfile'
+                }
+            ]
+        };
                 
         var cntRebootController = {
             xtype   : 'panel',

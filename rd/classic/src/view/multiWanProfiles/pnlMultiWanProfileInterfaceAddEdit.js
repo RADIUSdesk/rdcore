@@ -360,7 +360,7 @@ Ext.define('Rd.view.multiWanProfiles.pnlMultiWanProfileInterfaceAddEdit', {
                 },
                 {
                     xtype   : 'textfield',
-                    name    : 'con_type',
+                    name    : 'type',
                     itemId	: 'txtType',
                     hidden  : true,
                     value	: 'ethernet'

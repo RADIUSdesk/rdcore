@@ -35,6 +35,17 @@ if not exists (select * from information_schema.columns
 
 end if;
 
+if not exists (select * from information_schema.columns where column_name = 'multi_wan_profile_id' and table_name = 'aps' and table_schema = 'rd') then
+	alter table aps add column multi_wan_profile_id int(11) DEFAULT NULL;
+end if;
+
+if not exists (select * from information_schema.columns where column_name = 'multi_wan_profile_id' and table_name = 'aps' and table_schema = 'rd') then
+	alter table nodes add column multi_wan_profile_id int(11) DEFAULT NULL;
+end if;
+
+alter table aps modify column gateway enum('none','lan','3g','wifi','wifi_static','wifi_ppp','wifi_pppoe','wan_static','wan_ppp','wan_pppoe','mwan') DEFAULT 'none';
+
+ALTER TABLE nodes modify column gateway enum('none','lan','3g','wifi','wifi_static','wifi_ppp','wifi_pppoe','wan_static','wan_ppp','wan_pppoe', 'mwan') DEFAULT 'none';
 
 if not exists (select * from information_schema.columns
     where table_name = 'mwan_interface_settings' and table_schema = 'rd') then

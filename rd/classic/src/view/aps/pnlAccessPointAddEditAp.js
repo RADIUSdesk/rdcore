@@ -612,6 +612,28 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
             ]
         };
         
+        var pnlMwan = {
+            xtype   : 'panel',
+            itemId  : 'pnlMwan',
+            hidden  : true,
+            disabled: true,
+            bodyStyle   : 'background: #e0ebeb',
+            items   : [                  
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : 'Multi-Wan Profile',
+                    name        : 'qmi_username',
+                    itemId      : 'qmi_username',
+                    hidden      : true,
+                    disabled    : true,
+                    allowBlank  : false,
+                    blankText   : i18n("sSupply_a_value"),
+                    labelClsExtra: 'lblRdReq',
+                    width       : w_prim
+                }
+            ]
+        };
+        
         var cntRebootController = {
             xtype   : 'panel',
             itemId  : 'cntRebootController',
@@ -761,6 +783,7 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
 	            pnlWifiStatic,
 	            pnlWifiPppoe,
 	            pnlQmi,
+	            pnlMwan,
 	            {
                     xtype       : 'numberfield',
                     name        : 'vlan_admin',

@@ -39,13 +39,7 @@ Ext.define('Rd.view.multiWanProfiles.vcMultiWanProfiles', {
         },
         'winMultiWanProfileInterfaceAdd #save': {
             click   : 'btnInterfaceAddSave'
-        }, 
-      //  'winMultiWanProfileInterfaceEdit': {
-      //      show   : 'winMultiWanProfileInterfaceEditShow'
-     //   },
-     //   'winMultiWanProfileInterfaceEdit #save': {
-     //       click   : 'btnEntryInterfaceSave'
-     //   }           
+        }        
     },
     itemSelected: function(dv,record){
     	var me = this;
