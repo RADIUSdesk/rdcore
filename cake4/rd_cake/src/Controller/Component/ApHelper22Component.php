@@ -156,8 +156,11 @@ class ApHelper22Component extends Component {
             	foreach(array_keys($this->private_psks) as $ppsk_id){
             	    $this->private_psks[$ppsk_id] = $this->_formulate_ppsk_file($ppsk_id);
             	} 
-            	$json['config_settings']['ppsk_files'] = $this->private_psks;      	
-                               
+            	$json['config_settings']['ppsk_files'] = $this->private_psks;
+            	
+            	//==WIP FOR MWAN==
+            	$json['config_settings']['mwan'] = [];
+            	$json['config_settings']['mwan']['mwan_network'] = $this->_getMwanNetwork();                            
                 return $json;
             }
     }
@@ -482,7 +485,7 @@ class ApHelper22Component extends Component {
             $wan_bridge_id = $e_wan_bridge->value;
         }
        
-		
+/*		
         //-> loopback if
         array_push( $network,
             [
@@ -600,14 +603,13 @@ class ApHelper22Component extends Component {
         
         
         //---26Jan24 VLAN Hack---
-        /* --Sample--
-        config interface 'lan'
-            option device 'br-lan'
-            option proto 'dhcp'
-            option ifname 'eth0 eth1'
-            option stp '1'
+        // --Sample--
+        // config interface 'lan'
+        //     option device 'br-lan'
+        //     option proto 'dhcp'
+        //     option ifname 'eth0 eth1'
+        //      option stp '1'
         
-        */
         if($this->vlan_hack){       
             $wan_options['ifname'] = 'eth0 eth1'; 
             $wan_options['stp']    =  '1';
@@ -620,7 +622,10 @@ class ApHelper22Component extends Component {
                 "options"   => $wan_options
        	]); 	
 
-		
+	*/	
+	
+	   $network =  $this->_getMwanNetwork(); 
+	
 		//LTE/4G - !!HEADSUP Place it here since some code expect the LAN IF to be on $network[1]['options']['ifname'];!!
         $e_qmi = $this->{'ApConnectionSettings'}->find()->where([
             'ApConnectionSettings.ap_id'    => $this->ApId,
@@ -2048,6 +2053,78 @@ class ApHelper22Component extends Component {
 	    $base_array['vlan_tagged_interface']  = $this->br_int; //WAN port on LAN bridge
 	    $base_array['vlan_naming']	= '0';
 	    return $base_array;	
+	}
+	
+	private function _getMwanNetwork(){
+	
+	    $mwanNetwork = [
+        	    [
+        	        "interface" => "loopback", 
+        	        "options"   => 
+        	            [
+        	                "device"    => "lo", 
+        	                "proto"     => "static", 
+        	                "ipaddr"    => "127.0.0.1",
+        	                "netmask"   => "255.0.0.0"
+        	            ]
+        	    ], 
+        	    [
+        	        "device"    => "br-mwan20",
+        	        "options"   => [
+        	            "name"      => "br-mwan20",
+        	            "type"      => "bridge"
+        	        ], 
+        	        "lists"     => [
+        	            "ports" => [
+        	                "wan"
+        	            ]
+        	        ]
+        	    ], 
+        	    [
+        	        "interface" => "mwan20",
+        	        "options"   => [
+        	            "proto"     => "dhcp",
+        	            "device"    => "br-mwan20",
+        	            "metric"    => 1
+        	        ]
+        	    ],
+        	    [
+        	        "device"    => "br-mwan21",
+        	        "options"   => [
+        	            "name"      => "br-mwan21",
+        	            "type"      => "bridge"
+        	        ], 
+        	        "lists"     => [
+        	            "ports" => [
+        	                "lan"
+        	            ]
+        	        ]
+        	    ], 
+        	    [
+        	        "interface" => "mwan21",
+        	        "options"   => [
+        	            "proto"     => "dhcp",
+        	            "device"    => "br-mwan21",
+        	            "metric"    => 2
+        	        ]
+        	    ],
+        	    [
+        	        "interface" => "mwan23",
+        	        "options"   => [
+        	            "proto"     => "qmi",
+                        "device"    => "/dev/cdc-wdm0",
+                        "disabled"  => "0",
+                        "ifname"    => "mwan23",
+                        "auth"      => "none",
+                        "apn"       => "internet",
+                        "wan_bridge"=> "0",
+        	            "metric"    => 3
+        	        ]
+        	    ] 
+        	             	    
+            ];        
+	
+	    return $mwanNetwork;
 	}
 
 }

@@ -119,7 +119,7 @@ class MultiWanProfilesController extends AppController {
             $row            = [];       
 			$row['id']      = $i->id.'_0'; //Signifies Firewall Profile
 			$row['name']	= $i->name;
-			$row['type']	= 'multi_wan_profile';
+			$row['type']    = 'multi_wan_profile';
 			$row['firewall_profile_id'] = $i->id;
 			
 			$for_system = false;
@@ -132,7 +132,9 @@ class MultiWanProfilesController extends AppController {
 			
 			//Now the interfaces
 			foreach($i->mwan_interfaces as $mwanInterface){
-			    print_r($mwanInterface);		
+			    $mwanInterface->con_type = $mwanInterface->type;
+			    $mwanInterface->type = 'mwan_interface';
+			    $items[] = $mwanInterface;		
 			}
 			
 							
