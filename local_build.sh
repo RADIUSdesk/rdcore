@@ -1,8 +1,7 @@
 #!/bin/bash
+source ./.env
 
 docker network create --attachable -d bridge "${RADIUSDESK_NETWORK}"
-
-source ./.env
 
 echo Radiusdesk 2-docker system builder v1.0
 echo ---------------------------------------
@@ -34,22 +33,16 @@ cp ./docker/db_priveleges.sql "$RADIUSDESK_VOLUME/db_startup"
 cp ./docker/startup.sh "$RADIUSDESK_VOLUME/db_startup"
 cp ./docker/my_custom.cnf "$RADIUSDESK_VOLUME/db_conf"
 
-echo
-echo Building docker database container ...
-#docker-compose config
-docker compose up -d rdmariadb
-echo
-echo Waiting for MariaDB to come up ...
-sleep 60
+echo "Building Radiusdesk image with nginx, php-fpm and freeradius ..."
+docker build --build-arg radiusdesk_volume=${RADIUSDESK_VOLUME} \
+             -t radiusdesk/rdcore:latest \
+             .
 
 echo Creating database for Radiusdesk ...
 # Build daatabase
 docker exec -u 0 -it radiusdesk-mariadb /tmp/startup.sh
 echo
 echo Building Radiusdesk container with nginx, php-fpm and freeradius ...
-
-docker compose build
-docker compose up -d radiusdesk
 
 echo
 echo All done!
