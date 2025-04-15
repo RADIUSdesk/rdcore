@@ -38,11 +38,11 @@ docker build --build-arg radiusdesk_volume=${RADIUSDESK_VOLUME} \
              -t radiusdesk/rdcore:latest \
              .
 
-echo Creating database for Radiusdesk ...
-# Build daatabase
-docker exec -u 0 -it radiusdesk-mariadb /tmp/startup.sh
-echo
-echo Building Radiusdesk container with nginx, php-fpm and freeradius ...
+echo "init swarm"
+docker swarm init
+
+echo "Deploy radius stack:"
+docker stack deploy -c radiusDesk-stack.yml radiusDesk
 
 echo
 echo All done!

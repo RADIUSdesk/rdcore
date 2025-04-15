@@ -1,0 +1,50 @@
+version: "3.9"
+
+services:
+  radiusdesk:
+    image: radiusdesk/rdcore:latest
+    container_name: radiusdesk
+    env_file:
+      - .radiusDeskEnv
+    deploy:
+      restart_policy:
+        condition: always
+      placement:
+        constraints:
+          - node.role == manager
+    ports:
+      - '80:80'
+      - '1812:1812/udp'
+      - '1813:1813/udp'
+    networks:
+      - radiusdesk_net
+    labels:
+      - com.host.description=radiusdesk
+
+  rdmariadb:
+    image: docker.io/bitnami/mariadb:10.5
+    env_file:
+      - .mariadbEnv
+    volumes:
+      - ${RADIUSDESK_VOLUME}/db_conf/my_custom.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf:ro
+      - rd_data:/bitnami/mariadb
+      - ${RADIUSDESK_VOLUME}/db_startup:/tmp
+    command: ["/bin/bash", "-c", "/tmp/startup.sh && /opt/bitnami/scripts/mariadb/entrypoint.sh /opt/bitnami/scripts/mariadb/run.sh"]
+    deploy:
+      restart_policy:
+        condition: always
+      placement:
+        constraints:
+          - node.role == manager
+    networks:
+      - radiusdesk_net
+    labels:
+      - com.host.description=mariadb-radiusdesk
+
+volumes:
+  rd_data:
+
+networks:
+  radiusdesk_net:
+    external: true
+    name: "${RADIUSDESK_NETWORK}"

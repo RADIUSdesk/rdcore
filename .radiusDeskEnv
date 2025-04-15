@@ -1,0 +1,6 @@
+PHP_INI_SCAN_DIR=:/p/gd
+PHP.cgi.fix_pathinfo=1
+PHP_SELF=/index.php
+PHP_INI_SCAN_DIR=:/p/sqlite3
+# Add DATABASE_URL environment variable here:
+DATABASE_URL=mysql://rd:rd@rdmariadb/rd?encoding=utf8mb4&timezone=UTC&cacheMetadata=true&quoteIdentifiers=false
