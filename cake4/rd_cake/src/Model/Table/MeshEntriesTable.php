@@ -15,6 +15,7 @@ class MeshEntriesTable extends Table
         $this->hasMany('MeshEntrySchedules',['dependent' => true]);
         $this->belongsTo('Realms');
         $this->belongsTo('PrivatePsks');
+        $this->belongsTo('PasspointProfiles');
     }
         
 }

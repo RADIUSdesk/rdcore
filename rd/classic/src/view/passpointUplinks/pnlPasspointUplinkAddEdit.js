@@ -113,6 +113,13 @@ Ext.define('Rd.view.passpointUplinks.pnlPasspointUplinkAddEdit', {
                     itemId      : 'txtSsid'
                 },
                 {
+                    xtype   : 'label',
+                    itemId  : 'lblWarn',
+                    hidden  : true,
+                    style   : 'color:#de9516;font-stretch: expanded;font-weight:100;font-size:12px;padding:20px;',
+                    html    : '<br><i class="fa fa-sticky-note"></i> Specify a RCOI or a NAI Realm or both<br><br>',
+                },
+                {
                     xtype       : 'textfield',
                     fieldLabel  : 'RCOI',
                     name        : 'rcoi',
@@ -129,7 +136,26 @@ Ext.define('Rd.view.passpointUplinks.pnlPasspointUplinkAddEdit', {
                     hidden      : true,
                     disabled    : true,
                     labelClsExtra   : 'lblRd'                    
-                },				
+                },
+                {
+                    xtype       : 'combo',
+                    fieldLabel  : 'Encryption Mode',
+                    name        : 'encryption',
+                    value       : 'wpa2',
+                    store       : [
+                        ['wpa2', 'WPA2 (Recommended)'],
+                        ['wpa2+tkip', 'WPA2 + TKIP'],
+                        ['wpa2+aes', 'WPA2 + AES'],
+                        ['wpa2+ccmp', 'WPA2 + CCMP'],
+                        ['wpa2+tkip+aes', 'WPA2 + TKIP + AES'],
+                        ['wpa2+tkip+ccmp', 'WPA2 + TKIP + CCMP'],
+                        ['wpa3', 'WPA3'],
+                        ['wpa3-mixed', 'WPA3 and WPA2'],
+                    ],
+                    editable    : false,
+                    forceSelection: true,
+                    allowBlank  : false
+                },	                			
                 {
                     xtype       : 'component',
                     html        : 'Authentication Settings',
@@ -183,6 +209,21 @@ Ext.define('Rd.view.passpointUplinks.pnlPasspointUplinkAddEdit', {
                     emptyText  : 'Paste the full CA certificate here (-----BEGIN CERTIFICATE-----)',
                     allowBlank : false
                 },
+                
+                {
+                    xtype       : 'checkbox',      
+                    fieldLabel  : 'CA on OpenWrt',
+                    name        : 'ca_cert_usesystem',
+                    inputValue  : '1',
+                    itemId      : 'chkCaCertUsesystem'
+                },
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : 'Domain Suffix Match',
+                    name        : 'domain_suffix_match',
+                    emptyText  : 'Seperate multiple entries by ","',
+                    labelClsExtra   : 'lblRd'
+                },
                 {
                     xtype      : 'textareafield',
                     fieldLabel : 'Client Certificate (PEM)',
@@ -191,7 +232,9 @@ Ext.define('Rd.view.passpointUplinks.pnlPasspointUplinkAddEdit', {
                     grow       : true,
                     height     : 150,
                     emptyText  : 'Paste the client certificate here (-----BEGIN CERTIFICATE-----)',
-                    hidden     : true
+                    hidden     : true,
+                    disabled   : true,
+                    allowBlank : false
                 },
                 {
                     xtype      : 'textareafield',
@@ -201,7 +244,9 @@ Ext.define('Rd.view.passpointUplinks.pnlPasspointUplinkAddEdit', {
                     grow       : true,
                     height     : 150,
                     emptyText  : 'Paste the private key here (-----BEGIN PRIVATE KEY-----)',
-                    hidden     : true
+                    hidden     : true,
+                    disabled   : true,  
+                    allowBlank : false
                 }
             ]
         };     

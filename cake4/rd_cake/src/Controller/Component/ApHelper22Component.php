@@ -46,6 +46,8 @@ class ApHelper22Component extends Component {
     protected $wan_settings     = [];
     protected $reboot_setting   = [];
     
+    protected $files            = [];
+    
     protected $ppsk_flag		= false;
     protected $private_psks     = [];
       
@@ -250,6 +252,11 @@ class ApHelper22Component extends Component {
         //===WbW=====   
         if($this->wbw_settings){  
             $json['config_settings']['web_by_wifi'] = $this->wbw_settings;
+        }
+        
+        //==== Files ====
+        if($this->files){
+            $json['config_settings']['files'] = $this->files;
         }
         
         //==Reboot Settings====
@@ -1748,7 +1755,10 @@ class ApHelper22Component extends Component {
         
         foreach($e_s as $acs){
         
-            if($acs->grouping == 'wbw_setting'){
+            if(
+            ($acs->grouping == 'wbw_setting')||
+            ($acs->grouping == 'wifi_ent_setting') //Added WPA-Enterprise and Passpoint Jul-2025
+            ){
                 $this->wbw_settings['proto'] = 'dhcp'; //default 
             }
             
@@ -1805,15 +1815,79 @@ class ApHelper22Component extends Component {
 	                }              
                 }
                 
+                $this->wbw_settings['encryption']         = $link->encryption;
+                $this->wbw_settings['ca_cert_usesystem']  = $link->ca_cert_usesystem;
+                if($link->domain_suffix_match !== ''){ 
+                    $domainInput = $link->domain_suffix_match;
+                    // Convert to array
+                    $domains = array_map('trim', explode(',', $domainInput));
+                    // Filter out any empty strings (e.g., from accidental double commas)
+                    $domains = array_filter($domains);
+                    // Reindex the array (optional but clean)
+                    $domains = array_values($domains);
+                    //$this->wbw_settings['lists']['domain_suffix_match'] = $domains; //FIXME For later
+                    $this->wbw_settings['domain_suffix_match'] = $link->domain_suffix_match;            
+                }
+                           
+                if($link->ca_cert_usesystem){
+                    $this->wbw_settings['ca_cert_usesystem']= '1';
+                }
+                
+                if(!$link->ca_cert_usesystem){
+                    $this->wbw_settings['ca_cert'] = '/etc/ssl/certs/ca_cert_'.$link->id.'.pem';
+                    //Also add it to the files  
+                    $this->files[] = [
+                        'name'      => '/etc/ssl/certs/ca_'.$link->id.'.pem',
+                        'value'     => $link->ca_cert,
+                        'md5sum'    => md5($link->ca_cert)
+                    ];
+                }
+                
+                
                 //Then credentials
                 if($link->eap_method == 'ttls_pap'){
                     $this->wbw_settings['anonymous_identity'] = $link->anonymous_identity;
                     $this->wbw_settings['identity']           = $link->identity;
                     $this->wbw_settings['password']           = $link->password;
                     $this->wbw_settings['eap_type']           = 'ttls';
-                    $this->wbw_settings['auth']               = 'PAP';
-                    $this->wbw_settings['ca_cert']            = '/etc/ssl/certs/ca.pem'; 
-                }                
+                    $this->wbw_settings['auth']               = 'PAP';               
+                }
+                
+                if($link->eap_method == 'ttls_mschap'){
+                    $this->wbw_settings['anonymous_identity'] = $link->anonymous_identity;
+                    $this->wbw_settings['identity']           = $link->identity;
+                    $this->wbw_settings['password']           = $link->password;
+                    $this->wbw_settings['eap_type']           = 'ttls';
+                    $this->wbw_settings['auth']               = 'MSCHAPV2';               
+                }
+                
+                if($link->eap_method == 'peap'){
+                 //   $this->wbw_settings['anonymous_identity'] = $link->anonymous_identity; //is this needed with peap?
+                    $this->wbw_settings['identity']           = $link->identity;
+                    $this->wbw_settings['password']           = $link->password;
+                    $this->wbw_settings['eap_type']           = 'peap';
+                    $this->wbw_settings['auth']               = 'MSCHAPV2';               
+                }    
+                              
+                if($link->eap_method == 'tls'){
+                    $this->wbw_settings['identity']    = $link->anonymous_identity;
+                    $this->wbw_settings['client_cert'] = '/etc/ssl/certs/client_cert_'.$link->id.'.pem';
+                    //Also add it to the files  
+                    $this->files[] = [
+                        'name'      => '/etc/ssl/certs/client_cert_'.$link->id.'.pem',
+                        'value'     => $link->client_cert,
+                        'md5sum'    => md5($link->client_cert)
+                    ];
+                    
+                    $this->wbw_settings['private_key'] = '/etc/ssl/certs/private_key_'.$link->id.'.pem';
+                    //Also add it to the files  
+                    $this->files[] = [
+                        'name'      => '/etc/ssl/certs/private_key_'.$link->id.'.pem',
+                        'value'     => $link->private_key,
+                        'md5sum'    => md5($link->private_key)
+                    ];           
+                } 
+                              
             }               
         }
         

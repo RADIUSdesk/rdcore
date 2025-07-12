@@ -86,7 +86,7 @@ class PasspointUplinksController extends AppController{
         $cloud_id 	= $req_q['cloud_id'];             
         $query 		= $this->{$this->main_model}->find();
         
-        $this->CommonQueryFlat->build_cloud_query($query,$cloud_id,[]);
+        $this->CommonQueryFlat->cloud_with_system($query,$cloud_id,[]);
  
         $limit  = 50;
         $page   = 1;
@@ -107,28 +107,22 @@ class PasspointUplinksController extends AppController{
 
         foreach($q_r as $i){
                        
-            $row       = [];
-            $fields    = $this->{$this->main_model}->getSchema()->columns();
-            foreach($fields as $field){
-                $row["$field"]= $i->{"$field"};
-                
-                if($field == 'created'){
-                    $row['created_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }
-                if($field == 'modified'){
-                    $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }
-            }        
-			$row['update']			= true;
-			$row['delete']			= true; 
-            array_push($items,$row);      
+            $i->created_in_words = $this->TimeCalculations->time_elapsed_string($i->created);
+            $i->modified_in_words = $this->TimeCalculations->time_elapsed_string($i->modified);    
+			$i->update  = true;
+			$i->delete	= true;
+			$i->for_system = false;
+            if($i->cloud_id == -1){
+            	$i->for_system = true;
+            }  
+            array_push($items,$i);      
         }
        
-        $this->set(array(
+        $this->set([
             'items'         => $items,
             'success'       => true,
             'totalCount'    => $total
-        ));
+        ]);
         $this->viewBuilder()->setOption('serialize', true); 
     }
    
@@ -143,6 +137,29 @@ class PasspointUplinksController extends AppController{
         	$req_d	  = $this->request->getData();       	        	      
         	if($this->request->getData('for_system')){
         		$req_d['cloud_id'] = -1;
+		    }
+		    
+		    $check_items = [
+            	'ca_cert_usesystem',
+            	'for_system'
+            ];
+            
+            foreach($check_items as $i){
+                if(isset($req_d[$i])){
+                    $req_d[$i] = 1;
+                }else{
+                    $req_d[$i] = 0;
+                }
+            }
+		    	    
+		    if(!isset($req_d['ca_cert'])){
+		        $req_d['ca_cert'] = '';
+		    }
+		    if(!isset($req_d['client_cert'])){
+		        $req_d['client_cert'] = '';
+		    }
+		    if(!isset($req_d['private_key'])){
+		        $req_d['private_key'] = '';
 		    }
                  
             $entity = $this->{$this->main_model}->newEntity($req_d); 
@@ -174,8 +191,11 @@ class PasspointUplinksController extends AppController{
                 ->contain([])
                 ->first();
                 
-            if($passpointUplink){                                        
+            if($passpointUplink){                                                      
                 $data = $passpointUplink;
+                if($passpointUplink->cloud_id == -1){
+                	$data['for_system'] = true;
+                }  
             }
         }
        
@@ -210,10 +230,20 @@ class PasspointUplinksController extends AppController{
 		    if($this->request->getData('for_system')){
         		$req_d['cloud_id'] = -1;
 		    }
-		    		    		    
-            $ids            = explode("_", $this->request->getData('id'));  
-            $req_d['id']    = $ids[0];
-            $entity         = $this->{$this->main_model}->find()->where(['id' => $req_d['id']])->first();
+		    	    
+		    $check_items = [
+            	'ca_cert_usesystem',
+            ];
+            
+            foreach($check_items as $i){
+                if(isset($req_d[$i])){
+                    $req_d[$i] = 1;
+                }else{
+                    $req_d[$i] = 0;
+                }
+            }
+            
+            $entity  = $this->{$this->main_model}->find()->where(['id' => $req_d['id']])->first();
             
             if($entity){
             

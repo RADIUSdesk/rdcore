@@ -160,37 +160,6 @@ if not exists (select * from information_schema.columns
  
 end if;
       
-if not exists (select * from information_schema.columns
-    where table_name = 'passpoint_venue_types' and table_schema = 'rd') then
-     CREATE TABLE `passpoint_venue_types` (
-        `id` int(11) NOT NULL AUTO_INCREMENT,
-        `name` varchar(100) NOT NULL DEFAULT 'Unspecified',
-        `venue_group` int(4) DEFAULT 0,
-        `venue_type` int(4) DEFAULT 0,
-        `active` tinyint(1) NOT NULL DEFAULT 1,            
-        `created` datetime NOT NULL,
-        `modified` datetime NOT NULL,
-      PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-    
-     INSERT INTO `passpoint_venue_types` VALUES (1,'Unspecified',0,0,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(2,'Unspecified Assembly',1,0,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(3,'Arena',1,1,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(4,'Stadium',1,2,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(5,'Passenger Terminal e.g., airport, bus, ferry, train station',1,3,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(6,'Amphitheater',1,4,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(7,'Amusement Park',1,5,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(8,'Place of Worship',1,6,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(9,'Convention Center',1,6,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(10,'Convention Center',1,7,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(11,'Library',1,8,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(12,'Museum',1,9,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(13,'Restaurant',1,10,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(14,'Theater',1,11,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(15,'Bar',1,12,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(16,'Coffee Shop',1,13,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(17,'Zoo or Aquarium',1,14,1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(18,'Emergency Coordination Center',1,15,1,'2025-01-01 00:00:00','2025-01-01 00:00:00');
-
-end if;
-
-if not exists (select * from information_schema.columns
-    where table_name = 'passpoint_profile_settings' and table_schema = 'rd') then
-     CREATE TABLE `passpoint_venue_groups` (
-        `id` int(11) NOT NULL,
-        `name` varchar(40) NOT NULL,
-        `active` tinyint(1) NOT NULL DEFAULT 1,            
-        `created` datetime NOT NULL,
-        `modified` datetime NOT NULL,
-      PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-    
-    INSERT INTO `passpoint_venue_groups` VALUES (0,'Unspecified',1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(1,'Assembly',1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(2,'Business',1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(3,'Educational',1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(4,'Factory-Industrial',1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(5,'Institutional',1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(6,'Mercantile',1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(7,'Residential',1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(8,'Storage',1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(9,'Utility-Misc',1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(10,'Vehicular',1,'2025-01-01 00:00:00','2025-01-01 00:00:00'),(11,'Outdoor',1,'2025-01-01 00:00:00','2025-01-01 00:00:00');
-  
-end if;
 
 if not exists (select * from information_schema.columns
     where table_name = 'passpoint_profile_settings' and table_schema = 'rd') then
@@ -216,10 +185,13 @@ if not exists (select * from information_schema.columns
         `ssid` varchar(64) NOT NULL DEFAULT '',
         `rcoi` varchar(64) NOT NULL DEFAULT '',
         `nai_realm` varchar(64) NOT NULL DEFAULT '',
+        `encryption` enum('wpa2','wpa2+tkip','wpa2+aes','wpa2+ccmp','wpa2+tkip+aes','wpa2+tkip+ccmp','wpa3','wpa3-mixed') DEFAULT 'wpa2',
         `eap_method` enum('peap','ttls_pap','ttls_mschap','tls') DEFAULT 'ttls_pap',
         `identity` varchar(128) NOT NULL DEFAULT '',
         `password` varchar(128) NOT NULL DEFAULT '',
         `anonymous_identity` varchar(128) NOT NULL DEFAULT '',
+        `ca_cert_usesystem` BOOLEAN NOT NULL DEFAULT 0,
+        `domain_suffix_match` varchar(128) NOT NULL DEFAULT '',
         `ca_cert` LONGTEXT NOT NULL,
         `client_cert` LONGTEXT NOT NULL,
         `private_key` LONGTEXT NOT NULL,
@@ -242,6 +214,16 @@ end if;
 alter table aps modify column gateway enum('none','lan','3g','wifi','wifi_static','wifi_ppp','wifi_pppoe','wifi_ent','wan_static','wan_ppp','wan_pppoe','mwan') DEFAULT 'none';
 
 alter table nodes modify column gateway enum('none','lan','3g','wifi','wifi_static','wifi_ppp','wifi_pppoe','wifi_ent','wan_static','wan_ppp','wan_pppoe', 'mwan') DEFAULT 'none';
+
+if not exists (select * from information_schema.columns
+    where column_name = 'passpoint_profile_id' and table_name = 'ap_profile_entries' and table_schema = 'rd') then
+    alter table ap_profile_entries add column `passpoint_profile_id` int(11) DEFAULT NULL;
+end if;
+
+if not exists (select * from information_schema.columns
+    where column_name = 'passpoint_profile_id' and table_name = 'mesh_entries' and table_schema = 'rd') then
+    alter table mesh_entries add column `passpoint_profile_id` int(11) DEFAULT NULL;
+end if;
 
 
 end//

@@ -48,7 +48,7 @@ Ext.define('Rd.view.passpointUplinks.gridPasspointUplinks' ,{
             },
             { text: 'SSID',          dataIndex: 'ssid',     tdCls: 'gridTree', flex: 1, filter: {type: 'string'}},
             { text: 'RCOI',          dataIndex: 'rcoi',     tdCls: 'gridTree', flex: 1, filter: {type: 'string'}},
-            { text: 'NAI Relam',     dataIndex: 'nai_realm',tdCls: 'gridTree', flex: 1, filter: {type: 'string'}},
+            { text: 'NAI Relam',     dataIndex: 'nai_realm',tdCls: 'gridTree', flex: 1, filter: {type: 'string'}},           
             { 
                 text        : 'EAP Method',  
                 xtype       : 'templatecolumn',
@@ -62,6 +62,8 @@ Ext.define('Rd.view.passpointUplinks.gridPasspointUplinks' ,{
                             ),
                 dataIndex   : 'eap_method'
             },
+            { text: 'Identity',      dataIndex: 'identity', tdCls: 'gridTree', flex: 1, filter: {type: 'string'}, hidden:true},
+            { text: 'Password',      dataIndex: 'password', tdCls: 'gridTree', flex: 1, filter: {type: 'string'}, hidden:true},
             { 
                 text        : 'System Wide',  
                 xtype       : 'templatecolumn', 

@@ -17,8 +17,7 @@ class ApProfileEntriesTable extends Table {
         $this->hasMany('ApProfileEntrySchedules', ['dependent' => true]);
         $this->belongsTo('Realms');
         $this->belongsTo('PrivatePsks');
+        $this->belongsTo('PasspointProfiles');
     }
-    
-   
-       
+           
 }

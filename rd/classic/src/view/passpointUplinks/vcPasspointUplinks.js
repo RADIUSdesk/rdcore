@@ -147,7 +147,8 @@ Ext.define('Rd.view.passpointUplinks.vcPasspointUplinks', {
                     closable: true,
                     glyph   : Rd.config.icnEdit,
                     xtype   : 'pnlPasspointUplinkAddEdit',
-                    sr      : sr
+                    sr      : sr,
+                    root    : me.root
                 });
                 tp.setActiveTab(t_tab_id); //Set focus on Add Tab
             }

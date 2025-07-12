@@ -12,8 +12,6 @@ Ext.define('Rd.view.meshes.cmbHardwareOptions', {
     itemId          : 'hardware',
     name            : 'hardware',
     emptyText       : 'Select A Hardware Model',
-    id_field        : 'fw_id',
-    labelClsExtra   : 'lblRd',
     tpl	            : Ext.create('Ext.XTemplate',
         '<tpl for=".">',
             '<div  class="x-boundlist-item">',
@@ -50,19 +48,16 @@ Ext.define('Rd.view.meshes.cmbHardwareOptions', {
         var me      = this;
         var s       = Ext.create('Ext.data.Store', {
             fields: ['id', 'name','radios','vendor','model','device_type'],
+            pageSize: 500, // <-- Set your desired page size here
             proxy: {
                     type    : 'ajax',
                     format  : 'json',
                     batchActions: true, 
-                    //url     : '/cake4/rd_cake/meshes/hardware_options.json',
                     url     : '/cake4/rd_cake/hardwares/meshes_list.json',
-                    extraParams : {
-                        id: me.id_field
-                    },
                     reader: {
-                        type: 'json',
-                        rootProperty: 'items',
-                        messageProperty: 'message'
+                        type            : 'json',
+                        rootProperty    : 'items',
+                        messageProperty : 'message'
                     }
             },
             autoLoad: true
