@@ -1,14 +1,15 @@
 # Installation
 The recommended **Operating System** to develop and run RdCore on is **Ubuntu**\
 
-*cd ~
-*sudo git clone https://github.com/RADIUSdesk/rdcore.git
-*Mount the rdcore top directory to the rdcore/docker/rdcore directory
-*cd rdcore/docker
-*sudo mkdir rdcore
-*sudo mount --bind ../../rdcore ./rdcore
-*Execute the script local_build.sh.
-*./local_build.sh
+
+*  cd ~
+*  sudo git clone https://github.com/iAman-G/RadiusDesk.git
+*  Mount the rdcore top directory to the rdcore/docker/rdcore directory
+*  cd rdcore/docker
+*  sudo mkdir rdcore
+*  sudo mount --bind ../../rdcore ./rdcore
+*  Execute the script local_build.sh.
+*  ./local_build.sh
 
 
 ### Installing RdCore on Ubuntu 24.04
