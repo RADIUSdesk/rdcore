@@ -645,6 +645,7 @@ class RadacctsController extends AppController {
         $this->viewBuilder()->setOption('serialize', true);
     }
 
+
     //--------- END BASIC CRUD ---------------------------
 
     //----- Menus ------------------------

@@ -188,15 +188,18 @@ class KickerComponent extends Component {
     }
     
     private function kickJuniperSession($ent){  
-        //-- Sample Disconnect ---
-        //echo "Acct-​Session-​ID='2040',User-Name='zaguy@zarealm.co.za'" |radclient -c '1' -n '3' -r '3' -t '3' -x '127.0.0.1:3799' 'disconnect' 'testing123'       
-        $sessionid = $ent->acctsessionid;
+         $sessionid = $ent->acctsessionid;
         $username  = $ent->username;
-        $ip        = $ent->nasipaddress;       
+        $ip        = $ent->nasipaddress;
+        $callingstationid   = $ent->callingstationid;  
+        $framedipaddress   = $ent->framedipaddress;
+        $nasip   = $ent->nasipaddress;
         $fwd_ip    = $ip; // You can replace this with a central IP to forward it to       
         $secret    = 'testing123';      
-        shell_exec("echo \"Acct-Session-ID='$sessionid',User-Name='$username',NAS-IP-Address='$ip'\" |radclient -c '1' -n '3' -r '3' -t '3' -x '$fwd_ip:3799' 'disconnect' '$secret'");
+        shell_exec("echo \"Acct-Session-ID='$sessionid',User-Name='$username',Framed-IP-Address='$framedipaddress',Calling-Station-Id='$callingstationid',NAS-IP-Address='$nasip'\" |radclient -c '1' -n '3' -r '3' -t '3' -x '$fwd_ip:3799' 'disconnect' '$secret'");
+        shell_exec("echo \"Acct-Session-ID='$sessionid',User-Name='$callingstationid',Framed-IP-Address='$framedipaddress',Calling-Station-Id='$callingstationid',NAS-IP-Address='$nasip'\" |radclient -c '1' -n '3' -r '3' -t '3' -x '$fwd_ip:3799' 'disconnect' '$secret'");
     } 
+        
          
     private function kickMeshNodeUser($ent,$cloud_id,$token){      
   		$cp = $this->MeshExitCaptivePortals->find()->where(['MeshExitCaptivePortals.radius_nasid' => $ent->nasidentifier])->first();            

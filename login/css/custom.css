@@ -1,0 +1,83 @@
+html, body {
+    height: 100%;
+}
+
+/* Wrapper for page content to push down footer */
+#wrap {
+    min-height: 100%;
+    height: auto;
+    margin: 0 auto -60px;
+    padding: 0 0 60px;
+}
+
+/* Set the fixed height of the footer here */
+#footer {
+    height: 60px;
+    background-color: #f5f5f5;
+}
+
+#wrap > .container {
+    padding: 15px 15px 0;
+}
+.container .text-muted {
+    margin: 20px 0;
+}
+
+#footer > .container {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+code {
+    font-size: 80%;
+}
+
+
+/* new customizing */
+#bottom-menu {
+    padding: 10px 0px;
+    height: 100px;
+    color: #fff;
+}
+
+.navbar-inverse {
+    background-color: #153E5D;
+    border-color: #2B78C5;
+}
+
+.navbar {
+    padding-top: 10px;
+	background: #786d59;
+	border: 0;
+	-o-transition: all .3s; -moz-transition: all .3s; -webkit-transition: all .3s; -ms-transition: all .3s; transition: all .3s;
+}
+
+.navbar-inverse .navbar-nav > .active > a, .navbar-inverse .navbar-nav > .active > a:hover, .navbar-inverse .navbar-nav > .active > a:focus {
+    background-color: #786d59;
+}
+
+#footer {
+    background-color: #786d59;
+}
+
+.text-muted {
+    color: #B7B7B7;
+}
+
+.textlogo h1 {
+    font-family: "Arial",Helvetica,sans-serif;
+    font-size: 2em;
+    color: #fff;
+    font-weight: bold;
+    text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+}
+
+#bottom-menu .mylogo {
+    width: 100px;
+    float: left;
+}
+
+#bottom-menu .textlogo {
+    width: 350px;
+}
+

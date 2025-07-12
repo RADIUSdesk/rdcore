@@ -6,20 +6,21 @@ FROM jtreminio/php:8.1
 
     ## Install all software required
 
-    # Sets up Nginx and required language pack
-    RUN apt-get update
-    RUN apt-get -y install language-pack-en-base
-    RUN apt-get -y install nginx
+# Sets up Nginx and required language pack, Install Freeradius, supervisord, and subversion
+RUN apt-get update && \
+    apt-get -y install \
+        language-pack-en-base \
+        nginx \
+        libdatetime-perl \
+        freeradius \
+        freeradius-mysql \
+        iputils-ping \
+        tcpdump \
+        nano \
+        supervisor \
+        subversion && \
+    rm -rf /var/lib/apt/lists/*
 
-    # Install Freeradius
-    RUN apt-get -y install libdatetime-perl
-    RUN apt-get -y install  freeradius freeradius-mysql
-
-     # Install supervisord to start up all services - as docker only allows one process to start up
-    RUN apt-get install -y supervisor
-
-    # Install subversion to get java library
-    RUN apt-get install -y subversion 
 
     # Prepare all directories
     COPY ./default /etc/nginx/sites-enabled/
@@ -27,6 +28,16 @@ FROM jtreminio/php:8.1
     COPY ./rdcore /var/www/rdcore
 
     RUN mkdir -p /var/www/html
+
+    RUN mkdir -p /var/www/rdcore/cake4/rd_cake/logs \
+               /var/www/rdcore/cake4/rd_cake/webroot/files/imagecache \
+               /var/www/rdcore/cake4/rd_cake/tmp
+    RUN mkdir -p /var/www/rdcore/cake4/rd_cake/webroot/img/realms \
+               /var/www/rdcore/cake4/rd_cake/webroot/img/dynamic_details \
+               /var/www/rdcore/cake4/rd_cake/webroot/img/dynamic_photos \
+               /var/www/rdcore/cake4/rd_cake/webroot/img/access_providers \
+               /var/www/rdcore/cake4/rd_cake/webroot/img/hardwares
+
     RUN ln -s /var/www/rdcore/rd /var/www/html/rd
     RUN ln -s /var/www/rdcore/cake4 /var/www/html/cake4
     #If backward compatibility is required for older firmware of MESHdesk
@@ -36,20 +47,16 @@ FROM jtreminio/php:8.1
     RUN ln -s /var/www/rdcore/login/rd_client/build/production/AmpConf /var/www/html/usage
     RUN ln -s /var/www/rdcore/cake4/rd_cake/setup/scripts/reporting /var/www/html/reporting
     
-    # Create requried directories
-    RUN mkdir -p /var/www/html/cake4/rd_cake/logs
-    RUN mkdir -p /var/www/html/cake4/rd_cake/webroot/files/imagecache
-    RUN mkdir -p /var/www/html/cake4/rd_cake/tmp
     
     # Set permissions
-    RUN chown -R www-data. /var/www/html/cake4/rd_cake/tmp
-    RUN chown -R www-data. /var/www/html/cake4/rd_cake/logs
-    RUN chown -R www-data. /var/www/html/cake4/rd_cake/webroot/img/realms
-    RUN chown -R www-data. /var/www/html/cake4/rd_cake/webroot/img/dynamic_details
-    RUN chown -R www-data. /var/www/html/cake4/rd_cake/webroot/img/dynamic_photos
-    RUN chown -R www-data. /var/www/html/cake4/rd_cake/webroot/img/access_providers
-    RUN chown -R www-data. /var/www/html/cake4/rd_cake/webroot/img/hardwares
-    RUN chown -R www-data. /var/www/html/cake4/rd_cake/webroot/files/imagecache
+    RUN chown -R www-data. /var/www/rdcore/cake4/rd_cake/tmp
+    RUN chown -R www-data. /var/www/rdcore/cake4/rd_cake/logs
+    RUN chown -R www-data. /var/www/rdcore/cake4/rd_cake/webroot/img/realms
+    RUN chown -R www-data. /var/www/rdcore/cake4/rd_cake/webroot/img/dynamic_details
+    RUN chown -R www-data. /var/www/rdcore/cake4/rd_cake/webroot/img/dynamic_photos
+    RUN chown -R www-data. /var/www/rdcore/cake4/rd_cake/webroot/img/access_providers
+    RUN chown -R www-data. /var/www/rdcore/cake4/rd_cake/webroot/img/hardwares
+    RUN chown -R www-data. /var/www/rdcore/cake4/rd_cake/webroot/files/imagecache
     
     ## Setup environment variables 
 
@@ -63,7 +70,7 @@ FROM jtreminio/php:8.1
     #COPY ./startup.sh /
 
     # Setup Cron jobs
-    RUN cp /var/www/html/cake4/rd_cake/setup/cron/cron4 /etc/cron.d/
+    RUN cp /var/www/rdcore/cake4/rd_cake/setup/cron/cron4 /etc/cron.d/
     RUN chmod 0644 /etc/cron.d/cron4
     RUN crontab /etc/cron.d/cron4
 
@@ -86,9 +93,6 @@ FROM jtreminio/php:8.1
 
     COPY ./freeradius.service /lib/systemd/system/
 
-    ## cleanup
-    RUN rm -rf /var/lib/apt/lists/*
-
     # supervisord allows multiple processes to be started with a single process
     COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
@@ -110,8 +114,11 @@ FROM jtreminio/php:8.1
     # Copy files from production to root www
     RUN cp -R /var/www/html/rd/build/production/Rd/* /var/www/html/
 
+    COPY ./entrypoint.sh /usr/local/bin/
+    RUN chmod +x /usr/local/bin/entrypoint.sh   
+
     # entrypoint run script when container starts - ignores what is in command
-    ENTRYPOINT /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+    ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 
     # Only expose radiusdesk web front end to Teaefik and Freeradius UDP ports that bypass traefik
     EXPOSE 80/tcp

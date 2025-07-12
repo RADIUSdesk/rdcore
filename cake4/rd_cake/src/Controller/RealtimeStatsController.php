@@ -14,7 +14,7 @@ class RealtimeStatsController extends AppController{
     protected $dynamicClientId      = 199;
     protected $permanent_user_id    = 149;
     protected $time_zone            = 'UTC'; //Default for timezone
-    protected $span                 = 300;
+    protected $span                 = 120;
     protected $interval             = 10;
     
     public function initialize():void{  
