@@ -648,7 +648,7 @@ Ext.define('Rd.view.passpoint.pnlPasspointAddEdit', {
 			                allowDepress    : false,					
 		                },             
                         items: [
-			                { text: 'Easy Setup',   itemId: 'btnEasy',   glyph: Rd.config.icnPlay, flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 0', pressed: true },
+			                { text: 'Easy Setup',   itemId: 'btnEasy',   glyph: Rd.config.icnGear, flex:1, ui : 'default-toolbar', 'margin' : '0 5 0 0', pressed: true },
 			                { text: 'Custom Setup', itemId: 'btnCustom', glyph: Rd.config.icnGears,   flex:1, ui : 'default-toolbar', 'margin' : '0 0 0 5', pressed: false},
 		                ]
                     }

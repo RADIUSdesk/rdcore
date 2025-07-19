@@ -598,13 +598,6 @@ class GridButtonsFlatComponent extends Component {
             $menu = $b; 
         }
         
-        if($type == 'realms'){
-            $b  = $this->_fetchBasic();
-            $d  = $this->_fetchDocument();
-            $a  = $this->_fetchRealmExtras();
-            $menu = array($b,$d,$a);
-        }
-        
         if($type == 'Meshes'){
             $b = $this->_fetchBasicMeshes();
             $a  = $this->_fetchExtrasMeshes();
@@ -1492,47 +1485,7 @@ class GridButtonsFlatComponent extends Component {
         $menu = [$a,$b,$c];
         return $menu; 
     }
-    
-     private function _fetchRealmExtras(){
-        if($this->title){
-            $t = __('More');
-        }else{
-            $t = null;
-        } 
-    
-        $menu = array(
-            'xtype' => 'buttongroup',
-            'title' => $t, 
-            'items' => array(
-                $this->btnGraph,
-                [
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnCamera'),
-                    'scale'     => $this->scale, 
-                    'itemId'    => 'logo',     
-                    'tooltip'   => __('Edit logo')
-                ],
-                [
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnTag'),
-                    'scale'     => $this->scale, 
-                    'itemId'    => 'vlans',     
-                    'tooltip'   => __('Manage VLANs'),
-                    'ui'        => 'button-metal'
-                ],
-                [
-                    'xtype'     => 'button', 
-                    'glyph'     => Configure::read('icnLock'),
-                    'scale'     => $this->scale, 
-                    'itemId'    => 'pmks',     
-                    'tooltip'   => __('Manage PMKs'),
-                    'ui'        => 'button-metal'
-                ],
-            )
-        );             
-        return $menu;
-    }
-    
+       
     private function _fetchBasicMeshes(){
     
  

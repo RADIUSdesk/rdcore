@@ -20,6 +20,7 @@ class RealmsTable extends Table
         $this->hasMany('RealmVlans',['dependent' => true]);
         $this->hasMany('RealmPmks',['dependent' => true]);        
         $this->hasMany('RealmAdmins',['dependent' => true]);
+        $this->hasOne('RealmPasspointProfiles',['dependent' => true]);
         
     }
     

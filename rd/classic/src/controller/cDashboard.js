@@ -355,7 +355,7 @@ Ext.define('Rd.controller.cDashboard', {
 				}
 			});
    		}else{
-   			pnlWest.setWidth(180).getEl().slideIn('l');
+   			pnlWest.setWidth(150).getEl().slideIn('l');
    		}   
     },
     treeNodeSelect: function(tree,record,ndx,opts){

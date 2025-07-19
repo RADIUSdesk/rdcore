@@ -202,6 +202,51 @@ if not exists (select * from information_schema.columns
 
 end if;
 
+if not exists (select * from information_schema.columns
+    where table_name = 'realm_passpoint_profiles' and table_schema = 'rd') then
+    CREATE TABLE `realm_passpoint_profiles` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `realm_id` int(11) DEFAULT NULL,
+        `name` varchar(64) NOT NULL,
+        `eap_method` enum('peap','ttls_pap','ttls_mschap','tls') DEFAULT 'ttls_mschap',
+        `anonymous_realm` varchar(128) NOT NULL DEFAULT '',
+        `ca_cert_usesystem` BOOLEAN NOT NULL DEFAULT 0,
+        `domain_suffix_match` varchar(128) NOT NULL DEFAULT '',
+        `ca_cert` LONGTEXT NOT NULL,
+        `created` datetime NOT NULL,
+        `modified` datetime NOT NULL,
+        PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+end if;
+
+
+if not exists (select * from information_schema.columns
+    where table_name = 'realm_passpoint_nai_realms' and table_schema = 'rd') then
+     CREATE TABLE `realm_passpoint_nai_realms` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `realm_passpoint_profile_id` int(11) DEFAULT NULL, 
+        `name` char(64) NOT NULL,           
+        `created` datetime NOT NULL,
+        `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+end if;
+
+if not exists (select * from information_schema.columns
+    where table_name = 'realm_passpoint_rcois' and table_schema = 'rd') then
+     CREATE TABLE `realm_passpoint_rcois` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `realm_passpoint_profile_id` int(11) DEFAULT NULL, 
+        `name` char(100) NOT NULL,
+        `rcoi_id` char(100) NOT NULL,          
+        `created` datetime NOT NULL,
+        `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    
+end if;
+
 
 if not exists (select * from information_schema.columns where column_name = 'passpoint_uplink_id' and table_name = 'aps' and table_schema = 'rd') then
 	alter table aps add column passpoint_uplink_id int(11) DEFAULT NULL;

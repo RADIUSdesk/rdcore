@@ -562,8 +562,7 @@ class RadacctsController extends AppController {
             'success'       => true,
             'data'          => $data
         ]);
-        $this->viewBuilder()->setOption('serialize', true);
-	
+        $this->viewBuilder()->setOption('serialize', true);	
 	}
 	
 

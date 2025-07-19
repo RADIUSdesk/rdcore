@@ -25,7 +25,8 @@ Ext.define('Rd.controller.cRealms', {
         'realms.pnlRealmDetail',
         'realms.pnlRealmLogo',
         'realms.pnlRealmGraphs',
-        'components.pnlUsageGraph'
+        'components.pnlUsageGraph',
+        'realms.pnlRealmPasspointProfile'
     ],
     stores: ['sRealms'],
     models: ['mRealm', 'mUserStat'],
@@ -41,7 +42,6 @@ Ext.define('Rd.controller.cRealms', {
     },
     refs: [
          {  ref:    'gridRealms',           selector:   'gridRealms'},
-         {  ref:    'gridAdvancedRealms',   selector:   'gridAdvancedRealms'},
          { ref:     'grid',                 selector:   'gridRealms'}
     ],
     init: function() {
@@ -79,6 +79,9 @@ Ext.define('Rd.controller.cRealms', {
             },
             'gridRealms #pmks'   : {
                 click:      me.pmks
+            },
+            'gridRealms #passpoint'   : {
+                click:      me.passpoint
             },
             'gridRealms'   : {
                 itemclick       :  me.gridClick,
@@ -576,6 +579,43 @@ Ext.define('Rd.controller.cRealms', {
                 closable: true,
                 glyph   : Rd.config.icnLock, 
                 xtype   : 'gridRealmPmks',
+                realm_id: id,
+                tabConfig : {
+                    ui : me.ui
+                }
+            });
+            tp.setActiveTab(tab_id); //Set focus on Add Tab 
+        }
+    },
+    passpoint: function(button){
+        var me = this;  
+        //Find out if there was something selected
+        if(me.getGrid().getSelectionModel().getCount() == 0){
+             Ext.ux.Toaster.msg(
+                        i18n('sSelect_an_item'),
+                        i18n('sFirst_select_an_item'),
+                        Ext.ux.Constants.clsWarn,
+                        Ext.ux.Constants.msgWarn
+            );
+        }else{
+            //Check if the node is not already open; else open the node:
+            var tp      = me.getGrid().up('tabpanel');
+            var sr      = me.getGrid().getSelectionModel().getLastSelected();
+            var id      = sr.getId();
+            var tab_id  = 'realmTabPasspoint_'+id;
+            var nt      = tp.down('#'+tab_id);
+            if(nt){
+                tp.setActiveTab(tab_id); //Set focus on  Tab
+                return;
+            }
+            var tab_name = me.selectedRecord.get('name');
+            //Tab not there - add one
+            tp.add({ 
+                title   : 'HS2.0 profile for '+tab_name,
+                itemId  : tab_id,
+                closable: true,
+                glyph   : Rd.config.icnSsid, 
+                xtype   : 'pnlRealmPasspointProfile',
                 realm_id: id,
                 tabConfig : {
                     ui : me.ui

@@ -68,7 +68,7 @@ class PasspointComponent extends Component {
     
         $passpointProfile = $this->PasspointProfiles->find()
             ->where(['PasspointProfiles.id' => $id])
-            ->contain(['PasspointRcois','PasspointDomains','PasspointNaiRealms'])
+            ->contain(['PasspointRcois','PasspointDomains','PasspointNaiRealms' => ['PasspointNaiRealmPasspointEapMethods' => 'PasspointEapMethods']])
             ->first();
             
         if($passpointProfile){
@@ -78,8 +78,19 @@ class PasspointComponent extends Component {
             foreach($passpointProfile->passpoint_domains as $domain){
                 $this->baseLists[] = [ 'name' =>  'iw_domain_name', 'value' => $domain->name];
             }
+            
             foreach($passpointProfile->passpoint_nai_realms as $nai_realm){
-                $this->baseLists[] = [ 'name' =>  'iw_nai_realm', 'value' => $nai_realm->encoding.','.$nai_realm->name];
+                //nai_realm=0,example.org,13[5:6],21[2:4][5:7] (4 = MSCHAPv2 1 = PAP)
+                $methods = [];
+                $realm   = $nai_realm->name;
+                foreach($nai_realm->passpoint_nai_realm_passpoint_eap_methods as $item){
+                    $methods[] = $item->passpoint_eap_method->hostapd_string;             
+                }
+                if($methods){
+                    $methods = implode(',', $methods);
+                    $realm = $realm.",".$methods;
+                }              
+                $this->baseLists[] = [ 'name' =>  'iw_nai_realm', 'value' => '0,'.$realm];
             }
         }
         //print_r($passpointProfile);   

@@ -424,13 +424,23 @@ class GridButtonsRbaComponent extends Component {
             'tooltip'   => __('Manage PMKs'),
             'ui'        => 'button-metal'
         ];
+        
+        $btnPasspoint = [
+            'xtype'     => 'button', 
+            'glyph'     => Configure::read('icnWifi2'),
+            'scale'     => $this->GridButtonsBase->scale, 
+            'itemId'    => 'passpoint',     
+            'tooltip'   => __('Passpoint/HS2.0'),
+            'ui'        => 'button-metal'
+        ];
      
         if (in_array('*', $allowedActions)) {       
             $items = [
                  $this->GridButtonsBase->btnGraph,
                  $btnLogo,
                  $btnVlan,
-                 $btnPmk                              
+                 $btnPmk,
+                 $btnPasspoint                              
             ];          
         } 
         

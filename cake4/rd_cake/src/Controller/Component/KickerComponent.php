@@ -44,12 +44,10 @@ class KickerComponent extends Component {
         $this->MeshExitCaptivePortals   = TableRegistry::get('MeshExitCaptivePortals'); 
         $this->MeshExits                = TableRegistry::get('MeshExits'); 
         $this->Nodes                    = TableRegistry::get('Nodes');
-        $this->NodeActions              = TableRegistry::get('NodeActions');
-        
+        $this->NodeActions              = TableRegistry::get('NodeActions');     
         //Accel
         $this->AccelServers             = TableRegistry::get('AccelServers');
-        $this->AccelSessions            = TableRegistry::get('AccelSessions');
-         
+        $this->AccelSessions            = TableRegistry::get('AccelSessions');         
     }
 
     public function kick($ent,$token){

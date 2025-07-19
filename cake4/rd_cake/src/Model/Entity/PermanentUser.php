@@ -2,21 +2,23 @@
 
 namespace App\Model\Entity;
 
-use Cake\Auth\WeakPasswordHasher;
 use Cake\ORM\Entity;
+use Cake\Auth\DefaultPasswordHasher;
 use Cake\Utility\Text;
-
 /**
  * PermanentUser Entity.
  */
-class PermanentUser extends Entity
-{
-    protected function _setPassword($value){
-        $hasher = new WeakPasswordHasher();
-        //Set the cleartext password so we can use it inside the behaviour
-        $this->set('cleartext_password', $value); 
-        return $hasher->hash($value);
+class PermanentUser extends Entity {
+
+    // Hash the user's password before saving it to the database.
+    protected function _setPassword(string $password): ?string {
+        $this->set('cleartext_password', $password);
+        if (strlen($password) > 0) {
+            return (new DefaultPasswordHasher())->hash($password);
+        }
+        return null;
     }
+    
     
     protected function _setToken($value){
         if($value == ''){  //'' is a 'special' value that is suppose to generate a new token
@@ -30,6 +32,5 @@ class PermanentUser extends Entity
             $this->set('to_date', null);
         }
     }
-
-      
+     
 }

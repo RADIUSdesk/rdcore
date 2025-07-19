@@ -2,21 +2,25 @@
 
 namespace App\Model\Table;
 
-use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 
 use Cake\I18n\Time;
 
-class TopUpsTable extends Table
-{
+class TopUpsTable extends Table {
+
+    /**
+     * @var \App\Model\Table\RadchecksTable
+     */
+    public $Radchecks;
 
     public function initialize(array $config):void{
         $this->addBehavior('Timestamp');     
         $this->belongsTo('PermanentUsers');
         $this->belongsTo('Users');  
         $this->hasMany('TopUpTransactions',['dependent' => false]);        
-        $this->Radchecks    = TableRegistry::get('Radchecks');    
+        $this->Radchecks = TableRegistry::getTableLocator()->get('Radchecks');   
     }
     
     public function beforeDelete($event, $entity){
