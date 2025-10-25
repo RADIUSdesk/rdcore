@@ -578,11 +578,15 @@ class DashboardController extends AppController{
         $tabItem    = $this->request->getQuery('item_id');
         $cloudId    = $this->request->getQuery('cloud_id');
         $req_q      = $this->request->getQuery();
-        
+	$comps      = [];
+        $right      = false;
+
         if($cloudId){
             $r_and_c = $this->Aa->rights_and_components_on_cloud();
-            $right   = $r_and_c['rights'];
-            $comps   = $r_and_c['components'];
+	    if($r_and_c && isset($r_and_c['rights'])){
+                $right   = $r_and_c['rights'];
+                $comps   = $r_and_c['components'] ?? [];
+            }
         }       
         //$right = $this->Aa->rights_on_cloud(); 
               
@@ -629,7 +633,7 @@ class DashboardController extends AppController{
         }
               
         if($tabItem == 'tabMainUsers'){
-            if($comps['cmp_permanent_users']){
+	    if(isset($comps['cmp_permanent_users']) && $comps['cmp_permanent_users']){
                 $items[] = [
                     "title" => "Permanent Users",
                     "glyph" => "xf2c0@FontAwesome",
@@ -640,7 +644,7 @@ class DashboardController extends AppController{
                     ]
                ];           
             }            
-            if($comps['cmp_vouchers']){
+	    if(isset($comps['cmp_vouchers']) && $comps['cmp_vouchers']){
                 $items[] = [
                     "title" => "Vouchers",
                     "glyph" => "xf145@FontAwesome",
@@ -663,7 +667,7 @@ class DashboardController extends AppController{
         }
         
         if($tabItem == 'tabMainRadius'){
-            if($comps['cmp_dynamic_clients']){
+	    if(isset($comps['cmp_dynamic_clients']) && $comps['cmp_dynamic_clients']){
                 $items[] = [
                     "title" => "RADIUS Clients",
                     "glyph" => "xf1ce@FontAwesome",
@@ -674,7 +678,7 @@ class DashboardController extends AppController{
                     ]
                 ];           
             }            
-            if($comps['cmp_nas']){
+	    if(isset($comps['cmp_nas']) && $comps['cmp_nas']){
                 $items[] =  [
                     "title" => "NAS",
                     "glyph" => "xf1cb@FontAwesome",
@@ -685,7 +689,7 @@ class DashboardController extends AppController{
                     ]
                 ];           
             }
-            if($comps['cmp_profiles']){
+	    if(isset($comps['cmp_profiles']) && $comps['cmp_profiles']){
                 $items[] =  [
                     "title" => "Profiles",
                     "glyph" => "xf1b3@FontAwesome",
@@ -697,7 +701,7 @@ class DashboardController extends AppController{
                 ];           
             }
             
-            if($comps['cmp_realms']){
+	    if(isset($comps['cmp_realms']) && $comps['cmp_realms']){
                 $items[] =  [
                     "title" => "Realms (Groups)",
                     "glyph" => "xf06c@FontAwesome",
@@ -725,10 +729,10 @@ class DashboardController extends AppController{
         }
         
         if($tabItem == 'tabMainNetworks'){
-            if($comps['cmp_meshes']){
+            if(isset($comps['cmp_meshes']) && $comps['cmp_meshes']){
                 $items['meshes'] = true;
             }  
-            if($comps['cmp_ap_profiles']){
+	    if(isset($comps['cmp_ap_profiles']) && $comps['cmp_ap_profiles']){
                 $items['ap_profiles'] = true;
             }
             $items['unknown_nodes'] = true;  
@@ -824,15 +828,19 @@ class DashboardController extends AppController{
         //FIXME This needs some more work in terms of components which should be listed per Access Provider
 
         $cloudId = (int)$this->request->getQuery('cloud_id');  
+	$comps = [];
+	$right = false;
         if($cloudId){
             $r_and_c = $this->Aa->rights_and_components_on_cloud();
-            $right   = $r_and_c['rights'];
-            $comps   = $r_and_c['components'];
+	    if($r_and_c && isset($r_and_c['rights'])){
+            	$right   = $r_and_c['rights'];
+            	$comps   = $r_and_c['components'];
+	    }
         } 
                 
         $firstRow = [];  
             
-        if($comps['cmp_permanent_users']){
+	if(isset($comps['cmp_permanent_users']) && $comps['cmp_permanent_users']){
             $tUsers = $this->Counts->countPermanentUsers($cloudId);
             $firstRow['column1']   = 
               [
@@ -848,7 +856,7 @@ class DashboardController extends AppController{
                 'accent'        => 'blue'            
               ];         
         }            
-        if($comps['cmp_vouchers']){
+	if(isset($comps['cmp_vouchers']) && $comps['cmp_vouchers']){
             $tVouchers = $this->Counts->countVouchers($cloudId);
             $firstRow['column2']   = 
               [
@@ -1522,4 +1530,3 @@ class DashboardController extends AppController{
     	return $items;      
     }   
 }
-
