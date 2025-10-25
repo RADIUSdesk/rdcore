@@ -828,14 +828,15 @@ class DashboardController extends AppController{
         //FIXME This needs some more work in terms of components which should be listed per Access Provider
 
         $cloudId = (int)$this->request->getQuery('cloud_id');  
-	$comps = [];
-	$right = false;
+        $comps = [];
+        $right = false;
+        
         if($cloudId){
             $r_and_c = $this->Aa->rights_and_components_on_cloud();
-	    if($r_and_c && isset($r_and_c['rights'])){
-            	$right   = $r_and_c['rights'];
-            	$comps   = $r_and_c['components'];
-	    }
+            if($r_and_c && isset($r_and_c['rights'])){
+                $right   = $r_and_c['rights'];
+                $comps   = isset($r_and_c['components']) ? $r_and_c['components'] : [];
+            }
         } 
                 
         $firstRow = [];  
@@ -1446,8 +1447,8 @@ class DashboardController extends AppController{
     
     private function _nav_tree($rc){
     
-        $rights     = $rc['rights'];
-        $components = $rc['components'];   	   
+        $rights     = isset($rc['rights']) ? $rc['rights'] : false;
+        $components = isset($rc['components']) ? $rc['components'] : [];   	   
     	$items = [
 			[
 				'text' 		=> 'OVERVIEW',
@@ -1459,7 +1460,7 @@ class DashboardController extends AppController{
 			]
         ];
         
-        if($components['cmp_permanent_users'] || $components['cmp_vouchers']){      
+        if(isset($components['cmp_permanent_users']) && isset($components['cmp_vouchers']) && ($components['cmp_permanent_users'] || $components['cmp_vouchers'])){      
             $items[] = [
 				'text'		=> 'USERS',
 				'leaf'		=> true,
@@ -1470,7 +1471,10 @@ class DashboardController extends AppController{
 			];      
         }
         
-        if($components['cmp_dynamic_clients'] || $components['cmp_nas'] || $components['cmp_profiles'] || $components['cmp_realms'] ){      
+        if((isset($components['cmp_dynamic_clients']) && $components['cmp_dynamic_clients']) || 
+           (isset($components['cmp_nas']) && $components['cmp_nas']) || 
+           (isset($components['cmp_profiles']) && $components['cmp_profiles']) || 
+           (isset($components['cmp_realms']) && $components['cmp_realms'])){      
             $items[] = [
 				'text'		=> 'RADIUS',
 				'leaf'		=> true,
@@ -1481,7 +1485,8 @@ class DashboardController extends AppController{
 			];      
         }
         
-        if($components['cmp_meshes'] || $components['cmp_ap_profiles']){      
+        if((isset($components['cmp_meshes']) && $components['cmp_meshes']) || 
+           (isset($components['cmp_ap_profiles']) && $components['cmp_ap_profiles'])){      
             $items[] = [
 				'text' 		=> 'NETWORK',
 				'leaf'	    => true,
@@ -1492,7 +1497,7 @@ class DashboardController extends AppController{
 			];      
         }
         
-        if($components['cmp_other']){      
+        if(isset($components['cmp_other']) && $components['cmp_other']){      
             $items[] = [
 				'text' 		=> 'OTHER',
 				'leaf'	    => true,

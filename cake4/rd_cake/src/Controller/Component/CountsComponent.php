@@ -117,15 +117,26 @@ class CountsComponent extends Component {
             )
             ->count();
             
-        // Suspended users
-        $suspended = (clone $base)
-            ->where(['PermanentUsers.admin_state' => 'suspended'])
-            ->count();
+        // Check if admin_state column exists
+        $PermanentUsers = TableRegistry::getTableLocator()->get('PermanentUsers');
+        $schema = $PermanentUsers->getSchema();
+        $hasAdminState = $schema->hasColumn('admin_state');
+        
+        // Suspended users (only if column exists)
+        $suspended = 0;
+        if ($hasAdminState) {
+            $suspended = (clone $base)
+                ->where(['PermanentUsers.admin_state' => 'suspended'])
+                ->count();
+        }
 
-        // Terminated users
-        $terminated = (clone $base)
-            ->where(['PermanentUsers.admin_state' => 'terminated'])
-            ->count();
+        // Terminated users (only if column exists)
+        $terminated = 0;
+        if ($hasAdminState) {
+            $terminated = (clone $base)
+                ->where(['PermanentUsers.admin_state' => 'terminated'])
+                ->count();
+        }
 
         return [
             'total'      => (int)$total,
