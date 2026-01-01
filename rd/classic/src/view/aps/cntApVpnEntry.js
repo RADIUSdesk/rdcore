@@ -21,7 +21,7 @@ Ext.define('Rd.view.aps.cntApVpnEntry', {
         var sVpnTypes = Ext.create('Ext.data.Store', {
             fields: ['id', 'name'],
             data : [
-                {"id":'ipsec',  "name":'L2TP/IPSec'},
+                {"id":'ipsec',  "name":'IKEv2+IPsec'},
                 {"id":'ovpn',   "name":'OpenVPN'},
                 {"id":'wg',     "name":'Wireguard'},
                 {"id":'zerot',  "name":'ZeroTier'},
@@ -92,7 +92,127 @@ Ext.define('Rd.view.aps.cntApVpnEntry', {
                 itemId      : 'cmbVpnType',
                 width       : w_prim,
             },
-            //--- Wireguard controls
+            //--IPsec--
+            {
+                xtype       : 'container',
+                margin      : 0,
+                itemId      : 'cntIpsec',
+                padding     : 0,
+                items       : [ 
+                    {
+                        xtype       : 'component',
+                        html        : 'IKEv2+IPsec specific',
+                        cls         : 'heading',
+                        margin      : '5 0 0 0',
+                        width       : w_prim+20
+                    },
+                    {
+                        xtype       : 'textfield',
+                        fieldLabel  : 'Server',
+                        name        : vpn_id+'_ipsec_server',
+                        allowBlank  : false,
+                        labelClsExtra: 'lblRdReq',
+                        width       : w_prim,
+                        value       : me.info.ipsec_server
+                    },
+                    {
+                        xtype       : 'textfield',
+                        fieldLabel  : 'Server ID',
+                        name        : vpn_id+'_ipsec_server_id',
+                        allowBlank  : false,
+                        labelClsExtra: 'lblRdReq',
+                        width       : w_prim,
+                        value       : me.info.ipsec_server_id
+                    },            
+                    {
+                        xtype       : 'numberfield',
+                        name        : vpn_id+'_ipsec_if_id',
+                        fieldLabel  : 'Xfrm Id Nr',
+                        maxValue    : 4294967295,
+                        minValue    : 1,
+                        labelClsExtra : 'lblRdReq',
+                        width       : w_prim,
+                        hideTrigger : true,
+                        keyNavEnabled  : false,
+                        mouseWheelEnabled	: false,
+                        value       : me.info.ipsec_if_id
+                    },
+                    {
+                        xtype       : 'textfield',
+                        fieldLabel  : 'Endpoint IP',
+                        name        : vpn_id+'_ipsec_ip',
+                        allowBlank  : false,
+                        labelClsExtra: 'lblRdReq',
+                        width       : w_prim,
+                        value       : me.info.ipsec_ip
+                    },
+                    {
+                        xtype       : 'textfield',
+                        fieldLabel  : 'Gateway IP',
+                        name        : vpn_id+'_ipsec_gw',
+                        allowBlank  : false,
+                        labelClsExtra: 'lblRdReq',
+                        width       : w_prim,
+                        value       : me.info.ipsec_gw
+                    },
+                    {
+                        xtype       : 'textfield',
+                        fieldLabel  : 'Client ID',
+                        name        : vpn_id+'_ipsec_client_id',
+                        allowBlank  : false,
+                        labelClsExtra: 'lblRdReq',
+                        width       : w_prim,
+                        value       : me.info.ipsec_gw
+                    },
+                    {
+                        xtype       : 'textareafield',
+                        grow        : true,
+                        name        : vpn_id+'_ipsec_ca',
+                        fieldLabel  : 'CA',
+                        anchor      : '100%',
+                        width       : w_prim,
+                        value       : me.info.ipsec_ca 
+                    },
+                    {
+                        xtype       : 'textareafield',
+                        grow        : true,
+                        name        : vpn_id+'_ipsec_cert',
+                        fieldLabel  : 'Certificate',
+                        anchor      : '100%',
+                        width       : w_prim,
+                        value       : me.info.ipsec_cert
+                    },
+                    {
+                        xtype       : 'textareafield',
+                        grow        : true,
+                        name        : vpn_id+'_ipsec_key',
+                        fieldLabel  : 'Key',
+                        anchor      : '100%',
+                        width       : w_prim,
+                        value       : me.info.ipsec_key 
+                    },
+                    {
+                        xtype       : 'textfield',
+                        fieldLabel  : 'Proposals',
+                        name        : vpn_id+'_ipsec_proposals',
+                        allowBlank  : false,
+                        labelClsExtra: 'lblRdReq',
+                        width       : w_prim,
+                        value       : me.info.ipsec_proposal
+                    },
+                    {
+                        xtype       : 'textfield',
+                        fieldLabel  : 'ESP Proposals',
+                        name        : vpn_id+'_ipsec_esp_proposals',
+                        allowBlank  : false,
+                        labelClsExtra: 'lblRdReq',
+                        width       : w_prim,
+                        value       : me.info.ipsec_esp_proposal
+                    }
+                ]
+            },
+            
+            //--- Wireguard controls           
             {
                 xtype       : 'container',
                 margin      : 0,
@@ -162,7 +282,7 @@ Ext.define('Rd.view.aps.cntApVpnEntry', {
                     },
                 ]
             },
-             {
+            {
                 xtype       : 'container',
                 margin      : 0,
                 itemId      : 'cntOvpn',

@@ -25,7 +25,19 @@ Ext.define('Rd.view.aps.vcApVpnEntry', {
     onCmbVpnTypeChange : function(combo){
         var me = this;
         var val = combo.getValue();
+        if(val === 'ipsec'){
+            me.getView().down('#cntIpsec').show();
+            me.getView().down('#cntIpsec').enable();
+            me.getView().down('#cntOvpn').hide();
+            me.getView().down('#cntOvpn').disable();
+            me.getView().down('#cntWg').hide();
+            me.getView().down('#cntWg').disable();          
+        }
+        
+        
         if(val === 'wg'){
+            me.getView().down('#cntIpsec').hide();
+            me.getView().down('#cntIpsec').disable();
             me.getView().down('#cntWg').show();
             me.getView().down('#cntWg').enable();
             me.getView().down('#cntOvpn').hide();
@@ -33,6 +45,8 @@ Ext.define('Rd.view.aps.vcApVpnEntry', {
         }
         
         if(val === 'ovpn'){
+            me.getView().down('#cntIpsec').hide();
+            me.getView().down('#cntIpsec').disable();
             me.getView().down('#cntOvpn').show();
             me.getView().down('#cntOvpn').enable();
             me.getView().down('#cntWg').hide();
