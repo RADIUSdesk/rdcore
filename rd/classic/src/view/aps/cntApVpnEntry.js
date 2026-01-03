@@ -140,20 +140,20 @@ Ext.define('Rd.view.aps.cntApVpnEntry', {
                     {
                         xtype       : 'textfield',
                         fieldLabel  : 'Endpoint IP',
-                        name        : vpn_id+'_ipsec_ip',
+                        name        : vpn_id+'_ipsec_xfrm_ip',
                         allowBlank  : false,
                         labelClsExtra: 'lblRdReq',
                         width       : w_prim,
-                        value       : me.info.ipsec_ip
+                        value       : me.info.ipsec_xfrm_ip
                     },
                     {
                         xtype       : 'textfield',
                         fieldLabel  : 'Gateway IP',
-                        name        : vpn_id+'_ipsec_gw',
+                        name        : vpn_id+'_ipsec_xfrm_gw',
                         allowBlank  : false,
                         labelClsExtra: 'lblRdReq',
                         width       : w_prim,
-                        value       : me.info.ipsec_gw
+                        value       : me.info.ipsec_xfrm_gw
                     },
                     {
                         xtype       : 'textfield',
@@ -162,7 +162,7 @@ Ext.define('Rd.view.aps.cntApVpnEntry', {
                         allowBlank  : false,
                         labelClsExtra: 'lblRdReq',
                         width       : w_prim,
-                        value       : me.info.ipsec_gw
+                        value       : me.info.ipsec_client_id
                     },
                     {
                         xtype       : 'textareafield',
@@ -198,7 +198,7 @@ Ext.define('Rd.view.aps.cntApVpnEntry', {
                         allowBlank  : false,
                         labelClsExtra: 'lblRdReq',
                         width       : w_prim,
-                        value       : me.info.ipsec_proposal
+                        value       : me.info.ipsec_proposals
                     },
                     {
                         xtype       : 'textfield',
@@ -207,7 +207,7 @@ Ext.define('Rd.view.aps.cntApVpnEntry', {
                         allowBlank  : false,
                         labelClsExtra: 'lblRdReq',
                         width       : w_prim,
-                        value       : me.info.ipsec_esp_proposal
+                        value       : me.info.ipsec_esp_proposals
                     }
                 ]
             },

@@ -72,12 +72,16 @@ class VpnComponent extends Component {
             }
             if($vpnConnection->vpn_type === 'ovpn'){                
                 $network = array_merge($network,$this->_makeOpenvpn($vpnConnection));           
+            } 
+            
+            if($vpnConnection->vpn_type === 'ipsec'){                
+                $network = array_merge($network,$this->_makeIpsec($vpnConnection));           
             }      
         }    	 	  
     	return [ $network, $this->metaVpn, $this->vpnDetail ];
     }
     
-    
+   
     private function _makeOpenvpn($vpnConnection){
     
         $ifname   = 'ovpn0'.$this->ovpn;
@@ -117,7 +121,7 @@ class VpnComponent extends Component {
         $config_file = $this->_makeOpenvpnConfig($vpnConnection,$ifname);
         
         if(array_key_exists('ovpn',$this->vpnDetail)){          
-            array_push($this->vpnDetail,[ 'name' => $ifname, 'config' => $config_file ]);            
+            array_push($this->vpnDetail['ovpn'],[ 'name' => $ifname, 'config' => $config_file ]);            
         }else{
             $this->vpnDetail['ovpn'] = [[ 'name' => $ifname, 'config' => $config_file ]];   
         }            
@@ -173,6 +177,61 @@ EOT;
 
         return $config;
           
+    }
+    
+    private function _makeIpsec($vpnConnection){
+    
+        $ifname   = 'xfrm0'.$this->ipsec;
+        $ret_ipsec = [
+            [
+                'interface' => $ifname,
+                'options'   => [
+                    'proto'     => 'none',
+                    'ifname'    => $ifname
+                
+                ]  
+            ]
+        ];
+        
+        $exit_points = [];
+        $macs        = [];
+        foreach($vpnConnection->ap_vpn_connection_ap_profile_exits as $exit){
+            $exit_points[] =  $exit->ap_profile_exit_id;   
+        }
+        foreach($vpnConnection->ap_vpn_connection_mac_addresses as $mac){
+            $macs[] =  $mac->mac_addresses->mac;   
+        }
+        
+        $this->metaVpn[] = [
+            'id'        => $vpnConnection->id,
+            'interface' => $ifname,
+            'type'      => $vpnConnection->vpn_type,
+            'stats'     => true,
+            'routing'   => [
+                'exit_points'   => $exit_points,
+                'macs'          => $macs
+            ]   
+        ];
+        
+        $this->ipsec = $this->ipsec+1; //increment the IPsec items
+        
+        $ipsecData  = [];
+        $vpnArray   = $vpnConnection->toArray(); 
+               
+        foreach(array_keys($vpnArray) as $field){
+            if(str_starts_with($field,'ipsec_')){            
+                $ipsecData[$field] = $vpnArray[$field];
+            }
+        }
+                 
+        if(array_key_exists('ipsec',$this->vpnDetail)){          
+            array_push($this->vpnDetail['ipsec'],[ 'name' => $ifname, 'config' => $ipsecData ]);            
+        }else{
+            $this->vpnDetail['ipsec'] = [[ 'name' => $ifname, 'config' => $ipsecData ]];   
+        }            
+        
+             
+        return $ret_ipsec;
     }
     
     
