@@ -271,7 +271,11 @@ class VpnConnectionsController extends AppController{
                     	$dynamic_vlan = str_replace("-9","",$dynamic_vlan);
                     	$name = $name."(Dynamic VLAN ".$dynamic_vlan.") ";          
                     }else{
-                        $name = $name."(".$conn->ap_profile_entry->name.") ";
+                        if($conn->ap_profile_entry_id == 0){
+                            $name = $name."(LAN) ";
+                        }else{
+                            $name = $name."(".$conn->ap_profile_entry->name.") ";
+                        }
                     }
                 }
                 $e_d['name'] = $name;
