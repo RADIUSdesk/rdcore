@@ -230,6 +230,9 @@ function _doReports(){
         if (!empty($report['ovpn_stats'])) {
             _do_ovpn_stats($report['ovpn_stats']);
         }
+        if (!empty($report['ipsec_stats'])) {
+            _do_ovpn_stats($report['ipsec_stats']);
+        }
         
         // Prepare AP updates
         $stmt_update_ap->execute([

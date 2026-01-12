@@ -11,7 +11,7 @@ class VpnComponent extends Component {
 
     protected $ipsec    = 1;
     protected $ovpn     = 1;
-    protected $zerot    = 1;
+    protected $zt       = 1;
     protected $wg       = 1;
     protected $metaVpn  = [];
     protected $vpnDetail= [];
@@ -76,7 +76,12 @@ class VpnComponent extends Component {
             
             if($vpnConnection->vpn_type === 'ipsec'){                
                 $network = array_merge($network,$this->_makeIpsec($vpnConnection));           
-            }      
+            } 
+            
+            if($vpnConnection->vpn_type === 'zt'){                
+                $network = array_merge($network,$this->_makeZeroTier($vpnConnection));           
+            } 
+                 
         }    	 	  
     	return [ $network, $this->metaVpn, $this->vpnDetail ];
     }
@@ -309,5 +314,65 @@ EOT;
         
         $this->wg = $this->wg+1; //increment the wireguard items        
         return $ret_wg;   
+    }
+    
+    private function _makeZeroTier($vpnConnection){
+       
+        $ifname   = 'zt0'.$this->zt;
+        $zt_ifname= $ifname;
+        if($vpnConnection->zt_ifname){
+            $zt_ifname = $vpnConnection->zt_ifname;
+        }
+        $ret_zt = [
+            [
+                'interface' => $ifname,
+                'options'   => [
+                    'proto'     => 'none',
+                    'ifname'    => $zt_ifname
+                
+                ]  
+            ]
+        ];
+        
+        $exit_points = [];
+        $macs        = [];
+        foreach($vpnConnection->ap_vpn_connection_ap_profile_exits as $exit){
+            $exit_points[] =  $exit->ap_profile_exit_id;   
+        }
+        foreach($vpnConnection->ap_vpn_connection_mac_addresses as $mac){
+            $macs[] =  $mac->mac_addresses->mac;   
+        }
+        
+        $this->metaVpn[] = [
+            'id'        => $vpnConnection->id,
+            'interface' => $ifname,
+            'type'      => $vpnConnection->vpn_type,
+            'network_id' => $vpnConnection->zt_network_id,
+            'ifname'    => $zt_ifname,
+            'stats'     => true,
+            'routing'   => [
+                'exit_points'   => $exit_points,
+                'macs'          => $macs
+            ]   
+        ];
+        
+        $this->zt = $this->zt+1; //increment the Zerotier items
+        
+        $ztData  = [];
+        $vpnArray   = $vpnConnection->toArray(); 
+               
+        foreach(array_keys($vpnArray) as $field){
+            if(str_starts_with($field,'zt_')){            
+                $ztData[$field] = $vpnArray[$field];
+            }
+        }
+                 
+        if(array_key_exists('zt',$this->vpnDetail)){          
+            array_push($this->vpnDetail['zt'],[ 'name' => $ifname, 'config' => $ztData ]);            
+        }else{
+            $this->vpnDetail['zt'] = [[ 'name' => $ifname, 'config' => $ztData ]];   
+        }            
+                     
+        return $ret_zt;
     }
 }

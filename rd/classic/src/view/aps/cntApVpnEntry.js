@@ -16,7 +16,13 @@ Ext.define('Rd.view.aps.cntApVpnEntry', {
     initComponent: function(){
         var me          = this;
         var w_prim      = 550;
-        var vpn_id      = me.vpn_id;  
+        var vpn_id      = me.vpn_id;
+        
+        var zt_ifname   = '**Not Yet Defined**';
+         
+        if(me.info.zt_ifname){
+            zt_ifname = me.info.zt_ifname;
+        }  
         
         var sVpnTypes = Ext.create('Ext.data.Store', {
             fields: ['id', 'name'],
@@ -24,7 +30,7 @@ Ext.define('Rd.view.aps.cntApVpnEntry', {
                 {"id":'ipsec',  "name":'IKEv2+IPsec'},
                 {"id":'ovpn',   "name":'OpenVPN'},
                 {"id":'wg',     "name":'Wireguard'},
-                {"id":'zerot',  "name":'ZeroTier'},
+                {"id":'zt',     "name":'ZeroTier'},
             ]
         });
         
@@ -282,6 +288,7 @@ Ext.define('Rd.view.aps.cntApVpnEntry', {
                     },
                 ]
             },
+            //--- OpenVPN -----
             {
                 xtype       : 'container',
                 margin      : 0,
@@ -373,6 +380,40 @@ Ext.define('Rd.view.aps.cntApVpnEntry', {
                     },
                 ]
             },
+            //--- Zerotier --
+            {
+                xtype       : 'container',
+                margin      : 0,
+                itemId      : 'cntZt',
+                hidden      : true,
+                padding     : 0,
+                items       : [ 
+                    {
+                        xtype       : 'component',
+                        html        : 'ZeroTier specific',
+                        cls         : 'heading',
+                        margin      : '5 0 0 0',
+                        width       : w_prim+20
+                    },
+                    {
+                        xtype       : 'textfield',
+                        fieldLabel  : 'Network ID',
+                        name        : vpn_id+'_zt_network_id',
+                        allowBlank  : false,
+                        labelClsExtra: 'lblRdReq',
+                        width       : w_prim,
+                        value       : me.info.zt_network_id
+                    },
+                    {
+                        xtype       : 'displayfield',
+                        fieldLabel  : 'Interface Name',
+                        name        : vpn_id+'_zt_ifname',
+                        labelClsExtra: 'lblRdReq',
+                        width       : w_prim,
+                        value       : zt_ifname
+                    }                  
+                ]
+            },         
             {
                 xtype       : 'component',
                 html        : 'Split tunnel routing',

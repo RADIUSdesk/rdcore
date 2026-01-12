@@ -31,7 +31,9 @@ Ext.define('Rd.view.aps.vcApVpnEntry', {
             me.getView().down('#cntOvpn').hide();
             me.getView().down('#cntOvpn').disable();
             me.getView().down('#cntWg').hide();
-            me.getView().down('#cntWg').disable();          
+            me.getView().down('#cntWg').disable();
+            me.getView().down('#cntZt').hide();
+            me.getView().down('#cntZt').disable();         
         }
         
         
@@ -42,6 +44,8 @@ Ext.define('Rd.view.aps.vcApVpnEntry', {
             me.getView().down('#cntWg').enable();
             me.getView().down('#cntOvpn').hide();
             me.getView().down('#cntOvpn').disable();
+            me.getView().down('#cntZt').hide();
+            me.getView().down('#cntZt').disable();
         }
         
         if(val === 'ovpn'){
@@ -51,7 +55,21 @@ Ext.define('Rd.view.aps.vcApVpnEntry', {
             me.getView().down('#cntOvpn').enable();
             me.getView().down('#cntWg').hide();
             me.getView().down('#cntWg').disable();
-        }    
+            me.getView().down('#cntZt').hide();
+            me.getView().down('#cntZt').disable();
+        } 
+        
+        if(val === 'zt'){
+            me.getView().down('#cntIpsec').hide();
+            me.getView().down('#cntIpsec').disable();
+            me.getView().down('#cntOvpn').hide();
+            me.getView().down('#cntOvpn').disable();
+            me.getView().down('#cntWg').hide();
+            me.getView().down('#cntWg').disable();
+            me.getView().down('#cntZt').show();
+            me.getView().down('#cntZt').enable();
+        } 
+           
     },
     onCmbTlsTypeChange : function(combo){
         var me = this;
