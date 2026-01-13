@@ -126,6 +126,11 @@ class VpnConnectionsController extends AppController{
                 
         foreach($createRows as $item){
         
+            if(isset($item['zt_network_id'])){
+                $networkId = $item['zt_network_id'];
+                $item['zt_ifname'] = $this->zerotierInterfaceName($networkId);
+            }
+        
             $item['ap_id']  = $ap_id;
             $form_id        = $item['form_id'];
             $entity         = $this->ApVpnConnections->newEntity($item);
@@ -183,6 +188,11 @@ class VpnConnectionsController extends AppController{
             $form_id        = $item['form_id'];
             $entity         = $this->ApVpnConnections->find()->where(['ApVpnConnections.id' => $id])->first();          
             if($entity){
+            
+                if(isset($item['zt_network_id'])){
+                    $networkId = $item['zt_network_id'];
+                    $item['zt_ifname'] = $this->zerotierInterfaceName($networkId);
+                }         
                 $this->ApVpnConnections->patchEntity($entity,$item);
                 if (!$this->ApVpnConnections->save($entity)) {           
                     $message    = 'Error';           
@@ -355,7 +365,47 @@ class VpnConnectionsController extends AppController{
         if($mac){
             return $mac->mac;
         }
-    }       
+    }
+    
+    private function zerotierInterfaceName($networkIdHex) {
+        $base32 = 'abcdefghijklmnopqrstuvwxyz234567';
+        
+        // Remove 0x prefix
+        $networkIdHex = strtolower(ltrim($networkIdHex, '0x'));
+        
+        // Pad to 16 characters (64 bits)
+        $networkIdHex = str_pad($networkIdHex, 16, '0', STR_PAD_LEFT);
+        
+        // Convert hex to binary string (64 bits)
+        $nwid_bin = '';
+        for ($i = 0; $i < 16; $i += 2) {
+            $byte = substr($networkIdHex, $i, 2);
+            $nwid_bin .= str_pad(decbin(hexdec($byte)), 8, '0', STR_PAD_LEFT);
+        }
+        
+        // Right shift by 24 bits (remove last 24 bits, add 24 zeros at front)
+        $shifted_bin = str_repeat('0', 24) . substr($nwid_bin, 0, 40);
+        
+        // XOR: compare bit by bit
+        $xored_bin = '';
+        for ($i = 0; $i < 64; $i++) {
+            $xored_bin .= ($nwid_bin[$i] === $shifted_bin[$i]) ? '0' : '1';
+        }
+        
+        // Take lowest 40 bits (last 40 characters)
+        $nwid40_bin = substr($xored_bin, -40);
+        
+        // Base32 encode: 40 bits = 8 groups of 5 bits
+        $chars = '';
+        for ($i = 0; $i < 8; $i++) {
+            $bits = substr($nwid40_bin, $i * 5, 5);
+            $value = bindec($bits);
+            $chars .= $base32[$value];
+        }
+        
+        return 'zt' . $chars;
+    }
+      
 }
 
 ?>
