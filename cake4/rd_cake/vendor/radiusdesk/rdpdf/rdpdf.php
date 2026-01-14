@@ -21,6 +21,8 @@ class LabelPdf extends TCPDF {
     public $fontName   = 'FreeSans'; // Name of the font
     public $countX     = 0;
     public $countY     = 0;
+    
+    public array $OutputInstr	= []; //Dummy value - will be set just after instantiation
 
     var $Logo          = 'img/realms/logo.jpg';       //Default Logo
     
@@ -353,7 +355,10 @@ class VoucherPdf extends TCPDF {
 	var $padding		= 10;
 	var $t_and_c_start	= false;
 
-	var $OutputInstr	= array(); //Dummy value - will be set just after instantiation
+	public array $OutputInstr	= []; //Dummy value - will be set just after instantiation
+	public $x_start;
+	public $y_start;
+	public $RealmDetail; 
 
 	//Global style to use for QR
 	var	$QrStyle		= array(
