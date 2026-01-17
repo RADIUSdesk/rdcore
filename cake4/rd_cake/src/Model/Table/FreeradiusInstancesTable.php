@@ -3,7 +3,7 @@ namespace App\Model\Table;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
-class FreeradiusStatsTable extends Table {
+class FreeradiusInstancesTable extends Table {
 
     public function initialize(array $config): void {
         $this->addBehavior('Timestamp');
@@ -11,6 +11,6 @@ class FreeradiusStatsTable extends Table {
 
     public function validationDefault(Validator $validator): Validator {
         return $validator
-            ->notEmptyString('tag');
+            ->notEmptyString('server');
     }
 }

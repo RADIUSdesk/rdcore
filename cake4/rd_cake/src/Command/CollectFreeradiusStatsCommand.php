@@ -1,8 +1,7 @@
 <?php
 
 //as www-data
-//cd /var/www/html/cake4/rd_cake && bin/cake update_user_stats_dailies 
-
+//cd /var/www/rdcore/cake4/rd_cake && bin/cake freeradius:collect-stats >> /dev/null 2>&1
 
 declare(strict_types=1);
 
@@ -79,10 +78,8 @@ class CollectFreeradiusStatsCommand extends Command
         };
 
         $entityData = [
-            'captured_at'             => FrozenTime::now('UTC'),
             'tag'                     => $tag,
             'server'                  => $serverAddr,
-
             'stats_start_time'        => $parseFrTime('FreeRADIUS-Stats-Start-Time'),
             'stats_hup_time'          => $parseFrTime('FreeRADIUS-Stats-HUP-Time'),
             
@@ -126,14 +123,82 @@ class CollectFreeradiusStatsCommand extends Command
         /** @var \App\Model\Table\FreeradiusStatsTable $Stats */
         print_r($entityData);
 
-        $Stats = TableRegistry::getTableLocator()->get('FreeradiusStats');
-        $entity = $Stats->newEntity($entityData);
+        $Instance = TableRegistry::getTableLocator()->get('FreeradiusInstances');
+        
+        //--See if there are existing one
+        $entity = $Instance->find()->where([
+                'stats_start_time'  => $entityData['stats_start_time'],
+                'tag'               => $entityData['tag'],
+                'server'            => $entityData['server']            
+            ])->first();
+            
+        if($entity){
+            $io->success('Found Existing Entry - Updating it : row id ' . $entity->id);
+            $entity->modified = FrozenTime::now();
+            $entity->setDirty('modified', true);
+            
+            print_r($entityData);
+            print_r($entity);
+            
+            $deltas = [
+                'access_requests' =>
+                    max(0, $entityData['total_access_requests'] - ($entity->total_access_requests ?? 0)),
+
+                'access_accepts' =>
+                    max(0, $entityData['total_access_accepts'] - ($entity->total_access_accepts ?? 0)),
+
+                'access_rejects' =>
+                    max(0, $entityData['total_access_rejects'] - ($entity->total_access_rejects ?? 0)),
+
+                'access_challenges' =>
+                    max(0, $entityData['total_access_challenges'] - ($entity->total_access_challenges ?? 0)),
+
+                'auth_responses' =>
+                    max(0, $entityData['total_auth_responses'] - ($entity->total_auth_responses ?? 0)),
+
+                'acct_requests' =>
+                    max(0, $entityData['total_acct_requests'] - ($entity->total_acct_requests ?? 0)),
+
+                'acct_responses' =>
+                    max(0, $entityData['total_acct_responses'] - ($entity->total_acct_responses ?? 0)),
+            ];          
+            
+            if (array_sum($deltas) > 0) {
+                print_r($deltas);
+                $io->success('== Changes detected - Record the Deltas ===');
+                //-- Stats Entry --
+                $Stat           = TableRegistry::getTableLocator()->get('FreeradiusStats');
+                $deltas['tag']  = $entityData['tag'];               
+                $e_stat         = $Stat->newEntity($deltas);
+                $Stat->save($e_stat);            
+            }                     
+            $Instance->patchEntity($entity,$entityData);       
+        }else{
+            $entity = $Instance->newEntity($entityData);
+            
+            //-- Stats Entry --
+            $Stat   = TableRegistry::getTableLocator()->get('FreeradiusStats');
+            $s_data = [
+                'tag'               => $entityData['tag'],
+                'access_requests'   => $entityData['total_access_requests'],
+                'access_accepts'    => $entityData['total_access_accepts'],
+                'access_rejects'    => $entityData['total_access_rejects'],
+                'access_challenges' => $entityData['total_access_challenges'],
+                'auth_responses'    => $entityData['total_auth_responses'],
+                'acct_requests'     => $entityData['total_acct_requests'],
+                'acct_responses'    => $entityData['total_acct_responses']        
+            ];
+            $e_stat = $Stat->newEntity($s_data);
+            $Stat->save($e_stat); 
+                     
+        }
+        
         if ($entity->getErrors()) {
             $io->err('Validation errors: ' . json_encode($entity->getErrors(), JSON_PRETTY_PRINT));
             return self::CODE_ERROR;
         }
-        if (!$Stats->save($entity)) {
-            $io->err('Failed saving freeradius_stats row.');
+        if (!$Instance->save($entity)) {
+            $io->err('Failed saving freeradius_instances row.');
             return self::CODE_ERROR;
         }
 
