@@ -65,6 +65,9 @@ Ext.define('Rd.controller.cUtilities', {
 			'pnlUtilities #btnRadstats' : {
 				click 	: me.openRadstats
 			},
+			'pnlUtilities #btnFreeradiusStats' : {
+				click 	: me.openFreeradiusStats
+			},
         });
     },
     openDataUsage: function(btn){
@@ -221,5 +224,26 @@ Ext.define('Rd.controller.cUtilities', {
 	        }         
         });
         tp.setActiveTab('pnlRadstats');
+    },
+    openFreeradiusStats: function(btn){
+        var me  = this;
+        var pnl = me.getPnlUtilities();
+        var tp  = pnl.up('tabpanel');
+        var check_if_there = tp.down('#pnlFreeradiusStats');     
+        if(check_if_there){
+            tp.setActiveTab('pnlFreeradiusStats');
+            return;
+        }     
+        tp.add({
+             title   : 'FeeRADIUS Stats',
+             closable: true,
+             xtype   : 'pnlFreeradiusStats',
+             glyph   : Rd.config.icnGraph,
+             itemId  : 'pnlFreeradiusStats',
+	         tabConfig   : {
+	            ui : 'tab-brown'
+	        }         
+        });
+        tp.setActiveTab('pnlFreeradiusStats');
     }
 });

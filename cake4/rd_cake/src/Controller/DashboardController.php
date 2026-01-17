@@ -27,7 +27,9 @@ class DashboardController extends AppController{
         $this->Authentication->allowUnauthenticated([ 'authenticate', 'branding','checkToken']);
         
         //Set to true for a link to Radiator Stats
-        $this->showRadiatorStats = true;    
+        $this->showRadiatorStats = false;
+        //Set to true for a link to Freeradius Stats
+        $this->showFreeradiusStats = true;    
     }    
     
     public function branding(){
@@ -1299,6 +1301,17 @@ class DashboardController extends AppController{
                 'glyph'     => Configure::read('icnGraph'),
                 'scale'     => 'large',
                 'itemId'    => 'btnRadstats',
+                'textAlign' => $ta 
+            ];       
+        }
+        
+        if($this->showFreeradiusStats){
+            $data[] = [
+                'xtype'     => 'button',
+                'text'      => 'FreeRADIUS Stats',
+                'glyph'     => Configure::read('icnGraph'),
+                'scale'     => 'large',
+                'itemId'    => 'btnFreeradiusStats',
                 'textAlign' => $ta 
             ];       
         }

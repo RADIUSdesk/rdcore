@@ -1,152 +1,410 @@
 <?php
-declare(strict_types=1);
-
 namespace App\Controller;
 
+use App\Controller\AppController;
+use Cake\Utility\Inflector;
 use Cake\I18n\FrozenTime;
-use Cake\Datasource\ConnectionManager;
 
-class FreeradiusStatsController extends AppController
-{
+class FreeradiusStatsController extends AppController{ 
+    protected $main_model  = 'FreeradiusStats';    
+    protected $time_zone   = 'UTC'; //Default for timezone
+    protected $base_search = false;
+    
 
-     public function initialize():void{  
+    public function initialize():void{  
         parent::initialize();
-        $this->Authentication->allowUnauthenticated([ 'deltas']);
+        $this->loadModel('FreeradiusStats');
+        $this->loadModel('FreeradiusInstances');
+        $this->loadModel('Timezones'); 
+        $this->loadComponent('Aa');
+        $this->loadComponent('JsonErrors'); 
+        $this->loadComponent('TimeCalculations');
+        $this->Authentication->allowUnauthenticated([ 'index']);        
     }    
 
-
-    // GET /freeradius-stats/deltas.json?tag=main&from=2025-10-26T00:00:00Z&to=2025-10-27T00:00:00Z&bucket=60&metrics=d_acct_requests,d_acct_responses,d_access_requests,d_access_rejects
-    public function deltas()
-    {
-        $this->request->allowMethod(['get']);
-
-        $tag     = (string)($this->request->getQuery('tag') ?? '');
-        if ($tag === '') {
-            return $this->response->withStatus(400)->withStringBody('Missing ?tag');
+    public function index(){
+    
+        $user = $this->Aa->user_for_token($this);
+        if (!$user) {   //If not a valid user
+            return;
         }
-
-        // defaults: last 6 hours, 60-second buckets
-        $toStr   = (string)($this->request->getQuery('to')   ?? FrozenTime::now('UTC')->toIso8601String());
-        $fromStr = (string)($this->request->getQuery('from') ?? FrozenTime::now('UTC')->subHours(6)->toIso8601String());
-        $bucket  = (int)($this->request->getQuery('bucket') ?? 60);
-        if ($bucket < 10) { $bucket = 10; }                 // min 10s
-        if ($bucket > 86400) { $bucket = 86400; }           // max 1d
-
-        // allowlist the metrics
-        $allowed = [
-            'd_access_requests','d_access_accepts','d_access_rejects','d_access_challenges','d_auth_responses',
-            'd_auth_dup','d_auth_malformed','d_auth_invalid','d_auth_dropped','d_auth_unknown','d_auth_conflicts',
-            'd_acct_requests','d_acct_responses','d_acct_dup','d_acct_malformed','d_acct_invalid','d_acct_dropped','d_acct_unknown','d_acct_conflicts'
-        ];
-        $metrics = $this->request->getQuery('metrics');
-        $metrics = is_string($metrics) && $metrics !== '' ? explode(',', $metrics) : ['d_acct_requests','d_acct_responses'];
-        $metrics = array_values(array_intersect($metrics, $allowed));
-        if (empty($metrics)) {
-            return $this->response->withStatus(400)->withStringBody('No valid metrics requested');
+    
+        //--day--
+        $day    = $this->request->getQuery('day'); //day will be in format 'd/m/Y'
+        
+        if($day){
+            $ft_day = FrozenTime::createFromFormat('d/m/Y',$day);     
+        }else{
+            $ft_day = FrozenTime::now();
         }
-
-        // Parse ISO8601 (accepts 'Z'); store in UTC
-        $from = new FrozenTime($fromStr, 'UTC');
-        $to   = new FrozenTime($toStr, 'UTC');
-        if ($from->gte($to)) {
-            return $this->response->withStatus(400)->withStringBody('?from must be < ?to');
+        
+        //--span--
+        $span = 'day'; //default
+        if($this->request->getQuery('span')){
+            $span = $this->request->getQuery('span');                   
         }
+        
+         // Always work in a single timezone
+        $tz     = $this->time_zone ?: 'UTC';
+        $ft_day = $ft_day->setTimezone($tz);
+              
+        //VERY IMPORTANT
+        $this->_setTimeZone();
 
-        $conn = ConnectionManager::get('default');
-
-        // Build SELECT fields like: SUM(d_acct_requests) AS d_acct_requests, ...
-        $fields = [];
-        foreach ($metrics as $m) {
-            $fields[] = "SUM($m) AS `$m`";
+        //Base Search
+        $this->base_search = $this->_base_search();
+        
+        $data   = [];
+             
+        if($span === 'day'){               
+            $data['graph']  = $this->_getDailyGraph($ft_day);        
         }
-        $fieldsSql = implode(",\n      ", $fields);
+        if($span === 'week'){               
+            $data['graph']  = $this->_getWeeklyGraph($ft_day);
+        }
+        if($span === 'month'){               
+            $data['graph']  = $this->_getMonthlyGraph($ft_day);
+        }
+        
+        $data['instances']  = $this->_getInstances($ft_day,$span);    
+        
+        $formatted_day      = $ft_day->setTimezone($this->time_zone)->format('D, d M Y');
+        $formatted_time     =  $ft_day->setTimezone($this->time_zone)->i18nFormat('HH:mm');
+           
+        $totals             = $this->_getTotals($ft_day,$span);
+        $totals->date       = $formatted_day;
+        $totals->time       = $formatted_time;
+        $totals->timespan   = ucfirst($span);
+        
+        $t[] = ['id' => 1, 'objtype' => 'Authentication' , 'requests'   => $totals->access_requests];
+        $t[] = ['id' => 2, 'objtype' => 'Accounting' ,     'requests'  => $totals->acct_requests];
+        
+        $data['polar']['totals'] = $t;       
+        $data['summary']    = $totals;
+            
+       // $data           = ['date' => $formatted_day, 'time' => $formatted_time, 'timespan' => ucfirst($span),'acces_requests' => $result->access_requests, 'avg_rtt' => $result->responsetime];
+        
+        
+         
+       // $data['polar']['totals']    = $this->_getTotal($ft_day,$span);   
 
-        // Bucket time: UNIX_TIMESTAMP(captured_at) DIV :bucket * :bucket (seconds)
-        // We return `ts` as UNIX seconds and `ts_ms` for charting.
-        $sql = "
-            SELECT
-              (UNIX_TIMESTAMP(captured_at) DIV :bucket) * :bucket AS ts,
-              FROM_UNIXTIME((UNIX_TIMESTAMP(captured_at) DIV :bucket) * :bucket) AS ts_dt,
-              $fieldsSql
-            FROM freeradius_stats_deltas
-            WHERE tag = :tag
-              AND captured_at >= :from
-              AND captured_at <  :to
-            GROUP BY ts
-            ORDER BY ts ASC
-        ";
 
-        $rows = $conn->execute($sql, [
-            'bucket' => $bucket,
-            'tag'    => $tag,
-            'from'   => $from->format('Y-m-d H:i:s'),
-            'to'     => $to->format('Y-m-d H:i:s'),
-        ])->fetchAll('assoc');
+        $this->set([
+            'data'      => $data,
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    }
+    
+    private function _getInstances($ft_day,$span){
+    
+        $where[] = ['FreeradiusInstances.tag' => 'main'];  
+        
+        if($span === 'day'){
+            $slot_start = $ft_day->startOfDay(); 
+            $slot_end   = $ft_day->endOfDay();
+        }
+        if($span === 'week'){
+            $slot_start = $ft_day->startOfWeek();
+            $slot_end   = $ft_day->endOfWeek();         
+        }
+        if($span === 'month'){
+            $slot_start = $ft_day->startOfMonth(); //Prime it 
+            $slot_end   = $ft_day->endOfMonth();//->i18nFormat('yyyy-MM-dd HH:mm:ss');             
+        }
+        
+        $slot_start_txt = $slot_start->i18nFormat('yyyy-MM-dd HH:mm:ss');
+        $slot_end_txt   = $slot_end->i18nFormat('yyyy-MM-dd HH:mm:ss');
+        
+        $query = $this->FreeradiusInstances->find();
+        $time_start = $query->func()->CONVERT_TZ([
+            "'$slot_start_txt'"     => 'literal',
+            "'$this->time_zone'"    => 'literal',
+            "'+00:00'"              => 'literal',
+        ]);        
+        $time_end = $query->func()->CONVERT_TZ([
+            "'$slot_end_txt'"       => 'literal',
+            "'$this->time_zone'"    => 'literal',
+            "'+00:00'"              => 'literal',
+        ]);
+        array_push($where, ["created >=" => $time_start]);
+        array_push($where, ["modified <=" => $time_end]);
+    
+        $instances = $query->where($where)->all();         
+        return $instances;    
+    }
+    
+    
+    private function _getTotals($ft_day,$span){
+        $items          = [];
+        $base_search    = $this->base_search;
+        $where          = $base_search;
+        
+        if($span === 'day'){
+            $slot_start = $ft_day->startOfDay(); 
+            $slot_end   = $ft_day->endOfDay();
+        }
+        if($span === 'week'){
+            $slot_start = $ft_day->startOfWeek();
+            $slot_end   = $ft_day->endOfWeek();         
+        }
+        if($span === 'month'){
+            $slot_start = $ft_day->startOfMonth(); //Prime it 
+            $slot_end   = $ft_day->endOfMonth();//->i18nFormat('yyyy-MM-dd HH:mm:ss');             
+        }       
+                
+        $slot_start_txt = $slot_start->i18nFormat('yyyy-MM-dd HH:mm:ss');
+        $slot_end_txt   = $slot_end->i18nFormat('yyyy-MM-dd HH:mm:ss');
+        
+        $query = $this->FreeradiusStats->find();
+        $time_start = $query->func()->CONVERT_TZ([
+            "'$slot_start_txt'"     => 'literal',
+            "'$this->time_zone'"    => 'literal',
+            "'+00:00'"              => 'literal',
+        ]);        
+        $time_end = $query->func()->CONVERT_TZ([
+            "'$slot_end_txt'"       => 'literal',
+            "'$this->time_zone'"    => 'literal',
+            "'+00:00'"              => 'literal',
+        ]);
+        array_push($where, ["created >=" => $time_start]);
+        array_push($where, ["created <=" => $time_end]);
+        $q = $this->FreeradiusStats->find(); 
+        $result = $q->select($this->_getFields($q))
+            ->where($where)
+            ->first();
+        return $result;
+    }
+    
+    private function _getDailyGraph($ft_day){
+    
+         // Always work in a single timezone
+        $tz             = $this->time_zone ?: 'UTC';
+        $ft_day         = $ft_day->setTimezone($tz);
+    
+        $items          = [];
+        $count          = 1;
+        $base_search    = $this->base_search;
+        $day_end        = $ft_day->endOfDay();//->i18nFormat('yyyy-MM-dd HH:mm:ss');    
+        $slot_start     = $ft_day->startOfDay(); //Prime it 
+        while($slot_start < $day_end){
+        
+            $slot_start_h_m     = $slot_start->i18nFormat("E\nHH:mm");
+            $slot_start_txt     = $slot_start->i18nFormat('yyyy-MM-dd HH:mm:ss');
+            $slot_end_txt       = $slot_start->addHour(1)->subSecond(1)->i18nFormat('yyyy-MM-dd HH:mm:ss');
+            
+            $where              = $base_search;
+            
+            $query = $this->FreeradiusStats->find();
+            $time_start = $query->func()->CONVERT_TZ([
+                "'$slot_start_txt'"     => 'literal',
+                "'$this->time_zone'"    => 'literal',
+                "'+00:00'"              => 'literal',
+            ]);
+            
+            $time_end = $query->func()->CONVERT_TZ([
+                "'$slot_end_txt'"       => 'literal',
+                "'$this->time_zone'"    => 'literal',
+                "'+00:00'"              => 'literal',
+            ]);
+                 
+            array_push($where, ["created >=" => $time_start]);
+            array_push($where, ["created <=" => $time_end]);
+            
+            $slot_start     = $slot_start->addHour(1);           
+            $q = $this->FreeradiusStats->find();    
+            $result = $q->select($this->_getFields($q))
+                ->where($where)
+                ->first();            
 
-        // Shape for chart series: { ts, ts_ms, metrics... }
-        $data = [];
-        foreach ($rows as $r) {
-            $item = [
-                'ts'    => (int)$r['ts'],
-                'ts_ms' => (int)$r['ts'] * 1000,
-            ];
-            foreach ($metrics as $m) {
-                $item[$m] = (int)$r[$m];
+            if($result){
+                $result->time_unit  = $slot_start_h_m;
+                $result->id         = $count;
+                array_push($items, $result);
             }
-            $data[] = $item;
+            $count++;
         }
-
-        $this->set([
-            'success' => true,
-            'bucket'  => $bucket,
-            'tag'     => $tag,
-            'from'    => $from->toIso8601String(),
-            'to'      => $to->toIso8601String(),
-            'metrics' => $metrics,
-            'items'   => $data,
-        ]);
-        $this->viewBuilder()->setOption('serialize', ['success','bucket','tag','from','to','metrics','items']);
+        return(['items' => $items]);
     }
+    
+    private function _getWeeklyGraph($ft_day){
+    
+        $items          = [];
+        $week_end       = $ft_day->endOfWeek();//->i18nFormat('yyyy-MM-dd HH:mm:ss');    
+        $slot_start     = $ft_day->startOfWeek(); //Prime it 
+        $count          = 1;
+        $base_search    = $this->base_search;
+     
+        while($slot_start < $week_end){
+        
+            $slot_start_h_m     = $slot_start->i18nFormat("eee dd MMM");
+            $where              = $base_search; 
+            $slot_start_txt     = $slot_start->i18nFormat('yyyy-MM-dd HH:mm:ss');
+            $slot_end_txt       = $slot_start->addDay(1)->subSecond(1)->i18nFormat('yyyy-MM-dd HH:mm:ss'); //Our interval is one day
+            
+            $query = $this->FreeradiusStats->find();
+            $time_start = $query->func()->CONVERT_TZ([
+                "'$slot_start_txt'"     => 'literal',
+                "'$this->time_zone'"    => 'literal',
+                "'+00:00'"              => 'literal',
+            ]);
+            
+            $time_end = $query->func()->CONVERT_TZ([
+                "'$slot_end_txt'"       => 'literal',
+                "'$this->time_zone'"    => 'literal',
+                "'+00:00'"              => 'literal',
+            ]);
+                 
+            array_push($where, ["created >=" => $time_start]);
+            array_push($where, ["created <=" => $time_end]);
+            
+            $slot_start         = $slot_start->addDay(1);
+                      
+            $q = $this->FreeradiusStats->find();    
+            $result = $q->select($this->_getFields($q))
+                ->where($where)
+                ->first();            
 
-    // GET /freeradius-stats/latest.json?tag=main
-    // Returns the most recent snapshot (point-in-time USTH + last bucket sums for a handful of deltas)
-    public function latest()
-    {
-        $this->request->allowMethod(['get']);
-        $tag = (string)($this->request->getQuery('tag') ?? '');
-        if ($tag === '') {
-            return $this->response->withStatus(400)->withStringBody('Missing ?tag');
+            if($result){
+                $result->time_unit  = $slot_start_h_m;
+                $result->id         = $count;
+                array_push($items, $result);
+            }
+            $count++;
         }
-
-        $conn = ConnectionManager::get('default');
-
-        // Last snapshot (from base table) – handy for queue/threads
-        $snap = $conn->execute("
-            SELECT id, server, captured_at, queue_len_internal, queue_len_proxy, queue_len_auth, queue_len_acct, queue_len_detail,
-                   queue_pps_in, queue_pps_out, threads_active, threads_total, threads_max
-            FROM freeradius_stats
-            WHERE tag = :tag
-            ORDER BY captured_at DESC
-            LIMIT 1
-        ", ['tag' => $tag])->fetch('assoc');
-
-        // Sum deltas over the last 5 minutes for quick “rate now”
-        $rates = $conn->execute("
-            SELECT
-              SUM(d_access_requests)  AS d_access_requests,
-              SUM(d_access_rejects)   AS d_access_rejects,
-              SUM(d_acct_requests)    AS d_acct_requests,
-              SUM(d_acct_responses)   AS d_acct_responses
-            FROM freeradius_stats_deltas
-            WHERE tag = :tag
-              AND captured_at >= (UTC_TIMESTAMP() - INTERVAL 5 MINUTE)
-        ", ['tag' => $tag])->fetch('assoc');
-
-        $this->set([
-            'success' => true,
-            'snapshot' => $snap ?: null,
-            'rates_last_5m' => array_map('intval', $rates ?: []),
-        ]);
-        $this->viewBuilder()->setOption('serialize', ['success','snapshot','rates_last_5m']);
+        return(['items' => $items]);
     }
+    
+    private function _getMonthlyGraph($ft_day){
+    
+        $items          = [];
+        $slot_start     = $ft_day->startOfMonth(); //Prime it 
+        $month_end      = $ft_day->endOfMonth();//->i18nFormat('yyyy-MM-dd HH:mm:ss');    
+            
+        $count          = 1;
+        $base_search    = $this->base_search;
+        
+        while($slot_start < $month_end){
+        
+            $slot_start_h_m     = $slot_start->i18nFormat("dd MMM");
+            $where              = $base_search; 
+            $slot_start_txt     = $slot_start->i18nFormat('yyyy-MM-dd HH:mm:ss');
+            $slot_end_txt       = $slot_start->addDay(1)->subSecond(1)->i18nFormat('yyyy-MM-dd HH:mm:ss'); //Our interval is one day
+            
+            $query = $this->FreeradiusStats->find();
+            $time_start = $query->func()->CONVERT_TZ([
+                "'$slot_start_txt'"     => 'literal',
+                "'$this->time_zone'"    => 'literal',
+                "'+00:00'"              => 'literal',
+            ]);
+            
+            $time_end = $query->func()->CONVERT_TZ([
+                "'$slot_end_txt'"       => 'literal',
+                "'$this->time_zone'"    => 'literal',
+                "'+00:00'"              => 'literal',
+            ]);
+                 
+            array_push($where, ["created >=" => $time_start]);
+            array_push($where, ["created <=" => $time_end]);
+            
+            $slot_start         = $slot_start->addDay(1);
+                      
+            $q = $this->FreeradiusStats->find();    
+            $result = $q->select($this->_getFields($q))
+                ->where($where)
+                ->first();            
+
+            if($result){
+                $result->time_unit  = $slot_start_h_m;
+                $result->id         = $count;
+                array_push($items, $result);
+            }
+            $count++;
+        }
+        return(['items' => $items]);
+    }    
+    
+    private function _setTimezone(){ 
+        //New way of doing things by including the timezone_id
+        if($this->request->getQuery('timezone_id') != null){
+            $tz_id = $this->request->getQuery('timezone_id');
+            $ent = $this->{'Timezones'}->find()->where(['Timezones.id' => $tz_id])->first();
+            if($ent){
+                $this->time_zone = $ent->name;
+            }
+        }
+    }
+    
+    private function _getFields($q){
+
+        return [
+            'access_requests' =>
+                $q->func()->cast(
+                    $q->func()->coalesce([
+                        $q->func()->sum('FreeradiusStats.access_requests'),
+                        0
+                    ]),
+                    'SIGNED'
+                ),
+
+            'access_accepts' =>
+                $q->func()->cast(
+                    $q->func()->coalesce([
+                        $q->func()->sum('FreeradiusStats.access_accepts'),
+                        0
+                    ]),
+                    'SIGNED'
+                ),
+
+            'access_rejects' =>
+                $q->func()->cast(
+                    $q->func()->coalesce([
+                        $q->func()->sum('FreeradiusStats.access_rejects'),
+                        0
+                    ]),
+                    'SIGNED'
+                ),
+
+            'access_challenges' =>
+                $q->func()->cast(
+                    $q->func()->coalesce([
+                        $q->func()->sum('FreeradiusStats.access_challenges'),
+                        0
+                    ]),
+                    'SIGNED'
+                ),
+
+            'auth_responses' =>
+                $q->func()->cast(
+                    $q->func()->coalesce([
+                        $q->func()->sum('FreeradiusStats.auth_responses'),
+                        0
+                    ]),
+                    'SIGNED'
+                ),
+
+            'acct_requests' =>
+                $q->func()->cast(
+                    $q->func()->coalesce([
+                        $q->func()->sum('FreeradiusStats.acct_requests'),
+                        0
+                    ]),
+                    'SIGNED'
+                ),
+
+            'acct_responses' =>
+                $q->func()->cast(
+                    $q->func()->coalesce([
+                        $q->func()->sum('FreeradiusStats.acct_responses'),
+                        0
+                    ]),
+                    'SIGNED'
+                ),
+        ];
+    }
+   
+    private function _base_search(){
+        $base_search[] = ['FreeradiusStats.tag' => 'main'];   
+        return $base_search;
+    }    
 }
