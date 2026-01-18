@@ -109,6 +109,7 @@ Ext.define('Rd.view.freeradiusStats.vcFreeradiusStats', {
         var me = this;
         me.getView().down('#barTotals').getStore().setData(data.graph.items);
         me.getView().down('#plrAcctAuth').getStore().setData(data.polar.totals);
+        me.getView().down('#gridInstances').getStore().setData(data.instances);
         me.getView().down('#pnlSummary').setData(data.summary);  
     }
 });

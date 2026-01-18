@@ -127,10 +127,36 @@ class FreeradiusStatsController extends AppController{
             "'$this->time_zone'"    => 'literal',
             "'+00:00'"              => 'literal',
         ]);
-        array_push($where, ["created >=" => $time_start]);
+        array_push($where, ["modified >=" => $time_start]);
         array_push($where, ["modified <=" => $time_end]);
     
-        $instances = $query->where($where)->all();         
+        $instances = $query->where($where)
+        ->order(['FreeradiusInstances.modified DESC']) // The sort order is the opposite or VpnConnectionsController
+        ->all(); 
+        
+        if($instances){
+            $currentTime = FrozenTime::now();
+            $lastItem = $instances->first();
+            if($lastItem){
+                $last_update = $lastItem->modified;
+                $lastItem->last_contact_in_words = $last_update
+                    ->setTimezone($this->time_zone)
+                    ->timeAgoInWords([
+                        'accuracy' => 'minute',
+                        'end' => '1 day'  // after 1 day it becomes: "on 2025-01-01"
+                    ]);
+                 
+                         
+                $lastItem->open_session  = true;
+                $lastItem->stale_session = true;
+                              
+                if ($currentTime->diffInMinutes($last_update) < 10) {
+                        // difference is less than 25 minutes                   
+                        $lastItem->stale_session = false;
+                }
+            }                
+        }
+                
         return $instances;    
     }
     

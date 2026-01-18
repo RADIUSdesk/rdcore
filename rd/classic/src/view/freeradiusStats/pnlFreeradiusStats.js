@@ -33,12 +33,44 @@ Ext.define('Rd.view.freeradiusStats.pnlFreeradiusStats', {
         });
         
         Ext.create('Ext.data.Store', {
-            storeId : 'loadStore',
+            storeId : 'instances',
             fields  :[ 
-                {name: 'id',         type: 'int'},
-                {name: 'hostname',   type: 'string'},
-                {name: 'requests',   type: 'int'},
-                { name: 'responsetime', convert: v => v == null ? 0 : parseFloat(v) } 
+                {name: 'id'},
+                {name: 'tag'},
+                {name: 'server'},
+                {name: 'stats_start_time',type: 'date'},
+                {name: 'stats_hup_time',type: 'date'},
+                {name: 'total_access_requests'},
+                {name: 'total_access_accepts'},
+                {name: 'total_access_rejects'},
+                {name: 'total_access_challenges'},
+                {name: 'total_auth_responses'},
+                {name: 'auth_duplicate_requests'},
+                {name: 'auth_malformed_requests'},
+                {name: 'auth_invalid_requests'},
+                {name: 'auth_dropped_requests'},
+                {name: 'auth_unknown_types'},
+                {name: 'auth_conflicts'},
+                {name: 'total_acct_requests'},
+                {name: 'total_acct_responses'},
+                {name: 'acct_duplicate_requests'},
+                {name: 'acct_malformed_requests'},
+                {name: 'acct_invalid_requests'},
+                {name: 'acct_dropped_requests'},
+                {name: 'acct_unknown_types'},
+                {name: 'acct_conflicts'},
+                {name: 'queue_len_internal'},
+                {name: 'queue_len_proxy'},
+                {name: 'queue_len_auth'},
+                {name: 'queue_len_acct'},
+                {name: 'queue_len_detail'},
+                {name: 'queue_pps_in'},
+                {name: 'queue_pps_out'},
+                {name: 'threads_active'},
+                {name: 'threads_total'},
+                {name: 'threads_max'},
+                {name: 'created',type: 'date'},
+                {name: 'modified',type: 'date'}
             ]
         });
                       
@@ -326,8 +358,62 @@ Ext.define('Rd.view.freeradiusStats.pnlFreeradiusStats', {
                         margin          : m,
                         padding         : p,
                         itemId          : 'gridInstances',
-                        xtype           : 'panel',
-                      //  store           : Ext.data.StoreManager.lookup('loadStore'),
+                        xtype           : 'grid',
+                        store           : Ext.data.StoreManager.lookup('instances'),
+                        emptyText: 'No Sessions For This Timespan',
+                        columns: [
+                            { 
+                                text        : 'Started',  
+                                dataIndex   : 'stats_start_time',                      
+                                flex        : 1,
+                                xtype       : 'datecolumn',
+                                format      : 'D d M Y H:i:s'                  
+                            },
+                            { 
+                                text        : 'Stoped',
+                                dataIndex   : 'modified',
+                                flex        : 1,
+                                xtype       : 'datecolumn',
+                                format      : 'D d M Y H:i:s',
+                                renderer    : function(value,metaData, record){
+                                    var open    = record.get('open_session');
+                                    var stale   = record.get('stale_session');
+                                    if(open){
+                                        if(stale){
+                                           return "<span class='rd-badge rd-badge--amber'>Last Seen "+record.get('last_contact_in_words')+'</span>';  
+                                        }else{                                    
+                                           return "<span class='rd-badge rd-badge--green'>Last Seen "+record.get('last_contact_in_words')+'</span>';
+                                        }
+                                    }else{
+                                        return Ext.Date.format(value, 'D d M Y H:i:s');
+                                    }
+                                }            
+                            },   
+                            { text: 'Access Request',dataIndex: 'total_access_requests', flex: 1 },
+                            { text: 'Access Accepts',dataIndex: 'total_access_accepts', flex: 1 },
+                            { text: 'Access Rejects',dataIndex: 'total_access_rejects', flex: 1 },
+                            { text: 'Access Challenges',dataIndex: 'total_access_challenges', flex: 1, hidden : true },                            
+                            { text: 'Total Auth Responses',dataIndex: 'total_auth_responses', flex: 1 , hidden: true },
+                            { text: 'Auth Duplicate Requests',dataIndex: 'auth_duplicate_requests', flex: 1 , hidden: true  },
+                            { text: 'Auth Malformed Requests',dataIndex: 'auth_malformed_requests', flex: 1 , hidden: true  },
+                            { text: 'Auth Invalid Requests',dataIndex: 'auth_invalid_requests', flex: 1 , hidden: true  },
+                            { text: 'Auth Dropped Requests',dataIndex: 'auth_dropped_requests', flex: 1 , hidden: true  },
+                            { text: 'Auth Unknown Types',dataIndex: 'auth_unknown_types', flex: 1 , hidden: true  },
+                            { text: 'Auth Confilcts',dataIndex: 'auth_conflicts', flex: 1 , hidden: true  },
+                            
+                            { text: 'Acct Requests',dataIndex: 'total_acct_requests', flex: 1 , hidden: false },
+                            { text: 'Acct Responses',dataIndex: 'total_acct_responses', flex: 1 , hidden: false  },
+                            { text: 'Acct Duplicate Requests',dataIndex: 'acct_duplicate_requests', flex: 1 , hidden: true  },
+                            { text: 'Acct Malformed Requests',dataIndex: 'acct_malformed_requests', flex: 1 , hidden: true  },
+                            { text: 'Acct Invalid Requests',dataIndex: 'acct_invalid_requests', flex: 1 , hidden: true  },
+                            { text: 'Acct Dropped Requests',dataIndex: 'acct_dropped_requests', flex: 1 , hidden: true  },
+                            { text: 'Acct Unknown Types',dataIndex: 'acct_unknown_types', flex: 1 , hidden: true  },
+                            { text: 'Acct Confilcts',dataIndex: 'acct_conflicts', flex: 1 , hidden: true  },
+                            
+
+
+
+                        ]   
                     }              
                 ]
             },
@@ -349,7 +435,7 @@ Ext.define('Rd.view.freeradiusStats.pnlFreeradiusStats', {
                         xtype           : 'polar',
                         innerPadding    : 10,
                         interactions    : ['rotate', 'itemhighlight'],
-                        store: Ext.data.StoreManager.lookup('distroStore'),
+                        store           : Ext.data.StoreManager.lookup('distroStore'),
                         series: {
                             type       : 'pie',
                             angleField : 'requests',

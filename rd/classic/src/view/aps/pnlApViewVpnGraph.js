@@ -118,14 +118,14 @@ Ext.define('Rd.view.aps.pnlApViewVpnGraph', {
                         dataIndex   : 'starttime',                      
                         flex        : 1,
                         xtype       : 'datecolumn',
-                        format      : 'D M Y H:i:s'                  
+                        format      : 'D d M Y H:i:s'                  
                     },
                     { 
                         text        : 'Stop',
                         dataIndex   : 'stoptime',
                         flex        : 1,
                         xtype       : 'datecolumn',
-                        format      : 'D M Y H:i:s',
+                        format      : 'D d M Y H:i:s',
                         renderer    : function(value,metaData, record){
                             var open    = record.get('open_session');
                             var stale   = record.get('stale_session');
@@ -136,7 +136,7 @@ Ext.define('Rd.view.aps.pnlApViewVpnGraph', {
                                    return "<span class='rd-badge rd-badge--green'>Last Seen "+record.get('last_contact_in_words')+'</span>';
                                 }
                             }else{
-                                return Ext.Date.format(value, 'D M Y H:i:s');
+                                return Ext.Date.format(value, 'D d M Y H:i:s');
                             }
                         }            
                     },            
