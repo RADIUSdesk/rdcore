@@ -391,7 +391,7 @@ Ext.define('Rd.view.freeradiusStats.pnlFreeradiusStats', {
                             },   
                             { text: 'Access Request',dataIndex: 'total_access_requests', flex: 1 },
                             { text: 'Access Accepts',dataIndex: 'total_access_accepts', flex: 1 },
-                            { text: 'Access Rejects',dataIndex: 'total_access_rejects', flex: 1 },
+                            { text: 'Access Rejects',dataIndex: 'total_access_rejects', flex: 1 ,hidden : true },
                             { text: 'Access Challenges',dataIndex: 'total_access_challenges', flex: 1, hidden : true },                            
                             { text: 'Total Auth Responses',dataIndex: 'total_auth_responses', flex: 1 , hidden: true },
                             { text: 'Auth Duplicate Requests',dataIndex: 'auth_duplicate_requests', flex: 1 , hidden: true  },
@@ -410,8 +410,17 @@ Ext.define('Rd.view.freeradiusStats.pnlFreeradiusStats', {
                             { text: 'Acct Unknown Types',dataIndex: 'acct_unknown_types', flex: 1 , hidden: true  },
                             { text: 'Acct Confilcts',dataIndex: 'acct_conflicts', flex: 1 , hidden: true  },
                             
-
-
+                            { text: 'Queue Internal',dataIndex: 'queue_len_internal', flex: 1 , hidden: true  },
+                            { text: 'Queue Proxy',dataIndex: 'queue_len_proxy', flex: 1 , hidden: true  },
+                            { text: 'Queue Auth',dataIndex: 'queue_len_auth', flex: 1 , hidden: true  },
+                            { text: 'Queue Acct',dataIndex: 'queue_len_acct', flex: 1 , hidden: true  },
+                            { text: 'Queue Detail',dataIndex: 'queue_len_detail', flex: 1 , hidden: true  },
+                            
+                            { text: 'Queue PPS In',dataIndex: 'queue_pps_in', flex: 1 , hidden: true  },
+                            { text: 'Queue PPS Out',dataIndex: 'queue_pps_out', flex: 1 , hidden: true  },
+                            { text: 'Threads Active',dataIndex: 'threads_active', flex: 1 , hidden: true  },
+                            { text: 'Threads Total',dataIndex: 'threads_total', flex: 1 , hidden: true  },
+                            { text: 'Threads Max',dataIndex: 'threads_max', flex: 1 , hidden: true  },
 
                         ]   
                     }              

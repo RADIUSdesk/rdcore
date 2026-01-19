@@ -76,6 +76,10 @@ if not exists (select * from information_schema.columns
           `modified`             DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
           PRIMARY KEY (`id`)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+        
+        CREATE INDEX idx_freeradius_stats_tag_created ON freeradius_stats (tag, created);
+        CREATE INDEX idx_freeradius_stats_created ON freeradius_stats (created);
+
 
 end if;
 

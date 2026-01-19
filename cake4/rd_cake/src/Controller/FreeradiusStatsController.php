@@ -82,13 +82,6 @@ class FreeradiusStatsController extends AppController{
         $data['polar']['totals'] = $t;       
         $data['summary']    = $totals;
             
-       // $data           = ['date' => $formatted_day, 'time' => $formatted_time, 'timespan' => ucfirst($span),'acces_requests' => $result->access_requests, 'avg_rtt' => $result->responsetime];
-        
-        
-         
-       // $data['polar']['totals']    = $this->_getTotal($ft_day,$span);   
-
-
         $this->set([
             'data'      => $data,
             'success'   => true
