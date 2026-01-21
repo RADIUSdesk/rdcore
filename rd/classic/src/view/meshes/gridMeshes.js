@@ -133,9 +133,10 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
                 text        : i18n('sNode_count'),
                 dataIndex   : 'node_count',
                 hidden      : true,    
-                xtype       : 'templatecolumn', 
+                xtype       : 'templatecolumn',
+                tdCls       : 'gridTree',  
                 tpl         : new Ext.XTemplate(
-                            "<tpl><div class=\"fieldGreyWhite\">{node_count}</div></tpl>"
+                            "<tpl><span style='color:grey;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {node_count}</tpl>"
                         ),  
                 stateId     : 'StateGridMeshes7a',
                 sortable    : false, 
@@ -146,9 +147,10 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
                 dataIndex   : 'nodes_up',
                 hidden      : true,      
                 xtype       :  'templatecolumn', 
+                tdCls       : 'gridTree', 
                 tpl         :    new Ext.XTemplate(
                             "<tpl if='nodes_up &gt; 0'><div class=\"fieldGreenWhite\">{nodes_up}</div>",
-                            "<tpl else><div class=\"fieldBlue\">{nodes_up}</div></tpl>"
+                            "<tpl else><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {nodes_up}</tpl>"
                         ),
                 stateId     : 'StateGridMeshes8',
                 sortable    : true,
@@ -159,10 +161,11 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
                 text        : '<i class="fa fa-exclamation-circle"></i> '+Rd.config.meshNodesOffline,   
                 dataIndex   : 'nodes_down',
                 hidden      : true,      
-                xtype       :  'templatecolumn', 
+                xtype       :  'templatecolumn',
+                tdCls       : 'gridTree',  
                 tpl         :    new Ext.XTemplate(
-                            "<tpl if='nodes_down &gt; 0'><div class=\"fieldRedWhite\">{nodes_down}</div>",
-                            "<tpl else><div class=\"fieldBlue\">{nodes_down}</div></tpl>"
+                            "<tpl if='nodes_down &gt; 0'><span style='color:red;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span>  {nodes_down}",
+                            "<tpl else><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {nodes_down}</tpl>"
                         ),
                 stateId     : 'StateGridMeshes9',
                 sortable    : true,

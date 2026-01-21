@@ -1033,6 +1033,7 @@ class DashboardController extends AppController{
                     'controller'    => 'cClouds',
                     'id'            => 'pnlOtherClouds',
                     'glyph'         => 'xf0c2',
+                    'total'         => $this->Counts->countForRoot('Clouds'), 
                     'desc'          => 'We segment by clouds',
                      'accent'       => 'purple'
                   ],
@@ -1042,6 +1043,7 @@ class DashboardController extends AppController{
                     'controller'    => 'cAccessProviders',
                     'id'            => 'pnlOtherAdmins',
                     'glyph'         => 'xf084',
+                    'total'         => $this->Counts->countForRoot('Admins'),   
                     'desc'          => 'Administrators to manage clouds',
                     'accent'        => 'orange'
                   ]
@@ -1081,7 +1083,7 @@ class DashboardController extends AppController{
                     'id'            => 'pnlOtherSqmProfiles',
                     'glyph'         => 'xf00a',
                     'total'         => $this->Counts->countForCloud('SqmProfiles',$cloudId),
-                    'desc'          => 'FIXME Description',
+                    'desc'          => 'Bandwidth optimization',
                     'accent'        => 'blue'
                   ],
                 'column2' => 
@@ -1091,7 +1093,7 @@ class DashboardController extends AppController{
                     'id'            => 'pnlOtherFirewall',
                     'glyph'         => 'xf06d',
                     'total'         => $this->Counts->countForCloud('FirewallProfiles',$cloudId),
-                    'desc'          => 'FIXME Description',
+                    'desc'          => 'Traffic control',
                     'accent'        => 'teal'
                   ]
             ];
@@ -1104,7 +1106,7 @@ class DashboardController extends AppController{
                     'id'            => 'pnlOtherMultiWan',
                     'glyph'         => 'xf0e8',
                     'total'         => $this->Counts->countForCloud('MultiWanProfiles',$cloudId),
-                    'desc'          => 'FIXME Description',
+                    'desc'          => 'Multiple uplinks',
                     'accent'        => 'purple'
                   ],
                 'column2'   => 
@@ -1114,7 +1116,7 @@ class DashboardController extends AppController{
                     'id'            => 'pnlOtherSchedules',
                     'glyph'         => 'xf133',
                     'total'         => $this->Counts->countForCloud('Schedules',$cloudId),
-                    'desc'          => 'FIXME Description',
+                    'desc'          => 'Time-based control',
                     'accent'        => 'orange'
                   ],
             ];
@@ -1128,7 +1130,7 @@ class DashboardController extends AppController{
                     'controller'    => 'cHomeServerPools',
                     'id'            => 'pnlOtherHomeServerPools',
                     'glyph'         => 'xf1ce',
-               //     'total'         => $this->Counts->countForCloud('HomeServers',$cloudId),
+                    'total'         => $this->Counts->countForRoot('HomeServers'),
                     'desc'          => 'Mange upstream RADIUS servers',
                     'accent'        => 'blue'
                   ],
@@ -1202,7 +1204,7 @@ class DashboardController extends AppController{
                 'name'          => 'OPENVPN SERVERS',
                 'controller'    => 'cOpenvpnServers',
                 'id'            => 'pnlOtherOpenvpnServers',
-                'glyph'         => 'xf10e',
+                'glyph'         => 'xf132',
                 'total'         => $this->Counts->countForCloud('OpenvpnServers',$cloudId),
                  'desc'          => 'OpenVPN tunnel and PKI management',
                  'accent'        => 'blue'
@@ -1212,7 +1214,7 @@ class DashboardController extends AppController{
                 'name'          => 'ACCEL-PPP SERVERS',
                 'controller'    => 'cAccel',
                 'id'            => 'pnlOtherAccel',
-                'glyph'         => 'xf10e',
+                'glyph'         => 'xf132',
                 'total'         => $this->Counts->countForCloud('AccelServers',$cloudId),
                 'desc'          => 'Accel-ppp for PPPoE and L2TPv2 connections',
                 'accent'        => 'teal'
@@ -1225,7 +1227,7 @@ class DashboardController extends AppController{
                 'name'          => 'WIREGUARD SERVERS',
                 'controller'    => 'cWireguard',
                 'id'            => 'pnlOtherWireguard',
-                'glyph'         => 'xf10e',
+                'glyph'         => 'xf132',
                 'total'         => $this->Counts->countForCloud('WireguardServers',$cloudId),
                 'desc'          => 'Manage Wireguard servers, instances and peers',
                 'accent'        => 'purple'

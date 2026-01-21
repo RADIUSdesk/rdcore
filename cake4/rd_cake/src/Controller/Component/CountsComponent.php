@@ -71,6 +71,19 @@ class CountsComponent extends Component {
 
         return (int)$Table->find()->where($conds)->count();
     }
+    
+    public function countForRoot(string $item){
+        if($item == 'Admins'){      
+            $Table = $this->table('Users');
+            return (int)$Table->find()->where(['Users.group_id' => 9])->count();       
+        }
+        
+        if(($item == 'Clouds')||($item == 'HomeServers')){      
+            $Table = $this->table($item);
+            return (int)$Table->find()->count();       
+        }
+  
+    }
 
     
     /**

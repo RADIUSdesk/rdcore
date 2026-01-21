@@ -10,6 +10,11 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
     stateId		: 'StateGridNodeLists',
     stateEvents	:['groupclick','columnhide'],
     border		: false,
+    padding     : 0,
+    ui          : 'light',
+    columnLines : false,
+  //  rowLines    : false,
+    stripeRows  : true,
     requires	: [
         'Rd.view.components.ajaxToolbar',
         'Rd.view.components.rdProgress',
@@ -56,26 +61,36 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
 
 		me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
         me.columns  = [
-			{ text: 'Mesh',  dataIndex: 'mesh',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridNodeLists3'},
+			{ text: 'Mesh',  dataIndex: 'mesh',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridNodeLists3'},			
 			{ 
                 text        : i18n('sName'),   
                 dataIndex   : 'name',  
                 tdCls       : 'gridTree',
                 width		: 130,
-                renderer    : function(value,metaData, record){
-                	var gateway     = record.get('gateway');
-                	var reboot_flag = record.get('reboot_flag');
-                	var rb_string   = '';
-                	if(reboot_flag == 1){
-                	    rb_string = "<i class=\"fa fa-power-off\" style=\"color:orange;\"></i>";
-                	}
-                    if(gateway == 'yes'){
-                        return "<div class=\"fieldGreyWhite\" style=\"text-align:left;\">"+rb_string+"  "+value+"</div>";
+                renderer : function(value, metaData, record){
+
+                    var gateway     = record.get('gateway');
+                    var reboot_flag = record.get('reboot_flag');
+
+                    var icons = [];
+
+                    // Reboot indicator (keep prominent)
+                    if(reboot_flag == 1){
+                        icons.push('<i class="fa fa-power-off reboot-flag"></i>');
                     }
-                    if(gateway == 'no'){
-                        return "<div class=\"fieldGrey\" style=\"text-align:left;\">"+rb_string+"  "+value+"</div>";
-                    }  	             
-                },
+
+                    // Node type indicator
+                    if(gateway == 'yes'){
+                        icons.push('<i class="fa fa-square node-gateway"></i>');
+                    } else {
+                        icons.push('<i class="fa fa-share-alt node-repeater"></i>');
+                    }
+
+                    return '<div class="node-name">' +
+                                icons.join(' ') +
+                                '<span class="node-label">   ' + Ext.htmlEncode(value) + '</span>' +
+                           '</div>';
+                },               
                 stateId     : 'StateGridNodeLists4',
                 flex        : 1,
                 filter      : {type: 'string'}
@@ -154,53 +169,32 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
 				}
 			},
 			{ 
-                text        : "<i class=\"fa fa-gears\"></i> "+'Config Fetched', 
-                dataIndex   : 'config_fetched',  
+
+                text        : "<i class=\"fa fa-gears\"></i> "+'Config Fetched',
+                dataIndex   : 'config_fetched',          
                 tdCls       : 'gridTree', 
                 flex        : 1,
-                renderer    : function(val,metaData, record){
-                    var config_fetched_human     = record.get('config_fetched_human');  
-                    var config;
-                    var value = record.get('config_state');
-                    if(value != 'never'){                    
-                        if(value == 'up'){
-                            config =  "<div class=\"fieldGreen\">"+config_fetched_human+"</div>";
-                        }
-                        if(value == 'down'){
-                            config = "<div class=\"fieldGrey\">"+config_fetched_human+"</div>";
-                        }
-
-                    }else{
-                        config = "<div class=\"fieldBlue\">Never</div>";
-                    }
-                    return config;
-                                 
-                },stateId: 'StateGMVND12a',
-                hidden: false
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    "<tpl if='config_state == \"never\"'><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> Never</tpl>",
+                    "<tpl if='config_state == \"down\"'><span style='color:grey;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {config_fetched_human}</tpl>",
+                    "<tpl if='config_state == \"up\"'><span style='color:green;'><i class=\"fa fa-circle\"></i></span> {config_fetched_human}</tpl>",
+                ),
+                stateId     : 'StateGMVND12a'
             },
             { 
-                text        : "<i class=\"fa fa-heartbeat\"></i> "+'Heartbeat Received',   
-                dataIndex   : 'last_contact',  
+
+                text        : "<i class=\"fa fa-heartbeat\"></i> "+'Heartbeat Received', 
+                dataIndex   : 'last_contact',          
                 tdCls       : 'gridTree', 
                 flex        : 1,
-                renderer    : function(val,metaData, record){    
-                    var heartbeat;
-                    var value = record.get('state');
-                    if(value != 'never'){                    
-                        var last_contact     = record.get('last_contact_human');
-                        if(value == 'up'){
-                            heartbeat =  "<div class=\"fieldGreen\">"+last_contact+"</div>";
-                        }
-                        if(value == 'down'){
-                            heartbeat = "<div class=\"fieldRed\">"+last_contact+"</div>";
-                        }
-
-                    }else{
-                        heartbeat = "<div class=\"fieldBlue\">Never</div>";
-                    }
-                    return heartbeat;
-                                 
-                },stateId: 'StateGridNodeLists8'
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    "<tpl if='state == \"never\"'><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> Never</tpl>",
+                    "<tpl if='state == \"down\"'><span style='color:red;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {last_contact_human}</tpl>",
+                    "<tpl if='state == \"up\"'><span style='color:green;'><i class=\"fa fa-circle\"></i></span> {last_contact_human}</tpl>"
+                ),
+                stateId     : 'StateGridNodeLists8'
             },
             { 
 
@@ -329,14 +323,19 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
         }else if(r.get('qmi_rssi') !== undefined){
             return this.doQmiPb(r);
         }else{
+            
             if(r.get('gateway') == 'no'){
-                return '<div class=\"fieldGrey\"><i class=\"fa fa-dice-d20\"></i> MESH</div>';
+               // return '<div class=\"fieldGrey\"><i class=\"fa fa-dice-d20\"></i> MESH</div>';
+               return '<div class="node-name txtBlue"><i class="fa fa-share-alt"></i><span class="node-label txtBlue">  MESH</span></div>';
+               
             }
             if(r.get('gateway') == 'yes' && r.get('mwan_active')){
-                return '<div class=\"fieldTealWhite\"><i class=\"fa fa-sliders\"></i> MWAN</div>';
+               // return '<div class=\"fieldTealWhite\"><i class=\"fa fa-sliders\"></i> MWAN</div>';
+                return '<div class="node-name"><i class="fa fa-sliders"></i><span class="node-label">  MWAN</span></div>';
             }
             if(r.get('gateway') == 'yes'){
-                return '<div class=\"fieldBlue\"><i class=\"fa fa-network-wired\"></i> LAN</div>';
+                //return '<div class=\"fieldBlue\"><i class=\"fa fa-network-wired\"></i> LAN</div>';
+                return '<div class="node-name"><i class="fa fa-network-wired"></i><span class="node-label">  LAN</span></div>';
             }
             return 'N/A';
         }
