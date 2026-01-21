@@ -92,7 +92,8 @@ Ext.define('Rd.view.unknownNodes.vcUnknownNodes', {
 			    id          : id,
 			    mac			: mac,
 				store       : store,
-				record      : sr
+				record      : sr,
+				fromUnknown : true
 		    });
         }
     },
@@ -115,7 +116,8 @@ Ext.define('Rd.view.unknownNodes.vcUnknownNodes', {
 			    id          : id,
 			    mac			: mac,
 				store       : store,
-				record      : sr
+				record      : sr,
+				fromUnknown : true
 		    });
         }
     },

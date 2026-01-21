@@ -49,17 +49,18 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
             { text: i18n('sBSSID'),    dataIndex: 'bssid',         tdCls: 'gridTree', flex: 1,filter: {type: 'string'},hidden: true,stateId: 'StateGridMeshes6'},
             { 
                 text        : 'Last Seen',
-                dataIndex   : 'last_contact',    
+                dataIndex   : 'last_contact',
+                tdCls       : 'gridTree',  
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
                             "<tpl if='last_contact_state ==\"never\"'>",
-                                "<div class=\"fieldGrey\">Awaiting Deployment</div>",
+                                "<div><span style='color:grey;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> Awaiting Deployment</div>",
                             "</tpl>",
                              "<tpl if='last_contact_state ==\"online\"'>",
-                                "<div class=\"fieldGreen\">{last_contact_in_words}</div>",
+                                "<div><span style='color:green;'><i class='fa fa-circle'></i></span> {last_contact_in_words}</div>",
                             "</tpl>",
                             "<tpl if='last_contact_state ==\"offline\"'>",
-                                "<div class=\"fieldOrange\">{last_contact_in_words}</div>",
+                                "<div><div><span style='color:red;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {last_contact_in_words}</div>",
                             "</tpl>"
                         ),  
                 stateId     : 'StateGridMeshes6a',
@@ -70,32 +71,33 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
                 text        : 'Nodes',   
                 dataIndex   : 'node_count',    
                 stateId     : 'StateGridMeshes7',
+                tdCls       : 'gridTree',
                 width       : Rd.config.gridNumberCol+20,
                 renderer    : function (value, m, r) {                                 
                    var id = Ext.id();
                    Ext.defer(function () {
                    
-                        var h = "<div class=\"fieldGrey\">ADD PLEASE</div>";
+                        var h = "<div style='padding:2px;'><span style='color:grey;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> ADD PLEASE</div>";
                         if(r.get('node_count') > 0){                        
                             if((r.get('nodes_down') == r.get('node_count'))&&(r.get('nodes_down')>1)){
-                                h = "<div class=\"fieldOrange\">ALL "+r.get('nodes_down')+" OFFLINE</div>";
+                                h = "<div style='padding:2px;'><span style='color:red;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> ALL "+r.get('nodes_down')+" OFFLINE</div>";
                             }
                             
                             if((r.get('nodes_down') == r.get('node_count'))&&(r.get('nodes_down')==1)){
-                                h = "<div class=\"fieldOrange\">OFFLINE</div>";
+                                h = "<div style='padding:2px;'><span style='color:red;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> OFFLINE</div>";
                             }
                             
                             if((r.get('nodes_up') == r.get('node_count'))&&(r.get('nodes_up')>1)){
-                                h = "<div class=\"fieldGreen\">ALL "+r.get('nodes_up')+" ONLINE</div>";
+                                h = "<div style='padding:2px;'><span style='color:green;'><i class='fa fa-circle'></i></span> ALL "+r.get('nodes_up')+" ONLINE</div>";
                             }
                             
-                             if((r.get('nodes_up') == r.get('node_count'))&&(r.get('nodes_up')==1)){
-                                h = "<div class=\"fieldGreen\">ONLINE</div>";
+                            if((r.get('nodes_up') == r.get('node_count'))&&(r.get('nodes_up')==1)){
+                                h = "<div style='padding:2px;'><span style='color:green;'><i class='fa fa-circle'></i></span> ONLINE</div>";
                             }
                             
                             if((r.get('nodes_down') < r.get('node_count'))&&(r.get('nodes_down')!=0)){
-                                h = "<div class=\"fieldGreen\">"+r.get('nodes_up')+" ONLINE</div>";
-                                h = h+"<div class=\"fieldOrange\">"+r.get('nodes_down')+" OFFLINE</div>";
+                                h = "<div style='padding:2px;'><span style='color:green;'><i class='fa fa-circle'></i></span> "+r.get('nodes_up')+" ONLINE</div>";
+                                h = h+"<div style='padding:2px;'><span style='color:red;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> "+r.get('nodes_down')+" OFFLINE</div>";
                             } 
                         }
                    
@@ -132,12 +134,8 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
             { 
                 text        : i18n('sNode_count'),
                 dataIndex   : 'node_count',
-                hidden      : true,    
-                xtype       : 'templatecolumn',
+                hidden      : true,
                 tdCls       : 'gridTree',  
-                tpl         : new Ext.XTemplate(
-                            "<tpl><span style='color:grey;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {node_count}</tpl>"
-                        ),  
                 stateId     : 'StateGridMeshes7a',
                 sortable    : false, 
                 width       : Rd.config.gridNumberCol        
@@ -149,8 +147,9 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
                 xtype       :  'templatecolumn', 
                 tdCls       : 'gridTree', 
                 tpl         :    new Ext.XTemplate(
-                            "<tpl if='nodes_up &gt; 0'><div class=\"fieldGreenWhite\">{nodes_up}</div>",
-                            "<tpl else><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {nodes_up}</tpl>"
+                            "<tpl if='nodes_up &gt; 0'><span style='color:green;'><span style='font-family:FontAwesome;'>&#xf132</span></span> {nodes_up}",
+                            "<tpl else><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {nodes_up}",
+                            "</tpl>"
                         ),
                 stateId     : 'StateGridMeshes8',
                 sortable    : true,
@@ -165,7 +164,8 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
                 tdCls       : 'gridTree',  
                 tpl         :    new Ext.XTemplate(
                             "<tpl if='nodes_down &gt; 0'><span style='color:red;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span>  {nodes_down}",
-                            "<tpl else><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {nodes_down}</tpl>"
+                            "<tpl else><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {nodes_down}",
+                            "</tpl>"
                         ),
                 stateId     : 'StateGridMeshes9',
                 sortable    : true,

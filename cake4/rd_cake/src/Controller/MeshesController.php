@@ -645,11 +645,9 @@ class MeshesController extends AppController{
             }elseif($tree_tag['value'] == 'orphaned'){
                 $data['tag_path']          = "<div class=\"fieldRed\"><i class='fa fa-exclamation'></i> <b>(ORPHANED)</b></div>";
             }else{     
-                $data['tag_path']   = "<div class=\"fieldBlue\" style=\"text-align:left;\"> <b>".$tree_tag['value']."</b></div>";
+                $data['tag_path']   = "<div style=\"text-align:left;margin:2px;\"> <b>".$tree_tag['value']."</b></div>";
             }
-            $data['network_id'] = $tree_tag['network_id'];
-            
-            
+            $data['network_id'] = $tree_tag['network_id'];          
         }
         
         $data['mesh_id'] = $id;

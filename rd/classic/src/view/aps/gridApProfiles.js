@@ -50,22 +50,20 @@ Ext.define('Rd.view.aps.gridApProfiles' ,{
             { text: i18n("sName"),      dataIndex: 'name',          tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridApProfiles3'},		
             { 
                 text        : 'AP Count',
-                dataIndex   : 'ap_count',    
-                xtype       :  'templatecolumn', 
-                tpl         :    new Ext.XTemplate(
-                            "<tpl><div class=\"fieldGreyWhite\">{ap_count}</div></tpl>"
-                        ),  
+                dataIndex   : 'ap_count',     
+                tdCls       : 'gridTree',
                 stateId     : 'StateGridApProfiles7', 
                 width       : Rd.config.gridNumberCol
                 
                 },
             { 
                 text        : 'APs Up',  
-                dataIndex   : 'aps_up',      
+                dataIndex   : 'aps_up', 
+                tdCls       : 'gridTree',     
                 xtype       :  'templatecolumn', 
                 tpl         :    new Ext.XTemplate(
-                            "<tpl if='aps_up &gt; 0'><div class=\"fieldGreenWhite\">{aps_up}</div>",
-                            "<tpl else><div class=\"fieldBlue\">{aps_up}</div></tpl>"
+                            "<tpl if='aps_up &gt; 0'><div><span style='color:green;'><span style='font-family:FontAwesome;'>&#xf132</span></span> {aps_up}</div>",
+                            "<tpl else><div><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {aps_up}</div></tpl>"
                         ),
                 stateId     : 'StateGridApProfiles8',
                 width       : Rd.config.gridNumberCol
@@ -75,9 +73,10 @@ Ext.define('Rd.view.aps.gridApProfiles' ,{
                 text        : 'APs Down',  
                 dataIndex   : 'aps_down',      
                 xtype       :  'templatecolumn', 
+                tdCls       : 'gridTree',
                 tpl         :    new Ext.XTemplate(
-                            "<tpl if='aps_down &gt; 0'><div class=\"fieldRedWhite\">{aps_down}</div>",
-                            "<tpl else><div class=\"fieldBlue\">{aps_down}</div></tpl>"
+                            "<tpl if='aps_down &gt; 0'><div><span style='color:red;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {aps_down}</div>",
+                            "<tpl else><div><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {aps_down}</div></tpl>"
                         ),
                 stateId     : 'StateGridApProfiles9',
                 width       : Rd.config.gridNumberCol

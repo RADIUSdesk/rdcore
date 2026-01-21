@@ -32,7 +32,8 @@ Ext.define('Rd.controller.cBans', {
         urlAdd          : '/cake4/rd_cake/bans/index.json',
     },
     refs: [
-     	 {  ref: 'tabMeshes',        selector: '#tabMainNetworks' }        
+     //	 {  ref: 'tabMeshes',        selector: '#tabMainNetworks' }       
+         {  ref: 'tabMeshes',        selector: '#pnlNetworksMeshes' }
     ],
     init: function() {
         var me = this;

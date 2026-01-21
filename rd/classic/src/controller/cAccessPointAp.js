@@ -43,7 +43,7 @@ Ext.define('Rd.controller.cAccessPointAp', {
 		var store		= params.store;
 		var mac         = params.mac;
 		
-		if(!tabAps){
+		if(params.fromUnknown){
 		    tabAps = me.getTabUnknown();
 		}
 		

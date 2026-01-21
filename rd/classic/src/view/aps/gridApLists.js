@@ -9,7 +9,7 @@ Ext.define('Rd.view.aps.gridApLists' ,{
     padding     : 0,
     ui          : 'light',
     columnLines : false,
-    rowLines    : false,
+   // rowLines    : false,
     stripeRows  : true,
     requires	: [
         'Rd.view.components.ajaxToolbar',
@@ -507,14 +507,17 @@ Ext.define('Rd.view.aps.gridApLists' ,{
             return this.doQmiPb(r);
         }else{
             if(r.get('gateway') == 'no'){
-                return '<div class=\"fieldGrey\"><i class=\"fa fa-dice-d20\"></i> MESH</div>';
+                //return '<div class=\"fieldGrey\"><i class=\"fa fa-dice-d20\"></i> MESH</div>';
+                return '<div class="node-name txtBlue"><i class="fa  fa-question"></i><span class="node-label txtBlue">  Unknown</span></div>';
             }
             if(r.get('gateway') == 'yes' && r.get('mwan_active')){
-                return '<div class=\"fieldTealWhite\"><i class=\"fa fa-sliders\"></i> MWAN</div>';
+                //return '<div class=\"fieldTealWhite\"><i class=\"fa fa-sliders\"></i> MWAN</div>';
+                return '<div class="node-name"><i class="fa fa-sliders"></i><span class="node-label">  MWAN</span></div>';
             }
                       
             if(r.get('gateway') == 'yes'){
-                return '<div class=\"fieldBlue\"><i class=\"fa fa-network-wired\"></i> LAN</div>';
+               // return '<div class=\"fieldBlue\"><i class=\"fa fa-network-wired\"></i> LAN</div>';
+                return '<div class="node-name"><i class="fa fa-network-wired"></i><span class="node-label">  LAN</span></div>';
             }
             return 'N/A';
         }

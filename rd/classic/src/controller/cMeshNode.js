@@ -39,9 +39,8 @@ Ext.define('Rd.controller.cMeshNode', {
 		var name 		= params.name;
 		var store		= params.store;
 		var mac         = params.mac;
-		
-		
-		if(!tabMeshes){
+			
+		if(params.fromUnknown){
 		    tabMeshes = me.getTabUnknown();
 		}
 		

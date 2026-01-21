@@ -631,9 +631,7 @@ Ext.define('Rd.controller.cMeshes', {
         var val = toggle.getValue(); 
         me.getGridNodeLists().getStore().getProxy().setExtraParams({'xwf_filter':val});
         me.getGridNodeLists().getStore().load();   
-    },
-      
-	
+    },	
     
     //===MAPS START HERE===  
     mapLoadGoogleApi: function (key,callback) {
@@ -722,7 +720,7 @@ Ext.define('Rd.controller.cMeshes', {
     addMeshViewMapLeaflet : function(jsonData){
         var me  = this;
         var data= jsonData.data;
-        var tp  = me.getTabMehses();  
+        var tp  = me.getTabMeshes();  
         var map_tab_id = 'mapTab'; 
         var new_tab = tp.down('#' + map_tab_id);
         if (new_tab) {
@@ -755,7 +753,7 @@ Ext.define('Rd.controller.cMeshes', {
     
     ban	: function(b){
     	var me 			= this;
-    	var tabPanel 	= me.getGrid().up('tabpanel')
+    	var tabPanel 	= me.getGrid().up('tabpanel');
 		Ext.getApplication().runAction('cBans','Index',tabPanel,{});
 	},
 	
