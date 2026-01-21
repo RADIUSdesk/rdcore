@@ -587,3 +587,36 @@
 .speedtest-item .meta { font-size: 16px; color: #666; }
 .speedtest-item .speeds { margin-top: 6px; font-weight: 600; font-size: 16px; }
 .speedtest-item .speeds .upload, .speedtest-item .speeds .download { display: inline-block; margin-right: 12px; }
+
+
+/*=== Node GW vs Repeater*/
+.node-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.node-label {
+    color: #333;
+    font-weight: 400;
+}
+
+/* Gateway vs Repeater distinction */
+.node-gateway {
+    color: #666;
+}
+
+.node-repeater {
+    color: #999;
+}
+
+/* Reboot warning */
+.reboot-flag {
+    color: orange;
+}
+
+.node-gateway + .node-label {
+    font-weight: 500;
+}
+
+
