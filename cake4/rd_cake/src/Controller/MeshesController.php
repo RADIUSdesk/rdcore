@@ -3179,12 +3179,12 @@ class MeshesController extends AppController{
                  'tpl'    => [
                     "<div style='font-size:larger;width:300px;'>",
                         '<div style="padding:2px;">',
-                            "{nodes_total} NODES",
+                            "{nodes_total} nodes",
                         '</div>',
                         '<div style="padding:2px;">',
                             // Check if nodes_up is greater than zero
                             '<tpl if="nodes_up &gt; 0">',
-                                "<span style='color:green;'>  {nodes_up} ONLINE</span>",
+                                "<span style='color:green;'>  {nodes_up} online</span>",
                             '</tpl>',
                             // Add a separator only if both nodes_up and nodes_down are greater than zero
                             '<tpl if="nodes_up &gt; 0 && nodes_down &gt; 0">',
@@ -3192,7 +3192,7 @@ class MeshesController extends AppController{
                             '</tpl>',
                             // Check if nodes_down is greater than zero
                             '<tpl if="nodes_down &gt; 0">',
-                                "<span style='color:#c27819;'>  {nodes_down} OFFLINE</span>",
+                                "<span style='color:#c27819;'>  {nodes_down} offline</span>",
                             '</tpl>',
                         '</div>',
                     "</div>"                  

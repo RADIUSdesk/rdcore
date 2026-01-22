@@ -125,33 +125,26 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                     '{hw_human}'
                 ),
 				stateId		: 'StateGridNodeLists7'
-			},
+			},			
 			{
-				text: 'Last 24 Hours',
-				//flex: 1,
-				width: 150,
-				dataIndex: 'dayuptimehist',
-				xtype: 'widgetcolumn',
-				stateId		: 'StateGridNodeLists7a',
-				sortable: false,
-				widget: {
-					xtype: 'sparklinebar',
-					barColor: 'green',
-					/*
-					colorMap: {
-						// Open ended range, with max value 5
-						":5": "blue",
-						// Open ended range, with min value 5
-						"6:": "green"
-					},
-					*/
-					barSpacing: 0,
-					barWidth: 1,
-					centered: true,
-					disableTooltips: true,
-					tipTpl: ''
-				}
-			},
+                text: 'Last 24 Hours',
+                width: 150,
+                dataIndex: 'dayuptimehist',
+                xtype: 'widgetcolumn',
+                stateId		: 'StateGridNodeLists7a',
+                sortable: false,
+                widget: {
+                    xtype: 'sparklinebar',
+                    barColor: 'rgba(62, 138, 55, 0.6)',
+                    negBarColor: 'rgba(194, 120, 25, 0.5)',   // muted orange (negative)
+                    zeroColor: 'rgba(194, 120, 25, 0.5)',    // off
+                    barWidth: 1,
+                    barSpacing: 0,
+                    centered: true,
+                    disableTooltips: true,
+                    tipTpl: ''
+                }
+            },			
 			{
 				text: 'Avail',
 				//flex: 1,
@@ -163,7 +156,10 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
 				sortable: false,
 				widget: {
 					xtype: 'sparklinepie',
-					sliceColors: [ 'green', 'red' ],
+					sliceColors: [
+                        'rgba(62, 138, 55, 0.7)',  // muted green
+                        'rgba(194, 120, 25, 0.6)'   // muted amber
+                    ],
 					centered: true,
 					tipTpl: 'Mins: {value:number("0.0")} ({percent:number("0.0")}%)'
 				}
@@ -176,9 +172,9 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                 flex        : 1,
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<tpl if='config_state == \"never\"'><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> Never</tpl>",
-                    "<tpl if='config_state == \"down\"'><span style='color:grey;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {config_fetched_human}</tpl>",
-                    "<tpl if='config_state == \"up\"'><span style='color:green;'><i class=\"fa fa-circle\"></i></span> {config_fetched_human}</tpl>",
+                    "<tpl if='config_state == \"never\"'><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> Never</tpl>",
+                    "<tpl if='config_state == \"down\"'><span class='txtGrey'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {config_fetched_human}</tpl>",
+                    "<tpl if='config_state == \"up\"'><span class='txtGreen'><i class=\"fa fa-circle\"></i></span> {config_fetched_human}</tpl>",
                 ),
                 stateId     : 'StateGMVND12a'
             },
@@ -190,9 +186,9 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                 flex        : 1,
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<tpl if='state == \"never\"'><span style='color:blue;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> Never</tpl>",
-                    "<tpl if='state == \"down\"'><span style='color:red;'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {last_contact_human}</tpl>",
-                    "<tpl if='state == \"up\"'><span style='color:green;'><i class=\"fa fa-circle\"></i></span> {last_contact_human}</tpl>"
+                    "<tpl if='state == \"never\"'><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> Never</tpl>",
+                    "<tpl if='state == \"down\"'><span class='txtOrange'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {last_contact_human}</tpl>",
+                    "<tpl if='state == \"up\"'><span class='txtGreen'><i class=\"fa fa-circle\"></i></span> {last_contact_human}</tpl>"
                 ),
                 stateId     : 'StateGridNodeLists8'
             },
