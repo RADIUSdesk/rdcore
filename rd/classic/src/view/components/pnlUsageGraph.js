@@ -17,75 +17,93 @@ Ext.define('Rd.view.components.pnlUsageGraph', {
         activate : 'onPnlUsageGraphActivate',
     },
     initComponent: function(){
-        var me   = this;  
-        me.tbar  = [
-            { 
-                xtype   : 'buttongroup',
-                items : [
-                    { 
-                        xtype       : 'button', 
-                        glyph       : Rd.config.icnReload,   
-                        scale       : 'large', 
-                        itemId      : 'reload',
-                        ui          : 'button-orange',  
-                        tooltip     : i18n('sReload'),
+        var me   = this; 
+        var scale = 'small'; 
+        
+        me.dockedItems= [
+            {
+                xtype   : 'toolbar',
+                dock    : 'top',
+                items   : [
+                    {  
+                        glyph   : Rd.config.icnReload,    
+                        scale   : scale, 
+                        itemId  : 'reload',
+                        ui      : 'button-orange',   
+                        tooltip: i18n('sReload'),
                         listeners   : {
                             click       : 'onBtnReloadClick'
                         }
                     },
+                    '|',
+                    { 
+                        scale       : scale, 
+                        glyph       : Rd.config.icnLeft,
+                        reference   : 'btnTimeBack',
+                        tooltip     : 'Go Back 1Day',
+                        listeners   : {
+                            click: 'onClickTimeBack'
+                        }
+                    },  
                     {
                         xtype       : 'datefield',
-                        width       : 300,
-                        fieldLabel  : 'Day',
                         name        : 'day',
                         itemId      : 'day',
-                        value       : new Date(),
+                        reference   : 'dtDate',
                         format      : "d/m/Y",
-                        labelClsExtra: 'lblRdReq',
-                        labelAlign  : 'left',
-                        labelWidth  : 50,
-                        padding     :'7 0 0 0',
-                        margin      : 0,
-                        labelSeparator: '',
+                        value       : new Date(),
+                        width       : 120,
                         listeners   : {
                             change : 'onDayChange'
                         }
                     },
-                    {
+                    { 
+                        scale       : scale, 
+                        glyph       : Rd.config.icnRight,
+                        reference   : 'btnTimeForward',
+                        tooltip     : 'Go Forward 1Day',
+                        disabled    : true,
+                        listeners   : {
+                            click: 'onClickTimeForward'
+                        }
+                    }, 
+                    '|',
+                     {
                         'xtype'         : 'cmbTimezones', 
-                        'width'         : 300, 
+                        'width'         : 200, 
                         'itemId'        : 'cmbTimezone',
-                        'name'          : 'timezone_id', 
-                        'labelClsExtra' : 'lblRdReq',
-                        'labelWidth'    : 75, 
+                        'name'          : 'timezone_id',
+                        'fieldLabel'    : null,
                         'padding'       :'7 0 0 0',
                         'margin'        : 0,
                         'value'         : me.timezone_id,
                          listeners   : {
                             change : 'onCmbTimezonesChange'
                         }
-                    }
-                ]              
+                    },
+                    '|',
+                     {   
+                        xtype   : 'component', 
+                        itemId  : 'totals',  
+                        //tpl     : i18n('tpl_In_{in}_Out_{out}_Total_{total}'), 
+                        //tpl     : '<h2>In {in} Out {out} Total {total}</h2>',
+                        tpl     : [
+                            "<div>",
+                            "<label class='lblTipItem'><span style='color:#5c5f63;font-weight:100;'>{in}</span><span style='font-weight:100;'>  in</span></label>",
+                            "<div style='clear:both;'></div>",
+                            "<label class='lblTipItem'><span style='color:#5c5f63;font-weight:100;'>{out}</span><span style='font-weight:100;'> out</span></label>",
+                            "<div style='clear:both;'></div>",
+                            "<label class='lblTipItem'><span style='color:#5c5f63;font-weight:700;'>{total}</span>  total</label>",
+                            "</div>"
+                        ],
+                        style   : 'margin-right:5px', 
+                        cls     : 'lblRd' 
+                    }                                
+                ]
             },
-            '|',
-            {   
-                xtype   : 'component', 
-                itemId  : 'totals',  
-                //tpl     : i18n('tpl_In_{in}_Out_{out}_Total_{total}'), 
-                //tpl     : '<h2>In {in} Out {out} Total {total}</h2>',
-                tpl     : [
-                    "<div>",
-                    "<label class='lblTipItem'>IN  <span style='color:#5c5f63;'>{in}</span></label>",
-                    "<div style='clear:both;'></div>",
-                    "<label class='lblTipItem'>OUT  <span style='color:#5c5f63;'>{out}</span></label>",
-                    "<div style='clear:both;'></div>",
-                    "<label class='lblTipItem'>TOTAL  <span style='color:#5c5f63;'>{total}</span></label>",
-                    "</div>"
-                ],
-                style   : 'margin-right:5px', 
-                cls     : 'lblRd' 
-            }
-        ];       
+           
+        ];
+        
         me.store    = Ext.create('Ext.data.Store',{
             model: 'Rd.model.mUserStat',
             proxy: {
