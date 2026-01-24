@@ -118,31 +118,91 @@ Ext.define('Rd.controller.cMainNetworks', {
                 tpl: new Ext.XTemplate(
                     '<tpl for=".">',
                         '<div class="rd-tiles-grid">',
-                          // left column
-                          '<tpl if="column1">',
+                        // left column
+                        '<tpl if="column1">',
                             '<div class="rd-tile rd-tile-column1 {[values.column1.accent ? ("rd-accent-" + values.column1.accent) : ""]}" ',
-                                 'data-controller="{column1.controller}" data-target="{column1.id}">',
-                              '<div class="rd-tile-icon"><span class="x-fa" style="font-family:FontAwesome;">&#{column1.glyph};</span></div>',
-                              '<div class="rd-tile-body">',
-                                '<div class="rd-tile-title">{column1.name}</div>',
-                                '<div class="rd-tile-desc">{column1.desc}</div>',
-                              '</div>',
-                              '<div class="rd-tile-stat">{column1.total}</div>',
-                            '</div>',
-                          '</tpl>',
-
-                          // right column
-                          '<tpl if="column2">',
+                                'data-controller="{column1.controller}" data-target="{column1.id}">',
+                                '<div class="rd-tile-icon"><span class="x-fa" style="font-family:FontAwesome;">&#{column1.glyph};</span></div>',
+                                '<div class="rd-tile-body">',
+                                    '<div class="rd-tile-title">{column1.name}</div>',
+                                    '<div class="rd-tile-desc">{column1.desc}</div>',
+                                '</div>', 
+                                
+                                '<tpl if="column1.meshdesk">',
+                                     //--Special for Mesh Networks--   
+                                    "<div style='font-size:larger;'>",
+                                        "<ul class='fa-ul'>",
+                                            "<li style='padding:4px;'>",
+                                                // Display meshes_total with ONLINE and OFFLINE parts
+                                                "<span class='fa-li' style='font-family:FontAwesome;'>&#xf20e</span> {column1.meshes_total} networks",
+                                                "<tpl if='column1.meshes_up &gt; 0'>",
+                                                    " - <span style='color:green;'>  {column1.meshes_up} online</span>",
+                                                "</tpl>",
+                                                "<tpl if='column1.meshes_down &gt; 0'>",
+                                                    " - <span style='color:#c27819;'>  {column1.meshes_down} offline</span>",
+                                                "</tpl>",
+                                            "</li>",
+                                            "<li style='padding:4px;'>",
+                                                "<i class='fa-li fa fa-share-alt'></i> {column1.nodes_total} nodes",
+                                                "<tpl if='column1.nodes_up &gt; 0'>",
+                                                    " - <span style='color:green;'>  {column1.nodes_up} online</span>",
+                                                "</tpl>",
+                                                "<tpl if='column1.nodes_down &gt; 0'>",
+                                                    " - <span style='color:#c27819;'>  {column1.nodes_down} offline</span>",
+                                                "</tpl>",
+                                            "</li>",
+                                        "</ul>",
+                                    '</div>',
+                                    //--END special section--
+                                '<tpl else>',                                                                         
+                                    '<div class="rd-tile-stat">',
+                                      '{column1.total}',
+                                      '<tpl if="column1.online &gt; 0">',
+                                        '<span class="rd-badge rd-badge-online" title="{column1.online} new">{column1.online} new</span>',
+                                      '</tpl>',
+                                    '</div>',
+                                '</tpl>',
+                                                                                
+                            '</div>',                                                                                    
+                        '</tpl>',
+                        // right column
+                        '<tpl if="column2">',
                             '<div class="rd-tile rd-tile-column2 {[values.column2.accent ? ("rd-accent-" + values.column2.accent) : ""]}" ',
-                                 'data-controller="{column2.controller}" data-target="{column2.id}">',
-                              '<div class="rd-tile-icon"><span class="x-fa" style="font-family:FontAwesome;">&#{column2.glyph};</span></div>',
-                              '<div class="rd-tile-body">',
-                                '<div class="rd-tile-title">{column2.name}</div>',
-                                '<div class="rd-tile-desc">{column2.desc}</div>',
-                              '</div>',
-                              '<div class="rd-tile-stat">{column2.total}</div>',
+                                'data-controller="{column2.controller}" data-target="{column2.id}">',
+                                '<div class="rd-tile-icon"><span class="x-fa" style="font-family:FontAwesome;">&#{column2.glyph};</span></div>',
+                                '<div class="rd-tile-body">',
+                                    '<div class="rd-tile-title">{column2.name}</div>',
+                                    '<div class="rd-tile-desc">{column2.desc}</div>',
+                                '</div>',
+                                
+                                //--Special for AP Profiles --   
+                                "<div style='font-size:larger;'>",
+                                    "<ul class='fa-ul'>",
+                                        "<li style='padding:4px;'>",
+                                            // Display meshes_total with ONLINE and OFFLINE parts
+                                            "<i class='fa-li fa fa-cubes'></i> {column2.ap_profiles_total} profiles",
+                                            "<tpl if='column2.ap_profiles_up &gt; 0'>",
+                                                " - <span style='color:green;'>  {column2.ap_profiles_up} online</span>",
+                                            "</tpl>",
+                                            "<tpl if='column2.ap_profiles_down &gt; 0'>",
+                                                " - <span style='color:#c27819;'>  {column2.ap_profiles_down} offline</span>",
+                                            "</tpl>",
+                                        "</li>",
+                                        "<li style='padding:4px;'>",
+                                            "<i class='fa-li fa fa-cube'></i> {column2.aps_total} devices",
+                                            "<tpl if='column2.aps_up &gt; 0'>",
+                                                " - <span style='color:green;'>  {column2.aps_up} online</span>",
+                                            "</tpl>",
+                                            "<tpl if='column2.aps_down &gt; 0'>",
+                                                " - <span style='color:#c27819;'>  {column2.aps_down} offline</span>",
+                                            "</tpl>",
+                                        "</li>",
+                                    "</ul>",
+                                '</div>',
+                                //--END special section--
+                                                                                                                              
                             '</div>',
-                          '</tpl>',
+                        '</tpl>',
                         '</div>',
                     '</tpl>'
                 ),
@@ -152,8 +212,7 @@ Ext.define('Rd.controller.cMainNetworks', {
                     scope: me
                 }
             });
-            
-                     
+                                 
             var tp = Ext.create('Ext.panel.Panel',
             	{          
 	            	border      : false,

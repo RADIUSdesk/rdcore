@@ -580,7 +580,7 @@ class DashboardController extends AppController{
         $tabItem    = $this->request->getQuery('item_id');
         $cloudId    = $this->request->getQuery('cloud_id');
         $req_q      = $this->request->getQuery();
-	$comps      = [];
+	    $comps      = [];
         $right      = false;
 
         if($cloudId){
@@ -633,113 +633,7 @@ class DashboardController extends AppController{
                 ]
            ]);                     	  
         }
-              
-        if($tabItem == 'tabMainUsers'){
-	    if(isset($comps['cmp_permanent_users']) && $comps['cmp_permanent_users']){
-                $items[] = [
-                    "title" => "Permanent Users",
-                    "glyph" => "xf2c0@FontAwesome",
-                    "id" => "cPermanentUsers",
-                    "layout" => "fit",
-                    "tabConfig" => [
-                        "ui" => "tab-blue"
-                    ]
-               ];           
-            }            
-	    if(isset($comps['cmp_vouchers']) && $comps['cmp_vouchers']){
-                $items[] = [
-                    "title" => "Vouchers",
-                    "glyph" => "xf145@FontAwesome",
-                    "id" => "cVouchers",
-                    "layout" => "fit",
-                    "tabConfig" => [
-                        "ui" => "tab-orange"
-                    ]
-                ];           
-            }
-            $items[] = [
-                "title" => "Activity Monitor",
-                "glyph" => "xf0e7@FontAwesome",
-                "id" => "cActivityMonitor",
-                "layout" => "fit",
-                "tabConfig" => [
-                    "ui" => "tab-metal"
-                ]
-            ];   
-        }
-        
-        if($tabItem == 'tabMainRadius'){
-	    if(isset($comps['cmp_dynamic_clients']) && $comps['cmp_dynamic_clients']){
-                $items[] = [
-                    "title" => "RADIUS Clients",
-                    "glyph" => "xf1ce@FontAwesome",
-                    "id"    => "cDynamicClients",
-                    "layout"=> "fit",
-                    "tabConfig"=> [
-                        "ui"=> "tab-blue"
-                    ]
-                ];           
-            }            
-	    if(isset($comps['cmp_nas']) && $comps['cmp_nas']){
-                $items[] =  [
-                    "title" => "NAS",
-                    "glyph" => "xf1cb@FontAwesome",
-                    "id"    => "cNas",
-                    "layout"=> "fit",
-                    "tabConfig"=> [
-                        "ui"=> "tab-blue"
-                    ]
-                ];           
-            }
-	    if(isset($comps['cmp_profiles']) && $comps['cmp_profiles']){
-                $items[] =  [
-                    "title" => "Profiles",
-                    "glyph" => "xf1b3@FontAwesome",
-                    "id"    => "cProfiles",
-                    "layout"=> "fit",
-                    "tabConfig"=> [
-                        "ui"=> "tab-blue"
-                    ]
-                ];           
-            }
-            
-	    if(isset($comps['cmp_realms']) && $comps['cmp_realms']){
-                $items[] =  [
-                    "title" => "Realms (Groups)",
-                    "glyph" => "xf06c@FontAwesome",
-                    "id"    => "cRealms",
-                    "layout"=> "fit",
-                    "tabConfig"=> [
-                        "ui"=> "tab-orange"
-                    ]
-                ];           
-            }
-                  
-          /*  if($right === 'view'){
-                $items = [
-            		[
-                        "title" => "RADIUS Clients",
-                        "glyph" => "xf1ce@FontAwesome",
-                        "id"    => "cDynamicClients",
-                        "layout"=> "fit",
-                        "tabConfig"=> [
-                            "ui"=> "tab-blue"
-                        ]
-                    ]
-               	];                      
-            }*/
-        }
-        
-        if($tabItem == 'tabMainNetworks'){
-            if(isset($comps['cmp_meshes']) && $comps['cmp_meshes']){
-                $items['meshes'] = true;
-            }  
-	    if(isset($comps['cmp_ap_profiles']) && $comps['cmp_ap_profiles']){
-                $items['ap_profiles'] = true;
-            }
-            $items['unknown_nodes'] = true;  
-        }
-              
+                         
         $this->set([
             'success' => true,
             'items'    => $items
@@ -748,6 +642,7 @@ class DashboardController extends AppController{
       
     }
     
+     
     public function networksItems(){
         $user = $this->Aa->user_for_token($this);
         if(!$user){
@@ -760,19 +655,28 @@ class DashboardController extends AppController{
         if( $group  == Configure::read('group.admin')){  //Admin
             $isRootUser = true; 
         }
-        //FIXME This needs some more work in terms of components which should be listed per Access Provider
-
-        $cloudId = (int)$this->request->getQuery('cloud_id');
+        $cloudId = (int)$this->request->getQuery('cloud_id');  
+        $comps = [];
+        $right = false;
         
+        if($cloudId){
+            $r_and_c = $this->Aa->rights_and_components_on_cloud();
+            if($r_and_c && isset($r_and_c['rights'])){
+                $right   = $r_and_c['rights'];
+                $comps   = isset($r_and_c['components']) ? $r_and_c['components'] : [];
+            }
+        }
+        
+       
         $totals = $this->Counts->totals([
                 ['table' => 'Meshes',      'key'  => 'mesh_networks'],
                 ['table' => 'ApProfiles',  'key' => 'ap_profiles'],
               //  ['table' => 'UnknownNodes','key' => 'unknown_nodes']
-            ], $cloudId);
-        
-        $items = [];
-        $items[] =  [
-            'column1'   => 
+            ], $cloudId);        
+        $firstRow = [];  
+            
+	    if(isset($comps['cmp_meshes']) && $comps['cmp_meshes']){
+	        $firstRow['column1']   = 
               [
                 'name'          => 'MESHdesk',
                 'controller'    => 'cMeshes',
@@ -780,9 +684,20 @@ class DashboardController extends AppController{
                 'glyph'         => 'xf20e',
                 'total'         => $totals['mesh_networks'],
                 'desc'          => 'Mesh networks made easy',
-                'accent'        => 'blue'            
-              ],
-            'column2' => 
+                'accent'        => 'blue',
+                
+                'meshdesk'      => true, //Set to engate a template section in ExtJS 
+                'meshes_total'  => 3,
+                'meshes_up'     => 0,
+                'meshes_down'   => 3,
+                'nodes_total'   => 5,
+                'nodes_up'      => 0,
+                'nodes_down'    => 5 
+              ];            
+	    }
+	        
+	    if(isset($comps['cmp_ap_profiles']) && $comps['cmp_ap_profiles']){
+	        $firstRow['column2']   = 
               [
                 'name'          => 'APdesk',
                 'controller'    => 'cAccessPoints',
@@ -790,10 +705,21 @@ class DashboardController extends AppController{
                 'glyph'         => 'xf1b3',
                 'total'         => $totals['ap_profiles'],
                 'desc'          => 'Manage OpenWrt based hardware',
-                'accent'        => 'teal'
-              ]
-        ];
-        
+                'accent'        => 'teal',
+                
+                'ap_desk'               => true,
+                'ap_profiles_total'     => 4,
+                'ap_profiles_up'        => 1,
+                'ap_profiles_down'      => 4,
+                'aps_total'             => 6,
+                'aps_up'                => 1,
+                'aps_down'              => 6
+              ];               
+	    }
+	    
+	    $items      = [];
+        $items[]    =  $firstRow;
+               
         $items[] =  [
             'column1'   => 
               [
@@ -801,7 +727,8 @@ class DashboardController extends AppController{
                 'controller'    => 'cUnknownNodes',
                 'id'            => 'pnlNetworksUnknownNodes',
                 'glyph'         => 'xf207',
-              //  'total'         => $totals['unknown_nodes'],
+                'total'         => 10,
+                'online'        => 5,
                 'desc'          => 'Onboarding new hardware',
                 'accent'        => 'purple'           
               ]
@@ -827,8 +754,6 @@ class DashboardController extends AppController{
         if( $group  == Configure::read('group.admin')){  //Admin
             $isRootUser = true; 
         }
-        //FIXME This needs some more work in terms of components which should be listed per Access Provider
-
         $cloudId = (int)$this->request->getQuery('cloud_id');  
         $comps = [];
         $right = false;
@@ -843,7 +768,7 @@ class DashboardController extends AppController{
                 
         $firstRow = [];  
             
-	if(isset($comps['cmp_permanent_users']) && $comps['cmp_permanent_users']){
+	    if(isset($comps['cmp_permanent_users']) && $comps['cmp_permanent_users']){
             $tUsers = $this->Counts->countPermanentUsers($cloudId);
             $firstRow['column1']   = 
               [
@@ -859,7 +784,7 @@ class DashboardController extends AppController{
                 'accent'        => 'blue'            
               ];         
         }            
-	if(isset($comps['cmp_vouchers']) && $comps['cmp_vouchers']){
+	    if(isset($comps['cmp_vouchers']) && $comps['cmp_vouchers']){
             $tVouchers = $this->Counts->countVouchers($cloudId);
             $firstRow['column2']   = 
               [
@@ -913,10 +838,20 @@ class DashboardController extends AppController{
         if( $group  == Configure::read('group.admin')){  //Admin
             $isRootUser = true; 
         }
-        //FIXME This needs some more work in terms of components which should be listed per Access Provider
 
-        $cloudId = (int)$this->request->getQuery('cloud_id');
+        $comps = [];
+        $right = false;
         
+        $cloudId = (int)$this->request->getQuery('cloud_id');
+        if($cloudId){
+            $r_and_c = $this->Aa->rights_and_components_on_cloud();
+            if($r_and_c && isset($r_and_c['rights'])){
+                $right   = $r_and_c['rights'];
+                $comps   = isset($r_and_c['components']) ? $r_and_c['components'] : [];
+            }
+        }
+      
+        $firstRow = [];      
         $totals = $this->Counts->totals([
                 ['table' => 'DynamicClients', 'key' => 'clients'],
                 ['table' => 'Nas',            'key' => 'nas'],
@@ -924,9 +859,8 @@ class DashboardController extends AppController{
                 ['table' => 'Realms',         'key' => 'realms'],
             ], $cloudId);
         
-        $items = [];
-        $items[] =  [
-            'column1'   => 
+        if(isset($comps['cmp_dynamic_clients']) && $comps['cmp_dynamic_clients']){
+            $firstRow['column1']   = 
               [
                 'name'          => 'RADIUS Clients',
                 'controller'    => 'cDynamicClients',
@@ -935,8 +869,10 @@ class DashboardController extends AppController{
                 'total'         => $totals['clients'],
                 'desc'          => 'Devices allowed to send RADIUS requests.',
                 'accent'        => 'blue'            
-              ],
-            'column2' => 
+              ];         
+        }            
+	    if(isset($comps['cmp_nas']) && $comps['cmp_nas']){
+            $firstRow['column2']   = 
               [
                 'name'          => 'NAS',
                 'controller'    => 'cNas',
@@ -945,11 +881,18 @@ class DashboardController extends AppController{
                 'total'         => $totals['nas'],
                 'desc'          => 'Network access servers and concentrators.',
                 'accent'        => 'teal'
-              ]
-        ];
+              ];                    
+        }          
         
-        $items[] =  [
-            'column1'   => 
+        $items      = [];
+        if(count($firstRow)>0){
+            $items[]    =  $firstRow;
+        }
+        
+        $secondRow = [];
+        
+        if(isset($comps['cmp_profiles']) && $comps['cmp_profiles']){
+            $secondRow['column1']   = 
               [
                 'name'          => 'Profiles',
                 'controller'    => 'cProfiles',
@@ -958,8 +901,10 @@ class DashboardController extends AppController{
                 'total'         => $totals['profiles'],
                 'desc'          => 'Reusable policy bundles (rates, session).',
                 'accent'        => 'purple'           
-              ],
-            'column2' => 
+              ];         
+        }            
+	    if(isset($comps['cmp_realms']) && $comps['cmp_realms']){
+            $secondRow['column2']   = 
               [
                 'name'          => 'Realms (Groups)',
                 'controller'    => 'cRealms',
@@ -968,16 +913,18 @@ class DashboardController extends AppController{
                 'total'         => $totals['realms'],
                 'desc'          => 'Tenant/group routing and policy domains.',
                 'accent'        => 'orange'
-              ]
-        ];
+              ];                    
+        } 
         
+        if(count($secondRow)>0){
+            $items[]    =  $secondRow;
+        } 
+                      
         $this->set([
             'success' => true,
             'items'    => $items
         ]);
-        $this->viewBuilder()->setOption('serialize', true);   
-    
-    
+        $this->viewBuilder()->setOption('serialize', true);     
     }
     
     
