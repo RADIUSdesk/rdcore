@@ -655,6 +655,7 @@ class DashboardController extends AppController{
         if( $group  == Configure::read('group.admin')){  //Admin
             $isRootUser = true; 
         }
+        $items   = [];
         $cloudId = (int)$this->request->getQuery('cloud_id');  
         $comps = [];
         $right = false;
@@ -666,72 +667,55 @@ class DashboardController extends AppController{
                 $comps   = isset($r_and_c['components']) ? $r_and_c['components'] : [];
             }
         }
-        
-       
-        $totals = $this->Counts->totals([
-                ['table' => 'Meshes',      'key'  => 'mesh_networks'],
-                ['table' => 'ApProfiles',  'key' => 'ap_profiles'],
-              //  ['table' => 'UnknownNodes','key' => 'unknown_nodes']
-            ], $cloudId);        
-        $firstRow = [];  
-            
-	    if(isset($comps['cmp_meshes']) && $comps['cmp_meshes']){
-	        $firstRow['column1']   = 
-              [
+         
+        //-- Mesh networks--           
+	    if(isset($comps['cmp_meshes']) && $comps['cmp_meshes']){	    
+	        $meshBase = [
                 'name'          => 'MESHdesk',
                 'controller'    => 'cMeshes',
                 'id'            => 'pnlNetworksMeshes',
                 'glyph'         => 'xf20e',
-                'total'         => $totals['mesh_networks'],
                 'desc'          => 'Mesh networks made easy',
-                'accent'        => 'blue',
-                
-                'meshdesk'      => true, //Set to engate a template section in ExtJS 
-                'meshes_total'  => 3,
-                'meshes_up'     => 0,
-                'meshes_down'   => 3,
-                'nodes_total'   => 5,
-                'nodes_up'      => 0,
-                'nodes_down'    => 5 
-              ];            
+                'accent'        => 'blue'
+            ];	    
+	        $meshCounts = $this->Counts->countMeshNetworks($cloudId);        
+	        $meshBase   = array_merge($meshBase,$meshCounts);	        
+	        $firstRow['column1']   = $meshBase;            
 	    }
-	        
-	    if(isset($comps['cmp_ap_profiles']) && $comps['cmp_ap_profiles']){
-	        $firstRow['column2']   = 
-              [
-                'name'          => 'APdesk',
+	    
+	    //-- AP Profiles --    
+	    if(isset($comps['cmp_ap_profiles']) && $comps['cmp_ap_profiles']){	    
+	        $apBase = [
+	            'name'          => 'APdesk',
                 'controller'    => 'cAccessPoints',
                 'id'            => 'pnlNetworksAccessPoints',
                 'glyph'         => 'xf1b3',
-                'total'         => $totals['ap_profiles'],
                 'desc'          => 'Manage OpenWrt based hardware',
-                'accent'        => 'teal',
-                
-                'ap_desk'               => true,
-                'ap_profiles_total'     => 4,
-                'ap_profiles_up'        => 1,
-                'ap_profiles_down'      => 4,
-                'aps_total'             => 6,
-                'aps_up'                => 1,
-                'aps_down'              => 6
-              ];               
+                'accent'        => 'teal'        
+	        ];        
+	        $apCounts = $this->Counts->countApProfiles($cloudId);        
+	        $apBase   = array_merge($apBase,$apCounts);		    
+	        $firstRow['column2']   = $apBase;                      
 	    }
-	    
-	    $items      = [];
+	    	    
         $items[]    =  $firstRow;
-               
-        $items[] =  [
-            'column1'   => 
-              [
-                'name'          => 'New Arrivals - Hardware',
-                'controller'    => 'cUnknownNodes',
-                'id'            => 'pnlNetworksUnknownNodes',
-                'glyph'         => 'xf207',
-                'total'         => 10,
-                'online'        => 5,
-                'desc'          => 'Onboarding new hardware',
-                'accent'        => 'purple'           
-              ]
+        
+        //-- Unknown / New Arrivals --
+        
+        $unknownBase = [
+            'name'          => 'New Arrivals - Hardware',
+            'controller'    => 'cUnknownNodes',
+            'id'            => 'pnlNetworksUnknownNodes',
+            'glyph'         => 'xf207',
+            'total'         => 10,
+            'online'        => 5,
+            'desc'          => 'Onboarding new hardware',
+            'accent'        => 'purple'           
+        ];
+        $unknownCounts  = $this->Counts->countUnknownHardware($cloudId);         
+        $unknownBase    = array_merge($unknownBase,$unknownCounts);              
+        $items[]        =  [
+            'column1'   => $unknownBase
         ];
         
         $this->set([

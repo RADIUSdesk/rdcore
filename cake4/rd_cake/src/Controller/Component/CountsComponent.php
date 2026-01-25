@@ -16,10 +16,12 @@ use Cake\Cache\Cache;
 
 use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
+use Cake\I18n\FrozenTime;
 
 class CountsComponent extends Component {
 
     protected $components 	= ['Aa'];
+    protected $dead_after   = 900; //Default
     
     protected $_defaultConfig = [
         // Multi-tenant defaults
@@ -224,6 +226,116 @@ class CountsComponent extends Component {
         $base->where($where);      
         $total      = (clone $base)->count();       
         return $total;  
+    }
+    
+    public function countMeshNetworks(int $cloudId): array {
+    
+        $Meshes     = TableRegistry::getTableLocator()->get('Meshes');
+        $Nodes      = TableRegistry::getTableLocator()->get('Nodes');
+        
+        //--Meshes--
+        $m_total    = $Meshes->find()->where(['Meshes.cloud_id' => $cloudId])->count();        
+        $ft_now     = FrozenTime::now();
+        $ft_dead    = $ft_now->subSecond($this->dead_after);    
+        $m_up       = $Meshes->find()->where(['Meshes.cloud_id' => $cloudId,'Meshes.last_contact >='  => $ft_dead])->count();
+        $m_down     = $m_total - $m_up;
+        
+        //--Nodes--    
+        $n_total    = $Nodes
+            ->find()
+            ->matching('Meshes', function ($q) use ($cloudId) {
+                return $q->where(['Meshes.cloud_id' => $cloudId]);
+            })
+            ->count();
+            
+        $n_up       = $Nodes
+            ->find()
+            ->matching('Meshes', function ($q) use ($cloudId) {
+                return $q->where(['Meshes.cloud_id' => $cloudId]);
+            })
+            ->where([
+                'Nodes.last_contact >=' => $ft_dead
+            ])
+            ->count();
+            
+        $n_down     = $n_total - $n_up;
+        
+        return [
+            'meshdesk'      => true, //Set to engate a template section in ExtJS 
+            'meshes_total'  => $m_total,
+            'meshes_up'     => $m_up,
+            'meshes_down'   => $m_down,
+            'nodes_total'   => $n_total,
+            'nodes_up'      => $n_up,
+            'nodes_down'    => $n_down       
+        ];       
+    }
+    
+    public function countApProfiles(int $cloudId): array {
+        
+        $ApProfiles = TableRegistry::getTableLocator()->get('ApProfiles');
+        $Aps        = TableRegistry::getTableLocator()->get('Aps');
+        
+        //-- Profiles --
+        $p_total    = $ApProfiles->find()->where(['ApProfiles.cloud_id' => $cloudId])->count();
+        $ft_now     = FrozenTime::now();
+        $ft_dead    = $ft_now->subSecond($this->dead_after);
+        
+        $p_up       = $ApProfiles
+            ->find()
+            ->where([
+                'ApProfiles.cloud_id' => $cloudId
+            ])
+            ->matching('Aps', function ($q) use ($ft_dead) {
+                return $q->where([
+                    'Aps.last_contact >=' => $ft_dead
+                ]);
+            })
+            ->count();
+        $p_down     = $p_total - $p_up;
+        
+        //-- APs --
+        $a_total    = $Aps
+            ->find()
+            ->matching('ApProfiles', function ($q) use ($cloudId) {
+                return $q->where(['ApProfiles.cloud_id' => $cloudId]);
+            })
+            ->count();
+            
+        $a_up       = $Aps
+            ->find()
+            ->matching('ApProfiles', function ($q) use ($cloudId) {
+                return $q->where(['ApProfiles.cloud_id' => $cloudId]);
+            })
+            ->where([
+                'Aps.last_contact >=' => $ft_dead
+            ])
+            ->count();
+            
+        $a_down     = $a_total - $a_up;
+      
+        return [
+            'ap_desk'               => true,
+            'ap_profiles_total'     => $p_total,
+            'ap_profiles_up'        => $p_up,
+            'ap_profiles_down'      => $p_down,
+            'aps_total'             => $a_total,
+            'aps_up'                => $a_up,
+            'aps_down'              => $a_down
+        ];       
+    }
+    
+    public function countUnknownHardware(): array { 
+    
+        $Unknown    = TableRegistry::getTableLocator()->get('UnknownNodes');
+        $u_total    = $Unknown->find()->count();        
+        $ft_now     = FrozenTime::now();
+        $ft_dead    = $ft_now->subSecond($this->dead_after);    
+        $online     = $Unknown->find()->where(['UnknownNodes.last_contact >='  => $ft_dead])->count();         
+        return [
+            'total'         => $u_total,
+            'online'        => $online,
+        ];       
     }
         
 }
