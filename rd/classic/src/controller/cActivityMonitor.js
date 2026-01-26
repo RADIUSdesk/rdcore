@@ -29,30 +29,6 @@ Ext.define('Rd.controller.cActivityMonitor', {
         return added;      
     }, 
     
- /*   
-    actionIndex: function(pnl){
-        var me = this;
-        
-        if (me.populated) {
-            return; 
-        }
-        me.ui   = Rd.config.tabVouchers; 
-        pnl.add({ 
-            xtype       : 'tabpanel',
-            border      : false,
-            itemId      : 'tabActivityMonitor',
-            plain       : true,
-            cls         : 'subTab', //Make darker -> Maybe grey
-            layout      : 'fit', 
-            items       : [
-                { 'title' : i18n('sAccounting_data'),       xtype: 'gridRadaccts',     padding     : Rd.config.gridSlim },
-                { 'title' : i18n('sAuthentication_data'),   xtype: 'gridRadpostauths', padding     : Rd.config.gridSlim }
-            ]
-        });
-        pnl.on({activate : me.gridActivate,scope: me});       
-        me.populated = true;
-    },*/
-
     views:  [
         'activityMonitor.gridRadaccts',     'activityMonitor.gridRadpostauths',
         'components.winCsvColumnSelect',    'components.pnlUsageGraph',
@@ -158,14 +134,22 @@ Ext.define('Rd.controller.cActivityMonitor', {
         var btn     = me.getGrid().down('#connected');
         var tz      = me.getGrid().down('#cmbTimezone');
         var info    = me.getGrid().down('#btnInfo'); 
+        var kick    = me.getGrid().down('#kick');
+        var close   = me.getGrid().down('#close');
          
         var only_connected  = true; //We only show the connected ones by default
         var extra_info  = false;
         if(btn){
             only_connected = btn.pressed; //Default only active
             if(btn.pressed){
-               btn.setGlyph(Rd.config.icnLightbulb);
-               info.enable();               
+                btn.setGlyph(Rd.config.icnLightbulb);
+                info.enable();
+                if(kick){ 
+                    kick.enable();
+                }
+                if(close){
+                    close.enable(); 
+                }             
             }else{
                 btn.setGlyph(Rd.config.icnTime); 
                 info.setPressed(false); //release it only here
@@ -174,6 +158,12 @@ Ext.define('Rd.controller.cActivityMonitor', {
                 me.getGrid().down('#clmPuExtraName').disable();
                 me.getGrid().down('#clmPuSite').disable();
                 me.getGrid().down('#clmPuActive').disable(); 
+                if(kick){ 
+                    kick.disable();
+                }
+                if(close){
+                    close.disable(); 
+                }  
             }
         }
         
@@ -209,7 +199,7 @@ Ext.define('Rd.controller.cActivityMonitor', {
         var totalIn     = Ext.ux.bytesToHuman(meta_data.totalIn);
         var totalOut    = Ext.ux.bytesToHuman(meta_data.totalOut);
         var totalInOut  = Ext.ux.bytesToHuman(meta_data.totalInOut);
-        me.getGrid().down('#totals').update({'in': totalIn, 'out': totalOut, 'total': totalInOut, total_connected: meta_data.totalCount });
+        me.getGrid().down('#totals').update({'in': totalIn, 'out': totalOut, 'total': totalInOut, total_connected: meta_data.totalCount, activeData: meta_data.activeData });
     },
     gridActivate: function(g){
         var me = this;

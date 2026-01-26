@@ -67,8 +67,10 @@ class FreeRadiusBehavior extends Behavior {
         'Radchecks',
         'Radreplies',
         'Radaccts',
+        'RadacctHistories', //Added Jan2026
         'Radpostauths',
-        'UserStats'
+        'UserStats',
+        'UserStatsDailies' //Added Jan2026
     ];
 
 

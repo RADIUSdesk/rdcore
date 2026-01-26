@@ -84,8 +84,10 @@ class GridButtonsRbaComponent extends Component {
                      'tpl'    => [
                         "<div style='font-size:larger;width:400px;'>",
                         "<ul class='fa-ul'>",
-                        "<li style='padding:2px;'>",
-                        "<span class='fa-li' style='font-family:FontAwesome;'>&#xf1c0</span> {in} in {out} out {total} total</span></li>",
+                        "<tpl if='activeData == true'>",
+                            "<li style='padding:2px;'>",
+                            "<span class='fa-li' style='font-family:FontAwesome;'>&#xf1c0</span> {in} in {out} out {total} total</span></li>",
+                        "</tpl>",
                         "<li style='padding:2px;'><i class='fa-li fa fa-arrow-right'></i> {total_connected} items</li>",
                         "</ul>",
                         "</div>"                    
