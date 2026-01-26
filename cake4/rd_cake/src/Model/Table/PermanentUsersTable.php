@@ -5,6 +5,11 @@ namespace App\Model\Table;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 
+//-- Jan 20206 --
+use Cake\Event\EventInterface;
+use Cake\I18n\FrozenTime;
+use Cake\Datasource\EntityInterface;
+
 class PermanentUsersTable extends Table
 {
     public function initialize(array $config):void{
@@ -73,5 +78,17 @@ class PermanentUsersTable extends Table
             ]);
         return $validator;
     }
+    
+    //-- Jan 2026 -- to take care of the state when expired is bigger or smaller than current time--
+    //-- FIXME Check if this will disconnect / reconnect the user -- 
+    public function beforeSave( EventInterface $event, EntityInterface $entity,\ArrayObject $options) {
+        if ($entity->to_date !== null) {
+            if ($entity->to_date < FrozenTime::now()) {
+                $entity->admin_state = 'expired';
+            } elseif ($entity->admin_state === 'expired') {
+                $entity->admin_state = 'active';
+            }
+        }
+    }  
        
 }

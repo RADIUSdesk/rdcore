@@ -146,6 +146,21 @@ class PermanentUsersController extends AppController{
         $query->page($page);
         $query->limit($limit);
         $query->offset($offset);
+        
+        $q = (clone $query)
+            ->select([
+                'admin_state',
+                'count' => $q = $this->PermanentUsers->find()->func()->count('*')
+            ])
+            ->group('admin_state');
+            
+        $results = $q->all()->combine('admin_state', 'count')->toArray();
+        
+        $states = ['active', 'suspended', 'terminated', 'expired'];
+        $counts = array_fill_keys($states, 0);
+        foreach ($results as $state => $count) {
+            $counts[$state] = (int)$count;
+        }           
 
         $total  = $query->count();       
         $q_r    = $query->all();
@@ -253,7 +268,8 @@ class PermanentUsersController extends AppController{
             'success'       => true,
             'totalCount'    => $total,
             'metaData'		=> [
-            	'total'	=> $total
+            	'total'	    => $total,
+            	'counts'    => $counts
             ]
         ]);
         $this->viewBuilder()->setOption('serialize', true);

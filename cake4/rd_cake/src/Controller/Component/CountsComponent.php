@@ -152,12 +152,21 @@ class CountsComponent extends Component {
                 ->where(['PermanentUsers.admin_state' => 'terminated'])
                 ->count();
         }
+        
+        // Expired users (only if column exists)
+        $expired = 0;
+        if ($hasAdminState) {
+            $expired = (clone $base)
+                ->where(['PermanentUsers.admin_state' => 'expired'])
+                ->count();
+        }
 
         return [
             'total'      => (int)$total,
             'online'     => (int)$online,
             'suspended'  => (int)$suspended,
             'terminated' => (int)$terminated,
+            'expired'    => (int)$expired
         ];
 
     }

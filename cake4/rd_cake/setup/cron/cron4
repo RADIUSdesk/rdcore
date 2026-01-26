@@ -28,4 +28,7 @@
 #* * * * * www-data cd /var/www/rdcore/cake4/rd_cake && bin/cake freeradius:collect-stats --server 127.0.0.1 --port 18121 --secret adminsecret --attrs /etc/freeradius/status-all.txt --tag main >> /var/log/freeradius-stats.log 2>&1
 * * * * * www-data cd /var/www/rdcore/cake4/rd_cake && bin/cake freeradius:collect-stats >> /dev/null 2>&1
 
+#to_date -> expired/active admin_state sync
+*/15 * * * * www-data cd /var/www/rdcore/cake4/rd_cake && bin/cake permanent-users:sync-expiration >> /dev/null 2>&1
+
 

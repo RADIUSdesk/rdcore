@@ -763,7 +763,8 @@ class DashboardController extends AppController{
                 'total'         => $tUsers['total'],
                 'online'        => $tUsers['online'],
                 'suspended'     => $tUsers['suspended'],
-                'terminated'    => $tUsers['terminated'],     
+                'terminated'    => $tUsers['terminated'],
+                'expired'       => $tUsers['expired'],    
                 'desc'          => 'Regular users with personal login details.',
                 'accent'        => 'blue'            
               ];         

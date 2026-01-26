@@ -2,7 +2,7 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
     extend:'Ext.grid.Panel',
     alias : 'widget.gridPermanentUsers',
     multiSelect: true,
-    store : 'sPermanentUsers',
+//    store : 'sPermanentUsers',
     stateful: true,
     stateId: 'StateGridPermanentUsers',
     stateEvents :['groupclick','columnhide'],
@@ -25,6 +25,19 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
         var me      = this;
+        
+        
+        me.store    = Ext.create('Rd.store.sPermanentUsers',{
+            listeners: {
+                metachange : function(store, metaData) {                   
+                    if(me.down('#stateTotals')){ 
+                        me.down('#stateTotals').setData(metaData.counts);
+                    } 
+                },
+                scope: me
+            },
+          //  autoLoad: true 
+        }); 
         
         me.menu_grid = new Ext.menu.Menu({
            items: [
@@ -53,16 +66,67 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
         });
         
        // me.menu_grid
-        
-        me.bbar = [{
-            xtype       : 'pagingtoolbar',
-            store       : me.store,
-            displayInfo : true,
-            plugins     : {
-                'ux-progressbarpager': true
+               
+        me.bbar = [
+            {
+                xtype       : 'pagingtoolbar',
+                store       : me.store,
+                displayInfo : true,
+                plugins     : {
+                    'ux-progressbarpager': true
+                }
+            },
+            '->',
+            {
+                xtype  : 'component',
+                itemId : 'stateTotals',
+                tpl    : [
+                    "<div style='font-size:larger;'>",
+                        "<div style='padding:2px; display:flex; gap:8px; flex-wrap:wrap;'>",
+                            '<tpl if="active &gt; 0">',
+                                "<span class='rd-chip rd-chip--green'>",
+                                    "<i class='fa fa-play'></i> {active} Active",
+                                "</span>",                            
+                            '<tpl else>',
+                                "<span class='rd-chip rd-chip--muted'>",
+                                    "<i class='fa fa-play'></i> {active} Active",
+                                "</span>",                          
+                            '</tpl>',
+                            '<tpl if="suspended &gt; 0">',
+                                "<span class='rd-chip rd-chip--warning'>",
+                                    "<i class='fa fa-pause'></i> {suspended} Suspended",
+                                "</span>",                            
+                            '<tpl else>',
+                                "<span class='rd-chip rd-chip--muted'>",
+                                    "<i class='fa fa-pause'></i> {suspended} Suspended",
+                                "</span>",                          
+                            '</tpl>',
+                            '<tpl if="terminated &gt; 0">',
+                                "<span class='rd-chip rd-chip--gray'>",
+                                    "<i class='fa fa-stop'></i> {terminated} Terminated",
+                                "</span>",                            
+                            '<tpl else>',
+                                "<span class='rd-chip rd-chip--muted'>",
+                                    "<i class='fa fa-stop'></i> {terminated} Terminated",
+                                "</span>",                          
+                            '</tpl>',
+                            '<tpl if="expired &gt; 0">',
+                                "<span class='rd-chip rd-chip--blue'>",
+                                    "<i class='fa fa-clock'></i> {expired} Expired",
+                                "</span>",                            
+                            '<tpl else>',
+                                "<span class='rd-chip rd-chip--muted'>",
+                                    "<i class='fa fa-clock'></i> {terminated} Expired",
+                                "</span>",                          
+                            '</tpl>',
+                        '</div>',
+                    "</div>"
+                ],
+                data : { active : 0, suspended : 0, terminated : 0, expired : 0 },
+                cls  : 'lblRd'      
             }
-        }];
-       
+        ];
+                       
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 
         me.columns  = [
@@ -70,6 +134,26 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
             { text: i18n('sAuth_type'),    dataIndex: 'auth_type',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridPermanentUsers4', hidden      : true},
             { text: i18n('sRealm'),        dataIndex: 'realm',      tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridPermanentUsers5'},
             { text: i18n('sProfile'),      dataIndex: 'profile',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridPermanentUsers6'},
+            { 
+                text        : 'From Date',
+                dataIndex   : 'from_date', 
+                tdCls       : 'gridTree', 
+                flex        : 1,
+                xtype       : 'datecolumn',   
+                format      :'D d M Y',
+                hidden      : true,
+                filter      : {type: 'date',dateFormat: 'Y-m-d'},stateId: 'StateGridPermanentUsers6a'
+            },
+            { 
+                text        : 'To Date',
+                dataIndex   : 'to_date', 
+                tdCls       : 'gridTree', 
+                flex        : 1,
+                xtype       : 'datecolumn',   
+                format      :'D d M Y',
+                hidden      : true,
+                filter      : {type: 'date',dateFormat: 'Y-m-d'},stateId: 'StateGridPermanentUsers6b'
+            },
             {
                 text        : i18n('sName'),
                 flex        : 1,
@@ -134,6 +218,7 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                 type: 'list',
                 options: [
                   ['active',     'Active'    ],
+                  ['expired',    'Expired'   ],
                   ['suspended',  'Suspended' ],
                   ['terminated', 'Terminated']
                 ]
@@ -141,6 +226,7 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
               renderer    : function(v) {
                 const cls = {
                   active    : 'rd-badge rd-badge--green',
+                  expired   : 'rd-badge rd-badge--blue',
                   suspended : 'rd-badge rd-badge--amber',
                   terminated: 'rd-badge rd-badge--gray'
                 }[(v || '').toLowerCase()] || 'rd-badge';
