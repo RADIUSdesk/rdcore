@@ -132,7 +132,20 @@ function _getIdForMac($mac){
     $node = $stmt->fetch(PDO::FETCH_OBJ);
     if(isset($node->id)){  
         $id= $node;
-    } 
+     
+    //-- JAN 2026 --  
+    }else{ 
+        //Do another check if it is perhaps not in aps (first time the mode will still be mesh and only change there-after to 'ap')
+        $stmt = $conn->prepare("SELECT id,ap_profile_id,reboot_flag FROM aps WHERE mac = :mac");
+        $stmt->execute(['mac' => $mac]);
+        $ap = $stmt->fetch(PDO::FETCH_OBJ);
+        if(isset($ap->id)){
+            $mode = 'ap'; //set the mode to 'ap' since we found a match under aps
+            $id = $ap;
+        }    
+    }
+    //-- END JAN 2026 --
+    
     return $id;
 }
 

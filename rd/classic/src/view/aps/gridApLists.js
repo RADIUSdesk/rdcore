@@ -227,13 +227,13 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                 	//VPN indicator
                 	var vpn_string = '';
                 	if(vpn  == 'disabled'){      	
-                	    rb_string = `<span style="color:grey;"><span style="font-family:FontAwesome;style=color:grey;">&#xf132</span></span>`;    
+                	    vpn_string = `<span style="color:grey;"><span style="font-family:FontAwesome;style=color:grey;">&#xf132</span></span>`;    
                 	}
                 	if(vpn  == 'up'){
-                	    rb_string = `<span style="color:green;"><span style="font-family:FontAwesome;;">&#xf132</span></span>`;    
+                	    vpn_string = `<span style="color:green;"><span style="font-family:FontAwesome;;">&#xf132</span></span>`;    
                 	}
                 	if(vpn  == 'down'){
-                	    rb_string = `<span style="color:orange;"><span style="font-family:FontAwesome;">&#xf132</span></span>`;    
+                	    vpn_string = `<span style="color:orange;"><span style="font-family:FontAwesome;">&#xf132</span></span>`;    
                 	}
                 	
                     if(gateway == 'yes'){

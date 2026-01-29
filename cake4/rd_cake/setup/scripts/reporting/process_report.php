@@ -228,10 +228,13 @@ function _doReports(){
             _do_wg_stats($report['wg_stats']);
         }
         if (!empty($report['ovpn_stats'])) {
-            _do_ovpn_stats($report['ovpn_stats']);
+            _do_vpn_stats($report['ovpn_stats']);
         }
         if (!empty($report['ipsec_stats'])) {
-            _do_ovpn_stats($report['ipsec_stats']);
+            _do_vpn_stats($report['ipsec_stats']);
+        }
+        if (!empty($report['zerotier_stats'])) {
+            _do_vpn_stats($report['zerotier_stats']);
         }
         
         // Prepare AP updates
@@ -991,7 +994,7 @@ function _do_nlbw_ap_stats($data,$ap_id){
     }    
 }
 
-function _do_ovpn_stats(array $data) {
+function _do_vpn_stats(array $data) {
     global $conn;
 
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
