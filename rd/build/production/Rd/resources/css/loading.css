@@ -376,6 +376,8 @@
 .rd-badge--green   { background: #e8f5e9; color: #166534; } /* active */
 .rd-badge--amber   { background: #fff7ed; color: #9a3412; } /* suspended */
 .rd-badge--gray    { background: #eef2f7; color: #475569; } /* inactive */
+.rd-badge--blue    { background: #eff6ff; color: #1d4ed8; } /* expired */
+
 
 /* optional subtle border for contrast on light backgrounds */
 .rd-badge { border: 1px solid rgba(0,0,0,0.05); }
