@@ -54,6 +54,13 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
             },
             items       : [
                 {
+                    xtype       : 'component',
+                    html        : 'RADIUS required',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
+                }, 
+                {
                     xtype       : 'cmbRealm',
                     allowBlank  : false,
                     labelClsExtra: 'lblRdReq',
@@ -88,6 +95,13 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
                     name        : 'data_cap_type'
                 },
                 {
+                    xtype       : 'component',
+                    html        : 'RADIUS time related',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
+                },
+                {
                     xtype       : 'checkbox',      
                     boxLabel    : i18n('sAlways_active'),
                     name        : 'always_active',
@@ -116,12 +130,28 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
                     disabled    : true,
                     value       : dtTo
                 },
+                 {
+                    xtype       : 'component',
+                    html        : 'RADIUS optional',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
+                },
 				{
                     xtype		: 'textfield',
                     fieldLabel	: 'Static IP',
                     name 		: "static_ip",
                     allowBlank	:true,
                     labelClsExtra: 'lblRd'
+                },
+                {
+                    xtype		: 'textfield',
+                    fieldLabel	: 'MAC Address',
+                    name 		: "mac_address",
+                    allowBlank	:true,
+                    labelClsExtra: 'lblRd',
+                    vtype       : 'MacAddress',
+					fieldStyle  : 'text-transform:uppercase'
                 },
 				{
                     xtype       : 'textfield',
@@ -167,8 +197,8 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
         me.items = [
             {
                 xtype       : 'panel',
-                title       : "Required Info",
-                glyph       : Rd.config.icnGears,
+                title       : "RADIUS info",
+                glyph       : Rd.config.icnRadius,
                 ui          : 'panel-blue',
                 layout      : {
                   type  : 'vbox',

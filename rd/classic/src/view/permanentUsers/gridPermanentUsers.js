@@ -388,6 +388,15 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                 filter      : {type: 'string'},
 				stateId		: 'StateGridPermanentUsers20'
             },
+            {
+                text        : 'MAC Address',
+                flex        : 1,
+                dataIndex   : 'mac_address',
+                tdCls       : 'gridTree',
+                hidden      : true,
+                filter      : {type: 'string'},
+				stateId		: 'StateGridPermanentUsers20a'
+            },
 			{
                 text        : 'Extra name',
                 flex        : 1,

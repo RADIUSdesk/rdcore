@@ -22,7 +22,7 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUser', {
 
         me.items = [
         {   
-            title   : i18n('sBasic_info'),
+            title   : 'RADIUS info',
             itemId  : 'tabBasicInfo',
             xtype   : 'pnlPermanentUserBasic',
             record  : me.record  

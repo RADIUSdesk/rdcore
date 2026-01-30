@@ -10,6 +10,7 @@ use Cake\Event\EventInterface;
 use Cake\I18n\FrozenTime;
 use Cake\Datasource\EntityInterface;
 
+
 class PermanentUsersTable extends Table
 {
     public function initialize(array $config):void{
@@ -49,10 +50,16 @@ class PermanentUsersTable extends Table
         $this->hasOne('PermanentUserOtps', [ 'dependent' => true]);       
     }
     
+    public function beforeMarshal(EventInterface $event, \ArrayObject $data, \ArrayObject $options): void {
+        if (!empty($data['mac_address'])) {
+            $data['mac_address'] = strtoupper($data['mac_address']);
+        }
+    }
+       
     public function validationDefault(Validator $validator): Validator{
         $validator = new Validator();
         $validator
-            ->notEmpty('username', 'A name is required')
+            ->notEmptyString('username', 'A name is required')
             ->add('username', [ 
                 'nameUnique' => [
                     'message' => 'The username you provided is already taken. Please provide another one.',
@@ -60,7 +67,7 @@ class PermanentUsersTable extends Table
                     'provider' => 'table'
                 ]
             ])
-            ->allowEmpty('static_ip')
+            ->allowEmptyString('static_ip')
             ->add('static_ip', [
                 'nameUnique' => [
                     'message' => 'The Static IP Address is already taken',
@@ -68,7 +75,20 @@ class PermanentUsersTable extends Table
                     'provider' => 'table'
                 ]
             ])
-            ->allowEmpty('ppsk')
+            ->allowEmptyString('mac_address')
+            ->add('mac_address', [
+                'nameUnique' => [
+                    'message' => 'The MAC Address is already taken',
+                   // 'rule' => ['validateUnique', ['scope' => 'realm_id']],
+                    'rule' => ['validateUnique'], //MAC Address should be globally unique
+                    'provider' => 'table'
+                ],
+            ])
+            ->add('mac_address', 'format', [
+                'rule' => ['custom', '/^([0-9A-F]{2}-){5}[0-9A-F]{2}$/'],
+                'message' => 'Invalid MAC address format'
+            ])
+            ->allowEmptyString('ppsk')
             ->add('ppsk', [ 
                 'nameUnique' => [
                     'message' => 'The PPSK you provided is already taken. Please provide another one.',
