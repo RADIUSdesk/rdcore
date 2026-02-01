@@ -187,7 +187,8 @@ class MeshReportsController extends AppController {
             } 
             
             if($i->gateway !== 'none'){ 
-                $img = "/cake4/rd_cake/img/hardwares/lan_internet.png"; 
+               // $img = "/cake4/rd_cake/img/hardwares/lan_internet.png"; System-Firewall-2-icon.png
+                $img = "/cake4/rd_cake/img/hardwares/System-Firewall-2-icon.png";
                 if($i->gateway == 'wifi'){
                     $img = "/cake4/rd_cake/img/hardwares/wifi_internet.png";    
                 }         
@@ -202,7 +203,7 @@ class MeshReportsController extends AppController {
                 ]];
                 $gw_data = [
                     '$type' => "image",
-                    '$url'  => $img,
+                    'url'  => $img,
                     "type"  => "gateway"
                 ];    
                 array_push($items, ['id'=> 0,'name'=> 'Internet', 'data' => $gw_data,'adjacencies'=> $gw_adj]); 
@@ -271,7 +272,7 @@ class MeshReportsController extends AppController {
                     'type'          => 'no_neighbors',
                     
                     '$type'     => "image",
-                    '$url'      => "/cake4/rd_cake/img/hardwares/".$node_data['hw_photo_file_name']
+                    'url'      => "/cake4/rd_cake/img/hardwares/".$node_data['hw_photo_file_name']
                 ];
 
                 $this_data = array_merge((array)$node_data, (array)$specific_data);
@@ -355,7 +356,7 @@ class MeshReportsController extends AppController {
                     ////'type'          => $type,
                     
                     '$type'     => "image",
-                    '$url'      => "/cake4/rd_cake/img/hardwares/".$node_data['hw_photo_file_name']                     
+                    'url'      => "/cake4/rd_cake/img/hardwares/".$node_data['hw_photo_file_name']                     
                 ];
                 $this_data = array_merge((array)$node_data, (array)$specific_data);
                 array_push($items, ['id'=> $this_data['id'],'name'=> $this_data['name'], 'data' => $this_data,'adjacencies'=> $adjacencies]);

@@ -31,6 +31,12 @@ Ext.define('Rd.view.meshes.pnlMeshView', {
     initComponent: function() {
         var me      = this;     
         me.items    = [
+             {
+                title   : i18n("sOverview"),
+                itemId  : 'tabMeshViewOverwiew',
+			    xtype	: 'pnlMeshViewNodes',
+                meshId  : me.mesh_id
+            },
             {
                 title   : 'SSID &#8660; Device',
                 itemId  : 'tabMeshViewEntries',
@@ -56,13 +62,8 @@ Ext.define('Rd.view.meshes.pnlMeshView', {
 			    xtype   : 'gridMeshViewNodeDetails',
                 meshId  : me.mesh_id,
                 padding : Rd.config.gridSlim
-            },
-            {
-                title   : i18n("sOverview"),
-                itemId  : 'tabMeshViewOverwiew',
-			    xtype	: 'pnlMeshViewNodes',
-                meshId  : me.mesh_id
             }
+           
         ];
         me.callParent(arguments);
     }

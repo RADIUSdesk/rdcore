@@ -34,12 +34,141 @@ Ext.define('Rd.view.meshes.pnlMeshViewNodes', {
 				
 		    },
 			afterlayout: function(a,b,c){
-			    me.wip(); 	
+			  //  me.wip(); 	
 		    },
 			scope: me
 		}
 		me.callParent(arguments);
     },
+    getData: function(){
+		var me = this
+		me.setLoading(true);
+		Ext.Ajax.request({
+            url: me.urlOverview,
+            method: 'GET',
+			params: {
+				mesh_id: me.meshId
+			},
+            success: function(response){
+                var jsonData    = Ext.JSON.decode(response.responseText);
+                if(jsonData.success){
+                	console.log(jsonData);
+                	me.xfromData(jsonData);
+					me.setLoading(false);
+                }   
+            },
+            scope: me
+        });
+	},
+	
+	xfromData: function(jsonData){
+	
+	    var me = this;
+	    
+	    const raw = jsonData;
+
+        const nodes = [];
+        const edges = [];
+        
+        var DIR         = 'resources/images/vis/';
+        var LENGTH_MAIN = 150;
+        var LENGTH_SUB  = 50;
+
+        raw.data.forEach(node => {
+
+          // ----- Nodes -----
+          nodes.push({
+            id      : node.id,
+            label   : node.name,           
+            //image   : DIR + '49_openwrt_one.png',
+            image   : node.data.url,
+            shape   : 'image',
+            color   : node.data.state === 'down'
+              ? { background: '#ff4d4d' }
+              : { background: '#4caf50' }
+            
+            /*shape: node.data?.$type === 'image' ? 'image' : 'dot',
+            image: node.data?.$url || undefined,
+            title: `
+              <b>${node.name}</b><br/>
+              IP: ${node.data.ip || '-'}<br/>
+              MAC: ${node.data.mac || '-'}<br/>
+              State: ${node.data.state || '-'}
+            `,
+            color: node.data.state === 'down'
+              ? { background: '#ff4d4d' }
+              : { background: '#4caf50' }*/
+          });
+
+          // ----- Edges -----
+          (node.adjacencies || []).forEach(adj => {
+            edges.push({
+              from  : node.id,
+              to    : adj.nodeTo,
+              length: LENGTH_MAIN,
+              color : 'green',
+              //color: adj.data.$color || '#999',
+              width: adj.data.$lineWidth || 1,
+             // hidden: adj.data.$alpha === 0
+            });
+          });
+        });
+        
+       
+   /*     
+        nodes.push({id: 1, label: 'Main', image: DIR + 'Network-Pipe-icon.png', shape: 'image'});
+        nodes.push({id: 2, label: 'Office', image: DIR + 'Network-Pipe-icon.png', shape: 'image'});
+        nodes.push({id: 3, label: 'Wireless', image: DIR + 'Network-Pipe-icon.png', shape: 'image'});
+        edges.push({from: 1, to: 2, length: LENGTH_MAIN});
+        edges.push({from: 1, to: 3, length: LENGTH_MAIN});
+        
+        console.log(nodes);
+        console.log(edges);	    */   
+        const data = {
+            nodes: new vis.DataSet(nodes),
+            edges: new vis.DataSet(edges)
+        };
+
+        const options = {
+            layout: {
+              improvedLayout: true
+            },
+            physics: {
+              stabilization: true,
+              barnesHut: {
+                springLength: 160,
+                avoidOverlap: 1
+              }
+            },
+            interaction: {
+              hover: true
+            },
+            nodes: {
+              font: {
+                size: 14
+              }
+            },
+            edges: {
+              smooth: true
+            },
+            width: me.getWidth()+'px',
+            height:me.getHeight()+'px'
+        };
+        
+     /*   var options = {
+        //stabilize: false   // stabilize positions before displaying
+            width: me.getWidth()+'px',
+            height:me.getHeight()+'px'
+        };*/
+
+        var container = document.getElementById('n_t_n_'+me.meshId);
+        var network = new vis.Network(container, data, options);      
+        network.stabilize(50);
+    
+             	
+	},
+	
+	
     wip:function(){
     
         var me = this;

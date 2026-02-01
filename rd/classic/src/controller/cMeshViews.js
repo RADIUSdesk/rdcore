@@ -67,6 +67,7 @@ Ext.define('Rd.controller.cMeshViews', {
             },
 			'pnlMeshView pnlMeshViewNodes':	{
 				activate:		function(pnl){
+				    console.log("Reload Overview");
 					pnl.getData()
 				}
 			},
@@ -76,6 +77,7 @@ Ext.define('Rd.controller.cMeshViews', {
 			'pnlMeshView pnlMeshViewNodes #reload':	{
 				click:		function(button){
 					var me 	= this;
+					console.log("Reload Overview");
 					var pnl = button.up("pnlMeshViewNodes");
 					pnl.getData()
 				}
