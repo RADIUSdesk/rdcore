@@ -344,7 +344,7 @@ class PermanentUsersController extends AppController{
         ];
         foreach($extDateSelects as $d){
             if(isset($req_d[$d])){
-                $newDate = date_create_from_format('m/d/Y', $req_d[$d]);
+                $newDate = date_create_from_format('Y-m-d', $req_d[$d]); // Submit format: 2026-02-02 (ISO) ISO 8601 format
                 $req_d[$d] = $newDate;
             }  
         }
@@ -740,7 +740,7 @@ class PermanentUsersController extends AppController{
 		    ];
 		    foreach($extDateSelects as $d){
 		        if(isset($req_d[$d])){
-		            $newDate = date_create_from_format('m/d/Y', $req_d[$d]);
+		            $newDate = date_create_from_format('Y-m-d', $req_d[$d]); // Submit format: 2026-02-02 (ISO) ISO 8601 format
 		            $req_d[$d] = $newDate;
 		        }  
 		    }

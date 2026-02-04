@@ -115,7 +115,9 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
                     fieldLabel  : i18n('sFrom'),
                     name        : 'from_date',
                     itemId      : 'from_date',
-                    minValue    : new Date("May 20, 2013 00:00:00"),
+                    format      : 'D d M Y',
+                    submitFormat: 'Y-m-d',    // Submit format: 2026-02-02 (ISO) ISO 8601 format
+                    minValue    : new Date("Jan 1, 2020 00:00:00"),
                     hidden      : true,
                     disabled    : true,
                     value       : dtFrom
@@ -125,7 +127,9 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
                     fieldLabel  : i18n('sTo'),
                     name        : 'to_date',
                     itemId      : 'to_date',
-                    minValue    : new Date("May 21, 2013 00:00:00"),
+                    format      : 'D d M Y', 
+                    submitFormat: 'Y-m-d',    // Submit format: 2026-02-02 (ISO) ISO 8601 format
+                    minValue    : new Date("Jan 2, 2020 00:00:00"),
                     hidden      : true,
                     disabled    : true,
                     value       : dtTo

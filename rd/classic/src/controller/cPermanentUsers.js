@@ -288,10 +288,10 @@ Ext.define('Rd.controller.cPermanentUsers', {
             clientValidation: true,
             url: me.getUrlAdd(),
             success: function(form, action) {
+                me.getGrid().getStore().reload();
                 if(multi != true){
                     win.close(); //Multi keep open for next user
-                }
-                me.getStore('sPermanentUsers').load();
+                }               
                 Ext.ux.Toaster.msg(
                     i18n('sNew_item_created'),
                     i18n('sItem_created_fine'),

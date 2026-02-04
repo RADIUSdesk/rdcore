@@ -166,7 +166,7 @@ Ext.define('Rd.view.permanentUsers.winPermanentUserAdd', {
                                     width       : 350, 
                                     fieldLabel  : i18n('sLanguage'),  
                                     name        : 'language',
-                                    value       : me.selLanguage,
+                                    value       : '4_4',
                                     allowBlank  : false,
                                     labelClsExtra: 'lblRd' 
                                 },
@@ -216,21 +216,25 @@ Ext.define('Rd.view.permanentUsers.winPermanentUserAdd', {
                                     cls         : 'lblRd'
                                 },
                                 {
-                                    xtype: 'datefield',
-                                    fieldLabel: i18n('sFrom'),
-                                    name: 'from_date',
+                                    xtype       : 'datefield',
+                                    fieldLabel  : i18n('sFrom'),
+                                    name        : 'from_date',
                                     itemId      : 'from_date',
-                                    minValue: new Date(),  // limited to the current date or after
+                                    format      : 'D d M Y', 
+                                    submitFormat: 'Y-m-d',    // Submit format: 2026-02-02 (ISO) ISO 8601 format
+                                    minValue    : new Date(),  // limited to the current date or after
                                     hidden      : true,
                                     disabled    : true,
                                     value       : dtFrom
                                 },
                                 {
-                                    xtype: 'datefield',
+                                    xtype       : 'datefield',
                                     fieldLabel: i18n('sTo'),
-                                    name: 'to_date',
+                                    name        : 'to_date',
                                     itemId      : 'to_date',
-                                    minValue: new Date(),  // limited to the current date or after
+                                    format      : 'D d M Y', 
+                                    submitFormat: 'Y-m-d',    // Submit format: 2026-02-02 (ISO) ISO 8601 format
+                                    minValue    : new Date(),  // limited to the current date or after
                                     hidden      : true,
                                     disabled    : true,
                                     value       : dtTo
@@ -249,6 +253,15 @@ Ext.define('Rd.view.permanentUsers.winPermanentUserAdd', {
                                     fieldLabel	: 'Static IP',
                                     name 		: "static_ip",
                                     allowBlank	:true
+                                },
+                                {
+                                    xtype		: 'textfield',
+                                    fieldLabel	: 'MAC Address',
+                                    name 		: "mac_address",
+                                    allowBlank	:true,
+                                    labelClsExtra: 'lblRd',
+                                    vtype       : 'MacAddress',
+					                fieldStyle  : 'text-transform:uppercase'
                                 },
 								{
 						            xtype       : 'textfield',

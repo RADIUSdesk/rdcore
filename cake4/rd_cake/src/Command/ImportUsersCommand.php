@@ -29,14 +29,14 @@ class ImportUsersCommand extends Command
 
         if (!file_exists($csvPath)) {
             $io->err("CSV file not found: $csvPath");
-            return Command::FAILURE;
+            return Command::CODE_ERROR;
         }
 
 
         $handle = fopen($csvPath, 'r');
         if (!$handle) {
             $io->err("Cannot open file.");
-            return Command::FAILURE;
+            return Command::CODE_ERROR;
         }
 
         $index = 0;
@@ -79,7 +79,7 @@ class ImportUsersCommand extends Command
         fclose($handle);
         $io->out("Done. Imported: $imported of $index");
         unlink($csvPath);
-        return Command::SUCCESS;
+        return Command::CODE_SUCCESS;
     }
 
     public function buildOptionParser(\Cake\Console\ConsoleOptionParser $parser): \Cake\Console\ConsoleOptionParser
@@ -101,7 +101,7 @@ class ImportUsersCommand extends Command
             return false; // Invalid password
         }
 
-        [$username, $password, $realm, $profile, $name, $surname, $static_ip, $site, $ppsk, $vlan, $extra_name, $extra_value, $auto_mac] = array_pad($row, 13, null);
+        [$username, $password, $realm, $profile, $name, $surname, $static_ip, $site, $ppsk, $vlan, $extra_name, $extra_value, $auto_mac,$mac_address,$from_date,$to_date] = array_pad($row, 16, null);
 
         $row_data = [
             'username' => $username,
@@ -198,7 +198,21 @@ class ImportUsersCommand extends Command
         if (isset($extra_value)) {
             $row_data['extra_value'] = $extra_value;
         }
+        
+        //--FEB 2026 -- mac_address, from_date and to_date
+        if (isset($mac_address)) {
+            $row_data['mac_address'] = $mac_address;
+        }
 
+        if (isset($from_date)) {
+            $row_data['from_date'] = date_create_from_format('Y-m-d', $from_date);//ISO 8601 format
+        }
+        
+        if (isset($to_date)) {
+            $row_data['to_date'] = date_create_from_format('Y-m-d', $to_date);//ISO 8601 format
+        }
+        //-- END FEB 2026 ---
+        
         return $row_data;
     }
 
