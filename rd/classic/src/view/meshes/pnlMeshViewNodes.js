@@ -79,7 +79,8 @@ Ext.define('Rd.view.meshes.pnlMeshViewNodes', {
           // ----- Nodes -----
           nodes.push({
             id      : node.id,
-            label   : node.name,           
+            label   : node.name,
+            title   : node.name,          
             //image   : DIR + '49_openwrt_one.png',
             image   : node.data.url,
             shape   : 'image',

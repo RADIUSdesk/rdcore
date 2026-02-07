@@ -637,8 +637,12 @@ Ext.define('Rd.view.meshes.pnlMeshAddEditNode', {
             ]
         };
         
-        var cntTop = {
-            xtype       : 'container',
+       var pnlTop = {
+            xtype       : 'panel',
+            title       : 'General',
+            margin      : 20,
+            glyph       : Rd.config.icnGears,
+            ui          : 'panel-blue',
             items       : [              
                 {
 				    xtype       : 'checkbox',      
@@ -646,6 +650,13 @@ Ext.define('Rd.view.meshes.pnlMeshAddEditNode', {
 				    itemId      : 'chkMultiple',
 				    hidden      : hide_multiple
 			    },
+			    {
+                    xtype       : 'component',
+                    html        : 'Basics',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
+                }, 
                 {
 				    itemId      : 'node_id',
 				    xtype       : 'textfield',
@@ -696,8 +707,16 @@ Ext.define('Rd.view.meshes.pnlMeshAddEditNode', {
 	                width       : w_prim
 	            },
 	            {
+                    xtype       : 'component',
+                    html        : 'Internet connection',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
+                },
+	            {
 	                xtype       : 'cmbInternetConnection',
 	                itemId      : 'cmbInternetConnection',
+	                labelClsExtra : 'lblRd',
 	                width       : w_prim,
 	                listeners   : {
 			            change : 'onCmbInternetConnectionChange'
@@ -723,44 +742,34 @@ Ext.define('Rd.view.meshes.pnlMeshAddEditNode', {
                     hideTrigger : true,
                     keyNavEnabled  : false,
                     mouseWheelEnabled	: false
+                },
+                {
+                    xtype       : 'component',
+                    html        : 'Other options',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
                 }, 
+                
                 {
                     xtype     : 'checkbox',
                     boxLabel  : 'Reboot When Controller Can\'t Be Reached',
+                    boxLabelCls : 'boxLabelRd',
                     name      : 'chk_no_controller',
                     itemId    : 'chkNoInternet',
-                    fieldLabel: 'Controller Reboot',
                     listeners : {
                         change: 'onChkNoControllerChange'
                     }
-                },      
+                },       
                 cntRebootController,
-                /*{
-                    xtype       : 'checkboxgroup',
-                    itemId      : 'check_periodic_reboot',
-                    fieldLabel  : 'Daily Reboot',
-                    columns     : 1,
-                    vertical    : false,
-                    items       : [
-                        {
-                            name      : 'chk_daily_reboot',
-                            itemId    : 'chkDailyReboot',
-                            margin    : '0 15 0 0',
-                            listeners : {
-                                change: 'onChkDailyRebootChange' 
-                            }
-                        }       
-                    ]
-                },
-                cntDailyReboot,*/
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : 'Apply Schedule',
                     name        : 'enable_schedules',
                     inputValue  : '1',
 		            itemId		: 'chkEnableSchedules',
                     checked     : false,
-                    labelClsExtra: 'lblRdReq'
+                    boxLabel    : 'Apply Schedule',
+                    boxLabelCls : 'boxLabelRd'
                 },
                 {
                     xtype   : 'panel',
@@ -775,37 +784,31 @@ Ext.define('Rd.view.meshes.pnlMeshAddEditNode', {
                             width       : w_prim
                         }    
                     ]
-                },    
+                },          
                 {
                     xtype       : 'checkbox',
                     name        : 'enable_alerts',
                     boxLabel    : 'Enable Alerts',
-                    fieldLabel  : 'Alerts'
+                    boxLabelCls : 'boxLabelRd'
                 },      
                 {
                     xtype       : 'checkbox',
                     name        : 'enable_overviews',
-                    fieldLabel  : 'Overviews',
-                    boxLabel    : 'Include In Overviews'
+                    boxLabel    : 'Include In Overviews',
+                    boxLabelCls : 'boxLabelRd'
                 } 
             ]
         };
         
 		me.items = [
+            pnlTop,
             {
                 xtype       : 'panel',
-                layout      : {
-                  type  : 'vbox',
-                  align : 'start',
-                  pack  : 'start'
-                },
-                bodyStyle   : 'background: #f0f0f5',
-                bodyPadding : 10,
-                items       : cntTop
-            },         
-            {
-                xtype       : 'panel',
-                bodyStyle   : 'background:#f6f6ee',
+                title       : 'Radios',
+                glyph       : Rd.config.icnSsid,
+                border      : true,
+                ui          : 'panel-green',
+                margin      : 20,
                 layout      : {
                         type    : 'vbox',
                         pack    : 'start',
@@ -813,10 +816,6 @@ Ext.define('Rd.view.meshes.pnlMeshAddEditNode', {
                 },
                 bodyPadding : 10,
                 items       : [
-                     {
-                        xtype       : 'container',
-                        html        : '<h1><span style="color:grey;font-weight:700; font-size: smaller;">RADIOS</span><h1>'
-                    },
                     {
                         xtype       : 'container',
                         layout      : {
@@ -831,7 +830,8 @@ Ext.define('Rd.view.meshes.pnlMeshAddEditNode', {
                                 radio_nr    : 0,
                                 hidden      : true,
                                 flex        : 1,
-                                ui          : 'panel-green'
+                                ui          : 'panel-green',
+                                border      : true
                             },
                             {
                                 xtype       : 'pnlNodeRadioDetail',
@@ -839,7 +839,8 @@ Ext.define('Rd.view.meshes.pnlMeshAddEditNode', {
                                 radio_nr    : 1,
                                 hidden      : true,
                                 flex        : 1,
-                                ui          : 'panel-green'
+                                ui          : 'panel-green',
+                                border      : true
                             }
                         ]
                     },
@@ -853,13 +854,14 @@ Ext.define('Rd.view.meshes.pnlMeshAddEditNode', {
                                 radio_nr    : 2,
                                 hidden      : true,
                                 flex        : 1,
-                                ui          : 'panel-green'
+                                ui          : 'panel-green',
+                                border      : true
                             }
                         ]
                     }
                 ],
                 height      : 1400
-            }            
+            }
         ];     
         me.callParent(arguments);
     }

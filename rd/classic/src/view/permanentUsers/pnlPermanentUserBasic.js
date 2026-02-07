@@ -134,7 +134,7 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserBasic', {
                     disabled    : true,
                     value       : dtTo
                 },
-                 {
+                {
                     xtype       : 'component',
                     html        : 'RADIUS optional',
                     cls         : 'heading',

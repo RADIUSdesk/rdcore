@@ -50,6 +50,13 @@ Ext.define('Rd.view.vouchers.pnlVoucherBasic', {
             },
             items       : [
                 {
+                    xtype       : 'component',
+                    html        : 'RADIUS required',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
+                }, 
+                {
                     xtype       : 'cmbRealm',
                     allowBlank  : false,
                     labelClsExtra: 'lblRdReq',
@@ -62,6 +69,13 @@ Ext.define('Rd.view.vouchers.pnlVoucherBasic', {
                     labelClsExtra: 'lblRdReq',
                     itemId      : 'profile',
 					extraParam  : ap_id
+                },
+                {
+                    xtype       : 'component',
+                    html        : 'RADIUS time related',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
                 },
                 {
                     xtype       : 'checkbox',      
@@ -121,9 +135,18 @@ Ext.define('Rd.view.vouchers.pnlVoucherBasic', {
                     fieldLabel  : i18n('sExpire'),
                     name        : 'expire',
                     itemId      : 'expire',
-                    minValue    : new Date(),  // limited to the current date or after
+                    //minValue    : new Date(),  // limited to the current date or after
+                    format      : 'D d M Y',
+                    submitFormat: 'Y-m-d',    // Submit format: 2026-02-02 (ISO) ISO 8601 format
                     disabled    : true,
                     value       : dtTo
+                },
+                {
+                    xtype       : 'component',
+                    html        : 'RADIUS optional',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
                 },
                 {
                     xtype       : 'textfield',

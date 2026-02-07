@@ -44,7 +44,22 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 
         me.columns  = [
-            { text: i18n('sName'),      dataIndex: 'name',          tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridMeshes3',sortable: true},
+          //  { text: i18n('sName'),      dataIndex: 'name',          tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridMeshes3',sortable: true},
+            
+            { 
+
+                text        : i18n('sName'), 
+                dataIndex   : 'name',          
+                tdCls       : 'gridMain', 
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridMeshes3',
+                sortable    : true,
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    '<div style="text-align:left;"><a href="javascript:void(0)" class="grid-link">{name}</a></div>',
+                )
+            },           
             { text: i18n('sSSID'),      dataIndex: 'ssid',          tdCls: 'gridTree', flex: 1,filter: {type: 'string'},hidden: true,stateId: 'StateGridMeshes5'},
             { text: i18n('sBSSID'),    dataIndex: 'bssid',         tdCls: 'gridTree', flex: 1,filter: {type: 'string'},hidden: true,stateId: 'StateGridMeshes6'},
             { 

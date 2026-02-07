@@ -71,21 +71,25 @@ Ext.define('Rd.view.password.frmPassword', {
                 cls         : 'lblRd'
             },
             {
-                xtype: 'datefield',
-                fieldLabel: i18n('sFrom'),
-                name: 'from_date',
+                xtype       : 'datefield',
+                fieldLabel  : i18n('sFrom'),
+                name        : 'from_date',
                 itemId      : 'from_date',
-                minValue: new Date(),  // limited to the current date or after
+            //    minValue    : new Date(),  // limited to the current date or after
+                format      : 'D d M Y',
+                submitFormat: 'Y-m-d',    // Submit format: 2026-02-02 (ISO) ISO 8601 format
                 hidden      : true,
                 disabled    : true,
                 value       : dtFrom
             },
             {
-                xtype: 'datefield',
-                fieldLabel: i18n('sTo'),
-                name: 'to_date',
+                xtype       : 'datefield',
+                fieldLabel  : i18n('sTo'),
+                name        : 'to_date',
                 itemId      : 'to_date',
-                minValue: new Date(),  // limited to the current date or after
+           //     minValue    : new Date(),  // limited to the current date or after
+                format      : 'D d M Y',
+                submitFormat: 'Y-m-d',    // Submit format: 2026-02-02 (ISO) ISO 8601 format
                 hidden      : true,
                 disabled    : true,
                 value       : dtTo

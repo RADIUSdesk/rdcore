@@ -156,13 +156,17 @@ Ext.define('Rd.controller.cMeshes', {
             'gridMeshes #xwf_filter': {
                 change : me.xwfFilterToggle
             },
-            'gridMeshes'   		: {
-                select:      me.select,
-                rowclick    : me.rowclick
+            'gridMeshes' : {
+                cellclick: function (grid, td, cellIndex, record, tr, rowIndex, e) {
+                    if (e.getTarget('.grid-link')) {
+                        e.stopEvent();
+                        me.viewMeshLink(record.get('id'));
+                    }
+                }
             },
             'gridMeshes actioncolumn': { 
                  itemClick  : me.onActionColumnItemClick
-            },
+            },            
             'winMeshAdd #btnDataNext' : {
                 click:  me.btnDataNext
             },
@@ -202,9 +206,7 @@ Ext.define('Rd.controller.cMeshes', {
 			    click: me.btnViewMeshClicked
 			}
         });
-    },
-    rowSelected: true,
-    
+    },  
     appClose:   function(){
         var me          = this;
         me.populated    = false;
@@ -280,58 +282,14 @@ Ext.define('Rd.controller.cMeshes', {
             },
             failure: Ext.ux.formFail
         });
-    },
-    rowclick: function (grid, record) {
-
-        if (this.rowSelected == false && grid.selection != null && grid.selection.id == record.id) {
-            //grid.deselectAll();
-            grid.getSelectionModel().deselectAll()
-            me.rowSelected = false;
-        } else {
-            this.rowSelected = false;
-        }
-
-    },
-    select: function (grid, record) {
-        var me = this;
-        //Adjust the Edit and Delete buttons accordingly...
-        me.rowSelected = true;
-        //Dynamically update the top toolbar
-        tb = me.getGrid().down('toolbar[dock=top]');
-
-        var edit = record.get('update');
-        if (edit == true) {
-            if (tb.down('#edit') != null) {
-                tb.down('#edit').setDisabled(false);
-            }
-        } else {
-            if (tb.down('#edit') != null) {
-                tb.down('#edit').setDisabled(true);
-            }
-        }
-
-        var del = record.get('delete');
-        if (del == true) {
-            if (tb.down('#delete') != null) {
-                tb.down('#delete').setDisabled(false);
-            }
-        } else {
-            if (tb.down('#delete') != null) {
-                tb.down('#delete').setDisabled(true);
-            }
-        }
-
-        var view = record.get('view');
-        if (view == true) {
-            if (tb.down('#view') != null) {
-                tb.down('#view').setDisabled(false);
-            }
-        } else {
-            if (tb.down('#view') != null) {
-                tb.down('#view').setDisabled(true);
-            }
-        }
-    },
+    },   
+    viewMeshLink: function(mesh_id) {
+        const me    = this;
+        var sr      = me.getGrid().getSelectionModel().getLastSelected();
+        var id      = sr.getId();
+        var name    = sr.get('name');  
+	    Ext.getApplication().runAction('cMeshViews','Index',id,name); 
+    },  
     view: function(button){
         var me      = this;   
         //Find out if there was something selected

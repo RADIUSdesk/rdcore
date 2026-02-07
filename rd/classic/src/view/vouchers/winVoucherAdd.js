@@ -206,6 +206,8 @@ Ext.define('Rd.view.vouchers.winVoucherAdd', {
                                     name        : 'expire',
                                     itemId      : 'expire',
                                     minValue    : new Date(),  // limited to the current date or after
+                                    format      : 'D d M Y',
+                                    submitFormat: 'Y-m-d',    // Submit format: 2026-02-02 (ISO) ISO 8601 format
                                     disabled    : true,
                                     value       : dtTo
                                 }

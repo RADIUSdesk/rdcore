@@ -34,7 +34,16 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
         startCollapsed      : false
     }],*/
     initComponent: function(){
-        var me      = this;		
+        var me      = this;	
+        
+        // tiny helpers (same as in Exit Points grid)
+        var dash = '<span class="rd-dash">—</span>';
+        var chip = function (cls, iconCls, text) {
+            var icon = iconCls ? '<i class="' + iconCls + '"></i>' : '';
+            return '<span class="rd-chip ' + (cls || '') + '">' + icon + Ext.htmlEncode(text) + '</span>';
+        };
+        
+        	
 		me.store    = Ext.create('Rd.store.sNodeLists',{
             listeners: {
                 metachange : function(store, metaData) {                   
@@ -125,7 +134,59 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                     '{hw_human}'
                 ),
 				stateId		: 'StateGridNodeLists7'
-			},			
+			},
+			
+			{
+                text        : 'Alerts',
+                dataIndex   : 'enable_alerts',
+                stateId     : 'StateGMVND5i',
+                width       : 160,
+                hidden      : true,
+                renderer    : function (v) {
+                    return v ? chip('rd-chip--danger', 'fa fa-bell', 'Alerts Enabled') : dash;
+                },
+                filter: {
+                    type    : 'boolean',
+                    value   : true,
+                    yesText : 'True',
+                    noText  : 'False'
+                }
+            },
+            {
+                text        : 'Schedules',
+                dataIndex   : 'enable_schedules',
+                stateId     : 'StateGMVND5ii',
+                width       : 160,
+                hidden      : true,
+                renderer    : function (v) {
+                    return v ? chip('rd-chip--muted', 'fa fa-clock-o', 'Scedule Active') : dash;
+                },
+                filter: {
+                    type    : 'boolean',
+                    value   : true,
+                    yesText : 'True',
+                    noText  : 'False'
+                }
+            },
+            {
+                text        : 'On Overview',
+                dataIndex   : 'enable_overviews',
+                stateId     : 'StateGMVND5iii',
+                width       : 160,
+                hidden      : true,
+                renderer    : function (v) {
+                    return v ? chip('rd-chip--muted', 'fa fa-eye', 'On Overview') : dash;
+                },
+                filter: {
+                    type    : 'boolean',
+                    value   : true,
+                    yesText : 'True',
+                    noText  : 'False'
+                }
+            },		
+			
+			
+						
 			{
                 text: 'Last 24 Hours',
                 width: 150,

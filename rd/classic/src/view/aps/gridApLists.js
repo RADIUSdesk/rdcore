@@ -100,6 +100,13 @@ Ext.define('Rd.view.aps.gridApLists' ,{
     initComponent: function(){
         var me  = this;
         
+        // tiny helpers (same as in Exit Points grid)
+        var dash = '<span class="rd-dash">—</span>';
+        var chip = function (cls, iconCls, text) {
+            var icon = iconCls ? '<i class="' + iconCls + '"></i>' : '';
+            return '<span class="rd-chip ' + (cls || '') + '">' + icon + Ext.htmlEncode(text) + '</span>';
+        };
+        
         me.menu_grid = new Ext.menu.Menu({
            items: [
                { text: 'Edit',                      glyph: Rd.config.icnEdit,   handler: function(){
@@ -298,7 +305,57 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                     '{hw_human}'
                 ),
 				stateId		: 'StateGridApLists7'
-			},			
+			},
+			
+			{
+                text        : 'Alerts',
+                dataIndex   : 'enable_alerts',
+                stateId     : 'StateGridApLists7i',
+                width       : 160,
+                hidden      : true,
+                renderer    : function (v) {
+                    return v ? chip('rd-chip--danger', 'fa fa-bell', 'Alerts Enabled') : dash;
+                },
+                filter: {
+                    type    : 'boolean',
+                    value   : true,
+                    yesText : 'True',
+                    noText  : 'False'
+                }
+            },
+            {
+                text        : 'Schedules',
+                dataIndex   : 'enable_schedules',
+                stateId     : 'StateGridApLists7ii',
+                width       : 160,
+                hidden      : true,
+                renderer    : function (v) {
+                    return v ? chip('rd-chip--muted', 'fa fa-clock-o', 'Scedule Active') : dash;
+                },
+                filter: {
+                    type    : 'boolean',
+                    value   : true,
+                    yesText : 'True',
+                    noText  : 'False'
+                }
+            },
+            {
+                text        : 'On Overview',
+                dataIndex   : 'enable_overviews',
+                stateId     : 'StateGridApLists7iii',
+                width       : 160,
+                hidden      : true,
+                renderer    : function (v) {
+                    return v ? chip('rd-chip--muted', 'fa fa-eye', 'On Overview') : dash;
+                },
+                filter: {
+                    type    : 'boolean',
+                    value   : true,
+                    yesText : 'True',
+                    noText  : 'False'
+                }
+            },		
+						
 			{
 				text        : 'Last 24 Hours',
 				width       : 150,

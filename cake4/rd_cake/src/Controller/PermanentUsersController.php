@@ -740,8 +740,8 @@ class PermanentUsersController extends AppController{
 		    ];
 		    foreach($extDateSelects as $d){
 		        if(isset($req_d[$d])){
-		            $newDate = date_create_from_format('Y-m-d', $req_d[$d]); // Submit format: 2026-02-02 (ISO) ISO 8601 format
-		            $req_d[$d] = $newDate;
+		            $newDate    = date_create_from_format('Y-m-d', $req_d[$d]); // Submit format: 2026-02-02 (ISO) ISO 8601 format
+		            $req_d[$d]  = $newDate;
 		        }  
 		    }
         }else{
@@ -1074,12 +1074,12 @@ class PermanentUsersController extends AppController{
 
             $success = true;
         }
-        $this->set(array(
+        $this->set([
             'success'   => $success,
             'value'     => $value,
             'activate'  => $activate,
             'expire'    => $expire
-        ));
+        ]);
         $this->viewBuilder()->setOption('serialize', true);
 
     }
@@ -1101,8 +1101,8 @@ class PermanentUsersController extends AppController{
         ];
         foreach($extDateSelects as $d){
             if(isset($req_d[$d])){
-                $newDate = date_create_from_format('m/d/Y', $req_d[$d]);
-                $req_d[$d] = $newDate;
+                $newDate    = $newDate = date_create_from_format('Y-m-d', $req_d[$d]); // Submit format: 2026-02-02 (ISO) ISO 8601 format
+                $req_d[$d]  = $newDate;
             }  
         }
 

@@ -845,6 +845,7 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
 				{
                     xtype       : 'cmbInternetConnection',
                     itemId      : 'cmbInternetConnection',
+                    labelClsExtra : 'lblRd',
                     width       : w_prim,
                     listeners   : {
 		                change : 'onCmbInternetConnectionChange'
@@ -943,10 +944,6 @@ Ext.define('Rd.view.aps.pnlAccessPointAddEditAp', {
                 },
                 bodyPadding : 10,
                 items       : [
-                  /*   {
-                        xtype       : 'container',
-                        html        : '<h1><span style="color:grey;font-weight:700; font-size: smaller;">RADIOS</span><h1>'
-                    },*/
                     {
                         xtype       : 'container',
                         layout      : {

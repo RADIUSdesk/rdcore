@@ -75,7 +75,7 @@ class AlertsController extends AppController{
           
         foreach ($q_r as $i) {            
             $row        = [];
-            $fields     = $this->{$this->main_model}->schema()->columns();
+            $fields     = $this->{$this->main_model}->getSchema()->columns();
             if($i->mesh){
                 $row['network'] = $i->mesh->name;
                 $row['type'] = 'mesh';

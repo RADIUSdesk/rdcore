@@ -59,6 +59,14 @@ Ext.define('Rd.view.meshes.gridMeshViewNodeDetails' ,{
     ],
     initComponent: function(){
         var me      = this;
+        
+         // tiny helpers (same as in Exit Points grid)
+        var dash = '<span class="rd-dash">—</span>';
+        var chip = function (cls, iconCls, text) {
+            var icon = iconCls ? '<i class="' + iconCls + '"></i>' : '';
+            return '<span class="rd-chip ' + (cls || '') + '">' + icon + Ext.htmlEncode(text) + '</span>';
+        };
+             
         me.store    = Ext.create('Rd.store.sNodeDetails',{});
         me.store.getProxy().setExtraParam('mesh_id',me.meshId);   
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
@@ -119,6 +127,57 @@ Ext.define('Rd.view.meshes.gridMeshViewNodeDetails' ,{
                 hidden      : true,
 				stateId     : 'StateGMVND5'
 			},
+			
+			{
+                text        : 'Alerts',
+                dataIndex   : 'enable_alerts',
+                stateId     : 'StateGMVND5i',
+                width       : 160,
+                hidden      : true,
+                renderer    : function (v) {
+                    return v ? chip('rd-chip--danger', 'fa fa-bell', 'Alerts Enabled') : dash;
+                },
+                filter: {
+                    type    : 'boolean',
+                    value   : true,
+                    yesText : 'True',
+                    noText  : 'False'
+                }
+            },
+            {
+                text        : 'Schedules',
+                dataIndex   : 'enable_schedules',
+                stateId     : 'StateGMVND5ii',
+                width       : 160,
+                hidden      : true,
+                renderer    : function (v) {
+                    return v ? chip('rd-chip--muted', 'fa fa-clock-o', 'Scedule Active') : dash;
+                },
+                filter: {
+                    type    : 'boolean',
+                    value   : true,
+                    yesText : 'True',
+                    noText  : 'False'
+                }
+            },
+            {
+                text        : 'On Overview',
+                dataIndex   : 'enable_overviews',
+                stateId     : 'StateGMVND5iii',
+                width       : 160,
+                hidden      : true,
+                renderer    : function (v) {
+                    return v ? chip('rd-chip--muted', 'fa fa-eye', 'On Overview') : dash;
+                },
+                filter: {
+                    type    : 'boolean',
+                    value   : true,
+                    yesText : 'True',
+                    noText  : 'False'
+                }
+            },		
+			
+			
             { text: i18n('sPower'),             dataIndex: 'power',         tdCls: 'gridTree', flex: 1,stateId: 'StateGMVND6', hidden : true},
             { text: i18n('sIP_Address'),        dataIndex: 'ip',            tdCls: 'gridTree', width: 110,stateId: 'StateGMVND7',
             

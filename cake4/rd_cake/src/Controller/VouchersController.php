@@ -406,7 +406,7 @@ class VouchersController extends AppController{
         
         //If it is expiring; set it in the correct format
         if(($req_d['never_expire'] == 0)&&(isset($req_d['expire']))){
-            $newDate = date_create_from_format('m/d/Y', $req_d['expire']);
+            $newDate = date_create_from_format('Y-m-d', $req_d['expire']); //Submit format: 2026-02-02 (ISO) ISO 8601 format
             $req_d['expire'] = $newDate;
         }
         
@@ -609,7 +609,7 @@ class VouchersController extends AppController{
         
         //If it is expiring; set it in the correct format
         if($req_d['never_expire'] == 0){
-            $newDate = date_create_from_format('m/d/Y', $req_d['expire']);
+            $newDate = date_create_from_format('Y-m-d', $req_d['expire']);// Submit format: 2026-02-02 (ISO) ISO 8601 format
             $req_d['expire'] = $newDate;
         }
 
