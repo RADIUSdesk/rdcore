@@ -211,17 +211,19 @@ class RadacctsController extends AppController {
                 $columns = json_decode($this->request->getQuery('columns'));
                 foreach($columns as $c){
                     $column_name = $c->name;
-                    if($column_name == 'user_type'){
-                        $user_type = 'unknown'; 
-                        //Find device type
-                       /* if(count($i['Radcheck']) > 0){
-                            foreach($i['Radcheck'] as $rc){
-                                if($rc['attribute'] == 'Rd-User-Type'){
-                                    $user_type = $rc['value'];   
-                                }
-                            }
-                        }*/
-                        array_push($csv_line,$user_type);
+                    if(
+                    ($column_name == 'pu_active')||
+                    ($column_name == 'pu_site')||
+                    ($column_name == 'pu_extra_name')||
+                    ($column_name == 'pu_extra_value')
+                    ){
+                        if($i->permanent_user){
+                            $pu_name  = $column_name;
+                            $pu_name  = str_replace("pu_", "", $pu_name);
+                          //  array_push($csv_line,$i->permanent_user->{$pu_name});
+                        }else{
+                            array_push($csv_line,'');
+                        }                   
                     }else{
                         array_push($csv_line,$i->$column_name);
                     } 
@@ -750,19 +752,22 @@ class RadacctsController extends AppController {
                 //Strings
                 if($f->operator == 'like'){
                     //Permanent Users' properties will start with pu_
-                    if((str_starts_with($f->property, 'pu_'))&&($extra_info)){
+                    if((str_starts_with($f->property, 'pu_'))&&($extra_info)&&($only_connected)){
                         $pu_col = $f->property;
                         $pu_col = str_replace('pu_','',$pu_col);
-                        $col = 'PermanentUsers.'.$pu_col;                   
-                    }else{                 
-                        $col = $this->workingModel.'.'.$f->property;
+                        $col = 'PermanentUsers.'.$pu_col; 
+                        array_push($where, ["$col LIKE" => '%'.$f->value.'%']);                  
+                    }else{ 
+                        if(!str_starts_with($f->property, 'pu_')){ //Ignore 'pu_' and ONLY add if above flags are set               
+                            $col = $this->workingModel.'.'.$f->property;
+                            array_push($where, ["$col LIKE" => '%'.$f->value.'%']);
+                        }
                     }
-                    array_push($where, ["$col LIKE" => '%'.$f->value.'%']);
                 }
-                
+               
                 //Bools
                 if($f->operator == '=='){
-                    if(($f->property == 'pu_active')&&($extra_info)){
+                    if(($f->property == 'pu_active')&&($extra_info)&&($only_connected)){
                         array_push($where, ["PermanentUsers.active" => $f->value]);
                     }
                 }

@@ -20,7 +20,7 @@ Ext.define('Rd.view.aps.pnlAccessPointCommonSettings', {
         labelSeparator  : '',
         labelWidth      : Rd.config.labelWidth+20,
         margin          : Rd.config.fieldMargin,
-        labelClsExtra   : 'lblRdReq'
+        labelClsExtra   : 'lblRd'
     },
     buttons : [
         {
@@ -69,21 +69,19 @@ Ext.define('Rd.view.aps.pnlAccessPointCommonSettings', {
                 {
                     xtype       : 'cmbCountries',
                     anchor      : '100%',
-                    labelClsExtra: 'lblRdReq'
                 },
                 {
                     xtype       : 'cmbTimezones',
-                    anchor      : '100%',
-                    labelClsExtra: 'lblRdReq'
+                    anchor      : '100%'
                 },
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : 'Apply Schedule',
                     name        : 'enable_schedules',
                     inputValue  : '1',
 		            itemId		: 'chkEnableSchedules',
                     checked     : false,
-                    labelClsExtra: 'lblRdReq'
+                    boxLabel    : 'Apply schedule',
+                    boxLabelCls : 'boxLabelRd'
                 },
                 {
                     xtype   : 'panel',
@@ -121,40 +119,51 @@ Ext.define('Rd.view.aps.pnlAccessPointCommonSettings', {
                     value       : 'http'//Default
                 },
                 {
+                    xtype       : 'component',
+                    html        : 'Values in seconds',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
+                }, 
+                {
                     xtype       : 'numberfield',
                     name        : 'report_adv_light',
                     itemId      : 'report_adv_light',
-                    fieldLabel  : 'Light Report Interval',
+                    fieldLabel  : 'Light report interval',
                     value       : 60,
                     maxValue    : 21600,
-                    minValue    : 60
+                    minValue    : 60,
+                    allowBlank  : false
                 },
                 {
                     xtype       : 'numberfield',
                     name        : 'report_adv_full',
                     itemId      : 'report_adv_full',
-                    fieldLabel  : 'Full Report Interval',
+                    fieldLabel  : 'Full report interval',
                     value       : 600,
                     maxValue    : 21600,
-                    minValue    : 300
+                    minValue    : 300,
+                    allowBlank  : false
                 },
                 {
                     xtype       : 'numberfield',
                     name        : 'report_adv_sampling',
                     itemId      : 'report_adv_sampling',
-                    fieldLabel  : 'Data Sampling Interval',
+                    fieldLabel  : 'Sampling interval',
                     value       : 60,
                     maxValue    : 21600,
-                    minValue    : 60
+                    minValue    : 60,
+                    allowBlank  : false
                 },
                 {
                     xtype       : 'numberfield',
                     name        : 'heartbeat_dead_after',
                     itemId      : 'heartbeat_dead_after',
-                    fieldLabel  : 'Heartbeat Is Dead After',
+                    fieldLabel  : 'Heartbeat dead after',
                     value       : 600,
                     maxValue    : 21600,
-                    minValue    : 300
+                    minValue    : 300,
+                    allowBlank  : false
                 }        
             ]
         };
@@ -171,21 +180,20 @@ Ext.define('Rd.view.aps.pnlAccessPointCommonSettings', {
                     xtype       : 'numberfield',
                     name        : 'gw_dhcp_timeout',
                     itemId      : 'gw_dhcp_timeout',
-                    fieldLabel  : i18n("sWait_time_for_DHCP_IP"),
+                    fieldLabel  : 'Wait for DHCP IP',
                     value       : 120,
                     maxValue    : 600,
                     minValue    : 120,
-                    labelWidth  : 280
+                    allowBlank  : false
                 },
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : i18n("sUse_previous_settings_when_DHCP_fails"),
                     name        : 'gw_use_previous',
                     inputValue  : 'gw_use_previous',
 		            itemId		: 'gw_use_previous',
                     checked     : true,
-                    labelClsExtra: 'lblRd',
-                    labelWidth  : 280
+                    boxLabel    : i18n("sUse_previous_settings_when_DHCP_fails"),
+                    boxLabelCls : 'boxLabelRd'
                 }       
             ]
         }
@@ -206,7 +214,7 @@ Ext.define('Rd.view.aps.pnlAccessPointCommonSettings', {
                     inputValue  : '1',
 		            itemId		: 'chkEnableDynamicVlans',
                     checked     : false,
-                    labelClsExtra: 'lblRdReq',
+                    labelClsExtra: 'lblRd',
                     listeners   : {
 		                change  : 'OnChkVlanEnableChange'
 	                }

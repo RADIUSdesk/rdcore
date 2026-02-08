@@ -86,13 +86,15 @@ Ext.define('Rd.view.meshes.pnlMeshGeneral', {
                     xtype       : 'checkbox',
                     boxLabel    : 'Enable Alerts',
                     name        : 'enable_alerts',
-                    margin      : '0 0 0 15'   
+                    margin      : '0 0 0 15',
+                    boxLabelCls : 'boxLabelRd'   
                 },
                 {
                     xtype       : 'checkbox',
                     boxLabel    : 'Include In Overviews',
                     name        : 'enable_overviews',
-                    margin      : '0 0 0 15'   
+                    margin      : '0 0 0 15',
+                    boxLabelCls : 'boxLabelRd'   
                 }         
             ]
         };

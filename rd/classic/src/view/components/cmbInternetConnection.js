@@ -1,7 +1,7 @@
 Ext.define('Rd.view.components.cmbInternetConnection', {
     extend          : 'Ext.form.ComboBox',
     alias           : 'widget.cmbInternetConnection',
-    fieldLabel      : 'Internet Connect',
+    fieldLabel      : 'Internet connect',
     labelSeparator  : '',
     forceSelection  : true,
     queryMode       : 'local',

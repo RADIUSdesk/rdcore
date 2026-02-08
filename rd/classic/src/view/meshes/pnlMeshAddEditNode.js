@@ -753,7 +753,7 @@ Ext.define('Rd.view.meshes.pnlMeshAddEditNode', {
                 
                 {
                     xtype     : 'checkbox',
-                    boxLabel  : 'Reboot When Controller Can\'t Be Reached',
+                    boxLabel  : 'Reboot when controller can\'t be reached',
                     boxLabelCls : 'boxLabelRd',
                     name      : 'chk_no_controller',
                     itemId    : 'chkNoInternet',
@@ -768,7 +768,7 @@ Ext.define('Rd.view.meshes.pnlMeshAddEditNode', {
                     inputValue  : '1',
 		            itemId		: 'chkEnableSchedules',
                     checked     : false,
-                    boxLabel    : 'Apply Schedule',
+                    boxLabel    : 'Apply schedule',
                     boxLabelCls : 'boxLabelRd'
                 },
                 {
@@ -788,13 +788,13 @@ Ext.define('Rd.view.meshes.pnlMeshAddEditNode', {
                 {
                     xtype       : 'checkbox',
                     name        : 'enable_alerts',
-                    boxLabel    : 'Enable Alerts',
+                    boxLabel    : 'Enable alerts',
                     boxLabelCls : 'boxLabelRd'
                 },      
                 {
                     xtype       : 'checkbox',
                     name        : 'enable_overviews',
-                    boxLabel    : 'Include In Overviews',
+                    boxLabel    : 'Include in overviews',
                     boxLabelCls : 'boxLabelRd'
                 } 
             ]

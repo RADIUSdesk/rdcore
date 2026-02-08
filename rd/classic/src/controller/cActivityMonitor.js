@@ -157,7 +157,8 @@ Ext.define('Rd.controller.cActivityMonitor', {
                 me.getGrid().down('#clmPuExtraValue').disable();
                 me.getGrid().down('#clmPuExtraName').disable();
                 me.getGrid().down('#clmPuSite').disable();
-                me.getGrid().down('#clmPuActive').disable(); 
+                me.getGrid().down('#clmPuActive').disable();
+                                                                
                 if(kick){ 
                     kick.disable();
                 }
@@ -186,7 +187,7 @@ Ext.define('Rd.controller.cActivityMonitor', {
             me.getGrid().down('#clmPuSite').enable();
             me.getGrid().down('#clmPuActive').enable();
         }else{
-            console.log("Info Button Released");  
+            console.log("Info Button Released");           
             me.getGrid().down('#clmPuExtraValue').disable();
             me.getGrid().down('#clmPuExtraName').disable();
             me.getGrid().down('#clmPuSite').disable();
@@ -402,12 +403,17 @@ Ext.define('Rd.controller.cActivityMonitor', {
             }
                
             var col_json        = "columns="+encodeURIComponent(Ext.JSON.encode(columns));
-            var extra_params    = Ext.Object.toQueryString(Ext.Ajax.getExtraParams());
-            var append_url      = "?"+extra_params+'&'+col_json;
+            var extra_params    = Ext.Object.toQueryString(Ext.Ajax.getExtraParams());          
+            var store_params    = Ext.Object.toQueryString(me.getStore('sRadaccts').getProxy().getExtraParams());
+                      
+            var append_url      = "?"+extra_params+'&'+col_json+'&'+store_params;
+            
+            
             if(f_found){
                 filter_json = "filter="+encodeURIComponent(Ext.JSON.encode(filters));
                 append_url  = append_url+'&'+filter_json;
             }
+            
             window.open(me.getUrlExportCsvAcct()+append_url);
             win.close();
         }

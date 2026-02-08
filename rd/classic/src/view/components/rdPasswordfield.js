@@ -37,6 +37,11 @@ Ext.define('Rd.view.components.rdPasswordfield', {
                 labelWidth  : me.rdLabelWidth
             }
         }
+        
+        if(me.rdMinLength){
+            tf.minLength = me.rdMinLength;       
+        }
+               
         me.items    = [tf, 
         {
             xtype       : 'button',

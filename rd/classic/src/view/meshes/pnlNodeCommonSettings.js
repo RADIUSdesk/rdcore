@@ -20,7 +20,7 @@ Ext.define('Rd.view.meshes.pnlNodeCommonSettings', {
         labelSeparator  : '',
         labelWidth      : Rd.config.labelWidth+20,
         margin          : Rd.config.fieldMargin,
-        labelClsExtra   : 'lblRdReq'
+        labelClsExtra   : 'lblRd'
     },
     buttons : [
         {
@@ -68,22 +68,20 @@ Ext.define('Rd.view.meshes.pnlNodeCommonSettings', {
                 },
                 {
                     xtype       : 'cmbCountries',
-                    anchor      : '100%',
-                    labelClsExtra: 'lblRdReq'
+                    anchor      : '100%'
                 },
                 {
                     xtype       : 'cmbTimezones',
-                    anchor      : '100%',
-                    labelClsExtra: 'lblRdReq'
+                    anchor      : '100%'
                 },
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : 'Apply Schedule',
                     name        : 'enable_schedules',
                     inputValue  : '1',
 		            itemId		: 'chkEnableSchedules',
                     checked     : false,
-                    labelClsExtra: 'lblRdReq'
+                    boxLabel    : 'Apply schedule',
+                    boxLabelCls : 'boxLabelRd'
                 },
                 {
                     xtype   : 'panel',
@@ -118,22 +116,18 @@ Ext.define('Rd.view.meshes.pnlNodeCommonSettings', {
                     value       : 5,
                     maxValue    : 14,
                     minValue    : 1,
-                    labelClsExtra: 'lblRdReq'
+                    allowBlank  : false
                 },
                 {
                     xtype       : 'cmbFiveGigChannels',
                     anchor      : '100%',
-                    labelClsExtra: 'lblRdReq'
+                    allowBlank  : false
                 },
                 {
-                    xtype       : 'textfield',
-                    fieldLabel  : 'Client Key',
-                    name        : 'client_key',
-                    allowBlank  : false,
-                    blankText   : i18n.sSupply_a_value,
-                    labelClsExtra: 'lblRdReq',
-                    minLength   : 8,
-                    hidden      : true //Hide for CSC
+                    xtype       : 'rdPasswordfield',
+                    rdName      : 'client_key',
+                    rdLabel     : 'Client key',
+                    rdMinLength : 8
                 }        
             ]
         }
@@ -148,12 +142,12 @@ Ext.define('Rd.view.meshes.pnlNodeCommonSettings', {
             items       : [
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : 'Bridge Repeater WAN',
                     name        : 'eth_br_chk',
                     inputValue  : 'eth_br_chk',
 		            itemId		: 'eth_br_chk',
                     checked     : false,
-                    labelClsExtra: 'lblRd'
+                    boxLabel    : 'Bridge Repeater WAN',
+                    boxLabelCls : 'boxLabelRd'
                 },
 	            {
 		            xtype		: 'cmbEthBridgeOptions',
@@ -180,43 +174,54 @@ Ext.define('Rd.view.meshes.pnlNodeCommonSettings', {
                     name        : 'report_adv_proto',
                     displayField: 'name',
                     valueField  : 'id',
-                    value       : 'http'//Default
+                    value       : 'http'
                 },
+                {
+                    xtype       : 'component',
+                    html        : 'Values in seconds',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
+                }, 
                 {
                     xtype       : 'numberfield',
                     name        : 'report_adv_light',
                     itemId      : 'report_adv_light',
-                    fieldLabel  : 'Light Report Interval',
+                    fieldLabel  : 'Light report interval',
                     value       : 60,
                     maxValue    : 21600,
-                    minValue    : 60
+                    minValue    : 60,
+                    allowBlank  : false
                 },
                 {
                     xtype       : 'numberfield',
                     name        : 'report_adv_full',
                     itemId      : 'report_adv_full',
-                    fieldLabel  : 'Full Report Interval',
+                    fieldLabel  : 'Full report interval',
                     value       : 600,
                     maxValue    : 21600,
-                    minValue    : 300
+                    minValue    : 300,
+                    allowBlank  : false
                 },
                 {
                     xtype       : 'numberfield',
                     name        : 'report_adv_sampling',
                     itemId      : 'report_adv_sampling',
-                    fieldLabel  : 'Data Sampling Interval',
+                    fieldLabel  : 'Sampling interval',
                     value       : 60,
                     maxValue    : 21600,
-                    minValue    : 60
+                    minValue    : 60,
+                    allowBlank  : false
                 },
                 {
                     xtype       : 'numberfield',
                     name        : 'heartbeat_dead_after',
                     itemId      : 'heartbeat_dead_after',
-                    fieldLabel  : 'Heartbeat Is Dead After',
+                    fieldLabel  : 'Heartbeat dead after',
                     value       : 600,
                     maxValue    : 21600,
-                    minValue    : 300
+                    minValue    : 300,
+                    allowBlank  : false
                 }        
             ]
         };
@@ -233,31 +238,29 @@ Ext.define('Rd.view.meshes.pnlNodeCommonSettings', {
                     xtype       : 'numberfield',
                     name        : 'gw_dhcp_timeout',
                     itemId      : 'gw_dhcp_timeout',
-                    fieldLabel  : 'Wait time for DHCP IP',
+                    fieldLabel  : 'Wait for DHCP IP',
                     value       : 60,
                     maxValue    : 600,
                     minValue    : 30,
-                    labelWidth  : 280
+                    allowBlank  : false
                 },
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : 'Use previous settings when DHCP fails',
                     name        : 'gw_use_previous',
                     inputValue  : 'gw_use_previous',
 		            itemId		: 'gw_use_previous',
                     checked     : true,
-                    labelClsExtra: 'lblRd',
-                    labelWidth  : 280
+                    boxLabel    : 'Use previous settings when DHCP fails',
+                    boxLabelCls : 'boxLabelRd'
                 },  
                 {
                     xtype       : 'checkbox',      
-                    fieldLabel  : 'Reboot node if gateway is unreachable',
                     name        : 'gw_auto_reboot',
                     inputValue  : 'gw_auto_reboot',
 		            itemId		: 'gw_auto_reboot',
                     checked     : true,
-                    labelClsExtra: 'lblRd',
-                    labelWidth  : 280
+                    boxLabel    : 'Reboot node if gateway is unreachable',
+                    boxLabelCls : 'boxLabelRd'
                 },     
                 {
                     xtype       : 'numberfield',
@@ -267,7 +270,7 @@ Ext.define('Rd.view.meshes.pnlNodeCommonSettings', {
                     value       : 600,
                     maxValue    : 3600,
                     minValue    : 240,
-                    labelWidth  : 280
+                    allowBlank  : false
                 }      
             ]
         }
@@ -288,7 +291,6 @@ Ext.define('Rd.view.meshes.pnlNodeCommonSettings', {
                     inputValue  : '1',
 		            itemId		: 'chkEnableDynamicVlans',
                     checked     : false,
-                    labelClsExtra: 'lblRdReq',
                     listeners   : {
 		                change  : 'OnChkVlanEnableChange'
 	                }
@@ -330,6 +332,7 @@ Ext.define('Rd.view.meshes.pnlNodeCommonSettings', {
                     disabled    : true,
                     value       : 100,
                     maxValue    : 4094,
+                    allowBlank  : false,
                     minValue    : 1
                 },
                 {
@@ -340,6 +343,7 @@ Ext.define('Rd.view.meshes.pnlNodeCommonSettings', {
                     fieldLabel  : 'VLAN End',
                     value       : 101,
                     maxValue    : 4094,
+                    allowBlank  : false,
                     minValue    : 2
                 },
                 {
