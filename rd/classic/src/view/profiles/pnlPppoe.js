@@ -15,6 +15,8 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
         var w_rd    = 68;
         me.width    = 750;
         me.padding  = '0 0 10 0';
+     //   var w_prim  = 550;
+        
         me.items    = [
 			{
 			    xtype       : 'sldrToggle',
@@ -33,6 +35,12 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
                 
 			    items       : [
 			        {
+                        xtype       : 'component',
+                        html        : 'Basic',
+                        cls         : 'heading',
+                        margin      : '20 0 10 20'
+                    },
+			        {
 			            xtype       : 'rdSliderSpeed',
 			            sliderName  : 'fup_upload',
 			            fieldLabel  : "<i class='fa fa-arrow-up'></i> Up"
@@ -42,6 +50,12 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
 			            sliderName  : 'fup_download',
 			            fieldLabel  : "<i class='fa fa-arrow-down'></i> Down",
 			        },
+			        {
+                        xtype       : 'component',
+                        html        : 'Advanced',
+                        cls         : 'heading',
+                        margin      : '20 0 10 20'
+                    },
                     {
                         xtype       : 'checkbox',
                         itemId      : 'chkBurstEnable',
@@ -83,15 +97,21 @@ Ext.define('Rd.view.profiles.pnlPppoe', {
                         itemId      : 'nrFupBurstThreshold'
                     },
                     {
+                        xtype       : 'component',
+                        html        : 'Optional',
+                        cls         : 'heading',
+                        margin      : '20 0 10 20'
+                    },
+                    {
 			            xtype       : 'textfield',
-			            fieldLabel  : 'IP Pool (Optional)',
+			            fieldLabel  : 'IP Pool',
 			            name        : 'fup_ip_pool',
 			            allowBlank  : true,
 			            blankText   : i18n("sSupply_a_value")
 		            },
 		            {
                         xtype       : 'numberfield',
-                        fieldLabel  : 'VLAN Nr(Optional)',
+                        fieldLabel  : 'VLAN Nr',
                         maxValue    : 4094,
                         minValue    : 1,
                         name        : 'fup_vlan',

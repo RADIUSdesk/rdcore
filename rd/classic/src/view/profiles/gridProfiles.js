@@ -18,7 +18,14 @@ Ext.define('Rd.view.profiles.gridProfiles' ,{
     urlMenu: '/cake4/rd_cake/profiles/menu-for-grid.json',
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
-        var me  = this; 
+        var me  = this;
+        
+        // tiny helpers (same as in Exit Points grid)
+        var dash = '<span class="rd-dash">—</span>';
+        var chip = function (cls, iconCls, text) {
+            var icon = iconCls ? '<i class="' + iconCls + '"></i>' : '';
+            return '<span class="rd-chip ' + (cls || '') + '">' + icon + Ext.htmlEncode(text) + '</span>';
+        }; 
 
         me.menu_grid = new Ext.menu.Menu({
             items: [
@@ -57,29 +64,28 @@ Ext.define('Rd.view.profiles.gridProfiles' ,{
                 tpl         :    new Ext.XTemplate(
                     '<tpl if="Ext.isEmpty(profile_components)"><div"></div></tpl>',
                     '<tpl for="profile_components">',     // interrogate the profile_components property within the data
-                        "<div class=\"fieldGreyWhite\">{groupname} <small><i>(priority => {priority})</i></small></div>",
+                        "<div><span class='rd-chip rd-chip--muted'>{groupname} <small><i>(priority => {priority})</i></small></span></div>",
                     '</tpl>'
                 ),
                 dataIndex   : 'profile_components',
                 stateId     : 'StateGridProfiles2'
             },
-            { 
-                text        : 'System Wide', 
-                xtype       : 'templatecolumn',
-                tdCls       : 'gridTree',
-                width       : 120,
-                tpl         : new Ext.XTemplate(
-                                "<tpl if='for_system == true'><div class=\"fieldBlue\">"+i18n("sYes")+"</div></tpl>",
-                                "<tpl if='for_system == false'><div class=\"fieldGrey\">"+i18n("sNo")+"</div></tpl>"
-                            ),
+            
+            {
+                text        : 'System Wide',
                 dataIndex   : 'for_system',
+                stateId     : 'StateGridProfilesAi',
+                width       : 160,
+                renderer    : function (v) {
+                    return v ? chip('rd-chip--muted', 'fa fa-check', 'System Wide') : dash;
+                },
                 filter      : {
-                        type            : 'boolean',
-                        defaultValue    : false,
-                        yesText         : 'Yes',
-                        noText          : 'No'
-                }, stateId: 'StateGridProfilesA'
-            },
+                    type            : 'boolean',
+                    defaultValue    : false,
+                    yesText         : 'Yes',
+                    noText          : 'No'
+                }
+            },		           
             {
                 xtype       : 'actioncolumn',
                 text        : 'Actions',
@@ -87,7 +93,8 @@ Ext.define('Rd.view.profiles.gridProfiles' ,{
                 stateId     : 'StateGridProfiles4',
                 items       : [				
 					 { 
-						iconCls : 'txtRed x-fa fa-trash',
+						//iconCls : 'txtRed x-fa fa-trash', //Mute it
+						iconCls : 'x-fa fa-trash',
 						tooltip : 'Delete',
 						isDisabled: function (grid, rowIndex, colIndex, items, record) {
                                 if (record.get('delete') == true) {
@@ -101,7 +108,8 @@ Ext.define('Rd.view.profiles.gridProfiles' ,{
                         }
                     },
                     {  
-                       iconCls : 'txtBlue x-fa fa-pen',
+                      // iconCls : 'txtBlue x-fa fa-pen',//Mute it
+                       iconCls : 'x-fa fa-pen',
                        tooltip : 'Edit',
                        handler: function(view, rowIndex, colIndex, item, e, record) {
                            var position = e.getXY();
