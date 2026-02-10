@@ -66,6 +66,7 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
                     if(record.get('active') == true){
                         var human_value = record.get('online_human')
                         return "<div class=\"fieldGreen\">"+human_value+" "+i18n('sOnline')+"</div>";
+                       //return "<div class=\"rd-badge rd-badge--green\">"+human_value+" "+i18n('sOnline')+"</div>";
                     }else{
                         return value;
                     }              
@@ -99,26 +100,34 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
             { text: i18n('sAcct_stop_delay'), dataIndex: 'acctstopdelay',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts26'},
             { text: i18n('sX_Ascend_session_svr_key'), dataIndex: 'xascendsessionsvrkey',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts27'},
             { text: 'Operator-Name', dataIndex: 'operator_name',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts28'},
-            {   
-                text        : "<i class=\"fa fa-info-circle\"></i> "+'Account Active',  
-                dataIndex   : 'pu_active',  
-                tdCls       : 'gridTree',   
-                xtype       : 'templatecolumn', 
-                tpl         : new Ext.XTemplate(
-                    "<tpl if='pu_active == true'><div class=\"fieldGreen\"><i class=\"fa fa-check-circle\"></i> "+i18n("sYes")+"</div></tpl>",
-                    "<tpl if='pu_active == false'><div class=\"fieldRed\"><i class=\"fa fa-times-circle\"></i> "+i18n("sNo")+"</div></tpl>"
-                ),
-                flex    : 1,
-                filter  : {
-                        type            : 'boolean',
-                        defaultValue    : false,
-                        yesText         : 'Yes',
-                        noText          : 'No'
-                },             
-                hidden  : true,
-                stateId : 'StateGridRadaccts29',
-                disabled: true,
-                itemId  : 'clmPuActive'
+            
+            {
+                text        : "<i class='fa fa-info-circle'></i> Admin State",
+                dataIndex   : 'pu_admin_state',
+                width       : 140,
+                sortable    : true,
+                filter      : {
+                    type        : 'list',
+                    options: [
+                        ['active',     'Active'    ],
+                        ['expired',    'Expired'   ],
+                        ['suspended',  'Suspended' ],
+                        ['terminated', 'Terminated']
+                    ]
+                },
+                renderer    : function(v) {
+                    const cls = {
+                        active    : 'rd-badge rd-badge--green',
+                        expired   : 'rd-badge rd-badge--blue',
+                        suspended : 'rd-badge rd-badge--amber',
+                        terminated: 'rd-badge rd-badge--gray'
+                    }[(v || '').toLowerCase()] || 'rd-badge';
+                    return `<span class="${cls}">${Ext.String.capitalize(v)}</span>`;
+                },         
+                hidden      : true,
+                stateId     : 'StateGridRadaccts28a',
+                disabled    : true,
+                itemId      : 'clmPuAdminState'
             },
             {   
                 text    : "<i class=\"fa fa-info-circle\"></i> "+'Site',  

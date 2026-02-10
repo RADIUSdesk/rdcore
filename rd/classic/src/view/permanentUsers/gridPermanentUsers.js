@@ -209,7 +209,7 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                         noText          : 'No'
                 },stateId: 'StateGridPermanentUsers12'
             },*/
-             {
+            {
               text        : "<i class='fa fa-cog'></i> Admin State",
               dataIndex   : 'admin_state',
               width       : 140,
@@ -300,6 +300,7 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
                         "<tpl if='admin_state == \"active\"'><span style='color:green;'><i class=\"fa fa-circle\"></i></span></tpl>",
                         "<tpl if='admin_state == \"suspended\"'><span style='color:orange;'><i class=\"fa fa-circle\"></i></span></tpl>",
                         "<tpl if='admin_state == \"terminated\"'><span style='color:red;'><i class=\"fa fa-circle\"></i></span></tpl>",
+                        "<tpl if='admin_state == \"expired\"'><span style='color:blue;'><i class=\"fa fa-circle\"></i></span></tpl>",
                         '  Online for {last_seen.span}',
                     '</tpl>',
                     "<tpl if='last_contact'>",

@@ -213,6 +213,7 @@ class RadacctsController extends AppController {
                     $column_name = $c->name;
                     if(
                     ($column_name == 'pu_active')||
+                    ($column_name == 'pu_admin_state')||
                     ($column_name == 'pu_site')||
                     ($column_name == 'pu_extra_name')||
                     ($column_name == 'pu_extra_value')
@@ -220,7 +221,7 @@ class RadacctsController extends AppController {
                         if($i->permanent_user){
                             $pu_name  = $column_name;
                             $pu_name  = str_replace("pu_", "", $pu_name);
-                          //  array_push($csv_line,$i->permanent_user->{$pu_name});
+                            array_push($csv_line,$i->permanent_user->{$pu_name});
                         }else{
                             array_push($csv_line,'');
                         }                   
@@ -476,10 +477,11 @@ class RadacctsController extends AppController {
             
             if($i->permanent_user){
             
-                $i->pu_active   = $i->permanent_user->active;
-                $i->pu_site     = $i->permanent_user->site;
-                $i->pu_extra_name = $i->permanent_user->extra_name;
-                $i->pu_extra_value = $i->permanent_user->extra_value;
+                $i->pu_admin_state  = $i->permanent_user->admin_state;
+                $i->pu_active       = $i->permanent_user->active;
+                $i->pu_site         = $i->permanent_user->site;
+                $i->pu_extra_name   = $i->permanent_user->extra_name;
+                $i->pu_extra_value  = $i->permanent_user->extra_value;
             }
                                           
             array_push($items,$i);
@@ -770,6 +772,7 @@ class RadacctsController extends AppController {
                     if(($f->property == 'pu_active')&&($extra_info)&&($only_connected)){
                         array_push($where, ["PermanentUsers.active" => $f->value]);
                     }
+                    
                 }
                 //Date
                 if(($f->operator == 'gt')||($f->operator == 'lt')||($f->operator == 'eq')){
@@ -804,6 +807,14 @@ class RadacctsController extends AppController {
 
                         array_push($where, ['OR' => $list_array]);
                     }
+                    
+                    if(($f->property == 'pu_admin_state')&&($extra_info)&&($only_connected)){
+                        $list_array = [];
+                        foreach($f->value as $filter_list){
+                            $list_array[] = $filter_list;
+                        }
+                        array_push($where, ["PermanentUsers.admin_state IN" => $list_array]);
+                    }                    
                 }
             }
         }
@@ -813,7 +824,7 @@ class RadacctsController extends AppController {
             if($extra_info){     
                 $query->contain('PermanentUsers', function (Query $q) {
                     return $q
-                        ->select(['active', 'site','ppsk','extra_name','extra_value']);
+                        ->select(['active', 'site','ppsk','extra_name','extra_value','admin_state']);
                 });
             }
          }

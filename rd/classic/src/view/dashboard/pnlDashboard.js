@@ -13,7 +13,9 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
         //Some initial values
         var header  = Rd.config.headerName;
         var lA      = Rd.config.levelAColor; 
-        var stA     = 'color:'+lA+';font-weight:600; font-size: larger;';
+        //var stA     = 'color:'+lA+';font-weight:600; font-size: larger;';
+        //var stA     = 'color:#16244d; font-weight:100; font-size: 28px;letter-spacing: 2px;';
+        var stA     = 'color:#0f1f3d; font-weight:100; font-size: 28px;letter-spacing: 2px;';
         var tpl     = new Ext.XTemplate('<h1>'+header+'<span style="'+stA+'"> | <span style="font-family:FontAwesome;">{fa_value}</span> {value}</span><h1>');
         
         var style   = {}; //Empty Style

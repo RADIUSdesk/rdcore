@@ -157,7 +157,7 @@ Ext.define('Rd.controller.cActivityMonitor', {
                 me.getGrid().down('#clmPuExtraValue').disable();
                 me.getGrid().down('#clmPuExtraName').disable();
                 me.getGrid().down('#clmPuSite').disable();
-                me.getGrid().down('#clmPuActive').disable();
+                me.getGrid().down('#clmPuAdminState').disable();
                                                                 
                 if(kick){ 
                     kick.disable();
@@ -185,13 +185,13 @@ Ext.define('Rd.controller.cActivityMonitor', {
             me.getGrid().down('#clmPuExtraValue').enable();
             me.getGrid().down('#clmPuExtraName').enable();
             me.getGrid().down('#clmPuSite').enable();
-            me.getGrid().down('#clmPuActive').enable();
+            me.getGrid().down('#clmPuAdminState').enable();
         }else{
             console.log("Info Button Released");           
             me.getGrid().down('#clmPuExtraValue').disable();
             me.getGrid().down('#clmPuExtraName').disable();
             me.getGrid().down('#clmPuSite').disable();
-            me.getGrid().down('#clmPuActive').disable(); 
+            me.getGrid().down('#clmPuAdminState').disable();
         }
         me.reload();  
     },    

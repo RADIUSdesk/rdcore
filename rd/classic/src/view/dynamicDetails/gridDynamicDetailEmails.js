@@ -27,7 +27,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailEmails' ,{
             tdCls       : 'gridTree',
             hidden      : true, 
             flex        : 1,
-            stateId		: 'DD_Email_B'
+            stateId		: 'DD_mac'
         },
         { 
             text        : 'Public IP',
@@ -35,7 +35,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailEmails' ,{
             tdCls       : 'gridTree',
             hidden      : true, 
             flex        : 1,
-            stateId		: 'DD_Email_C'
+            stateId		: 'DD_public_ip'
         },
         { 
             text        : 'NAS ID',
@@ -43,7 +43,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailEmails' ,{
             tdCls       : 'gridTree',
             hidden      : true, 
             flex        : 1,
-            stateId		: 'DD_Email_D'
+            stateId		: 'DD_nas_id'
         },
         { 
             text        : 'SSID',
@@ -51,7 +51,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailEmails' ,{
             tdCls       : 'gridTree',
             hidden      : true, 
             flex        : 1,
-            stateId		: 'DD_Email_E'
+            stateId		: 'DD_ssid'
         },
         { 
             text        : 'First Name',
@@ -67,7 +67,7 @@ Ext.define('Rd.view.dynamicDetails.gridDynamicDetailEmails' ,{
             tdCls       : 'gridTree',
             hidden      : true, 
             flex        : 1,
-            stateId		: 'DD_first_name'
+            stateId		: 'DD_last_name'
         },
         { 
             text        : 'Gender',
