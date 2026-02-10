@@ -336,19 +336,25 @@ class PermanentUsersController extends AppController{
         
         //Zero the token to generate a new one for this user:
         $req_d['token'] = '';
-
-        //Set the date and time
-        $extDateSelects = [
-                'from_date',
-                'to_date'
-        ];
-        foreach($extDateSelects as $d){
-            if(isset($req_d[$d])){
-                $newDate = date_create_from_format('Y-m-d', $req_d[$d]); // Submit format: 2026-02-02 (ISO) ISO 8601 format
-                $req_d[$d] = $newDate;
-            }  
+    
+        if(isset($req_d['from_date'])){
+            if($req_d['from_date'] === 'now'){ //Special keyword for API
+                $req_d['from_date'] = FrozenTime::now();
+            }else{
+                $req_d['from_date'] = date_create_from_format('Y-m-d', $req_d['from_date']); // Submit format: 2026-02-02 (ISO) ISO 8601 format
+            }
         }
         
+        if(isset($req_d['to_date'])){
+            if (filter_var($req_d['to_date'], FILTER_VALIDATE_INT) !== false && $req_d['to_date'] < 100) { //Special type for API (Integer = times 30)
+                $to = FrozenTime::now();
+                $to = $to->addDay(($req_d['to_date']*30));               
+                $req_d['to_date'] = $to;
+            }else{
+                $req_d['to_date'] = date_create_from_format('Y-m-d', $req_d['to_date']); // Submit format: 2026-02-02 (ISO) ISO 8601 format
+            }
+        }
+                            
         $check_items = [
 			'active'
 		];
@@ -684,37 +690,41 @@ class PermanentUsersController extends AppController{
         if(!$user){
             return;
         } 
-       
-        //---Set Realm related things--- 
+        
         $req_d		= $this->request->getData();
+       
+        //---Set Realm related things---               
+        if(isset($req_d['realm_id'])||isset($req_d['realm'])){ //If it is not set then we don't bother
         
-        $realm_entity           = $this->Realms->entityBasedOnPost($req_d);
-        if($realm_entity){
-            $req_d['realm']   = $realm_entity->name;
-            $req_d['realm_id']= $realm_entity->id;
-            //FIXME WE HAVE TO CHECK AND CHANGE USERNAME IF CHANGE ...
-        
-        }else{
-            $message = __('realm or realm_id not found in DB or not supplied');
-            $this->JsonErrors->errorMessage($message);
-            return;
+            $realm_entity  = $this->Realms->entityBasedOnPost($req_d);
+            if($realm_entity){
+                $req_d['realm']   = $realm_entity->name;
+                $req_d['realm_id']= $realm_entity->id;
+                //FIXME WE HAVE TO CHECK AND CHANGE USERNAME IF CHANGE ...
+            
+            }else{
+                $message = __('realm or realm_id not found in DB');
+                $this->JsonErrors->errorMessage($message);
+                return;
+            }
         }
         
         //---Set profile related things---
-        $profile_entity = $this->Profiles->entityBasedOnPost($req_d);
-        if($profile_entity){
-            $req_d['profile']   = $profile_entity->name;
-            $req_d['profile_id']= $profile_entity->id;
-        }else{
-            $message = __('profile or profile_id not found in DB or not supplied');
-            $this->JsonErrors->errorMessage($message);
-            return;
+        if(isset($req_d['profile_id'])||isset($req_d['profile'])){ //If it is not set then we don't bother       
+            $profile_entity = $this->Profiles->entityBasedOnPost($req_d);
+            if($profile_entity){
+                $req_d['profile']   = $profile_entity->name;
+                $req_d['profile_id']= $profile_entity->id;
+            }else{
+                $message = __('profile or profile_id not found in DB');
+                $this->JsonErrors->errorMessage($message);
+                return;
+            }
         }
         
-        //Zero the token to generate a new one for this user:
+        //Clear the token
         unset($req_d['token']);
-        
-        
+             
         $check_items = [
 			'always_active'
 		];
@@ -731,25 +741,61 @@ class PermanentUsersController extends AppController{
             }
         }
         
-        //If it is expiring; set it in the correct format
+        //If it is expiring; set it in the correct format        
+        try {
+            $entity = $this->{$this->main_model}->get($req_d['id']); //First load the entity
+        } catch (RecordNotFoundException $e) {
+            throw new NotFoundException('Entity not found');
+        }
+              
         if($req_d['always_active'] == 0){
+        
             //Set the date and time
-		    $extDateSelects = [
-		            'from_date',
-		            'to_date'
-		    ];
-		    foreach($extDateSelects as $d){
-		        if(isset($req_d[$d])){
-		            $newDate    = date_create_from_format('Y-m-d', $req_d[$d]); // Submit format: 2026-02-02 (ISO) ISO 8601 format
-		            $req_d[$d]  = $newDate;
-		        }  
-		    }
+            if(isset($req_d['from_date'])){                           
+                if($req_d['from_date'] === 'now'){ //Special keyword for API
+                    $req_d['from_date'] = FrozenTime::now();
+                }else{
+                    $req_d['from_date'] = date_create_from_format('Y-m-d', $req_d['from_date']); // Submit format: 2026-02-02 (ISO) ISO 8601 format
+                }
+                
+                //-- Dev Note --
+                //If you don't want the from_date to change after creation, unset it here
+                //unset($req_d['from_date']);
+                //-- END Dev Note --               
+            }
+            
+            if(isset($req_d['to_date'])){
+                if (filter_var($req_d['to_date'], FILTER_VALIDATE_INT) !== false && $req_d['to_date'] < 100) { //Special type for API (Integer = times 30)
+                
+                    $multiplier = (int)$req_d['to_date'];
+                    // Existing value from entity (important!)
+                    $oldToDate = $entity->to_date instanceof FrozenTime
+                        ? $entity->to_date
+                        : FrozenTime::parse($entity->to_date);
+
+                    $now = FrozenTime::now();
+
+                    if ($oldToDate <= $now) {
+                        // Old date is past or now → base on NOW, x * 3 days
+                        $newToDate = $now->addDays($multiplier * 30);
+                    } else {
+                        // Old date is in the future → extend from OLD date, x * 30 days
+                        $newToDate = $oldToDate->addDays($multiplier * 30);
+                    }
+
+                    $req_d['to_date'] = $newToDate;
+                
+                }else{
+                    $req_d['to_date'] = date_create_from_format('Y-m-d', $req_d['to_date']); // Submit format: 2026-02-02 (ISO) ISO 8601 format
+                }
+            }
+            
         }else{
         	$req_d['from_date'] = null;
         	$req_d['to_date'] = null;    
         }   
         
-        $entity = $this->{$this->main_model}->get($req_d['id']);
+        
         $this->{$this->main_model}->patchEntity($entity, $req_d);
      
         if ($this->{$this->main_model}->save($entity)) {

@@ -7,6 +7,7 @@ use Cake\Console\Arguments;
 use Cake\Console\Command;
 use Cake\Console\ConsoleIo;
 use Cake\ORM\TableRegistry;
+use Cake\I18n\FrozenTime;
 
 class ImportUsersCommand extends Command
 {
@@ -58,6 +59,8 @@ class ImportUsersCommand extends Command
                 $row_data['address']    = '';
                 $row_data['phone']      = '';
                 $row_data['email']      = '';
+                
+                $row_data['token']      = ''; //Feb 2026 set it to nothing to trigger a new token creation
               
                 $entity = $this->PermanentUsers->newEntity($row_data);
                 if ($this->PermanentUsers->save($entity)) {
@@ -209,10 +212,16 @@ class ImportUsersCommand extends Command
         }
         
         if (isset($to_date)) {
-            $row_data['to_date'] = date_create_from_format('Y-m-d', $to_date);//ISO 8601 format
+            if (filter_var($to_date, FILTER_VALIDATE_INT) !== false && $to_date < 100) {
+                $to = FrozenTime::now();
+                $to = $to->addDay(($to_date*30));               
+                $row_data['to_date'] = $to;
+            }else{
+                $row_data['to_date'] = date_create_from_format('Y-m-d', $to_date);//ISO 8601 format
+            }
         }
         //-- END FEB 2026 ---
-        
+                
         return $row_data;
     }
 

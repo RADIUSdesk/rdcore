@@ -712,10 +712,26 @@ class DashboardController extends AppController{
             'desc'          => 'Onboarding new hardware',
             'accent'        => 'purple'           
         ];
-        $unknownCounts  = $this->Counts->countUnknownHardware($cloudId);         
-        $unknownBase    = array_merge($unknownBase,$unknownCounts);              
+        $unknownCounts  = $this->Counts->countUnknownHardware($cloudId);       
+        $unknownBase    = array_merge($unknownBase,$unknownCounts);  
+        
+        $alertsBase = [
+            'name'          => 'Alerts',
+            'controller'    => 'cNetworkAlerts',
+            'id'            => 'pnlNetworksAlerts',
+            'glyph'         => 'xf0f3',
+            'total'         => 10,
+            'online'        => 5,
+            'desc'          => 'Track outages',
+            'accent'        => 'orange'           
+        ];
+        $alertCounts   = $this->Counts->countAlerts($cloudId);       
+        $alertsBase    = array_merge($alertsBase,$alertCounts);  
+        
+                    
         $items[]        =  [
-            'column1'   => $unknownBase
+            'column1'   => $unknownBase,
+            'column2'   => $alertsBase
         ];
         
         $this->set([

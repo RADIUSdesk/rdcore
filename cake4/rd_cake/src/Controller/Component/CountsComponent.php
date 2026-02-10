@@ -346,5 +346,18 @@ class CountsComponent extends Component {
             'online'        => $online,
         ];       
     }
+    
+    public function countAlerts(): array { 
+    
+       /* $Unknown    = TableRegistry::getTableLocator()->get('UnknownNodes');
+        $u_total    = $Unknown->find()->count();        
+        $ft_now     = FrozenTime::now();
+        $ft_dead    = $ft_now->subSecond($this->dead_after);    
+        $online     = $Unknown->find()->where(['UnknownNodes.last_contact >='  => $ft_dead])->count();  */       
+        return [
+            'total'         => 100,
+            'online'        => 10,
+        ];       
+    }
         
 }
