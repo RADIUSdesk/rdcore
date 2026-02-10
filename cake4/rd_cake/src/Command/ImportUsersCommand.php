@@ -208,7 +208,11 @@ class ImportUsersCommand extends Command
         }
 
         if (isset($from_date)) {
-            $row_data['from_date'] = date_create_from_format('Y-m-d', $from_date);//ISO 8601 format
+            if($from_date === 'now'){ //Special keyword for API
+                $row_data['from_date'] = FrozenTime::now();
+            }else{
+                $row_data['from_date'] = date_create_from_format('Y-m-d', $from_date);//ISO 8601 format
+            }           
         }
         
         if (isset($to_date)) {
