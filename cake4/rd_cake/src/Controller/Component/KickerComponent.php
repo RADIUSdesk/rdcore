@@ -27,13 +27,14 @@ class KickerComponent extends Component {
     protected	$typeHostaMd 	= 'private_psk';
     protected   $typeJuniper    = 'Juniper';
     protected	$typeMtApi 	    = 'Mikrotik-API';
+    protected	$typeMtRestApi 	= 'Mikrotik-Rest-API';
 
 
     
     protected	$node_action_add = 'http://127.0.0.1/cake4/rd_cake/node-actions/add.json';
     protected	$ap_action_add = 'http://127.0.0.1/cake4/rd_cake/ap-actions/add.json';
     
-   	protected $components = ['MikrotikApi'];
+   	protected $components = ['MikrotikApi','MikrotikRestApi'];
     
     public function initialize(array $config):void{
         //Please Note that we assume the Controller has a JsonErrors Component Included which we can access.
@@ -62,7 +63,7 @@ class KickerComponent extends Component {
      		->contain(['DynamicClientSettings'])
      		->first();
      		
-     	if($dc){
+     	if($dc){   	    
      	   	    
      	    if($dc->type == $this->typeAccel){ //It is type AccelRadiusdesk -> try to locate the session and set the disconnect flag of the session
      	        $this->kickAccelSession($ent);
@@ -103,31 +104,10 @@ class KickerComponent extends Component {
      	        $this->kickJuniperSession($ent);
      	    }
      		    		
-     		if($dc->type == $this->typeMtApi){ 
-     		
-     			//We need to determine the API Connection details    		
-     			$mt_data = [];
-     			foreach($dc->dynamic_client_settings as $s){ 
-					if(preg_match('/^mt_/',$s->name)){
-						$name = preg_replace('/^mt_/','',$s->name);
-						$value= $s->value;
-						if($name == 'port'){
-							$value = intval($value); //Requires integer 	
-						}
-						$mt_data[$name] = $value;				
-					}			        
-				}
-				
-				if($mt_data['proto'] == 'https'){
-					$mt_data['ssl'] = true;
-					if($mt_data['port'] ==8728){
-						//Change it to Default SSL port 8729
-						$mt_data['port'] = 8729;
-					}
-				}         
-				unset($mt_data['proto']); 
-				$this->MikrotikApi->kickRadius($ent,$mt_data);   		   		
-     		}     		  		   	
+     		if(($dc->type == $this->typeMtApi)||($dc->type == $this->typeMtRestApi)){ 
+     		    $this->kickMikrotikSession($dc,$ent); 		
+     		}
+     		     		  		   	
      	}
      	
      	//-- Try the NAS table ----
@@ -139,39 +119,56 @@ class KickerComponent extends Component {
         if($nas){
         
             if($nas->type == $this->typeJuniper){ //SEND IT A POD
-     	        $this->kickJuniperSession($ent);
+     	        $this->kickJuniperSession($nas);
      	    }
      	    
-     	    if($nas->type == $this->typeMtApi){ 
-     		
-     			//We need to determine the API Connection details    		
-     			$mt_data = [];
-     			foreach($nas->na_settings as $s){ 
-					if(preg_match('/^mt_/',$s->name)){
-						$name = preg_replace('/^mt_/','',$s->name);
-						$value= $s->value;
-						if($name == 'port'){
-							$value = intval($value); //Requires integer 	
-						}
-						$mt_data[$name] = $value;				
-					}			        
-				}
-				
-				if($mt_data['proto'] == 'https'){
-					$mt_data['ssl'] = true;
-					if($mt_data['port'] ==8728){
-						//Change it to Default SSL port 8729
-						$mt_data['port'] = 8729;
-					}
-				}         
-				unset($mt_data['proto']); 
-				$this->MikrotikApi->kickRadius($ent,$mt_data);   		   		
+     	    if(($nas->type == $this->typeMtApi)||($nas->type == $this->typeRestMtApi)){ 
+     		    $this->kickMikrotikSession($nas,$ent); 		
      		}
-     	        
+     		     	        
         }
         //--- END NAS TABLE ---
              
         return $data = [];       
+    }
+    
+    private function kickMikrotikSession($client,$ent){
+    
+        $type       = $client->type;
+        $settings   = 'dynamic_client_settings';
+        if($client->secret){
+            $settings = 'na_settings';
+        }
+              
+        //We need to determine the API Connection details    		
+     	$mt_data = [];
+    
+        foreach($client->{$settings} as $s){ 
+			if(preg_match('/^mt_/',$s->name)){
+				$name = preg_replace('/^mt_/','',$s->name);
+				$value= $s->value;
+				if($name == 'port'){
+					$value = intval($value); //Requires integer 	
+				}
+				$mt_data[$name] = $value;				
+			}			        
+		}
+		
+		if($type == $this->typeMtApi){
+		    if($mt_data['proto'] == 'https'){
+			    $mt_data['ssl'] = true;
+			    if($mt_data['port'] ==8728){
+				    //Change it to Default SSL port 8729
+				    $mt_data['port'] = 8729;
+			    }
+		    }
+		    unset($mt_data['proto']); 
+		    $this->MikrotikApi->kickRadius($ent,$mt_data); 
+        }
+        
+        if($type == $this->typeMtRestApi){
+ 		    $this->MikrotikRestApi->kickRadius($ent,$mt_data);
+ 		} 
     }
     
     private function kickAccelSession($ent){
