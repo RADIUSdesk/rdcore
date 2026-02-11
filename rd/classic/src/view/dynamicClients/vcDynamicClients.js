@@ -12,7 +12,7 @@ Ext.define('Rd.view.dynamicClients.vcDynamicClients', {
         var form    = cmb.up('form');
         var cnt     = form.down('#pnlMikrotik');
         var cntPsk  = form.down('#pnlPrivatePsk');       
-        if(cmb.getValue() == 'Mikrotik-API'){
+        if((cmb.getValue() == 'Mikrotik-API')||(cmb.getValue() == 'Mikrotik-Rest-API')){
             cnt.setHidden(false);
             cnt.setDisabled(false);
             cntPsk.setHidden(true);
@@ -33,9 +33,7 @@ Ext.define('Rd.view.dynamicClients.vcDynamicClients', {
         var me      = this;
         var form    = btn.up('form');
         var id      = form.down('#txtId').getValue();
-
-        btn.disable();
-        
+        btn.disable();       
         Ext.Ajax.request({
             url     : me.getUrlTestMikrotik(),
             params  : {'id':id},

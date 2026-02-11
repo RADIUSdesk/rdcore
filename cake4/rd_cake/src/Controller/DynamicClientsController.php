@@ -31,6 +31,7 @@ class DynamicClientsController extends AppController{
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');            
         $this->loadComponent('MikrotikApi');
+        $this->loadComponent('MikrotikRestApi');
                
     }
         
@@ -124,9 +125,12 @@ class DynamicClientsController extends AppController{
         
         $cquery     = $this->request->getQuery();
         $id 		= $cquery['id'];       
-        $q_r 		= $this->{'DynamicClientSettings'}->find()->where(['DynamicClientSettings.dynamic_client_id' => $id])->all(); 
+        $q_r 		= $this->{'DynamicClientSettings'}
+            ->find()
+            ->where(['DynamicClientSettings.dynamic_client_id' => $id])
+            ->all(); 
         $mt_data 	= [];
-        foreach($q_r as $s){    
+        foreach($q_r as $s){  
 			if(preg_match('/^mt_/',$s->name)){
 				$name = preg_replace('/^mt_/','',$s->name);
 				$value= $s->value;
@@ -137,15 +141,30 @@ class DynamicClientsController extends AppController{
 			}			        
         }
         
-        if($mt_data['proto'] == 'https'){
-        	$mt_data['ssl'] = true;
-        	if($mt_data['port'] ==8728){
-        		//Change it to Default SSL port 8729
-        		$mt_data['port'] = 8729;
-        	}
-        }         
-        unset($mt_data['proto']);              
-      	$response = $this->MikrotikApi->test($mt_data);
+        $response = []; //Empty value default
+        //Find out of it is type 'Mikrotik-API' or 'Mikrotik-Rest-API'
+        $dc = $this->DynamicClients->find()->where(['DynamicClients.id' => $id ])->first();
+        $client_type = 'Mikrotik-API';
+        if($dc){
+            $client_type = $dc->type;
+        }
+        
+        
+        if($client_type == 'Mikrotik-Rest-API'){
+            $response = $this->MikrotikRestApi->test($mt_data);
+        }
+        
+        if($client_type == 'Mikrotik-API'){
+            if($mt_data['proto'] == 'https'){
+            	$mt_data['ssl'] = true;
+            	if($mt_data['port'] ==8728){
+            		//Change it to Default SSL port 8729
+            		$mt_data['port'] = 8729;
+            	}
+            }         
+            unset($mt_data['proto']);              
+          	$response = $this->MikrotikApi->test($mt_data);
+        }
     	
     	//___ FINAL PART ___
         $this->set([

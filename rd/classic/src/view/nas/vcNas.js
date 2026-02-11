@@ -10,8 +10,8 @@ Ext.define('Rd.view.nas.vcNas', {
     onCmbNasTypesChange : function(cmb){
         var me      = this;
         var form    = cmb.up('form');
-        var cnt     = form.down('#pnlMikrotik');  
-        if(cmb.getValue() == 'Mikrotik-API'){
+        var cnt     = form.down('#pnlMikrotik'); 
+        if((cmb.getValue() == 'Mikrotik-API')||(cmb.getValue() == 'Mikrotik-Rest-API')){ 
             cnt.setHidden(false);
             cnt.setDisabled(false); 
         }else{
