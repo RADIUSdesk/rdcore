@@ -275,6 +275,42 @@ class PermanentUsersController extends AppController{
         $this->viewBuilder()->setOption('serialize', true);
     }
     
+    //12Feb 2026 -- Convenient function for API calls to get the id for specified username
+    //http://127.0.0.1/cake4/rd_cake/permanent-users/id-for-username.json?cloud_id=23&token=b4c6ac81-6316-4c26-b14c-0a6380555b5f&cloud_id=23&username=909-user1
+    public function idForUsername(){
+    
+        $user = $this->_ap_right_check();
+        if(!$user){
+            return;
+        }
+        $data       = [];
+        $found      = false;
+        $username   = $this->request->getQuery('username'); 
+        $cloud_id   = $this->request->getQuery('cloud_id');
+        
+        $data['username'] = $username; 
+        
+        if($username && $cloud_id){
+             $user   = $this->PermanentUsers->find()
+                ->where([
+                    'PermanentUsers.username' => $username,
+                    'PermanentUsers.cloud_id' => $cloud_id
+                    ])
+                ->first();
+            if($user){
+                $data['id'] = $user->id;
+                $found = true;    
+            }  
+        }
+                         
+        $this->set([
+            'data'      => $data, //For the form to load we use data instead of the standard items as for grids
+            'success'   => $found
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    
+    }
+    
     public function add(){
     
     	$user = $this->_ap_right_check();
@@ -403,29 +439,7 @@ class PermanentUsersController extends AppController{
             $this->JsonErrors->entityErros($entity,$message,$additional);
         }      
     }
-    
-    public function importZZ(){
-
-        if ($this->request->is('post')) {
-            $file = $this->request->getData('csv_file');
-            if ($file && $file->getError() === UPLOAD_ERR_OK) {
-                $filename = $file->getClientFilename();
-                //$file->moveTo(WWW_ROOT . 'uploads' . DS . $filename);
-                $this->set([
-                    'success' => true,
-                    'message' => 'Upload complete'
-                ]);
-            } else {
-                $this->set([
-                    'success' => false,
-                    'message' => 'Upload failed: ' . $file->getError()
-                ]);
-            }
-        }
-        $this->viewBuilder()->setOption('serialize', ['success', 'message']);
-    }
-
-    
+     
     public function import(){
 
         $user = $this->_ap_right_check();
@@ -482,117 +496,6 @@ class PermanentUsersController extends AppController{
 
     }
        
-    private function _testCsvRow(array $row){
-
-        if (empty($row[0]) || strlen($row[0]) < 2) {
-            return false; // Invalid username
-        }
-
-        if (empty($row[1]) || strlen($row[1]) < 4) {
-            return false; // Invalid password
-        }
-
-        [$username, $password, $realm, $profile, $name, $surname, $static_ip, $site, $ppsk, $vlan, $extra_name, $extra_value, $auto_mac] = array_pad($row, 13, null);
-
-        $row_data = [
-            'username' => $username,
-            'password' => $password,
-            'name'     => $name,
-            'surname'  => $surname,
-            'site'     => $site,
-            'auto_mac' => ($auto_mac === 'true')
-        ];
-
-        // Realm processing
-        if (!empty($realm)) {
-            $realm_entity = $this->Realms->entityBasedOnPost(['realm' => $realm]);
-            if (!$realm_entity) {
-                return false;
-            }
-
-            $row_data['realm']    = $realm_entity->name;
-            $row_data['realm_id'] = $realm_entity->id;
-
-            if (filter_var($username, FILTER_VALIDATE_EMAIL)) {
-                $row_data['email'] = $username;
-            }
-
-            if (!empty($realm_entity->suffix) && $realm_entity->suffix_permanent_users) {
-                $row_data['username'] .= '@' . $realm_entity->suffix;
-            }
-        }
-
-        // Profile processing
-        if (!empty($profile)) {
-            $profile_entity = $this->Profiles->entityBasedOnPost(['profile' => $profile]);
-            if (!$profile_entity) {
-                return false;
-            }
-
-            $row_data['profile']    = $profile_entity->name;
-            $row_data['profile_id'] = $profile_entity->id;
-        }
-
-        // Static IP validation
-        if (!empty($static_ip)) {
-            if (!filter_var($static_ip, FILTER_VALIDATE_IP)) {
-                return false;
-            }
-            $row_data['static_ip'] = $static_ip;
-        }
-
-        // PPSK
-        if (!empty($ppsk) && strlen($ppsk) >= 8) {
-            $row_data['ppsk'] = $ppsk;
-        }
-
-        // VLAN processing
-        if (!empty($vlan)) {
-            if ($vlan === 'next_available') {
-                $r_vlans = $this->RealmVlans->find()
-                    ->where(['RealmVlans.realm_id' => $row_data['realm_id']])
-                    ->contain(['PermanentUsers'])
-                    ->order(['vlan' => 'ASC'])
-                    ->all();
-
-                foreach ($r_vlans as $v) {
-                    if (empty($v->permanent_users)) {
-                        $row_data['realm_vlan_id'] = $v->id;
-                        break;
-                    }
-                }
-
-                if (empty($row_data['realm_vlan_id'])) {
-                    return false;
-                }
-            } elseif (is_numeric($vlan)) {
-                $r_vlan = $this->RealmVlans->find()
-                    ->where([
-                        'RealmVlans.realm_id' => $row_data['realm_id'],
-                        'RealmVlans.vlan'     => $vlan
-                    ])
-                    ->first();
-
-                if (!$r_vlan) {
-                    return false;
-                }
-
-                $row_data['realm_vlan_id'] = $r_vlan->id;
-            }
-        }
-
-        // Optional extra fields
-        if (isset($extra_name)) {
-            $row_data['extra_name'] = $extra_name;
-        }
-
-        if (isset($extra_value)) {
-            $row_data['extra_value'] = $extra_value;
-        }
-
-        return $row_data;
-    }
-
     
     public function delete() {
     
