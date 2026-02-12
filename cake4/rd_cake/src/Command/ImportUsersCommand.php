@@ -209,19 +209,19 @@ class ImportUsersCommand extends Command
 
         if (isset($from_date)) {
             if($from_date === 'now'){ //Special keyword for API
-                $row_data['from_date'] = FrozenTime::now();
+                $row_data['from_date'] = FrozenTime::now()->startOfDay();
             }else{
-                $row_data['from_date'] = date_create_from_format('Y-m-d', $from_date);//ISO 8601 format
+                $row_data['from_date'] = date_create_from_format('Y-m-d 00:00:00', $from_date);//ISO 8601 format
             }           
         }
         
         if (isset($to_date)) {
             if (filter_var($to_date, FILTER_VALIDATE_INT) !== false && $to_date < 100) {
-                $to = FrozenTime::now();
+                $to = FrozenTime::now()->endOfDay();
                 $to = $to->addDay(($to_date*30));               
                 $row_data['to_date'] = $to;
             }else{
-                $row_data['to_date'] = date_create_from_format('Y-m-d', $to_date);//ISO 8601 format
+                $row_data['to_date'] = date_create_from_format('Y-m-d 23:59:59', $to_date);//ISO 8601 format
             }
         }
         //-- END FEB 2026 ---
