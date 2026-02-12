@@ -7,6 +7,7 @@ use Cake\ORM\Table;
 use Cake\ORM\TableRegistry;
 
 use Cake\I18n\Time;
+use Cake\I18n\FrozenTime;
 
 class TopUpsTable extends Table {
 
@@ -193,14 +194,14 @@ class TopUpsTable extends Table {
         $value = $entity->days_to_use;    
         if($e->to_date == null){ //Looks fresh
             $old_value = null;
-            $from_date = new Time();
-            $to_date   = new Time();
-            $to_date->modify('+ '.$value.' days');  
+            $from_date = FrozenTime::now()->startOfDay();
+            $to_date   = FrozenTime::now()->endOfDay();
+            $to_date->addDays($value);  
             $e->from_date = $from_date;
             $e->to_date   = $to_date;
             $this->PermanentUsers->save($e);
         }else{
-            $now_time           = new Time();
+            $now_time           = FrozenTime::now();
             $now_seconds        = $now_time->toUnixString();
             $to_date_seconds    = $e->to_date->toUnixString();
             $old_value          = 'Not available';
@@ -215,7 +216,7 @@ class TopUpsTable extends Table {
             }else{
                 $updated_val = $now_seconds + ($value * 86400);
             }    
-            $e->to_date = Time::createFromTimestamp($updated_val);
+            $e->to_date = FrozenTime::createFromTimestamp($updated_val)->endOfDay();
             $this->PermanentUsers->save($e);
         } 
         $q_n = $this->Radchecks->find()->where(['username' => $e->username, 'attribute' => 'Expiration'])->first();
@@ -236,7 +237,7 @@ class TopUpsTable extends Table {
             $old_value = $q_o->value;
         }
        
-        $e->to_date = Time::createFromTimestamp($updated_val);
+        $e->to_date = FrozenTime::createFromTimestamp($updated_val)->endOfDay();
         $this->PermanentUsers->save($e);
         
         $q_n = $this->Radchecks->find()->where(['username' => $e->username, 'attribute' => 'Expiration'])->first();
@@ -263,7 +264,8 @@ class TopUpsTable extends Table {
                 $old_value = $q_o->value;
             }
             
-            $e->to_date = Time::createFromTimestamp($updated_val);
+            $e->to_date = FrozenTime::createFromTimestamp($updated_val)->endOfDay();
+            //--12FEB 2026-- Set it to the end of the daty 
             $this->PermanentUsers->save($e);
 
             $q_n = $this->Radchecks->find()->where(['username' => $e->username, 'attribute' => 'Expiration'])->first();
