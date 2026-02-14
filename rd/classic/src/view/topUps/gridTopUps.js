@@ -16,8 +16,9 @@ Ext.define('Rd.view.topUps.gridTopUps' ,{
     urlMenu     : '/cake4/rd_cake/top-ups/menu-for-grid.json',
     plugins     : 'gridfilters',  //*We specify this
     initComponent: function(){
-        var me      = this;
-         me.bbar     =  [
+        var me   = this;
+        var dash = '<span class="rd-dash">—</span>';
+        me.bbar  =  [
             {
                  xtype       : 'pagingtoolbar',
                  store       : me.store,
@@ -39,26 +40,14 @@ Ext.define('Rd.view.topUps.gridTopUps' ,{
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
         me.columns  = [
             { 
-
-                text        :'Owner', 
-                dataIndex   : 'user',          
-                tdCls       : 'gridTree', 
-                flex        : 1,
-                hidden      : true,
-                filter      : {type: 'string'},
-                stateId     : 'StateGridTopUps2',
-                hidden      : true
-            },
-            { 
                 text    : i18n('sType'),                 
                 dataIndex: 'type',          
-                tdCls   : 'gridTree', 
-                flex    : 1,
+                width    : 150,
                 xtype   : 'templatecolumn', 
                 tpl     : new Ext.XTemplate(
-                    '<tpl if="type==\'data\'"><div class="fieldGreyWhite"><i class="fa fa-database"></i> '+' '+'Data'+'</div></tpl>',
-                    '<tpl if="type==\'days_to_use\'"><div class="fieldPurpleWhite"><i class="fa fa-clock-o"></i> '+' '+'Days To Use'+'</div></tpl>',
-                    '<tpl if="type==\'time\'"><div class="fieldBlueWhite"><i class="fa fa-hourglass"></i> '+' '+'Time'+'</div></tpl>'
+                    '<tpl if="type==\'data\'"><div class="rd-badge rd-badge--green\"><i class="fa fa-database"></i> '+' '+'Data'+'</div></tpl>',
+                    '<tpl if="type==\'days_to_use\'"><div class="rd-badge rd-badge--blue\"><i class="fa fa-clock-o"></i> '+' '+'Days To Use'+'</div></tpl>',
+                    '<tpl if="type==\'time\'"><div class="rd-badge rd-badge--amber\"><i class="fa fa-hourglass"></i> '+' '+'Time'+'</div></tpl>'
                 ),        
                 stateId : 'StateGridTopUps3',
                 filter  : {
@@ -69,8 +58,8 @@ Ext.define('Rd.view.topUps.gridTopUps' ,{
             { 
 
                 text        : 'Permanent user', 
-                dataIndex   : 'permanent_user',          
-                tdCls       : 'gridMain', 
+                dataIndex   : 'permanent_user', 
+                tdCls       : 'gridTree',         
                 flex        : 1,
                 hidden      : false,
                 filter      : {type: 'string'},
@@ -92,8 +81,12 @@ Ext.define('Rd.view.topUps.gridTopUps' ,{
                 tdCls       : 'gridTree', 
                 flex        : 1,
                 filter      : {type: 'string'},
-                renderer    : function(value){
-                    return Ext.ux.bytesToHuman(value)              
+                renderer    : function(value,metaData,record){
+                    if(record.get('type') == 'data'){
+                        return Ext.ux.bytesToHuman(value)
+                    }else{
+                        return dash;
+                    }             
                 },
                 stateId     : 'StateGridTopUps6'
             },
@@ -103,8 +96,12 @@ Ext.define('Rd.view.topUps.gridTopUps' ,{
                 tdCls       : 'gridTree', 
                 flex        : 1,
                 filter      : {type: 'string'},
-                renderer    : function(value){
-                    return Ext.ux.secondsToHuman(value)              
+                renderer    : function(value,metaData,record){
+                    if(record.get('type') == 'time'){
+                        return Ext.ux.secondsToHuman(value)  
+                    }else{
+                        return dash;
+                    }                         
                 },
                 stateId     : 'StateGridTopUps7'
             },
@@ -114,8 +111,15 @@ Ext.define('Rd.view.topUps.gridTopUps' ,{
                 dataIndex   : 'days_to_use',          
                 tdCls       : 'gridTree', 
                 flex        : 1,
-                hidden      : true,
+                hidden      : false,
                 filter      : {type: 'string'},
+                renderer    : function(value,metaData,record){
+                    if(record.get('type') == 'days_to_use'){
+                        return value
+                    }else{
+                        return dash;
+                    }                         
+                },
                 stateId     : 'StateGridTopUps8'
             },
             { 
@@ -134,12 +138,12 @@ Ext.define('Rd.view.topUps.gridTopUps' ,{
                 tdCls       : 'gridTree',  
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<div class=\"fieldBlue\">{created_in_words}</div>"
+                    "<div class=\"rd-badge\">{created_in_words}</div>"
                 ),
                 stateId     : 'StateGridTopUps10',
                 format      : 'Y-m-d H:i:s',
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
-                width       : 200
+                width       : 150
             },  
             { 
                 text        : 'Modified',
@@ -148,9 +152,9 @@ Ext.define('Rd.view.topUps.gridTopUps' ,{
                 hidden      : true, 
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<div class=\"fieldBlue\">{modified_in_words}</div>"
+                    "<div class=\"rd-badge\">{modified_in_words}</div>"
                 ),
-                flex        : 1,
+                width       : 150,
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},stateId: 'StateGridTopUps11'
             }
         ]; 

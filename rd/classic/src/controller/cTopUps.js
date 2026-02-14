@@ -35,7 +35,9 @@ Ext.define('Rd.controller.cTopUps', {
 	                    xtype   : 'gridTopUpTransactions',
                         padding : Rd.config.gridSlim,
 	                    glyph   : Rd.config.icnHistory,
-                        margin  : 5
+                        border  : false,
+                        plain   : true,
+                        padding : Rd.config.gridSlim
 	                }
 	            ]
             });
@@ -94,8 +96,8 @@ Ext.define('Rd.controller.cTopUps', {
             'winTopUpAdd #btnSave' : {
                 click:  me.btnSave
             },
-            'winTopUpAdd #cmbType' : {
-                change:  me.cmbTopUpTypeChanged
+            'winTopUpAdd #rdgType' : {
+                change:  me.rdgTypeChanged
             },
             '#winCsvColumnSelectTopUps #save': {
                 click:  me.csvExportSubmit
@@ -186,34 +188,36 @@ Ext.define('Rd.controller.cTopUps', {
             failure: Ext.ux.formFail
         });
     },
-    cmbTopUpTypeChanged: function(cmb,new_value){
+    rdgTypeChanged: function(rdg,value){
         var me          = this;
-        var form        = cmb.up('form');
-        var cmbDataUnit = form.down('#cmbDataUnit');
-        var cmbTimeUnit = form.down('#cmbTimeUnit');
+        var form        = rdg.up('form');
+        var new_value   = value.type;
+        
+        var rdgDataUnit = form.down('#rdgDataUnit');
+        var rdgTimeUnit = form.down('#rdgTimeUnit');
         var txtAmount   = form.down('#txtAmount');
 
         if(new_value == 'data'){
-            cmbDataUnit.setVisible(true);
-            cmbDataUnit.setDisabled(false);
-            cmbTimeUnit.setVisible(false);
-            cmbTimeUnit.setDisabled(true);
+            rdgDataUnit.setVisible(true);
+            rdgDataUnit.setDisabled(false);
+            rdgTimeUnit.setVisible(false);
+            rdgTimeUnit.setDisabled(true);
             txtAmount.setFieldLabel('Amount');
         }
 
         if(new_value == 'time'){
-            cmbDataUnit.setVisible(false);
-            cmbDataUnit.setDisabled(true);
-            cmbTimeUnit.setVisible(true);
-            cmbTimeUnit.setDisabled(false);
+            rdgDataUnit.setVisible(false);
+            rdgDataUnit.setDisabled(true);
+            rdgTimeUnit.setVisible(true);
+            rdgTimeUnit.setDisabled(false);
             txtAmount.setFieldLabel('Amount');
         }
 
         if(new_value == 'days_to_use'){
-            cmbDataUnit.setVisible(false);
-            cmbDataUnit.setDisabled(true);
-            cmbTimeUnit.setVisible(false);
-            cmbTimeUnit.setDisabled(true);
+            rdgDataUnit.setVisible(false);
+            rdgDataUnit.setDisabled(true);
+            rdgTimeUnit.setVisible(false);
+            rdgTimeUnit.setDisabled(true);
             txtAmount.setFieldLabel('Days');
         }
     },

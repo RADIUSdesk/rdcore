@@ -2,11 +2,10 @@
 
 namespace App\Controller;
 use App\Controller\AppController;
+use Cake\Core\Configure;
 
 class TopUpTransactionsController extends AppController{
   
-    public $base         = "Access Providers/Controllers/TopUpTransactions/";   
-    protected $owner_tree   = array();
     protected $main_model   = 'TopUpTransactions';
   
     public function initialize():void{  
@@ -80,11 +79,69 @@ class TopUpTransactionsController extends AppController{
             array_push($items,$row);      
         }
        
-        $this->set(array(
+        $this->set([
             'items'         => $items,
             'success'       => true,
             'totalCount'    => $total
-        ));
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    }
+    
+     public function menuForGrid(){
+     
+        $a = ['xtype' => 'buttongroup', 'title' => null, 'items' => [
+                [
+                    'xtype'     =>  'button', 
+                    'glyph'     => Configure::read('icnReload'),
+                    'scale'     => 'large',
+                    'itemId'    => 'reload',
+                    'tooltip'   => __('Reload'),
+                    'ui'        => 'button-orange'
+                ]
+            ]
+        ];
+        
+        $b = ['xtype' => 'buttongroup', 'title' => null, 'items' => [
+                [
+                    'xtype'     => 'button',     
+                    'glyph'     => Configure::read('icnCsv'), 
+                    'scale'     => 'large', 
+                    'itemId'    => 'csv',      
+                    'tooltip'   => __('Export CSV'),
+                    'ui'        => 'default'
+                ]
+            ]
+        ];
+     
+        $fb = [
+            'xtype'   => 'component', 
+            'itemId'  => 'totals',  
+             'tpl'    => [
+                 "<div style='font-size:larger;width:400px;'>",
+                    "<ul class='fa-ul'>",
+                        "<li style='padding:4px;'>",
+                            // Display meshes_total with ONLINE and OFFLINE parts
+                            "<span class='fa-li' style='font-family:FontAwesome;'>&#xf20e</span> {meshes_total} networks",
+                            "<tpl if='meshes_up &gt; 0'>",
+                                " - <span style='color:green;'>  {meshes_up} online</span>",
+                            "</tpl>",
+                            "<tpl if='meshes_down &gt; 0'>",
+                                " - <span style='color:#c27819;'>  {meshes_down} offline</span>",
+                            "</tpl>",
+                        "</li>",
+                    "</ul>",
+                "</div>"         
+            ],
+            'data'   =>  [],
+            'cls'    => 'lblRd'
+        ];
+        
+        $menu = [$a,$b,$fb];            
+      
+        $this->set([
+            'items'         => $menu,
+            'success'       => true
+        ]);
         $this->viewBuilder()->setOption('serialize', true); 
     }
 }

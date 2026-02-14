@@ -1282,7 +1282,6 @@ class GridButtonsFlatComponent extends Component {
         $menu = [
             'xtype' => 'buttongroup',
             'title' => $t, 
-            'width' => 100,
             'items' => [
                 $this->btnCSV
             ]
@@ -1302,7 +1301,6 @@ class GridButtonsFlatComponent extends Component {
         $menu = [
             'xtype' => 'buttongroup',
             'title' => $t,
-            'width' => 100,
             'items' => [
                 $this->btnCSV
             ]

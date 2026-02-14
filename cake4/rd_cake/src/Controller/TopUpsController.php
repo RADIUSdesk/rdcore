@@ -8,12 +8,13 @@ use Cake\Core\Configure\Engine\PhpConfig;
 use Cake\I18n\FrozenTime;
 
 use Cake\Utility\Inflector;
+use App\Service\TopUpService;
 
 class TopUpsController extends AppController{
   
-    public $base         = "Access Providers/Controllers/TopUps/";   
-    protected $owner_tree   = array();
+    public $base            = "Access Providers/Controllers/TopUps/";   
     protected $main_model   = 'TopUps';
+    protected TopUpService $TopUpService;
   
     public function initialize():void{  
         parent::initialize();
@@ -32,7 +33,10 @@ class TopUpsController extends AppController{
              
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');  
-        $this->loadComponent('Formatter');         
+        $this->loadComponent('Formatter');
+        
+        //--FEB 2026--
+        $this->TopUpService = new TopUpService();         
     }
     
     public function dataStats(){
@@ -277,7 +281,17 @@ class TopUpsController extends AppController{
             $this->{$this->main_model}->patchEntity($entity, $req_d);
         }
               
-        if ($this->{$this->main_model}->save($entity)) {
+        if ($this->TopUps->save($entity)) {     
+            try {
+                $this->TopUpService->apply($entity->id);
+
+                $this->Flash->success(__('Top-up has been saved and applied.'));
+
+            } catch (\Exception $e) {
+
+                //$this->Flash->error(__('Top-up saved but failed to apply: ') . $e->getMessage());
+                $this->JsonErrors->entityErros($entity,$e->getMessage());
+            }
         
         	//Check if we need to zero the accounting (New feature Nov 2022)
         	if(isset($req_d['accounting_zero'])){
@@ -289,9 +303,9 @@ class TopUpsController extends AppController{
     			}
     		}
     		      
-            $this->set(array(
+            $this->set([
                 'success' => true
-            ));
+            ]);
             $this->viewBuilder()->setOption('serialize', true); 
         } else {
         

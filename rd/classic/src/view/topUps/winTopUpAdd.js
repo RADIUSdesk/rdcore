@@ -5,7 +5,7 @@ Ext.define('Rd.view.topUps.winTopUpAdd', {
     draggable   : true,
     resizable   : true,
     title       : 'New TopUp',
-    width       : 500,
+    width       : 550,
     height      : 450,
     plain       : true,
     border      : false,
@@ -13,7 +13,8 @@ Ext.define('Rd.view.topUps.winTopUpAdd', {
     glyph       : Rd.config.icnAdd,
     autoShow    : false,
     defaults    : {
-            border: false
+            border: false,
+            labelClsExtra   : 'lblRd',
     },
     requires: [
 		'Ext.form.Panel',
@@ -31,82 +32,7 @@ Ext.define('Rd.view.topUps.winTopUpAdd', {
 
     //_______ Data _______
     mkScrnData: function(){
-        var me      = this;
-        //----
-        var types = Ext.create('Ext.data.Store', {
-            fields: ['id', 'name'],
-            data : [
-                {"id":"data",           "name":"Data"},
-                {"id":"time",           "name":"Time"},
-                {"id":"days_to_use",    "name":"Days to use"}
-            ]
-        });
-
-        // Create the combo box, attached to the states data store
-        var cmbType = Ext.create('Ext.form.ComboBox', {
-            fieldLabel      : 'Type',
-            store           : types,
-            queryMode       : 'local',
-            displayField    : 'name',
-            valueField      : 'id',
-            name            : 'type',
-            itemId          : 'cmbType',
-            labelClsExtra   : 'lblRdReq',
-            allowBlank      : false,
-            forceSelection  : true
-        });
-        cmbType.select(cmbType.getStore().getAt(0));
-
-        var dataUnit = Ext.create('Ext.data.Store', {
-            fields: ['id', 'name'],
-            data : [
-                {"id":"mb",  "name":"MB"},
-                {"id":"gb",  "name":"GB"}
-            ]
-        });
-
-        // Create the combo box, attached to the states data store
-        var cmbDataUnit = Ext.create('Ext.form.ComboBox', {
-            fieldLabel      : 'Unit',
-            store           : dataUnit,
-            queryMode       : 'local',
-            displayField    : 'name',
-            valueField      : 'id',
-            name            : 'data_unit',
-            itemId          : 'cmbDataUnit',
-            labelClsExtra   : 'lblRdReq',
-            allowBlank      : false,
-            forceSelection  : true
-        });
-        cmbDataUnit.select(cmbDataUnit.getStore().getAt(0));
-
-        var timeUnit = Ext.create('Ext.data.Store', {
-            fields: ['id', 'name'],
-            data : [
-                {"id":"minutes",  "name":"Minutes"},
-                {"id":"hours",    "name":"Hours"},
-                {"id":"days",     "name":"Days"}
-            ]
-        });
-
-        // Create the combo box, attached to the states data store
-        var cmbTimeUnit = Ext.create('Ext.form.ComboBox', {
-            fieldLabel      : 'Unit',
-            store           : timeUnit,
-            queryMode       : 'local',
-            displayField    : 'name',
-            valueField      : 'id',
-            name            : 'time_unit',
-            itemId          : 'cmbTimeUnit',
-            hidden          : true,
-            disabled        : true,
-            labelClsExtra   : 'lblRdReq',
-            allowBlank      : false,
-            forceSelection  : true
-        });
-
-        cmbTimeUnit.select(cmbTimeUnit.getStore().getAt(0));
-        //---
+        var me      = this;    
         var frmData = Ext.create('Ext.form.Panel',{
             border: 	false,
             layout:     'anchor',
@@ -130,7 +56,7 @@ Ext.define('Rd.view.topUps.winTopUpAdd', {
                     xtype       : 'displayfield',
                     fieldLabel  : 'Cloud',
                     value       : me.cloudName,
-                    labelClsExtra: 'lblRdReq'
+                    labelClsExtra: 'lblRd'
                 },
                 {
                     xtype       : 'cmbPermanentUser',
@@ -140,20 +66,103 @@ Ext.define('Rd.view.topUps.winTopUpAdd', {
                     fieldLabel  : 'Permanent user',
                     name        : 'permanent_user_id'                  
                 },
-                cmbType,
+                {
+                    xtype       : 'radiogroup',
+                    columns     : 3,             
+                    vertical    : false,
+                    allowBlank  : false,
+                    itemId      : 'rdgType',
+                    fieldLabel  : 'Type',
+                    items       : [
+                        {
+                            boxLabel   : 'Days to use',
+                            name       : 'type',
+                            margin     : '0 15 0 0',
+                            inputValue : 'days_to_use',
+                            checked    : true 
+                        },
+                        {
+                            boxLabel   : 'Data',
+                            name       : 'type',
+                            inputValue : 'data',
+                            margin    : '0 15 0 15',
+                            checked    : true   
+                        },
+                        {
+                            boxLabel   : 'Time',
+                            name       : 'type',
+                            margin    : '0 15 0 0',
+                            inputValue : 'time'
+                        }                      
+                    ]
+                },
                 {
                     xtype       : 'numberfield',
                     name        : 'value',
-                    fieldLabel  : 'Amount',
                     value       : 1,
                     maxValue    : 1000,
                     minValue    : 1,
-                    labelClsExtra: 'lblRdReq',
                     allowBlank  : false,
-                    itemId      : 'txtAmount'
+                    itemId      : 'txtAmount',
+                    fieldLabel  : 'Days',
+                    hideTrigger : true,
+                    keyNavEnabled  : false,
+                    mouseWheelEnabled	: false
                 },
-                cmbDataUnit,
-                cmbTimeUnit,
+                {
+                    xtype       : 'radiogroup',
+                    columns     : 3,
+                    vertical    : false,
+                    itemId      : 'rdgDataUnit',
+                    hidden      : true,
+                    disabled    : true,
+                    fieldLabel  : 'Unit',
+                    items       : [
+                        {
+                            boxLabel   : 'MB',
+                            name       : 'data_unit',
+                            inputValue : 'mb',
+                            margin     : '0 15 0 0',
+                            checked    : true   
+                        },
+                        {
+                            boxLabel   : 'GB',
+                            name       : 'data_unit',
+                            margin     : '0 0 0 15',
+                            inputValue : 'gb'
+                        }
+                    ]
+                },
+                {
+                    xtype       : 'radiogroup',
+                    columns     : 3,
+                    vertical    : false,
+                    itemId      : 'rdgTimeUnit',
+                    hidden      : true,
+                    disabled    : true,
+                    fieldLabel  : 'Unit',
+                    items       : [
+                        {
+                            boxLabel   : 'Minutes',
+                            name       : 'time_unit',
+                            inputValue : 'minutes',
+                            margin     : '0 15 0 0',
+                            checked    : true   
+                        },
+                        {
+                            boxLabel   : 'Hours',
+                            name       : 'time_unit',
+                            margin     : '0 0 0 15',
+                            inputValue : 'hours'
+                        },
+                        {
+                            boxLabel   : 'Days',
+                            name       : 'time_unit',
+                            margin     : '0 15 0 0',
+                            inputValue : 'days'
+                        }
+                    ]
+                },
                 {
                     xtype       : 'textfield',
                     fieldLabel  : 'Comment',
