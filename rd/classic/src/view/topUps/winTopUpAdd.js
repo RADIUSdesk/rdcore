@@ -85,8 +85,7 @@ Ext.define('Rd.view.topUps.winTopUpAdd', {
                             boxLabel   : 'Data',
                             name       : 'type',
                             inputValue : 'data',
-                            margin    : '0 15 0 15',
-                            checked    : true   
+                            margin    : '0 15 0 15'
                         },
                         {
                             boxLabel   : 'Time',

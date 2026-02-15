@@ -14,6 +14,8 @@ begin
         ALTER TABLE permanent_users
             ADD COLUMN mac_address VARCHAR(100) NOT NULL DEFAULT '',
             ADD INDEX idx_permanent_users_mac_address (mac_address);
+            
+        CREATE INDEX idx_perm_users_expiry ON permanent_users (admin_state, to_date);
     END IF;
 
 end//

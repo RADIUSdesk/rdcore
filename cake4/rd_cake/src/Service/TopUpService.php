@@ -3,8 +3,10 @@
 namespace App\Service;
 
 use Cake\ORM\TableRegistry;
+use Cake\Controller\ComponentRegistry;
 use Cake\Datasource\ConnectionManager;
 use Cake\I18n\FrozenTime;
+use App\Controller\Component\IspPlumbingComponent; // ← REQUIRED
 
 class TopUpService {
 
@@ -12,6 +14,7 @@ class TopUpService {
     protected $PermanentUsers;
     protected $Radchecks;
     protected $TopUpTransactions;
+    protected $IspPlumbing;
 
     public function __construct(){
     
@@ -20,6 +23,10 @@ class TopUpService {
         $this->PermanentUsers    = $locator->get('PermanentUsers');
         $this->Radchecks         = $locator->get('Radchecks');
         $this->TopUpTransactions = $locator->get('TopUpTransactions');
+        
+        // Proper component loading
+        $registry = new ComponentRegistry();
+        $this->IspPlumbing = new IspPlumbingComponent($registry);        
     }
 
     public function apply($topUpId){
@@ -53,15 +60,15 @@ class TopUpService {
         $oldToDate = $user->to_date;
         $oldExpiry = $this->getRadcheckValue($user->username, 'Expiration');
 
-        $recoveryDays  = 0;
-        $effectiveDays = $value;
+        $expiredGapDays  = 0;
+        $appliedDays     = $value;
 
         if (!$oldToDate || $oldToDate < $now) {
 
             // Account expired or never had expiry
             if ($oldToDate) {
-                $recoverySeconds = $now->getTimestamp() - $oldToDate->getTimestamp();
-                $recoveryDays    = (int)floor($recoverySeconds / 86400);
+                $expiredGapSeconds = $now->getTimestamp() - $oldToDate->getTimestamp();
+                $expiredGapDays    = (int)floor($expiredGapSeconds / 86400);
             }
 
             $base = $now;
@@ -71,7 +78,7 @@ class TopUpService {
             $base = $oldToDate;
         }
 
-        $effectiveDays = $value + $recoveryDays;
+        $appliedDays = $value + $expiredGapDays;
 
         $newToDate = $base
             ->addDays($value)
@@ -79,6 +86,12 @@ class TopUpService {
 
         $user->to_date = $newToDate;
         $this->PermanentUsers->saveOrFail($user);
+        
+        //--- ISP Plumbing ---
+        if($expiredGapDays > 0){ //Account was **in expiration** and this lifted it **out of expiration** - Disconnect it (if connected) to it can be in the correct network / speed again
+            $this->IspPlumbing->disconnectIfActive($user);
+        }
+        //--------------------
 
         $newExpiry = $this->getRadcheckValue($user->username, 'Expiration');
 
@@ -88,8 +101,8 @@ class TopUpService {
             'Expiration',
             $oldExpiry,
             $newExpiry,
-            $effectiveDays,
-            $recoveryDays
+            $appliedDays,
+            $expiredGapDays
         );
     }
  
@@ -136,8 +149,8 @@ class TopUpService {
         $attribute,
         $old,
         $new,
-        $effectiveDays = null,
-        $recoveryDays = null
+        $appliedDays = null,
+        $expiredGapDays = null
     ) {
 
         $entity = $this->TopUpTransactions->newEntity([
@@ -150,8 +163,8 @@ class TopUpService {
             'radius_attribute'  => $attribute,
             'old_value'         => $old,
             'new_value'         => $new,
-            'effective_days'    => $effectiveDays,
-            'recovery_days'     => $recoveryDays
+            'applied_days'      => $appliedDays,
+            'expired_gap_days'  => $expiredGapDays
         ]);
 
         $this->TopUpTransactions->saveOrFail($entity);

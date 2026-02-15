@@ -56,7 +56,7 @@ Ext.define('Rd.view.topUps.gridTopUpTransactions' ,{
                     '<tpl if="type==\'days_to_use\'"><div class="rd-badge rd-badge--blue\"><i class="fa fa-clock-o"></i> '+' '+'Days To Use'+'</div></tpl>',
                     '<tpl if="type==\'time\'"><div class="rd-badge rd-badge--amber"><i class="fa fa-hourglass"></i> '+' '+'Time'+'</div></tpl>'
                 ),        
-                stateId : 'StateGridTut3',
+                stateId : 'Tut1',
                 filter  : {
                     type    : 'list',
                     store   : types
@@ -69,7 +69,7 @@ Ext.define('Rd.view.topUps.gridTopUpTransactions' ,{
                 flex        : 1,
                 hidden      : false,
                 filter      : {type: 'string'},
-                stateId     : 'StateGridTut4'
+                stateId     : 'Tut2'
             },
             { 
                 text        : 'Action',                 
@@ -82,7 +82,7 @@ Ext.define('Rd.view.topUps.gridTopUpTransactions' ,{
                     '<tpl if="action==\'update\'"><div class="rd-badge rd-badge--blue"><i class="fa fa-pen"></i> Update</div></tpl>',
                     '<tpl if="action==\'delete\'"><div class="rd-badge rd-badge--amber"><i class="fa fa-trash"></i> Delete</div></tpl>'
                 ),        
-                stateId     : 'StateGridTut5',
+                stateId     : 'Tut3',
                 filter      : {
                     type    : 'list',
                     store   : actions
@@ -95,7 +95,7 @@ Ext.define('Rd.view.topUps.gridTopUpTransactions' ,{
                 flex        : 1,
                 hidden      : false,
                 filter      : {type: 'string'},
-                stateId     : 'StateGridTut6'
+                stateId     : 'Tut4'
             }, 
             { 
                 text        : 'Old Value', 
@@ -104,7 +104,7 @@ Ext.define('Rd.view.topUps.gridTopUpTransactions' ,{
                 flex        : 1,
                 hidden      : false,
                 filter      : {type: 'string'},
-                stateId     : 'StateGridTut7'
+                stateId     : 'Tut5'
             }, 
             { 
                 text        : 'New Value', 
@@ -113,13 +113,13 @@ Ext.define('Rd.view.topUps.gridTopUpTransactions' ,{
                 flex        : 1,
                 hidden      : false,
                 filter      : {type: 'string'},
-                stateId     : 'StateGridTut8',
+                stateId     : 'Tut6',
                 renderer    : function(value,metaData,record){
-                    var rd  = record.get('recovery_days');
-                    var ed  = record.get('effective_days');
-                    var pd  = ed - rd;                 
-                    if((record.get('type') == 'days_to_use')&&(rd >0)){
-                        value = value + "<div style='font-size:11px;color:#04399f;'><span style='color:orange;'><span class='fa' style='font-family:FontAwesome;'>&#xf05a;</span></span>  "+pd+" purchased + "+rd+" expired gap = "+ed+" added</div>";
+                    var egd = record.get('expired_gap_days');
+                    var ad  = record.get('applied_days');
+                    var pd  = ad - egd;                 
+                    if((record.get('type') == 'days_to_use')&&(egd >0)){
+                        value = value + "<div style='font-size:11px;color:#04399f;'><span style='color:orange;'><span class='fa' style='font-family:FontAwesome;'>&#xf05a;</span></span>  "+pd+" purchased + "+egd+" expired gap = "+ad+" added</div>";
 
                     }
                     return value;                        
@@ -132,7 +132,25 @@ Ext.define('Rd.view.topUps.gridTopUpTransactions' ,{
                 flex        : 1,
                 hidden      : false,
                 filter      : {type: 'number'},
-                stateId     : 'StateGridTut9'
+                stateId     : 'Tut7'
+            },
+            { 
+                text        : 'Expired Gap Days', 
+                dataIndex   : 'expired_gap_days',          
+                tdCls       : 'gridTree', 
+                flex        : 1,
+                hidden      : true,
+                filter      : {type: 'number'},
+                stateId     : 'Tut8'
+            },
+            { 
+                text        : 'Applied Days', 
+                dataIndex   : 'applied_days',          
+                tdCls       : 'gridTree', 
+                flex        : 1,
+                hidden      : true,
+                filter      : {type: 'number'},
+                stateId     : 'Tut9'
             },
             { 
                 text        : 'Created',
@@ -142,7 +160,7 @@ Ext.define('Rd.view.topUps.gridTopUpTransactions' ,{
                 tpl         : new Ext.XTemplate(
                     "<div class=\"rd-badge\">{created_in_words}</div>"
                 ),
-                stateId     : 'StateGridTut10',
+                stateId     : 'Tut10',
                 format      : 'Y-m-d H:i:s',
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
                 width       : 150
@@ -157,7 +175,7 @@ Ext.define('Rd.view.topUps.gridTopUpTransactions' ,{
                     "<div class=\"rd-badge\">{modified_in_words}</div>"
                 ),
                 width       : 150,
-                filter      : {type: 'date',dateFormat: 'Y-m-d'},stateId: 'StateGridTut11'
+                filter      : {type: 'date',dateFormat: 'Y-m-d'},stateId: 'Tut11'
             }
         ]; 
         me.callParent(arguments);

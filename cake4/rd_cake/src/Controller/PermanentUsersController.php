@@ -375,19 +375,24 @@ class PermanentUsersController extends AppController{
     
         if(isset($req_d['from_date'])){
             if($req_d['from_date'] === 'now'){ //Special keyword for API
-                $req_d['from_date'] = FrozenTime::now();
+                $req_d['from_date'] = FrozenTime::now()>startOfDay();
             }else{
-                $req_d['from_date'] = date_create_from_format('Y-m-d', $req_d['from_date']); // Submit format: 2026-02-02 (ISO) ISO 8601 format
+                $from = new FrozenTime($req_d['from_date']);
+                $from = $from->startOfDay();         
+                $req_d['from_date'] = $from;
             }
         }
         
         if(isset($req_d['to_date'])){
             if (filter_var($req_d['to_date'], FILTER_VALIDATE_INT) !== false && $req_d['to_date'] < 100) { //Special type for API (Integer = times 30)
-                $to = FrozenTime::now();
+                $to = FrozenTime::now()->endOfDay();
                 $to = $to->addDay(($req_d['to_date']*30));               
                 $req_d['to_date'] = $to;
             }else{
-                $req_d['to_date'] = date_create_from_format('Y-m-d', $req_d['to_date']); // Submit format: 2026-02-02 (ISO) ISO 8601 format
+            
+                $to = new FrozenTime($req_d['to_date']);
+                $to = $to->endOfDay();    
+                $req_d['to_date'] = $to;
             }
         }
                             
@@ -656,9 +661,11 @@ class PermanentUsersController extends AppController{
             //Set the date and time
             if(isset($req_d['from_date'])){                           
                 if($req_d['from_date'] === 'now'){ //Special keyword for API
-                    $req_d['from_date'] = FrozenTime::now();
+                    $req_d['from_date'] = FrozenTime::now()->startOfDay();
                 }else{
-                    $req_d['from_date'] = date_create_from_format('Y-m-d', $req_d['from_date']); // Submit format: 2026-02-02 (ISO) ISO 8601 format
+                    $from = new FrozenTime($req_d['from_date']);
+                    $from = $from->startOfDay();         
+                    $req_d['from_date'] = $from;
                 }
                 
                 //-- Dev Note --
@@ -676,7 +683,7 @@ class PermanentUsersController extends AppController{
                         ? $entity->to_date
                         : FrozenTime::parse($entity->to_date);
 
-                    $now = FrozenTime::now();
+                    $now = FrozenTime::now()->endOfDay();
 
                     if ($oldToDate <= $now) {
                         // Old date is past or now → base on NOW, x * 3 days
@@ -689,7 +696,9 @@ class PermanentUsersController extends AppController{
                     $req_d['to_date'] = $newToDate;
                 
                 }else{
-                    $req_d['to_date'] = date_create_from_format('Y-m-d', $req_d['to_date']); // Submit format: 2026-02-02 (ISO) ISO 8601 format
+                    $to = new FrozenTime($req_d['to_date']);
+                    $to = $to->endOfDay();    
+                    $req_d['to_date'] = $to;
                 }
             }
             
@@ -1043,18 +1052,29 @@ class PermanentUsersController extends AppController{
 		$req_d      = $this->request->getData();
         unset($req_d['token']);
 
-        //Set the date and time
-        $extDateSelects = [
-                'from_date',
-                'to_date'
-        ];
-        foreach($extDateSelects as $d){
-            if(isset($req_d[$d])){
-                $newDate    = $newDate = date_create_from_format('Y-m-d', $req_d[$d]); // Submit format: 2026-02-02 (ISO) ISO 8601 format
-                $req_d[$d]  = $newDate;
-            }  
+        if(isset($req_d['from_date'])){                           
+            if($req_d['from_date'] === 'now'){ //Special keyword for API
+                $req_d['from_date'] = FrozenTime::now()->startOfDay();
+            }else{
+            
+                $from = new FrozenTime($req_d['from_date']);
+                $from = $from->startOfDay();         
+                $req_d['from_date'] = $from;
+            }              
         }
-
+        
+        if(isset($req_d['to_date'])){
+            if (filter_var($req_d['to_date'], FILTER_VALIDATE_INT) !== false && $req_d['to_date'] < 100) { //Special type for API (Integer = times 30)
+                $to = FrozenTime::now()->endOfDay();
+                $to = $to->addDay(($req_d['to_date']*30));               
+                $req_d['to_date'] = $to;
+            }else{
+                $to = new FrozenTime($req_d['to_date']);
+                $to = $to->endOfDay();    
+                $req_d['to_date'] = $to;
+            }
+        }
+        
         $entity = $this->{$this->main_model}->get($req_d['user_id']);
         unset($req_d['user_id']);
 

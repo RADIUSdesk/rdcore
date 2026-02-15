@@ -28,8 +28,6 @@ class KickerComponent extends Component {
     protected   $typeJuniper    = 'Juniper';
     protected	$typeMtApi 	    = 'Mikrotik-API';
     protected	$typeMtRestApi 	= 'Mikrotik-Rest-API';
-
-
     
     protected	$node_action_add = 'http://127.0.0.1/cake4/rd_cake/node-actions/add.json';
     protected	$ap_action_add = 'http://127.0.0.1/cake4/rd_cake/ap-actions/add.json';
@@ -37,18 +35,18 @@ class KickerComponent extends Component {
    	protected $components = ['MikrotikApi','MikrotikRestApi'];
     
     public function initialize(array $config):void{
-        //Please Note that we assume the Controller has a JsonErrors Component Included which we can access.
-        $this->DynamicClients           = TableRegistry::get('DynamicClients');
-        $this->DynamicClientSettings    = TableRegistry::get('DynamicClientSettings');
-        $this->Nas           			= TableRegistry::get('Nas');
-        $this->NaSettings               = TableRegistry::get('NaSettings');
-        $this->MeshExitCaptivePortals   = TableRegistry::get('MeshExitCaptivePortals'); 
-        $this->MeshExits                = TableRegistry::get('MeshExits'); 
-        $this->Nodes                    = TableRegistry::get('Nodes');
-        $this->NodeActions              = TableRegistry::get('NodeActions');     
-        //Accel
-        $this->AccelServers             = TableRegistry::get('AccelServers');
-        $this->AccelSessions            = TableRegistry::get('AccelSessions');         
+
+        $locator                        = TableRegistry::getTableLocator();      
+        $this->DynamicClients           = $locator->get('DynamicClients');
+        $this->DynamicClientSettings    = $locator->get('DynamicClientSettings');
+        $this->Nas           			= $locator->get('Nas');
+        $this->NaSettings               = $locator->get('NaSettings');
+        $this->MeshExitCaptivePortals   = $locator->get('MeshExitCaptivePortals'); 
+        $this->MeshExits                = $locator->get('MeshExits'); 
+        $this->Nodes                    = $locator->get('Nodes');
+        $this->NodeActions              = $locator->get('NodeActions');     
+        $this->AccelServers             = $locator->get('AccelServers');
+        $this->AccelSessions            = $locator->get('AccelSessions');         
     }
 
     public function kick($ent,$token){
