@@ -57,20 +57,33 @@ class TopUpService {
         $value = (int)$topUp->days_to_use;
         $now   = FrozenTime::now();
 
-        $oldToDate = $user->to_date;
-        $oldExpiry = $this->getRadcheckValue($user->username, 'Expiration');
+        $oldToDate      = $user->to_date;             
+        $oldExpiryStr   = $this->getRadcheckValue($user->username, 'Expiration');
+        $oldExpiry      = null;
+
+        if ($oldExpiryStr) {
+            $oldExpiry = FrozenTime::createFromFormat(
+                'j M Y',      // 17 Feb 2026
+                $oldExpiryStr,
+                'UTC'         // use same timezone as your system / DB
+            )->endOfDay();    // 23:59:59
+        }
 
         $expiredGapDays  = 0;
         $appliedDays     = $value;
 
         if (!$oldToDate || $oldToDate < $now) {
 
-            // Account expired or never had expiry
-            if ($oldToDate) {
-                $expiredGapSeconds = $now->getTimestamp() - $oldToDate->getTimestamp();
-                $expiredGapDays    = (int)floor($expiredGapSeconds / 86400);
-            }
+            // Account expired or never had expiry         
+            if ($oldExpiry && $oldExpiry < $now) {
+                $expiredGapDays = $oldExpiry
+                    ->endOfDay()
+                    ->diffInDays($now->endOfDay());
 
+            } else {
+                $expiredGapDays = 0;
+            }
+                       
             $base = $now;
 
         } else {
@@ -99,7 +112,7 @@ class TopUpService {
             $topUp,
             'create',
             'Expiration',
-            $oldExpiry,
+            $oldExpiryStr,
             $newExpiry,
             $appliedDays,
             $expiredGapDays
