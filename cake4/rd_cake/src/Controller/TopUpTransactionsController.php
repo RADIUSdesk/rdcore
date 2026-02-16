@@ -136,7 +136,7 @@ class TopUpTransactionsController extends AppController{
             'cls'    => 'lblRd'
         ];
         
-        $menu = [$a,$b,$fb];            
+        $menu = [$a,$b];            
       
         $this->set([
             'items'         => $menu,

@@ -211,7 +211,9 @@ class ImportUsersCommand extends Command
             if($from_date === 'now'){ //Special keyword for API
                 $row_data['from_date'] = FrozenTime::now()->startOfDay();
             }else{
-                $row_data['from_date'] = date_create_from_format('Y-m-d 00:00:00', $from_date);//ISO 8601 format
+                $from = new FrozenTime($from_date);
+                $from = $from->startOfDay();         
+                $row_data['from_date'] = $from;
             }           
         }
         
@@ -221,7 +223,9 @@ class ImportUsersCommand extends Command
                 $to = $to->addDay(($to_date*30));               
                 $row_data['to_date'] = $to;
             }else{
-                $row_data['to_date'] = date_create_from_format('Y-m-d 23:59:59', $to_date);//ISO 8601 format
+                $to = new FrozenTime($to_date);
+                $to = $to->endOfDay();    
+                $row_data['to_date'] = $to;
             }
         }
         //-- END FEB 2026 ---

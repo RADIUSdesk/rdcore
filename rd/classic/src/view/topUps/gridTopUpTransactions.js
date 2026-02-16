@@ -7,8 +7,10 @@ Ext.define('Rd.view.topUps.gridTopUpTransactions' ,{
     stateId     : 'StateGridTut',
     stateEvents :['groupclick','columnhide'],
     requires: [
-        'Rd.view.components.ajaxToolbar'
+        'Rd.view.components.ajaxToolbar',
+        'Rd.view.topUps.vcTopUpTransactions',
     ],
+    controller  : 'vcTopUpTransactions',
     viewConfig: {
         loadMask    :true
     },

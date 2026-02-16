@@ -108,9 +108,6 @@ Ext.define('Rd.controller.cTopUps', {
             'winTopUpEdit #save': {
                 click: me.btnEditSave
             },
-            '#cTopUps gridTopUpTransactions' : {
-                activate:      me.gridActivate
-            },
             '#cTopUps gridTopUps' : {
                 activate:      me.gridActivate
             }

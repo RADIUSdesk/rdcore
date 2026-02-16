@@ -11,11 +11,6 @@ Ext.define('Rd.view.unknownNodes.gridUnknownNodes' ,{
     columnLines : false,
     rowLines    : false,
     stripeRows  : true,
-    requires	: [
-        'Rd.view.components.ajaxToolbar',
-        'Ext.toolbar.Paging',
-        'Ext.ux.ProgressBarPager'
-    ],
     requires    : [
         'Rd.view.components.ajaxToolbar',
         'Ext.toolbar.Paging',
