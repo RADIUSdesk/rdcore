@@ -34,7 +34,8 @@ class NasController extends AppController{
         $this->loadModel('NaRealms');       
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');
-        $this->loadComponent('MikrotikApi');         
+        $this->loadComponent('MikrotikApi');
+        $this->loadComponent('MikrotikRestApi');        
     }
     
     public function testMikrotik(){
@@ -65,9 +66,32 @@ class NasController extends AppController{
         		//Change it to Default SSL port 8729
         		$mt_data['port'] = 8729;
         	}
-        }         
-        unset($mt_data['proto']);              
-      	$response = $this->MikrotikApi->test($mt_data);
+        } 
+        
+        $response = []; //Empty value default
+        //Find out of it is type 'Mikrotik-API' or 'Mikrotik-Rest-API'
+        $nas = $this->Nas->find()->where(['Nas.id' => $id ])->first();
+        $client_type = 'Mikrotik-API';
+        if($nas){
+            $client_type = $nas->type;
+        }
+        
+        
+        if($client_type == 'Mikrotik-Rest-API'){
+            $response = $this->MikrotikRestApi->test($mt_data);
+        }
+        
+        if($client_type == 'Mikrotik-API'){
+            if($mt_data['proto'] == 'https'){
+            	$mt_data['ssl'] = true;
+            	if($mt_data['port'] ==8728){
+            		//Change it to Default SSL port 8729
+            		$mt_data['port'] = 8729;
+            	}
+            }         
+            unset($mt_data['proto']);              
+          	$response = $this->MikrotikApi->test($mt_data);
+        }
     	
     	//___ FINAL PART ___
         $this->set([

@@ -276,29 +276,44 @@ class PermanentUsersController extends AppController{
     }
     
     //12Feb 2026 -- Convenient function for API calls to get the id for specified username
-    //http://127.0.0.1/cake4/rd_cake/permanent-users/id-for-username.json?cloud_id=23&token=b4c6ac81-6316-4c26-b14c-0a6380555b5f&cloud_id=23&username=909-user1
+    //http://127.0.0.1/cake4/rd_cake/permanent-users/id-for-username.json?cloud_id=23&token=b4c6ac81-6316-4c26-b14c-0a6380555b5f&cloud_id=23&username=909-user1 (specify username)
+    //http://127.0.0.1/cake4/rd_cake/permanent-users/id-for-username.json?cloud_id=23&token=b4c6ac81-6316-4c26-b14c-0a6380555b5f&cloud_id=23&mac_address=11-22-22-22-22-22 (specify mac_address)
+    
     public function idForUsername(){
     
         $user = $this->_ap_right_check();
         if(!$user){
             return;
         }
+        
         $data       = [];
         $found      = false;
+        
         $username   = $this->request->getQuery('username'); 
         $cloud_id   = $this->request->getQuery('cloud_id');
-        
+        $mac_address= $this->request->getQuery('mac_address');
+                
         $data['username'] = $username; 
         
-        if($username && $cloud_id){
-             $user   = $this->PermanentUsers->find()
-                ->where([
-                    'PermanentUsers.username' => $username,
-                    'PermanentUsers.cloud_id' => $cloud_id
-                    ])
+        if(($username && $cloud_id)||($mac_address && $cloud_id)){
+        
+            $where['PermanentUsers.cloud_id'] = $cloud_id;
+        
+            if($username){
+                $where['PermanentUsers.username'] = $username;            
+            }
+            
+            if($mac_address){
+                $where['PermanentUsers.mac_address'] = $mac_address;
+            }
+                           
+            $user   = $this->PermanentUsers->find()
+                ->where($where)
                 ->first();
             if($user){
-                $data['id'] = $user->id;
+                unset($user->password);
+                unset($user->token);
+                $data = $user;
                 $found = true;    
             }  
         }

@@ -15,6 +15,7 @@ class TopUpService {
     protected $Radchecks;
     protected $TopUpTransactions;
     protected $IspPlumbing;
+    protected $returnTransaction =[];
 
     public function __construct(){
     
@@ -108,7 +109,7 @@ class TopUpService {
 
         $newExpiry = $this->getRadcheckValue($user->username, 'Expiration');
 
-        $this->addTransaction(
+        return $this->addTransaction(
             $topUp,
             'create',
             'Expiration',
@@ -153,7 +154,7 @@ class TopUpService {
             $new = $value;
         }
 
-        $this->addTransaction($topUp, 'create', $attribute, $old, $new);
+        return $this->addTransaction($topUp, 'create', $attribute, $old, $new);
     }
     
     protected function addTransaction(
@@ -181,6 +182,7 @@ class TopUpService {
         ]);
 
         $this->TopUpTransactions->saveOrFail($entity);
+        return $entity;
     }
     
     protected function getRadcheckValue($username, $attribute){

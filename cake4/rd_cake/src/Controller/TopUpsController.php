@@ -267,6 +267,13 @@ class TopUpsController extends AppController{
         if($req_d['type'] == 'days_to_use'){
             $req_d['days_to_use'] = $req_d['value'];
         }
+        
+        //--Months to use-- (FEB 2026 FOR API)
+        if($req_d['type'] == 'months_to_use'){
+            $req_d['type']          = 'days_to_use';
+            $req_d['days_to_use']   = $req_d['value']*30;  //Month = 30days standard
+        } 
+        
         //====END Check what type it is====
        
         if($type == 'add'){ 
@@ -281,9 +288,19 @@ class TopUpsController extends AppController{
             $this->{$this->main_model}->patchEntity($entity, $req_d);
         }
               
-        if ($this->TopUps->save($entity)) {     
+        if ($this->TopUps->save($entity)) { 
+            $retVal = [];    
             try {
-                $this->TopUpService->apply($entity->id);
+                $retVal = $this->TopUpService->apply($entity->id);
+                
+                if($retVal){
+                    $retVal->top_up_type        = $entity->type;
+                    $retVal->top_up_days_to_use = $entity->days_to_use;
+                    $retVal->top_up_comment     = $entity->comment;
+                    $retVal->top_up_data = $entity->data;
+                    $retVal->top_up_time = $entity->time;
+                    
+                }
 
                 $this->Flash->success(__('Top-up has been saved and applied.'));
 
@@ -304,7 +321,8 @@ class TopUpsController extends AppController{
     		}
     		      
             $this->set([
-                'success' => true
+                'data'      => $retVal,
+                'success'   => true
             ]);
             $this->viewBuilder()->setOption('serialize', true); 
         } else {
