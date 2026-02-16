@@ -518,7 +518,7 @@ class GridButtonsFlatComponent extends Component {
         }
         
        	if($type == 'top_ups'){
-            $b  = $this->_fetchBasic();
+            $b  = $this->_fetchAddAndDelete();
             $d  = $this->_fetchDocumentTopUp();
             $menu = [$b,$d];
         }
