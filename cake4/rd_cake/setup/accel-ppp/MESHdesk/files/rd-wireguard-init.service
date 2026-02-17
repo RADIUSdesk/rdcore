@@ -1,0 +1,18 @@
+[Unit]
+Description=RD WireGuard Init (MESHdesk provisioning)
+Wants=network-online.target nginx.service
+After=network-online.target nginx.service
+
+#If you are not on the SAME machine as RADIUSdesk, remove nginx.servie
+#Wants=network-online.target
+#After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/etc/MESHdesk
+ExecStartPre=/usr/bin/sleep 10
+ExecStart=/usr/bin/lua /etc/MESHdesk/w.lua
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

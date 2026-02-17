@@ -1,0 +1,18 @@
+[Unit]
+Description=RD WireGuard Heartbeat Agent (MESHdesk)
+Wants=network-online.target rd-wireguard-init.service
+After=network-online.target rd-wireguard-init.service
+
+[Service]
+Type=simple
+WorkingDirectory=/etc/MESHdesk
+ExecStart=/usr/bin/lua /etc/MESHdesk/wg_heartbeat.lua
+
+Restart=always
+RestartSec=5
+
+# Optional safety
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target
