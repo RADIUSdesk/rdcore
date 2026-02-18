@@ -63,7 +63,7 @@ Ext.define('Rd.view.aps.gridApProfiles' ,{
                 xtype       :  'templatecolumn', 
                 tpl         :    new Ext.XTemplate(
                             "<tpl if='aps_up &gt; 0'><div><span class='txtGreen'><i class=\"fa fa-circle\"></i></span></span> {aps_up}</div>",
-                            "<tpl else><div><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {aps_up}</div></tpl>"
+                            "<tpl else><div><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf1db</span></span> {aps_up}</div></tpl>"
                         ),
                 stateId     : 'StateGridApProfiles8',
                 width       : Rd.config.gridNumberCol
@@ -75,8 +75,8 @@ Ext.define('Rd.view.aps.gridApProfiles' ,{
                 xtype       :  'templatecolumn', 
                 tdCls       : 'gridTree',
                 tpl         :    new Ext.XTemplate(
-                            "<tpl if='aps_down &gt; 0'><div><span class='txtOrange'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {aps_down}</div>",
-                            "<tpl else><div><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {aps_down}</div></tpl>"
+                            "<tpl if='aps_down &gt; 0'><div><span class='txtOrange'><i class=\"fa fa-circle\"></i></span> {aps_down}</div>",
+                            "<tpl else><div><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf1db</span></span> {aps_down}</div></tpl>"
                         ),
                 stateId     : 'StateGridApProfiles9',
                 width       : Rd.config.gridNumberCol

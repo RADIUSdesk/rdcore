@@ -208,7 +208,7 @@ Ext.define('Rd.view.aps.gridApLists' ,{
 		me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 		
         me.columns  = [
-			{ text: i18n("sProfile"),  dataIndex: 'ap_profile',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridApLists3'},
+			{ text: i18n("sProfile"),  dataIndex: 'ap_profile',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'gapl1'},
 			{ 
                 text        : i18n('sName'),   
                 dataIndex   : 'name',  
@@ -250,13 +250,14 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                         return `<div style="text-align:left;">${override_string} ${rb_string} ${vpn_string}  <a href="javascript:void(0)" class='grid-link'>${value}</a></div>`;
                     }  	             
                 },
-                stateId     : 'StateGridApLists4',
+                stateId     : 'gapl2',
                 flex        : 1,
                 filter      : {type: 'string'}
             },
             {
               text        : "<i class='fa fa-cog'></i> Admin State",
               dataIndex   : 'admin_state',
+              stateId     : 'gapl3',
               width       : 140,
               sortable    : true,
               filter      : {
@@ -282,7 +283,7 @@ Ext.define('Rd.view.aps.gridApLists' ,{
 				tdCls		: 'gridTree', 
 				flex		: 1,
 				filter		: {type: 'string'},
-				stateId		: 'StateGridApLists5',
+				stateId     : 'gapl4',
 				hidden      : true
 			},
             { 
@@ -291,7 +292,7 @@ Ext.define('Rd.view.aps.gridApLists' ,{
 				tdCls		: 'gridTree', 
 				flex		: 1,
 				filter		: {type: 'string'},
-				stateId     : 'StateGridApLists6'
+				stateId     : 'gapl5',
 			},
 			{ 
 				text		: i18n('sHardware'),      
@@ -304,13 +305,13 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                 tpl         :  new Ext.XTemplate(
                     '{hw_human}'
                 ),
-				stateId		: 'StateGridApLists7'
+				stateId     : 'gapl6',
 			},
 			
 			{
                 text        : 'Alerts',
                 dataIndex   : 'enable_alerts',
-                stateId     : 'StateGridApLists7i',
+                stateId     : 'gapl7',
                 width       : 160,
                 hidden      : true,
                 renderer    : function (v) {
@@ -318,7 +319,6 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                 },
                 filter: {
                     type    : 'boolean',
-                    value   : true,
                     yesText : 'True',
                     noText  : 'False'
                 }
@@ -326,7 +326,7 @@ Ext.define('Rd.view.aps.gridApLists' ,{
             {
                 text        : 'Schedules',
                 dataIndex   : 'enable_schedules',
-                stateId     : 'StateGridApLists7ii',
+                stateId     : 'gapl8',
                 width       : 160,
                 hidden      : true,
                 renderer    : function (v) {
@@ -334,7 +334,6 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                 },
                 filter: {
                     type    : 'boolean',
-                    value   : true,
                     yesText : 'True',
                     noText  : 'False'
                 }
@@ -342,7 +341,7 @@ Ext.define('Rd.view.aps.gridApLists' ,{
             {
                 text        : 'On Overview',
                 dataIndex   : 'enable_overviews',
-                stateId     : 'StateGridApLists7iii',
+                stateId     : 'gapl9',
                 width       : 160,
                 hidden      : true,
                 renderer    : function (v) {
@@ -350,7 +349,6 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                 },
                 filter: {
                     type    : 'boolean',
-                    value   : true,
                     yesText : 'True',
                     noText  : 'False'
                 }
@@ -361,7 +359,7 @@ Ext.define('Rd.view.aps.gridApLists' ,{
 				width       : 150,
 				dataIndex   : 'dayuptimehist',
 				xtype       : 'widgetcolumn',
-				stateId		: 'StateGridApLists7a',
+				stateId     : 'gapl10',
 				sortable    : false,
 				widget: {
                     xtype: 'sparklinebar',
@@ -381,7 +379,7 @@ Ext.define('Rd.view.aps.gridApLists' ,{
 				dataIndex   : 'uptimhistpct',
 				align       : 'center',
 				xtype       : 'widgetcolumn',
-				stateId		: 'StateGridApLists7b',
+				stateId     : 'gapl11',
 				sortable    : false,
 				widget: {
 					xtype: 'sparklinepie',
@@ -401,11 +399,11 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                 flex        : 1,
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<tpl if='config_state == \"never\"'><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> Never</tpl>",
-                    "<tpl if='config_state == \"down\"'><span class='txtGrey'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {config_fetched_human}</tpl>",
+                    "<tpl if='config_state == \"never\"'><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf1db</span></span> Never</tpl>",
+                    "<tpl if='config_state == \"down\"'><span class='txtGrey'><i class=\"fa fa-circle\"></i></span></span> {config_fetched_human}</tpl>",
                     "<tpl if='config_state == \"up\"'><span class='txtGreen'><i class=\"fa fa-circle\"></i></span> {config_fetched_human}</tpl>",
                 ),
-                stateId     : 'StateGridApLists7d'
+                stateId     : 'gapl12',
             },           
             { 
 
@@ -415,11 +413,11 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                 flex        : 1,
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<tpl if='state == \"never\"'><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> Never</tpl>",
-                    "<tpl if='state == \"down\"'><span class='txtOrange'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {last_contact_human}</tpl>",
+                    "<tpl if='state == \"never\"'><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf1db</span></span> Never</tpl>",
+                    "<tpl if='state == \"down\"'><span class='txtOrange'><i class=\"fa fa-circle\"></i></span> {last_contact_human}</tpl>",
                     "<tpl if='state == \"up\"'><span class='txtGreen'><i class=\"fa fa-circle\"></i></span> {last_contact_human}</tpl>"
                 ),
-                stateId     : 'StateGridApLists8a'
+                stateId     : 'gapl13',
             },
                                   
             { 
@@ -442,7 +440,8 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                     "</tpl>",
                     "</tpl>"   
                 ), 
-                filter		: {type: 'string'},stateId: 'StateGridApLists9'
+                filter		: {type: 'string'},
+                stateId     : 'gapl14',
             },
             { 
                 text    : 'Last command',
@@ -455,7 +454,7 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                 "<tpl if='last_cmd_status == \"awaiting\"'><div class=\"fieldBlue\"><i class=\"fa fa-clock-o\"></i> {last_cmd}</div></tpl>",
                 "<tpl if='last_cmd_status == \"fetched\"'><div class=\"fieldGreen\"><i class=\"fa fa-check-circle\"></i> {last_cmd}</div></tpl>"
                 ),
-                stateId	: 'StateGridApLists10',
+                stateId : 'gapl15',
 				hidden	: true
             },
             { 
@@ -483,13 +482,13 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                     '</tpl>'
                 ),
                 dataIndex: 'openvpn_list',
-                stateId	: 'StateGridApLists11'
+                stateId : 'gapl16'
             },
             {   
                 text        : 'Internet Connection',       
                 dataIndex   : 'wbw_signal',    
                 tdCls       : 'gridTree', 
-                stateId     : 'StateGridApLists12',
+                stateId     : 'gapl17',
                 width       : 150,
                 sortable    : false,
                 renderer: function (v, m, r) {
@@ -500,7 +499,7 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                 xtype       : 'actioncolumn',
                 text        : 'Actions',
                 width       : 80,
-                stateId     : 'StateGridApLists13',
+                stateId     : 'gapl18',
                 items       : [				
 					 { 
 						iconCls : 'txtOrange x-fa fa-search',
@@ -527,27 +526,6 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                            me.menu_grid.showAt(position);
                        }
                     }
-					/*{  
-                        iconCls : 'txtGrey x-fa fa-cog',
-                        tooltip : 'Config Call',
-                        isDisabled: function (grid, rowIndex, colIndex, items, record) {
-                                if (record.get('update') == true) {
-                                     return false;
-                                } else {
-                                    return true;
-                                }
-                        },
-						handler: function(view, rowIndex, colIndex, item, e, record, row) {
-                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'config');
-                        }
-					},
-					{  
-                        iconCls : 'txtGrey x-fa fa-power-off',
-                        tooltip : 'Restart',
-						handler: function(view, rowIndex, colIndex, item, e, record, row) {
-                            this.fireEvent('itemClick', view, rowIndex, colIndex, item, e, record, row, 'restart');
-                        }
-					}*/
 				]
 	        }      
         ];

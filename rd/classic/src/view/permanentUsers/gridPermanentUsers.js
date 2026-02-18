@@ -130,6 +130,9 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 
         me.columns  = [
+        
+            { text: 'Id',                  dataIndex: 'id',         width : 100,    filter: {type: 'number'},   stateId: 'sgpu-1', hidden: true },
+            
             { text: i18n('sUsername'),     dataIndex: 'username',   tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridPermanentUsers3'},
             { text: i18n('sAuth_type'),    dataIndex: 'auth_type',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridPermanentUsers4', hidden      : true},
             { text: i18n('sRealm'),        dataIndex: 'realm',      tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridPermanentUsers5'},

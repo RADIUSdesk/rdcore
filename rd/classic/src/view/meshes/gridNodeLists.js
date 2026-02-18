@@ -147,7 +147,6 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                 },
                 filter: {
                     type    : 'boolean',
-                    value   : true,
                     yesText : 'True',
                     noText  : 'False'
                 }
@@ -163,7 +162,6 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                 },
                 filter: {
                     type    : 'boolean',
-                    value   : true,
                     yesText : 'True',
                     noText  : 'False'
                 }
@@ -179,7 +177,6 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                 },
                 filter: {
                     type    : 'boolean',
-                    value   : true,
                     yesText : 'True',
                     noText  : 'False'
                 }
@@ -233,8 +230,8 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                 flex        : 1,
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<tpl if='config_state == \"never\"'><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> Never</tpl>",
-                    "<tpl if='config_state == \"down\"'><span class='txtGrey'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {config_fetched_human}</tpl>",
+                    "<tpl if='config_state == \"never\"'><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf1db</span></span> Never</tpl>",
+                    "<tpl if='config_state == \"down\"'><span class='txtGrey'><i class=\"fa fa-circle\"></i></span> {config_fetched_human}</tpl>",
                     "<tpl if='config_state == \"up\"'><span class='txtGreen'><i class=\"fa fa-circle\"></i></span> {config_fetched_human}</tpl>",
                 ),
                 stateId     : 'StateGMVND12a'
@@ -247,8 +244,8 @@ Ext.define('Rd.view.meshes.gridNodeLists' ,{
                 flex        : 1,
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<tpl if='state == \"never\"'><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> Never</tpl>",
-                    "<tpl if='state == \"down\"'><span class='txtOrange'><span class='fa' style='font-family:FontAwesome;'>&#xf10c</span></span> {last_contact_human}</tpl>",
+                    "<tpl if='state == \"never\"'><span class='txtBlue'><span class='fa' style='font-family:FontAwesome;'>&#xf1db</span></span> Never</tpl>",
+                    "<tpl if='state == \"down\"'><span class='txtOrange'><i class=\"fa fa-circle\"></i></span> {last_contact_human}</tpl>",
                     "<tpl if='state == \"up\"'><span class='txtGreen'><i class=\"fa fa-circle\"></i></span> {last_contact_human}</tpl>"
                 ),
                 stateId     : 'StateGridNodeLists8'

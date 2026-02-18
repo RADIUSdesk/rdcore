@@ -88,7 +88,6 @@ Ext.define('Rd.view.accessProviders.gridAccessProviders' ,{
                 dataIndex   : 'active',
                 filter      : {
                         type            : 'boolean',
-                        defaultValue    : false,
                         yesText         : 'Yes',
                         noText          : 'No'
                 }, stateId: 'StateGridAccessProviders9'

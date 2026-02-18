@@ -50,7 +50,6 @@ Ext.define('Rd.view.privatePsks.gridPrivatePsks' ,{
                 dataIndex   : 'for_system',
                 filter      : {
                         type            : 'boolean',
-                        defaultValue    : false,
                         yesText         : 'Yes',
                         noText          : 'No'
                 }, stateId: 'StateGridPPSK2'
@@ -68,7 +67,6 @@ Ext.define('Rd.view.privatePsks.gridPrivatePsks' ,{
                 dataIndex   : 'active',
                 filter      : {
                         type            : 'boolean',
-                        defaultValue    : false,
                         yesText         : 'Yes',
                         noText          : 'No'
                 },stateId: 'StateGridPPSK5'

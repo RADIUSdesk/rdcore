@@ -81,7 +81,6 @@ Ext.define('Rd.view.profiles.gridProfiles' ,{
                 },
                 filter      : {
                     type            : 'boolean',
-                    defaultValue    : false,
                     yesText         : 'Yes',
                     noText          : 'No'
                 }
