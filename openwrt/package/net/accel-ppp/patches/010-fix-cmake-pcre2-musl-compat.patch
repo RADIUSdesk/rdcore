@@ -1,0 +1,170 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index f39b590..5ff6221 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,4 +1,8 @@
+-cmake_minimum_required(VERSION 2.6)
++cmake_minimum_required(VERSION 3.10)
++
++if (CMAKE_BINARY_DIR STREQUAL CMAKE_HOME_DIRECTORY)
++    message(FATAL_ERROR "Building in source directory is forbidden. Please make separated build directory.")
++endif ()
+ 
+ project(accel-ppp C)
+ 
+@@ -16,18 +20,33 @@ IF (NOT DEFINED LIB_SUFFIX)
+ 	ENDIF (ARCH STREQUAL x86_64)
+ ENDIF (NOT DEFINED LIB_SUFFIX)
+ 
++# Set flag if we are building with MUSL
++IF (CMAKE_SYSTEM_NAME STREQUAL Linux AND CMAKE_C_COMPILER_ID STREQUAL GNU)
++    execute_process(
++        COMMAND sh -c "ldd --version 2>&1 || true"
++        OUTPUT_VARIABLE LDD_VERSION
++        OUTPUT_STRIP_TRAILING_WHITESPACE
++    )
++	if (LDD_VERSION MATCHES "[Mm]usl")
++		set(MUSL ON)
++	else ()
++		set(MUSL OFF)
++	endif ()
++	message(STATUS "Building with MUSL: ${MUSL}")
++ENDIF ()
++
+ #color console example  message(FATAL_ERROR "${Esc}[31m Red Text ${Esc}[m Restore Normal Text")
+ string(ASCII 27 Esc)
+ 
+-#Check libpcre
+-find_library(PCRE_LIBRARY pcre
++#Check libpcre2
++find_library(PCRE2_LIBRARY pcre2-8
+ 	HINTS ${CMAKE_SOURCE_DIR}/lib/linux/gcc/${BIT}/lib
+ 	PATHS ${CMAKE_SOURCE_DIR}/lib/linux/gcc/${BIT}/lib
+ )
+ 
+-IF(NOT PCRE_LIBRARY)
+-	message(FATAL_ERROR "${Esc}[31mRequired libpcre not found.\n Install libpcre3-dev and run cmake again${Esc}[m")
+-ENDIF(NOT PCRE_LIBRARY)
++IF(NOT PCRE2_LIBRARY)
++	message(FATAL_ERROR "${Esc}[31mRequired libpcre2 not found.\n Install libpcre2-dev and run cmake again${Esc}[m")
++ENDIF(NOT PCRE2_LIBRARY)
+ 
+ 
+ IF (EXISTS ${CMAKE_HOME_DIRECTORY}/.git AND NOT IGNORE_GIT)
+@@ -45,7 +64,7 @@ ENDIF (EXISTS ${CMAKE_HOME_DIRECTORY}/.git AND NOT IGNORE_GIT)
+ include(cmake/cpack.cmake)
+ 
+ ADD_DEFINITIONS(-DACCEL_PPP_VERSION="${ACCEL_PPP_VERSION}")
+-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR})
++INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+ 
+ if (NOT BUILD_DRIVER_ONLY)
+ 	if (MEMDEBUG)
+diff --git a/accel-pppd/CMakeLists.txt b/accel-pppd/CMakeLists.txt
+index 3ebca78..60088bc 100644
+--- a/accel-pppd/CMakeLists.txt
++++ b/accel-pppd/CMakeLists.txt
+@@ -44,6 +44,49 @@ IF (RADIUS)
+ 	ADD_SUBDIRECTORY(radius)
+ ENDIF (RADIUS)
+ 
++# MUSL compatibility checks
++INCLUDE (CheckCSourceCompiles)
++CHECK_C_SOURCE_COMPILES("
++#include <stdlib.h>
++#include <search.h>
++int main(void)
++{
++	__free_fn_t *f;
++	return 0;
++}" HAVE_FREE_FN_T)
++IF (HAVE_FREE_FN_T)
++	ADD_DEFINITIONS(-DHAVE_FREE_FN_T)
++ENDIF (HAVE_FREE_FN_T)
++
++CHECK_C_SOURCE_COMPILES("
++#include <sys/socket.h>
++#include <linux/if_arp.h>
++#include <net/ethernet.h>
++int main(void)
++{
++	return 0;
++}" HAVE_GOOD_IFARP)
++IF (HAVE_GOOD_IFARP)
++	ADD_DEFINITIONS(-DHAVE_GOOD_IFARP)
++ENDIF (HAVE_GOOD_IFARP)
++
++CHECK_C_SOURCE_COMPILES("
++#include <utmp.h>
++int main(void)
++{
++	logwtmp(\"\", \"\", \"\");
++	return 0;
++}" HAVE_LOGWTMP)
++IF (HAVE_LOGWTMP)
++	ADD_DEFINITIONS(-DHAVE_LOGWTMP)
++ENDIF (HAVE_LOGWTMP)
++
++INCLUDE(CheckIncludeFile)
++CHECK_INCLUDE_FILE("printf.h" HAVE_PRINTF_H)
++IF (HAVE_PRINTF_H)
++	ADD_DEFINITIONS(-DHAVE_PRINTF_H)
++ENDIF (HAVE_PRINTF_H)
++
+ ADD_SUBDIRECTORY(triton)
+ ADD_SUBDIRECTORY(vlan-mon)
+ ADD_SUBDIRECTORY(ctrl)
+@@ -123,7 +166,21 @@ ADD_EXECUTABLE(accel-pppd
+ 	main.c
+ )
+ 
+-TARGET_LINK_LIBRARIES(accel-pppd triton rt pthread ${crypto_lib} pcre ucontext)
++# check if we have getcontext/setcontext (not available on MUSL)
++INCLUDE(CheckFunctionExists)
++CHECK_FUNCTION_EXISTS(getcontext HAVE_GETCONTEXT)
++CHECK_FUNCTION_EXISTS(setcontext HAVE_SETCONTEXT)
++
++IF (HAVE_GETCONTEXT AND HAVE_SETCONTEXT)
++	TARGET_LINK_LIBRARIES(accel-pppd triton rt pthread ${crypto_lib} pcre2-8)
++ELSE ()
++	find_library(UCONTEXT_LIBRARY ucontext)
++	IF (UCONTEXT_LIBRARY)
++		TARGET_LINK_LIBRARIES(accel-pppd triton rt pthread ${crypto_lib} pcre2-8 ucontext)
++	ELSE ()
++		TARGET_LINK_LIBRARIES(accel-pppd triton rt pthread ${crypto_lib} pcre2-8)
++	ENDIF ()
++ENDIF ()
+ set_property(TARGET accel-pppd PROPERTY CMAKE_SKIP_BUILD_RPATH FALSE)
+ set_property(TARGET accel-pppd PROPERTY CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+ set_property(TARGET accel-pppd PROPERTY INSTALL_RPATH_USE_LINK_PATH FALSE)
+diff --git a/accel-pppd/extra/CMakeLists.txt b/accel-pppd/extra/CMakeLists.txt
+index 6badcd5..cd4ec69 100644
+--- a/accel-pppd/extra/CMakeLists.txt
++++ b/accel-pppd/extra/CMakeLists.txt
+@@ -5,13 +5,21 @@ set_property(TARGET pppd_compat PROPERTY INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/l
+ ADD_LIBRARY(ippool SHARED ippool.c)
+ ADD_LIBRARY(ipv6pool SHARED ipv6pool.c)
+ ADD_LIBRARY(chap-secrets SHARED chap-secrets.c)
+-ADD_LIBRARY(logwtmp SHARED logwtmp.c)
+-TARGET_LINK_LIBRARIES(logwtmp util)
++IF (HAVE_LOGWTMP)
++	ADD_LIBRARY(logwtmp SHARED logwtmp.c)
++	TARGET_LINK_LIBRARIES(logwtmp util)
++ENDIF (HAVE_LOGWTMP)
+ ADD_LIBRARY(connlimit SHARED connlimit.c)
+ 
+-INSTALL(TARGETS pppd_compat ippool ipv6pool sigchld chap-secrets logwtmp connlimit
+-	LIBRARY DESTINATION lib${LIB_SUFFIX}/accel-ppp
+-)
++IF (HAVE_LOGWTMP)
++	INSTALL(TARGETS pppd_compat ippool ipv6pool sigchld chap-secrets logwtmp connlimit
++		LIBRARY DESTINATION lib${LIB_SUFFIX}/accel-ppp
++	)
++ELSE ()
++	INSTALL(TARGETS pppd_compat ippool ipv6pool sigchld chap-secrets connlimit
++		LIBRARY DESTINATION lib${LIB_SUFFIX}/accel-ppp
++	)
++ENDIF ()
+ 
+ IF (NETSNMP)
+ 	ADD_SUBDIRECTORY(net-snmp)

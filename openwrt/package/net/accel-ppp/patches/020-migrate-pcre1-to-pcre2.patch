@@ -1,0 +1,569 @@
+diff --git a/accel-pppd/cli/cli.c b/accel-pppd/cli/cli.c
+index 7d44072..38388e4 100644
+--- a/accel-pppd/cli/cli.c
++++ b/accel-pppd/cli/cli.c
+@@ -66,8 +66,8 @@ void __export cli_register_simple_cmd2(
+ void __export cli_register_regexp_cmd(struct cli_regexp_cmd_t *cmd)
+ {
+ 	int err;
+-	int erroffset;
+-	const char *errptr;
++	PCRE2_SIZE erroffset;
++	PCRE2_UCHAR err_msg[128];
+ 
+ 	if (cmd->exec == NULL) {
+ 		log_emerg("cli: impossible to register regexp command"
+@@ -79,24 +79,26 @@ void __export cli_register_regexp_cmd(struct cli_regexp_cmd_t *cmd)
+ 			  " without pattern\n");
+ 		_exit(EXIT_FAILURE);
+ 	}
+-	cmd->re = pcre_compile2(cmd->pattern, cmd->options, &err,
+-				&errptr, &erroffset, NULL);
++	cmd->re = pcre2_compile((PCRE2_SPTR)cmd->pattern, PCRE2_ZERO_TERMINATED,
++				0, &err, &erroffset, NULL);
+ 	if (!cmd->re) {
++		pcre2_get_error_message(err, err_msg, sizeof(err_msg));
+ 		log_emerg("cli: failed to compile regexp \"%s\": %s (error %i)"
+ 			  " at positon %i (unprocessed characters: \"%s\")\n",
+-			  cmd->pattern, errptr, err, erroffset,
++			  cmd->pattern, err_msg, err, (int)erroffset,
+ 			  cmd->pattern + erroffset);
+ 		_exit(EXIT_FAILURE);
+ 	}
+ 
+ 	if (cmd->h_pattern) {
+-		cmd->h_re = pcre_compile2(cmd->h_pattern, cmd->h_options, &err,
+-					  &errptr, &erroffset, NULL);
++		cmd->h_re = pcre2_compile((PCRE2_SPTR)cmd->h_pattern, PCRE2_ZERO_TERMINATED,
++					  0, &err, &erroffset, NULL);
+ 		if (!cmd->h_re) {
++			pcre2_get_error_message(err, err_msg, sizeof(err_msg));
+ 			log_emerg("cli: failed to compile help regexp \"%s\":"
+ 				  " %s (error %i) at position %i (unprocessed"
+ 				  " characters: \"%s\")\n",
+-				  cmd->h_pattern, errptr, err, erroffset,
++				  cmd->h_pattern, err_msg, err, (int)erroffset,
+ 				  cmd->h_pattern + erroffset);
+ 			_exit(EXIT_FAILURE);
+ 		}
+@@ -189,13 +191,15 @@ static int cli_process_help_cmd(struct cli_client_t *cln)
+ 		cmd_found = 1;
+ 
+ 	list_for_each_entry(recmd, &regexp_cmd_list, entry) {
++		pcre2_match_data *match_data = pcre2_match_data_create(0, NULL);
+ 		if (cmd[0] == '\0'
+-		    || pcre_exec(recmd->h_re, NULL, cmd, strlen(cmd),
+-				 0, 0, NULL, 0) >= 0) {
++		    || pcre2_match(recmd->h_re, (PCRE2_SPTR)cmd, strlen(cmd),
++				 0, 0, match_data, NULL) >= 0) {
+ 			cmd_found = 1;
+ 			if (recmd->help)
+ 				recmd->help(cmd, cln);
+ 		}
++		pcre2_match_data_free(match_data);
+ 	}
+ 
+ 	nb_items = split(cmd, items);
+@@ -230,14 +234,19 @@ static int cli_process_regexp_cmd(struct cli_client_t *cln, int *err)
+ 	int res;
+ 
+ 	cmd = skip_space(cmd);
+-	list_for_each_entry(recmd, &regexp_cmd_list, entry)
+-		if (pcre_exec(recmd->re, NULL, cmd, strlen(cmd),
+-			      0, 0, NULL, 0) >= 0) {
++	list_for_each_entry(recmd, &regexp_cmd_list, entry) {
++		pcre2_match_data *match_data = pcre2_match_data_create(0, NULL);
++		if (pcre2_match(recmd->re, (PCRE2_SPTR)cmd, strlen(cmd),
++			      0, 0, match_data, NULL) >= 0) {
+ 			found = 1;
+ 			res = recmd->exec(cmd, cln);
+-			if (res != CLI_CMD_OK)
++			if (res != CLI_CMD_OK) {
++				pcre2_match_data_free(match_data);
+ 				break;
++			}
+ 		}
++		pcre2_match_data_free(match_data);
++	}
+ 	if (found)
+ 		*err = res;
+ 
+diff --git a/accel-pppd/cli/cli.h b/accel-pppd/cli/cli.h
+index 6eda5d3..7c8b39a 100644
+--- a/accel-pppd/cli/cli.h
++++ b/accel-pppd/cli/cli.h
+@@ -1,7 +1,8 @@
+ #ifndef __CLI_H
+ #define __CLI_H
+ 
+-#include <pcre.h>
++#define PCRE2_CODE_UNIT_WIDTH 8
++#include <pcre2.h>
+ 
+ #include "list.h"
+ 
+@@ -23,11 +24,11 @@ struct cli_simple_cmd_t
+ struct cli_regexp_cmd_t
+ {
+ 	struct list_head entry;
+-	pcre *re;
++	pcre2_code *re;
+ 	const char *pattern;
+ 	int options;
+ 	int (*exec)(const char *cmd, void *client);
+-	pcre *h_re;
++	pcre2_code *h_re;
+ 	const char *h_pattern;
+ 	int h_options;
+ 	int (*help)(const char *cmd, void *client);
+diff --git a/accel-pppd/cli/show_sessions.c b/accel-pppd/cli/show_sessions.c
+index 22f5318..ca2ec68 100644
+--- a/accel-pppd/cli/show_sessions.c
++++ b/accel-pppd/cli/show_sessions.c
+@@ -128,9 +128,9 @@ static int show_ses_exec(const char *cmd, char * const *f, int f_cnt, void *cli)
+ 	struct column_t *match_key = NULL;
+ 	char *match_pattern = NULL;
+ 	struct column_t *order_key = NULL;
+-	pcre *re = NULL;
+-	const char *pcre_err;
+-	int pcre_offset;
++	pcre2_code *re = NULL;
++	int pcre_err;
++	PCRE2_SIZE pcre_offset;
+ 	struct column_t *column;
+ 	struct col_t *col;
+ 	struct row_t *row;
+@@ -169,9 +169,11 @@ static int show_ses_exec(const char *cmd, char * const *f, int f_cnt, void *cli)
+ 	}
+ 
+ 	if (match_key) {
+-		re = pcre_compile2(match_pattern, 0, NULL, &pcre_err, &pcre_offset, NULL);
++		re = pcre2_compile((PCRE2_SPTR)match_pattern, PCRE2_ZERO_TERMINATED, 0, &pcre_err, &pcre_offset, NULL);
+ 		if (!re) {
+-			cli_sendv(cli, "match: %s at %i\r\n", pcre_err, pcre_offset);
++			PCRE2_UCHAR err_msg[64];
++			pcre2_get_error_message(pcre_err, err_msg, sizeof(err_msg));
++			cli_sendv(cli, "match: %s at %i\r\n", err_msg, (int)pcre_offset);
+ 			return CLI_CMD_OK;
+ 		}
+ 	}
+@@ -262,10 +264,13 @@ static int show_ses_exec(const char *cmd, char * const *f, int f_cnt, void *cli)
+ 			row = list_entry(t_list.next, typeof(*row), entry);
+ 			list_del(&row->entry);
+ 			if (match_key) {
+-				if (pcre_exec(re, NULL, row->match_key, strlen(row->match_key), 0, 0, NULL, 0) < 0) {
++				pcre2_match_data *match_data = pcre2_match_data_create(0, NULL);
++				if (pcre2_match(re, (PCRE2_SPTR)row->match_key, strlen(row->match_key), 0, 0, match_data, NULL) < 0) {
+ 					free_row(row);
++					pcre2_match_data_free(match_data);
+ 					continue;
+ 				}
++				pcre2_match_data_free(match_data);
+ 			}
+ 			if (order_key)
+ 				insert_row(&r_list, row);
+@@ -362,7 +367,7 @@ out:
+ 	}
+ 
+ 	if (re)
+-		pcre_free(re);
++		pcre2_code_free(re);
+ 
+ 	return CLI_CMD_OK;
+ 
+diff --git a/accel-pppd/cli/std_cmd.c b/accel-pppd/cli/std_cmd.c
+index fc07352..ace4839 100644
+--- a/accel-pppd/cli/std_cmd.c
++++ b/accel-pppd/cli/std_cmd.c
+@@ -123,9 +123,9 @@ static int terminate_exec1(char * const *f, int f_cnt, void *cli)
+ {
+ 	struct ap_session *ses;
+ 	int hard = 0;
+-	pcre *re;
+-	const char *pcre_err;
+-	int pcre_offset;
++	pcre2_code *re;
++	int pcre_err;
++	PCRE2_SIZE pcre_offset;
+ 
+ 	if (f_cnt == 5) {
+ 		if (!strcmp(f[4], "hard"))
+@@ -135,9 +135,11 @@ static int terminate_exec1(char * const *f, int f_cnt, void *cli)
+ 	} else if (f_cnt != 4)
+ 		return CLI_CMD_SYNTAX;
+ 
+-	re = pcre_compile2(f[3], 0, NULL, &pcre_err, &pcre_offset, NULL);
++	re = pcre2_compile((PCRE2_SPTR)f[3], PCRE2_ZERO_TERMINATED, 0, &pcre_err, &pcre_offset, NULL);
+ 	if (!re) {
+-		cli_sendv(cli, "match: %s at %i\r\n", pcre_err, pcre_offset);
++		PCRE2_UCHAR err_msg[64];
++		pcre2_get_error_message(pcre_err, err_msg, sizeof(err_msg));
++		cli_sendv(cli, "match: %s at %i\r\n", err_msg, (int)pcre_offset);
+ 		return CLI_CMD_OK;
+ 	}
+ 
+@@ -145,8 +147,12 @@ static int terminate_exec1(char * const *f, int f_cnt, void *cli)
+ 	list_for_each_entry(ses, &ses_list, entry) {
+ 		if (!ses->username)
+ 			continue;
+-		if (pcre_exec(re, NULL, ses->username, strlen(ses->username), 0, 0, NULL, 0) < 0)
++		pcre2_match_data *match_data = pcre2_match_data_create(0, NULL);
++		if (pcre2_match(re, (PCRE2_SPTR)ses->username, strlen(ses->username), 0, 0, match_data, NULL) < 0) {
++			pcre2_match_data_free(match_data);
+ 			continue;
++		}
++		pcre2_match_data_free(match_data);
+ 		if (hard)
+ 			triton_context_call(ses->ctrl->ctx, (triton_event_func)__terminate_hard, ses);
+ 		else
+@@ -154,7 +160,7 @@ static int terminate_exec1(char * const *f, int f_cnt, void *cli)
+ 	}
+ 	pthread_rwlock_unlock(&ses_lock);
+ 
+-	pcre_free(re);
++	pcre2_code_free(re);
+ 
+ 	return CLI_CMD_OK;
+ }
+diff --git a/accel-pppd/ctrl/ipoe/arp.c b/accel-pppd/ctrl/ipoe/arp.c
+index 5bc8403..1d8524d 100644
+--- a/accel-pppd/ctrl/ipoe/arp.c
++++ b/accel-pppd/ctrl/ipoe/arp.c
+@@ -14,6 +14,7 @@
+ #include <sys/socket.h>
+ #include <sys/ioctl.h>
+ #include <linux/if_packet.h>
++#include <linux/if_arp.h>
+ 
+ #include "list.h"
+ #include "triton.h"
+diff --git a/accel-pppd/ctrl/ipoe/ipoe.c b/accel-pppd/ctrl/ipoe/ipoe.c
+index 0fb2e99..3cf83c6 100644
+--- a/accel-pppd/ctrl/ipoe/ipoe.c
++++ b/accel-pppd/ctrl/ipoe/ipoe.c
+@@ -15,9 +15,11 @@
+ #include <sys/socket.h>
+ #include <sys/ioctl.h>
+ #include <linux/if.h>
++#include <linux/if_arp.h>
+ #include <linux/route.h>
+ 
+-#include <pcre.h>
++#define PCRE2_CODE_UNIT_WIDTH 8
++#include <pcre2.h>
+ 
+ #include "events.h"
+ #include "list.h"
+@@ -53,7 +55,7 @@
+ #define SESSION_TERMINATED "Session was terminated"
+ 
+ struct iplink_arg {
+-	pcre *re;
++	pcre2_code *re;
+ 	const char *opt;
+ 	long *arg1;
+ };
+@@ -2799,10 +2801,10 @@ void ipoe_vlan_mon_notify(int ifindex, int vid, int vlan_ifindex)
+ 	struct ifreq ifr;
+ 	char *ptr;
+ 	int len, r, svid;
+-	pcre *re = NULL;
+-	const char *pcre_err;
++	pcre2_code *re = NULL;
++	int pcre_err;
+ 	char *pattern;
+-	int pcre_offset;
++	PCRE2_SIZE pcre_offset;
+ 	char ifname[IFNAMSIZ];
+ 
+ 	if (!sect)
+@@ -2900,15 +2902,17 @@ void ipoe_vlan_mon_notify(int ifindex, int vid, int vlan_ifindex)
+ 			memcpy(pattern, opt->val + 3, ptr - (opt->val + 3));
+ 			pattern[ptr - (opt->val + 3)] = 0;
+ 
+-			re = pcre_compile2(pattern, 0, NULL, &pcre_err, &pcre_offset, NULL);
++			re = pcre2_compile((PCRE2_SPTR)pattern, PCRE2_ZERO_TERMINATED, 0, &pcre_err, &pcre_offset, NULL);
+ 
+ 			_free(pattern);
+ 
+ 			if (!re)
+ 				continue;
+ 
+-			r = pcre_exec(re, NULL, ifname, len, 0, 0, NULL, 0);
+-			pcre_free(re);
++			pcre2_match_data *match_data = pcre2_match_data_create(0, NULL);
++			r = pcre2_match(re, (PCRE2_SPTR)ifname, len, 0, 0, match_data, NULL);
++			pcre2_match_data_free(match_data);
++			pcre2_code_free(re);
+ 
+ 			if (r < 0)
+ 				continue;
+@@ -3348,8 +3352,12 @@ static void load_interface(const char *opt)
+ 
+ static int __load_interface_re(int index, int flags, const char *name, int iflink, int vid, struct iplink_arg *arg)
+ {
+-	if (pcre_exec(arg->re, NULL, name, strlen(name), 0, 0, NULL, 0) < 0)
++	pcre2_match_data *match_data = pcre2_match_data_create(0, NULL);
++	if (pcre2_match(arg->re, (PCRE2_SPTR)name, strlen(name), 0, 0, match_data, NULL) < 0) {
++		pcre2_match_data_free(match_data);
+ 		return 0;
++	}
++	pcre2_match_data_free(match_data);
+ 
+ 	add_interface(name, index, arg->opt, iflink, vid, 0);
+ 
+@@ -3358,11 +3366,11 @@ static int __load_interface_re(int index, int flags, const char *name, int iflin
+ 
+ static void load_interface_re(const char *opt)
+ {
+-	pcre *re = NULL;
+-	const char *pcre_err;
++	pcre2_code *re = NULL;
++	int pcre_err;
+ 	char *pattern;
+ 	const char *ptr;
+-	int pcre_offset;
++	PCRE2_SIZE pcre_offset;
+ 	struct iplink_arg arg;
+ 	struct ipoe_serv *serv;
+ 
+@@ -3372,10 +3380,12 @@ static void load_interface_re(const char *opt)
+ 	memcpy(pattern, opt + 3, ptr - (opt + 3));
+ 	pattern[ptr - (opt + 3)] = 0;
+ 
+-	re = pcre_compile2(pattern, 0, NULL, &pcre_err, &pcre_offset, NULL);
++	re = pcre2_compile((PCRE2_SPTR)pattern, PCRE2_ZERO_TERMINATED, 0, &pcre_err, &pcre_offset, NULL);
+ 
+ 	if (!re) {
+-		log_error("ipoe: '%s': %s at %i\r\n", pattern, pcre_err, pcre_offset);
++		PCRE2_UCHAR err_msg[64];
++		pcre2_get_error_message(pcre_err, err_msg, sizeof(err_msg));
++		log_error("ipoe: '%s': %s at %i\r\n", pattern, err_msg, (int)pcre_offset);
+ 		return;
+ 	}
+ 
+@@ -3388,11 +3398,13 @@ static void load_interface_re(const char *opt)
+ 		if (serv->active)
+ 			continue;
+ 
+-		if (pcre_exec(re, NULL, serv->ifname, strlen(serv->ifname), 0, 0, NULL, 0) >= 0)
++		pcre2_match_data *match_data = pcre2_match_data_create(0, NULL);
++		if (pcre2_match(re, (PCRE2_SPTR)serv->ifname, strlen(serv->ifname), 0, 0, match_data, NULL) >= 0)
+ 			add_interface(serv->ifname, serv->ifindex, opt, 0, 0, 0);
++		pcre2_match_data_free(match_data);
+ 	}
+ 
+-	pcre_free(re);
++	pcre2_code_free(re);
+ 	_free(pattern);
+ }
+ 
+@@ -3660,8 +3672,12 @@ static int __load_vlan_mon_re(int index, int flags, const char *name, int iflink
+ 	long mask1[4096/8/sizeof(long)];
+ 	struct ipoe_serv *serv;
+ 
+-	if (pcre_exec(arg->re, NULL, name, strlen(name), 0, 0, NULL, 0) < 0)
++	pcre2_match_data *match_data = pcre2_match_data_create(0, NULL);
++	if (pcre2_match(arg->re, (PCRE2_SPTR)name, strlen(name), 0, 0, match_data, NULL) < 0) {
++		pcre2_match_data_free(match_data);
+ 		return 0;
++	}
++	pcre2_match_data_free(match_data);
+ 
+ 	if (!(flags & IFF_UP)) {
+ 		memset(&ifr, 0, sizeof(ifr));
+@@ -3691,11 +3707,11 @@ static int __load_vlan_mon_re(int index, int flags, const char *name, int iflink
+ 
+ static void load_vlan_mon_re(const char *opt, long *mask, int len)
+ {
+-	pcre *re = NULL;
+-	const char *pcre_err;
++	pcre2_code *re = NULL;
++	int pcre_err;
+ 	char *pattern;
+ 	const char *ptr;
+-	int pcre_offset;
++	PCRE2_SIZE pcre_offset;
+ 	struct iplink_arg arg;
+ 
+ 	for (ptr = opt; *ptr && *ptr != ','; ptr++);
+@@ -3704,10 +3720,12 @@ static void load_vlan_mon_re(const char *opt, long *mask, int len)
+ 	memcpy(pattern, opt + 3, ptr - (opt + 3));
+ 	pattern[ptr - (opt + 3)] = 0;
+ 
+-	re = pcre_compile2(pattern, 0, NULL, &pcre_err, &pcre_offset, NULL);
++	re = pcre2_compile((PCRE2_SPTR)pattern, PCRE2_ZERO_TERMINATED, 0, &pcre_err, &pcre_offset, NULL);
+ 
+ 	if (!re) {
+-		log_error("ipoe: '%s': %s at %i\r\n", pattern, pcre_err, pcre_offset);
++		PCRE2_UCHAR err_msg[64];
++		pcre2_get_error_message(pcre_err, err_msg, sizeof(err_msg));
++		log_error("ipoe: '%s': %s at %i\r\n", pattern, err_msg, (int)pcre_offset);
+ 		return;
+ 	}
+ 
+@@ -3717,7 +3735,7 @@ static void load_vlan_mon_re(const char *opt, long *mask, int len)
+ 
+ 	iplink_list((iplink_list_func)__load_vlan_mon_re, &arg);
+ 
+-	pcre_free(re);
++	pcre2_code_free(re);
+ 	_free(pattern);
+ 
+ }
+diff --git a/accel-pppd/ctrl/pppoe/pppoe.c b/accel-pppd/ctrl/pppoe/pppoe.c
+index a574866..4739b3a 100644
+--- a/accel-pppd/ctrl/pppoe/pppoe.c
++++ b/accel-pppd/ctrl/pppoe/pppoe.c
+@@ -80,7 +80,7 @@ struct padi_t
+ };
+ 
+ struct iplink_arg {
+-	pcre *re;
++	pcre2_code *re;
+ 	const char *opt;
+ 	void *cli;
+ 	long *arg1;
+@@ -1365,8 +1365,12 @@ out_err:
+ 
+ static int __pppoe_add_interface_re(int index, int flags, const char *name, int iflink, int vid, struct iplink_arg *arg)
+ {
+-	if (pcre_exec(arg->re, NULL, name, strlen(name), 0, 0, NULL, 0) < 0)
++	pcre2_match_data *match_data = pcre2_match_data_create(0, NULL);
++	if (pcre2_match(arg->re, (PCRE2_SPTR)name, strlen(name), 0, 0, match_data, NULL) < 0) {
++		pcre2_match_data_free(match_data);
+ 		return 0;
++	}
++	pcre2_match_data_free(match_data);
+ 
+ 	__pppoe_server_start(name, arg->opt, arg->cli, iflink, vid, 0);
+ 
+@@ -1375,11 +1379,11 @@ static int __pppoe_add_interface_re(int index, int flags, const char *name, int
+ 
+ static void pppoe_add_interface_re(const char *opt, void *cli)
+ {
+-	pcre *re = NULL;
+-	const char *pcre_err;
++	pcre2_code *re = NULL;
++	int pcre_err;
+ 	char *pattern;
+ 	const char *ptr;
+-	int pcre_offset;
++	PCRE2_SIZE pcre_offset;
+ 	struct iplink_arg arg;
+ 
+ 	for (ptr = opt; *ptr && *ptr != ','; ptr++);
+@@ -1388,10 +1392,14 @@ static void pppoe_add_interface_re(const char *opt, void *cli)
+ 	memcpy(pattern, opt + 3, ptr - (opt + 3));
+ 	pattern[ptr - (opt + 3)] = 0;
+ 
+-	re = pcre_compile2(pattern, 0, NULL, &pcre_err, &pcre_offset, NULL);
++	re = pcre2_compile((PCRE2_SPTR)pattern, PCRE2_ZERO_TERMINATED, 0, &pcre_err, &pcre_offset, NULL);
+ 
+ 	if (!re) {
+-		log_error("pppoe: %s at %i\r\n", pcre_err, pcre_offset);
++		PCRE2_UCHAR err_msg[64];
++		pcre2_get_error_message(pcre_err, err_msg, sizeof(err_msg));
++		if (cli)
++			cli_sendv(cli, "pppoe: %s at %i\r\n", err_msg, (int)pcre_offset);
++		log_error("pppoe: %s at %i\r\n", err_msg, (int)pcre_offset);
+ 		return;
+ 	}
+ 
+@@ -1401,7 +1409,7 @@ static void pppoe_add_interface_re(const char *opt, void *cli)
+ 
+ 	iplink_list((iplink_list_func)__pppoe_add_interface_re, &arg);
+ 
+-	pcre_free(re);
++	pcre2_code_free(re);
+ 	_free(pattern);
+ }
+ 
+@@ -1673,10 +1681,10 @@ void pppoe_vlan_mon_notify(int ifindex, int vid, int vlan_ifindex)
+ 	struct ifreq ifr;
+ 	char *ptr;
+ 	int len, r, svid;
+-	pcre *re = NULL;
+-	const char *pcre_err;
++	pcre2_code *re = NULL;
++	int pcre_err;
+ 	char *pattern;
+-	int pcre_offset;
++	PCRE2_SIZE pcre_offset;
+ 	char ifname[IFNAMSIZ];
+ 
+ 	if (!sect)
+@@ -1774,15 +1782,17 @@ void pppoe_vlan_mon_notify(int ifindex, int vid, int vlan_ifindex)
+ 			memcpy(pattern, opt->val + 3, ptr - (opt->val + 3));
+ 			pattern[ptr - (opt->val + 3)] = 0;
+ 
+-			re = pcre_compile2(pattern, 0, NULL, &pcre_err, &pcre_offset, NULL);
++			re = pcre2_compile((PCRE2_SPTR)pattern, PCRE2_ZERO_TERMINATED, 0, &pcre_err, &pcre_offset, NULL);
+ 
+ 			_free(pattern);
+ 
+ 			if (!re)
+ 				continue;
+ 
+-			r = pcre_exec(re, NULL, ifr.ifr_name, len, 0, 0, NULL, 0);
+-			pcre_free(re);
++			pcre2_match_data *match_data = pcre2_match_data_create(0, NULL);
++			r = pcre2_match(re, (PCRE2_SPTR)ifr.ifr_name, len, 0, 0, match_data, NULL);
++			pcre2_match_data_free(match_data);
++			pcre2_code_free(re);
+ 
+ 			if (r < 0)
+ 				continue;
+@@ -1857,8 +1867,12 @@ static int __load_vlan_mon_re(int index, int flags, const char *name, int iflink
+ 	long mask1[4096/8/sizeof(long)];
+ 	struct pppoe_serv_t *serv;
+ 
+-	if (pcre_exec(arg->re, NULL, name, strlen(name), 0, 0, NULL, 0) < 0)
++	pcre2_match_data *match_data = pcre2_match_data_create(0, NULL);
++	if (pcre2_match(arg->re, (PCRE2_SPTR)name, strlen(name), 0, 0, match_data, NULL) < 0) {
++		pcre2_match_data_free(match_data);
+ 		return 0;
++	}
++	pcre2_match_data_free(match_data);
+ 
+ 	memset(&ifr, 0, sizeof(ifr));
+ 	strcpy(ifr.ifr_name, name);
+@@ -1891,11 +1905,11 @@ static int __load_vlan_mon_re(int index, int flags, const char *name, int iflink
+ 
+ static void load_vlan_mon_re(const char *opt, long *mask, int len)
+ {
+-	pcre *re = NULL;
+-	const char *pcre_err;
++	pcre2_code *re = NULL;
++	int pcre_err;
+ 	char *pattern;
+ 	const char *ptr;
+-	int pcre_offset;
++	PCRE2_SIZE pcre_offset;
+ 	struct iplink_arg arg;
+ 
+ 	for (ptr = opt; *ptr && *ptr != ','; ptr++);
+@@ -1904,10 +1918,12 @@ static void load_vlan_mon_re(const char *opt, long *mask, int len)
+ 	memcpy(pattern, opt + 3, ptr - (opt + 3));
+ 	pattern[ptr - (opt + 3)] = 0;
+ 
+-	re = pcre_compile2(pattern, 0, NULL, &pcre_err, &pcre_offset, NULL);
++	re = pcre2_compile((PCRE2_SPTR)pattern, PCRE2_ZERO_TERMINATED, 0, &pcre_err, &pcre_offset, NULL);
+ 
+ 	if (!re) {
+-		log_error("pppoe: '%s': %s at %i\r\n", pattern, pcre_err, pcre_offset);
++		PCRE2_UCHAR err_msg[64];
++		pcre2_get_error_message(pcre_err, err_msg, sizeof(err_msg));
++		log_error("pppoe: '%s': %s at %i\r\n", pattern, err_msg, (int)pcre_offset);
+ 		return;
+ 	}
+ 
+@@ -1917,7 +1933,7 @@ static void load_vlan_mon_re(const char *opt, long *mask, int len)
+ 
+ 	iplink_list((iplink_list_func)__load_vlan_mon_re, &arg);
+ 
+-	pcre_free(re);
++	pcre2_code_free(re);
+ 	_free(pattern);
+ 
+ }
