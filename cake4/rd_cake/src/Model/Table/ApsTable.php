@@ -1,5 +1,5 @@
 <?php
-
+//-- FIXME NOT CakePHPv5 ready --
 namespace App\Model\Table;
 
 use Cake\ORM\Table;

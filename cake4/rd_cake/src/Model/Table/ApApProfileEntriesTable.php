@@ -1,13 +1,13 @@
 <?php
+//-- CakePHPv5 ready --
+declare(strict_types=1);
 
 namespace App\Model\Table;
-
 use Cake\ORM\Table;
-use Cake\ORM\TableRegistry;
 
 class ApApProfileEntriesTable extends Table {
-
-    public function initialize(array $config):void{  
+    public function initialize(array $config):void{ 
+        parent::initialize($config); 
         $this->addBehavior('Timestamp');
         $this->belongsTo('Aps', [
                 'className' => 'Aps',
@@ -19,14 +19,4 @@ class ApApProfileEntriesTable extends Table {
             ]);
         $this->hasMany('ApStaticEntryOverrides',  ['dependent' => true]);	
     }
-
-    public function afterSave($event, $entity){
-        return $this->_doAfterSave($entity);   
-    }
-
-    private function _doAfterSave($entity){
-    
-       
-    }
-
 }
