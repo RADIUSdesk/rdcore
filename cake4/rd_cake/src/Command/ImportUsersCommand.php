@@ -63,13 +63,41 @@ class ImportUsersCommand extends Command
                 $row_data['token']      = ''; //Feb 2026 set it to nothing to trigger a new token creation
               
                 $entity = $this->PermanentUsers->newEntity($row_data);
-                if ($this->PermanentUsers->save($entity)) {
-                    if (!empty($row_data['auto_mac'])) {
-                        $this->PermanentUsers->setAutoMac($entity->username, true);
-                    }
-                    $imported++;
-                }
 
+                if ($entity->getErrors()) {
+                    $this->logFailure(
+                        'PermanentUsers',
+                        $index,
+                        $row_data['username'] ?? null,
+                        'validation',
+                        json_encode($entity->getErrors()),
+                        $row_data
+                    );
+                    $index++;
+                    continue;
+                }
+                
+                try {
+                    if (!$this->PermanentUsers->save($entity)) {
+                        throw new \RuntimeException('Save returned false');
+                    }else{
+                        if (!empty($row_data['auto_mac'])) {
+                            $this->PermanentUsers->setAutoMac($entity->username, true);
+                        }
+                        $imported++;
+                    }                      
+                } catch (\Throwable $e) {
+                    $this->logFailure(
+                        'PermanentUsers',
+                        $index,
+                        $row_data['username'] ?? null,
+                        'exception',
+                        $e->getMessage(),
+                        $row_data
+                    );
+                    $index++;
+                    continue;
+                }
                 $index++;            
                 
             }
@@ -228,9 +256,29 @@ class ImportUsersCommand extends Command
                 $row_data['to_date'] = $to;
             }
         }
-        //-- END FEB 2026 ---
-                
+        //-- END FEB 2026 ---                
         return $row_data;
+    }
+    
+    private function logFailure(
+        string $model,
+        int $rowNumber,
+        ?string $identifier,
+        string $type,
+        string $message,
+        array $payload = []
+    ): void {
+        $failures = $this->fetchTable('ImportFailures');
+        $entity = $failures->newEntity([
+            'model'        => $model,
+            'csv_row'      => $rowNumber,
+            'identifier'   => $identifier,
+            'error_type'   => $type,
+            'error_message'=> $message,
+            'payload'      => json_encode($payload),
+        ]);
+
+        $failures->save($entity);
     }
 
 }

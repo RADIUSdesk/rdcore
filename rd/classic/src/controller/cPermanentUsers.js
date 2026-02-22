@@ -50,12 +50,15 @@ Ext.define('Rd.controller.cPermanentUsers', {
         'permanentUsers.winPermanentUserImport',
         'permanentUsers.pnlPermanentUserRealtime',
         'components.winChangeAdminState',
-        'components.btnUsersBack'
+        'components.btnUsersBack',
+        'permanentUsers.gridUserImportReports'
     ],
-    stores: ['sLanguages', 'sPermanentUsers', 'sRealms', 'sProfiles', 'sAttributes', 'sVendors'],
+    stores: ['sLanguages', 'sPermanentUsers', 'sRealms', 'sProfiles', 'sAttributes', 'sVendors', 'sImportFailures'],
     models: [
         'mPermanentUser',    'mRealm',       'mProfile', 'mUserStat',
-        'mRadacct',                 'mRadpostauth',     'mAttribute',   'mVendor',  'mPrivateAttribute', 'mDevice' ],
+        'mRadacct',                 'mRadpostauth',     'mAttribute',   'mVendor',  'mPrivateAttribute', 'mDevice',
+        'mImportFailure' 
+    ],
     selectedRecord: null,
     config: {
         urlAdd              : '/cake4/rd_cake/permanent-users/add.json',
@@ -112,6 +115,9 @@ Ext.define('Rd.controller.cPermanentUsers', {
 			'winPermanentUserImport #btnSave': {
                 click:  me.csvImportSubmit
             },	
+            'winPermanentUserImport #btnImportReport': {
+                click   : me.csvImportFailures
+            },
             'gridPermanentUsers #csv'  : {
                 click:      me.csvExport
             },
@@ -565,6 +571,31 @@ Ext.define('Rd.controller.cPermanentUsers', {
             },
             failure : Ext.ux.formFail
         });
+    },
+    
+    csvImportFailures : function(button){
+        var  me     = this;
+        var form    = button.up('form');
+        var window  = form.up('window');
+        window.close();  
+        //Check if the node is not already open; else open the node:
+        var tp          = me.getGrid().up('tabpanel');
+        var pu_tab_id   = 'puTab_import_failures';
+        var nt          = tp.down('#'+pu_tab_id);
+        if(nt){
+            tp.setActiveTab(pu_tab_id); //Set focus on  Tab
+            return;
+        }
+        //Tab not there - add one
+        tp.add({ 
+            title       : 'CSV Import Failure Report',
+            itemId      : pu_tab_id,
+            closable    : true,
+            glyph       : Rd.config.icnListOl,
+            xtype       : 'gridUserImportReports',
+            padding     : Rd.config.gridSlim
+        });
+        tp.setActiveTab(pu_tab_id); //Set focus on Add Tab   
     },
         
     csvExport: function(button,format) {

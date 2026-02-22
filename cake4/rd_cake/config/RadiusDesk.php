@@ -208,6 +208,7 @@ $config['icnPlay']      = 'xf04b@'.$config['webFont'];
 $config['icnPause']     = 'xf04c@'.$config['webFont'];
 $config['icnStop']      = 'xf04d@'.$config['webFont'];
 $config['icnExchange']  = 'xf0ec@'.$config['webFont'];
+$config['icnUnlock']    = 'xf09c@'.$config['webFont'];
 
 $config['icnBalanceScale']  = 'xf24e@'.$config['webFont'];
 

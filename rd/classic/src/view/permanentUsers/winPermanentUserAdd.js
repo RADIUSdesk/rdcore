@@ -222,7 +222,7 @@ Ext.define('Rd.view.permanentUsers.winPermanentUserAdd', {
                                     itemId      : 'from_date',
                                     format      : 'D d M Y', 
                                     submitFormat: 'Y-m-d',    // Submit format: 2026-02-02 (ISO) ISO 8601 format
-                                    minValue    : new Date(),  // limited to the current date or after
+                                 //   minValue    : new Date(),  // limited to the current date or after
                                     hidden      : true,
                                     disabled    : true,
                                     value       : dtFrom
@@ -234,7 +234,7 @@ Ext.define('Rd.view.permanentUsers.winPermanentUserAdd', {
                                     itemId      : 'to_date',
                                     format      : 'D d M Y', 
                                     submitFormat: 'Y-m-d',    // Submit format: 2026-02-02 (ISO) ISO 8601 format
-                                    minValue    : new Date(),  // limited to the current date or after
+                                  //  minValue    : new Date(),  // limited to the current date or after
                                     hidden      : true,
                                     disabled    : true,
                                     value       : dtTo

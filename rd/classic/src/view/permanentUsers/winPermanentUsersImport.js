@@ -6,7 +6,7 @@ Ext.define('Rd.view.permanentUsers.winPermanentUserImport', {
     resizable   : true,
     title       : 'Import Permanent Users',
     width       : 500,
-    height      : 300,
+    height      : 340,
     plain       : true,
     border      : false,
     layout      : 'fit',
@@ -91,7 +91,17 @@ Ext.define('Rd.view.permanentUsers.winPermanentUserImport', {
                         html    : 'Example Document',
                         target  : "_blank"
                     }
-                }             
+                },
+                {
+                    xtype       : 'button',
+                    text        : 'Previous Import Failures Report',
+                    itemId      : 'btnImportReport',
+                    ui          : 'default-toolbar',
+                    scale       : 'medium',
+                    glyph       : Rd.config.icnListOl,
+                    padding     : 10,
+                    margin      : 10
+                }        
             ]
         });
        me.items = frmData;
