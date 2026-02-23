@@ -204,6 +204,13 @@ class PermanentUsersController extends AppController{
                 }    
             }
             
+            if($i->to_date){
+                $row['to_date']     = $i->to_date->format('Y-m-d');
+			} 
+			if($i->from_date){
+                $row['from_date']   = $i->from_date->format('Y-m-d');
+			} 
+            
             //Unset password and token fields
             unset($row["password"]);
             unset($row["token"]);
@@ -252,7 +259,8 @@ class PermanentUsersController extends AppController{
             }             
             $row['update']	= $update;
 			$row['delete']  = $delete; 
-			$row['extra']   = $actions_enabled; 
+			$row['extra']   = $actions_enabled;
+			
 			                  						
 			$row['vlan']    = 'Default VLAN';
 			if($i->realm_vlan){
