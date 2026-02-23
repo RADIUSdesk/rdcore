@@ -48,8 +48,11 @@ class ImportUsersCommand extends Command
                 $index++;
                 continue;
             }
-            $row_data = $this->_testCsvRow($row);
-            if ($row_data) {
+
+            $row_result = $this->_testCsvRow($row);
+
+            if ($row_result['success']) {
+                $row_data                = $row_result['data'];
                 $row_data['cloud_id']    = $cloudId;
                 $row_data['language_id'] = $languageId;
                 $row_data['country_id']  = $countryId;
@@ -100,8 +103,19 @@ class ImportUsersCommand extends Command
                     $index++;
                     continue;
                 }
-                $index++;            
-                
+                $index++;               
+            }else{  
+                $this->logFailure(
+                    $cloudId,
+                    'PermanentUsers',
+                    $index,
+                    $row[0] ?? null,
+                    'pre_check',
+                    json_encode($row_result['errors']),
+                    $row
+                );
+                $index++;
+                continue;         
             }
 
             if ($index % 1000 === 0) {
@@ -124,14 +138,14 @@ class ImportUsersCommand extends Command
             ->addArgument('country_id', ['help' => 'Country ID']);
     }
     
-     private function _testCsvRow(array $row){
+     private function _testCsvRow(array $row): array{
 
         if (empty($row[0]) || strlen($row[0]) < 2) {
-            return false; // Invalid username
+            return [ 'success' => false, 'errors' => ['username' => ['to short']]]; // Invalid username
         }
 
         if (empty($row[1]) || strlen($row[1]) < 4) {
-            return false; // Invalid password
+            return [ 'success' => false, 'errors' => ['password' => ['to short']]]; // Invalid password
         }
 
         [$username, $password, $realm, $profile, $name, $surname, $static_ip, $site, $ppsk, $vlan, $extra_name, $extra_value, $auto_mac,$mac_address,$from_date,$to_date] = array_pad($row, 16, null);
@@ -148,8 +162,8 @@ class ImportUsersCommand extends Command
         // Realm processing
         if (!empty($realm)) {
             $realm_entity = $this->Realms->entityBasedOnPost(['realm' => $realm]);
-            if (!$realm_entity) {
-                return false;
+            if (!$realm_entity) {          
+                return [ 'success' => false, 'errors' => ['realm' => ["'$realm' does not exist" ]]];             
             }
 
             $row_data['realm']    = $realm_entity->name;
@@ -168,7 +182,7 @@ class ImportUsersCommand extends Command
         if (!empty($profile)) {
             $profile_entity = $this->Profiles->entityBasedOnPost(['profile' => $profile]);
             if (!$profile_entity) {
-                return false;
+                return [ 'success' => false, 'errors' => ['profile' => ["'$profile' does not exist"]]];
             }
 
             $row_data['profile']    = $profile_entity->name;
@@ -178,7 +192,7 @@ class ImportUsersCommand extends Command
         // Static IP validation
         if (!empty($static_ip)) {
             if (!filter_var($static_ip, FILTER_VALIDATE_IP)) {
-                return false;
+                return [ 'success' => false, 'errors' => ['static_ip' => ["'$static_ip' format fails"]]];
             }
             $row_data['static_ip'] = $static_ip;
         }
@@ -205,7 +219,7 @@ class ImportUsersCommand extends Command
                 }
 
                 if (empty($row_data['realm_vlan_id'])) {
-                    return false;
+                    return [ 'success' => false, 'errors' => ['VLAN' => ['Next available VLAN not available']]];
                 }
             } elseif (is_numeric($vlan)) {
                 $r_vlan = $this->RealmVlans->find()
@@ -216,7 +230,7 @@ class ImportUsersCommand extends Command
                     ->first();
 
                 if (!$r_vlan) {
-                    return false;
+                    return [ 'success' => false, 'errors' => ['VLAN' => ['Next available VLAN not available']]];
                 }
 
                 $row_data['realm_vlan_id'] = $r_vlan->id;
@@ -233,14 +247,23 @@ class ImportUsersCommand extends Command
         }
         
         //--FEB 2026 -- mac_address, from_date and to_date
-        if (isset($mac_address)) {
-            $row_data['mac_address'] = $mac_address;
+        if (isset($mac_address)) {       
+            $normalizedMac = $this->normalizeMacAddress($mac_address);
+            if ($normalizedMac === false) {
+                return [ 'success' => false, 'errors' => ['mac_address' => ["'$mac_address' not usable format"]]];
+            }
+            $row_data['mac_address'] = $normalizedMac;           
         }
 
         if (isset($from_date)) {
             if($from_date === 'now'){ //Special keyword for API
                 $row_data['from_date'] = FrozenTime::now()->startOfDay();
             }else{
+            
+                $from_result = $this->validateIsoDate($from_date);
+                if ($from_result === false) {
+                    return [ 'success' => false, 'errors' => ['from_date' => ["'$from_date' not usable format"]]];
+                }
                 $from = new FrozenTime($from_date);
                 $from = $from->startOfDay();         
                 $row_data['from_date'] = $from;
@@ -253,13 +276,58 @@ class ImportUsersCommand extends Command
                 $to = $to->addDay(($to_date*30));               
                 $row_data['to_date'] = $to;
             }else{
+                $to_result = $this->validateIsoDate($to_date);
+                if ($to_result === false) {
+                    return [ 'success' => false, 'errors' => ['to_date' => ["'$to_date' not usable format"]]];
+                }           
                 $to = new FrozenTime($to_date);
                 $to = $to->endOfDay();    
                 $row_data['to_date'] = $to;
             }
         }
-        //-- END FEB 2026 ---                
-        return $row_data;
+        //-- END FEB 2026 --- 
+        return [ 'success' => true, 'data' => $row_data ];               
+        
+    }
+    
+    private function normalizeMacAddress($mac) {
+        // Remove any whitespace
+        $mac = trim($mac);
+        
+        // Check if it's a valid MAC address format (with either : or -)
+        // Pattern: 6 groups of 2 hex characters separated by : or -
+        $pattern = '/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/';
+        
+        if (!preg_match($pattern, $mac)) {
+            return false; // Invalid MAC address format
+        }
+        
+        // Convert to uppercase and replace colons with hyphens
+        $mac = strtoupper($mac);
+        $mac = str_replace(':', '-', $mac);
+       
+        return $mac;
+    }
+    
+    private function validateIsoDate($date) {
+        // Remove any whitespace
+        $date = trim($date);
+        
+        // First check the format with regex
+        $pattern = '/^\d{4}-\d{2}-\d{2}$/';
+        if (!preg_match($pattern, $date)) {
+            return false;
+        }
+        
+        // Use DateTime to validate and parse
+        $dateTime = FrozenTime::createFromFormat('Y-m-d', $date);
+        
+        // Check if creation was successful and no extra characters
+        if ($dateTime && $dateTime->format('Y-m-d') === $date) {
+            return $date;
+        }
+        
+        return false;
     }
     
     private function logFailure(
