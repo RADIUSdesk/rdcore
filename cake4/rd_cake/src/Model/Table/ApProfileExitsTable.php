@@ -52,8 +52,7 @@ class ApProfileExitsTable extends Table {
         return $validator;
     }
     
-    //FIXME --Don't think this is needed--- 
-    /*public function findByAdminStates(\Cake\ORM\Query $q, array $options){
+    public function findByAdminStates(\Cake\ORM\Query $q, array $options){
 
         $states = $options['states'] ?? ['active']; // default
         if (empty($states)) {
@@ -61,5 +60,5 @@ class ApProfileExitsTable extends Table {
             return $q->where(['1 = 0']);
         }        
         return $q->where(['ApProfileExits.admin_state IN' => (array)$states]);
-    } */ 
+    }  
 }
