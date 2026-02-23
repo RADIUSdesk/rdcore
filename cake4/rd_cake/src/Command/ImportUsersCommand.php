@@ -24,7 +24,7 @@ class ImportUsersCommand extends Command
     public function execute(Arguments $args, ConsoleIo $io): int
     {
         $csvPath     = $args->getArgument('csv');
-        $cloudId     = $args->getArgument('cloud_id');
+        $cloudId     = (int)$args->getArgument('cloud_id');
         $languageId  = $args->getArgument('language_id');
         $countryId   = $args->getArgument('country_id');
 
@@ -66,6 +66,7 @@ class ImportUsersCommand extends Command
 
                 if ($entity->getErrors()) {
                     $this->logFailure(
+                        $cloudId,
                         'PermanentUsers',
                         $index,
                         $row_data['username'] ?? null,
@@ -88,6 +89,7 @@ class ImportUsersCommand extends Command
                     }                      
                 } catch (\Throwable $e) {
                     $this->logFailure(
+                        $cloudId,
                         'PermanentUsers',
                         $index,
                         $row_data['username'] ?? null,
@@ -261,6 +263,7 @@ class ImportUsersCommand extends Command
     }
     
     private function logFailure(
+        int $cloudId,
         string $model,
         int $rowNumber,
         ?string $identifier,
@@ -270,6 +273,7 @@ class ImportUsersCommand extends Command
     ): void {
         $failures = $this->fetchTable('ImportFailures');
         $entity = $failures->newEntity([
+            'cloud_id'     => $cloudId,
             'model'        => $model,
             'csv_row'      => $rowNumber,
             'identifier'   => $identifier,

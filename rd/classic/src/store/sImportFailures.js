@@ -17,5 +17,5 @@ Ext.define('Rd.store.sImportFailures', {
         },
         simpleSortMode  : true //This will only sort on one column (sort) and a direction(dir) value ASC or DESC
     },
-    autoLoad    : true
+    autoLoad    : false
 });

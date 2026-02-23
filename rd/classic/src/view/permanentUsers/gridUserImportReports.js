@@ -10,7 +10,7 @@ Ext.define('Rd.view.permanentUsers.gridUserImportReports' ,{
         'Rd.view.components.ajaxToolbar',
         'Ext.toolbar.Paging',
         'Ext.ux.ProgressBarPager',
-        'Rd.view.permanentUsers.vcUserImportReports',
+        'Rd.view.permanentUsers.vcUserImportReports'
     ],
     controller  : 'vcUserImportReports',
     viewConfig: {
@@ -24,12 +24,12 @@ Ext.define('Rd.view.permanentUsers.gridUserImportReports' ,{
             rowBodyTpl: new Ext.XTemplate(
                 '<div style="max-height:250px; overflow:auto;">',
 
-                    '<b>Errors</b>',
+                    '<h3>Errors</h3>',
                     '<pre style="white-space:pre-wrap;">',
                         '{[Ext.encode(values.error_message, null, 2)]}',
                     '</pre>',
 
-                    '<b>Payload</b>',
+                    '<h3>Payload</h3>',
                     '<pre style="white-space:pre-wrap;">',
                         '{[Ext.encode(values.payload, null, 2)]}',
                     '</pre>',
@@ -48,12 +48,14 @@ Ext.define('Rd.view.permanentUsers.gridUserImportReports' ,{
         {
             text        : 'Identifier',
             dataIndex   : 'identifier',
-            flex        : 1
+            flex        : 1,
+            filter      : {type: 'string'}
         },
         {
             text        : 'Type',
             dataIndex   : 'error_type',
-            width       : 120
+            width       : 120,
+            filter      : {type: 'string'}
         },
         {
             text        : 'Errors',
@@ -73,13 +75,36 @@ Ext.define('Rd.view.permanentUsers.gridUserImportReports' ,{
                 });
 
                 return out.join('<br>');
-            }
-        },  
+            },
+            filter      : {type: 'string'}
+        }, 
         {
-            text        : 'Created',
-            dataIndex   : 'modified_in_words',
-            width       : 180
+            text        : 'Payload',
+            flex        : 2,
+            hidden      : true,
+            renderer    : function (v, meta, rec) {
+
+                var payload = rec.get('payload');
+                if (!payload) return '';
+                var out = [];
+                Ext.Object.each(payload, function (field, value) {
+                        out.push('<b>' + field + '</b>: ' + value);
+                });
+                return out.join('<br>');
+            },
+            filter      : {type: 'string'}
         },
+        { 
+            text        : 'Created',
+            dataIndex   : 'created', 
+            hidden      : false,  
+            xtype       : 'templatecolumn', 
+            tpl         : new Ext.XTemplate(
+                "{created_in_words}"
+            ),
+            filter      : {type: 'date',dateFormat: 'Y-m-d'},
+            width       : 180
+        },  
         { 
             text        : 'Modified',
             dataIndex   : 'modified', 
@@ -87,11 +112,10 @@ Ext.define('Rd.view.permanentUsers.gridUserImportReports' ,{
             hidden      : true, 
             xtype       : 'templatecolumn', 
             tpl         : new Ext.XTemplate(
-                "<div class=\"fieldBlue\">{modified_in_words}</div>"
+                "{modified_in_words}"
             ),
             flex        : 1,
-            filter      : {type: 'date',dateFormat: 'Y-m-d'},
-            stateId		: 'sUIR2'
+            filter      : {type: 'date',dateFormat: 'Y-m-d'}
         }
     ],
     username: 'nobody', //dummy value
@@ -99,6 +123,8 @@ Ext.define('Rd.view.permanentUsers.gridUserImportReports' ,{
         var me      = this;      
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu+'?user_id='+me.user_id+'&username='+me.username});
         me.store    = Ext.create('Rd.store.sImportFailures',{});
+        me.store.getProxy().setExtraParam('model', 'PermanentUsers');
+        me.store.load();
         
         me.bbar =  [
             {

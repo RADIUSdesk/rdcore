@@ -11,6 +11,7 @@ use Cake\Utility\Inflector;
 class ImportFailuresController extends AppController{
 
     protected $main_model   = 'ImportFailures';
+    protected $tmpName;
   
     public function initialize():void{  
         parent::initialize();
@@ -21,6 +22,8 @@ class ImportFailuresController extends AppController{
             'sort_by'   => 'ImportFailures.created'
         ]);    
         $this->loadComponent('TimeCalculations');
+        
+        $this->tmpName = WWW_ROOT . 'files' . DS . 'imagecache'. DS . 'users.csv';
     }
     
     public function exportCsv(){
@@ -77,9 +80,13 @@ class ImportFailuresController extends AppController{
     
     	$req_q    = $this->request->getQuery(); //q_data is the query data
         $cloud_id = $req_q['cloud_id'];
-        $query 	  = $this->{$this->main_model}->find();      
+        $query 	  = $this->{$this->main_model}->find();         
         $this->CommonQueryFlat->build_cloud_query($query,$cloud_id);
         
+        if(isset($req_q['model'])){
+            $query->where(['ImportFailures.model' => $req_q['model']]);    
+        }
+              
         $limit  = 50;   //Defaults
         $page   = 1;
         $offset = 0;
@@ -136,30 +143,12 @@ class ImportFailuresController extends AppController{
         $this->viewBuilder()->setOption('serialize', true);
     }
    
-	public function view(){
-	
-		$user = $this->_ap_right_check();
-        if (!$user) {
-            return;
-        }
-	      
-        $data	= []; 
-        $req_q  = $this->request->getQuery();    
-        if(isset($req_q['realm_id'])){
-       		$id  = $req_q['realm_id'];
-            $ent = $this->{$this->main_model}->find()->where([$this->main_model.'.id' => $id])->first();
-            if($ent){      
-                $data = $ent; 
-            }
-        }      
-        $this->set([
-            'data'      => $data,
-            'success'   => true
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);
-    }
-	
     public function menuForGrid(){
+    
+        $disable_lock = true;
+        if (file_exists($this->tmpName)) {
+            $disable_lock = false;
+        }
      
         $a = ['xtype' => 'buttongroup', 'title' => null, 'items' => [
                 [
@@ -183,6 +172,7 @@ class ImportFailuresController extends AppController{
                     'xtype'     =>  'button', 
                     'glyph'     => Configure::read('icnUnlock'),
                     'text'      => 'Clear lock',
+                    'disabled'  => $disable_lock,
                     'scale'     => 'large',
                     'itemId'    => 'clear_lock',
                     'tooltip'   => __('Clear lock'),
@@ -202,7 +192,7 @@ class ImportFailuresController extends AppController{
                 ]
             ]
         ];      
-        $menu = [$a,$b];            
+        $menu = [$a];            
       
         $this->set([
             'items'         => $menu,
@@ -222,19 +212,39 @@ class ImportFailuresController extends AppController{
         }
         		
 		$req_d		= $this->request->getData();
-			
-	    if(isset($req_d['id'])){   //Single item delete       
-            $entity     = $this->{$this->main_model}->get($req_d['id']);   
-            $this->{$this->main_model}->delete($entity);
-
-        }else{
-            foreach($req_d as $d){
-                $entity     = $this->{$this->main_model}->get($d['id']);  
-                $this->{$this->main_model}->delete($entity);
-            }
-        }         
+		$req_q		= $this->request->getQuery();
+		
+		if(isset($req_q['cloud_id']) && isset($req_d['model'])){
+		    $where = [
+		        'ImportFailures.cloud_id' => $req_q['cloud_id'],
+		        'ImportFailures.model'    => $req_d['model'],
+		    ];
+		    $this->{$this->main_model}->deleteAll($where);
+		}
+		       
         $this->set([
-            'success' => true
+            'data'      => $req_d,
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+	}
+	
+	public function clearLock() {
+		if (!$this->request->is('post')) {
+			throw new MethodNotAllowedException();
+		}
+		
+		$user = $this->_ap_right_check();
+        if (!$user) {
+            return;
+        }
+        
+        if (file_exists($this->tmpName)) {
+            unlink($this->tmpName);
+        }
+        				       
+        $this->set([
+            'success'   => true
         ]);
         $this->viewBuilder()->setOption('serialize', true);
 	}
