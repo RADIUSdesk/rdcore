@@ -118,7 +118,7 @@ Ext.define('Rd.view.hardwares.gridHardwares' ,{
                 stateId     : 'StateGridFK8',
                 items       : [				
 					 { 
-						iconCls : 'txtRed x-fa fa-trash',
+						iconCls : 'x-fa fa-trash',
 						tooltip : 'Delete',
 						isDisabled: function (grid, rowIndex, colIndex, items, record) {
                                 if (record.get('delete') == true) {
@@ -132,7 +132,7 @@ Ext.define('Rd.view.hardwares.gridHardwares' ,{
                         }
                     },
                     {  
-                        iconCls : 'txtBlue x-fa fa-pen',
+                        iconCls : 'x-fa fa-pen',
                         tooltip : 'Edit',
                         isDisabled: function (grid, rowIndex, colIndex, items, record) {
                                 if (record.get('update') == true) {

@@ -59,120 +59,198 @@ Ext.define('Rd.view.hardwares.pnlHardwareAddEdit', {
                 ui      : 'button-teal'
             }
         ]; 
+        
+        var pnlTop = {
+            xtype       : 'panel',
+            title       : 'General',
+            margin      : 20,
+            glyph       : Rd.config.icnGears,
+            ui          : 'panel-blue',
+            items       : [
+                {
+                    xtype       : 'component',
+                    html        : 'Basic info',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
+                }, 
+                {
+                    itemId      : 'id',
+                    xtype       : 'textfield',
+                    name        : "id",
+                    hidden      : true
+                },
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : i18n('sName'),
+                    name        : "name",
+                    allowBlank  : false,
+                    width       : w_prim
+                },
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : 'Vendor',
+                    name        : "vendor",
+                    allowBlank  : false,
+                    width       : w_prim
+                },
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : 'Model',
+                    name        : "model",
+                    allowBlank  : false,
+                    width       : w_prim
+                }, 
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : 'Firmware ID',
+                    name        : "fw_id",
+                    allowBlank  : false,
+                    width       : w_prim
+                },
+                {
+                    xtype       : 'component',
+                    html        : 'Ethernet',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
+                }, 
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : 'WAN Port',
+                    name        : "wan",
+                    allowBlank  : false,
+                    width       : w_prim
+                },              
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : 'LAN 1',
+                    emptyText   : 'Can list more than one e.g. lan1 lan2 lan3 lan4',                
+                    name        : 'lan',
+                    labelClsExtra: 'lblRd',
+                    width       : w_prim
+                },
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : 'LAN 2',
+                    emptyText   : 'Can list more than one e.g. lan1 lan2 lan3 lan4',                   
+                    name        : 'lan2',
+                    labelClsExtra: 'lblRd',
+                    width       : w_prim
+                },
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : 'LAN 3',
+                    emptyText   : 'Can list more than one e.g. lan1 lan2 lan3 lan4',                
+                    name        : 'lan3',
+                    labelClsExtra: 'lblRd',
+                    width       : w_prim
+                },
+                {
+                    xtype       : 'textfield',
+                    fieldLabel  : 'LAN 4',
+                    emptyText   : 'Can list more than one e.g. lan1 lan2 lan3 lan4',                 
+                    name        : 'lan4',
+                    labelClsExtra: 'lblRd',
+                    width       : w_prim
+                },
+                {
+                    xtype       : 'checkbox',      
+                    boxLabel    : 'Include swconfig',
+                    boxLabelCls : 'boxLabelRd',
+                    itemId      : 'chkSwconfig',
+                    name        : 'add_swconfig',
+                    inputValue  : 'switchconfig'
+                },
+                {
+                    xtype       : 'textareafield',
+                    grow        : true,
+                    name        : 'swconfig',
+                    fieldLabel  : 'Swconfig',
+                    itemId      : 'txtaSwconfig',
+                    allowBlank  : false,   
+                    width       : w_prim,
+                    emptyText   : 'Paste the switch config from wan_network',
+                    hidden      : true,
+                    disabled    : true
+                },
+                {
+                    xtype       : 'component',
+                    html        : 'Availabile to',
+                    cls         : 'heading',
+                    margin      : '20 0 0 0',
+                    width       : w_prim+20
+                },  
+                {
+                    xtype       : 'checkbox',      
+                    boxLabel    : 'MESHdesk',
+                    boxLabelCls : 'boxLabelRd',
+                    name        : 'for_mesh',
+                    inputValue  : 'for_mesh',
+                    checked     : true
+                },
+                {
+                    xtype       : 'checkbox',      
+                    boxLabel    : 'APdesk',
+                    boxLabelCls : 'boxLabelRd',
+                    name        : 'for_ap',
+                    inputValue  : 'for_ap'
+                },
+                {
+                    xtype       : 'checkbox',      
+                    boxLabel    : 'System wide',
+                    boxLabelCls : 'boxLabelRd',
+                    name        : 'for_system',
+                    inputValue  : 'for_system',
+                    hidden      : hide_system,
+                    disabled    : hide_system
+                }                
+            ]
+        }
+              
         me.items = [
+            pnlTop,
             {
-                xtype       : 'panel',
-                bodyStyle   : 'background: #f0f0f5',
+                xtype   : 'panel',
+                title   : 'WiFi',
+                glyph   : Rd.config.icnSsid,
+                border  : true,
+                ui      : 'panel-green',
+                margin  : 20,
+                layout  : {
+                    type    : 'vbox',
+                    pack    : 'start',
+                    align   : 'middle'
+                },
                 bodyPadding : 10,
-                items       : [
+                items   : [
                     {
-                        itemId      : 'id',
-                        xtype       : 'textfield',
-                        name        : "id",
-                        hidden      : true
-                    },
-                    {
-                        xtype       : 'textfield',
-                        fieldLabel  : i18n('sName'),
-                        name        : "name",
-                        allowBlank  : false,
-                        width       : w_prim
-                    },
-                    {
-                        xtype       : 'textfield',
-                        fieldLabel  : 'Vendor',
-                        name        : "vendor",
-                        allowBlank  : false,
-                        width       : w_prim
-                    },
-                    {
-                        xtype       : 'textfield',
-                        fieldLabel  : 'Model',
-                        name        : "model",
-                        allowBlank  : false,
-                        width       : w_prim
-                    }, 
-                    {
-                        xtype       : 'textfield',
-                        fieldLabel  : 'Firmware ID',
-                        name        : "fw_id",
-                        allowBlank  : false,
-                        width       : w_prim
-                    }, 
-                    {
-                        xtype       : 'textfield',
-                        fieldLabel  : 'WAN Port',
-                        name        : "wan",
-                        allowBlank  : false,
-                        width       : w_prim
-                    },
-                    {
-                        xtype       : 'textfield',
-                        fieldLabel  : 'LAN Port',
-                        name        : "lan",
-                        labelClsExtra: 'lblRd',
-                        width       : w_prim
-                    },  
-                    {
-                        xtype       : 'checkbox',      
-                        fieldLabel  : 'For Mesh',
-                        name        : 'for_mesh',
-                        inputValue  : 'for_mesh',
-                        checked     : true
-                    },
-                    {
-                        xtype       : 'checkbox',      
-                        fieldLabel  : 'For AP',
-                        name        : 'for_ap',
-                        inputValue  : 'for_ap'
-                    },
-                    {
-                        xtype       : 'checkbox',      
-                        fieldLabel  : 'System Wide',
-                        name        : 'for_system',
-                        inputValue  : 'for_system',
-                        hidden      : hide_system,
-                        disabled    : hide_system
-                    },
-                    {
-					    xtype       : 'container',
+				        xtype       : 'container',
                         layout      : 'hbox',
-                        width       : w_sec+15,
+                       // width       : w_prim+15,
                         items       : [
                             {
                                 xtype       : 'displayfield',
                                 width       : 180,
                                 margin      : '15 0 0 15',
                                 padding     : 0,
-                                fieldLabel  : 'Radio Count'
+                                fieldLabel  : 'Radio count',
+                                labelClsExtra : 'lblRd',
                             },
                             {
-					            xtype       : 'sliderfield',
+				                xtype       : 'sliderfield',
                                 name        : 'radio_count',
                                 userCls     : 'sldrDark',
                                 itemId      : 'sldrRadioCount',
-                                width       : 150,
+                                width       : 300,
                                 increment   : 1,
                                 minValue    : 0,
                                 maxValue    : 3,
                                 listeners   : {
-							        change  : 'sldrRadioCountChange'
-						        }
+						            change  : 'sldrRadioCountChange'
+					            }
                             }
                         ]
-                    } 
-                ],
-                height      : gen_height
-            },
-            {
-                xtype       : 'panel',
-                bodyStyle   : 'background:#f6f6ee',
-                layout      : 'vbox',
-                bodyPadding : 10,
-                items       : [
-                     {
-                        xtype       : 'container',
-                        html        : '<h1><span style="color:grey;font-weight:700; font-size: smaller;">RADIOS</span><h1>'
                     },
                     {
                         xtype       : 'container',
@@ -184,6 +262,7 @@ Ext.define('Rd.view.hardwares.pnlHardwareAddEdit', {
                                 title       : 'RADIO 0',
                                 radio_nr    : 0,
                                 hidden      : true,
+                                border      : true,
                                 flex        : 1
                             },
                             {
@@ -192,6 +271,7 @@ Ext.define('Rd.view.hardwares.pnlHardwareAddEdit', {
                                 title       : 'RADIO 1',
                                 radio_nr    : 1,
                                 hidden      : true,
+                                border      : true,
                                 flex        : 1
                             }
                         ]
@@ -206,12 +286,13 @@ Ext.define('Rd.view.hardwares.pnlHardwareAddEdit', {
                                 title       : 'RADIO 2',
                                 radio_nr    : 2,
                                 hidden      : true,
+                                border      : true,
                                 flex        : 1
                             }
                         ]
                     }
                 ],
-                height      : 1500
+              //  height      : 1500
             }
         ];       
         this.callParent(arguments);

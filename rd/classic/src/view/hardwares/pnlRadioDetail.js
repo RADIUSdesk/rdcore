@@ -233,7 +233,7 @@ Ext.define('Rd.view.hardwares.pnlRadioDetail', {
                                 name      : radio_nr +'_cell_density',
                                 inputValue: 3,
                                 margin    : '0 0 0 0',
-                                width     : w_rb+4
+                                width     : w_rb+6
                             }
                         ]
                     },

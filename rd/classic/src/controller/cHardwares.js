@@ -278,6 +278,7 @@ Ext.define('Rd.controller.cHardwares', {
         form.submit({
             clientValidation: true,
             url: me.getUrlEdit(),
+            submitEmptyText : false,
             success: function(form, action) {
                 me.reload(); //Reload from server
                 Ext.ux.Toaster.msg(

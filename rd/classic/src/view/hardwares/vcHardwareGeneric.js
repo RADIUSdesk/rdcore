@@ -4,6 +4,11 @@ Ext.define('Rd.view.hardwares.vcHardwareGeneric', {
     config : {
         urlViewAp                   : '/cake4/rd_cake/ap-profiles/ap_profile_ap_view.json'
     },
+    control: {
+        'pnlHardwareAddEdit #chkSwconfig': {
+            change : 'chkSwconfigChange'
+        }
+    },
     init: function() {
         var me = this;
     },  
@@ -75,5 +80,16 @@ Ext.define('Rd.view.hardwares.vcHardwareGeneric', {
 	             w.down('numberfield[name="radio_'+i+'_beacon_int"]').setValue(100);
 	        }
         }    
+	},
+	chkSwconfigChange: function(chk){
+	    var me      = this;
+	    var value   = chk.getValue();
+	    if(value){
+	        me.getView().down('#txtaSwconfig').setDisabled(false);
+	        me.getView().down('#txtaSwconfig').setHidden(false)
+	    }else{
+	        me.getView().down('#txtaSwconfig').setDisabled(true);
+	        me.getView().down('#txtaSwconfig').setHidden(true);
+	    }
 	}
 });
