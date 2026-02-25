@@ -82,7 +82,13 @@ Ext.define('Rd.controller.cHardwares', {
                 click:      me.photo
             },
             'gridHardwares'   		: {
-                select:      me.select
+                select:      me.select,
+                cellclick: function (grid, td, cellIndex, record, tr, rowIndex, e) {
+                    if (e.getTarget('.grid-link')) {
+                        e.stopEvent();
+                        me.editLink();
+                    }
+                }
             },
             'gridHardwares actioncolumn': { 
                  itemClick  : me.onActionColumnItemClick
@@ -227,6 +233,10 @@ Ext.define('Rd.controller.cHardwares', {
             });
         }
     },
+    editLink: function() {
+        const me    = this;
+        me.edit();
+    },  
     edit:   function(){
         var me = this;
         //See if there are anything selected... if not, inform the user
@@ -387,6 +397,9 @@ Ext.define('Rd.controller.cHardwares', {
         }
         if(action == 'delete'){
             me.del();
-        }     
+        } 
+        if(action == 'photo'){
+            me.photo();
+        }      
     }
 });

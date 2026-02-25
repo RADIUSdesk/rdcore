@@ -183,7 +183,8 @@ class HardwaresController extends AppController{
         $check_items = [
 			'for_mesh',
 			'for_ap',
-			'for_system'
+			'for_system',
+			'add_swconfig'
 		];
         foreach($check_items as $i){
             if(isset($req_d[$i])){

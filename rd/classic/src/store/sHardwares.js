@@ -1,7 +1,7 @@
 Ext.define('Rd.store.sHardwares', {
     extend: 'Ext.data.Store',
     model: 'Rd.model.mHardware',
-    pageSize    : 100,
+    pageSize    : 1000, //We load all at once (1000limit)
     //To make it load AJAXly from the server specify the follown 3 attributes
     remoteSort: true,
     remoteFilter: true,

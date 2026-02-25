@@ -134,7 +134,7 @@ Ext.define('Rd.view.hardwares.pnlHardwareAddEdit', {
                     xtype       : 'textfield',
                     fieldLabel  : 'LAN 2',
                     emptyText   : 'Can list more than one e.g. lan1 lan2 lan3 lan4',                   
-                    name        : 'lan2',
+                    name        : 'lan_2',
                     labelClsExtra: 'lblRd',
                     width       : w_prim
                 },
@@ -142,7 +142,7 @@ Ext.define('Rd.view.hardwares.pnlHardwareAddEdit', {
                     xtype       : 'textfield',
                     fieldLabel  : 'LAN 3',
                     emptyText   : 'Can list more than one e.g. lan1 lan2 lan3 lan4',                
-                    name        : 'lan3',
+                    name        : 'lan_3',
                     labelClsExtra: 'lblRd',
                     width       : w_prim
                 },
@@ -150,7 +150,7 @@ Ext.define('Rd.view.hardwares.pnlHardwareAddEdit', {
                     xtype       : 'textfield',
                     fieldLabel  : 'LAN 4',
                     emptyText   : 'Can list more than one e.g. lan1 lan2 lan3 lan4',                 
-                    name        : 'lan4',
+                    name        : 'lan_4',
                     labelClsExtra: 'lblRd',
                     width       : w_prim
                 },
