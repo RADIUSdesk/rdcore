@@ -259,7 +259,7 @@ class ConnectionComponent extends Component {
         
         $swConfig = $this->_getSwconfig($hardware);
         if($swConfig){
-            array_push( $network,$swConfig);
+            $network = array_merge( $network,$swConfig);
         }
                 
         return $network;    
