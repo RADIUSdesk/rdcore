@@ -21,7 +21,7 @@ class ConnectionComponent extends Component {
     protected  $includeMac  = false;            
     protected $vlanHack     = false;
     protected $stp          = 1;
-
+    
 	public function initialize(array $config):void{
         $this->ApConnectionSettings   = TableRegistry::get('ApConnectionSettings');
         $this->NodeConnectionSettings = TableRegistry::get('NodeConnectionSettings');
@@ -257,9 +257,72 @@ class ConnectionComponent extends Component {
 	       	]);       	   	
         }
         
+        $swConfig = $this->_getSwconfig($hardware);
+        if($swConfig){
+            array_push( $network,$swConfig);
+        }
+                
         return $network;    
     }
+        
+    private function _getSwconfig($hardware){
     
+        $hardware = $this->Hardwares->find()->where(['Hardwares.fw_id' => $hardware])->first();
+        if($hardware && $hardware->add_swconfig == true && !empty($hardware->swconfig)){
+            $swconfig = $hardware->swconfig;
+            
+            // Split into lines and clean up
+            $lines = preg_split('/\r\n|\r|\n/', $swconfig);
+            $lines = array_filter(array_map('trim', $lines));
+            
+            // Parse the configuration
+            $result = [];
+            $currentConfig = null;
+            
+            foreach ($lines as $line) {
+                if (empty($line)) {
+                    continue;
+                }
+                
+                if (strpos($line, 'config ') === 0) {
+                    if ($currentConfig !== null) {
+                        $result[] = $currentConfig;
+                    }
+                    
+                    $parts = preg_split('/\s+/', $line, 3);
+                    $configType = $parts[1];
+                    
+                    $currentConfig = [
+                        $configType => true, // Just to identify the type
+                        'options' => []
+                    ];
+                    
+                    if (isset($parts[2])) {
+                        $name = trim($parts[2], "'\"");
+                        // Add name to options if needed
+                        if ($configType == 'switch') {
+                            $currentConfig['options']['name'] = $name;
+                        }
+                    }
+                }
+                elseif (strpos($line, 'option ') === 0 && $currentConfig !== null) {
+                    $parts = preg_split('/\s+/', $line, 3);
+                    $optionName = $parts[1];
+                    $optionValue = isset($parts[2]) ? trim($parts[2], "'\"") : '';
+                    
+                    $currentConfig['options'][$optionName] = $optionValue;
+                }
+            }
+            
+            if ($currentConfig !== null) {
+                $result[] = $currentConfig;
+            }
+            
+            return $result;
+        }   
+        return false;
+    }
+      
     private function _getMwanInfo($device_id, $type='ap'){
     
         $config = false;
@@ -629,7 +692,8 @@ class ConnectionComponent extends Component {
       
     private function _wanFor($hardware){
 		$return_val = 'eth0'; //some default	
-		$q_e = $this->{'Hardwares'}->find()->where(['Hardwares.fw_id' => $hardware, 'Hardwares.for_ap' => true])->first();
+		//$q_e = $this->{'Hardwares'}->find()->where(['Hardwares.fw_id' => $hardware, 'Hardwares.for_ap' => true])->first();
+		$q_e = $this->{'Hardwares'}->find()->where(['Hardwares.fw_id' => $hardware])->first();
 		if($q_e){
 		    $return_val = $q_e->wan;   
 		}
