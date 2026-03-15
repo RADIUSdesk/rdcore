@@ -215,7 +215,7 @@
             "path": "resources/js/config.js"
         },
         {
-            "path": "resources/js/jit-yc.js"
+            "path": "resources/js/cytoscape.min.js"
         }			
     ],
 

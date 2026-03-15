@@ -169,6 +169,11 @@ class ConnectionComponent extends Component {
            ]
         ]);
         
+        $swConfig = $this->_getSwconfig($hardware);
+        if($swConfig){
+            $network = array_merge( $network,$swConfig);
+        }
+        
         //-- Test for MWAN--
         $type       = 'ap';
         $mwanInfo   = $this->_getMwanInfo($ap_id,$type);
@@ -256,12 +261,7 @@ class ConnectionComponent extends Component {
 	                "options"   => $wwanOptions
 	       	]);       	   	
         }
-        
-        $swConfig = $this->_getSwconfig($hardware);
-        if($swConfig){
-            $network = array_merge( $network,$swConfig);
-        }
-                
+                      
         return $network;    
     }
         

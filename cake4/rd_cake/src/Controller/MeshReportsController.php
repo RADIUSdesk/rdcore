@@ -112,9 +112,77 @@ class MeshReportsController extends AppController {
             } 
             return $ret; 
         } 
-    } 
- 
+    }
+    
     public function overview(){
+
+        $user = $this->Aa->user_for_token($this);
+        if (!$user) {   //If not a valid user
+            return;
+        }
+        
+        $req_q    = $this->request->getQuery();
+
+        if (!isset($req_q['mesh_id'])) {
+            $this->set([
+                'message'   => "Mesh ID (mesh_id) missing",
+                'success' => false
+            ]);
+            $this->viewBuilder()->setOption('serialize', true);
+            return;
+        }
+
+        //Create a hardware lookup for proper names of hardware
+        $hardware = $this->_make_hardware_lookup();
+    
+        $items      = [];
+        $mesh_id    = $req_q['mesh_id'];
+
+        //Get the 'dead_after' value
+        $dead_after = $this->_get_dead_after($mesh_id);
+
+        //Find all the nodes for this mesh with their Neighbors
+
+        $ent_nodes  = $this->{'Nodes'}->find()->contain(['NodeNeighbors'])->where(['Nodes.mesh_id' => $mesh_id])->all();
+    
+        //Some defaults for the spiderweb
+        $opacity        = 1;    //The older a line is the more opacity it will have (tend to zero)
+        $cut_off        = 3 * $dead_after;//Three times ater it will turn red
+        $no_neighbors   = true;     //If none of the nodes has neighbor entries this will stay true
+        
+        foreach ($ent_nodes as $i) {       
+        
+            $node_id    = $i->id;
+            $node_name  = $i->name;
+            $l_contact  = $i->last_contact;
+            $hw_id      = $i->hardware;
+            $hw_human   = $hardware["$hw_id"]['name'];  //Human name for Hardware
+            $hw_photo   = $hardware["$hw_id"]['photo_file_name'];  //Human name for Hardware
+            $type       = 'node';
+            $config_fetched = $i->config_fetched;
+            $i->url     = "/cake4/rd_cake/img/hardwares/".$hw_photo;
+            $i->type    = 'mesh';
+            
+            array_push($items,[ 'data' => $i]);
+            
+            foreach($i->node_neighbors as $node_neighbor){            
+                array_push($items,[ 'data' => [
+                    'id'        => $node_neighbor->id,
+                    'source'    => $i->id,
+                    'target'    => $node_neighbor->neighbor_id,
+                    'width'    => 1
+                ]]);
+            }           
+        }
+
+        $this->set([
+            'items'     => $items,
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true);
+    }
+ 
+    public function overviewZZ(){
 
         $user = $this->Aa->user_for_token($this);
         if (!$user) {   //If not a valid user

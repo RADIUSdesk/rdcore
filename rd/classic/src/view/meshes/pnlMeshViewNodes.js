@@ -29,9 +29,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewNodes', {
 		
 		me.listeners= {
 		    afterrender: function(a,b,c){
-				console.log("afterrender....");
-				 
-				
+				console.log("afterrender....");				 			
 		    },
 			afterlayout: function(a,b,c){
 			  //  me.wip(); 	
@@ -52,184 +50,99 @@ Ext.define('Rd.view.meshes.pnlMeshViewNodes', {
             success: function(response){
                 var jsonData    = Ext.JSON.decode(response.responseText);
                 if(jsonData.success){
-                	console.log(jsonData);
-                	me.xfromData(jsonData);
+                	//console.log(jsonData);
+                	me.buildScreen(jsonData.items);
 					me.setLoading(false);
                 }   
             },
             scope: me
         });
 	},
-	
-	xfromData: function(jsonData){
-	
-	    var me = this;
-	    
-	    const raw = jsonData;
+	buildScreen: function(items){
+    var me = this;
 
-        const nodes = [];
-        const edges = [];
-        
-        var DIR         = 'resources/images/vis/';
-        var LENGTH_MAIN = 150;
-        var LENGTH_SUB  = 50;
+    var containerId = "n_t_n_" + me.meshId;
 
-        raw.data.forEach(node => {
+    var cy = cytoscape({
+        container: document.getElementById(containerId),
 
-          // ----- Nodes -----
-          nodes.push({
-            id      : node.id,
-            label   : node.name,
-            title   : node.name,          
-            //image   : DIR + '49_openwrt_one.png',
-            image   : node.data.url,
-            shape   : 'image',
-            color   : node.data.state === 'down'
-              ? { background: '#ff4d4d' }
-              : { background: '#4caf50' }
-            
-            /*shape: node.data?.$type === 'image' ? 'image' : 'dot',
-            image: node.data?.$url || undefined,
-            title: `
-              <b>${node.name}</b><br/>
-              IP: ${node.data.ip || '-'}<br/>
-              MAC: ${node.data.mac || '-'}<br/>
-              State: ${node.data.state || '-'}
-            `,
-            color: node.data.state === 'down'
-              ? { background: '#ff4d4d' }
-              : { background: '#4caf50' }*/
-          });
+        elements: items,
+        /*[
 
-          // ----- Edges -----
-          (node.adjacencies || []).forEach(adj => {
-            edges.push({
-              from  : node.id,
-              to    : adj.nodeTo,
-              length: LENGTH_MAIN,
-              color : 'green',
-              //color: adj.data.$color || '#999',
-              width: adj.data.$lineWidth || 1,
-             // hidden: adj.data.$alpha === 0
-            });
-          });
-        });
-        
-       
-   /*     
-        nodes.push({id: 1, label: 'Main', image: DIR + 'Network-Pipe-icon.png', shape: 'image'});
-        nodes.push({id: 2, label: 'Office', image: DIR + 'Network-Pipe-icon.png', shape: 'image'});
-        nodes.push({id: 3, label: 'Wireless', image: DIR + 'Network-Pipe-icon.png', shape: 'image'});
-        edges.push({from: 1, to: 2, length: LENGTH_MAIN});
-        edges.push({from: 1, to: 3, length: LENGTH_MAIN});
-        
-        console.log(nodes);
-        console.log(edges);	    */   
-        const data = {
-            nodes: new vis.DataSet(nodes),
-            edges: new vis.DataSet(edges)
-        };
+            // Node
+            { data: { id: 'internet', label: 'Internet', type: 'internet' } },
 
-        const options = {
-            layout: {
-              improvedLayout: true
+            { data: { id: 'node1', label: 'Node 1', type: 'mesh', img: 'resources/images/vis/49_openwrt_one.png'  } },
+            { data: { id: 'node2', label: 'Node 2', type: 'mesh', img: 'resources/images/vis/49_openwrt_one.png' } },
+            { data: { id: 'node3', label: 'Node 3', type: 'mesh', img: 'resources/images/vis/49_openwrt_one.png' } },
+
+            // Edges
+            { data: { source: 'internet', target: 'node1' } },
+
+            { data: { source: 'node1', target: 'node2' } },
+            { data: { source: 'node2', target: 'node3' } },
+            { data: { source: 'node3', target: 'node1' } }
+        ],*/
+
+        style: [
+            {
+                selector: 'node',
+                style: {
+                    'shape': 'circle',
+                    'label': 'data(name)',
+                    'text-valign': 'bottom',
+                    'text-halign': 'center',
+                    'font-size': 10,
+                 //   'background-fit': 'cover',
+                    'background-image': 'data(url)',
+                    'width': 150,
+                    'height': 150,
+                    'border-width': 3,
+                    'border-color': '#666'
+                }
             },
-            physics: {
-              stabilization: true,
-              barnesHut: {
-                springLength: 160,
-                avoidOverlap: 1
-              }
-            },
-            interaction: {
-              hover: true
-            },
-            nodes: {
-              font: {
-                size: 14
-              }
-            },
-            edges: {
-              smooth: true
-            },
-            width: me.getWidth()+'px',
-            height:me.getHeight()+'px'
-        };
-        
-     /*   var options = {
-        //stabilize: false   // stabilize positions before displaying
-            width: me.getWidth()+'px',
-            height:me.getHeight()+'px'
-        };*/
+            {
+                selector: 'node[state="up"]',
+                style: {
+                    'border-color': '#2ecc71'
+                }
+                },
 
-        var container = document.getElementById('n_t_n_'+me.meshId);
-        var network = new vis.Network(container, data, options);      
-        network.stabilize(50);
-    
-             	
-	},
-	
-	
-    wip:function(){
-    
-        var me = this;
-        
-        
-        var nodes = null;
-        var edges = null;
-        var network = null;
+                {
+                selector: 'node[state="down"]',
+                style: {
+                    'border-color': '#e74c3c',
+                    'opacity': 0.35
+                }
+                },
 
-        var DIR = 'resources/images/vis/';
-        var LENGTH_MAIN = 150;
-        var LENGTH_SUB = 50;
+                {
+                selector: 'node[gateway]',
+                style: {
+                 //   'shape': 'diamond',
+                    'border-width': 5,
+                    'border-color': '#3498db'
+                }
+                },
 
-        // Create a data table with nodes.
-        nodes = [];
-
-        // Create a data table with links.
-        edges = [];
-
-        nodes.push({id: 1, label: 'Main', image: DIR + 'Network-Pipe-icon.png', shape: 'image'});
-        nodes.push({id: 2, label: 'Office', image: DIR + 'Network-Pipe-icon.png', shape: 'image'});
-        nodes.push({id: 3, label: 'Wireless', image: DIR + 'Network-Pipe-icon.png', shape: 'image'});
-        edges.push({from: 1, to: 2, length: LENGTH_MAIN});
-        edges.push({from: 1, to: 3, length: LENGTH_MAIN});
-
-        for (var i = 4; i <= 7; i++) {
-        nodes.push({id: i, label: 'Computer', image: DIR + 'Hardware-My-Computer-3-icon.png', shape: 'image'});
-        edges.push({from: 2, to: i, length: LENGTH_SUB});
+                {
+                selector: 'edge',
+                style: {
+                    'curve-style': 'bezier',
+                    'line-color': 'data(color)',
+                    'width': 'data(width)',
+                    'opacity': 0.8
+                }
+            }
+        ],
+        layout: {
+          name: 'cose',
+          idealEdgeLength: 120,
+          nodeRepulsion: 8000
         }
+    });
 
-       nodes.push({id: 101, label: 'Printer', image: DIR + 'Hardware-My-Computer-3-icon.png', shape: 'image'});
-        edges.push({from: 2, to: 101, length: LENGTH_SUB});
-
-        nodes.push({id: 102, label: 'Laptop', image: DIR + 'Hardware-Laptop-1-icon.png', shape: 'image'});
-        edges.push({from: 3, to: 102, length: LENGTH_SUB});
-
-        nodes.push({id: 103, label: 'network drive', image: DIR + 'Network-Drive-icon.png', shape: 'image'});
-        edges.push({from: 1, to: 103, length: LENGTH_SUB});
-
-        nodes.push({id: 104, label: 'Internet', image: DIR + 'System-Firewall-2-icon.png', shape: 'image'});
-        edges.push({from: 1, to: 104, length: LENGTH_SUB});
-
-        for (var i = 200; i <= 201; i++ ) {
-        nodes.push({id: i, label: 'Smartphone', image: DIR + 'Hardware-My-PDA-02-icon.png', shape: 'image'});
-        edges.push({from: 3, to: i, length: LENGTH_SUB});
-        }
-
-        // create a network
-        var container = document.getElementById('n_t_n_'+me.meshId);
-        var data = {
-        nodes: nodes,
-        edges: edges
-        };
-        var options = {
-        //stabilize: false   // stabilize positions before displaying
-            width: me.getWidth()+'px',
-            height:me.getHeight()+'px'
-        };
-        network = new vis.Network(container, data, options);
-        
-    }
+    me.cy = cy;
+}
     
 });
