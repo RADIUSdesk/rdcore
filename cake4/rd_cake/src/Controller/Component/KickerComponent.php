@@ -25,9 +25,13 @@ class KickerComponent extends Component {
     protected   $typeAccel      = 'AccelRadiusdesk';
     protected	$typeCoovaMd 	= 'CoovaMeshdesk';
     protected	$typeHostaMd 	= 'private_psk';
-    protected   $typeJuniper    = 'Juniper';
+    protected   $typeJuniper    = 'Juniper'; //Juniper 'should' also be '-COA' but due to the history of the project it will remain Juniper not to break existing deployments 
     protected	$typeMtApi 	    = 'Mikrotik-API';
     protected	$typeMtRestApi 	= 'Mikrotik-Rest-API';
+    
+    //-- Add these types 25Mar 2026 --
+    protected	$typeMtCoa 	    = 'Mikrotik-COA';
+    protected	$typeCiscoCoa 	= 'Cisco-COA';
     
     protected	$node_action_add = 'http://127.0.0.1/cake4/rd_cake/node-actions/add.json';
     protected	$ap_action_add = 'http://127.0.0.1/cake4/rd_cake/ap-actions/add.json';
@@ -98,14 +102,18 @@ class KickerComponent extends Component {
      		}
      	
      		
-     		if($dc->type == $this->typeJuniper){ //SEND IT A POD
-     	        $this->kickJuniperSession($ent);
+     		if(
+     		    ($dc->type == $this->typeJuniper)||
+     		    ($dc->type == $this->typeMtCoa)||
+     		    ($dc->type == $this->typeCiscoCoa)    		
+     		){ //SEND IT A POD
+     	        $this->sendCoaDisconnect($dc,$ent);
      	    }
      		    		
      		if(($dc->type == $this->typeMtApi)||($dc->type == $this->typeMtRestApi)){ 
      		    $this->kickMikrotikSession($dc,$ent); 		
      		}
-     		     		  		   	
+     		     		     		  		   	
      	}
      	
      	//-- Try the NAS table ----
@@ -115,9 +123,13 @@ class KickerComponent extends Component {
      		->first();
      		
         if($nas){
-        
-            if($nas->type == $this->typeJuniper){ //SEND IT A POD
-     	        $this->kickJuniperSession($nas);
+       
+            if(
+                ($nas->type == $this->typeJuniper)||
+                ($nas->type == $this->typeMtCoa)||
+                ($nas->type == $this->typeCiscoCoa)           
+            ){ //SEND IT A POD
+     	        $this->sendCoaDisconnect($nas,$ent);
      	    }
      	    
      	    if(($nas->type == $this->typeMtApi)||($nas->type == $this->typeRestMtApi)){ 
@@ -180,15 +192,37 @@ class KickerComponent extends Component {
         }    
     }
     
-    private function kickJuniperSession($ent){  
+    private function sendCoaDisconnect($nas,$ent){  
         //-- Sample Disconnect ---
-        //echo "Acct-​Session-​ID='2040',User-Name='zaguy@zarealm.co.za'" |radclient -c '1' -n '3' -r '3' -t '3' -x '127.0.0.1:3799' 'disconnect' 'testing123'       
+        //echo "Acct-​Session-​ID='2040',User-Name='zaguy@zarealm.co.za'" |radclient -c '1' -n '3' -r '3' -t '3' -x '127.0.0.1:3799' 'disconnect' 'testing123' 
+              
         $sessionid = $ent->acctsessionid;
         $username  = $ent->username;
-        $ip        = $ent->nasipaddress;       
-        $fwd_ip    = $ip; // You can replace this with a central IP to forward it to       
-        $secret    = 'testing123';      
-        shell_exec("echo \"Acct-Session-ID='$sessionid',User-Name='$username',NAS-IP-Address='$ip'\" |radclient -c '1' -n '3' -r '3' -t '3' -x '$fwd_ip:3799' 'disconnect' '$secret'");
+        $ip        = $ent->nasipaddress;   
+	    $fwd_ip    = $ip; // You can replace this with a central IP to forward it to	    
+	    //-- Some defaults (not present on DynamicClient so we set them here)	          
+	    $secret	   = 'testing123';
+	    $port	   = 3799;
+	    
+	    if($nas->secret){
+		    $secret    = $nas->secret;     
+	    }
+	    if($nas->coa_port){
+		    $port = $nas->coa_port;
+	    }
+	    
+	    $attributes = "Acct-Session-ID='$sessionid',User-Name='$username',NAS-IP-Address='$ip'";
+	    	    
+	    //--Cisco needs the framedipaddress--
+	    if(
+	        ($nas->type == $this->typeCiscoCoa)&&
+	        (strlen($ent->framedipaddress)>1)
+	    ){
+            $framed     = $ent->framedipaddress;
+            $attributes = $attributes.",Framed-IP-Address='$framed'";      
+	    }
+	    	    	    
+        shell_exec("echo \"$attributes\" |radclient -c '1' -n '3' -r '3' -t '3' -x '$fwd_ip:$port' 'disconnect' '$secret'");
     } 
          
     private function kickMeshNodeUser($ent,$cloud_id,$token){      
