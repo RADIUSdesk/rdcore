@@ -117,25 +117,38 @@ class KickerComponent extends Component {
      	}
      	
      	//-- Try the NAS table ----
-     	$nas = $this->Nas->find()
-     		->where(['OR' => ['Nas.nasidentifier' => $nasidentifier,'Nas.nasname' => $nasipaddress]])
-     		->contain(['NaSettings'])
-     		->first();
-     		
-        if($nas){
-       
-            if(
-                ($nas->type == $this->typeJuniper)||
-                ($nas->type == $this->typeMtCoa)||
-                ($nas->type == $this->typeCiscoCoa)           
-            ){ //SEND IT A POD
-     	        $this->sendCoaDisconnect($nas,$ent);
-     	    }
-     	    
-     	    if(($nas->type == $this->typeMtApi)||($nas->type == $this->typeRestMtApi)){ 
-     		    $this->kickMikrotikSession($nas,$ent); 		
-     		}
-     		     	        
+     	$nasWhere = false; //Added these conditions since Cisco did not include $nasidentifier
+     	if(strlen($nasidentifier) > 1){
+     	    $nasWhere = ['Nas.nasidentifier' => $nasidentifier];
+     	}
+     	if(strlen($nasipaddress) > 1){
+     	    $nasWhere = ['Nas.nasname' => $nasipaddress];
+     	}
+     	if((strlen($nasidentifier) > 1)&&(strlen($nasipaddress) > 1)){
+     	    $nasWhere = ['OR' => ['Nas.nasidentifier' => $nasidentifier,'Nas.nasname' => $nasipaddress]];
+     	}
+
+     	if($nasWhere){
+         	$nas = $this->Nas->find()
+         		->where($nasWhere)
+         		->contain(['NaSettings'])
+         		->first();
+         		
+            if($nas){
+           
+                if(
+                    ($nas->type == $this->typeJuniper)||
+                    ($nas->type == $this->typeMtCoa)||
+                    ($nas->type == $this->typeCiscoCoa)           
+                ){ //SEND IT A POD
+         	        $this->sendCoaDisconnect($nas,$ent);
+         	    }
+         	    
+         	    if(($nas->type == $this->typeMtApi)||($nas->type == $this->typeRestMtApi)){ 
+         		    $this->kickMikrotikSession($nas,$ent); 		
+         		}
+         		     	        
+            }
         }
         //--- END NAS TABLE ---
              
