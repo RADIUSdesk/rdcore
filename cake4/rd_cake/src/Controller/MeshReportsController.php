@@ -143,36 +143,123 @@ class MeshReportsController extends AppController {
 
         //Find all the nodes for this mesh with their Neighbors
 
-        $ent_nodes  = $this->{'Nodes'}->find()->contain(['NodeNeighbors'])->where(['Nodes.mesh_id' => $mesh_id])->all();
+        $ent_nodes  = $this->{'Nodes'}->find()
+            ->contain(['NodeNeighbors'])
+            ->where(['Nodes.mesh_id' => $mesh_id])
+            ->select(['id', 'name','hardware','last_contact','gateway'])
+            ->all();
     
         //Some defaults for the spiderweb
         $opacity        = 1;    //The older a line is the more opacity it will have (tend to zero)
         $cut_off        = 3 * $dead_after;//Three times ater it will turn red
         $no_neighbors   = true;     //If none of the nodes has neighbor entries this will stay true
         
+        $items['edges'] = [];
+        $items['nodes'] = [];
+        
         foreach ($ent_nodes as $i) {       
         
-            $node_id    = $i->id;
-            $node_name  = $i->name;
             $l_contact  = $i->last_contact;
             $hw_id      = $i->hardware;
             $hw_human   = $hardware["$hw_id"]['name'];  //Human name for Hardware
             $hw_photo   = $hardware["$hw_id"]['photo_file_name'];  //Human name for Hardware
-            $type       = 'node';
-            $config_fetched = $i->config_fetched;
             $i->url     = "/cake4/rd_cake/img/hardwares/".$hw_photo;
-            $i->type    = 'mesh';
+            $i->last_contact_human = $this->TimeCalculations->time_elapsed_string($l_contact);
             
-            array_push($items,[ 'data' => $i]);
+            $i->shape   = 'circle';
+            if($i->gateway !== 'none'){
+                $i->shape   = 'square';
+            }
             
-            foreach($i->node_neighbors as $node_neighbor){            
-                array_push($items,[ 'data' => [
-                    'id'        => $node_neighbor->id,
-                    'source'    => $i->id,
-                    'target'    => $node_neighbor->neighbor_id,
-                    'width'    => 1
-                ]]);
-            }           
+            if ($l_contact == null) {
+                $i->color   = 'blue';
+            } else {
+                $last_timestamp = strtotime($l_contact);
+                if ($last_timestamp+$dead_after <= time()) {
+                    $i->color   = 'orange';
+                } else {
+                    $i->color   = 'green';
+                }
+            }
+                                              
+            //=== Loop the neighbors ===
+            foreach ($i->node_neighbors as $n) {
+                     
+            
+                //We need to determine the 1.)Thickness 2.)Color and 3.) Opacity
+                $metric = $n->metric;
+                if($metric == 0){ //Ignore 0.0000's
+                    continue;
+                }
+                $last   = strtotime($n->modified);
+                $now    = time();
+                $weight = round((1/$metric*$this->thickness), 2);
+
+
+                $green_cut  = $now - $dead_after;
+                $grey_cut   = $now - $cut_off;
+                
+                if ($last >= $green_cut) {
+                    $c = $this->green;
+
+                    //5G we make blue
+                    if (($n->hwmode == '11a')||($n->hwmode == '11na')) {
+                        $c = $this->dark_blue;
+                    }
+
+                    //How clear the line must be
+                    $green_range    = $now - $green_cut;
+                    $green_percent  = ($last- $green_cut)/$green_range;
+                    $o_val          = ($green_percent * 0.5)+0.5;
+                    $o_val          = round($o_val, 2);
+                } elseif (($last >= $grey_cut)&&($last <= $green_cut)) {
+                    //How clear the line must be
+                    $c              = $this->grey; //Default
+
+                    //5G we make blue
+                    if (($n->hwmode == '11a')||($n->hwmode == '11na')) {
+                        $c = $this->blue_grey;
+                    }
+
+                    $grey_range     = $green_cut - $grey_cut;
+                    $grey_percent   = ($last- $grey_cut)/$grey_range;
+                    $o_val          = ($grey_percent * 0.5)+0.5;
+                    $o_val          = round($o_val, 2);
+                } else {
+                    $weight             = 0;
+                    $o_val          = 0;
+                    $c              = $this->grey; //Default
+                }
+                
+                //First check if neighbor_id is valid
+                $ent_v_n = $this->{'Nodes'}->find()->where(['Nodes.id' => $n->neighbor_id, 'Nodes.mesh_id' => $mesh_id])->first();
+                if($ent_v_n){
+                
+                    array_push($items['edges'],[ 'data' => [
+                        'id'        => $n->id,
+                        'source'    => $i->id,
+                        'target'    => $n->neighbor_id,
+                        'width'     => $weight,
+                        'gateway'   => $n->gateway,
+                        'metric'    => $n->metric,
+                        'hwmode'    => $n->hwmode,
+                        'algo'      => $n->algo,
+                        'tq'        => $n->tq,
+                        'tp'        => $n->tp,
+                        'color'     => $c,
+                        'alpha'     => $o_val
+                    ]]);
+                }
+                
+            }
+            //=== End loop neighbors ===
+
+            
+            
+            
+                    
+            unset($i->node_neighbors);      
+            array_push($items['nodes'],[ 'data' => $i]);           
         }
 
         $this->set([
