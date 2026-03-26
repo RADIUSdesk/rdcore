@@ -57,7 +57,7 @@ class KickerComponent extends Component {
         //---Location of radclient----
         $nasidentifier  = $ent->nasidentifier;
         $radacctid      = $ent->radacctid;
-        $nasipaddress   = $ent->nasipaddress;
+	$nasipaddress   = $ent->nasipaddress;
                 
      	//First we try to locate the client under dynamic_clients
      	$dc = $this->DynamicClients->find()
@@ -134,7 +134,7 @@ class KickerComponent extends Component {
          		->contain(['NaSettings'])
          		->first();
          		
-            if($nas){
+		if($nas){
            
                 if(
                     ($nas->type == $this->typeJuniper)||
@@ -144,9 +144,9 @@ class KickerComponent extends Component {
          	        $this->sendCoaDisconnect($nas,$ent);
          	    }
          	    
-         	    if(($nas->type == $this->typeMtApi)||($nas->type == $this->typeRestMtApi)){ 
+		if(($nas->type == $this->typeMtApi)||($nas->type == $this->typeMtRestApi)){ 
          		    $this->kickMikrotikSession($nas,$ent); 		
-         		}
+                }
          		     	        
             }
         }
