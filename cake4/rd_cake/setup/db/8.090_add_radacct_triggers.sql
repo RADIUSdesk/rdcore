@@ -17,7 +17,6 @@ begin
         CREATE INDEX idx_radacct_timestamp ON user_stats (radacct_id, timestamp);
     END IF;
 
-
 end//
 
 delimiter ;
@@ -32,103 +31,121 @@ DELIMITER //
 CREATE TRIGGER manage_user_stats_after_insert
 AFTER INSERT ON radacct
 FOR EACH ROW
-BEGIN
-    DECLARE latest_user_stats_id INT;
-    DECLARE creation_time_difference INT;
-    DECLARE new_acctinputoctets BIGINT DEFAULT 0;
-    DECLARE new_acctoutputoctets BIGINT DEFAULT 0;
-    -- 30 minute slots
+proc: BEGIN
+    DECLARE latest_user_stats_id INT DEFAULT NULL;
+    DECLARE creation_time_difference INT DEFAULT NULL;
+
+    DECLARE total_input BIGINT DEFAULT 0;
+    DECLARE total_output BIGINT DEFAULT 0;
+
+    DECLARE delta_input BIGINT DEFAULT 0;
+    DECLARE delta_output BIGINT DEFAULT 0;
+
     DECLARE stats_interval INT DEFAULT 30;
 
-    -- Calculate new data
-    SET new_acctinputoctets  = NEW.acctinputoctets;
-    SET new_acctoutputoctets = NEW.acctoutputoctets;
 
-    -- Only proceed if both octets are greater than 0
-    IF new_acctinputoctets > 0 AND new_acctoutputoctets > 0 THEN
+    -- 1. Ignore invalid incoming values early
+    IF NEW.acctinputoctets <= 0 OR NEW.acctoutputoctets <= 0 THEN
+        LEAVE proc;
+    END IF;
+
+    -- 2. Get latest stats row
+    SELECT id, TIMESTAMPDIFF(MINUTE, created, NOW())
+    INTO latest_user_stats_id, creation_time_difference
+    FROM user_stats
+    WHERE radacct_id = NEW.radacctid
+    ORDER BY timestamp DESC
+    LIMIT 1;
+
+    -- 3. Get current totals (ONLY ONCE)
+    SELECT 
+        COALESCE(SUM(acctinputoctets), 0),
+        COALESCE(SUM(acctoutputoctets), 0)
+    INTO total_input, total_output
+    FROM user_stats
+    WHERE radacct_id = NEW.radacctid;
+
+    -- 4. Compute deltas
+    SET delta_input  = NEW.acctinputoctets  - total_input;
+    SET delta_output = NEW.acctoutputoctets - total_output;
+
+    -- 5. Reject zero or negative deltas (CRITICAL)
+    IF delta_input <= 0 OR delta_output <= 0 THEN
+        LEAVE proc;
+    END IF;
+
+    -- 6. No existing row → INSERT
+    IF latest_user_stats_id IS NULL THEN
+        
+        INSERT INTO user_stats (
+            radacct_id,
+            username,
+            realm,
+            nasipaddress,
+            nasidentifier,
+            framedipaddress,
+            callingstationid,
+            timestamp,
+            created,
+            acctinputoctets,
+            acctoutputoctets
+        )
+        VALUES (
+            NEW.radacctid,
+            NEW.username,
+            NEW.realm,
+            NEW.nasipaddress,
+            NEW.nasidentifier,
+            NEW.framedipaddress,
+            NEW.callingstationid,
+            NOW(),
+            NOW(),
+            delta_input,
+            delta_output
+        );
+
+    -- 7. Within interval → UPDATE existing bucket
+    ELSEIF creation_time_difference <= stats_interval THEN
+        
+        UPDATE user_stats
+        SET 
+            acctinputoctets = acctinputoctets + delta_input,
+            acctoutputoctets = acctoutputoctets + delta_output,
+            timestamp = NOW()
+        WHERE id = latest_user_stats_id;
+
+    -- 8. Outside interval → INSERT new bucket
+    ELSE
+        
+        INSERT INTO user_stats (
+            radacct_id,
+            username,
+            realm,
+            nasipaddress,
+            nasidentifier,
+            framedipaddress,
+            callingstationid,
+            timestamp,
+            created,
+            acctinputoctets,
+            acctoutputoctets
+        )
+        VALUES (
+            NEW.radacctid,
+            NEW.username,
+            NEW.realm,
+            NEW.nasipaddress,
+            NEW.nasidentifier,
+            NEW.framedipaddress,
+            NEW.callingstationid,
+            NOW(),
+            NOW(),
+            delta_input,
+            delta_output
+        );
+
+    END IF;
     
-        -- Find the latest entry in user_stats for the given radacct_id
-        SELECT id, TIMESTAMPDIFF(MINUTE, created, NOW())
-        INTO latest_user_stats_id, creation_time_difference
-        FROM user_stats
-        WHERE radacct_id = NEW.radacctid
-        ORDER BY timestamp DESC
-        LIMIT 1;
-        
-        -- There is no latest_user_stats add it
-        IF latest_user_stats_id IS NULL THEN
-            INSERT INTO user_stats (
-                radacct_id,
-                username,
-                realm,
-                nasipaddress,
-                nasidentifier,
-                framedipaddress,
-                callingstationid,
-                timestamp,
-                created,
-                acctinputoctets,
-                acctoutputoctets
-            )
-            VALUES (
-                NEW.radacctid,
-                NEW.username,
-                NEW.realm,
-                NEW.nasipaddress,
-                NEW.nasidentifier,
-                NEW.framedipaddress,
-                NEW.callingstationid,
-                NOW(),
-                NOW(),
-                new_acctinputoctets,
-                new_acctoutputoctets
-            );   
-        END IF;
-
-        IF latest_user_stats_id IS NOT NULL AND creation_time_difference <= stats_interval THEN   
-            -- Update the existing entry if it's within stats_interval minutes of creation
-            UPDATE user_stats
-            SET acctinputoctets = acctinputoctets + (new_acctinputoctets - (SELECT SUM(acctinputoctets) FROM user_stats WHERE radacct_id = NEW.radacctid)),
-                acctoutputoctets = acctoutputoctets + (new_acctoutputoctets - (SELECT SUM(acctoutputoctets) FROM user_stats WHERE radacct_id = NEW.radacctid)),
-                timestamp = NOW()
-            WHERE id = latest_user_stats_id;        
-        END IF;
-        
-        IF latest_user_stats_id IS NOT NULL AND creation_time_difference > stats_interval THEN 
-        
-            SET new_acctinputoctets  = new_acctinputoctets - (SELECT SUM(acctinputoctets) FROM user_stats WHERE radacct_id = NEW.radacctid);
-            SET new_acctoutputoctets = new_acctoutputoctets - (SELECT SUM(acctoutputoctets) FROM user_stats WHERE radacct_id = NEW.radacctid);
-          
-            INSERT INTO user_stats (
-                radacct_id,
-                username,
-                realm,
-                nasipaddress,
-                nasidentifier,
-                framedipaddress,
-                callingstationid,
-                timestamp,
-                created,
-                acctinputoctets,
-                acctoutputoctets
-            )
-            VALUES (
-                NEW.radacctid,
-                NEW.username,
-                NEW.realm,
-                NEW.nasipaddress,
-                NEW.nasidentifier,
-                NEW.framedipaddress,
-                NEW.callingstationid,
-                NOW(),
-                NOW(),
-                new_acctinputoctets,
-                new_acctoutputoctets
-            );    
-        END IF;
-        
-    END IF; -- End of octets validation condition
-       
 END //
 
 DELIMITER ;
@@ -142,111 +159,127 @@ DELIMITER //
 CREATE TRIGGER manage_user_stats_after_update
 AFTER UPDATE ON radacct
 FOR EACH ROW
-BEGIN
-    DECLARE latest_user_stats_id INT;
-    DECLARE creation_time_difference INT;
-    DECLARE updated_acctinputoctets BIGINT DEFAULT 0;
-    DECLARE updated_acctoutputoctets BIGINT DEFAULT 0;
-    -- 30 minute slots
+proc: BEGIN
+
+    DECLARE latest_user_stats_id INT DEFAULT NULL;
+    DECLARE creation_time_difference INT DEFAULT NULL;
+
+    DECLARE total_input BIGINT DEFAULT 0;
+    DECLARE total_output BIGINT DEFAULT 0;
+
+    DECLARE delta_input BIGINT DEFAULT 0;
+    DECLARE delta_output BIGINT DEFAULT 0;
+
     DECLARE stats_interval INT DEFAULT 30;
-
-    -- Calculate updated data
-    SET updated_acctinputoctets = NEW.acctinputoctets;
-    SET updated_acctoutputoctets = NEW.acctoutputoctets;
-
-    -- Only proceed if both octets are greater than 0
-    IF updated_acctinputoctets > 0 AND updated_acctoutputoctets > 0 THEN
     
-        -- Find the latest entry in user_stats for the given radacct_id
-        SELECT id, TIMESTAMPDIFF(MINUTE, created, NOW())
-        INTO latest_user_stats_id, creation_time_difference
-        FROM user_stats
-        WHERE radacct_id = NEW.radacctid
-        ORDER BY timestamp DESC
-        LIMIT 1;
-        
-        IF latest_user_stats_id IS NULL THEN
-            INSERT INTO user_stats (
-                radacct_id,
-                username,
-                realm,
-                nasipaddress,
-                nasidentifier,
-                framedipaddress,
-                callingstationid,
-                timestamp,
-                created,
-                acctinputoctets,
-                acctoutputoctets
-            )
-            VALUES (
-                NEW.radacctid,
-                NEW.username,
-                NEW.realm,
-                NEW.nasipaddress,
-                NEW.nasidentifier,
-                NEW.framedipaddress,
-                NEW.callingstationid,
-                NOW(),
-                NOW(),
-                updated_acctinputoctets,
-                updated_acctoutputoctets
-            );
-        
-        END IF;
-
-        IF latest_user_stats_id IS NOT NULL AND creation_time_difference <= stats_interval THEN 
-
-            -- Update the existing entry if it's within 10 minutes of creation
-            UPDATE user_stats
-            SET acctinputoctets = acctinputoctets + (updated_acctinputoctets - (SELECT SUM(acctinputoctets) FROM user_stats WHERE radacct_id = NEW.radacctid)),
-                acctoutputoctets = acctoutputoctets + (updated_acctoutputoctets - (SELECT SUM(acctoutputoctets) FROM user_stats WHERE radacct_id = NEW.radacctid)),
-                timestamp = NOW()
-            WHERE id = latest_user_stats_id;
-            
-        END IF;
-        
-        IF latest_user_stats_id IS NOT NULL AND creation_time_difference > stats_interval THEN
-        
-            SET updated_acctinputoctets  = updated_acctinputoctets - (SELECT SUM(acctinputoctets) FROM user_stats WHERE radacct_id = NEW.radacctid);
-            SET updated_acctoutputoctets = updated_acctoutputoctets - (SELECT SUM(acctoutputoctets) FROM user_stats WHERE radacct_id = NEW.radacctid); 
-
-            -- Create a new entry if the last one is older than 10 minutes from creation
-            INSERT INTO user_stats (
-                radacct_id,
-                username,
-                realm,
-                nasipaddress,
-                nasidentifier,
-                framedipaddress,
-                callingstationid,
-                timestamp,
-                created,
-                acctinputoctets,
-                acctoutputoctets
-            )
-            VALUES (
-                NEW.radacctid,
-                NEW.username,
-                NEW.realm,
-                NEW.nasipaddress,
-                NEW.nasidentifier,
-                NEW.framedipaddress,
-                NEW.callingstationid,
-                NOW(),
-                NOW(),
-                updated_acctinputoctets,
-                updated_acctoutputoctets
-            );
-        END IF;
-        
-    END IF; -- End of octets validation condition
-
-    -- Check if acctstoptime has changed from NULL to NOT NULL
+    -- AA. History logging (unchanged, but safe)
     IF OLD.acctstoptime IS NULL AND NEW.acctstoptime IS NOT NULL THEN
-        -- Insert the updated row into radacct_history
+        
         INSERT INTO radacct_history 
         SELECT * FROM radacct WHERE radacctid = NEW.radacctid;
+
     END IF;
+    
+    -- 1. Ignore invalid incoming values early
+    IF NEW.acctinputoctets <= 0 OR NEW.acctoutputoctets <= 0 THEN
+        LEAVE proc;
+    END IF;
+
+    -- 2. Get latest stats row
+    SELECT id, TIMESTAMPDIFF(MINUTE, created, NOW())
+    INTO latest_user_stats_id, creation_time_difference
+    FROM user_stats
+    WHERE radacct_id = NEW.radacctid
+    ORDER BY timestamp DESC
+    LIMIT 1;
+
+    -- 3. Get current totals (ONLY ONCE)
+    SELECT 
+        COALESCE(SUM(acctinputoctets), 0),
+        COALESCE(SUM(acctoutputoctets), 0)
+    INTO total_input, total_output
+    FROM user_stats
+    WHERE radacct_id = NEW.radacctid;
+
+    -- 4. Compute deltas
+    SET delta_input  = NEW.acctinputoctets  - total_input;
+    SET delta_output = NEW.acctoutputoctets - total_output;
+
+    -- 5. Reject zero or negative deltas (CRITICAL FIX)
+    IF delta_input <= 0 OR delta_output <= 0 THEN
+        LEAVE proc;
+    END IF;
+
+    -- 6. No existing row → INSERT
+    IF latest_user_stats_id IS NULL THEN
+        
+        INSERT INTO user_stats (
+            radacct_id,
+            username,
+            realm,
+            nasipaddress,
+            nasidentifier,
+            framedipaddress,
+            callingstationid,
+            timestamp,
+            created,
+            acctinputoctets,
+            acctoutputoctets
+        )
+        VALUES (
+            NEW.radacctid,
+            NEW.username,
+            NEW.realm,
+            NEW.nasipaddress,
+            NEW.nasidentifier,
+            NEW.framedipaddress,
+            NEW.callingstationid,
+            NOW(),
+            NOW(),
+            delta_input,
+            delta_output
+        );
+
+    -- 7. Within interval → UPDATE
+    ELSEIF creation_time_difference <= stats_interval THEN
+        
+        UPDATE user_stats
+        SET 
+            acctinputoctets = acctinputoctets + delta_input,
+            acctoutputoctets = acctoutputoctets + delta_output,
+            timestamp = NOW()
+        WHERE id = latest_user_stats_id;
+
+    -- 8. Outside interval → INSERT new bucket
+    ELSE
+        
+        INSERT INTO user_stats (
+            radacct_id,
+            username,
+            realm,
+            nasipaddress,
+            nasidentifier,
+            framedipaddress,
+            callingstationid,
+            timestamp,
+            created,
+            acctinputoctets,
+            acctoutputoctets
+        )
+        VALUES (
+            NEW.radacctid,
+            NEW.username,
+            NEW.realm,
+            NEW.nasipaddress,
+            NEW.nasidentifier,
+            NEW.framedipaddress,
+            NEW.callingstationid,
+            NOW(),
+            NOW(),
+            delta_input,
+            delta_output
+        );
+
+    END IF;    
 
 END //
