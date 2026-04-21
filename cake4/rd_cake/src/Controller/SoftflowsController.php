@@ -87,7 +87,7 @@ class SoftflowsController extends AppController{
          
         $query      = $this->{$this->main_model}->find()->where($where)->where(['start >=' => $ft_start])->where(['dynamic_client_id' => $dc_id ]);
         
-        $fields     = $this->{$this->main_model}->schema()->columns();     
+        $fields     = $this->{$this->main_model}->getSchema()->columns();     
         $req_q      = $this->request->getQuery(); //q_data is the query data
         
         if(isset($req_q['sort'])){       
