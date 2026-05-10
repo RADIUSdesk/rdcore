@@ -90,6 +90,7 @@ class UserStatsController extends AppController {
         $start          = 0;
 
         $base_search    = $this->_base_search();
+       
         $day_end        = $ft_day->endOfDay();//->i18nFormat('yyyy-MM-dd HH:mm:ss');    
         $slot_start     = $ft_day->startOfDay(); //Prime it      
         $this->_setTimeZone();
@@ -118,12 +119,14 @@ class UserStatsController extends AppController {
             array_push($where, ["timestamp >=" => $time_start]);
             array_push($where, ["timestamp <=" => $time_end]);
             
-            $q_r = $this->{$this->main_model}->find()
-                ->select($this->fields)
-                ->where($where)
-                ->first();
-
+            $query = $this->{$this->main_model}->find();
+            
+            $query->select($this->fields)->where($where);
+          
+            $q_r = $query->first();
+             
             if($q_r){
+                 
                 $d_in           = $q_r->data_in;
                 $total_in       = $total_in + $d_in;
 

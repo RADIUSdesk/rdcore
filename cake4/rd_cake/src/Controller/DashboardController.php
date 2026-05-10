@@ -851,8 +851,7 @@ class DashboardController extends AppController{
                 $comps   = isset($r_and_c['components']) ? $r_and_c['components'] : [];
             }
         }
-      
-        $firstRow = [];      
+                
         $totals = $this->Counts->totals([
                 ['table' => 'DynamicClients', 'key' => 'clients'],
                 ['table' => 'Nas',            'key' => 'nas'],
@@ -860,40 +859,10 @@ class DashboardController extends AppController{
                 ['table' => 'Realms',         'key' => 'realms'],
             ], $cloudId);
         
-        if(isset($comps['cmp_dynamic_clients']) && $comps['cmp_dynamic_clients']){
-            $firstRow['column1']   = 
-              [
-                'name'          => 'RADIUS Clients',
-                'controller'    => 'cDynamicClients',
-                'id'            => 'pnlRadiusDynamicClients',
-                'glyph'         => 'xf1ce',
-                'total'         => $totals['clients'],
-                'desc'          => 'Devices allowed to send RADIUS requests.',
-                'accent'        => 'blue'            
-              ];         
-        }            
-	    if(isset($comps['cmp_nas']) && $comps['cmp_nas']){
-            $firstRow['column2']   = 
-              [
-                'name'          => 'NAS',
-                'controller'    => 'cNas',
-                'id'            => 'pnlRadiusNas',
-                'glyph'         => 'xf1cb',
-                'total'         => $totals['nas'],
-                'desc'          => 'Network access servers and concentrators.',
-                'accent'        => 'teal'
-              ];                    
-        }          
-        
-        $items      = [];
-        if(count($firstRow)>0){
-            $items[]    =  $firstRow;
-        }
-        
-        $secondRow = [];
-        
+            
+        $firstRow = [];        
         if(isset($comps['cmp_profiles']) && $comps['cmp_profiles']){
-            $secondRow['column1']   = 
+            $firstRow['column1']   = 
               [
                 'name'          => 'Profiles',
                 'controller'    => 'cProfiles',
@@ -905,7 +874,7 @@ class DashboardController extends AppController{
               ];         
         }            
 	    if(isset($comps['cmp_realms']) && $comps['cmp_realms']){
-            $secondRow['column2']   = 
+            $firstRow['column2']   = 
               [
                 'name'          => 'Realms (Groups)',
                 'controller'    => 'cRealms',
@@ -917,9 +886,40 @@ class DashboardController extends AppController{
               ];                    
         } 
         
+        $items      = [];
+        if(count($firstRow)>0){
+            $items[]    =  $firstRow;
+        } 
+                
+        $secondRow = [];        
+        if(isset($comps['cmp_dynamic_clients']) && $comps['cmp_dynamic_clients']){
+            $secondRow['column1']   = 
+              [
+                'name'          => 'RADIUS Clients',
+                'controller'    => 'cDynamicClients',
+                'id'            => 'pnlRadiusDynamicClients',
+                'glyph'         => 'xf1ce',
+                'total'         => $totals['clients'],
+                'desc'          => 'Devices allowed to send RADIUS requests.',
+                'accent'        => 'blue'            
+              ];         
+        }            
+	    if(isset($comps['cmp_nas']) && $comps['cmp_nas']){
+            $secondRow['column2']   = 
+              [
+                'name'          => 'NAS',
+                'controller'    => 'cNas',
+                'id'            => 'pnlRadiusNas',
+                'glyph'         => 'xf1cb',
+                'total'         => $totals['nas'],
+                'desc'          => 'Network access servers and concentrators.',
+                'accent'        => 'teal'
+              ];                    
+        }          
+        
         if(count($secondRow)>0){
             $items[]    =  $secondRow;
-        } 
+        }
                       
         $this->set([
             'success' => true,

@@ -132,8 +132,17 @@ class AccessProvidersController extends AppController{
         }
         
         $req_q    	= $this->request->getQuery(); 
-        $ap_name    = Configure::read('group.ap');             
-        $query		= $this->{$this->main_model}->find()->where(['Groups.name' => $ap_name])->contain(['Groups']);     
+        $ap_name    = Configure::read('group.ap');           
+        $query		= $this->{$this->main_model}->find()->where(['Groups.name' => $ap_name])->contain(['Groups']);        
+        
+        if(isset($req_q['sort'])){       
+            $dir    = 'ASC';
+            $dir    = isset($req_q['dir']) ? $req_q['dir'] : $dir;
+            $sort   = 'Users'.'.'.$req_q['sort'];
+            $query->order([$sort => $dir]);    
+        }
+        
+         
         //===== PAGING (MUST BE LAST) ======
         $limit  = 50; 
         $page   = 1;
@@ -152,19 +161,11 @@ class AccessProvidersController extends AppController{
         $q_r    = $query->all();
         $items  = [];
         
-        foreach($q_r as $i){            
-            $row        = [];
-            $fields     = $this->{$this->main_model}->getSchema()->columns();
-            foreach($fields as $field){
-                $row["$field"]= $i->{"$field"};             
-                if($field == 'created'){
-                    $row['created_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }
-                if($field == 'modified'){
-                    $row['modified_in_words'] = $this->TimeCalculations->time_elapsed_string($i->{"$field"});
-                }   
-            }
-            array_push($items,$row);
+        foreach($q_r as $i){
+            $i->created_in_words   = $this->TimeCalculations->time_elapsed_string($i->created);
+            $i->modified_in_words  = $this->TimeCalculations->time_elapsed_string($i->modified); 
+            unset($i->group);           
+            array_push($items,$i);
         }
         $this->set([
             'items' 		=> $items,

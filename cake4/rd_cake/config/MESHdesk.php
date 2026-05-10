@@ -117,7 +117,6 @@ $config['mesh_specifics']['map']['type']     = "ROADMAP";
 $config['mesh_specifics']['map']['zoom']     = 18;
 $config['mesh_specifics']['map']['lng']      = -71.0955740216735;
 $config['mesh_specifics']['map']['lat']      = 42.3379770178396;
-$config['mesh_specifics']['map']['api_key']  = 'AIzaSyByWChu95QDf8xdzxHugvQiQWJrvoF3ZE8';
 
 //== OpenWrt timezones====
 
