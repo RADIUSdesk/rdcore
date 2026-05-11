@@ -2,7 +2,8 @@
 <html>
 <head>
 	<title>Active Alerts</title>
-    <style> 
+   <!-- 
+   <style> 
         .divInfo {
             color:#696969;
             font-size:smaller;
@@ -12,6 +13,17 @@
             color:blue;
         }
     </style>
+    !-->
+    <style>
+        @media only screen and (max-width: 600px) {
+            td[style*="padding:20px 16px"] {
+                padding: 16px 12px !important;
+                display: block !important;
+                width: 100% !important;
+            }
+        }
+    </style>
+    
 </head>
 <body>
 	<?php echo $this->fetch('content');?>
