@@ -32,8 +32,7 @@ class AlertsController extends AppController{
         $this->loadComponent('MailTransport');
         $this->loadComponent('RdLogger'); 
         
-        $this->Authentication->allowUnauthenticated(['sendNotifications']); 
-            
+        //$this->Authentication->allowUnauthenticated(['sendNotifications']);            
     }
     
      //____ BASIC CRUD Manager ________
@@ -113,7 +112,7 @@ class AlertsController extends AppController{
             $row        = [];
             $fields     = $this->{$this->main_model}->getSchema()->columns();
             if($i->mesh){
-                $i['network'] = $i->mesh->name;
+                $row['network'] = $i->mesh->name;
                 $row['type'] = 'mesh';
                 if($i->node){
                     $row['device']    = $i->node->name;

@@ -32,3 +32,7 @@
 */15 * * * * www-data cd /var/www/rdcore/cake4/rd_cake && bin/cake permanent-users:sync-expiration >> /dev/null 2>&1
 
 
+#Alert emails
+0 * * * * www-data cd /var/www/rdcore/cake4/rd_cake && bin/cake send_notifications >> /dev/null 2>&1
+
+
