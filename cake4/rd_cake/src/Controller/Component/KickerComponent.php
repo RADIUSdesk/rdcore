@@ -57,7 +57,7 @@ class KickerComponent extends Component {
         //---Location of radclient----
         $nasidentifier  = $ent->nasidentifier;
         $radacctid      = $ent->radacctid;
-	$nasipaddress   = $ent->nasipaddress;
+	    $nasipaddress   = $ent->nasipaddress;
                 
      	//First we try to locate the client under dynamic_clients
      	$dc = $this->DynamicClients->find()
@@ -224,18 +224,18 @@ class KickerComponent extends Component {
 		    $port = $nas->coa_port;
 	    }
 	    
-	    $attributes = "Acct-Session-ID='$sessionid',User-Name='$username',NAS-IP-Address='$ip'";
+	    $attributes = "Acct-Session-ID=$sessionid ,User-Name=$username ,NAS-IP-Address=$ip ";
 	    	    
 	    //--Cisco needs the framedipaddress--
 	    if(
-	        ($nas->type == $this->typeCiscoCoa)&&
+	      //  ($nas->type == $this->typeCiscoCoa)&&
 	        (strlen($ent->framedipaddress)>1)
 	    ){
             $framed     = $ent->framedipaddress;
-            $attributes = $attributes.",Framed-IP-Address='$framed'";      
+            $attributes = $attributes.",Framed-IP-Address=$framed";      
 	    }
 	    	    	    
-        shell_exec("echo \"$attributes\" |radclient -c '1' -n '3' -r '3' -t '3' -x '$fwd_ip:$port' 'disconnect' '$secret'");
+        shell_exec("echo \"$attributes\" |radclient -c 1 -n 3 -r 3 -t 3 -x $fwd_ip:$port disconnect $secret");
     } 
          
     private function kickMeshNodeUser($ent,$cloud_id,$token){      
