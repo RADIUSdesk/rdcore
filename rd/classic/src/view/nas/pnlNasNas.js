@@ -303,8 +303,8 @@ Ext.define('Rd.view.nas.pnlNasNas', {
                     name        : 'heartbeat_dead_after',
                     itemId      : 'heartbeat_dead_after',
                     fieldLabel  : i18n('sHeartbeat_is_dead_after'),
-                    value       : 300,
-                    maxValue    : 21600,
+                    value       : 86400, //1Day
+                    maxValue    : 172800,//2Days
                     allowBlank  : false,
                     minValue    : 300,
                     hidden      : true,

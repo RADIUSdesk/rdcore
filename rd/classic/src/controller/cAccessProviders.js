@@ -90,7 +90,14 @@ Ext.define('Rd.controller.cAccessProviders', {
             },
             'gridAccessProviders #enable_disable' : {
                 click:      me.enableDisable
-            },           
+            },
+            'gridAccessProviders'   : {
+                menuItemClick   : me.onActionColumnMenuItemClick 
+            },
+            'gridAccessProviders actioncolumn': { 
+                 itemClick  : me.onActionColumnItemClick
+            },
+                       
             'winApAdd #btnDataNext' : {
                 click:  me.btnDataNext
             },
@@ -494,19 +501,10 @@ Ext.define('Rd.controller.cAccessProviders', {
     onActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");
         var me = this;
-        var grid = view.up('treepanel');
+        var grid = view.up('grid');
         grid.setSelection(record);
         if(action == 'update'){
             me.edit(); 
-            //***Call the actions that is called when the toolbar button is clicked
-            //e.g. This is the event binding for the edit and delete button in the toolbar defined at the start of the file 
-            /*'gridAccessProviders #edit': {
-                click:      me.edit
-            },
-            'gridAccessProviders #delete': {
-                click:      me.del
-            }
-            */
         }
         if(action == 'delete'){
             me.del(); //***Call the actions that is called when the toolbar button is clicked

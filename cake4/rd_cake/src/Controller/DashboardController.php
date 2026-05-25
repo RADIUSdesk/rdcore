@@ -1021,6 +1021,21 @@ class DashboardController extends AppController{
             ];                      
         }
         
+        if($isRootUser){
+            $items[] =  [
+                'column1'   => 
+                  [
+                    'name'          => 'CLIENTS',
+                    'controller'    => 'cClients',
+                    'id'            => 'pnlOtherClients',
+                    'glyph'         => 'xf2c0',
+                    'total'         => $this->Counts->countForClients(), 
+                    'desc'          => 'Persons who owns APs, Mesh Nodes or Permanent Users',
+                     'accent'       => 'green'
+                  ]
+            ];             
+        }
+        
         $items[] = [ "rowType" => "header", "group" => "Traffic & QoS" ];
         
         $items[] =  [

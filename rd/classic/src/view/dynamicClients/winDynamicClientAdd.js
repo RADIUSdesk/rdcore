@@ -248,8 +248,8 @@ Ext.define('Rd.view.dynamicClients.winDynamicClientAdd', {
                                     anchor      : '100%',
                                     name        : 'session_dead_time',
                                     fieldLabel  : i18n('sAuto_close_activation_time'),
-                                    value       : 300,
-                                    maxValue    : 21600,
+                                    value       : 86400, //1Day
+                                    maxValue    : 172800,//2Days
                                     minValue    : 300,
                                     hidden      : false
                                 },
