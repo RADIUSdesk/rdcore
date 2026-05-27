@@ -86,6 +86,13 @@ class CountsComponent extends Component {
         }
   
     }
+    
+    public function countForClients(){
+    
+        $Table = $this->table('Clients');
+        return (int)$Table->find()->count();   
+    
+    }
 
     
     /**

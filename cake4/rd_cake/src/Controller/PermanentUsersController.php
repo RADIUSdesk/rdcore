@@ -12,10 +12,13 @@ use Cake\Log\Log;
 
 use Authorization\Exception\ForbiddenException;
 
+use App\Service\AuditLogService;
+
 class PermanentUsersController extends AppController{
 
     public $base            = "Access Providers/Controllers/PermanentUsers/";
     protected $main_model   = 'PermanentUsers';
+    protected AuditLogService $AuditLogService;
 
     public function initialize():void{  
         parent::initialize();
@@ -41,7 +44,10 @@ class PermanentUsersController extends AppController{
         $this->loadComponent('MailTransport');
         $this->loadComponent('RdLogger');
         $this->loadComponent('IspPlumbing');         
-        $this->Authentication->allowUnauthenticated([ 'import']); 
+        $this->Authentication->allowUnauthenticated([ 'import']);
+        
+        //--MAY 2026--
+        $this->AuditLogService = new AuditLogService(); 
              
     }
     
@@ -728,15 +734,36 @@ class PermanentUsersController extends AppController{
         }else{
         	$req_d['from_date'] = null;
         	$req_d['to_date'] = null;    
-        }   
+        } 
         
-        
+        unset($req_d['always_active']);
+             
         $this->{$this->main_model}->patchEntity($entity, $req_d);
+       
+        
+        $changes = [];
+        foreach ($entity->getDirty() as $field) {
+            $changes[$field] = [
+                'old' => $entity->getOriginal($field),
+                'new' => $entity->get($field),
+            ];
+        }
+            
      
         if ($this->{$this->main_model}->save($entity)) {
-        
-        	$this->IspPlumbing->disconnectIfActive($entity);
-        	
+                    
+            if($changes){
+                $this->AuditLogService->log(
+                    'permanent_users.edit-basic-info',
+                    $this->request,
+                    [
+                        'entity'    => 'PermanentUsers',
+                        'entity_id' => $entity->id,
+                        'changes'   => $changes
+                    ]
+                );
+            }
+                            	
             $this->set([
                 'success' => true
             ]);
