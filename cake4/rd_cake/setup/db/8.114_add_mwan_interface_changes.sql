@@ -15,13 +15,12 @@ if not exists (select * from information_schema.columns
       tracking enum('active', 'paused', 'disabled', 'unknown') DEFAULT 'unknown',
       status enum('offline','online','disabled', 'disconnecting') DEFAULT 'offline',
       created DATETIME DEFAULT CURRENT_TIMESTAMP,
-      modified DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+      modified DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    );
 
 end if;
 
 end//
 
 delimiter ;
-call add_iperf_tests;
+call add_mwan_interface_changes;
