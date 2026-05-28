@@ -1032,6 +1032,16 @@ class DashboardController extends AppController{
                     'total'         => $this->Counts->countForClients(), 
                     'desc'          => 'Persons who owns APs, Mesh Nodes or Permanent Users',
                      'accent'       => 'green'
+                  ],
+                  'column2' => 
+                  [
+                    'name'          => 'AUDIT LOGS',
+                    'controller'    => 'cAuditLogs',
+                    'id'            => 'pnlOtherAuditLogs',
+                    'glyph'         => 'xf1da',
+                    'total'         => $this->Counts->countForClients(),
+                    'desc'          => 'See who made changes where and when',
+                    'accent'        => 'red'
                   ]
             ];             
         }

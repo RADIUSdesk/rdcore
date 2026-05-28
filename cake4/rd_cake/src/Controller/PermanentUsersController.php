@@ -458,10 +458,34 @@ class PermanentUsersController extends AppController{
         if($this->{$this->main_model}->save($entity)){
             $reply_data         = $req_d;
             $reply_data['id']   = $entity->id;
-            $this->set(array(
+            
+            //--May 2026 Add an audit log --
+            $changes = [];
+            foreach ($entity->toArray() as $field => $value) {
+                if(($field !== 'password')&&($field !== 'token')&&($field !== 'cleartext_password')){
+                    $changes[$field] = [
+                        'new' => $value
+                    ];
+                }
+            }
+            if($changes){
+                        
+                $this->AuditLogService->log(
+                    'permanent_users.add',
+                    $this->request,
+                    [
+                        'entity'    => 'PermanentUsers',
+                        'entity_id' => $entity->id,
+                        'changes'   => $changes
+                    ]
+                );
+            }
+            //--- END audit log --
+            
+            $this->set([
                 'success' => true,
                 'data'    => $reply_data
-            ));
+            ]);
             $this->viewBuilder()->setOption('serialize', true);
         }else{
         	$additional = [];
@@ -529,8 +553,7 @@ class PermanentUsersController extends AppController{
         $this->viewBuilder()->setOption('serialize', ['success', 'message']);
 
     }
-       
-    
+           
     public function delete() {
     
     	$user = $this->_ap_right_check();
@@ -545,12 +568,50 @@ class PermanentUsersController extends AppController{
 		$req_d		= $this->request->getData();
        
 	    if(isset($req_d['id'])){   //Single item delete      
-            $entity     = $this->{$this->main_model}->get($req_d['id']);   
-            $this->{$this->main_model}->delete($entity);       
+            $entity     = $this->{$this->main_model}->get($req_d['id']); 
+            
+            //--May 2026 Add an audit log --
+            foreach ($entity->toArray() as $field => $value) {
+                if(($field !== 'password')&&($field !== 'token')&&($field !== 'cleartext_password')){
+                    $changes[$field] = [
+                        'old' => $value
+                    ];
+                }
+            }
+                     
+            if($this->{$this->main_model}->delete($entity)){           
+                $this->AuditLogService->log(
+                    'permanent_users.delete',
+                    $this->request,
+                    [
+                        'entity'    => 'PermanentUsers',
+                        'entity_id' => $entity->id,
+                        'changes'   => $changes
+                    ]
+                );           
+            }      
         }else{                          //Assume multiple item delete
             foreach($req_d as $d){
-                $entity     = $this->{$this->main_model}->get($d['id']);               
-              	$this->{$this->main_model}->delete($entity);
+                $entity     = $this->{$this->main_model}->get($d['id']);
+                //--May 2026 Add an audit log --
+                foreach ($entity->toArray() as $field => $value) {
+                    if(($field !== 'password')&&($field !== 'token')&&($field !== 'cleartext_password')){
+                        $changes[$field] = [
+                            'old' => $value
+                        ];
+                    }
+                }                              
+              	if($this->{$this->main_model}->delete($entity)){
+              	    $this->AuditLogService->log(
+                        'permanent_users.delete',
+                        $this->request,
+                        [
+                            'entity'    => 'PermanentUsers',
+                            'entity_id' => $entity->id,
+                            'changes'   => $changes
+                        ]
+                    );              	
+              	}
             }
         }
         $this->set([
@@ -740,15 +801,14 @@ class PermanentUsersController extends AppController{
              
         $this->{$this->main_model}->patchEntity($entity, $req_d);
        
-        
+        //--May 2026 Add an audit log --
         $changes = [];
         foreach ($entity->getDirty() as $field) {
             $changes[$field] = [
                 'old' => $entity->getOriginal($field),
                 'new' => $entity->get($field),
             ];
-        }
-            
+        }          
      
         if ($this->{$this->main_model}->save($entity)) {
                     
