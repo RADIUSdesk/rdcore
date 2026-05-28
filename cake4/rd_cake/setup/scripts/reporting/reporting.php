@@ -440,7 +440,7 @@ function _addWanStats($wan_stats,$node){
         } 
         
         //--WIFI report (if present)
-        if(isset($wan_stats['wifiSignal'])){
+        if(isset($wan_stats['wifiSignal'][0]['signal'])) {
              foreach($wan_stats['wifiSignal'] as $wifiEntry){     
                 $interface  = $wifiEntry['interface'];
                 $wifiEntry['interface'] = str_replace('mw','',$interface);

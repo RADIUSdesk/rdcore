@@ -98,8 +98,7 @@ class WanReportsController extends AppController {
                     }
                 }       
             }
-                       
-                           
+                                                  
             if($ap_profile->multi_wan_profile){            
                 foreach($ap_profile->multi_wan_profile->mwan_interfaces as $mwanInterface){ 
                  

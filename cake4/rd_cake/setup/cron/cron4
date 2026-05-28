@@ -35,4 +35,6 @@
 #Alert emails
 0 * * * * www-data cd /var/www/rdcore/cake4/rd_cake && bin/cake send_notifications >> /dev/null 2>&1
 
+#Monitor MWAN Interfaces
+* * * * * www-data cd /var/www/rdcore/cake4/rd_cake && bin/cake interface:changes >> /dev/null 2>&1
 
