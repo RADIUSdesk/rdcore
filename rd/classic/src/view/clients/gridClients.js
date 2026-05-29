@@ -48,12 +48,89 @@ Ext.define('Rd.view.clients.gridClients' ,{
                 text        : 'Username',               
                 dataIndex   : 'username',
                 tdCls       : 'gridMain', 
-                flex        : 1
-            },           
+                flex        : 1,
+                stateId     : 'sgc1'
+            }, 
+            {
+                text        : i18n('sName'),
+                dataIndex   : 'name',
+                flex        : 1,
+                hidden      : true,
+                filter      : {type: 'string'}, stateId: 'sgc2'
+            },
+            {
+                text        : i18n('sSurname'),
+                dataIndex   : 'surname',
+                flex        : 1,
+                hidden      : true,
+                filter      : {type: 'string'}, stateId: 'sgc3'
+            },
+            {
+                text        : i18n('sPhone'),
+                dataIndex   : 'phone',
+                flex        : 1,
+                hidden      : true,
+                filter      : {type: 'string'}, stateId: 'sgc4'
+            },
+            {
+                text        : 'Address',
+                flex        : 1,
+                dataIndex   : 'address',
+                hidden      : true,
+                filter      : {type: 'string'}, stateId: 'sgc5'
+            },
+            { 
+                text        : 'APs',
+                dataIndex   : 'aps', 
+                tdCls       : 'gridTree',
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    "<div class=\"rd-chip rd-chip--blue\">TO BE COMPLETED</div>"
+                ),
+                flex        : 1,
+                stateId     : 'sgc6'
+            },
+            { 
+                text        : 'Nodes',
+                dataIndex   : 'nodes', 
+                tdCls       : 'gridTree',
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    "<div class=\"rd-chip rd-chip--blue\">TO BE COMPLETED</div>"
+                ),
+                flex        : 1,
+                stateId     : 'sgc7'
+            },
+            { 
+                text        : 'Permanent Users',
+                dataIndex   : 'permanent_users', 
+                tdCls       : 'gridTree',
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    "<div class=\"rd-chip rd-chip--blue\">TO BE COMPLETED</div>"
+                ),
+                flex        : 1,
+                stateId     : 'sgc8'
+            },
+            { 
+                text        : i18n('sActive'),  
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                                "<tpl if='active == true'><div class=\"rd-chip rd-chip--green\">"+i18n("sYes")+"</div></tpl>",
+                                "<tpl if='active == false'><div class=\"rd-chip rd-chip--gray\">"+i18n("sNo")+"</div></tpl>"
+                            ),
+                dataIndex   : 'active',
+                filter      : {
+                        type            : 'boolean',
+                        yesText         : 'Yes',
+                        noText          : 'No'
+                }, stateId: 'sgc9'
+            },          
             { 
                 text        : 'Created',
                 dataIndex   : 'created', 
-                tdCls       : 'gridTree', 
+                tdCls       : 'gridTree',
+                hidden      : true,  
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
                     "<div class=\"rd-chip rd-chip--blue\">{created_in_words}</div>"
@@ -66,6 +143,7 @@ Ext.define('Rd.view.clients.gridClients' ,{
                 text        : 'Modified',
                 dataIndex   : 'modified', 
                 tdCls       : 'gridTree',
+                hidden      : true, 
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
                     "<div class=\"rd-chip rd-chip--blue\">{modified_in_words}</div>"

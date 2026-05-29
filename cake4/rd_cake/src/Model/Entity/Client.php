@@ -22,5 +22,4 @@ class Client extends Entity {
         }
     }
     
-    
 }

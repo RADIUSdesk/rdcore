@@ -2,7 +2,7 @@
 /**
  * Created by G-edit.
  * User: dirkvanderwalt
- * Date: 26/05/2026
+ * Date: 29/05/2026
  * Time: 00:00
  */
  
@@ -14,18 +14,18 @@ use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
 
 
-class ClientsController extends AppController{
+class AuditLogsController extends AppController{
   
-    protected $main_model   = 'Clients';
+    protected $main_model   = 'AuditLogs';
     
     public function initialize():void{ 
         parent::initialize();
         
-        $this->loadModel('Clients');           
+        $this->loadModel('AuditLogs');           
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
-            'model' => 'Clients'
+            'model' => 'AuditLogs'
         ]);             
         $this->loadComponent('JsonErrors'); 
         $this->loadComponent('TimeCalculations');    
@@ -82,23 +82,10 @@ class ClientsController extends AppController{
         if(!$user){
             return;
         }
-        
              
         $cdata  = $this->request->getData(); 
         
-        $check_items = [
-			'active'
-		];
-        foreach($check_items as $i){
-            if(isset($cdata[$i])){
-                $cdata[$i] = 1;
-            }else{
-                $cdata[$i] = 0;
-            }
-        }    
-                      
-        //Zero the token to generate a new one for this user:
-        $cdata['token'] = '';
+        unset($cdata['token']);
              
         $entity = $this->{$this->main_model}->newEntity($cdata);
         
@@ -125,17 +112,6 @@ class ClientsController extends AppController{
     private function _edit($user) {
         
         $cdata = $this->request->getData();
-        
-        $check_items = [
-			'active'
-		];
-        foreach($check_items as $i){
-            if(isset($cdata[$i])){
-                $cdata[$i] = 1;
-            }else{
-                $cdata[$i] = 0;
-            }
-        }    
         
         $entity = $this->{$this->main_model}->get($cdata['id']);                 
         $this->{$this->main_model}->patchEntity($entity, $cdata);   
@@ -211,31 +187,6 @@ class ClientsController extends AppController{
             ));
         }
 	}
-	
-	public function changePassword(){
-	
-		if(!$this->Aa->admin_check($this)){   //Only for admin users!
-            return;
-        }
-
-        $success 	= false;
-        $req_d		= $this->request->getData();
-        if(isset($req_d['id'])){
-            $entity = $this->{$this->main_model}->get($req_d['id']); 
-            $data = [
-                'password'  => $req_d['password'],
-                'token'     => ''
-            ];
-            $this->{$this->main_model}->patchEntity($entity, $data);
-            $this->{$this->main_model}->save($entity);
-            $success               = true;  
-        }
-
-        $this->set([
-            'success' => $success
-        ]);
-        $this->viewBuilder()->setOption('serialize', true); 
-    }
 
     public function menuForGrid(){
         $user = $this->Aa->user_for_token($this);

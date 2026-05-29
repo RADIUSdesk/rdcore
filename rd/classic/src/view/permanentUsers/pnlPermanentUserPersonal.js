@@ -72,6 +72,7 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserPersonal', {
                 {
                     xtype       : 'textfield',
                     fieldLabel  : i18n('s_email'),
+                    vtype       : 'email', // Applies built-in email validation
                     name        : "email",
                     allowBlank  :true
                 },

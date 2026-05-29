@@ -21,7 +21,6 @@ IF NOT EXISTS (
       `surname` varchar(50) NOT NULL,
       `address` varchar(255) NOT NULL,
       `phone` varchar(50) NOT NULL,
-      `email` varchar(100) NOT NULL,
       `active` tinyint(1) NOT NULL DEFAULT 0,
       `created` datetime DEFAULT NULL,
       `modified` datetime DEFAULT NULL,
@@ -63,8 +62,6 @@ IF NOT EXISTS (
     ALTER TABLE permanent_users
         ADD COLUMN client_id BIGINT UNSIGNED NULL AFTER mac_address ;
 END IF;
-
-
 
 
 END//

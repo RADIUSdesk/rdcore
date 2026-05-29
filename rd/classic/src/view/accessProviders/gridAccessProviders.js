@@ -82,8 +82,8 @@ Ext.define('Rd.view.accessProviders.gridAccessProviders' ,{
                 text        : i18n('sActive'),  
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                                "<tpl if='active == true'><div class=\"fieldGreen\">"+i18n("sYes")+"</div></tpl>",
-                                "<tpl if='active == false'><div class=\"fieldRed\">"+i18n("sNo")+"</div></tpl>"
+                                "<tpl if='active == true'><div class=\"rd-chip rd-chip--green\">"+i18n("sYes")+"</div></tpl>",
+                                "<tpl if='active == false'><div class=\"rd-chip rd-chip--gray\">"+i18n("sNo")+"</div></tpl>"
                             ),
                 dataIndex   : 'active',
                 filter      : {
