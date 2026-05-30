@@ -113,14 +113,14 @@ class AlertsController extends AppController{
             $fields     = $this->{$this->main_model}->getSchema()->columns();
             if($i->mesh){
                 $row['network'] = $i->mesh->name;
-                $row['type'] = 'mesh';
+                $row['network_type'] = 'mesh';
                 if($i->node){
                     $row['device']    = $i->node->name;
                 }
             }
             if($i->ap_profile){
                 $row['network'] = $i->ap_profile->name;
-                $row['type']    = 'ap_profile';
+                $row['network_type']    = 'ap_profile';
                 if($i->ap){
                     $row['device']    = $i->ap->name;
                 }
@@ -322,14 +322,14 @@ class AlertsController extends AppController{
                     $fields     = $this->{$this->main_model}->getSchema()->columns();
                     if($alert->mesh){
                         $row['network'] = $alert->mesh->name;
-                        $row['type'] = 'mesh';
+                        $row['network_type'] = 'mesh';
                         if($alert->node){
                             $row['device']    = $alert->node->name;
                         }
                     }
                     if($alert->ap_profile){
                         $row['network'] = $alert->ap_profile->name;
-                        $row['type']    = 'ap_profile';
+                        $row['network_type']    = 'ap_profile';
                         if($alert->ap){
                             $row['device']    = $alert->ap->name;
                         }
