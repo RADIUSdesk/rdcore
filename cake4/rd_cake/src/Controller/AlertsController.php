@@ -113,14 +113,14 @@ class AlertsController extends AppController{
             $fields     = $this->{$this->main_model}->getSchema()->columns();
             if($i->mesh){
                 $row['network'] = $i->mesh->name;
-                $row['network_type'] = 'mesh';
+                $row['type'] = 'mesh';
                 if($i->node){
                     $row['device']    = $i->node->name;
                 }
             }
             if($i->ap_profile){
                 $row['network'] = $i->ap_profile->name;
-                $row['network_type']    = 'ap_profile';
+                $row['type']    = 'ap_profile';
                 if($i->ap){
                     $row['device']    = $i->ap->name;
                 }
@@ -234,7 +234,8 @@ class AlertsController extends AppController{
             $message = "Single item ".$req_d['id'];
             //NOTE: we first check of the user_id is the logged in user OR a sibling of them:         
             $entity     = $this->{'Alerts'}->find()->where(['Alerts.id' => $req_d['id']])->first();
-            if($entity){
+            
+            if(($entity)&&($entity->category == 'alert')){ //Silently ignore the others categories
                 $entity->acknowledged   = FrozenTime::now();
                 $entity->user_id        = $user_id;
                 $this->{'Alerts'}->save($entity);
@@ -243,7 +244,8 @@ class AlertsController extends AppController{
         }else{                          //Assume multiple item delete
             foreach($req_d as $d){
                 $entity     = $this->{'Alerts'}->find()->where(['Alerts.id' => $d['id']])->first();
-                if($entity){
+                
+                if(($entity)&&($entity->category == 'alert')){ //Silently ignore the others categories
                     $entity->acknowledged   = FrozenTime::now();
                     $entity->user_id        = $user_id;
                     $this->{'Alerts'}->save($entity);
@@ -254,7 +256,7 @@ class AlertsController extends AppController{
         if($fail_flag == true){
             $this->set([
                 'success'   => false,
-                'message'   => __('Could not delete some items'),
+                'message'   => __('Could not acknowledge some items'),
             ]);
         }else{
             $this->set([
@@ -263,153 +265,7 @@ class AlertsController extends AppController{
         }
         $this->viewBuilder()->setOption('serialize', true);
 	}
-	
-	public function sendNotifications(){
-	
-	    $this->loadModel('UserSettings');   
-	    $user_settings  = $this->{'UserSettings'}->find()->where(['UserSettings.name' => 'alert_activate','UserSettings.value' => '1'])->contain(['Users'=> ['Groups']])->all();
-	    $alerts_cluster = [];
-	    
-		foreach($user_settings as $us){
-		    $username   = $us->user->username;
-		    $group      = $us->user->group->name;
-		    $email      = $us->user->email;
-		    $id         = $us->user->id;
-		    $user['id']         = $id;
-		    $user['username']   = $username;
-		    $user['group_name'] = $group;
-		    
-		    $freq   = 1;
-			$q_freq = $this->UserSettings->find()->where(['UserSettings.user_id' => $id,"UserSettings.name" => "alert_frequency"])->first();
-			if($q_freq) {
-				$freq = $q_freq->value;
-			}
-			$date_str   = date("Y-m-d H:i:s");
-			$date_hour  = date("h");
-			$hour_match = (int)$date_hour%$freq;
-			
-			//--Only if its in an interval which it must be sent!--	    
-		    if($hour_match == 0){
-		        $query      = $this->{$this->main_model}->find()->where(['resolved IS NULL'])->contain(['Meshes','Nodes','ApProfiles','Aps','Users']);
-		        
-		        //We add this filter for non-root users
-                if($id !== 44){ //Create extra clause for NON Root users
-                    $list_of_clouds = [];
-                    //Get all the clouds this user has accees to or that he owns
-                    
-                    $own_clouds = $this->Clouds->find()->where(['Clouds.user_id' => $id])->all();
-                    foreach($own_clouds as $cloud){
-                        $list_of_clouds[] = $cloud->id;     
-                    }
-                
-                    $cloud_admins   = $this->CloudAdmins->find()->where(['CloudAdmins.user_id' => $id])->all();
-                    foreach($cloud_admins as $cloud_admin){
-                        $list_of_clouds[] = $cloud_admin->cloud_id;
-                    }
-                    
-                    $list_of_clouds = is_array($list_of_clouds) ? $list_of_clouds : [$list_of_clouds];    
-                    $query->where(['OR' => [
-                        'Meshes.cloud_id IN'        => $list_of_clouds,
-                        'ApProfiles.cloud_id IN'    => $list_of_clouds
-                    ]]);                          
-                } 
-		        
-		        
-                $alerts_results   = $query->all();         
-                $alerts     = [];              
-                foreach($alerts_results as $alert){                      
-                    $row        = [];
-                    $fields     = $this->{$this->main_model}->getSchema()->columns();
-                    if($alert->mesh){
-                        $row['network'] = $alert->mesh->name;
-                        $row['network_type'] = 'mesh';
-                        if($alert->node){
-                            $row['device']    = $alert->node->name;
-                        }
-                    }
-                    if($alert->ap_profile){
-                        $row['network'] = $alert->ap_profile->name;
-                        $row['network_type']    = 'ap_profile';
-                        if($alert->ap){
-                            $row['device']    = $alert->ap->name;
-                        }
-                    }
-                    foreach($fields as $field){
-                        $row["$field"]= $alert->{"$field"};
-                        if(
-                            ($field == 'detected')||
-                            ($field == 'created')||
-                            ($field == 'modified')||
-                            ($field == 'acknowledged')||
-                            ($field == 'resolved')
-                        ){
-                            if($alert->{"$field"} == null){
-                                $row["$field".'_in_words'] = 'Never';
-                            }else{
-                                $row["$field".'_in_words'] = $alert->{"$field"}->diffForHumans();
-                                if($field == 'acknowledged'){
-                                    $row['before_acknowledged_in_words'] = $alert->{"detected"}->diffForHumans($alert->{"$field"},true); // 1 hour ago;
-                                    $row['acknowledged_by'] = $alert->user->username;
-                                }
-                                if($field == 'resolved'){
-                                    $row['before_resolved_in_words'] = $i->{"detected"}->diffForHumans($alert->{"$field"},true); // 1 hour ago;
-                                }
-                            }
-                        }      
-                    }
-                    array_push($alerts, $row);           
-                }
-                
-                $alerts_cluster[$id] = [
-                    'user'      => $user,
-                    'email'     => $email,
-                    'alerts'    => $alerts    
-                ];               
-            }
-            //--Only if its in an interval which it must be sent!--           
-		}
 		
-		//print_r($alerts_cluster);
-		
-		foreach(array_keys($alerts_cluster) as $k){
-		    $u          = $alerts_cluster[$k]['user'];
-		    $meta_data  = $this->MailTransport->setTransport(); 
-		    //print_r($meta_data); 
-		    
-		    
-		    if($meta_data !== false){ 
-		    
-		    	$e          = $alerts_cluster[$k]['email'];
-		    	$base_msg   = 'Active Alerts';
-            	$subject    = 'Active Alerts'; 
-            	$email 	    = new Mailer(['transport'   => 'mail_rd']); 
-		    	$a          = $alerts_cluster[$k]['alerts'];
-		    	$from   	= $meta_data['from'];
-		    	
-		    	$email->setSubject("$subject")
-                    ->setFrom($from)
-                    ->setTo($e)
-                    ->setViewVars(['alerts'=> $a])
-                    ->setEmailFormat('html')
-                    ->viewBuilder()
-                    	->setTemplate('alert_template')
-                		->setLayout('alert_notify');
-                	
-                $email->deliver();              
-		    			    
-		    	$settings_cloud_id = $this->MailTransport->getCloudId();
-            	$this->RdLogger->addEmailHistory($settings_cloud_id,$e,'alerts_email',"==Alerts Cluster==");        
-		            
-		   	}
-		}		
-	    $items = [];
-	    $this->set([
-            'items'     => $alerts_cluster,
-            'success'   => true
-        ]);
-        $this->viewBuilder()->setOption('serialize', true);
-	}
-	
 	private function _common_filter(){
 
         $where_clause   = [];
@@ -429,6 +285,15 @@ class AlertsController extends AppController{
                     if($f->property == 'device'){
                         array_push($where_clause,['OR' => ["Nodes.name LIKE" => '%'.$f->value.'%',"Aps.name LIKE" => '%'.$f->value.'%']]);
                     }   
+                }
+                
+                if($f->operator == 'in'){
+                    $list_array = [];
+                    foreach($f->value as $filter_list){
+                        $col = $model.'.'.$f->property;
+                        array_push($list_array,["$col" => "$filter_list"]);
+                    }
+                    array_push($where_clause,['OR' => $list_array]);
                 }
                 
                 if(($f->operator == 'gt')||($f->operator == 'lt')||($f->operator == 'eq')){

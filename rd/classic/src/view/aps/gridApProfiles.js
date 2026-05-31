@@ -50,6 +50,7 @@ Ext.define('Rd.view.aps.gridApProfiles' ,{
             { text: i18n("sName"),      dataIndex: 'name',          tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridApProfiles3'},		
             { 
                 text        : 'AP Count',
+                sortable    : false, // Disables ordering/sorting for this column
                 dataIndex   : 'ap_count',     
                 tdCls       : 'gridTree',
                 stateId     : 'StateGridApProfiles7', 
@@ -57,7 +58,8 @@ Ext.define('Rd.view.aps.gridApProfiles' ,{
                 
                 },
             { 
-                text        : 'APs Up',  
+                text        : 'APs Up',
+                sortable    : false, // Disables ordering/sorting for this column  
                 dataIndex   : 'aps_up', 
                 tdCls       : 'gridTree',     
                 xtype       :  'templatecolumn', 
@@ -71,7 +73,8 @@ Ext.define('Rd.view.aps.gridApProfiles' ,{
 
             { 
                 text        : 'APs Down',  
-                dataIndex   : 'aps_down',      
+                dataIndex   : 'aps_down',
+                sortable    : false, // Disables ordering/sorting for this column     
                 xtype       :  'templatecolumn', 
                 tdCls       : 'gridTree',
                 tpl         :    new Ext.XTemplate(

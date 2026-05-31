@@ -716,7 +716,7 @@ class DashboardController extends AppController{
         $unknownBase    = array_merge($unknownBase,$unknownCounts);  
         
         $alertsBase = [
-            'name'          => 'Alerts',
+            'name'          => 'Alerts & Events',
             'controller'    => 'cNetworkAlerts',
             'id'            => 'pnlNetworksAlerts',
             'glyph'         => 'xf0f3',
@@ -1237,7 +1237,7 @@ class DashboardController extends AppController{
             ],
             [
                 'xtype'   => 'button',
-                'text'    => 'Alerts',
+                'text'    => 'Alerts & Events',
                 'glyph'   => Configure::read('icnBell'),
                 'scale'   => 'large',
                 'itemId'  => 'btnAlerts',

@@ -10,11 +10,11 @@ IF NOT EXISTS (
     FROM information_schema.columns
     WHERE table_schema = DATABASE()
       AND table_name = 'alerts'
-      AND column_name = 'type'
+      AND column_name = 'category'
 ) THEN
 
     ALTER TABLE alerts
-        ADD COLUMN type ENUM('alert','event','info') DEFAULT 'alert' AFTER id;
+        ADD COLUMN category ENUM('alert','event','info') DEFAULT 'alert' AFTER id;
 
 END IF;
     

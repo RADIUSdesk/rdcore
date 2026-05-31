@@ -20,7 +20,7 @@ Ext.define('Rd.controller.cNetworkAlerts', {
                     },
 	                items   : [
 	                    { 
-                            title   : 'Alerts',
+                            title   : 'Alerts & Events',
                             itemId  : 'networkAlerts',
                             xtype   : 'gridAlerts',
                             cloud   : true,

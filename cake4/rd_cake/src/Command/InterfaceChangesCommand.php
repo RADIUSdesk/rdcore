@@ -101,14 +101,14 @@ class InterfaceChangesCommand extends Command {
                             ($intChange->tracking !== $new_data['tracking'])){                      
                                 $intChange = $this->MwanInterfaceChanges->newEntity($new_data);
                                 if($this->MwanInterfaceChanges->save($intChange)){
-                                    //FIXME This is where we send out the email ... :-) 
+                                    //This is where we send out the email ... :-) 
                                     $this->alertPlusEmail($intChange,$io); 
                                 }                       
                         }else{
                             //We just update the modified field
                             $this->MwanInterfaceChanges->getBehavior('Timestamp')->touch($intChange);
                             if($this->MwanInterfaceChanges->save($intChange)){
-                                $this->alertPlusEmail($intChange,$io);
+                                //$this->alertPlusEmail($intChange,$io); //We don't send everytime - this is just to test manually
                             }                    
                         }
                     
@@ -121,8 +121,7 @@ class InterfaceChangesCommand extends Command {
         }
         $io->out("====================");
     }
-    
-    
+        
     private function alertPlusEmail($intChange,$io){
     
         $cloud_id       = null;
@@ -182,10 +181,10 @@ class InterfaceChangesCommand extends Command {
         $change_info['interface_status'] = $intChange->status;
         $change_info['interface_up'] = $intChange->up;
                         
-        //--- Should we record an alert type of event (If we reached here we should) ----
+        //--- Should we record an alert category of event (If we reached here we should) ----
         if($cloud_id){
         
-            $change_info['type'] = 'event'; //Type is event (can be alert, event or info)
+            $change_info['category'] = 'event'; //Category is event (can be alert, event or info)
             
             //Formulate description
             $up = "down";
@@ -254,8 +253,7 @@ class InterfaceChangesCommand extends Command {
             $email_list = array_unique($email_list);
             if($email_list){
                 $io->success("Active Alerts List found sent out some emails");
-            }  
-                                                         
+            }                                                          
         }       
              
         $io->success("Up to Here");

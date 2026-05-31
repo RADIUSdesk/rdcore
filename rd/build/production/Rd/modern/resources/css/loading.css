@@ -479,10 +479,16 @@
 .rd-accent-purple::before { background:#8b5cf6; }
 .rd-accent-orange::before { background:#f59e0b; }
 
+.rd-accent-green::before  { background:#22c55e; }
+.rd-accent-red::before    { background:#ef4444; }
+
 .rd-accent-blue   .rd-tile-icon{ background:rgba(59,130,246,.12); }
 .rd-accent-teal   .rd-tile-icon{ background:rgba(20,184,166,.12); }
 .rd-accent-purple .rd-tile-icon{ background:rgba(139,92,246,.12); }
 .rd-accent-orange .rd-tile-icon{ background:rgba(245,158,11,.12); }
+
+.rd-accent-green  .rd-tile-icon{ background:rgba(34,197,94,.12); }
+.rd-accent-red    .rd-tile-icon{ background:rgba(239,68,68,.12); }
 
 /* Stack to 1 column on narrow widths */
 @media (max-width: 980px){

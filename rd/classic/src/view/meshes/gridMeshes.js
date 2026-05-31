@@ -84,7 +84,8 @@ Ext.define('Rd.view.meshes.gridMeshes' ,{
             },
             {   
                 text        : 'Nodes',   
-                dataIndex   : 'node_count',    
+                dataIndex   : 'node_count', 
+                sortable    : false, // Disables ordering/sorting for this column   
                 stateId     : 'StateGridMeshes7',
                 tdCls       : 'gridTree',
                 width       : Rd.config.gridNumberCol+20,

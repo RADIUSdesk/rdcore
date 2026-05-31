@@ -48,80 +48,125 @@ Ext.define('Rd.view.alerts.gridAlerts' ,{
             }
         }];
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
+        
+        var category = Ext.create('Ext.data.Store', {
+            fields: ['id', 'text'],
+            data : [
+                {"id":"alert",   "text": "Alert"},
+                {"id":"event", 	 "text": "Event"},
+				{"id":"info",    "text": "Info"}
+            ]
+        });
+                
         me.columns  = [ 
+            { 
+                text        : 'Category',
+                dataIndex   : 'category',
+                width       : 120, 
+                hidden      : false,
+                xtype       : 'templatecolumn', 
+                tpl         :    new Ext.XTemplate(
+                    "<tpl if='category==\"alert\"'><div class=\"rd-badge rd-badge--amber\">Alert</div></tpl>",
+                    "<tpl if='category==\"event\"'><div class=\"rd-badge rd-badge--blue\">Event</div></tpl>",
+                    "<tpl if='category==\"info\"'><div class=\"rd-badge  rd-badge--gray\">Info</div></tpl>",
+                ),
+                stateId		: 'sgAlerts1',
+                filter      : {
+                    type    : 'list',
+                    store   : category       
+                },
+                sortable    : false
+            },
              { 
                 text        : 'Network',
-                dataIndex   : 'network', 
+                dataIndex   : 'network',
+                width       : 120, 
                 hidden      : false,
                 xtype       : 'templatecolumn', 
                 tpl         :    new Ext.XTemplate(
                     "<tpl if='type==\"mesh\"'><div class=\"rd-badge\"><span style=\"font-family:FontAwesome;\">&#xf20e;</span> {network}</div></tpl>",
                     "<tpl if='type==\"ap_profile\"'><div class=\"rd-badge\"><i class=\"fa fa-wifi\"></i> {network}</div></tpl>"
                 ),
-                stateId		: 'StateGridAlerts1',
-                flex        : 1,
+                stateId		: 'sgAlerts2',
                 filter      : {type: 'string'},
                 sortable    : false
             },
             { 
                 text        : 'Device',
-                dataIndex   : 'device', 
+                dataIndex   : 'device',
+                width       : 120, 
                 hidden      : false, 
-              //  xtype       : 'templatecolumn', 
-               // tpl         :    new Ext.XTemplate(
-              //      "<div class=\"fieldGreyWhite\">{device}</div>"
-              //  ),
-                stateId		: 'StateGridAlerts2',
-                flex        : 1,
+                stateId		: 'sgAlerts3',
                 filter      : {type: 'string'},
                 sortable    : false
             },
             { 
                 text        : 'Description',
                 dataIndex   : 'description', 
-                flex        : 1,
+                flex        : 2,
                 hidden      : false,
-                stateId     : 'StateGridAlerts3',
+                stateId     : 'sgAlerts4',
                 sortable    : false
             },    
             { 
                 text        : 'Detected',
                 dataIndex   : 'detected', 
                 hidden      : false,  
-                xtype       : 'templatecolumn', 
+                xtype       : 'templatecolumn',
+                width       : 140, 
                 tpl         : new Ext.XTemplate(
-                    "<tpl if='acknowledged == null'>",
-                        "<tpl if='resolved == null'>",
-                            '<div class=\"rd-badge rd-badge--amber\">{detected_in_words}</div>',
+                    "<tpl if='category == \"event\" || category == \"info\"'>",
+                        '<div class=\"rd-badge rd-badge--blue\">{detected_in_words}</div>',
+                    "<tpl else>",
+                    
+                        "<tpl if='acknowledged == null'>",
+                            "<tpl if='resolved == null'>",
+                                '<div class=\"rd-badge rd-badge--amber\">{detected_in_words}</div>',
+                            '<tpl else>',
+                                '<div class=\"rd-badge rd-badge--green\">{detected_in_words}</div>',
+                            '</tpl>',
                         '<tpl else>',
-                            '<div class=\"rd-badge rd-badge--green\">{detected_in_words}</div>',
-                        '</tpl>',
-                    '<tpl else>',
-                        "<tpl if='resolved == null'>",
-                            '<div class=\"rd-badge rd-badge--blue\">{detected_in_words}</div>',
-                        '<tpl else>',
-                            '<div class=\"rd-badge rd-badge--green\">{detected_in_words}</div>',
-                        '</tpl>',
+                            "<tpl if='resolved == null'>",
+                                '<div class=\"rd-badge rd-badge--blue\">{detected_in_words}</div>',
+                            '<tpl else>',
+                                '<div class=\"rd-badge rd-badge--green\">{detected_in_words}</div>',
+                            '</tpl>',
+                        "</tpl>",
+                        
                     "</tpl>"
                 ),
-                stateId		: 'StateGridAlerts4',
-                filter      : {type: 'date',dateFormat: 'Y-m-d'},
-                flex        : 1
+                stateId		: 'sgAlerts5',
+                filter      : {type: 'date',dateFormat: 'Y-m-d'}
             },
-            { 
+            {
                 text        : 'Acknowledged',
-                dataIndex   : 'acknowledged', 
-                hidden      : false,  
-                xtype       : 'templatecolumn', 
+                dataIndex   : 'acknowledged',
+                hidden      : false,
+                xtype       : 'templatecolumn',
                 tpl         : new Ext.XTemplate(
-                    "<tpl if='acknowledged== null'><div class=\"rd-badge rd-badge--grey\">{acknowledged_in_words}</div>",
-                    "<tpl else><div class=\"rd-badge rd-badge--blue\">{acknowledged_in_words}</div>",
-                    '<div><i class="fa fa-clock-o"></i> <span style="color:blue;">{before_acknowledged_in_words}</span> to acknowledge by <span style="color:blue;">{acknowledged_by}</span>.</div>',
-                    "</tpl>",
+
+                    // Events / info do not require acknowledgement
+                    "<tpl if='category == \"event\" || category == \"info\"'>",
+                        "<span class='rd-dash'>—</span>",
+                    "<tpl else>",
+
+                        // Normal alert handling
+                        "<tpl if='acknowledged == null'>",
+                            "<div class=\"rd-badge rd-badge--grey\">{acknowledged_in_words}</div>",
+                        "<tpl else>",
+                            "<div class=\"rd-badge rd-badge--blue\">{acknowledged_in_words}</div>",
+                            "<div><i class=\"fa fa-clock-o\"></i> " +
+                                "<span style=\"color:blue;\">{before_acknowledged_in_words}</span> " +
+                                "to acknowledge by " +
+                                "<span style=\"color:blue;\">{acknowledged_by}</span>." +
+                            "</div>",
+                        "</tpl>",
+
+                    "</tpl>"
                 ),
-                stateId		: 'StateGridAlerts5',
-                filter      : {type: 'date',dateFormat: 'Y-m-d'},
-                flex        : 1
+                stateId    : 'sgAlerts6',
+                filter     : {type: 'date',dateFormat: 'Y-m-d'},
+                flex       : 1
             },
             { 
                 text        : 'Resolved',
@@ -129,12 +174,18 @@ Ext.define('Rd.view.alerts.gridAlerts' ,{
                 hidden      : false, 
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<tpl if='resolved== null'><div class=\"rd-badge rd-badge--grey\">{resolved_in_words}</div>",
-                    "<tpl else><div class=\"rd-badge rd-badge--green\">{resolved_in_words}</div>",
-                    '<div><i class="fa fa-clock-o"></i> <span style="color:blue;">{before_resolved_in_words}</span> to resolve.</div>',
-                    "</tpl>",
+                    // Events / info do not require acknowledgement
+                    "<tpl if='category == \"event\" || category == \"info\"'>",
+                        "<span class='rd-dash'>—</span>",
+                    "<tpl else>",            
+                        "<tpl if='resolved== null'><div class=\"rd-badge rd-badge--grey\">{resolved_in_words}</div>",
+                        "<tpl else><div class=\"rd-badge rd-badge--green\">{resolved_in_words}</div>",
+                        '<div><i class="fa fa-clock-o"></i> <span style="color:blue;">{before_resolved_in_words}</span> to resolve.</div>',
+                        "</tpl>",
+                        
+                    "</tpl>"
                 ),
-                stateId		: 'StateGridAlerts6',
+                stateId		: 'sgAlerts7',
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
                 flex        : 1
             },        
@@ -146,7 +197,7 @@ Ext.define('Rd.view.alerts.gridAlerts' ,{
                 tpl         : new Ext.XTemplate(
                     "<div class=\"fieldBlue\">{created_in_words}</div>"
                 ),
-                stateId		: 'StateGridAlerts7',
+                stateId		: 'sgAlerts8',
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
                 flex        : 1
             },  
@@ -156,13 +207,13 @@ Ext.define('Rd.view.alerts.gridAlerts' ,{
                 hidden      : true, 
                 flex        : 1,
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
-                stateId		: 'StateGridAlerts8'
+                stateId		: 'sgAlerts9'
             },
             {
                 xtype       : 'actioncolumn',
                 text        : 'Actions',
                 width       : 80,
-                stateId     : 'StateGridAlerts9',
+                stateId     : 'sgAlerts10',
                 items       : [				
 					 { 
 						iconCls : 'x-fa fa-trash',

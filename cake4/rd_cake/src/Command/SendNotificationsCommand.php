@@ -92,8 +92,9 @@ class SendNotificationsCommand extends Command {
             $query = $this->Alerts
                 ->find()
                 ->where([
-                    'resolved IS' => null,
-                    'acknowledged IS' => null //Only send items NOT acknowledged
+                    'resolved IS'   => null,
+                    'category'      => 'alert', //Only Alerts
+                    'acknowledged IS' => null //Only send alert items NOT acknowledged
                 ])
                 ->contain([
                     'Meshes',
