@@ -18,6 +18,16 @@
         $statusColor = '#ef4444';
         $statusLabel = 'OFFLINE';
     }
+    
+    if($data['interface_status'] == 'disabled'){
+        $statusColor = '#cc9616';
+        $statusLabel = 'DISABLED';
+    }
+    
+    if($data['interface_status'] == 'disconnecting'){
+        $statusColor = '#de6e18';
+        $statusLabel = 'DISCONNECTING';
+    }
 
     $deviceType = strtoupper($data['device_mode']);
 
