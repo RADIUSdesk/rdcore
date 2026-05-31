@@ -10,6 +10,7 @@ use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
 use Cake\I18n\FrozenTime;
 use DateTimeZone;
+use Cake\Mailer\Mailer;
 use Cake\ORM\TableRegistry;
 
 
@@ -18,6 +19,7 @@ class InterfaceChangesCommand extends Command {
 
     protected $MailTransport;
     protected $RdLogger;
+    protected $io;
 
     public static function defaultName(): string{
         return 'interface:changes';
@@ -47,6 +49,8 @@ class InterfaceChangesCommand extends Command {
     public function execute(Arguments $args, ConsoleIo $io){
     
 
+        $this->io = $io;
+        
         $qr = $this->WanMwan3Status->find()->all();
         foreach($qr as $i){
         
@@ -72,12 +76,12 @@ class InterfaceChangesCommand extends Command {
                 // Assuming your data is in $mwan3_data
                 $interfaces = $mwanStatusData->interfaces;
                 foreach (get_object_vars($interfaces) as $interface_name => $interface_data) {
-                    echo "Interface: " . $interface_name . "\n";
-                    echo "Status: " . $interface_data->status . "\n";
-                    echo "Tracking: " . $interface_data->tracking . "\n";
-                    echo "Score: " . $interface_data->score . "\n";
-                    echo "Up: " . $interface_data->up . "\n";
-                    echo "--------------------------------\n";
+                    //echo "Interface: " . $interface_name . "\n";
+                    //echo "Status: " . $interface_data->status . "\n";
+                    //echo "Tracking: " . $interface_data->tracking . "\n";
+                    //echo "Score: " . $interface_data->score . "\n";
+                    //echo "Up: " . $interface_data->up . "\n";
+                    //echo "--------------------------------\n";
                     
                     $mwan_interface_id = str_replace("mw", "", $interface_name);
                     
@@ -253,13 +257,60 @@ class InterfaceChangesCommand extends Command {
             $email_list = array_unique($email_list);
             if($email_list){
                 $io->success("Active Alerts List found sent out some emails");
-            }                                                          
+            }
+            
+            //print_r($change_info);
+            //print_r($email_list);
+            if($email_list){
+                $this->sendEmails($email_list,$change_info);
+            }                                                        
         }       
              
         $io->success("Up to Here");
  
     }
     
+    private function sendEmails($email_list, $change_info){
+    
+        $metaData = $this->MailTransport->setTransport();
 
+        if ($metaData === false) {
+            return;
+        }
+
+        foreach ($email_list as $email) {          
+            $emailAddress = $email;
+            $mailer = new Mailer([
+                'transport' => 'mail_rd'
+            ]);
+            
+            $mailer
+                ->setSubject('Interface Change Event')
+                ->setFrom($metaData['from'])
+                ->setTo($emailAddress)
+                ->setViewVars([
+                    'data' => $change_info
+                ])
+                ->setEmailFormat('html');
+
+            $mailer
+                ->viewBuilder()
+                ->setTemplate('interface_event')
+                ->setLayout('event_notify');
+
+            $mailer->deliver();
+
+            $settingsCloudId = $this->MailTransport->getCloudId();
+
+            $this->RdLogger->addEmailHistory(
+                $settingsCloudId,
+                $emailAddress,
+                'event_email',
+                $change_info['description']
+            );
+
+            $this->io->success("Alert email sent to {$emailAddress}");
+        }    
+    }
 }
 
