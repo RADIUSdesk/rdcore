@@ -445,7 +445,11 @@ function _addWanStats($wan_stats,$node){
                 $interface  = $wifiEntry['interface'];
                 $wifiEntry['interface'] = str_replace('mw','',$interface);
                 $wifiEntry['ap_id']     = $ap_id;
-                $wifiEntry['node_id']   = $node_id; 
+                $wifiEntry['node_id']   = $node_id;
+                
+                if(isset($wifiEntry['expected_throughput'])){
+                     unset($wifiEntry['expected_throughput']);
+                } 
                                                            
                 $stmt       = $conn->prepare("INSERT INTO wan_wifi_stats (ap_id, node_id, mwan_interface_id, noise ,ssid ,rx_packets ,tx_packets ,`signal` ,bitrate ,txpower ,tx_rate ,channel ,quality ,rx_rate)  VALUES(:ap_id ,:node_id ,:interface ,:noise ,:ssid ,:rx_packets ,:tx_packets ,:signal ,:bitrate ,:txpower ,:tx_rate ,:channel ,:quality ,:rx_rate)");             
                 
