@@ -2,6 +2,9 @@
 
 namespace App\Command;
 
+//as www-data
+//cd /var/www/rdcore/cake4/rd_cake && bin/cake send_notifications >> /dev/null 2>&1 
+
 use Cake\Command\Command;
 use Cake\Console\Arguments;
 use Cake\Console\ConsoleIo;
@@ -49,7 +52,7 @@ class SendNotificationsCommand extends Command {
         $alertsCluster = [];
 
         foreach ($userSettings as $us) {
-
+        
             $user = [
                 'id'         => $us->user->id,
                 'username'   => $us->user->username,
@@ -78,6 +81,7 @@ class SendNotificationsCommand extends Command {
 
             $dateHour  = (int)date('G');
             $hourMatch = $dateHour % $freq;
+            
 
             /*
              * Only send at interval
@@ -278,6 +282,7 @@ class SendNotificationsCommand extends Command {
                 ->setFrom($metaData['from'])
                 ->setTo($emailAddress)
                 ->setViewVars([
+                    'user'   => $cluster['user'],   
                     'alerts' => $alerts
                 ])
                 ->setEmailFormat('html');

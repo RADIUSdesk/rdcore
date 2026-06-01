@@ -32,7 +32,7 @@ class AlertsController extends AppController{
         $this->loadComponent('MailTransport');
         $this->loadComponent('RdLogger'); 
         
-        //$this->Authentication->allowUnauthenticated(['sendNotifications']);            
+        $this->Authentication->allowUnauthenticated(['ack']);            
     }
     
      //____ BASIC CRUD Manager ________
@@ -213,6 +213,29 @@ class AlertsController extends AppController{
             ]);
         }
         $this->viewBuilder()->setOption('serialize', true);
+	}
+	
+	public function ack(){
+	
+	    $req_q  = $this->request->getQuery(); //q_data is the query data
+	    if(isset($req_q['id'])){
+	        $user_id    = $req_q['user_id'];
+	        $entity     = $this->{'Alerts'}->find()
+	        ->where(['Alerts.id' => $req_q['id']])
+	        ->contain(['Nodes','Aps'])
+	        ->first();
+	        if(($entity)&&($entity->category == 'alert')){ //Silently ignore the others categories
+                $entity->acknowledged   = FrozenTime::now();
+                $entity->user_id        = $user_id;
+                $this->{'Alerts'}->save($entity);
+                $this->set([
+                    'success'   => true,
+                    'data'      => $entity
+                ]);
+                $this->viewBuilder()->disableAutoLayout();
+            }    
+	    }     
+	
 	}
 	
 	public function acknowledged($id = null){
