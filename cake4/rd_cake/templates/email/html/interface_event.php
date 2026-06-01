@@ -28,6 +28,11 @@
         $statusColor = '#de6e18';
         $statusLabel = 'DISCONNECTING';
     }
+    
+    if($data['interface_status'] == 'connecting'){
+        $statusColor = '#de6e18';
+        $statusLabel = 'CONNECTING';
+    }
 
     $deviceType = strtoupper($data['device_mode']);
 

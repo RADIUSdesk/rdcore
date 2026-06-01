@@ -13,7 +13,7 @@ if not exists (select * from information_schema.columns
       mwan_interface_id INT NULL,
       up tinyint(1) NOT NULL DEFAULT 1,
       tracking enum('active', 'paused', 'disabled', 'unknown') DEFAULT 'unknown',
-      status enum('offline','online','disabled', 'disconnecting') DEFAULT 'offline',
+      status enum('offline','online','disabled', 'disconnecting','connecting') DEFAULT 'offline',
       created DATETIME DEFAULT CURRENT_TIMESTAMP,
       modified DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     );
