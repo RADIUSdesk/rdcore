@@ -61,7 +61,7 @@
             //Add a link so that the user / admin can acknowledge it through the email
             
             $ackUrl = $baseUrl .
-                '/cake4/rd_cake/alerts/ack.php?id=' .
+                '/cake4/rd_cake/alerts/ack?id=' .
                 urlencode($a['id']) .
                 '&user_id=' .
                 urlencode($user['id']);
