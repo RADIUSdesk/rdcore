@@ -25,6 +25,18 @@ class ClientsTable extends Table
         $this->setDisplayField('username');
         $this->setPrimaryKey('id');
         $this->addBehavior('Timestamp');
+        
+        $this->hasMany('PermanentUsers',[
+            'dependent' => false
+        ]);
+        
+        $this->hasMany('Aps',[
+            'dependent' => false
+        ]);
+        
+        $this->hasMany('Nodes',[
+            'dependent' => false
+        ]);
     }
 
     /**

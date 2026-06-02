@@ -21,7 +21,10 @@ class ClientsController extends AppController{
     public function initialize():void{ 
         parent::initialize();
         
-        $this->loadModel('Clients');           
+        $this->loadModel('Clients'); 
+        $this->loadModel('Aps');
+        $this->loadModel('Nodes');
+        $this->loadModel('PermanentUsers');       
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
         $this->loadComponent('CommonQueryFlat', [ //Very important to specify the Model
@@ -51,6 +54,14 @@ class ClientsController extends AppController{
             $page   = $cquery['page'];
             $offset = $cquery['start'];
         }
+        
+        $query->contain(
+            [
+                'Aps' => 'ApProfiles',
+                'Nodes' => 'Meshes',
+                'PermanentUsers'
+            ]
+        );
         
         $query->page($page);
         $query->limit($limit);
@@ -236,6 +247,103 @@ class ClientsController extends AppController{
         ]);
         $this->viewBuilder()->setOption('serialize', true); 
     }
+    
+    public function clientAps(){
+    
+        $cquery   = $this->request->getQuery();
+        
+        $aps = $this->Aps->find()
+            ->where([
+                'ApProfiles.cloud_id' => $cquery['cloud_id'],
+                'OR' => [
+                    'Aps.client_id IS NULL',
+                    'Aps.client_id' => $cquery['client_id']
+                ]
+            ])
+            ->contain(['ApProfiles'])
+            ->select(['Aps.id', 'Aps.name'])
+            ->all();
+    
+        $this->set([
+            'items' => $aps,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    }
+    
+    public function clientApsView(){
+    
+        $data = [];
+        
+        $cquery   = $this->request->getQuery();
+        
+        $aps = $this->Aps->find()
+            ->where([
+                'ApProfiles.cloud_id'   => $cquery['cloud_id'],
+                'Aps.client_id'         => $cquery['id']
+            ])
+            ->contain(['ApProfiles'])
+            ->select(['Aps.id', 'Aps.name'])
+            ->all();
+       
+        $ap_list=[];
+        foreach($aps as $ap){
+            $ap_list[] = $ap->id;
+        }
+        
+        $data['aps[]']  = $ap_list;
+        $data['id']     = $cquery['id'];
+    
+        $this->set([
+            'data' => $data,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    
+    }
+    
+     public function clientApsEdit(){
+    
+        $req_d = $this->request->getData();
+        
+        //-- Clear old ones first --
+        $aps = $this->Aps->find()
+            ->where([
+                'ApProfiles.cloud_id'  => $req_d['cloud_id'],
+                'Aps.client_id'        => $req_d['id']
+            ])
+            ->contain(['ApProfiles'])
+            ->select(['Aps.id', 'Aps.name'])
+            ->all();
+        
+        foreach($aps as $ap){
+            $ap->set('client_id', null);
+            $this->Aps->save($ap);
+        }
+        
+        //--Assign the client_id
+        foreach($req_d['aps'] as $ap_id){
+            if($ap_id === 'Select APs'){
+                continue;
+            }
+            $ap = $this->Aps->find()
+                ->where([
+                    'Aps.id'    => $ap_id
+                ])
+                ->first();
+            if($ap){
+                $ap->set('client_id', $req_d['id']);
+                $this->Aps->save($ap);           
+            }    
+        }
+            
+        $this->set([
+            'data'    => $req_d,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    
+    }
 
     public function menuForGrid(){
         $user = $this->Aa->user_for_token($this);
@@ -243,7 +351,37 @@ class ClientsController extends AppController{
             return;
         }
 
-        $menu = $this->GridButtonsFlat->returnButtons( false, 'basic'); 
+        $menu = $this->GridButtonsFlat->returnButtons( false, 'basic');
+        array_push($menu,[
+            'xtype' => "buttongroup",
+            'title' => null,
+            'items' => [
+                [
+                    'xtype'     => "splitbutton",
+                    'glyph'     => Configure::read('icnAttach'),
+                    'scale'     => 'large',
+                    'itemId'    => 'attach',
+                    'tooltip'   => 'Attach',
+                    'ui'        => 'button-blue',
+                    'menu'      => [
+                        'items' => [
+                            [ 'text'  => __('AP'),              'itemId'    => 'ap',             'group' => 'attach', 'checked' => true ],
+                            [ 'text'  => __('Mesh Node'),       'itemId'    => 'node',           'group' => 'attach', 'checked' => false],
+                            [ 'text'  => __('Permanent User'),  'itemId'    => 'permanent_user', 'group' => 'attach', 'checked' => false ]
+                        ]
+                    ]
+                ],
+                [
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnLock'),
+                    'scale'     => 'large',
+                    'itemId'    => 'password',
+                    'tooltip'   => 'Change Password',               
+                ]        
+            ]
+        ]);
+         
+         
         $this->set(array(
             'items' => $menu,
             'success' => true,
