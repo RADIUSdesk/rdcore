@@ -20,10 +20,12 @@ class ClientsController extends AppController{
     
     public function initialize():void{ 
         parent::initialize();
-        
+        $this->loadModel('Clouds'); 
         $this->loadModel('Clients'); 
         $this->loadModel('Aps');
+        $this->loadModel('ApProfiles');
         $this->loadModel('Nodes');
+        $this->loadModel('Meshes');
         $this->loadModel('PermanentUsers');       
         $this->loadComponent('Aa');
         $this->loadComponent('GridButtonsFlat');
@@ -55,24 +57,45 @@ class ClientsController extends AppController{
             $offset = $cquery['start'];
         }
         
-        $query->contain(
-            [
-                'Aps' => 'ApProfiles',
-                'Nodes' => 'Meshes',
-                'PermanentUsers'
-            ]
-        );
+        $query->contain([
+            'Aps' => function ($q) {
+                return $q->select(['id', 'name','ap_profile_id', 'client_id']);
+                         
+            },
+            'Nodes' => function ($q) {
+                return $q->select(['id', 'name','mesh_id', 'client_id']);
+                         
+            },
+            'PermanentUsers' => function ($q) {
+                return $q->select(['id', 'username', 'cloud_id', 'client_id']);
+            }
+        ]);
         
         $query->page($page);
         $query->limit($limit);
         $query->offset($offset);
+        
+
 
         $total  = $query->count();       
         $q_r    = $query->all();
         $items  = [];
 
         foreach($q_r as $i){ 
-            unset($i->password);               
+            unset($i->password);
+            
+            foreach($i->aps as $ap){
+                $this->_populateProfileAndCloud($ap);
+            }
+            
+            foreach($i->nodes as $node){
+                $this->_populateMeshAndCloud($node);
+            }
+            
+            foreach($i->permanent_users as $pu){
+                $this->_populateCloud($pu);
+            }
+                          
             $i->created_in_words    = $this->TimeCalculations->time_elapsed_string($i->created);
             $i->modified_in_words   = $this->TimeCalculations->time_elapsed_string($i->modified);                    
             $i->update = true;
@@ -92,8 +115,7 @@ class ClientsController extends AppController{
         $user = $this->_ap_right_check();
         if(!$user){
             return;
-        }
-        
+        }        
              
         $cdata  = $this->request->getData(); 
         
@@ -248,6 +270,7 @@ class ClientsController extends AppController{
         $this->viewBuilder()->setOption('serialize', true); 
     }
     
+    //--- Client APS -----
     public function clientAps(){
     
         $cquery   = $this->request->getQuery();
@@ -343,7 +366,199 @@ class ClientsController extends AppController{
         ]);
         $this->viewBuilder()->setOption('serialize', true); 
     
+    }  
+    
+    //--- Client Nodes -----
+    public function clientNodes(){
+    
+        $cquery   = $this->request->getQuery();
+        
+        $nodes = $this->Nodes->find()
+            ->where([
+                'Meshes.cloud_id' => $cquery['cloud_id'],
+                'OR' => [
+                    'Nodes.client_id IS NULL',
+                    'Nodes.client_id' => $cquery['client_id']
+                ]
+            ])
+            ->contain(['Meshes'])
+            ->select(['Nodes.id', 'Nodes.name'])
+            ->all();
+    
+        $this->set([
+            'items' => $nodes,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
     }
+    
+    public function clientNodesView(){
+    
+        $data = [];
+        
+        $cquery   = $this->request->getQuery();
+        
+        $nodes = $this->Nodes->find()
+            ->where([
+                'Meshes.cloud_id'   => $cquery['cloud_id'],
+                'Nodes.client_id'   => $cquery['id']
+            ])
+            ->contain(['Meshes'])
+            ->select(['Nodes.id', 'Nodes.name'])
+            ->all();
+       
+        $node_list=[];
+        foreach($nodes as $node){
+            $node_list[] = $node->id;
+        }
+        
+        $data['nodes[]']= $node_list;
+        $data['id']     = $cquery['id'];
+    
+        $this->set([
+            'data' => $data,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    
+    }
+    
+     public function clientNodesEdit(){
+    
+        $req_d = $this->request->getData();
+        
+        //-- Clear old ones first --
+        $nodes = $this->Nodes->find()
+            ->where([
+                'Meshes.cloud_id'  => $req_d['cloud_id'],
+                'Nodes.client_id'  => $req_d['id']
+            ])
+            ->contain(['Meshes'])
+            ->select(['Nodes.id', 'Nodes.name'])
+            ->all();
+        
+        foreach($nodes as $node){
+            $node->set('client_id', null);
+            $this->Nodes->save($node);
+        }
+        
+        //--Assign the client_id
+        foreach($req_d['nodes'] as $node_id){
+            if($node_id === 'Select Nodes'){
+                continue;
+            }
+            $node = $this->Nodes->find()
+                ->where([
+                    'Nodes.id'    => $node_id
+                ])
+                ->first();
+            if($node){
+                $node->set('client_id', $req_d['id']);
+                $this->Nodes->save($node);           
+            }    
+        }
+            
+        $this->set([
+            'data'    => $req_d,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    
+    }    
+    
+    //--- Permanent Users -----
+    public function clientPermanentUsers(){
+    
+        $cquery   = $this->request->getQuery();        
+        $pus = $this->PermanentUsers->find()
+            ->where([
+                'PermanentUsers.cloud_id' => $cquery['cloud_id'],
+                'OR' => [
+                    'PermanentUsers.client_id IS NULL',
+                    'PermanentUsers.client_id' => $cquery['client_id']
+                ]
+            ])
+            ->select(['PermanentUsers.id', 'PermanentUsers.username'])
+            ->all();
+    
+        $this->set([
+            'items' => $pus,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    }
+    
+    public function clientPermanentUsersView(){
+    
+        $data = [];
+        
+        $cquery   = $this->request->getQuery();
+        
+        $pus = $this->PermanentUsers->find()
+            ->where([
+                'PermanentUsers.cloud_id'   => $cquery['cloud_id'],
+                'PermanentUsers.client_id'  => $cquery['id']
+            ])
+            ->select(['PermanentUsers.id', 'PermanentUsers.username'])
+            ->all();
+       
+        $pu_list=[];
+        foreach($pus as $pu){
+            $pu_list[] = $pu->id;
+        }
+        
+        $data['permanent_users[]']  = $pu_list;
+        $data['id']                 = $cquery['id'];
+    
+        $this->set([
+            'data'      => $data,
+            'success'   => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    
+    }
+    
+     public function clientPermanentUsersEdit(){
+    
+        $req_d = $this->request->getData();
+        
+        //-- Clear old ones first --
+        $pus = $this->PermanentUsers->find()
+            ->where([
+                'PermanentUsers.cloud_id'  => $req_d['cloud_id'],
+                'PermanentUsers.client_id'  => $req_d['id']
+            ])
+            ->select(['PermanentUsers.id', 'PermanentUsers.username'])
+            ->all();
+        
+        foreach($pus as $pu){
+            $pu->set('client_id', null);
+            $this->PermanentUsers->save($pu);
+        }
+        
+        //--Assign the client_id
+        foreach($req_d['permanent_users'] as $pu_id){
+            if($pu_id === 'Select Permanent Users'){
+                continue;
+            }
+            $pu = $this->PermanentUsers->find()
+                ->where([
+                    'PermanentUsers.id'    => $pu_id
+                ])
+                ->first();
+            if($pu){
+                $pu->set('client_id', $req_d['id']);
+                $this->PermanentUsers->save($pu);           
+            }    
+        }
+            
+        $this->set([
+            'data'    => $req_d,
+            'success' => true
+        ]);
+        $this->viewBuilder()->setOption('serialize', true); 
+    
+    }  
 
     public function menuForGrid(){
         $user = $this->Aa->user_for_token($this);
@@ -388,5 +603,38 @@ class ClientsController extends AppController{
             '_serialize' => array('items', 'success')
         ));
     }
-      
+    
+    private function _populateProfileAndCloud($ap){
+    
+        $profile = $this->ApProfiles->find()
+            ->where(['ApProfiles.id' => $ap->ap_profile_id])
+            ->contain(['Clouds'])
+            ->first();
+        if($profile){
+            $ap->profile_name = $profile->name;
+            $ap->cloud_name   = $profile->cloud->name;
+        }  
+    }
+    
+    private function _populateMeshAndCloud($node){
+    
+        $profile = $this->Meshes->find()
+            ->where(['Meshes.id' => $node->mesh_id])
+            ->contain(['Clouds'])
+            ->first();
+        if($profile){
+            $node->profile_name = $profile->name;
+            $node->cloud_name   = $profile->cloud->name;
+        }  
+    }
+    
+    private function _populateCloud($pu){
+    
+        $cloud = $this->Clouds->find()
+            ->where(['Clouds.id' => $pu->cloud_id])
+            ->first();
+        if($cloud){
+            $pu->cloud_name   = $cloud->name;
+        }  
+    }     
 }

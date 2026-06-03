@@ -254,7 +254,7 @@ Ext.define('Rd.controller.cMeshes', {
     add: function(button){
         var me 		= this;
         var c_name 	= Ext.getApplication().getCloudName();
-        var c_id	= Ext.getApplication().getCloudId()
+        var c_id	= Ext.getApplication().getCloudId();
         if(!Ext.WindowManager.get('winMeshAddId')){
             var w = Ext.widget('winMeshAdd',{id:'winMeshAddId',cloudId: c_id, cloudName: c_name});
             w.show();         

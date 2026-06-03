@@ -425,7 +425,7 @@ Ext.define('Rd.controller.cAccessPoints', {
         }
     },
     
-    //FIXME add code to change the edit icon to shiled or wifi (Ssid) and ahandle edit accordingly
+    //FIXME add code to change the edit icon to shiled or wifi (Ssid) and handle edit accordingly
     editOptionClick : function(menu_item){
         var me      = this;
         var n       = menu_item.getItemId();

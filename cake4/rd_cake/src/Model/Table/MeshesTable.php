@@ -13,9 +13,7 @@ class MeshesTable extends Table{
     public function initialize(array $config):void{
         
         $this->addBehavior('Timestamp');  
-        $this->belongsTo('Users');
-        //$this->belongsTo('TreeTags');
-        
+        $this->belongsTo('Clouds');        
         $this->belongsTo('Networks',[
              'foreignKey' => 'tree_tag_id',
         ]);

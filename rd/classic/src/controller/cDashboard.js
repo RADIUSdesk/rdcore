@@ -115,7 +115,7 @@ Ext.define('Rd.controller.cDashboard', {
        
     beforeCloudSection: function(cloud, section, action) {
         const me = this;        
-        Ext.log("=== BEFORE Cloud Selection Pappie ==="+cloud+' '+section); 
+        Ext.log("=== BEFORE Cloud Selection ==="+cloud+' '+section); 
         if (this.getProcessingRoute() || section === this.getCurrentScreen() ) {
             action.stop();
             return false;
@@ -127,7 +127,7 @@ Ext.define('Rd.controller.cDashboard', {
      
     onCloudSection: function(cloud, section){
         const me = this;
-        Ext.log("=== Cloud Selection Pappie ==="+cloud+' '+section);
+        Ext.log("=== Cloud Selection ==="+cloud+' '+section);
         this.setCurrentScreen(section);
         this.urlCloudSelection(cloud,section);
         this.setProcessingRoute(false);
