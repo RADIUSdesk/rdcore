@@ -1,0 +1,74 @@
+/* ExtJS Classic Admin UI Responsive Styling and Overrides */
+
+@media (max-width: 768px) {
+    /* Touch Target Adjustments */
+    .x-btn {
+        padding: 8px 12px !important;
+    }
+    
+    .x-btn-inner {
+        font-size: 14px !important;
+    }
+    
+    .x-grid-cell-inner {
+        padding: 10px 8px !important;
+        font-size: 13px !important;
+    }
+    
+    /* Form Fields and Labels on Mobile */
+    .x-form-item {
+        margin-bottom: 14px !important;
+    }
+    
+    .x-form-text {
+        height: 36px !important;
+        font-size: 14px !important;
+    }
+    
+    .x-form-item-label {
+        font-size: 13px !important;
+        padding-bottom: 4px !important;
+    }
+    
+    /* Touch Scrolling Momentum */
+    .x-grid-view, 
+    .x-panel-body, 
+    .x-tree-view {
+        -webkit-overflow-scrolling: touch !important;
+        overflow-x: auto !important;
+    }
+    
+    /* Make tab bars scroll horizontally rather than overflow or compress tabs */
+    .x-tab-bar-body {
+        overflow-x: auto !important;
+        white-space: nowrap !important;
+        flex-direction: row !important;
+    }
+    
+    .x-tab {
+        flex: 0 0 auto !important;
+        margin-right: 4px !important;
+    }
+    
+    /* Top Toolbar wrapping rules */
+    .x-toolbar {
+        flex-wrap: wrap !important;
+        padding: 6px !important;
+        height: auto !important;
+    }
+    
+    .x-toolbar-item {
+        margin: 4px !important;
+    }
+    
+    /* Combo box & dropdown alignment */
+    .x-boundlist, 
+    .x-menu {
+        max-width: 95vw !important;
+    }
+    
+    /* Small screen adjustments for grid views */
+    .x-grid-header-ct {
+        overflow-x: auto !important;
+    }
+}

@@ -1,0 +1,52 @@
+name: Build and Publish Docker Image
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Downcase repository name
+        run: |
+          echo "IMAGE_NAME=ghcr.io/${{ github.repository }}" | tr '[:upper:]' '[:lower:]' >> $GITHUB_ENV
+
+      - name: Prepare build context (rdcore)
+        run: |
+          mkdir -p docker/rdcore
+          cp -r rd docker/rdcore/
+          cp -r login docker/rdcore/
+          cp -r cake4 docker/rdcore/
+          # Copy AmpConf if it exists
+          if [ -d "AmpConf" ]; then
+            cp -r AmpConf docker/rdcore/
+          fi
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./docker
+          file: ./docker/Dockerfile-build-radiusdesk
+          push: true
+          tags: ${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

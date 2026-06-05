@@ -123,6 +123,29 @@ var rdDynamic = (function () {
         var buildGuiBasedOnData = function(){
             fDebug("Building GUI");
                               
+            // Null safety guards
+            if(!cDynamicData){
+                cDynamicData = {};
+            }
+            if(!cDynamicData.settings){
+                cDynamicData.settings = {};
+            }
+            if(!cDynamicData.detail){
+                cDynamicData.detail = {};
+            }
+            if(!cDynamicData.photos){
+                cDynamicData.photos = [];
+            }
+            if(!cDynamicData.pages){
+                cDynamicData.pages = [];
+            }
+            if(!cDynamicData.settings.click_to_connect){
+                cDynamicData.settings.click_to_connect = {};
+            }
+            if(!cDynamicData.settings.social_login){
+                cDynamicData.settings.social_login = { active: false, items: [] };
+            }
+
             //We build the photo's
             guiGallery();
             
@@ -796,12 +819,15 @@ var rdDynamic = (function () {
         var guiGallery = function(){ 
             var photos = [];  
             //Create an array from the list of photos
-            cDynamicData.photos.forEach(function(i){
-                var file = i.file_name;
-              //  var item = { css: "imgCarousel", template:img, data:{src:file} }
-                var item = { css: "imgCarousel", template: img, data: i }
-                photos.push(item)
-            });
+            if (cDynamicData.photos && $.isArray(cDynamicData.photos)) {
+                cDynamicData.photos.forEach(function(i){
+                    if(!i) return;
+                    var file = i.file_name;
+                  //  var item = { css: "imgCarousel", template:img, data:{src:file} }
+                    var item = { css: "imgCarousel", template: img, data: i }
+                    photos.push(item)
+                });
+            }
         
             var c = {
                 view    :"carousel",
@@ -835,25 +861,25 @@ var rdDynamic = (function () {
                 }
                 We will use this data with logic to return the item.*/
                 
-                var file = obj.file_name;
+                var file = obj.file_name || '';
+                var bg_color = obj.background_color || 'ffffff';
                 
-                
-                var return_string = "<div style='background-color: #"+obj.background_color+";' class='divCarousel'>\n"; //Wrapper
+                var return_string = "<div style='background-color: #"+bg_color+";' class='divCarousel'>\n"; //Wrapper
                 
                 //var return_string = '';
                 //Title Check
                 if(obj.include_title){
                    // 
-                   if(obj.url !== ''){
-                        return_string = return_string+ "<div class='itemTitle'><a href='"+obj.url+"'>"+obj.title+"</a></div>\n";
+                   if(obj.url && obj.url !== ''){
+                        return_string = return_string+ "<div class='itemTitle'><a href='"+obj.url+"'>"+(obj.title || '')+"</a></div>\n";
                    }else{
-                        return_string = return_string+ "<div class='itemTitle'>"+obj.title+"</div>\n";
+                        return_string = return_string+ "<div class='itemTitle'>"+(obj.title || '')+"</div>\n";
                    }
                 }
                 
                 //Title Check
                 if(obj.include_description){
-                    return_string = return_string+ "<div class='itemDescription'>"+obj.description+"</div>\n";
+                    return_string = return_string+ "<div class='itemDescription'>"+(obj.description || '')+"</div>\n";
                 }
                 
                  
@@ -879,7 +905,7 @@ var rdDynamic = (function () {
                 if(obj.fit == 'original'){
                     imgFit = 'imgOrig';
                 }
-
+ 
                 if(obj.fit == 'dynamic'){ 
                          
                     if((scrn == 'portrait')&&(obj.layout == 'landscape')){
@@ -905,7 +931,7 @@ var rdDynamic = (function () {
                     } 
                 }
                     
-                return_string = return_string + "<div class='itemImage "+imgFit+"'><img src='"+obj.file_name+"' ondragstart='return false'/></div>\n"; 
+                return_string = return_string + "<div class='itemImage "+imgFit+"'><img src='"+file+"' onerror='this.style.display=\"none\"' ondragstart='return false'/></div>\n"; 
                 
                 return_string = return_string+"</div>";
                 

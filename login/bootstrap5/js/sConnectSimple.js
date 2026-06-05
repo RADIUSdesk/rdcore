@@ -159,7 +159,11 @@ var sConnectSimple = (function () {
                 mac_address     = mac_address.replace(/:/g, '-');
                 console.log("MAC IS "+mac_address);
                 var nasid       = getParameterByName('nasid');
-                $.ajax({url: email_check, method: "POST", dataType: "json",timeout: 3000,data: {'mac': mac_address, 'nasid': nasid}})
+                var postData    = {'mac': mac_address, 'nasid': nasid};
+                if (cDynamicData && cDynamicData.detail && cDynamicData.detail.id) {
+                    postData.dynamic_detail_id = cDynamicData.detail.id;
+                }
+                $.ajax({url: email_check, method: "POST", dataType: "json",timeout: 3000,data: postData})
                 .done(function(j){
                     if(j.success == true){
                         if(j.data.ci_required == true){
@@ -540,6 +544,10 @@ var sConnectSimple = (function () {
                 
                 var nasid       = getParameterByName('nasid');
                 formData.append('nasid',nasid);
+
+                if (cDynamicData && cDynamicData.detail && cDynamicData.detail.id) {
+                    formData.append('dynamic_detail_id', cDynamicData.detail.id);
+                }
                 
                 var called      = getParameterByName('called');
                 formData.append('cp_mac',called);

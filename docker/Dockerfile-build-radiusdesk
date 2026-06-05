@@ -58,12 +58,7 @@ RUN apt-get update && \
     RUN chown -R www-data. /var/www/rdcore/cake4/rd_cake/webroot/img/hardwares
     RUN chown -R www-data. /var/www/rdcore/cake4/rd_cake/webroot/files/imagecache
     
-    ## Setup environment variables 
 
-    # PHP environment - these are unique to the Docker hub image jtreminio/php
-    ENV PHP_INI_SCAN_DIR=:/p/gd
-    ENV PHP.cgi.fix_pathinfo=1
-    ENV PHP_SELF=/index.php
 
 
     ## General startup script with database init and freeradius start
@@ -96,8 +91,13 @@ RUN apt-get update && \
     # supervisord allows multiple processes to be started with a single process
     COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-    # Copy php settings
+    # Copy php settings and symlink standard locations to it
     COPY ./php.ini /etc/php/php.ini
+    RUN ln -sf /etc/php/php.ini /etc/php/fpm.ini && \
+        ln -sf /etc/php/php.ini /etc/php/cli.ini
+
+    # Save default environment variables at build time
+    RUN env | grep -E '^(PHP_|PHP\.)' > /etc/default_php_env || true
 
     # Fix the configs to point to external database
     RUN sed  -i  "s/'host' => 'localhost'/'host' => 'rdmariadb'/g" /var/www/html/cake4/rd_cake/config/app_local.php

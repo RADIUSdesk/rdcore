@@ -663,12 +663,16 @@ $$('sliderData').refresh();
             if (form.validate()){ //validate form   
                 console.log("Validated :-)");
     
-                var values      = form.getValues();              
-                var mac_address = getParameterByName('mac');
-                values.mac      = mac_address 
+                 var values      = form.getValues();              
+                 var mac_address = getParameterByName('mac');
+                 values.mac      = mac_address 
 
-                var called      = getParameterByName('called');
-                values.cp_mac   = called;
+                 if (cDynamicData && cDynamicData.detail && cDynamicData.detail.id) {
+                     values.dynamic_detail_id = cDynamicData.detail.id;
+                 }
+ 
+                 var called      = getParameterByName('called');
+                 values.cp_mac   = called;
     
                 var nasid       = getParameterByName('nasid');
                 values.nasid    = nasid;
@@ -715,11 +719,15 @@ $$('sliderData').refresh();
         
                 var formData    = new FormData();
                 //-- ADD ON --
-                var mac_address = getParameterByName('mac');
-                formData.append("mac", mac_address);
-                
-                var nasid       = getParameterByName('nasid');
-                formData.append("nasid", nasid);
+                 var mac_address = getParameterByName('mac');
+                 formData.append("mac", mac_address);
+                 
+                 var nasid       = getParameterByName('nasid');
+                 formData.append("nasid", nasid);
+
+                 if (cDynamicData && cDynamicData.detail && cDynamicData.detail.id) {
+                     formData.append("dynamic_detail_id", cDynamicData.detail.id);
+                 }
                      
                 var email_check = location.protocol+'//'+document.location.hostname+"/cake4/rd_cake/data-collectors/mac-check.json";
                 

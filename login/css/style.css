@@ -104,4 +104,31 @@ user-select: none;
     100% {
         transform: rotate(360deg);
     }
+}
+
+/* Ensure images scale nicely and do not overflow */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Optimize modal sizing and inputs for small mobile viewports */
+@media (max-width: 576px) {
+    .modal-dialog {
+        margin: 0.5rem;
+        max-width: calc(100% - 1rem) !important;
+    }
+    
+    .modal-content {
+        padding: 5px !important;
+    }
+    
+    .modal-body {
+        padding: 10px !important;
+    }
+    
+    /* Carousel height adjustment for small devices */
+    .carousel-inner, .carousel-item {
+        max-height: 50vh !important;
+    }
 } 

@@ -315,8 +315,12 @@ var sConnect = (function () {
                 var mac_address = decodeURIComponent(getParameterByName('mac'));
                 mac_address     = mac_address.replace(/:/g, '-');
                 console.log("MAC IS "+mac_address);
-                var nasid       = getParameterByName('nasid');
-                $.ajax({url: email_check, method: "POST", dataType: "json",timeout: 3000,data: {'mac': mac_address, 'nasid': nasid, i18n : s_i18n }})
+                 var nasid       = getParameterByName('nasid');
+                 var postData    = {'mac': mac_address, 'nasid': nasid, i18n : s_i18n };
+                 if (cDynamicData && cDynamicData.detail && cDynamicData.detail.id) {
+                     postData.dynamic_detail_id = cDynamicData.detail.id;
+                 }
+                 $.ajax({url: email_check, method: "POST", dataType: "json",timeout: 3000,data: postData})
                 .done(function(j){
                     if(j.success == true){
                         if(j.data.otp_show == true){
@@ -368,6 +372,14 @@ var sConnect = (function () {
         var populateCustInfo = function(){
             $("#pnlCustInfo").data('populate',true);
             var $pnl = $("#pnlCustInfo");    
+            
+            // Guard clause for null safety
+            if (!cDynamicData || !cDynamicData.settings || !cDynamicData.settings.click_to_connect || 
+                typeof cDynamicData.settings.click_to_connect !== 'object' || 
+                Array.isArray(cDynamicData.settings.click_to_connect)) {
+                return;
+            }
+
             if(cDynamicData.settings.click_to_connect.ci_first_name){
                 var $first_name_req_class = ''
                 var $first_name_req_attr  = '';
@@ -718,6 +730,10 @@ var sConnect = (function () {
                 
                 var nasid       = getParameterByName('nasid');
                 formData.append('nasid',nasid);
+
+                if (cDynamicData && cDynamicData.detail && cDynamicData.detail.id) {
+                    formData.append('dynamic_detail_id', cDynamicData.detail.id);
+                }
                 
                 var called      = getParameterByName('called');
                 formData.append('cp_mac',called);
@@ -754,8 +770,14 @@ var sConnect = (function () {
                         	    $("#modalOtpCtc").modal('show');
                             }
                         }else{           
-                        	$("#modalLogin").modal('show');
-                        	onBtnClickToConnectClick(event); //Fire the click to Connect Button's Click event
+                            if (window.custInfoCallback) {
+                                var cb = window.custInfoCallback;
+                                window.custInfoCallback = null;
+                                cb();
+                            } else {
+                        	    $("#modalLogin").modal('show');
+                        	    onBtnClickToConnectClick(event); //Fire the click to Connect Button's Click event
+                            }
                         }                         
                     }else{
                    		console.log("PROBLEMS POSTING INFO FOR MAC"); 
@@ -1220,11 +1242,46 @@ var sConnect = (function () {
         var onBtnConnectClick = function(event){  //Get the latest challenge and continue from there onwards....
             event.preventDefault();
             
+            // Check if customer info check is enabled
+            if (cDynamicData && cDynamicData.settings && cDynamicData.settings.click_to_connect && cDynamicData.settings.click_to_connect.cust_info_check) {
+                var email_check = location.protocol+'//'+document.location.hostname+"/cake4/rd_cake/data-collectors/mac-check.json";
+                var mac_address = decodeURIComponent(getParameterByName('mac'));
+                mac_address     = mac_address.replace(/:/g, '-');
+                var nasid       = getParameterByName('nasid');
+                
+                 var nasid       = getParameterByName('nasid');
+                 
+                 window.custInfoCallback = function() {
+                     proceedWithLogin();
+                 };
+                 
+                 var postData    = {'mac': mac_address, 'nasid': nasid, i18n : s_i18n };
+                 if (cDynamicData && cDynamicData.detail && cDynamicData.detail.id) {
+                     postData.dynamic_detail_id = cDynamicData.detail.id;
+                 }
+                 $.ajax({url: email_check, method: "POST", dataType: "json",timeout: 3000,data: postData})
+                .done(function(j){
+                    if(j.success == true && j.data.ci_required == true){
+                        showCustInfo();
+                        $('#btnConnect').button('reset');
+                    } else {
+                        proceedWithLogin();
+                    }
+                })
+                .fail(function(){
+                    proceedWithLogin();
+                });
+            } else {
+                proceedWithLogin();
+            }
+        }
+
+        var proceedWithLogin = function() {
             //Auto suffix check
 		    var auto_suffix_check   = cDynamicData.settings.auto_suffix_check;
 		    var auto_suffix			= cDynamicData.settings.auto_suffix;
                          
-            fDebug("Button Connect Clicked");
+            fDebug("Proceeding with login");
             $('#alertWarn').removeClass('show');
             currentRetry = 0;
                  
@@ -1254,7 +1311,7 @@ var sConnect = (function () {
                 login();
             } else {
                 getLatestChallenge();
-            }    
+            }
         }
                 
         var onBtnDisconnectClick = function(){

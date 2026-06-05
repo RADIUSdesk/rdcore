@@ -503,25 +503,46 @@ class DataCollectorsController extends AppController{
     
         $result = false;
         $req_d	= $this->request->getData();
+
+        // 1. Direct check if dynamic_detail_id was passed
+        if (isset($req_d['dynamic_detail_id']) && !empty($req_d['dynamic_detail_id'])) {
+            $q_detail = $this->DynamicDetails->find()
+                ->where(['DynamicDetails.id' => $req_d['dynamic_detail_id']])
+                ->contain(['DynamicDetailCtcs'])
+                ->first();
+            if ($q_detail) {
+                // Mock a pair result to remain compatible with calling code
+                $mock_pair = new \stdClass();
+                $mock_pair->dynamic_detail_id = $q_detail->id;
+                $mock_pair->dynamic_detail = $q_detail;
+                return $mock_pair;
+            }
+        }
+        
         $conditions = array("OR" =>array());
         foreach(array_keys($req_d) as $key){
-            array_push($conditions["OR"],
-                array("DynamicPairs.name" => $key, "DynamicPairs.value" =>  $req_d[$key])
-            ); //OR query all the keys
+            // Skip non-identifying keys like mac, called, ssid, i18n
+            if ($key !== 'mac' && $key !== 'called' && $key !== 'ssid' && $key !== 'i18n' && $key !== 'cp_mac') {
+                array_push($conditions["OR"],
+                    array("DynamicPairs.name" => $key, "DynamicPairs.value" =>  $req_d[$key])
+                ); //OR query all the keys
+            }
         }
        	
-		$q_r = $this->DynamicPairs
-            ->find()
-            ->contain([
-                'DynamicDetails' => ['DynamicDetailCtcs']
-            ])
-            ->where([$conditions])
-            ->order(['DynamicPairs.priority' => 'DESC'])
-            ->first();
-      
-        if($q_r){
-            $result = $q_r;
-            return $result;
+        if (!empty($conditions['OR'])) {
+            $q_r = $this->DynamicPairs
+                ->find()
+                ->contain([
+                    'DynamicDetails' => ['DynamicDetailCtcs']
+                ])
+                ->where([$conditions])
+                ->order(['DynamicPairs.priority' => 'DESC'])
+                ->first();
+          
+            if($q_r){
+                $result = $q_r;
+                return $result;
+            }
         }
     }
     

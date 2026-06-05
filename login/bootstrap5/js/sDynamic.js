@@ -76,6 +76,29 @@ var sDynamic = (function () {
         var buildGuiBasedOnData = function(){
             fDebug("Building GUI");
                                          
+            // Null safety guards
+            if(!cDynamicData){
+                cDynamicData = {};
+            }
+            if(!cDynamicData.settings){
+                cDynamicData.settings = {};
+            }
+            if(!cDynamicData.detail){
+                cDynamicData.detail = {};
+            }
+            if(!cDynamicData.photos){
+                cDynamicData.photos = [];
+            }
+            if(!cDynamicData.pages){
+                cDynamicData.pages = [];
+            }
+            if(!cDynamicData.settings.click_to_connect){
+                cDynamicData.settings.click_to_connect = {};
+            }
+            if(!cDynamicData.settings.social_login){
+                cDynamicData.settings.social_login = { active: false, items: [] };
+            }
+
             //We build the photo's
             guiHeader();
             guiGallery();         
@@ -253,14 +276,15 @@ var sDynamic = (function () {
             }
             
             //Click To Connect
-            if(cDynamicData.settings.click_to_connect.connect_check == true){
+            var click_to_connect = cDynamicData.settings.click_to_connect || {};
+            if(click_to_connect.connect_check == true){
                 $('#btnClickToConnect').removeClass('d-none');                             
             }else{           
                 $('#btnClickToConnect').addClass('d-none');    
             }
             
             //Click To Connect
-            if(cDynamicData.settings.click_to_connect.connect_only == true){
+            if(click_to_connect.connect_only == true){
                 $('#btnConnect').addClass('d-none');
                 $('#pnlLogin').removeClass('show');                             
             }
@@ -316,122 +340,126 @@ var sDynamic = (function () {
             //Create an array from the list of photos
             var $indicator  = $('.carousel-indicators');
             var $inner      = $('.carousel-inner');
-            cDynamicData.photos.forEach(function(i,j,k){
             
-                if(i.active == false){
-                    return;
-                }
+            if (cDynamicData.photos && $.isArray(cDynamicData.photos)) {
+                cDynamicData.photos.forEach(function(i,j,k){
                 
-                var t_and_d = '';
-                var img     = '';
-                
-                var logo_included = false;
-                
-                if((i.include_title)&&(!i.include_description)){
-                    if(cDynamicData.settings.show_logo){
-                        t_and_d = '<div class="carousel-caption"><img src="'+cDynamicData.detail.icon_file_name+'"/><h5>'+i.title+'</h5></div>';
-                        logo_included = true;
-                    }else{
-                        t_and_d = '<div class="carousel-caption"><h5>'+i.title+'</h5></div>';
-                    }                 
-                } 
-                if((!i.include_title)&&(i.include_description)){
-                    if(cDynamicData.settings.show_logo){
-                        t_and_d = '<div class="carousel-caption"><img src="'+cDynamicData.detail.icon_file_name+'"/><p>'+i.description+'</p></div>';
-                        logo_included = true;
-                    }else{
-                        t_and_d = '<div class="carousel-caption"><p>'+i.description+'</p></div>';
-                    }                 
-                }           
-                if((i.include_title)&&(i.include_description)){
-                    if(cDynamicData.settings.show_logo){
-                        t_and_d = '<div class="carousel-caption"><img src="'+cDynamicData.detail.icon_file_name+'"/><h5>'+i.title+'</h5><p>'+i.description+'</p></div>';
-                        logo_included = true;
-                    }else{
-                        t_and_d = '<div class="carousel-caption"><h5>'+i.title+'</h5><p>'+i.description+'</p></div>';
-                    }     
-                }
-                
-                if((cDynamicData.settings.show_logo)&&(!logo_included)){
-                    t_and_d = '<div class="carousel-caption"><img src="'+cDynamicData.detail.icon_file_name+'"/></div>';
-                }
-                
-                var scrn = 'landscape';
-                if(window.innerWidth == window.innerHeight){
-                    scrn = 'block';
-                }
-                if(window.innerWidth < window.innerHeight){
-                    scrn = 'portrait';
-                }
-                                     
-                var imgFit = 'imgXY';
-                
-                //Image div                                
-                if(i.fit == 'horizontal'){
-                    imgFit = 'imgX';
-                }
-                
-                if(i.fit == 'vertical'){
-                    imgFit = 'imgY';
-                }
-                
-                if(i.fit == 'original'){
-                    imgFit = 'imgOrig';
-                }
-
-                if(i.fit == 'dynamic'){ 
-                         
-                    if((scrn == 'portrait')&&(i.layout == 'landscape')){
+                    if(!i || i.active == false){
+                        return;
+                    }
+                    
+                    var t_and_d = '';
+                    var img     = '';
+                    
+                    var logo_included = false;
+                    var icon_file = (cDynamicData.detail && cDynamicData.detail.icon_file_name) ? cDynamicData.detail.icon_file_name : '';
+                    
+                    if((i.include_title)&&(!i.include_description)){
+                        if(cDynamicData.settings.show_logo && icon_file){
+                            t_and_d = '<div class="carousel-caption"><img src="'+icon_file+'" onerror="this.style.display=\'none\'"/><h5>'+(i.title || '')+'</h5></div>';
+                            logo_included = true;
+                        }else{
+                            t_and_d = '<div class="carousel-caption"><h5>'+(i.title || '')+'</h5></div>';
+                        }                 
+                    } 
+                    if((!i.include_title)&&(i.include_description)){
+                        if(cDynamicData.settings.show_logo && icon_file){
+                            t_and_d = '<div class="carousel-caption"><img src="'+icon_file+'" onerror="this.style.display=\'none\'"/><p>'+(i.description || '')+'</p></div>';
+                            logo_included = true;
+                        }else{
+                            t_and_d = '<div class="carousel-caption"><p>'+(i.description || '')+'</p></div>';
+                        }                 
+                    }           
+                    if((i.include_title)&&(i.include_description)){
+                        if(cDynamicData.settings.show_logo && icon_file){
+                            t_and_d = '<div class="carousel-caption"><img src="'+icon_file+'" onerror="this.style.display=\'none\'"/><h5>'+(i.title || '')+'</h5><p>'+(i.description || '')+'</p></div>';
+                            logo_included = true;
+                        }else{
+                            t_and_d = '<div class="carousel-caption"><h5>'+(i.title || '')+'</h5><p>'+(i.description || '')+'</p></div>';
+                        }     
+                    }
+                    
+                    if((cDynamicData.settings.show_logo)&&(!logo_included) && icon_file){
+                        t_and_d = '<div class="carousel-caption"><img src="'+icon_file+'" onerror="this.style.display=\'none\'"/></div>';
+                    }
+                    
+                    var scrn = 'landscape';
+                    if(window.innerWidth == window.innerHeight){
+                        scrn = 'block';
+                    }
+                    if(window.innerWidth < window.innerHeight){
+                        scrn = 'portrait';
+                    }
+                                         
+                    var imgFit = 'imgXY';
+                    
+                    //Image div                                
+                    if(i.fit == 'horizontal'){
                         imgFit = 'imgX';
-                    } 
-                    if((scrn == 'landscape')&&(i.layout == 'portrait')){
+                    }
+                    
+                    if(i.fit == 'vertical'){
                         imgFit = 'imgY';
-                    } 
+                    }
                     
-                    if((scrn == 'landscape')&&(i.layout == 'landscape')){  
-                    
-                        if(window.innerWidth < i.width){ //Small Graphic
+                    if(i.fit == 'original'){
+                        imgFit = 'imgOrig';
+                    }
+    
+                    if(i.fit == 'dynamic'){ 
+                             
+                        if((scrn == 'portrait')&&(i.layout == 'landscape')){
                             imgFit = 'imgX';
-                        }
-                      
-                        if((window.innerWidth < i.width)&&(i.width > 2000)){ //Big graphic
+                        } 
+                        if((scrn == 'landscape')&&(i.layout == 'portrait')){
                             imgFit = 'imgY';
-                        }
+                        } 
                         
-                        if(window.innerWidth > i.width){ //Small Graphic
-                            imgFit = 'imgY';
-                        }       
-                    } 
-                }
-                              
-                var $src    = i.file_name;
-                var $color  = '#'+i.background_color;
-                var $css    = {
-                    'background-color' : $color
-                }   
-                if(i.fit == 'stretch_to_fit'){
-                    $css['background-image'] = 'url(' + $src + ')'
-                }else{
-                    img = '<div class="itemImage '+imgFit+'"><img src="'+$src+'" alt="'+i.title+'"></div>';
-                }
-                         
-                if(j ==0){
-                    $indicator.append('<button type="button" data-bs-target="#crslMain" data-bs-slide-to="'+j+'" class="active" aria-current="true" aria-label="Slide '+j+'"></button>');
-                }else{
-                    $indicator.append('<button type="button" data-bs-target="#crslMain" data-bs-slide-to="'+j+'" aria-label="Slide '+j+'"></button>');                   
-                }
-                var ci = $('<div class="carousel-item">'+img+t_and_d+'</div>');
-                $inner.append(ci);
-                ci.css($css);
-                ci.attr("data-bs-interval",i.slide_duration*1000);
-                
-                $(window).on('resize', function (){
-                  $wHeight = $(window).height();
-                  ci.height($wHeight);
-                });               
-                
-                //console.log(i);              
-            });
+                        if((scrn == 'landscape')&&(i.layout == 'landscape')){  
+                        
+                            if(window.innerWidth < i.width){ //Small Graphic
+                                imgFit = 'imgX';
+                            }
+                          
+                            if((window.innerWidth < i.width)&&(i.width > 2000)){ //Big graphic
+                                imgFit = 'imgY';
+                            }
+                            
+                            if(window.innerWidth > i.width){ //Small Graphic
+                                imgFit = 'imgY';
+                            }       
+                        } 
+                    }
+                                  
+                    var $src    = i.file_name || '';
+                    var $color  = '#'+(i.background_color || 'ffffff');
+                    var $css    = {
+                        'background-color' : $color
+                    }   
+                    if(i.fit == 'stretch_to_fit'){
+                        $css['background-image'] = 'url(' + $src + ')'
+                    }else{
+                        img = '<div class="itemImage '+imgFit+'"><img src="'+$src+'" alt="'+(i.title || '')+'" onerror="this.style.display=\'none\'"></div>';
+                    }
+                             
+                    if(j ==0){
+                        $indicator.append('<button type="button" data-bs-target="#crslMain" data-bs-slide-to="'+j+'" class="active" aria-current="true" aria-label="Slide '+j+'"></button>');
+                    }else{
+                        $indicator.append('<button type="button" data-bs-target="#crslMain" data-bs-slide-to="'+j+'" aria-label="Slide '+j+'"></button>');                   
+                    }
+                    var ci = $('<div class="carousel-item">'+img+t_and_d+'</div>');
+                    $inner.append(ci);
+                    ci.css($css);
+                    ci.attr("data-bs-interval",i.slide_duration*1000);
+                    
+                    $(window).on('resize', function (){
+                      $wHeight = $(window).height();
+                      ci.height($wHeight);
+                    });               
+                    
+                    //console.log(i);              
+                });
+            }
             
             var $item = $('.carousel-item'); 
             var $wHeight = $(window).height();
@@ -439,8 +467,8 @@ var sDynamic = (function () {
             $item.height($wHeight); 
             $item.addClass('full-screen');
             
-            //Hide controlls if there are only one item
-            if(cDynamicData.photos.length <=1){
+            //Hide controls if there are only one item
+            if(!cDynamicData.photos || cDynamicData.photos.length <=1){
                 $('#carIndicator').addClass('d-none');
                 $('#carCtlPrev').addClass('d-none');
                 $('#carCtlNext').addClass('d-none');

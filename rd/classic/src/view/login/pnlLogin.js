@@ -144,7 +144,21 @@ Ext.define('Rd.view.login.pnlLogin', {
                             }  
                         ]
                     }]
-                }]
+                }],
+            listeners: {
+                boxready: function(w) {
+                    w.center();
+                    var resizeFn = function() {
+                        if (w && !w.destroyed && w.isVisible()) {
+                            w.center();
+                        }
+                    };
+                    Ext.on('resize', resizeFn);
+                    w.on('destroy', function() {
+                        Ext.un('resize', resizeFn);
+                    });
+                }
+            }
         }).show();
     }
 });

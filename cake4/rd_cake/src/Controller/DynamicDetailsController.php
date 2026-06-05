@@ -783,7 +783,7 @@ class DynamicDetailsController extends AppController{
             if(isset($req_d[$ci])){
                 $req_d[$ci] = 1;
             }else{
-                $req_da[$ci] = 0;
+                $req_d[$ci] = 0;
             }
         }
         
@@ -1639,6 +1639,7 @@ class DynamicDetailsController extends AppController{
     private function _doPreviewChilli(){
     
     	$req_q 	= $this->request->getQuery();
+        $q_r    = null;
 	
 	    if(isset($req_q['wizard_name'])){
 	        $w_name = $req_q['wizard_name'];
@@ -1650,12 +1651,16 @@ class DynamicDetailsController extends AppController{
 		        $req_q['dynamic_id'] = $q_r->id;
 		        $_SERVER['QUERY_STRING'] = $_SERVER['QUERY_STRING'].'&dynamic_id='.$req_q['dynamic_id'].'&uamip=10.1.0.1&uamport=3990';
 		    }   
-	    }else{
-		    $q_r = $this->{$this->modelClass}->get($req_q['dynamic_id']);
+	    }elseif(isset($req_q['dynamic_id'])){
+		    $q_r = $this->{$this->main_model}
+                ->find()
+                ->where([$this->main_model.'.id' => $req_q['dynamic_id']])
+                ->first();
         }
       	
 		//See which Theme are selected
 		$theme = 'Default';
+		$theme_selected = 'Default';
 		$i18n = 'en_GB';
 		if($q_r){
             $theme_selected =  $q_r->theme;
@@ -1665,7 +1670,7 @@ class DynamicDetailsController extends AppController{
 		}
 		
 
-		if($theme_selected == 'Custom'){ //With custom themes we read the valuse out of the DB		
+		if($q_r && $theme_selected == 'Custom'){ //With custom themes we read the valuse out of the DB		
 		    $redir_to = $q_r->coova_desktop_url.'?'.$_SERVER['QUERY_STRING']."&i18n=$i18n";	    
         }else{   
 		    Configure::load('DynamicLogin','default'); 
@@ -1742,9 +1747,15 @@ class DynamicDetailsController extends AppController{
             foreach($q_r->dynamic_photos as $i){
             
                 $full_file_name = Configure::read('paths.absolute_photo_path').$i->file_name;
-                $info           = getimagesize($full_file_name);
-                $width          = $info[0];
-                $height         = $info[1];
+                $width = 800;
+                $height = 600;
+                if (file_exists($full_file_name)) {
+                    $info = @getimagesize($full_file_name);
+                    if ($info) {
+                        $width = $info[0];
+                        $height = $info[1];
+                    }
+                }
                 
                 $layout = 'landscape';
                 if($width == $height){
@@ -1772,7 +1783,7 @@ class DynamicDetailsController extends AppController{
 			if($q_r->dynamic_detail_ctc){
 			    $items['settings']['click_to_connect'] =  $q_r->dynamic_detail_ctc;
 		    }else{
-		        $items['settings']['click_to_connect'] =  [];
+			    $items['settings']['click_to_connect'] =  $this->_defaultCtcSettings();
 		    }    
         }
         
@@ -1782,9 +1793,15 @@ class DynamicDetailsController extends AppController{
             $c = 0;
             foreach($q_r->dynamic_detail->dynamic_photos as $i){
                 $full_file_name = Configure::read('paths.absolute_photo_path').$i->file_name;
-                $info           = getimagesize($full_file_name);
-                $width          = $info[0];
-                $height         = $info[1];
+                $width = 800;
+                $height = 600;
+                if (file_exists($full_file_name)) {
+                    $info = @getimagesize($full_file_name);
+                    if ($info) {
+                        $width = $info[0];
+                        $height = $info[1];
+                    }
+                }
                 
                 $layout = 'landscape';
                 if($width == $height){
@@ -1814,7 +1831,7 @@ class DynamicDetailsController extends AppController{
 		    if($q_r->dynamic_detail->dynamic_detail_ctc){
 		        $items['settings']['click_to_connect'] =  $q_r->dynamic_detail->dynamic_detail_ctc;
 	        }else{
-	            $items['settings']['click_to_connect'] =  [];
+		        $items['settings']['click_to_connect'] =  $this->_defaultCtcSettings();
 	        }
 	    }
 	    
@@ -1915,6 +1932,55 @@ class DynamicDetailsController extends AppController{
         $items['client_info']       = $client_info;
 		
         return $items;
+    }
+
+    private function _defaultCtcSettings() {
+        return [
+            'id' => 0,
+            'dynamic_detail_id' => 0,
+            'connect_check' => 0,
+            'connect_username' => '',
+            'connect_suffix' => 'nasid',
+            'connect_delay' => 0,
+            'connect_only' => 0,
+            'cust_info_check' => 0,
+            'ci_resupply_interval' => 0,
+            'ci_first_name' => 0,
+            'ci_first_name_required' => 0,
+            'ci_last_name' => 0,
+            'ci_last_name_required' => 0,
+            'ci_email' => 0,
+            'ci_email_required' => 0,
+            'ci_email_opt_in' => 0,
+            'ci_email_opt_in_txt' => 'Send Promotional Email',
+            'ci_gender' => 0,
+            'ci_gender_required' => 0,
+            'ci_birthday' => 0,
+            'ci_birthday_required' => 0,
+            'ci_company' => 0,
+            'ci_company_required' => 0,
+            'ci_address' => 0,
+            'ci_address_required' => 0,
+            'ci_city' => 0,
+            'ci_city_required' => 0,
+            'ci_country' => 0,
+            'ci_country_required' => 0,
+            'ci_phone' => 0,
+            'ci_phone_required' => 0,
+            'ci_phone_opt_in' => 0,
+            'ci_phone_opt_in_txt' => 'Send Promotional SMS',
+            'ci_room' => 0,
+            'ci_room_required' => 0,
+            'ci_custom1' => 0,
+            'ci_custom1_required' => 0,
+            'ci_custom1_txt' => 'Custom One',
+            'ci_custom2' => 0,
+            'ci_custom2_required' => 0,
+            'ci_custom2_txt' => 'Custom Two',
+            'ci_custom3' => 0,
+            'ci_custom3_required' => 0,
+            'ci_custom3_txt' => 'Custom Three',
+        ];
     }
 		
 }

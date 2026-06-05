@@ -100,6 +100,13 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             glyph   : Rd.config.icnMenu,
             scale   : 'medium'
         };
+        var h1_top = {
+            xtype   : 'button',
+            itemId	: 'btnExpandTop',
+            glyph   : Rd.config.icnMenu,
+            scale   : 'medium',
+            hidden  : true
+        };
         var h3 = {
             xtype   : 'button',
             glyph   : Rd.config.icnUser,
@@ -135,10 +142,10 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
             fieldLabel  : '<span style="font-family:FontAwesome;font-size: 24px;">&#xf0c2</span>'
         }
         
-        var h_items = [ txtH,'->',cmbCloud,'|',h2,'|',h3];
+        var h_items = [ h1_top, txtH,'->',cmbCloud,'|',h2,'|',h3];
         
         if(me.dashboard_data.show_wizard){
-            h_items = [ txtH,'->',cmbCloud,'|',h2,'|',h3];
+            h_items = [ h1_top, txtH,'->',cmbCloud,'|',h2,'|',h3];
         }
                
      	me.items 	= [
@@ -212,7 +219,42 @@ Ext.define('Rd.view.dashboard.pnlDashboard', {
 				    }
 				]
 			}
-		];     
+		];
+
+        me.on('resize', function(panel, width, height) {
+            var btnExpandTop = panel.down('#btnExpandTop');
+            var cmb = panel.down('#cmbCloud');
+            var west = panel.down('#pnlWest');
+            var btnWizard = panel.down('#btnSetupWizard');
+            
+            if (width < 768) {
+                if (btnExpandTop) btnExpandTop.show();
+                if (cmb) {
+                    cmb.setWidth(Math.min(width - 120, 180));
+                    cmb.setLabelWidth(0);
+                    cmb.setFieldLabel('');
+                }
+                if (btnWizard) btnWizard.hide();
+                if (west && !west.mobileMode) {
+                    west.mobileMode = true;
+                    west.hide();
+                }
+            } else {
+                if (btnExpandTop) btnExpandTop.hide();
+                if (cmb) {
+                    cmb.setWidth(380);
+                    cmb.setLabelWidth(30);
+                    cmb.setFieldLabel('<span style="font-family:FontAwesome;font-size: 24px;">&#xf0c2</span>');
+                }
+                if (btnWizard) btnWizard.show();
+                if (west && west.mobileMode) {
+                    west.mobileMode = false;
+                    west.show();
+                    west.setWidth(west.treelistMicro ? 55 : 150);
+                }
+            }
+        });
+
       	this.callParent();  
     }
 });

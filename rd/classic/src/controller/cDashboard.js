@@ -51,6 +51,9 @@ Ext.define('Rd.controller.cDashboard', {
             'pnlDashboard #btnExpand': {
                 click: me.btnExpandClick
             },
+            'pnlDashboard #btnExpandTop': {
+                click: me.btnExpandClick
+            },
             'pnlDashboard #btnTreeLoad': {
                 click: me.btnTreeLoadClick
             },
@@ -338,6 +341,20 @@ Ext.define('Rd.controller.cDashboard', {
    		var pnlDashboard = btn.up('pnlDashboard');
    		var pnlWest = pnlDashboard.down('#pnlWest');
    		var treelist = pnlWest.down('treelist');
+   		
+   		if (pnlDashboard.getWidth() < 768) {
+   		    // Mobile view: toggle visibility
+   		    if (pnlWest) {
+   		        if (pnlWest.isVisible()) {
+   		            pnlWest.hide();
+   		        } else {
+   		            pnlWest.show();
+   		            pnlWest.setWidth(150);
+   		        }
+   		    }
+   		    return;
+   		}
+   		
    		treelist.setMicro(!treelist.getMicro());
    		if(treelist.getMicro()){
    			//pnlWest.setWidth(55).getEl().slideIn('r');
