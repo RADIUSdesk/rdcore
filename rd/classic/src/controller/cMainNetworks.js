@@ -3,7 +3,6 @@
 Ext.define('Rd.controller.cMainNetworks', {
     extend: 'Ext.app.Controller',
     config: {
-        //urlGetContent   : '/cake4/rd_cake/dashboard/items-for.json',
         urlGetContent   : '/cake4/rd_cake/dashboard/networks-items.json',
         activeTab       : null,
         processingRoute : false   
@@ -45,7 +44,7 @@ Ext.define('Rd.controller.cMainNetworks', {
         const me = this;       
         Ext.log("=== BEFORE Network Tab Active === "+tabId);
         
-        if (this.getProcessingRoute() || tabId === this.getActiveTab() ) {
+        if (this.getProcessingRoute()) {
             action.stop();
             return false;
         }
@@ -57,8 +56,10 @@ Ext.define('Rd.controller.cMainNetworks', {
     onTabActive : function(tabId){
         const me = this;
         Ext.log("=== Network Tab Active === "+tabId);
-        this.setActiveTab(tabId);
-        this.urlTabActive(tabId);
+        
+        //this.setActiveTab(tabId);
+        //this.urlTabActive(tabId);
+        me.activeNetworkScreen(tabId);
         this.setProcessingRoute(false);
     },
     
@@ -90,7 +91,7 @@ Ext.define('Rd.controller.cMainNetworks', {
         if(!item){
         
             me.store = Ext.create('Ext.data.Store',{
-                storeId : 'myStore',
+                storeId : 'sMainNetworks',
                 fields  : ['column1','column2'], 
                 proxy   : {
                     type   :'ajax',
@@ -114,7 +115,7 @@ Ext.define('Rd.controller.cMainNetworks', {
                 autoLoad: true
             });                   
             var v = Ext.create('Ext.view.View', {
-                store: Ext.data.StoreManager.lookup('myStore'),            
+                store: Ext.data.StoreManager.lookup('sMainNetworks'),            
                 tpl: new Ext.XTemplate(
                     '<tpl for=".">',
                         '<div class="rd-tiles-grid">',
@@ -271,6 +272,8 @@ Ext.define('Rd.controller.cMainNetworks', {
             },
             scope: me
         });
+        
+        me.redirectTo({networkActive: null}); //Clear the hash
     }, 
           
     itemClicked: function(view, record, item, index, e){
@@ -279,18 +282,55 @@ Ext.define('Rd.controller.cMainNetworks', {
         var clickedColumn = e.getTarget('.rd-tile-column1') ? 'column1' : 'column2';
         var column = record.get(clickedColumn);
         if(column){
+            
+            var id  = column.id;
+            me.activeNetworkScreen(id);
+        }
+    },
+    
+    activeNetworkScreen: function(id){    
+        var me = this;
+        var store = Ext.data.StoreManager.lookup('sMainNetworks');
+        
+        var processRecords = function() {
+            var controller = false;
+            var glyph = false;
+            var name = false;
+            
+            store.each(function(record) {
+                var col1 = record.get('column1');
+                var col2 = record.get('column2');
+                
+                if(col1 && col1.id === id){
+                    controller = col1.controller;
+                    glyph = col1.glyph;
+                    name = col1.name;
+                }
+                if(col2 && col2.id === id){
+                    controller = col2.controller;
+                    glyph = col2.glyph;
+                    name = col2.name;
+                }
+            });
+            
+            if(!controller){
+                return;
+            }
+            
+            // Your existing code here...          
             var pnlDashboard = me.getViewP().down('pnlDashboard');
             var new_data = Ext.Object.merge(
                 pnlDashboard.down('#tbtHeader').getData(),
-                { fa_value: '&#'+column.glyph+';', value : column.name }
+                { fa_value: '&#'+glyph+';', value : name }
             );
             pnlDashboard.down('#tbtHeader').update(new_data);
-
-            var id  = column.id;
-            var pnl = me.getViewP().down('#pnlCenter');
-            var item= pnl.down('#'+id);
+                        
+            me.redirectTo({networkActive: 'network_active/'+id});       
+            var pnl     = me.getViewP().down('#pnlCenter');
+            var item    = pnl.down('#'+id);
+                                        
             if(!item){
-                var added = Ext.getApplication().runAction(column.controller,'Index',pnl,id);
+                var added = Ext.getApplication().runAction(controller,'Index',pnl,id);
                 if(!added){
                     pnl.setActiveItem(item);
                 }else{                
@@ -309,7 +349,16 @@ Ext.define('Rd.controller.cMainNetworks', {
                 if (el) {
                 el.slideIn('l', { duration: 250, easing: 'easeOut' });
                 }                
+            }          
+        };
+        
+        if (store.getCount() === 0) {
+            store.on('load', processRecords, me, { single: true });
+            if (!store.isLoading()) {
+                store.load();
             }
+        } else {
+            processRecords();
         }
     }
 });

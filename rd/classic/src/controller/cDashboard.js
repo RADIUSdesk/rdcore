@@ -9,12 +9,12 @@ Ext.define('Rd.controller.cDashboard', {
         urlChangePassword   : '/cake4/rd_cake/dashboard/change_password.json',
         urlSettingsSubmit   : '/cake4/rd_cake/dashboard/settings_submit.json',
         urlViewSettings     : '/cake4/rd_cake/dashboard/settings_view.json',
-        defaultScreen       : 'tabMainOverview',
-        
+        defaultScreen       : 'tabMainOverview',        
         currentScreen       : null,
         currentHash         : null,
         subSection          : null,
-        processingRoute     : false    
+        processingRoute     : false,
+        routeSet            : false    
     },
     routes: {
         'cloud/:cloudId/:section' : {
@@ -115,44 +115,54 @@ Ext.define('Rd.controller.cDashboard', {
        
     beforeCloudSection: function(cloud, section, action) {
         const me = this;        
-        Ext.log("=== BEFORE Cloud Selection ==="+cloud+' '+section); 
-        if (this.getProcessingRoute() || section === this.getCurrentScreen() ) {
+        //Ext.log("=== before Cloud Selection === "+cloud+' '+section);
+        me.setRouteSet(true) //Mark routeSet as present       
+        var cmbCloud    = me.getPnlDashboard().down('#cmbCloud');
+        var old_cloud   = cmbCloud.getValue();
+          
+        //If we proecess the route OR the section AND cloud is the same we can stop the action               
+        if (me.getProcessingRoute() || (section === me.getCurrentScreen() && old_cloud == cloud) ) {
             action.stop();
             return false;
         }
         
-        this.setProcessingRoute(true);
+        me.setProcessingRoute(true);
         action.resume();
+        //Ext.log("Resume before Cloud Section");
     },
      
     onCloudSection: function(cloud, section){
         const me = this;
-        Ext.log("=== Cloud Selection ==="+cloud+' '+section);
-        this.setCurrentScreen(section);
-        this.urlCloudSelection(cloud,section);
-        this.setProcessingRoute(false);
+        //Ext.log("=== on Cloud Selection === "+cloud+' '+section);
+        
+        var cmbCloud    = me.getPnlDashboard().down('#cmbCloud');
+        cmbCloud.select(cloud); //Update Cloud
+        Ext.getApplication().setCloudName(cmbCloud.getValue());
+        
+        me.onCloudSelect(cmbCloud);
+        
+        me.setCurrentScreen(section);
+        me.urlCloudSelection(cloud,section);
+        me.setProcessingRoute(false);
     },
     
     clickCloudSection: function(cloud, section){
         const me = this;
         if(cloud){     
-            console.log("CLICK SELECTION "+cloud+' '+section);
+            //console.log("CLICK SELECTION "+cloud+' '+section);
             this.setCurrentScreen(section);
             var hash = 'cloud/'+cloud+'/'+section;
-            this.redirectTo({
-            
+            this.redirectTo({        
                 mainRoute       : hash,
-                networkActive   : null,
-                apActive        : null
-                
-            });
-            
+              //  networkActive   : null,
+              //  apActive        : null               
+            });          
         }     
     },
     
     urlCloudSelection: function(cloud, section){
         const me = this;
-        console.log("URL SELECTION "+cloud+' '+section);
+        //console.log("URL SELECTION "+cloud+' '+section);
         var rootNode = me.getPnlDashboard().down('#tlNav').getStore().getRootNode();
         rootNode.eachChild(function(n) {
             if(n.get('text') == section){
@@ -255,9 +265,7 @@ Ext.define('Rd.controller.cDashboard', {
         });
     },
     onCloudSelect: function(cmb,record){
-    	var me = this;
-    	console.log("QQQQQQQQQQ");
-    	
+    	var me = this;  	
     	Ext.getApplication().setCloudId(cmb.getValue());
         if(record){
     	    Ext.getApplication().setCloudName(record.get('name'));
@@ -297,8 +305,8 @@ Ext.define('Rd.controller.cDashboard', {
                 myStore.getRoot().removeAll();
                 myStore.getRoot().appendChild(result.items);
                 
-                console.log("^^^^^^^^^^^^^^^^^^^^^^^");
-                console.log(me.getCurrentScreen());
+                //console.log("^^^^^^^^^^^^^^^^^^^^^^^");
+                //console.log(me.getCurrentScreen());
                               
                 //--Set the detault selected item--
                 var rootNode = me.getPnlDashboard().down('#tlNav').getStore().getRootNode();
@@ -416,22 +424,19 @@ Ext.define('Rd.controller.cDashboard', {
         myStore.getRoot().appendChild(dd.tree_nav);
         //--Set the detault selected item--
         var rootNode = pnl.down('#tlNav').getStore().getRootNode();
-              
-       /* rootNode.eachChild(function(n) {
-            if(n.get('id') == me.getDefaultScreen()){
-                pnl.down('#tlNav').setSelection(n);
-            }
-        });*/
-        
+                     
         if(dd.user.cloud_count == 0){
-            console.log("No Clouds - Start Up the Wizard");
+            Ext.log("No Clouds - Start Up the Wizard");
             Ext.getApplication().runAction('cSetupWizard','Index') 
         }else{
-            if(dd.user.cloud_id){
-                var cmbCloud = me.getViewP().down('cmbClouds');
-                cmbCloud.select(dd.user.cloud_id);
-                Ext.getApplication().setCloudName(dd.user.cloud_name); //We set it here initially
-                me.onCloudSelect(cmbCloud);
+            if(dd.user.cloud_id){           
+                //Ext.log("=== Set cmbClouds if needed to be === ");
+                if(!me.getRouteSet()){ //If a route was not set use the default 
+                    var cmbCloud = me.getViewP().down('cmbClouds');               
+                    cmbCloud.select(dd.user.cloud_id);
+                    Ext.getApplication().setCloudName(dd.user.cloud_name); //We set it here initially
+                    me.onCloudSelect(cmbCloud);
+                }
             }           
         }
     }

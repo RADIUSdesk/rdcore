@@ -19,8 +19,68 @@ Ext.define('Rd.view.auditLogs.gridAuditLogs' ,{
         activate  : 'onViewActivate'
     },
     plugins     : [
+        {
+            ptype: 'rowexpander',
+            rowBodyTpl: new Ext.XTemplate(
+                '<div class="audit-summary">',
+                    '{summary}',
+                '</div>',
+                '<div class="audit-detail-wrap">',
+
+                    '<table class="audit-detail-table">',
+
+                        '<thead>',
+                            '<tr>',
+                                '<th>Field</th>',
+                                '<th>Old Value</th>',
+                                '<th>New Value</th>',
+                            '</tr>',
+                        '</thead>',
+
+                        '<tbody>',
+
+                            '<tpl for="changes_array">',
+
+                                '<tr class="{[xindex % 2 ? \'odd\' : \'even\']}">',
+
+                                    '<td class="field-name">{field}</td>',
+
+                                    '<td class="old-value">',
+                                        '{[this.renderValue(values.old)]}',
+                                    '</td>',
+
+                                    '<td class="new-value">',
+                                        '{[this.renderValue(values.new)]}',
+                                    '</td>',
+
+                                '</tr>',
+
+                            '</tpl>',
+
+                        '</tbody>',
+
+                    '</table>',
+
+                '</div>',
+
+                {
+                    renderValue: function(v){
+
+                        if(v === null){
+                            return '<span class="audit-null">NULL</span>';
+                        }
+
+                        if(v === ''){
+                            return '<span class="audit-empty">(empty)</span>';
+                        }
+
+                        return Ext.String.htmlEncode(String(v));
+                    }
+                }
+            )
+        },
         'gridfilters'
-    ],
+    ],     
     requires    : [
         'Rd.view.components.ajaxToolbar',
         'Ext.toolbar.Paging',
@@ -43,34 +103,71 @@ Ext.define('Rd.view.auditLogs.gridAuditLogs' ,{
         ];            
         me.columns  = [
             { 
-                text        : 'Username',               
-                dataIndex   : 'username',
-                tdCls       : 'gridMain', 
-                flex        : 1
-            },           
-            { 
-                text        : 'Created',
+                text        : 'Time',
+                stateId     : 'gaul1',
                 dataIndex   : 'created', 
-                tdCls       : 'gridTree', 
+                tdCls       : 'gridTree',
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<div class=\"rd-chip rd-chip--blue\">{created_in_words}</div>"
+                    "{created_in_words}"
                 ),
                 flex        : 1,
                 format      : 'Y-m-d H:i:s',
                 filter      : {type: 'date',dateFormat: 'Y-m-d'}
-            },  
+            },
             { 
-                text        : 'Modified',
-                dataIndex   : 'modified', 
+                text        : 'Admin',
+                stateId     : 'gaul2',
+                filter		: {type: 'string'},              
+                dataIndex   : 'username',
+                tdCls       : 'gridTree', 
+                flex        : 1
+            }, 
+            { 
+                text        : 'Action',
+                stateId     : 'gaul3',
+                filter		: {type: 'string'},              
+                dataIndex   : 'action',
                 tdCls       : 'gridTree',
+                flex        : 1
+            },
+            { 
+                text        : 'Entity',
+                stateId     : 'gaul4',
+                filter		: {type: 'string'},              
+                dataIndex   : 'entity',
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                    "<div class=\"rd-chip rd-chip--blue\">{modified_in_words}</div>"
+                    "{entity} #{entity_id}"
                 ),
-                flex        : 1,
-                filter      : {type: 'date',dateFormat: 'Y-m-d'}
-            }  
+                tdCls       : 'gridTree', 
+                flex        : 1
+            },
+            { 
+                text        : 'Entity ID',
+                stateId     : 'gaul5',
+                filter		: {type: 'string'},              
+                dataIndex   : 'entity_id',
+                tdCls       : 'gridTree',
+                hidden      : true,
+                flex        : 1
+            },           
+            { 
+                text        : 'Summary',
+                stateId     : 'gaul6',
+                filter		: {type: 'string'},              
+                dataIndex   : 'summary',
+                tdCls       : 'gridTree', 
+                flex        : 1
+            },
+            { 
+                text        : 'IP',
+                stateId     : 'gaul7',
+                filter		: {type: 'string'},              
+                dataIndex   : 'ip_address',
+                tdCls       : 'gridTree', 
+                flex        : 1
+            },
         ]; 
         me.callParent(arguments);
     }

@@ -13,6 +13,8 @@ use App\Controller\AppController;
 use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
 
+use App\Service\AuditSummaryService;
+
 
 class AuditLogsController extends AppController{
   
@@ -55,17 +57,27 @@ class AuditLogsController extends AppController{
         $query->page($page);
         $query->limit($limit);
         $query->offset($offset);
+        
+        $query->contain([
+            'Users'
+        ]);
 
         $total  = $query->count();       
         $q_r    = $query->all();
         $items  = [];
 
         foreach($q_r as $i){ 
-            unset($i->password);               
+        
+            $i->summary             = AuditSummaryService::make($i);              
             $i->created_in_words    = $this->TimeCalculations->time_elapsed_string($i->created);
             $i->modified_in_words   = $this->TimeCalculations->time_elapsed_string($i->modified);                    
             $i->update = true;
             $i->delete = true;
+            
+            $i->username= $i->user->username;
+            unset($i->user);
+            
+            
             array_push($items,$i);      
         }
               
