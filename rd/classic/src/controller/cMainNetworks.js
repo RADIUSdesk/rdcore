@@ -4,7 +4,7 @@ Ext.define('Rd.controller.cMainNetworks', {
     extend: 'Ext.app.Controller',
     config: {
         urlGetContent   : '/cake4/rd_cake/dashboard/networks-items.json',
-        activeTab       : null,
+        activeScreen    : null,
         processingRoute : false   
     },    
     init: function() {
@@ -12,77 +12,87 @@ Ext.define('Rd.controller.cMainNetworks', {
         if (me.inited) {
             return;
         }
-        me.inited = true;  
-        me.control({
-            '#tabMainNetworks': {
-                tabchange: me.onTabChanged
-            }
-        });        
+        
+        Ext.GlobalEvents.on(
+            'cloudchanged',
+            me.onCloudChanged,
+            me
+        );
+        
+        me.inited = true;         
     },
     refs: [
         {   ref: 'tabMainNetworks',   	selector: '#tabMainNetworks',          xtype: 'tabpanel',    autoCreate: false},
         {   ref: 'viewP',   	selector: 'viewP',          xtype: 'viewP',    autoCreate: true}
     ],
     
-    onTabChanged: function(tabPanel, newCard, oldCard) {
-        const me = this;
-        console.log('Tab changed to:', newCard.title || newCard.itemId);
-        console.log('Tab ID:', newCard.itemId);
-        me.clickTabActive(newCard.itemId);
+    
+    onCloudChanged : function(cloud,section){
+        var me = this;
+        //Ext.log("Cloud Changed "+cloud+" "+section);
+        if(section !== 'NETWORK'){
+            me.redirectTo({networkActive: null}); //Clear the hash
+            return;
+        }
+        if(me.getActiveScreen()){
+            //Ext.log(me.getActiveScreen())
+            if(me.getActiveScreen()){
+                me.clickScreenActive(me.getActiveScreen());
+            }
+        }           
     },
-     
+    
+    //--- Standard pattern for level 2 deep linking--    
     routes: {
-        'network_active/:activeTab' : {
-            action  : 'onTabActive',
+        'network_active/:activeScreen' : {
+            action  : 'onScreenActive',
             lazy    : true,
-            before  : 'beforeTabActive',
+            before  : 'beforeScreenActive',
             name    : 'networkActive'      
         }
-    },    
-      
-    beforeTabActive : function(tabId, action){
+    },
+               
+    beforeScreenActive : function(id, action){
         const me = this;       
-        Ext.log("=== BEFORE Network Tab Active === "+tabId);
-        
+        //Ext.log("Router : before network screen active "+id);       
         if (this.getProcessingRoute()) {
             action.stop();
             return false;
         }
         
-        this.setProcessingRoute(true);
+        me.setProcessingRoute(true);
         action.resume();
     },
        
-    onTabActive : function(tabId){
+    onScreenActive : function(id){
         const me = this;
-        Ext.log("=== Network Tab Active === "+tabId);
-        
-        //this.setActiveTab(tabId);
-        //this.urlTabActive(tabId);
-        me.activeNetworkScreen(tabId);
+        //Ext.log("Router : network screen active "+id);
+        me.urlScreenActive(id)
         this.setProcessingRoute(false);
     },
     
-    clickTabActive : function(tabId){
+    clickScreenActive : function(id){
         const me = this;     
-        if(me.validateTab(tabId)){
-            Ext.log("=== CLICK Tab Active === "+tabId);
-            this.redirectTo({networkActive: 'network_active/'+tabId});
+        if(me.validateScreen(id)){
+            //Ext.log("Router action : click screen active "+id);
+            this.redirectTo({networkActive: 'network_active/'+id});
         }  
     },
     
-    urlTabActive: function(tabId){
+    urlScreenActive: function(id){
         const me =this;
-        if(me.validateTab(tabId)){
-            Ext.log("=== URL Tab Active === "+tabId);
-            me.getTabMainNetworks().setActiveTab(tabId);
+        if(me.validateScreen(id)){
+            //Ext.log("Router action : set active screen "+id);
+            me.setActiveScreen(id);
+            me.activeNetworkScreen(id);
         }     
     },
        
-    validateTab: function(tab) {
-        // Implement your page validation logic
-        return ['mesh_networks', 'nodes', 'ap_profiles', 'aps', 'arrivals'].includes(tab);
+    validateScreen: function(screen) {
+        // Implement your pscreen validation logic
+        return ['pnlNetworksMeshes', 'pnlNetworksAccessPoints', 'pnlNetworksUnknownNodes','pnlNetworksAlerts'].includes(screen);
     },
+    //--- END Standard pattern for level 2 deep linking--
     
     actionIndex: function(pnl,itemId){
         var me      = this;
@@ -108,9 +118,11 @@ Ext.define('Rd.controller.cMainNetworks', {
                                 Ext.ux.Constants.clsWarn,
                                 Ext.ux.Constants.msgWarn
                             );
+                        }else{
+                            me.storeLoaded();    
                         }
                     },
-                    scope: this
+                    scope: me
                 },
                 autoLoad: true
             });                   
@@ -273,6 +285,7 @@ Ext.define('Rd.controller.cMainNetworks', {
             scope: me
         });
         
+        me.setActiveScreen(null); //Clear the active screen
         me.redirectTo({networkActive: null}); //Clear the hash
     }, 
           
@@ -281,84 +294,82 @@ Ext.define('Rd.controller.cMainNetworks', {
 
         var clickedColumn = e.getTarget('.rd-tile-column1') ? 'column1' : 'column2';
         var column = record.get(clickedColumn);
-        if(column){
-            
+        if(column){          
             var id  = column.id;
-            me.activeNetworkScreen(id);
+            me.clickScreenActive(id);
         }
     },
     
-    activeNetworkScreen: function(id){    
+    activeNetworkScreen: function(id){  
+      
         var me = this;
+        
+        //console.log("=== Call activeNetworkScreen "+id);
         var store = Ext.data.StoreManager.lookup('sMainNetworks');
+        var controller = false;
+        var glyph = false;
+        var name = false;
         
-        var processRecords = function() {
-            var controller = false;
-            var glyph = false;
-            var name = false;
+        store.each(function(record) {
+            var col1 = record.get('column1');
+            var col2 = record.get('column2');
             
-            store.each(function(record) {
-                var col1 = record.get('column1');
-                var col2 = record.get('column2');
-                
-                if(col1 && col1.id === id){
-                    controller = col1.controller;
-                    glyph = col1.glyph;
-                    name = col1.name;
-                }
-                if(col2 && col2.id === id){
-                    controller = col2.controller;
-                    glyph = col2.glyph;
-                    name = col2.name;
-                }
-            });
-            
-            if(!controller){
-                return;
+            if(col1 && col1.id === id){
+                controller = col1.controller;
+                glyph = col1.glyph;
+                name = col1.name;
             }
-            
-            // Your existing code here...          
-            var pnlDashboard = me.getViewP().down('pnlDashboard');
-            var new_data = Ext.Object.merge(
-                pnlDashboard.down('#tbtHeader').getData(),
-                { fa_value: '&#'+glyph+';', value : name }
-            );
-            pnlDashboard.down('#tbtHeader').update(new_data);
-                        
-            me.redirectTo({networkActive: 'network_active/'+id});       
-            var pnl     = me.getViewP().down('#pnlCenter');
-            var item    = pnl.down('#'+id);
-                                        
-            if(!item){
-                var added = Ext.getApplication().runAction(controller,'Index',pnl,id);
-                if(!added){
-                    pnl.setActiveItem(item);
-                }else{                
-                    pnl.setActiveItem(id);
-                    // now animate the newly active card                    
-                    var i   = pnl.down('#'+id);
-                    var el  = i.getEl();
-                    if (el) {
-                        el.slideIn('l', { duration: 250, easing: 'easeOut' });
-                    }
-                }
-            }else{
-                pnl.setActiveItem(item);               
-                // now animate the newly active card
-                var el = item.getEl();
-                if (el) {
-                el.slideIn('l', { duration: 250, easing: 'easeOut' });
-                }                
-            }          
-        };
+            if(col2 && col2.id === id){
+                controller = col2.controller;
+                glyph = col2.glyph;
+                name = col2.name;
+            }
+        });
         
-        if (store.getCount() === 0) {
-            store.on('load', processRecords, me, { single: true });
-            if (!store.isLoading()) {
-                store.load();
-            }
-        } else {
-            processRecords();
+        if(!controller){
+            //console.log("Assume Empty list - Could not Load "+id);
+            return;
         }
+        
+        // Your existing code here...          
+        var pnlDashboard = me.getViewP().down('pnlDashboard');
+        var new_data = Ext.Object.merge(
+            pnlDashboard.down('#tbtHeader').getData(),
+            { fa_value: '&#'+glyph+';', value : name }
+        );
+        pnlDashboard.down('#tbtHeader').update(new_data);
+                    
+           
+        var pnl     = me.getViewP().down('#pnlCenter');
+        var item    = pnl.down('#'+id);
+                                    
+        if(!item){
+            var added = Ext.getApplication().runAction(controller,'Index',pnl,id);
+            if(!added){
+                pnl.setActiveItem(item);
+            }else{                
+                pnl.setActiveItem(id);
+                // now animate the newly active card                    
+                var i   = pnl.down('#'+id);
+                var el  = i.getEl();
+                if (el) {
+                    el.slideIn('l', { duration: 250, easing: 'easeOut' });
+                }
+            }
+        }else{
+            pnl.setActiveItem(item);               
+            // now animate the newly active card
+            var el = item.getEl();
+            if (el) {
+            el.slideIn('l', { duration: 250, easing: 'easeOut' });
+            }                
+        }          
+
+    },
+    
+    storeLoaded: function(store){
+        var me = this;
+        //console.log("Store is loaded - Check for active screen "+me.getActiveScreen());
+        me.activeNetworkScreen(me.getActiveScreen());      
     }
 });

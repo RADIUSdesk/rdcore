@@ -1,11 +1,95 @@
 Ext.define('Rd.controller.cMainUsers', {
     extend: 'Ext.app.Controller',   
     config: {
-        urlGetContent : '/cake4/rd_cake/dashboard/users-items.json'
+        urlGetContent   : '/cake4/rd_cake/dashboard/users-items.json',
+        activeScreen    : null,
+        processingRoute : false   
+    },
+    init: function() {
+        const me  = this;           
+        if (me.inited) {
+            return;
+        }
+                
+        Ext.GlobalEvents.on(
+            'cloudchanged',
+            me.onCloudChanged,
+            me
+        );
+        
+        me.inited = true;         
     },
     refs: [
         {   ref: 'viewP',   	selector: 'viewP',          xtype: 'viewP',    autoCreate: true}
     ],
+    
+    onCloudChanged : function(cloud,section){
+        var me = this;
+        //Ext.log("Cloud Changed "+cloud+" "+section);
+        if(section !== 'USERS'){
+            me.redirectTo({usersActive: null}); //Clear the hash
+            return;
+        }
+        if(me.getActiveScreen()){
+            //Ext.log(me.getActiveScreen())
+            if(me.getActiveScreen()){
+                me.clickScreenActive(me.getActiveScreen());
+            }
+        }           
+    },
+    
+    //--- Standard pattern for level 2 deep linking--    
+    routes: {
+        'users_active/:activeScreen' : {
+            action  : 'onScreenActive',
+            lazy    : true,
+            before  : 'beforeScreenActive',
+            name    : 'usersActive'      
+        }
+    },
+               
+    beforeScreenActive : function(id, action){
+        const me = this;       
+        Ext.log("Router : before users screen active "+id);       
+        if (this.getProcessingRoute()) {
+            action.stop();
+            return false;
+        }
+        
+        me.setProcessingRoute(true);
+        action.resume();
+    },
+       
+    onScreenActive : function(id){
+        const me = this;
+        Ext.log("Router : users screen active "+id);
+        me.urlScreenActive(id)
+        this.setProcessingRoute(false);
+    },
+    
+    clickScreenActive : function(id){
+        const me = this;  
+        if(me.validateScreen(id)){
+            Ext.log("Router action : click screen active "+id);
+            this.redirectTo({usersActive: 'users_active/'+id});
+        }  
+    },
+    
+    urlScreenActive: function(id){
+        const me =this;
+        if(me.validateScreen(id)){
+            Ext.log("Router action : set active screen "+id);
+            me.setActiveScreen(id);
+            me.activeUsersScreen(id);
+        }     
+    },
+          
+    validateScreen: function(screen) {
+        // Implement your screen validation logic
+        return ['pnlUsersPermanentUsers', 'pnlUsersVouchers', 'pnlUsersActivityMonitor'].includes(screen);
+    },
+    //--- END Standard pattern for level 2 deep linking--
+    
     actionIndex: function(pnl,itemId){
         var me      = this;
         var item    = pnl.down('#'+itemId);
@@ -13,7 +97,7 @@ Ext.define('Rd.controller.cMainUsers', {
         if(!item){
         
             me.store = Ext.create('Ext.data.Store',{
-                storeId : 'myStore',
+                storeId : 'sMainUsers',
                 fields  : ['column1','column2'], 
                 reloadOnClear: false,
                 trackRemoved: false,
@@ -32,6 +116,8 @@ Ext.define('Rd.controller.cMainUsers', {
                                 Ext.ux.Constants.clsWarn,
                                 Ext.ux.Constants.msgWarn
                             );
+                        }else{
+                            me.storeLoaded();    
                         }
                     },
                     scope: this
@@ -39,7 +125,7 @@ Ext.define('Rd.controller.cMainUsers', {
                 autoLoad: true
             });                   
             var v = Ext.create('Ext.view.View', {
-                store: Ext.data.StoreManager.lookup('myStore'),            
+                store: Ext.data.StoreManager.lookup('sMainUsers'),            
                 tpl: new Ext.XTemplate(
                     '<tpl for=".">',
                         '<div class="rd-tiles-grid">',
@@ -150,6 +236,9 @@ Ext.define('Rd.controller.cMainUsers', {
             },
             scope: me
         });
+        
+        me.setActiveScreen(null); //Clear the active screen
+        me.redirectTo({usersActive: null}); //Clear the hash
     }, 
           
     itemClicked: function(view, record, item, index, e){
@@ -190,6 +279,88 @@ Ext.define('Rd.controller.cMainUsers', {
                 }                
             }
         }
+    },
+    
+    itemClicked: function(view, record, item, index, e){
+        var me = this;
+
+        var clickedColumn = e.getTarget('.rd-tile-column1') ? 'column1' : 'column2';
+        var column = record.get(clickedColumn);
+        if(column){          
+            var id  = column.id;
+            me.clickScreenActive(id);
+        }
+    },
+    
+    activeUsersScreen: function(id){  
+      
+        var me = this;
+        
+        console.log("=== Call activeUsersScreen "+id);
+        var store = Ext.data.StoreManager.lookup('sMainUsers');
+        var controller = false;
+        var glyph = false;
+        var name = false;
+        
+        store.each(function(record) {
+            var col1 = record.get('column1');
+            var col2 = record.get('column2');
+            
+            if(col1 && col1.id === id){
+                controller = col1.controller;
+                glyph = col1.glyph;
+                name = col1.name;
+            }
+            if(col2 && col2.id === id){
+                controller = col2.controller;
+                glyph = col2.glyph;
+                name = col2.name;
+            }
+        });
+        
+        if(!controller){
+            console.log("Assume Empty list - Could not Load "+id);
+            return;
+        }
+        
+        // Your existing code here...          
+        var pnlDashboard = me.getViewP().down('pnlDashboard');
+        var new_data = Ext.Object.merge(
+            pnlDashboard.down('#tbtHeader').getData(),
+            { fa_value: '&#'+glyph+';', value : name }
+        );
+        pnlDashboard.down('#tbtHeader').update(new_data);
+                    
+           
+        var pnl     = me.getViewP().down('#pnlCenter');
+        var item    = pnl.down('#'+id);
+                                    
+        if(!item){
+            var added = Ext.getApplication().runAction(controller,'Index',pnl,id);
+            if(!added){
+                pnl.setActiveItem(item);
+            }else{                
+                pnl.setActiveItem(id);
+                // now animate the newly active card                    
+                var i   = pnl.down('#'+id);
+                var el  = i.getEl();
+                if (el) {
+                    el.slideIn('l', { duration: 250, easing: 'easeOut' });
+                }
+            }
+        }else{
+            pnl.setActiveItem(item);               
+            // now animate the newly active card
+            var el = item.getEl();
+            if (el) {
+            el.slideIn('l', { duration: 250, easing: 'easeOut' });
+            }                
+        }          
+    },   
+    storeLoaded: function(store){
+        var me = this;
+        //console.log("Store is loaded - Check for active screen "+me.getActiveScreen());
+        me.activeUsersScreen(me.getActiveScreen());      
     }   
     
 });

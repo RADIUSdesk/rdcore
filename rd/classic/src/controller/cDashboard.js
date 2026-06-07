@@ -156,7 +156,13 @@ Ext.define('Rd.controller.cDashboard', {
                 mainRoute       : hash,
               //  networkActive   : null,
               //  apActive        : null               
-            });          
+            }); 
+            
+            Ext.GlobalEvents.fireEvent(
+                'cloudchanged',
+                cloud,
+                section
+            );                  
         }     
     },
     
@@ -415,7 +421,7 @@ Ext.define('Rd.controller.cDashboard', {
     pnlWestRendered: function(pnl){
         var me  = this;
         
-        me.redirectTo(me.getCurrentHash(),{ force: true });
+        //me.redirectTo(me.getCurrentHash(),{ force: true });
         
         var dd  = Ext.getApplication().getDashboardData();
         tl      = pnl.down('#tlNav');

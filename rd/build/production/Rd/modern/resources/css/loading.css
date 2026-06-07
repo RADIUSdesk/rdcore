@@ -628,4 +628,85 @@
     font-weight: 500;
 }
 
+/* === Audit Log Expander */
+.audit-detail-wrap{
+    padding:10px;
+    background:#fafafa;
+}
+
+.audit-detail-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+}
+
+.audit-detail-table th{
+    text-align:left;
+    padding:8px;
+    border-bottom:2px solid #ddd;
+    font-weight:600;
+}
+
+.audit-detail-table td{
+    padding:6px 8px;
+    border-bottom:1px solid #eee;
+    vertical-align:top;
+}
+
+.audit-detail-table tr.even{
+    background:#ffffff;
+}
+
+.audit-detail-table tr.odd{
+    background:#f7f7f7;
+}
+
+.audit-detail-table tr:hover{
+    background:#eef5ff;
+}
+
+.audit-detail-table .field-name{
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.audit-detail-table .old-value{
+    color:#b94a48;
+}
+
+.audit-detail-table .new-value{
+    color:#468847;
+}
+
+.audit-null{
+    color:#999;
+    font-style:italic;
+}
+
+.audit-empty{
+    color:#999;
+    font-style:italic;
+}
+
+.old-value{
+    color:#b94a48;
+}
+
+.new-value{
+    color:#468847;
+    font-weight:bold;
+}
+
+.audit-detail-wrap{
+    max-height:300px;
+    overflow-y:auto;
+}
+
+.audit-summary{
+    font-weight:bold;
+    margin-bottom:10px;
+    padding:6px;
+    background:#eef5ff;
+    border:1px solid #d6e4ff;
+}
 
