@@ -19,6 +19,7 @@ echo
 echo Copying database files to volume mounts for MariaDB ...
 mkdir  -p /mnt/data/radiusdesk || exit 1
 mkdir  -p /mnt/data/radiusdesk/db_startup || exit 1
+mkdir  -p /mnt/data/radiusdesk/db_startup/db_patches || exit 1
 mkdir  -p /mnt/data/radiusdesk/db_conf || exit 1
 chmod -R 777 /mnt/data/radiusdesk || exit 1
 chmod -R 777 /mnt/data/radiusdesk/db_startup || exit 1
@@ -32,6 +33,7 @@ else
 fi
 
 cp rdcore/cake4/rd_cake/setup/db/rd.sql $RADIUSDESK_VOLUME/db_startup || exit 1
+cp -r rdcore/cake4/rd_cake/setup/db/* $RADIUSDESK_VOLUME/db_startup/db_patches/ || exit 1
 cp db_priveleges.sql $RADIUSDESK_VOLUME/db_startup || exit 1
 cp startup.sh $RADIUSDESK_VOLUME/db_startup || exit 1
 cp my_custom.cnf $RADIUSDESK_VOLUME/db_conf || exit 1
