@@ -28,3 +28,24 @@ if [[ ! -f $FLAG ]]; then
    #echo COMPLETED DATABASE BUILD ...| tee /proc/1/fd/1 /var/log/init.log 
    echo COMPLETED DATABASE BUILD ...
 fi
+
+
+echo UPDATE PATCHED DATABASE TABLES
+
+#Apply all patches in numerical order, excluding rd.sql and rd.min.sql
+for patch in /tmp/db_patches/*.sql; do
+  filename=$(basename "$patch")
+
+  #Skip rd.sql and rd.min.sql
+  if [[ "$filename" == "rd.sql" || "$filename" == "rd.min.sql" ]]; then
+    echo "Skipping: $filename"
+    continue
+  fi
+
+  if [ -f "$patch" ]; then
+    echo "Applying patch: $filename"
+    mariadb -u root rd < "$patch"
+  fi
+done
+
+echo COMPLETED UPDATING PATCHED DATABASE TABLES ...
