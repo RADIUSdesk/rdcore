@@ -54,7 +54,7 @@ return [
             
              // JUN 2026 Enable identifier quoting here - some installs broke because of the 'to_date' field interpreted as a function
              // This setting **might** have a negative impact on performance 
-            'quoteIdentifiers' => true, 
+            //'quoteIdentifiers' => true, 
             
             'cacheMetadata' => true,
             'log'	        => false,
