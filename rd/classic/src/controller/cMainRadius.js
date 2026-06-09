@@ -50,7 +50,7 @@ Ext.define('Rd.controller.cMainRadius', {
                
     beforeScreenActive : function(id, action){
         const me = this;       
-        Ext.log("Router : before radius screen active "+id);       
+        //Ext.log("Router : before radius screen active "+id);       
         if (this.getProcessingRoute()) {
             action.stop();
             return false;
@@ -62,7 +62,7 @@ Ext.define('Rd.controller.cMainRadius', {
        
     onScreenActive : function(id){
         const me = this;
-        Ext.log("Router : radius screen active "+id);
+        //Ext.log("Router : radius screen active "+id);
         me.urlScreenActive(id)
         this.setProcessingRoute(false);
     },
@@ -70,7 +70,7 @@ Ext.define('Rd.controller.cMainRadius', {
     clickScreenActive : function(id){
         const me = this;  
         if(me.validateScreen(id)){
-            Ext.log("Router action : click screen active "+id);
+            //Ext.log("Router action : click screen active "+id);
             this.redirectTo({radiusActive: 'radius_active/'+id});
         }  
     },
@@ -78,7 +78,7 @@ Ext.define('Rd.controller.cMainRadius', {
     urlScreenActive: function(id){
         const me =this;
         if(me.validateScreen(id)){
-            Ext.log("Router action : set active screen "+id);
+            //Ext.log("Router action : set active screen "+id);
             me.setActiveScreen(id);
             me.activeRadiusScreen(id);
         }     
@@ -233,7 +233,7 @@ Ext.define('Rd.controller.cMainRadius', {
       
         var me = this;
         
-        console.log("=== Call activeRadiusScreen "+id);
+        //console.log("=== Call activeRadiusScreen "+id);
         var store = Ext.data.StoreManager.lookup('sMainRadius');
         var controller = false;
         var glyph = false;
@@ -256,7 +256,7 @@ Ext.define('Rd.controller.cMainRadius', {
         });
         
         if(!controller){
-            console.log("Assume Empty list - Could not Load "+id);
+            //console.log("Assume Empty list - Could not Load "+id);
             return;
         }
         

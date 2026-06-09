@@ -92,6 +92,14 @@ Ext.define('Rd.controller.cActivityMonitor', {
             'gridRadaccts'   : {
               //  activate:      me.reload
             },
+            'gridRadaccts' : {
+                cellclick: function (grid, td, cellIndex, record, tr, rowIndex, e) {
+                    if (e.getTarget('.grid-link')) {
+                        e.stopEvent();
+                        me.viewUserLink(record.get('id'));
+                    }
+                }
+            },
             'gridRadaccts #cmbTimezone': {
                 afterrender : me.reload,
                 change      : me.reload
@@ -655,10 +663,20 @@ Ext.define('Rd.controller.cActivityMonitor', {
         });    
     },
     
-    usageGraph : function(button){
+    viewUserLink: function(id) {
+        const me    = this;
+        console.log("View Graphs for ");
+        me.usageGraph();
+        //var sr      = me.getGrid().getSelectionModel().getLastSelected();
+        //var id      = sr.getId();
+        //var name    = sr.get('name');  
+	    //Ext.getApplication().runAction('cMeshViews','Index',id,name); 
+    },  
+    
+    usageGraph : function(){
 
         var me      = this;
-        var grid    = button.up('grid');
+        var grid    = me.getGrid();
         //Find out if there was something selected
         if(grid.getSelectionModel().getCount() == 0){ 
              Ext.ux.Toaster.msg(

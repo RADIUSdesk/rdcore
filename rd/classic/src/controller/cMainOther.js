@@ -50,7 +50,7 @@ Ext.define('Rd.controller.cMainOther', {
                
     beforeScreenActive : function(id, action){
         const me = this;       
-        Ext.log("Router : before other screen active "+id);       
+        //Ext.log("Router : before other screen active "+id);       
         if (this.getProcessingRoute()) {
             action.stop();
             return false;
@@ -62,7 +62,7 @@ Ext.define('Rd.controller.cMainOther', {
        
     onScreenActive : function(id){
         const me = this;
-        Ext.log("Router : other screen active "+id);
+        //Ext.log("Router : other screen active "+id);
         me.urlScreenActive(id)
         this.setProcessingRoute(false);
     },
@@ -70,7 +70,7 @@ Ext.define('Rd.controller.cMainOther', {
     clickScreenActive : function(id){
         const me = this;  
         if(me.validateScreen(id)){
-            Ext.log("Router action : click screen active "+id);
+            //Ext.log("Router action : click screen active "+id);
             this.redirectTo({otherActive: 'other_active/'+id});
         }  
     },
@@ -78,7 +78,7 @@ Ext.define('Rd.controller.cMainOther', {
     urlScreenActive: function(id){
         const me =this;
         if(me.validateScreen(id)){
-            Ext.log("Router action : set active screen "+id);
+            //Ext.log("Router action : set active screen "+id);
             me.setActiveScreen(id);
             me.activeOtherScreen(id);
         }     
@@ -278,7 +278,7 @@ Ext.define('Rd.controller.cMainOther', {
       
         var me = this;
         
-        console.log("=== Call activeOtherScreen "+id);
+        //console.log("=== Call activeOtherScreen "+id);
         var store = Ext.data.StoreManager.lookup('sMainOther');
         var controller = false;
         var glyph = false;
@@ -301,7 +301,7 @@ Ext.define('Rd.controller.cMainOther', {
         });
         
         if(!controller){
-            console.log("Assume Empty list - Could not Load "+id);
+            //console.log("Assume Empty list - Could not Load "+id);
             return;
         }
         

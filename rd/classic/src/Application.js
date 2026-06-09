@@ -355,6 +355,27 @@ Ext.define('Rd.Application', {
             }
         }
         
+        Ext.ux.secondsToHumanShort = function(seconds) {
+
+            var days    = Math.floor(seconds / 86400);
+            var hours   = Math.floor((seconds % 86400) / 3600);
+            var minutes = Math.floor((seconds % 3600) / 60);
+
+            var result = '';
+
+            if (days > 0) {
+                result += days + 'd ';
+            }
+
+            if (hours > 0 || days > 0) {
+                result += hours + 'h ';
+            }
+
+            result += minutes + 'm';
+
+            return result.trim();
+        };
+        
         Ext.ux.formatDuration = function(seconds) {
             if (seconds < 60) {
                 return seconds + ' second' + (seconds !== 1 ? 's' : '');

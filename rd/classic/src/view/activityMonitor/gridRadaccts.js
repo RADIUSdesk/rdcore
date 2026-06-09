@@ -12,11 +12,15 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
     columnLines : false,
     rowLines    : false,
     stripeRows  : true,
+    
+    cls         : 'radacct-grid',
+    
     requires: [
         'Rd.view.components.ajaxToolbar'
     ],
     viewConfig: {
-        loadMask:true
+        loadMask:true,
+        stripeRows: true
     },
     urlMenu: '/cake4/rd_cake/radaccts/menu-for-grid.json',
     plugins     : 'gridfilters',  //*We specify this
@@ -39,8 +43,19 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
         me.columns  = [
          //   {xtype: 'rownumberer',stateId: 'StateGridRadaccts1'},
             { text: i18n('sAcct_session_id'),dataIndex: 'acctsessionid',tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true,stateId: 'StateGridRadaccts2'},
-            { text: i18n('sAcct_unique_id'),dataIndex: 'acctuniqueid',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true,stateId: 'StateGridRadaccts3'},
-            { text: i18n('sUsername'),      dataIndex: 'username',      tdCls: 'gridMain x-selectable', flex: 1,filter: {type: 'string'},stateId: 'StateGridRadaccts4' },
+            { text: i18n('sAcct_unique_id'),dataIndex: 'acctuniqueid',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true,stateId: 'StateGridRadaccts3'},         
+            { 
+                text        : i18n('sUsername'),
+                dataIndex   : 'username',
+                tdCls       : 'gridMain x-selectable',
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridRadaccts4',
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    '<div style="text-align:left;"><a href="javascript:void(0)" class="grid-link">{username}</a></div>',
+                )
+            },         
             { text: i18n('sGroupname'),     dataIndex: 'groupname',     tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true,stateId: 'StateGridRadaccts5'},
             { text: i18n('sRealm'),         dataIndex: 'realm',         tdCls: 'gridTree x-selectable', flex: 1,filter: {type: 'string'},stateId: 'StateGridRadaccts6'},
             { text: i18n('sNAS_IP_Address'),dataIndex: 'nasipaddress',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true, stateId: 'StateGridRadaccts7'},
@@ -65,7 +80,7 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
                 renderer    : function(value,metaData, record){
                     if(record.get('active') == true){
                         var human_value = record.get('online_human')
-                        return "<div class=\"fieldGreen\">"+human_value+" "+i18n('sOnline')+"</div>";
+                        return "<div class=\"status-badge-online\">"+human_value+" "+i18n('sOnline')+"</div>";
                        //return "<div class=\"rd-badge rd-badge--green\">"+human_value+" "+i18n('sOnline')+"</div>";
                     }else{
                         return value;
@@ -74,21 +89,26 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
             },
             {   text: i18n('sSession_time'), dataIndex: 'acctsessiontime', tdCls: 'gridTree', flex: 1,filter: {type: 'string'},
                 renderer    : function(value){
-                    return Ext.ux.secondsToHuman(value);            
+                    return "<span>⏱</span> "+Ext.ux.secondsToHumanShort(value);            
                 },stateId: 'StateGridRadaccts13'
             }, //Format
             { text: i18n('sAccount_authentic'), dataIndex: 'acctauthentic',     tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true,stateId: 'StateGridRadaccts14'},
             { text: i18n('sConnect_info_start'), dataIndex: 'connectinfo_start',tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts15'},
             { text: i18n('sConnect_info_stop'), dataIndex: 'connectinfo_stop',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts16'},
             { text: i18n('sData_in'), dataIndex: 'acctinputoctets',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'},
+        
                 renderer: function(value){
-                    return Ext.ux.bytesToHuman(value)              
-                },stateId: 'StateGridRadaccts17'
+                    return "<i class='fa fa-arrow-down'></i> " +Ext.ux.bytesToHuman(value)              
+                },
+              //  align: 'right',
+                stateId: 'StateGridRadaccts17'
             }, //Format!
             { text: i18n('sData_out'), dataIndex: 'acctoutputoctets',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'},
                 renderer: function(value){
-                    return Ext.ux.bytesToHuman(value)              
-                },stateId: 'StateGridRadaccts18'
+                    return "<i class='fa  fa-arrow-up'></i> "+Ext.ux.bytesToHuman(value)              
+                },
+               // align: 'right',
+                stateId: 'StateGridRadaccts18'
             }, //Format!
             { text: i18n('sCalled_station_id'), dataIndex: 'calledstationid',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true,stateId: 'StateGridRadaccts19'},
             { text: i18n('sCalling_station_id_MAC'), dataIndex: 'callingstationid',    tdCls: 'gridTree x-selectable', flex: 1,filter: {type: 'string'},stateId: 'StateGridRadaccts20'}, 

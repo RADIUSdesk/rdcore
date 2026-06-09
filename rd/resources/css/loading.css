@@ -710,3 +710,78 @@
     border:1px solid #d6e4ff;
 }
 
+
+.radacct-grid .x-grid-header-ct {
+    background: #fafafa;
+    border-width: 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* === FIXME FOR THE COLUMN HEADER */
+.radacct-grid .x-docked-top {
+    border-bottom-width: 0px !important;
+}
+
+.radacct-grid .x-column-header {
+    background: #fafafa;
+    
+    font-family: "Inter", "Segoe UI", sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #6b7280;
+}
+
+.radacct-grid .x-grid-cell {
+    border: none;
+}
+
+.radacct-grid .x-grid-row {
+    border-bottom: 2px solid red;
+}
+
+.radacct-grid .x-grid-row-over {
+    background: #f8fafc;
+}
+
+.radacct-grid .x-grid-cell-inner {
+    padding: 12px 16px;
+}
+
+
+.radacct-grid .radacct-stats {
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.radacct-grid .stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.radacct-grid .stat-item i {
+    color: #64748b;
+}
+
+.radacct-grid .value {
+    font-size: 28px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.radacct-grid .label {
+    color: #64748b;
+    font-size: 13px;
+}
+
+.status-badge-online {
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 12px;
+    background: #dcfce7;
+    color: #15803d;
+}
