@@ -778,10 +778,3 @@
     font-size: 13px;
 }
 
-.status-badge-online {
-    border-radius: 999px;
-    padding: 4px 10px;
-    font-size: 12px;
-    background: #dcfce7;
-    color: #15803d;
-}

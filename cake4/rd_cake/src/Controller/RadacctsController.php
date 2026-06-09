@@ -6,6 +6,8 @@ use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 use Cake\ORM\Query;
 
+use Cake\Core\Configure\Engine\PhpConfig;
+
 class RadacctsController extends AppController {
 
     protected $main_model 	= 'Radaccts';
@@ -17,6 +19,8 @@ class RadacctsController extends AppController {
         'total_out' => 'sum(acctoutputoctets)',
         'total' => 'sum(acctoutputoctets) + sum(acctinputoctets)',
     ];
+    
+    protected $flagAfter    = 7; //Flag active entries that have not been updated after this many hours - Also set it the RadiusDesk config file here only a fallback if not in config file
     
     public function initialize():void{
         parent::initialize();
@@ -456,6 +460,10 @@ class RadacctsController extends AppController {
                 $totalInOut = $t_q->total;
             }
         }
+        
+        if(Configure::read('radacct.flag_stale_after')){
+            $this->flagAfter = Configure::read('radacct.flag_stale_after');
+        }
 
         $items  = [];
         foreach($q_r as $i){
@@ -465,7 +473,16 @@ class RadacctsController extends AppController {
 
             if($i->acctstoptime == null){
                 $online_time        = time()-strtotime($i->acctstarttime);
-                $i->active          = true; 
+                $i->active          = true;
+                $sessionUpdated     = $i->acctstarttime->addSeconds($i->acctsessiontime ?? 0);             
+                $oneHourAgo         = FrozenTime::now()->subHour($this->flagAfter);
+        
+                if($sessionUpdated < $oneHourAgo){
+                    $i->stale           = true;
+                }else{
+                    $i->stale           = false;
+                }
+
                 $i->online_human    = $this->TimeCalculations->time_elapsed_string($i->acctstarttime,false,true);
             }else{
                 $online_time    = $i->acctstoptime->setTimezone($tz)->format('Y-m-d H:i:s');

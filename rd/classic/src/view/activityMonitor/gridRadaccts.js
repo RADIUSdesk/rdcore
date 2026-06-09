@@ -78,9 +78,14 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
                 flex        : 1,
                 filter      : {type: 'date',dateFormat: 'Y-m-d'},
                 renderer    : function(value,metaData, record){
-                    if(record.get('active') == true){
+                    if(record.get('active') == true){                
                         var human_value = record.get('online_human')
-                        return "<div class=\"status-badge-online\">"+human_value+" "+i18n('sOnline')+"</div>";
+                        var stale = record.get('stale');
+                        if(stale){
+                            return "<div><span class=\"fa\" style='color:green;font-family:FontAwesome;'>&#xf10c</span> "+human_value+" "+i18n('sOnline')+"</div>";
+                        }else{
+                            return "<div><span style='color:green;'><i class=\"fa fa-circle\"></i></span> "+human_value+" "+i18n('sOnline')+"</div>";
+                        }
                        //return "<div class=\"rd-badge rd-badge--green\">"+human_value+" "+i18n('sOnline')+"</div>";
                     }else{
                         return value;

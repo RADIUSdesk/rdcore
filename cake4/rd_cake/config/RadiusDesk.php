@@ -51,6 +51,9 @@ $config['nas_types'][7]     = ['name' => 'Mikrotik-COA',	    'id' => 'Mikrotik-C
 $config['nas_types'][8]     = ['name' => 'Private PSK',	        'id' => 'private_psk',   	'active' => true];
 
 
+$config['radacct']['flag_stale_after'] = 2; //Flag an active entry as stale after sessiontime not updated for this many hours
+
+
 //Define Email Transport types
 $config['mail_transports'][0]	= ['name' => 'Smtp',        'id' => 'smtp',		'className' => 'Smtp'];
 $config['mail_transports'][1]   = ['name' => 'Sendgrid',	'id' => 'sendgrid',	'className' => 'SendGrid.SendGrid'];
