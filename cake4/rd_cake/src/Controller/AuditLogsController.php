@@ -206,7 +206,7 @@ class AuditLogsController extends AppController{
             return;
         }
 
-        $menu = $this->GridButtonsFlat->returnButtons( false, 'basic'); 
+        $menu = $this->GridButtonsFlat->returnButtons( false, 'refresh'); 
         $this->set(array(
             'items' => $menu,
             'success' => true,

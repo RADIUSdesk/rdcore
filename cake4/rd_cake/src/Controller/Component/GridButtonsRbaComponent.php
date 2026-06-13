@@ -41,7 +41,9 @@ class GridButtonsRbaComponent extends Component {
         if($ctrl_name == 'RbaPermanentUsers'){     
             return [
                 $this->_fetchPuBasic($allowedActions),
+                [ 'xtype' => 'tbseparator'],
                 $this->_fetchPuCsvUpDown($allowedActions),
+                [ 'xtype' => 'tbseparator'],
                 $this->_fetchPuExtras($allowedActions),
             ];
         }
@@ -61,7 +63,9 @@ class GridButtonsRbaComponent extends Component {
         if($ctrl_name == 'RbaRealms'){     
             return [
                 $this->_fetchRealmsBasic($allowedActions),
+                [ 'xtype' => 'tbseparator'],
                 $this->_fetchRealmsCsvDown($allowedActions),
+                [ 'xtype' => 'tbseparator'],
                 $this->_fetchRealmsOther($allowedActions)               
             ];
         }
@@ -69,6 +73,7 @@ class GridButtonsRbaComponent extends Component {
         if($ctrl_name == 'RbaNas'){     
             return [
                 $this->_fetchNasBasic($allowedActions),
+                [ 'xtype' => 'tbseparator'],
                 $this->_fetchNasOther($allowedActions)               
             ];
         }
@@ -166,7 +171,14 @@ class GridButtonsRbaComponent extends Component {
             array_push($items,$this->GridButtonsBase->btnEdit);      
         }
                 
-        $menu = ['xtype' => 'buttongroup','title' => null, 'items' => $items ];
+        $menu = [
+            'xtype' => 'buttongroup',
+            'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false, 
+            'items' => $items 
+        ];
                  
         return $menu;
     }
@@ -238,7 +250,10 @@ class GridButtonsRbaComponent extends Component {
          if(count($items)>0){
             $menu = [
                 'xtype' => 'buttongroup',
-                'title' => null, 
+                'title' => null,
+                'border' => false,
+                'bodyBorder' => false,
+                'frame' => false, 
                 'items' => $items
             ];  
         }     
@@ -269,7 +284,10 @@ class GridButtonsRbaComponent extends Component {
         if(count($items)>0){
             $menu = [
                 'xtype' => 'buttongroup',
-                'title' => null, 
+                'title' => null,
+                'border' => false,
+                'bodyBorder' => false,
+                'frame' => false,
                 'width' => 110,
                 'items' => $items
             ];  
@@ -307,9 +325,11 @@ class GridButtonsRbaComponent extends Component {
                 $this->GridButtonsBase->btnReload,
                 $this->GridButtonsBase->btnAdd,
                 $this->GridButtonsBase->btnDelete,
+                [ 'xtype' => 'tbseparator'],
 			    $this->GridButtonsBase->btnSimpleEdit,
 			    $this->GridButtonsBase->btnFupEdit,
 			    $this->GridButtonsBase->btnAdvEdit,
+			    [ 'xtype' => 'tbseparator'],
 			    $this->GridButtonsBase->btnProfComp
             ];          
         } 
@@ -338,7 +358,10 @@ class GridButtonsRbaComponent extends Component {
         if(count($items)>0){
             $menu = [
                 'xtype' => 'buttongroup',
-                'title' => null, 
+                'title' => null,
+                'border' => false,
+                'bodyBorder' => false,
+                'frame' => false,  
                 'items' => $items
             ];  
         }     
@@ -383,7 +406,10 @@ class GridButtonsRbaComponent extends Component {
         if(count($items)>0){
             $menu = [
                 'xtype' => 'buttongroup',
-                'title' => null, 
+                'title' => null,
+                'border' => false,
+                'bodyBorder' => false,
+                'frame' => false,  
                 'items' => $items
             ];  
         }     
@@ -426,7 +452,10 @@ class GridButtonsRbaComponent extends Component {
         if(count($items)>0){
             $menu = [
                 'xtype' => 'buttongroup',
-                'title' => null, 
+                'title' => null,
+                'border' => false,
+                'bodyBorder' => false,
+                'frame' => false,  
                 'items' => $items
             ];  
         }     
@@ -452,7 +481,10 @@ class GridButtonsRbaComponent extends Component {
         if(count($items)>0){
             $menu = [
                 'xtype' => 'buttongroup',
-                'title' => null, 
+                'title' => null,
+                'border' => false,
+                'bodyBorder' => false,
+                'frame' => false, 
                 'width' => 60,
                 'items' => $items
             ];  
@@ -525,7 +557,10 @@ class GridButtonsRbaComponent extends Component {
         if(count($items)>0){
             $menu = [
                 'xtype' => 'buttongroup',
-                'title' => null, 
+                'title' => null,
+                'border' => false,
+                'bodyBorder' => false,
+                'frame' => false, 
                 'items' => $items
             ];  
         }     
@@ -569,7 +604,10 @@ class GridButtonsRbaComponent extends Component {
         if(count($items)>0){
             $menu = [
                 'xtype' => 'buttongroup',
-                'title' => null, 
+                'title' => null,
+                'border' => false,
+                'bodyBorder' => false,
+                'frame' => false,  
                 'items' => $items
             ];  
         }     
@@ -594,7 +632,10 @@ class GridButtonsRbaComponent extends Component {
         if(count($items)>0){
             $menu = [
                 'xtype' => 'buttongroup',
-                'title' => null, 
+                'title' => null,
+                'border' => false,
+                'bodyBorder' => false,
+                'frame' => false,  
                 'items' => $items
             ];  
         }     

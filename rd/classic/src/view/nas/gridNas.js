@@ -27,6 +27,13 @@ Ext.define('Rd.view.nas.gridNas' ,{
                  displayInfo : true
             }  
         ];
+        
+        // tiny helpers (same as in Exit Points grid)
+        var dash = '<span class="rd-dash">—</span>';
+        var chip = function (cls, iconCls, text) {
+            var icon = iconCls ? '<i class="' + iconCls + '"></i>' : '';
+            return '<span class="rd-chip ' + (cls || '') + '">' + icon + Ext.htmlEncode(text) + '</span>';
+        }; 
 
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});     
         me.columns  = [
@@ -40,12 +47,11 @@ Ext.define('Rd.view.nas.gridNas' ,{
             { text: 'Type'                 ,dataIndex: 'type',         tdCls: 'gridTree', flex: 1, filter: {type: 'string'}, hidden: true,stateId: 'StateGridNas3d'},
             
             { 
-                text        : 'System Wide',  
-                xtype       : 'templatecolumn', 
-                tpl         : new Ext.XTemplate(
-                                "<tpl if='for_system == true'><div class=\"fieldBlue\">"+i18n("sYes")+"</div></tpl>",
-                                "<tpl if='for_system == false'><div class=\"fieldGrey\">"+i18n("sNo")+"</div></tpl>"
-                            ),
+                text        : 'System Wide',
+                flex        : 1,  
+                renderer    : function (v) {
+                    return v ? chip('rd-chip--muted', 'fa fa-check', 'System Wide') : dash;
+                },
                 dataIndex   : 'for_system',
                 filter      : {
                         type            : 'boolean',
@@ -60,10 +66,10 @@ Ext.define('Rd.view.nas.gridNas' ,{
                 flex: 1,  
                 xtype:  'templatecolumn', 
                 tpl:    new Ext.XTemplate(
-                            '<tpl if="Ext.isEmpty(realms)"><div class=\"fieldBlueWhite\">Available to all!</div></tpl>', //Warn them when available     to all
+                            '<tpl if="Ext.isEmpty(realms)"><div class=\"rd-chip rd-chip--blue\">Available to all!</div></tpl>', //Warn them when available     to all
                             '<tpl for="realms">',     // interrogate the realms property within the data
-                                "<tpl if='other_cloud == true'><div class=\"fieldGrey\">{name}</div></tpl>",
-                                "<tpl if='other_cloud == false'><div class=\"fieldGreen\">{name}</div></tpl>",
+                                "<tpl if='other_cloud == true'><div class=\"rd-chip rd-chip--grey\">{name}</div></tpl>",
+                                "<tpl if='other_cloud == false'><div class=\"rd-chip rd-chip--green\">{name}</div></tpl>",
                             '</tpl>'
                         ),
                 dataIndex: 'realms',

@@ -676,7 +676,10 @@ class ProfileComponentsController extends AppController {
     
         $d = [
         	'xtype' => 'buttongroup', 
-        	'title' => false,
+        	'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false, 
         	'items' => [
         		$cmb_sqm_profiles                   
         	]

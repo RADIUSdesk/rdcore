@@ -42,9 +42,9 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClients' ,{
                 tdCls       : 'gridTree',
                 xtype       : 'templatecolumn', 
                 tpl         : new Ext.XTemplate(
-                                "<tpl if='active == true'><div class=\"fieldGreen\">"+i18n("sYes")+"</div></tpl>",
-                                "<tpl if='active == false'><div class=\"fieldRed\">"+i18n("sNo")+"</div></tpl>"
-                            ),
+                    "<tpl if='active == true'><div class=\"rd-chip rd-chip--green\">"+i18n("sYes")+"</div></tpl>",
+                    "<tpl if='active == false'><div class=\"rd-chip rd-chip--gray\">"+i18n("sNo")+"</div></tpl>"
+                ),
                 dataIndex   : 'active',
                 filter      : {
                         type    : 'boolean',
@@ -61,9 +61,9 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClients' ,{
                 tdCls   : 'gridTree',
                 xtype   :  'templatecolumn', 
                 tpl:    new Ext.XTemplate(
-                            '<tpl if="Ext.isEmpty(realms)"><div class=\"fieldBlueWhite\">Available to all!</div></tpl>', //Warn them when available     to all
+                            '<tpl if="Ext.isEmpty(realms)"><div class=\"rd-chip rd-chip--blue\">Available to all!</div></tpl>', //Warn them when available     to all
                             '<tpl for="realms">',     // interrogate the realms property within the data
-                                "<div class=\"fieldGreen\">{name}</div>",
+                                "<div style='display:block;margin:1px' class=\"rd-chip rd-chip--muted\">{name}</div>",
                             '</tpl>'
                         ),
                 dataIndex: 'realms',
@@ -76,7 +76,7 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClients' ,{
                 tdCls       : 'gridTree', 
                 renderer    : function(v,metaData, record){
                     if(record.get('last_contact') == null){
-                        return "<div class=\"fieldBlueWhite\">Never</div>";
+                        return "<div class=\"rd-chip rd-chip--blue\">Never</div>";
                     }
                     var last_contact_human  = record.get('last_contact_human');
                     var green_flag          = false; //We show contact from the last seconds and minutes as geeen
@@ -88,9 +88,9 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClients' ,{
                         green_flag = true;
                     }
                     if(green_flag){
-                        return "<div class=\"fieldGreenWhite\">"+last_contact_human+"</div>";
+                        return "<div class=\"rd-chip rd-chip--green\">"+last_contact_human+"</div>";
                     }else{
-                        return "<div class=\"fieldPurpleWhite\">"+last_contact_human+"</div>";
+                        return "<div class=\"rd-chip rd-chip--blue\">"+last_contact_human+"</div>";
                     }     
                 },
                 stateId : 'StateGridUdc9'
@@ -105,12 +105,12 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClients' ,{
                 tpl         :  new Ext.XTemplate(
                     '<tpl if="Ext.isEmpty(last_contact_ip)"><div class=\"fieldGreyWhite\">Not Available</div>',
                     '<tpl else>',
-                    '<div class=\"fieldGreyWhite\">{last_contact_ip}</div>',
+                    '<div class=\"rd-chip rd-chip--grey\">{last_contact_ip}</div>',
                     "<tpl if='Ext.isEmpty(city)'><tpl else>",
-                        '<div><b>{city}</b>  ({postal_code})</div>',
+                        '<div class=\"rd-tile-desc\">{city} ({postal_code})</div>',
                     "</tpl>",
                     "<tpl if='Ext.isEmpty(country_name)'><tpl else>",
-                        '<div><b>{country_name}</b> ({country_code})</div>',
+                        '<div class=\"rd-tile-desc\">{country_name} ({country_code})</div>',
                     "</tpl>",
                     "</tpl>"   
                 ), 

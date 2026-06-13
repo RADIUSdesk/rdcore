@@ -511,6 +511,10 @@ class GridButtonsFlatComponent extends Component {
         
         $menu = [];
 
+        if($type == 'refresh'){
+            $b      = $this->_fetchRefresh();
+            $menu   = [$b];
+        }
            
         if($type == 'basic'){
             $b = $this->_fetchBasic();
@@ -549,12 +553,15 @@ class GridButtonsFlatComponent extends Component {
                 $shared_secret = Configure::read('DynamicClients.shared_secret');
             }
                   
-            $b = $this->_fetchBasic('disabled',true,$type);
+            $b = $this->_fetchBasicPlain('disabled',true,$type);
             $a  = $this->_fetchDynamicClientsExtras();
             $n = [
                 'xtype'     => 'buttongroup',
-                'width'     => 180,
-               // 'title'     => '<span class="txtBlue"><i class="fa  fa-lightbulb-o"></i> Site Wide Shared Secret</span>',
+                'width'     => 200,
+                'title'     => null,
+                'border'    => false,
+                'bodyBorder' => false,
+                'frame'     => false,
                 'items'     => [
                     [
                     'xtype'     => 'tbtext', 
@@ -566,7 +573,7 @@ class GridButtonsFlatComponent extends Component {
                     ]
                 ]
                 ]];
-            $menu = [$b,$a,$n];
+            $menu = [$b,[ 'xtype' => 'tbseparator'],$a,[ 'xtype' => 'tbseparator'],$n];
             
         }
         
@@ -574,11 +581,17 @@ class GridButtonsFlatComponent extends Component {
             $b  = $this->_fetchBasicVoucher();
             $d  = $this->_fetchDocumentVoucher();
             $a  = $this->_fetchVoucherExtras();
-            $menu = array($b,$d,$a);
+            $menu = [$b,[ 'xtype' => 'tbseparator'],$d,[ 'xtype' => 'tbseparator'],$a];
         }
         
         if(($type == 'vouchers')&&($right === 'view')){
-            $a = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
+            $a = [
+                'xtype' => 'buttongroup',
+                'title' => null,
+                'border' => false,
+                'bodyBorder' => false,
+                'frame' => false, 
+                'items' => [
                 $this->btnReloadTimer,
                 $this->btnRadius,
                 $this->btnGraph,
@@ -673,13 +686,13 @@ class GridButtonsFlatComponent extends Component {
                 'data'   =>  [],
                 'cls'    => 'lblRd'
             ];           
-           	$menu = [$b,$a,$s,$fb];          
+           	$menu = [$b,[ 'xtype' => 'tbseparator'],$a,$s,$fb];          
         }
         
         if($type == 'MeshNodes'){        
             $b  = $this->_fetchBasicMeshNodes();
-          	$d  = $this->_fetchCsvUpDown();
-            $menu = [$b,$d];     
+          	$d  = $this->_fetchCsvUpDownPlain();
+            $menu = [$b,[ 'xtype' => 'tbseparator'],$d,[ 'xtype' => 'tbseparator']];     
         }
         
         if($type == 'NodeDetails'){
@@ -700,7 +713,7 @@ class GridButtonsFlatComponent extends Component {
          if($type == 'ApProfiles'){
             $b = $this->_fetchBasicApProfiles();
             $a = $this->_fetchExtrasApProfiles();
-            $menu = [$b,$a]; 
+            $menu = [$b,[ 'xtype' => 'tbseparator'],$a,[ 'xtype' => 'tbseparator']]; 
         }
         
         if($type == 'ApProfileEntries'){
@@ -716,8 +729,8 @@ class GridButtonsFlatComponent extends Component {
         if($type == 'Aps'){
             $b  = $this->_fetchAps();
             $c  = $this->_apStates();
-            $d  = $this->_fetchCsvUpDown();
-            $menu = [$b,$c,$d]; 
+            $d  = $this->_fetchCsvUpDownPlain();
+            $menu = [$b,[ 'xtype' => 'tbseparator'],$c,[ 'xtype' => 'tbseparator'],$d,[ 'xtype' => 'tbseparator']]; 
         }
         
         if($type == 'ApProfileDevices'){
@@ -901,11 +914,18 @@ class GridButtonsFlatComponent extends Component {
         }
         
         if($type == 'Alerts'){
-            $b = ['xtype' => 'buttongroup', 'title' => $this->t, 'items' => [
-                $this->btnReload,
-                $this->btnDelete,
-                $this->btnAcknowledged 
-            ]];
+            $b = [
+                'xtype' => 'buttongroup',
+                'title' => null,
+                'border' => false,
+                'bodyBorder' => false,
+                'frame' => false,
+                'items' => [
+                    $this->btnReload,
+                    $this->btnDelete,
+                    $this->btnAcknowledged 
+                ]
+            ];
             $menu = $b; 
         }
         
@@ -1254,6 +1274,28 @@ class GridButtonsFlatComponent extends Component {
         return $menu;    
       
     }
+    
+    
+    private function _fetchRefresh($with_reload_timer=false){
+        $menu 	= [];         
+        $reload = $this->btnReload;     
+        if($with_reload_timer == true){
+            $reload = $this->btnReloadTimer;
+        }
+        $menu = [
+            'xtype' => 'buttongroup',
+            'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false,
+            'items' => [
+                $reload
+            ]
+        ];     
+        return $menu;
+    
+    }
+    
           
   	private function _fetchBasic($with_reload_timer=false){       
         $menu 	= [];         
@@ -1262,6 +1304,28 @@ class GridButtonsFlatComponent extends Component {
             $reload = $this->btnReloadTimer;
         }
         $menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+                $reload,
+                $this->btnAdd,
+                $this->btnDelete,
+				$this->btnEdit
+            ]
+        ];     
+        return $menu;
+    }
+    
+    private function _fetchBasicPlain($with_reload_timer=false){       
+        $menu 	= [];         
+        $reload = $this->btnReload;     
+        if($with_reload_timer == true){
+            $reload = $this->btnReloadTimer;
+        }
+        $menu = [
+            'xtype' => 'buttongroup',
+            'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false, 
+            'items' => [
                 $reload,
                 $this->btnAdd,
                 $this->btnDelete,
@@ -1341,7 +1405,14 @@ class GridButtonsFlatComponent extends Component {
             //$this->btnAvailable
         ];      
       	array_push($m_items,$this->btnUnknownClients);      
-        $menu = ['xtype' => 'buttongroup','title' => $t, 'items' => $m_items ];    
+        $menu = [
+            'xtype' => 'buttongroup',
+            'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false,
+            'items' => $m_items
+        ];    
         return $menu;  
     }
     
@@ -1384,13 +1455,19 @@ class GridButtonsFlatComponent extends Component {
         ];
 
 
-        $menu = array('xtype' => 'buttongroup','title' => $this->t, 'items' => array(
+        $menu = [
+            'xtype' => 'buttongroup',
+            'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false,
+            'items' => [
                 $this->btnReloadTimer,
                 $add,
                 $delete,
                 $this->btnEdit
-            )
-        );
+            ]
+        ];
       
         return $menu;
     }
@@ -1404,7 +1481,10 @@ class GridButtonsFlatComponent extends Component {
         }               
         $menu = [
             'xtype' => 'buttongroup',
-            'title' => $t, 
+            'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false,
             'items' => [
                 $this->btnPdf,
                 $this->btnCSV,
@@ -1423,7 +1503,10 @@ class GridButtonsFlatComponent extends Component {
         } 
 		$menu = [
 			'xtype' => 'buttongroup',
-			'title' => $t, 
+			'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false, 
 			'items' => [
 			   $this->btnPassword,
 			   $this->btnRadius,
@@ -1612,7 +1695,13 @@ class GridButtonsFlatComponent extends Component {
     
  
       	$menu = [];  
-      	$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+      	$menu = [
+      	    'xtype' => 'buttongroup',
+      	    'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false, 
+      	    'items' => [
                 $this->btnReloadTimer,
                 $this->btnAdd,
                 $this->btnDelete,
@@ -1634,7 +1723,10 @@ class GridButtonsFlatComponent extends Component {
    
         $menu = [
             'xtype' => 'buttongroup',
-            'title' => $t, 
+            'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false, 
             'items' => [
                 $this->btnMap,
                 $this->btnBan
@@ -1646,7 +1738,13 @@ class GridButtonsFlatComponent extends Component {
      private function _fetchBasicMeshNodes(){
      
        	$menu        = [];
-		$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+		$menu = [
+		    'xtype' => 'buttongroup',
+		    'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false,  
+		    'items' => [
 				$this->btnReloadTimer,
 				$this->btnAdd,
 				$this->btnDelete,
@@ -1661,7 +1759,13 @@ class GridButtonsFlatComponent extends Component {
     private function _fetchNodeDetails(){
        
 		$menu = [];
-		$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+		$menu = [
+		    'xtype' => 'buttongroup',
+		    'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false, 
+		    'items' => [
 				$this->btnReload,
 				$this->btnMap,
 				$this->btnExecute,
@@ -1685,14 +1789,19 @@ class GridButtonsFlatComponent extends Component {
     }
     
     private function _fetchUnknown(){
-        $menu = [
-                ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+        $menu = [          
+            'xtype' => 'buttongroup',
+            'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false,  
+            'items' => [
                    $this->btnReloadTimer,
                    $this->btnAddMesh,
                    $this->btnAddAp,
                    $this->btnDelete, 
                    $this->btnRedirect
-            ]]
+            ]
         ];
         return $menu;
     }
@@ -1710,7 +1819,13 @@ class GridButtonsFlatComponent extends Component {
     
   	private function _fetchBasicApProfiles(){
     
-        $menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+        $menu = [
+            'xtype' => 'buttongroup',
+            'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false, 
+            'items' => [
                 $this->btnReloadTimer,
                 $this->btnAdd,
                 $this->btnDelete,
@@ -1723,7 +1838,10 @@ class GridButtonsFlatComponent extends Component {
      private function _fetchExtrasApProfiles(){    
         $menu = [
             'xtype' => 'buttongroup',
-            'title' => null, 
+            'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false, 
             'items' => [
                 $this->btnBan
             ]
@@ -1733,7 +1851,13 @@ class GridButtonsFlatComponent extends Component {
     
     private function _fetchAps(){
         
-		$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+		$menu = [
+		    'xtype' => 'buttongroup',
+		    'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false,   
+		    'items' => [
 				$this->btnReloadTimer,
 				$this->btnAdd,
 				$this->btnDelete,
@@ -1753,6 +1877,7 @@ class GridButtonsFlatComponent extends Component {
                         ]
                     ]
                 ],
+                [ 'xtype' => 'tbseparator'],
 				$this->btnView,
 				$this->btnExecute,
 				$this->btnConfigCall,
@@ -1764,7 +1889,13 @@ class GridButtonsFlatComponent extends Component {
     
     private function _apStates(){
         
-		$menu = ['xtype' => 'buttongroup','title' => $this->t, 'items' => [
+		$menu = [
+		    'xtype' => 'buttongroup',
+		    'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false,  
+		    'items' => [
                 $this->btnActive,
 				$this->btnSuspend,
 				$this->btnInactive
@@ -1789,6 +1920,37 @@ class GridButtonsFlatComponent extends Component {
         $menu = [
             'xtype' => 'buttongroup',
             'title' => null, 
+            'width' => 110,
+            'items' => [
+                 [
+                    'xtype'     => 'button',
+                    'glyph'     => Configure::read('icnUpload'),
+                    'scale'     => $this->scale,
+                    'itemId'    => 'upload',
+                    'tooltip'   => __('Upload CSV list'),
+                    'ui'        => 'default'
+                ],
+                [
+                    'xtype'     => 'button',     
+                    'glyph'     => Configure::read('icnCsv'), 
+                    'scale'     => $this->scale, 
+                    'itemId'    => 'csv',      
+                    'tooltip'   => __('Download CSV list'),
+                    'ui'        => $this->btnUiCSV
+                ]                  
+            ]
+        ];       
+        return $menu;    
+    }
+    
+    private function _fetchCsvUpDownPlain(){
+    
+        $menu = [
+            'xtype' => 'buttongroup',
+            'title' => null,
+            'border' => false,
+            'bodyBorder' => false,
+            'frame' => false,  
             'width' => 110,
             'items' => [
                  [
