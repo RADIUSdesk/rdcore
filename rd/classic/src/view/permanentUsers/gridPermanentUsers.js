@@ -2,13 +2,13 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
     extend:'Ext.grid.Panel',
     alias : 'widget.gridPermanentUsers',
     multiSelect: true,
-//    store : 'sPermanentUsers',
     stateful: true,
     stateId: 'StateGridPermanentUsers',
     stateEvents :['groupclick','columnhide'],
     border      : false,
     padding     : 0,
-    ui          : 'light',
+    //ui          : 'light',
+    //cls         : 'radacct-grid',
     columnLines : false,
     rowLines    : false,
     stripeRows  : true,
@@ -133,7 +133,18 @@ Ext.define('Rd.view.permanentUsers.gridPermanentUsers' ,{
         
             { text: 'Id',                  dataIndex: 'id',         width : 100,    filter: {type: 'number'},   stateId: 'sgpu-1', hidden: true },
             
-            { text: i18n('sUsername'),     dataIndex: 'username',   tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridPermanentUsers3'},
+            { 
+                text        : i18n('sUsername'),
+                dataIndex   : 'username',
+                tdCls       : 'gridMain', 
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridPermanentUsers3',
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    '<div style="text-align:left;"><a href="javascript:void(0)" class="grid-link">{username}</a></div>',
+                )
+            },
             { text: i18n('sAuth_type'),    dataIndex: 'auth_type',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridPermanentUsers4', hidden      : true},
             { text: i18n('sRealm'),        dataIndex: 'realm',      tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridPermanentUsers5'},
             { text: i18n('sProfile'),      dataIndex: 'profile',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'StateGridPermanentUsers6'},

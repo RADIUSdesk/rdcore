@@ -155,6 +155,14 @@ Ext.define('Rd.controller.cPermanentUsers', {
             'gridPermanentUsers actioncolumn': {
                  itemClick  : me.onActionColumnItemClick
             },
+            'gridPermanentUsers' : {
+                cellclick: function (grid, td, cellIndex, record, tr, rowIndex, e) {
+                    if (e.getTarget('.grid-link')) {
+                        e.stopEvent();
+                        me.viewLink(record.get('id'));
+                    }
+                }
+            },
             'winUserEmailDetail #send'   : {
                 click:      me.emailSend
             },
@@ -1326,7 +1334,13 @@ Ext.define('Rd.controller.cPermanentUsers', {
             cmb.getStore().loadData([rec],false);
         }
     },
-    graph: function(button){
+    
+    viewLink: function(id) {
+        const me    = this;
+        me.graph();
+    }, 
+    
+    graph: function(){
         var me = this;  
         //Find out if there was something selected
         if(me.getGrid().getSelectionModel().getCount() == 0){

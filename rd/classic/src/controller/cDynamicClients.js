@@ -145,6 +145,14 @@ Ext.define('Rd.controller.cDynamicClients', {
             'gridDynamicClients actioncolumn': { 
                  itemClick  : me.onActionColumnItemClick
             },
+            'gridDynamicClients' : {
+                cellclick: function (grid, td, cellIndex, record, tr, rowIndex, e) {
+                    if (e.getTarget('.grid-link')) {
+                        e.stopEvent();
+                        me.viewLink(record.get('id'));
+                    }
+                }
+            },
             'winDynamicClientAdd #btnDataNext' : {
                 click:  me.btnDataNext
             },
@@ -718,7 +726,10 @@ Ext.define('Rd.controller.cDynamicClients', {
             });
         }
     },
-      
+    viewLink: function(id) {
+        const me    = this;
+        me.graph();
+    },    
     graph: function(button){
         var me = this;  
         //Find out if there was something selected

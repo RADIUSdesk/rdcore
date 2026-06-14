@@ -665,14 +665,8 @@ Ext.define('Rd.controller.cActivityMonitor', {
     
     viewUserLink: function(id) {
         const me    = this;
-        console.log("View Graphs for ");
         me.usageGraph();
-        //var sr      = me.getGrid().getSelectionModel().getLastSelected();
-        //var id      = sr.getId();
-        //var name    = sr.get('name');  
-	    //Ext.getApplication().runAction('cMeshViews','Index',id,name); 
-    },  
-    
+    },      
     usageGraph : function(){
 
         var me      = this;

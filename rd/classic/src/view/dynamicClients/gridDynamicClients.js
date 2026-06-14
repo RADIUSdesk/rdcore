@@ -30,7 +30,18 @@ Ext.define('Rd.view.dynamicClients.gridDynamicClients' ,{
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 
         me.columns  = [       
-            { text: i18n('sName'),         dataIndex: 'name',  tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridDc3'},
+            { 
+                text        : i18n('sName'),
+                dataIndex   : 'name', 
+                tdCls       : 'gridMain',
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridDc3',
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    '<div style="text-align:left;"><a href="javascript:void(0)" class="grid-link">{name}</a></div>',
+                )
+            },
             { text: i18n('sNAS-Identifier'),dataIndex: 'nasidentifier',tdCls: 'gridMain', flex: 1, filter: {type: 'string'},stateId: 'StateGridDc4'},
             { text: i18n('sCalled-Station-Id'),dataIndex: 'calledstationid',tdCls: 'gridTree', flex: 1, filter: {type: 'string'},stateId: 'StateGridDc5',
                 hidden: true

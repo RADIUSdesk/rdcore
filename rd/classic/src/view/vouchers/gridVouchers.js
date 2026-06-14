@@ -61,7 +61,18 @@ Ext.define('Rd.view.vouchers.gridVouchers' ,{
         });
 
         me.columns  = [
-            { text: i18n('sName'),         dataIndex: 'name',       tdCls: 'gridMain', flex: 1,filter: {type: 'string'},stateId: 'StateGridVouchers3'},
+            { 
+                text        : i18n('sName'),
+                dataIndex   : 'name',
+                tdCls       : 'gridMain',
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridVouchers3',
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    '<div style="text-align:left;"><a href="javascript:void(0)" class="grid-link">{name}</a></div>',
+                )
+            },
             { text: i18n('sPassword'),     dataIndex: 'password',   tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, sortable: false,stateId: 'StateGridVouchers4', hidden: true},
             { 
                 text        : i18n('sBatch'),

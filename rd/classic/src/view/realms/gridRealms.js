@@ -50,7 +50,18 @@ Ext.define('Rd.view.realms.gridRealms' ,{
 
         me.columns  = [
         	{ text: 'ID',              dataIndex: 'id',        flex: 1, stateId: 'StateGridRealms0', hidden : true},      
-            { text: i18n('sName'),     dataIndex: 'name',      tdCls: 'gridMain', flex: 1, filter: {type: 'string'},stateId: 'StateGridRealms3'},
+            { 
+                text        : i18n('sName'),
+                dataIndex   : 'name',
+                tdCls       : 'gridMain',
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridRealms3',
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    '<div style="text-align:left;"><a href="javascript:void(0)" class="grid-link">{name}</a></div>',
+                )
+            },
             { text: i18n('sPhone'),    dataIndex: 'phone',     tdCls: 'gridTree', flex: 1, filter: {type: 'string'},   hidden: true,stateId: 'StateGridRealms4'},
             { text: i18n('sFax'),      dataIndex: 'fax',       tdCls: 'gridTree', flex: 1, filter: {type: 'string'},   hidden: true,stateId: 'StateGridRealms5'},
             { text: i18n('sCell'),     dataIndex: 'cell',      tdCls: 'gridTree', flex: 1, filter: {type: 'string'},   hidden: true,stateId: 'StateGridRealms6'},

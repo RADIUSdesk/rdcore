@@ -132,6 +132,14 @@ Ext.define('Rd.controller.cVouchers', {
                 select          :  me.select,
                 menuItemClick   : me.onActionColumnMenuItemClick 
             },
+            'gridVouchers' : {
+                cellclick: function (grid, td, cellIndex, record, tr, rowIndex, e) {
+                    if (e.getTarget('.grid-link')) {
+                        e.stopEvent();
+                        me.viewLink(record.get('id'));
+                    }
+                }
+            },
             'winVoucherEmailDetail #send'   : {
                 click:      me.emailSend
             },
@@ -1196,7 +1204,11 @@ Ext.define('Rd.controller.cVouchers', {
             cmb.getStore().loadData([rec],false);
         }
     },
-    graph: function(button){
+    viewLink: function(id) {
+        const me    = this;
+        me.graph();
+    },   
+    graph: function(){
         var me = this;  
         //Find out if there was something selected
         if(me.getGrid().getSelectionModel().getCount() == 0){

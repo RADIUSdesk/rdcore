@@ -95,6 +95,14 @@ Ext.define('Rd.controller.cNas', {
             'gridNas actioncolumn': { 
                  itemClick  : me.onActionColumnItemClick
             },
+            'gridNas' : {
+                cellclick: function (grid, td, cellIndex, record, tr, rowIndex, e) {
+                    if (e.getTarget('.grid-link')) {
+                        e.stopEvent();
+                        me.viewLink(record.get('id'));
+                    }
+                }
+            },
 
             'pnlNas #tabNasNas' : {
                 activate: me.onTabNasActive
@@ -586,7 +594,11 @@ Ext.define('Rd.controller.cNas', {
             });
         }
     },
-    graph: function(button){
+    viewLink: function(id) {
+        const me    = this;
+        me.graph();
+    },  
+    graph: function(){
         var me = this;  
         //Find out if there was something selected
         if(me.getGrid().getSelectionModel().getCount() == 0){

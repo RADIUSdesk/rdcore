@@ -38,7 +38,18 @@ Ext.define('Rd.view.nas.gridNas' ,{
         me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});     
         me.columns  = [
             { text: i18n('sIP_Address'),    dataIndex: 'nasname',      tdCls: 'gridMain', flex: 1, filter: {type: 'string'},stateId: 'StateGridNas1'},
-            { text: i18n('sName'),          dataIndex: 'shortname',    tdCls: 'gridMain', flex: 1, filter: {type: 'string'},stateId: 'StateGridNas2'},
+            { 
+                text        : i18n('sName'),
+                dataIndex   : 'shortname',
+                tdCls       : 'gridMain',
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridNas2',
+                xtype       : 'templatecolumn', 
+                tpl         : new Ext.XTemplate(
+                    '<div style="text-align:left;"><a href="javascript:void(0)" class="grid-link">{shortname}</a></div>',
+                )
+            },
             { text: 'Secret',               dataIndex: 'secret',       tdCls: 'gridTree', flex: 1, filter: {type: 'string'}, hidden: true,stateId: 'StateGridNas2a'},
             { text: i18n('sNAS-Identifier'),dataIndex: 'nasidentifier',tdCls: 'gridMain', flex: 1, filter: {type: 'string'}, hidden: false,stateId: 'StateGridNas3'},
             { text: 'Auth Port'            ,dataIndex: 'auth_port',    tdCls: 'gridTree', flex: 1, filter: {type: 'string'}, hidden: true,stateId: 'StateGridNas3a'},
