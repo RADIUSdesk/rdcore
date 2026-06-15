@@ -9,12 +9,14 @@ use Cake\I18n\FrozenTime;
 
 use Cake\Utility\Inflector;
 use App\Service\TopUpService;
+use App\Service\AuditLogService;
 
 class TopUpsController extends AppController{
   
     public $base            = "Access Providers/Controllers/TopUps/";   
     protected $main_model   = 'TopUps';
     protected TopUpService $TopUpService;
+    protected AuditLogService $AuditLogService;
   
     public function initialize():void{  
         parent::initialize();
@@ -36,7 +38,9 @@ class TopUpsController extends AppController{
         $this->loadComponent('Formatter');
         
         //--FEB 2026--
-        $this->TopUpService = new TopUpService();         
+        $this->TopUpService = new TopUpService();
+        //--MAY 2026--
+        $this->AuditLogService = new AuditLogService();         
     }
     
     public function dataStats(){
@@ -275,6 +279,10 @@ class TopUpsController extends AppController{
         } 
         
         //====END Check what type it is====
+        
+        //--May 2026 Add an audit log --
+        $changes = [];
+        $audit_action = 'top_ups.edit';
        
         if($type == 'add'){ 
             //Unset the ID in the request data (if the call has it though it should not include an ID) 02-Jun-2022
@@ -286,9 +294,42 @@ class TopUpsController extends AppController{
         if($type == 'edit'){
             $entity = $this->{$this->main_model}->get($req_d['id']);
             $this->{$this->main_model}->patchEntity($entity, $req_d);
+            
+            foreach ($entity->getDirty() as $field) {
+                $changes[$field] = [
+                    'old' => $entity->getOriginal($field),
+                    'new' => $entity->get($field),
+                ];
+            }
+                
         }
               
-        if ($this->TopUps->save($entity)) { 
+        if ($this->TopUps->save($entity)) {
+         
+            //-- ADD --
+            if($type == 'add'){
+                $audit_action = 'top_ups.add';             
+                foreach ($entity->toArray() as $field => $value) {
+                    if($field !== 'token'){
+                        $changes[$field] = [
+                            'new' => $value
+                        ];
+                    } 
+                }           
+            }
+            
+            if($changes){
+                $this->AuditLogService->log(
+                    $audit_action,
+                    $this->request,
+                    [
+                        'entity'    => 'TopUps',
+                        'entity_id' => $entity->id,
+                        'changes'   => $changes
+                    ]
+                );
+            }
+        
             $retVal = [];    
             try {
                 $retVal = $this->TopUpService->apply($entity->id);
@@ -358,12 +399,50 @@ class TopUpsController extends AppController{
         $fail_flag = false;
 
 	    if(isset($req_d['id'])){   //Single item delete     
-            $entity     = $this->{$this->main_model}->get($req_d['id']);              
-           	$this->{$this->main_model}->delete($entity);
+            $entity     = $this->{$this->main_model}->get($req_d['id']);
+            
+            //--May 2026 Add an audit log --
+            foreach ($entity->toArray() as $field => $value) {
+                if(($field !== 'password')&&($field !== 'token')&&($field !== 'cleartext_password')){
+                    $changes[$field] = [
+                        'old' => $value
+                    ];
+                }
+            }
+                     
+            if($this->{$this->main_model}->delete($entity)){           
+                $this->AuditLogService->log(
+                    'top_ups.delete',
+                    $this->request,
+                    [
+                        'entity'    => 'TopUps',
+                        'entity_id' => $entity->id,
+                        'changes'   => $changes
+                    ]
+                );           
+            }      
+
         }else{                          //Assume multiple item delete
             foreach($req_d as $d){
-                $entity     = $this->{$this->main_model}->get($d['id']);                
-              	$this->{$this->main_model}->delete($entity);
+                $entity     = $this->{$this->main_model}->get($d['id']);              
+                foreach ($entity->toArray() as $field => $value) {
+                    if(($field !== 'password')&&($field !== 'token')&&($field !== 'cleartext_password')){
+                        $changes[$field] = [
+                            'old' => $value
+                        ];
+                    }
+                }                              
+              	if($this->{$this->main_model}->delete($entity)){
+              	    $this->AuditLogService->log(
+                        'top_ups.delete',
+                        $this->request,
+                        [
+                            'entity'    => 'TopUps',
+                            'entity_id' => $entity->id,
+                            'changes'   => $changes
+                        ]
+                    );              	
+              	}
             }
         }
 

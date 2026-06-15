@@ -879,16 +879,39 @@ class PermanentUsersController extends AppController{
 
         $entity = $this->{$this->main_model}->get($req_d['id']);
         $this->{$this->main_model}->patchEntity($entity, $req_d);
+        
+        //--May 2026 Add an audit log --
+        $changes = [];
+        foreach ($entity->getDirty() as $field) {
+            $changes[$field] = [
+                'old' => $entity->getOriginal($field),
+                'new' => $entity->get($field),
+            ];
+        }          
      
         if ($this->{$this->main_model}->save($entity)) {
-            $this->set(array(
+                    
+            if($changes){
+                $this->AuditLogService->log(
+                    'permanent_users.edit-personal-info',
+                    $this->request,
+                    [
+                        'entity'    => 'PermanentUsers',
+                        'entity_id' => $entity->id,
+                        'changes'   => $changes
+                    ]
+                );
+            }
+                            	
+            $this->set([
                 'success' => true
-            ));
+            ]);
             $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');
             $this->JsonErrors->entityErros($entity,$message);
         }
+
     }
 
     public function privateAttrIndex(){
@@ -1090,7 +1113,31 @@ class PermanentUsersController extends AppController{
         if(isset($req_d['id'])){
         	$entity = $this->{$this->main_model}->get($req_d['id']);
            	$this->{$this->main_model}->patchEntity($entity, $d);
-            $this->{$this->main_model}->save($entity);
+           	
+           	//--May 2026 Add an audit log --
+            $changes = [];
+            foreach ($entity->getDirty() as $field) {
+                if($entity->getOriginal($field) !== $entity->get($field)){
+                    $changes[$field] = [
+                        'old' => $entity->getOriginal($field),
+                        'new' => $entity->get($field),
+                    ];
+                }        
+            } 
+           	
+           	if ($this->{$this->main_model}->save($entity)) {               
+                if($changes){
+                    $this->AuditLogService->log(
+                        'permanent_users.change-admin-state',
+                        $this->request,
+                        [
+                            'entity'    => 'PermanentUsers',
+                            'entity_id' => $entity->id,
+                            'changes'   => $changes
+                        ]
+                    );
+                }
+            }    
             $this->IspPlumbing->disconnectIfActive($entity);        
         }
 
@@ -1098,7 +1145,28 @@ class PermanentUsersController extends AppController{
             if(preg_match('/^\d+/',$key)){
                 $entity = $this->{$this->main_model}->get($key);
                 $this->{$this->main_model}->patchEntity($entity, $d);
-                $this->{$this->main_model}->save($entity);             
+                $changes = [];
+                foreach ($entity->getDirty() as $field) {
+                    if($entity->getOriginal($field) !== $entity->get($field)){
+                        $changes[$field] = [
+                            'old' => $entity->getOriginal($field),
+                            'new' => $entity->get($field),
+                        ];
+                    }        
+                }             
+                if ($this->{$this->main_model}->save($entity)) {               
+                    if($changes){
+                        $this->AuditLogService->log(
+                            'permanent_users.change-admin-state',
+                            $this->request,
+                            [
+                                'entity'    => 'PermanentUsers',
+                                'entity_id' => $entity->id,
+                                'changes'   => $changes
+                            ]
+                        );
+                    }
+                }                
                 $this->IspPlumbing->disconnectIfActive($entity);             
             }
         }
@@ -1187,18 +1255,54 @@ class PermanentUsersController extends AppController{
         
         $entity = $this->{$this->main_model}->get($req_d['user_id']);
         unset($req_d['user_id']);
+        
+        $old_cleartext = $this->{$this->main_model}->getCleartextPassword($entity->username);
 
         $this->{$this->main_model}->patchEntity($entity, $req_d);
-
-        if ($this->{$this->main_model}->save($entity)) {
-            $this->set(array(
+        
+        //--May 2026 Add an audit log --
+        $changes = [];
+        foreach ($entity->getDirty() as $field) {
+            if(($field !== 'password')&&($field !== 'token')){
+                if($entity->getOriginal($field) !== $entity->get($field)){
+                    $changes[$field] = [
+                        'old' => $entity->getOriginal($field),
+                        'new' => $entity->get($field),
+                    ];
+                }
+            }
+            if($field == 'password'){
+                if($old_cleartext !== $req_d['password']){
+                    $changes['cleartext_password'] = [
+                        'old' => $old_cleartext,
+                        'new' => $req_d['password'],
+                    ];
+                }
+            }          
+        } 
+        
+         if ($this->{$this->main_model}->save($entity)) {
+                    
+            if($changes){
+                $this->AuditLogService->log(
+                    'permanent_users.change-password',
+                    $this->request,
+                    [
+                        'entity'    => 'PermanentUsers',
+                        'entity_id' => $entity->id,
+                        'changes'   => $changes
+                    ]
+                );
+            }
+                            	
+            $this->set([
                 'success' => true
-            ));
+            ]);
             $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not change password');
             $this->JsonErrors->entityErros($entity,$message);
-        }           
+        }         
     }
     
      public function emailUserDetails(){
