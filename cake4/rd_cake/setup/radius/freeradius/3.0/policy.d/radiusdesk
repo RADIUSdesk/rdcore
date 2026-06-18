@@ -1,10 +1,14 @@
 RADIUSdesk.authorize {
 
+    #JAN 2026  
+    RADIUSdesk_pu_username_for_mac
+
 	#hostapd Private PSK
 	RADIUSdesk_rewrite_mac_username
 	if((&request:WLAN-AKM-Suite)&&(&request:WLAN-AKM-Suite==1027074)){
         pl_ppsk          
     }
+    
 
     #We created a less strict "filter_username" since the default one from FreeRADIUS are very strict in terms of the Realm
     #Which it assumes is part of the username
@@ -62,6 +66,11 @@ RADIUSdesk.preacct {
             RADIUSdesk_preacct
         }        
     }
+
+    if((&control:RADIUSdesk-Virtual-Server)&&(&control:RADIUSdesk-Virtual-Server == 'default')){
+        RADIUSdesk_preacct
+    }	
+
     update request {
         Event-Timestamp := "%l"
     }
@@ -80,6 +89,89 @@ RADIUSdesk.post-auth {
 }
 
 #____ RADIUSdesk policies __________
+
+#Jan 2026
+RADIUSdesk_pu_username_for_mac {
+
+    #
+    # Only proceed if User-Name looks like a MAC (any common format) catched MAC with : or - seperators
+    #
+    if ((&User-Name) && (&User-Name =~ /^([0-9a-f]{2})[-:]([0-9a-f]{2})[-:]([0-9a-f]{2})[-:]([0-9a-f]{2})[-:]([0-9a-f]{2})[-:]([0-9a-f]{2})$/i)) {
+        #
+        # Normalize MAC to uppercase with hyphens
+        # Build the normalized MAC from capture groups
+        #
+        update control {
+            Tmp-String-0 := "%{toupper:%{1}-%{2}-%{3}-%{4}-%{5}-%{6}}"
+        }
+
+	#17March Mikrotik is acting inconsistent with the Calling-Station-Id so we will replace it with the User-Name (Tmp-String-0) if we detected the username is a mac address
+	update request {
+		Calling-Station-Id := "%{control:Tmp-String-0}"
+	}
+        
+        #
+        # Look up permanent user by MAC
+        #
+        update control {
+            Rd-Device-Owner := "%{sql:SELECT username \
+                FROM permanent_users \
+                WHERE mac_address = '%{control:Tmp-String-0}' \
+                LIMIT 1}"
+        }
+
+        #
+        # If a match was found, swap User-Name
+        #
+        
+        if (&control:Rd-Device-Owner != "") {
+        
+            #
+            # Always rewrite User-Name
+            #
+            update request {
+                User-Name := "%{control:Rd-Device-Owner}"
+            }
+                    
+            #
+            # AUTHENTICATION requests only
+            #
+            if (&Packet-Type == Access-Request) {
+
+                #
+                # Fetch Cleartext-Password
+                #
+                update control {
+                    Tmp-String-1 := "%{sql:SELECT value \
+                        FROM radcheck \
+                        WHERE username = '%{control:Rd-Device-Owner}' \
+                          AND attribute = 'Cleartext-Password' \
+                        LIMIT 1}"
+                }
+
+                if (&control:Tmp-String-1 != "") {
+
+                    update request {
+                        User-Password := "%{control:Tmp-String-1}"
+                    }
+
+                    update reply {
+                        Class := "%{control:Rd-Device-Owner}"
+                    }
+                }
+            }
+            
+        }else{
+	    # AUTHENCTICATION requests only
+            if (&Packet-Type == Access-Request) {
+                #Optionally add it if missing
+		# 24 March - Disable for now - Dirk
+                ##pl_add_if_missing
+            }
+        }
+    }
+}
+
 
 RADIUSdesk_filter_username {
 	if (&User-Name) {	
@@ -825,7 +917,7 @@ if (&control:Rd-Admin-State) {
             update reply {
                 Reply-Message := "User %{request:User-Name} invalid admin state: %{control:Rd-Admin-State}"
             }
-            reject
+            #reject
         }
     }
 } else {
@@ -1210,6 +1302,11 @@ RADIUSdesk_preacct {
 
     #RADIUSdesk -> Used to normalise the callingstation id to format aa-bb-cc-dd-ee.. (lowercase with dash)
     RADIUSdesk_rewrite_calling_station_id
+    
+    #--15Mar 2026 - Add check for User-Name Accountin-On and Accounting-Off does not have it
+    if(&request:User-Name){
+        RADIUSdesk_pu_username_for_mac
+    }
 
     #See if we it is perhaps a device and if we then need to change to the username
     if(&request:User-Name =~ /^([0-9a-f]{2})[-:]+([0-9a-f]{2})[-:]+([0-9a-f]{2})[-:]+([0-9a-f]{2})[-:]+([0-9a-f]{2})[-:]+([0-9a-f]{2})$/i){
@@ -1236,12 +1333,29 @@ RADIUSdesk_preacct {
         }
     }
 
-    RADIUSdesk_set_acct_realm
+    #--15Mar 2026 --Only if there is a User-Name
+    if(&request:User-Name){
+        RADIUSdesk_set_acct_realm
+    }
+ 
+    #--15Mar 2026 -- Silently ignore unknown realms (we dont need to log them in SQL)
+    if ((&control:Rd-Realm)&&(&control:Rd-Realm == "rd_not_found")) {
+        update control {
+            Tmp-String-2 := 1
+        }
+        return
+    }
+    #--END 15Mar 2026
+    
     RADIUSdesk_async_acct
 }
 
 RADIUSdesk_acct {
-	sql
+    if (control:Tmp-String-2) {
+        ok
+        return
+    }
+    sql
 }
 
 #____ END RADIUSdesk policies __________

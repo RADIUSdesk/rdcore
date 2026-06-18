@@ -473,7 +473,8 @@ authorize {
 #	daily
 
 	#
-	expiration
+        #expiration 
+
 	#logintime
 
 	#
