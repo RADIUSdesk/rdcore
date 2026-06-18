@@ -88,14 +88,12 @@ Ext.define('Rd.controller.cNas', {
             'gridNas #graph'   : {
                 click:      me.graph
             },
-            'gridNas'       : {
-                select      : me.select,
-                activate    : me.gridActivate
-            },
             'gridNas actioncolumn': { 
                  itemClick  : me.onActionColumnItemClick
             },
             'gridNas' : {
+                select      : me.select,
+                activate    : me.gridActivate,
                 cellclick: function (grid, td, cellIndex, record, tr, rowIndex, e) {
                     if (e.getTarget('.grid-link')) {
                         e.stopEvent();

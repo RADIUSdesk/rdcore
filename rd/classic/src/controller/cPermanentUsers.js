@@ -148,15 +148,13 @@ Ext.define('Rd.controller.cPermanentUsers', {
             'gridPermanentUsers #topup'   : {
                 click:      me.topup
             },
-            'gridPermanentUsers'   : {
-                select          : me.select,
-                menuItemClick   : me.onActionColumnMenuItemClick
-            },
             'gridPermanentUsers actioncolumn': {
                  itemClick  : me.onActionColumnItemClick
             },
             'gridPermanentUsers' : {
-                cellclick: function (grid, td, cellIndex, record, tr, rowIndex, e) {
+                select          : me.select,
+                menuItemClick   : me.onActionColumnMenuItemClick,
+                cellclick       : function (grid, td, cellIndex, record, tr, rowIndex, e) {
                     if (e.getTarget('.grid-link')) {
                         e.stopEvent();
                         me.viewLink(record.get('id'));

@@ -86,14 +86,9 @@ Ext.define('Rd.controller.cActivityMonitor', {
             'gridRadaccts #close'  : {
                 click:      me.closeOpen
             },
-            'gridRadaccts'   : {
-              //  select:      me.select
-            },
-            'gridRadaccts'   : {
-              //  activate:      me.reload
-            },
             'gridRadaccts' : {
-                cellclick: function (grid, td, cellIndex, record, tr, rowIndex, e) {
+                activate    : me.reload,
+                cellclick   : function (grid, td, cellIndex, record, tr, rowIndex, e) {
                     if (e.getTarget('.grid-link')) {
                         e.stopEvent();
                         me.viewUserLink(record.get('id'));

@@ -128,12 +128,9 @@ Ext.define('Rd.controller.cVouchers', {
             'gridVouchers #graph'   : {
                 click:      me.graph
             },
-            'gridVouchers'   : {
-                select          :  me.select,
-                menuItemClick   : me.onActionColumnMenuItemClick 
-            },
             'gridVouchers' : {
-                cellclick: function (grid, td, cellIndex, record, tr, rowIndex, e) {
+                menuItemClick   : me.onActionColumnMenuItemClick,
+                cellclick       : function (grid, td, cellIndex, record, tr, rowIndex, e) {
                     if (e.getTarget('.grid-link')) {
                         e.stopEvent();
                         me.viewLink(record.get('id'));
