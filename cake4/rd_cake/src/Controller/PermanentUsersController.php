@@ -588,7 +588,8 @@ class PermanentUsersController extends AppController{
                         'entity_id' => $entity->id,
                         'changes'   => $changes
                     ]
-                );           
+                );
+                $this->IspPlumbing->disconnectIfActive($entity);           
             }      
         }else{                          //Assume multiple item delete
             foreach($req_d as $d){
@@ -610,7 +611,8 @@ class PermanentUsersController extends AppController{
                             'entity_id' => $entity->id,
                             'changes'   => $changes
                         ]
-                    );              	
+                    );
+                    $this->IspPlumbing->disconnectIfActive($entity);              	
               	}
             }
         }
@@ -822,6 +824,7 @@ class PermanentUsersController extends AppController{
                         'changes'   => $changes
                     ]
                 );
+                $this->IspPlumbing->disconnectIfActive($entity);
             }
                             	
             $this->set([
@@ -1136,9 +1139,9 @@ class PermanentUsersController extends AppController{
                             'changes'   => $changes
                         ]
                     );
+                    $this->IspPlumbing->disconnectIfActive($entity); 
                 }
-            }    
-            $this->IspPlumbing->disconnectIfActive($entity);        
+            }                  
         }
 
         foreach(array_keys($req_d) as $key){
@@ -1165,9 +1168,9 @@ class PermanentUsersController extends AppController{
                                 'changes'   => $changes
                             ]
                         );
+                        $this->IspPlumbing->disconnectIfActive($entity); 
                     }
-                }                
-                $this->IspPlumbing->disconnectIfActive($entity);             
+                }                            
             }
         }
         
