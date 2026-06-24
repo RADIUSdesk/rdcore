@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 use Cake\ORM\Table;
+use Cake\Validation\Validator;
 
 class CloudsTable extends Table {
     public function initialize(array $config):void{
@@ -72,4 +73,17 @@ class CloudsTable extends Table {
         
         $this->hasMany('CloudAdmins'); //Not dependent!!!
     }
+    
+    public function validationDefault(Validator $validator):Validator{
+        $validator
+            ->notEmpty('name', 'A name is required')
+            ->add('name', [ 
+                'nameUnique' => [
+                    'message'   => 'The name you provided is already taken. Please provide another one.',
+                    'rule' => 'validateUnique',
+                    'provider'  => 'table'
+                ]
+            ]);
+        return $validator;
+    }   
 }

@@ -30,6 +30,43 @@ IF NOT EXISTS (
 END IF;
 
 IF NOT EXISTS (
+    SELECT *
+    FROM information_schema.tables
+    WHERE table_name = 'client_otps'
+      AND table_schema = DATABASE()
+) THEN
+
+    CREATE TABLE `client_otps` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `client_id` int(11) NOT NULL,
+      `status` enum('otp_awaiting','otp_confirmed') DEFAULT 'otp_awaiting',
+      `value` varchar(255) NOT NULL,
+      `created` datetime NOT NULL,
+      `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
+    
+END IF;
+
+
+
+if not exists (select * from information_schema.columns
+    where table_name = 'permanent_user_otps' and table_schema = DATABASE()) then
+	CREATE TABLE `permanent_user_otps` (
+      `id` int(11) NOT NULL AUTO_INCREMENT,
+      `permanent_user_id` int(11) NOT NULL,
+      `status` enum('otp_awaiting','otp_confirmed') DEFAULT 'otp_awaiting',
+      `value` varchar(255) NOT NULL,
+      `created` datetime NOT NULL,
+      `modified` datetime NOT NULL,
+      PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
+
+end if;
+
+
+
+IF NOT EXISTS (
     SELECT 1
     FROM information_schema.columns
     WHERE table_schema = DATABASE()

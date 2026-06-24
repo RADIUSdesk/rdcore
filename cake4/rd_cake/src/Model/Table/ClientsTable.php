@@ -37,6 +37,8 @@ class ClientsTable extends Table
         $this->hasMany('Nodes',[
             'dependent' => false
         ]);
+        
+        $this->hasOne('ClientOtps', ['dependent' => true]);
     }
 
     /**
@@ -50,7 +52,14 @@ class ClientsTable extends Table
         $validator
         //    ->username('email')
             ->requirePresence('username', 'create')
-            ->notEmptyString('username');
+            ->notEmptyString('username')
+            ->add('username', [ 
+                'nameUnique' => [
+                    'message' => 'The username you provided is already taken. Please provide another one.',
+                    'rule' => 'validateUnique', 
+                    'provider' => 'table'
+                ]
+            ]);
 
         $validator
             ->scalar('password')
