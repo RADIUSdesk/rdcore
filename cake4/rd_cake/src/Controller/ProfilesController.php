@@ -392,9 +392,10 @@ class ProfilesController extends AppController
             
             $this->_doRadius($e_pc->name);
                        
-            $this->set(array(
-                'success' => true
-            ));
+            $this->set([
+                'data'      => $entity,
+                'success'   => true
+            ]);
             $this->viewBuilder()->setOption('serialize', true);
         } else {
             $message = __('Could not update item');

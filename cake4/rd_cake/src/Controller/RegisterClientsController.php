@@ -16,7 +16,7 @@ use Cake\I18n\I18n;
 
 class RegisterClientsController extends AppController {
 
-	protected $valid_minutes = 2; //The time that an OTP will be valid (in minutes)
+	protected $valid_minutes = 10; //The time that an OTP will be valid (in minutes)
 
     public function initialize():void{
         parent::initialize();
@@ -46,7 +46,9 @@ class RegisterClientsController extends AppController {
             if(($client->client_otp)&&($client->client_otp->status == 'otp_awaiting')){
                 $formData['otp_show'] = true;
                 $formData['message']  = 'Supply OTP Please';
-                $formData['already_registered'] = true;           
+                $formData['already_registered'] = true;
+                $formData['client_id'] = $client->id;
+                         
                 $this->set([
                     'success'   => true,
                     'data'	    => $formData
@@ -64,12 +66,13 @@ class RegisterClientsController extends AppController {
             $username   = $entity->username;
             $otp        =  $this->ClientOtps->newEntity(['client_id' => $client_id,'value' => mt_rand(1111,9999)]);
             if($this->ClientOtps->save($otp)){
-                $this->emailOtp($username,$otp);
+                $this->emailOtp($username,$otp,);
             }
             //--- END OTP ---
                  
             $formData['otp_show'] = true;
-            $formData['message']  = 'Supply OTP Please';            
+            $formData['message']  = 'Supply OTP Please'; 
+            $formData['client_id'] =  $entity->id;          
             $this->set([
                 'success'   => true,
                 'data'	    => $formData
@@ -83,7 +86,7 @@ class RegisterClientsController extends AppController {
 	}
 	
 	private function emailOtp($username,$otp){	
-	    return true;
+	    $this->_email_otp($username,$otp);
 	}
 	
 	public function otpSubmit(){
@@ -92,32 +95,51 @@ class RegisterClientsController extends AppController {
 		$success 	= false;
 		$message	= "";
 				
-		if(isset($p_data['permanent_user_id'])){
+		if(isset($p_data['client_id'])){
 		
 			if(isset($p_data['i18n'])){
 				I18n::setLocale($p_data['i18n']);
 			}
 		
-			$user_id 	= $p_data['permanent_user_id'];
-			$otp		= $p_data['otp'];
-			$q_r 		= $this->{'PermanentUserOtps'}->find()->where(['PermanentUserOtps.permanent_user_id' => $user_id])->first(); //There is supposed to be only one
-			if($q_r){			
+			$client_id 	= $p_data['client_id'];
+			$form_otp   = $p_data['otp'];
+			$otp 		= $this->ClientOtps->find()->where(['ClientOtps.client_id' => $client_id])->first(); //There is supposed to be only one
+			if($otp){			
 				$time = FrozenTime::now();
-				if($time > $q_r->modified->addMinutes($this->valid_minutes)){ //We expire the OTP after two minutes
-					$message = __("OTP expired - Request new one please");
+				if($time > $otp->modified->addMinutes($this->valid_minutes)){ //We expire the OTP after x minutes
+					$message    = __("OTP expired - Request new one please");
+					$a          = [ 'otp' => $message ];
+					$data       = [
+		            	'errors'    => $a,
+                        'success'   => false,
+                        'message'   => $message
+                    ];                   
+                    $this->set($data);		    
+			        $this->viewBuilder()->setOption('serialize', true);
+			        return;
+                    
 				}else{			
-					if($otp == $q_r->value){
+					if($form_otp == $otp->value){
 						$success = true;
-						$this->{'PermanentUserOtps'}->patchEntity($q_r, ['status' => 'otp_confirmed']);
-						$this->{'PermanentUserOtps'}->save($q_r);
+						$this->ClientOtps->patchEntity($otp, ['status' => 'otp_confirmed']);
+						$this->ClientOtps->save($otp);
 						//Activate the permanent user account
-						$q_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' =>$user_id])->first();
-						if($q_pu){
-							$this->{'PermanentUsers'}->patchEntity($q_pu, ['active' => 1]);
-							$this->{'PermanentUsers'}->save($q_pu);
+						$client = $this->Clients->find()->where(['Clients.id' => $client_id])->first();
+						if($client){
+							$this->Clients->patchEntity($client, ['active' => 1]);
+							$this->Clients->save($client);
 						} 					
 					}else{
 						$message = __("OTP mismatch - Try again");
+						$a          = [ 'otp' => $message ];
+					    $data       = [
+		                	'errors'    => $a,
+                            'success'   => false,
+                            'message'   => $message
+                        ];                   
+                        $this->set($data);		    
+			            $this->viewBuilder()->setOption('serialize', true);
+			            return;
 					}					
 				}
 			}
@@ -134,43 +156,22 @@ class RegisterClientsController extends AppController {
 		$p_data 	= $this->request->getData();
 		$message 	= '';
 		 		
-		if(isset($p_data['permanent_user_id'])){
-		
-			if(isset($p_data['i18n'])){
-				I18n::setLocale($p_data['i18n']);
-			}
+		if(isset($p_data['client_id'])){
 			
-			$user_id = $p_data['permanent_user_id'];
-			$dd_id   = $p_data['login_page_id'];		 
-			$value   = mt_rand(1111,9999);
+			$client_id  = $p_data['client_id'];	 
+			$value      = mt_rand(1111,9999);
 			//-> 1.) Update the OTP value
-			$q_r 	 = $this->{'PermanentUserOtps'}->find()->where(['PermanentUserOtps.permanent_user_id' => $user_id])->first();
-			if($q_r){
-				$this->{'PermanentUserOtps'}->patchEntity($q_r, ['value' => $value]);
-				$this->{'PermanentUserOtps'}->save($q_r);
-			}
-			//-> 2.) Get the way to send the OTP
-			$q_dd 	= $this->{'DynamicDetails'}->find()->where(['DynamicDetails.id' => $dd_id])->first();
-			if($q_dd){
-					
-				//Get the Permanent User's Detail
-				$q_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' =>$user_id])->first();
-				if($q_pu){
-				
-					$email = $q_pu->email;
-					$phone = $q_pu->phone;					
-													
-					if($q_dd->reg_otp_sms){
-						$message = __("New OTP sent to").' '.$this->Formatter->hide_phone($phone)."<br>";
-						$this->_sms_otp($phone,$value,$q_dd->cloud_id,'user_registration_two');
-					}
-					
-					if($q_dd->reg_otp_email){
-						$message = $message.__("New OTP sent to").' '.$this->Formatter->hide_email($email);
-						$this->_email_otp($email,$value,$q_dd->cloud_id,$q_r->id);
-					}
-				}		
-			}			
+			$otp 	 = $this->{'ClientOtps'}->find()
+			    ->where(['ClientOtps.client_id' => $client_id])
+			    ->contain(['Clients'])
+			    ->first();
+			if($otp){
+				$this->{'ClientOtps'}->patchEntity($otp, ['value' => $value]);
+				if($this->{'ClientOtps'}->save($otp)){
+				    $email = $otp->client->username;
+				    $this->emailOtp($email,$otp);
+				}
+			}				
 		}
 			
 		$this->set([
@@ -189,40 +190,43 @@ class RegisterClientsController extends AppController {
 		if(isset($req_q['data_id'])){
 
 			$data_id 	= $req_q['data_id'];
-			$otp		= $req_q['otp'];
-			$q_r 		= $this->{'PermanentUserOtps'}->find()->where(['PermanentUserOtps.id' => $data_id])->first(); //There is supposed to be only one
-			if($q_r){		
-				$time = FrozenTime::now();
-				if($time > $q_r->modified->addMinutes($this->valid_minutes)->addMinutes($this->valid_minutes)){ //We expire the OTP after two minutes x2 for email
-					$message = __("OTP expired - Request new one please");
-				}else{			
-					if($otp == $q_r->value){
+			$otp_q   	= $req_q['otp'];
+			$otp 		= $this->ClientOtps->find()->where(['ClientOtps.id' => $data_id])->contain(['Clients'])->first(); //There is supposed to be only one
+			if($otp){		
+				////$time = FrozenTime::now();
+				////if($time > $otp->modified->addMinutes($this->valid_minutes)->addMinutes($this->valid_minutes)){ //We expire the OTP after two minutes x2 for email
+				////	$message = __("OTP expired - Request new one please");
+				////}else{			
+					if($otp_q == $otp->value){
 						$success = true;
-						$this->{'PermanentUserOtps'}->patchEntity($q_r, ['status' => 'otp_confirmed']);
-						$this->{'PermanentUserOtps'}->save($q_r);
-						$user_id = $q_r->permanent_user_id;
-						$q_pu = $this->{'PermanentUsers'}->find()->where(['PermanentUsers.id' =>$user_id])->first();
-						if($q_pu){
-							$this->{'PermanentUsers'}->patchEntity($q_pu, ['active' => 1]);
-							$this->{'PermanentUsers'}->save($q_pu);
+						$this->{'ClientOtps'}->patchEntity($otp, ['status' => 'otp_confirmed']);
+						$this->{'ClientOtps'}->save($otp);
+						$client_id = $otp->client_id;
+						$client = $this->Clients->find()->where(['Clients.id' => $client_id])->first();
+						if($client){
+							$this->Clients->patchEntity($client, ['active' => 1]);
+							$this->Clients->save($client);
 						} 								
-						$this->response = $this->response->withHeader('Location', "http://1.0.0.0"); //For Coova Log User Out FIXME We still have to figure out how to handle Mikrotik since it does not have this feature
-        			
-        			return $this->response;
+						$this->set([
+                            'success'   => true,
+                            'data'      => $otp
+                        ]);
+                        $this->viewBuilder()->disableAutoLayout();
+                        return;
 											
 					}else{
 						$message = __("OTP mismatch - Try again");
+						$this->set([
+                        'success'   => true,
+                        'message'	=> $message,
+                        'data'      => []
+	                    ]);
+	                    $this->viewBuilder()->setOption('serialize', true);	
 					}					
 				}
-			}
+			////}
 		}
-		
-		$this->set([
-        'success'   => true,
-        'message'	=> $message
-	    ]);
-	    $this->viewBuilder()->setOption('serialize', true);				 	
-	}
+    }
 
 	public function lostPassword(){
 	
@@ -387,8 +391,8 @@ class RegisterClientsController extends AppController {
         return $response;	
 	}
 	
-	private function _email_otp($email,$otp,$cloud_id,$data_id){	
-		$this->Otp->sendEmailUserReg($email,$otp,$cloud_id,$data_id);
+	private function _email_otp($email,$otp){	
+		$this->Otp->sendEmailClientReg($email,$otp->value,$otp->id);
 	}
 	
 	private function _sms_otp($phone,$otp,$cloud_id,$reason){

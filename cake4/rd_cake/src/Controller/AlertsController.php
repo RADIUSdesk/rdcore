@@ -234,8 +234,7 @@ class AlertsController extends AppController{
                 ]);
                 $this->viewBuilder()->disableAutoLayout();
             }    
-	    }     
-	
+	    }     	
 	}
 	
 	public function acknowledged($id = null){
