@@ -69,10 +69,10 @@ class DataUsagesNewController extends AppController {
         if($this->request->getQuery('span')){
             $span = $this->request->getQuery('span');
         }
-        
+             
         //--VERY IMPORTANT--
         $this->_setTimeZone();
-          
+                 
         //--Historical or not-- (GUI will display active sessions list if NOT historical)
         $historical = true; 
         $tz_adjusted= FrozenTime::createFromTimestamp($ft_day->timestamp,$this->time_zone);
@@ -80,6 +80,7 @@ class DataUsagesNewController extends AppController {
         if($tz_adjusted->isToday()||$tz_adjusted->isTomorrow()){
             $historical = false;
         }
+               
                 
         //--Base Search--
         $this->base_search = $this->_base_search();
@@ -105,7 +106,7 @@ class DataUsagesNewController extends AppController {
         $data['summary']    = $this->_getSummary($ft_day,$span);   
         $data['top']        = $this->_getTop($ft_day,$span);
       
-        $data['summary']['historical'] = $historical;
+        //$data['summary']['historical'] = $historical;
         if(!$historical){
             $data['summary']['online'] = $this->_getOnline();
         }
@@ -339,8 +340,8 @@ class DataUsagesNewController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
                  
-            array_push($where, ["timestamp >=" => $time_start]);
-            array_push($where, ["timestamp <=" => $time_end]);          
+            array_push($where, ["created >=" => $time_start]);
+            array_push($where, ["created <=" => $time_end]);          
             $q = $this->{$table}->find();    
             $result = $q->select($this->fields)
                 ->where($where)
@@ -513,8 +514,8 @@ class DataUsagesNewController extends AppController {
             ]); 
             
             
-            array_push($where_dailies, ["timestamp >=" => $time_start]);     
-            array_push($where_dailies, ["timestamp <" => $time_end]);
+            array_push($where_dailies, ["created >=" => $time_start]);     
+            array_push($where_dailies, ["created <" => $time_end]);
                         
             $q_r_dailies = $this->{'UserStatsDailies'}->find()->select($this->fields)->where($where_dailies)->first();
             if($q_r_dailies){
@@ -537,8 +538,8 @@ class DataUsagesNewController extends AppController {
             ]); 
             
             //Rest from user_stats
-            array_push($where, ["timestamp >"   => $time_s]); 
-            array_push($where, ["timestamp <="  => $time_e]);
+            array_push($where, ["created >"   => $time_s]); 
+            array_push($where, ["created <="  => $time_e]);
            
             $q_r = $this->{'UserStats'}->find()->select($this->fields)->where($where)->first();
             if($q_r){
@@ -562,8 +563,8 @@ class DataUsagesNewController extends AppController {
                 "'+00:00'"              => 'literal',
             ]); 
         
-            array_push($where, ["timestamp >=" => $time_start]); 
-            array_push($where, ["timestamp <=" => $time_end]);
+            array_push($where, ["created >=" => $time_start]); 
+            array_push($where, ["created <=" => $time_end]);
         
             $q_r = $this->{$table}->find()->select($this->fields)->where($where)->first();
             if($q_r){
@@ -593,7 +594,7 @@ class DataUsagesNewController extends AppController {
         if(($this->type == 'user')||($this->type == 'device')){ //Now we have to find the realm this user /device belongs to
             $ent_us = $this->{$table}->find()
                 ->where(['username' => $this->item_name])
-                ->order(['timestamp' => 'DESC'])
+                ->order(['created' => 'DESC'])
                 ->first();
             if($ent_us){
                 $where = ['realm' => $ent_us->realm]; 
@@ -705,8 +706,8 @@ class DataUsagesNewController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
             
-            array_push($where_dailies, ["timestamp >=" => $time_start]);
-            array_push($where_dailies, ["timestamp <" => $time_end]); 
+            array_push($where_dailies, ["created >=" => $time_start]);
+            array_push($where_dailies, ["created <" => $time_end]); 
             
             //print_r($where_dailies);
                          
@@ -748,8 +749,8 @@ class DataUsagesNewController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
             
-            array_push($where, ["timestamp >=" => $time_start]);
-            array_push($where, ["timestamp <=" => $time_end]); 
+            array_push($where, ["created >=" => $time_start]);
+            array_push($where, ["created <=" => $time_end]); 
             
             $q_r = $this->{'UserStats'}->find()->select($fields)
                 ->where($where)
@@ -801,8 +802,8 @@ class DataUsagesNewController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
             
-            array_push($where, ["timestamp >=" => $time_start]);
-            array_push($where, ["timestamp <=" => $time_end]);
+            array_push($where, ["created >=" => $time_start]);
+            array_push($where, ["created <=" => $time_end]);
               
             $q_r = $this->{$table}->find()->select($fields)
                 ->where($where)
@@ -1003,9 +1004,9 @@ class DataUsagesNewController extends AppController {
                 $clean_where = $this->base_search;
                 array_push($clean_where,["nasidentifier" =>$us->nasidentifier]);
                 $q_r = $this->UserStats->find()
-                    ->select(['timestamp'])
+                    ->select(['created'])
                     ->where($clean_where)
-                    ->order(['timestamp' => 'DESC'])
+                    ->order(['created' => 'DESC'])
                     ->first();
                     
                 $q_c = $this->DynamicClients->find()->where(['DynamicClients.nasidentifier' => $us->nasidentifier])->first();
@@ -1018,8 +1019,8 @@ class DataUsagesNewController extends AppController {
                     'id'                => $id,
                     'nasname'           => $nasname,
                     'nasidentifier'     => $us->nasidentifier, 
-                    'last_seen'         => $q_r->timestamp,
-                    'last_seen_human'   => $q_r->timestamp->timeAgoInWords()
+                    'last_seen'         => $q_r->created,
+                    'last_seen_human'   => $q_r->created->timeAgoInWords()
                 ]);
                   
                 $id++;  

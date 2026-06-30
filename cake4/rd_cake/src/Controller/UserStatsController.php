@@ -116,8 +116,8 @@ class UserStatsController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
                       
-            array_push($where, ["timestamp >=" => $time_start]);
-            array_push($where, ["timestamp <=" => $time_end]);
+            array_push($where, ["created >=" => $time_start]);
+            array_push($where, ["created <=" => $time_end]);
             
             $query = $this->{$this->main_model}->find();
             
@@ -175,8 +175,8 @@ class UserStatsController extends AppController {
             ]);
             
             $where  = $base_search;   
-            array_push($where, ["timestamp >=" => $time_start]);
-            array_push($where, ["timestamp <=" => $time_end]);
+            array_push($where, ["created >=" => $time_start]);
+            array_push($where, ["created <=" => $time_end]);
             
             $q_r = $this->{$this->main_model}->find()
                 ->select($this->fields)
@@ -240,8 +240,8 @@ class UserStatsController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
                        
-            array_push($where, ["timestamp >=" => $time_start]);
-            array_push($where, ["timestamp <=" => $time_end]);
+            array_push($where, ["created >=" => $time_start]);
+            array_push($where, ["created <=" => $time_end]);
                 
             $q_r = $this->{$this->main_model}->find()->select($this->fields)->where($where)->first();
             if($q_r){   
@@ -367,7 +367,7 @@ class UserStatsController extends AppController {
         
          
         $where      = $this->base_search;
-        $q_r        = $this->UserStats->find()->select(['UserStats.nasidentifier'])->where($where)->order(['UserStats.timestamp DESC'])->first();
+        $q_r        = $this->UserStats->find()->select(['UserStats.nasidentifier'])->where($where)->order(['UserStats.created DESC'])->first();
         if($q_r){
             $nasidentifier  = $q_r->nasidentifier;
             $e_dc        = $this->{'DynamicClients'}->find()

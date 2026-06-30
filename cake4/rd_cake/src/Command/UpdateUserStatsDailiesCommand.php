@@ -131,6 +131,8 @@ class UpdateUserStatsDailiesCommand extends Command {
         $results = $query->all();       
         foreach ($results as $row) {
             //print_r($row->username);
+            //FIXME - JUN2026 - NOTE set created to timestamp 
+            $row->created = $row->timestamp;
             $this->UserStatsDailies->save($this->UserStatsDailies->newEntity($row->toArray()));
         }  
     }

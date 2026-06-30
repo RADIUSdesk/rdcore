@@ -118,8 +118,8 @@ class DataUsagesController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
                  
-            array_push($where, ["timestamp >=" => $time_start]);
-            array_push($where, ["timestamp <=" => $time_end]);
+            array_push($where, ["created >=" => $time_start]);
+            array_push($where, ["created <=" => $time_end]);
              
             
             $slot_start     = $slot_start->addHour(1);           
@@ -171,8 +171,8 @@ class DataUsagesController extends AppController {
             "'$this->time_zone'"    => 'literal',
             "'+00:00'"              => 'literal',
         ]);
-        array_push($where, ["timestamp >=" => $time_start]);
-        array_push($where, ["timestamp <=" => $time_end]);
+        array_push($where, ["created >=" => $time_start]);
+        array_push($where, ["created <=" => $time_end]);
         
         //print_r($where);
     
@@ -285,7 +285,7 @@ class DataUsagesController extends AppController {
         $data['query_info']['timezone']      = $this->time_zone;
         
         $historical     = true;  
-        $tz_adjusted    = FrozenTime::createFromTimestamp($ft_day->timestamp,$this->time_zone);
+        $tz_adjusted    = FrozenTime::createFromTimestamp($ft_day->created,$this->time_zone);
         //print_r($tz_adjusted->i18nFormat('yyyy-MM-dd HH:mm:ss'));
         if($tz_adjusted->isToday()||$tz_adjusted->isTomorrow()){
             $historical = false;
@@ -445,8 +445,8 @@ class DataUsagesController extends AppController {
             "'+00:00'"              => 'literal',
         ]); 
         
-        array_push($where, ["timestamp >=" => $time_start]);    
-        array_push($where, ["timestamp <=" => $time_end]);        
+        array_push($where, ["created >=" => $time_start]);    
+        array_push($where, ["created <=" => $time_end]);        
         $limit  = 10;
         $page   = 1;
         $offset = 0;
@@ -653,8 +653,8 @@ class DataUsagesController extends AppController {
             ]); 
             
             
-            array_push($where_dailies, ["timestamp >=" => $time_start]);     
-            array_push($where_dailies, ["timestamp <" => $time_end]);
+            array_push($where_dailies, ["created >=" => $time_start]);     
+            array_push($where_dailies, ["created <" => $time_end]);
                         
             $q_r_dailies = $this->{'UserStatsDailies'}->find()->select($this->fields)->where($where_dailies)->first();
             if($q_r_dailies){
@@ -677,10 +677,10 @@ class DataUsagesController extends AppController {
             ]); 
             
             //Rest from user_stats
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') >" => $slot_start_txt]);
-            array_push($where, ["timestamp >"   => $time_s]); 
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]);
-            array_push($where, ["timestamp <="  => $time_e]);
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') >" => $slot_start_txt]);
+            array_push($where, ["created >"   => $time_s]); 
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]);
+            array_push($where, ["created <="  => $time_e]);
            
             $q_r = $this->{'UserStats'}->find()->select($this->fields)->where($where)->first();
             if($q_r){
@@ -704,10 +704,10 @@ class DataUsagesController extends AppController {
                 "'+00:00'"              => 'literal',
             ]); 
         
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') >=" => $slot_start_txt]);
-            array_push($where, ["timestamp >=" => $time_start]); 
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]);
-            array_push($where, ["timestamp <=" => $time_end]);
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') >=" => $slot_start_txt]);
+            array_push($where, ["created >=" => $time_start]); 
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]);
+            array_push($where, ["created <=" => $time_end]);
         
             $q_r = $this->{$table}->find()->select($this->fields)->where($where)->first();
             if($q_r){
@@ -768,10 +768,10 @@ class DataUsagesController extends AppController {
             "'+00:00'"              => 'literal',
         ]); 
         
-        //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') >=" => $slot_start_txt]);
-        array_push($where, ["timestamp >=" => $time_start]);    
-        //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]);
-        array_push($where, ["timestamp <=" => $time_end]);
+        //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') >=" => $slot_start_txt]);
+        array_push($where, ["created >=" => $time_start]);    
+        //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]);
+        array_push($where, ["created <=" => $time_end]);
         
         //print_r($where);
         
@@ -814,7 +814,7 @@ class DataUsagesController extends AppController {
         if($this->type == 'nas_id'){ //Now we have to find the realm this user /device belongs to
             $ent_us = $this->UserStats->find()
                 ->where(['nasidentifier' => $this->item_name])
-                ->order(['timestamp' => 'DESC'])
+                ->order(['created' => 'DESC'])
                 ->first();
             if($ent_us){
                 $where = ['realm' => $ent_us->realm]; 
@@ -876,8 +876,8 @@ class DataUsagesController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
             
-            array_push($where, ["timestamp >=" => $time_start]);
-            array_push($where, ["timestamp <=" => $time_end]);      
+            array_push($where, ["created >=" => $time_start]);
+            array_push($where, ["created <=" => $time_end]);      
             
             $fields = $this->fields;
             array_push($fields, 'nasidentifier');
@@ -926,10 +926,10 @@ class DataUsagesController extends AppController {
                         "'+00:00'"              => 'literal',
                     ]); 
                     
-                    //array_push($new_where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') >=" => $slot_start_txt]);
-                    array_push($new_where, ["timestamp >=" => $time_start]);
-                    //array_push($new_where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]); 
-                    array_push($new_where, ["timestamp <=" => $time_end]);      
+                    //array_push($new_where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') >=" => $slot_start_txt]);
+                    array_push($new_where, ["created >=" => $time_start]);
+                    //array_push($new_where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]); 
+                    array_push($new_where, ["created <=" => $time_end]);      
                     array_push($new_where, ['nasidentifier' => $nas]);
                     
                     $q_us = $this->UserStats->find()->select($fields)
@@ -967,10 +967,10 @@ class DataUsagesController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
         
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') >=" => $slot_start_txt]);
-            array_push($where, ["timestamp >=" => $time_start]);
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]);
-            array_push($where, ["timestamp <=" => $time_end]); 
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') >=" => $slot_start_txt]);
+            array_push($where, ["created >=" => $time_start]);
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]);
+            array_push($where, ["created <=" => $time_end]); 
 
             $fields = $this->fields;
             array_push($fields, 'nasidentifier');
@@ -1023,7 +1023,7 @@ class DataUsagesController extends AppController {
         if(($this->type == 'user')||($this->type == 'device')){ //Now we have to find the realm this user /device belongs to
             $ent_us = $this->{$table}->find()
                 ->where(['username' => $this->item_name])
-                ->order(['timestamp' => 'DESC'])
+                ->order(['created' => 'DESC'])
                 ->first();
             if($ent_us){
                 $where = ['realm' => $ent_us->realm]; 
@@ -1151,10 +1151,10 @@ class DataUsagesController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
             
-            //array_push($where_dailies, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') >=" => $daily_slot_start]);
-            array_push($where_dailies, ["timestamp >=" => $time_start]);
-            //array_push($where_dailies, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') <" => $daily_slot_end]);
-            array_push($where_dailies, ["timestamp <" => $time_end]); 
+            //array_push($where_dailies, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') >=" => $daily_slot_start]);
+            array_push($where_dailies, ["created >=" => $time_start]);
+            //array_push($where_dailies, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') <" => $daily_slot_end]);
+            array_push($where_dailies, ["created <" => $time_end]); 
             
             //print_r($where_dailies);
                          
@@ -1201,10 +1201,10 @@ class DataUsagesController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
                        
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') >=" => $slot_start]);
-            array_push($where, ["timestamp >=" => $time_start]);
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') <=" => $slot_end]);
-            array_push($where, ["timestamp <=" => $time_end]); 
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') >=" => $slot_start]);
+            array_push($where, ["created >=" => $time_start]);
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') <=" => $slot_end]);
+            array_push($where, ["created <=" => $time_end]); 
             
             $q_r = $this->{'UserStats'}->find()->select($fields)
                 ->where($where)
@@ -1258,10 +1258,10 @@ class DataUsagesController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
         
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') >=" => $slot_start]);
-            array_push($where, ["timestamp >=" => $time_start]);
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') <=" => $slot_end]);
-            array_push($where, ["timestamp <=" => $time_end]);
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') >=" => $slot_start]);
+            array_push($where, ["created >=" => $time_start]);
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') <=" => $slot_end]);
+            array_push($where, ["created <=" => $time_end]);
               
             $q_r = $this->{$table}->find()->select($fields)
                 ->where($where)
@@ -1320,10 +1320,10 @@ class DataUsagesController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
                  
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') >=" => $slot_start_txt]);
-            array_push($where, ["timestamp >=" => $time_start]);
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]);
-            array_push($where, ["timestamp <=" => $time_end]);
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') >=" => $slot_start_txt]);
+            array_push($where, ["created >=" => $time_start]);
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]);
+            array_push($where, ["created <=" => $time_end]);
             
             $slot_start         = $slot_start->addHour(1);
             
@@ -1378,10 +1378,10 @@ class DataUsagesController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
             
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') >=" => $slot_start_txt]);
-            array_push($where, ["timestamp >=" => $time_start]);
-            //array_push($where, ["CONVERT_TZ(timestamp,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]);
-            array_push($where, ["timestamp <=" => $time_end]);
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') >=" => $slot_start_txt]);
+            array_push($where, ["created >=" => $time_start]);
+            //array_push($where, ["CONVERT_TZ(created,'+00:00','".$this->time_zone."') <=" => $slot_end_txt]);
+            array_push($where, ["created <=" => $time_end]);
             
             $slot_start         = $slot_start->addDay(1);
                        
@@ -1441,8 +1441,8 @@ class DataUsagesController extends AppController {
                 "'+00:00'"              => 'literal',
             ]);
                        
-            array_push($where, ["timestamp >=" => $time_start]);
-            array_push($where, ["timestamp <=" => $time_end]);
+            array_push($where, ["created >=" => $time_start]);
+            array_push($where, ["created <=" => $time_end]);
 
             $q_r = $this->{$table}->find()->select($this->fields)->where($where)->first();
             if($q_r){
@@ -1672,9 +1672,9 @@ class DataUsagesController extends AppController {
                 $clean_where = $this->base_search;
                 array_push($clean_where,["nasidentifier" =>$us->nasidentifier]);
                 $q_r = $this->UserStats->find()
-                    ->select(['timestamp'])
+                    ->select(['created'])
                     ->where($clean_where)
-                    ->order(['timestamp' => 'DESC'])
+                    ->order(['created' => 'DESC'])
                     ->first();
                     
                 $q_c = $this->DynamicClients->find()->where(['DynamicClients.nasidentifier' => $us->nasidentifier])->first();
@@ -1687,8 +1687,8 @@ class DataUsagesController extends AppController {
                     'id'                => $id,
                     'nasname'           => $nasname,
                     'nasidentifier'     => $us->nasidentifier, 
-                    'last_seen'         => $q_r->timestamp,
-                    'last_seen_human'   => $q_r->timestamp->timeAgoInWords()
+                    'last_seen'         => $q_r->created,
+                    'last_seen_human'   => $q_r->created->timeAgoInWords()
                 ]);
                   
                 $id++;  
@@ -1762,7 +1762,7 @@ class DataUsagesController extends AppController {
             ->hour($r_hour)
             ->minute($r_min);
         
-        if($ft_day->timestamp < $dt_reset->timestamp){  
+        if($ft_day->created < $dt_reset->created){  
             #We use the previous month 
             //When adding or subtracting months, if the resulting time is a date that does not exist, 
             //the result of this operation will always be the last day of the intended month.
