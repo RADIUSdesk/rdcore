@@ -139,6 +139,10 @@ Ext.define('Rd.controller.cActivityMonitor', {
         var info    = me.getGrid().down('#btnInfo'); 
         var kick    = me.getGrid().down('#kick');
         var close   = me.getGrid().down('#close');
+        
+        if(!tz){
+            return;
+        }
          
         var only_connected  = true; //We only show the connected ones by default
         var extra_info  = false;
