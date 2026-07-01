@@ -58,6 +58,9 @@ class RegisterClientsController extends AppController {
             }          
         }
         
+        //Zero the token to generate a new one for this client:
+        $formData['token'] = '';
+        
         $entity     = $this->Clients->newEntity($formData);      
         if($this->Clients->save($entity)){
         
