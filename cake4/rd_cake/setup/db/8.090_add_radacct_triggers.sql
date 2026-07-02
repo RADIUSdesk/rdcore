@@ -172,11 +172,13 @@ proc: BEGIN
 
     DECLARE stats_interval INT DEFAULT 30;
     
-    -- AA. History logging (unchanged, but safe)
+    -- AA. History logging (unchanged, but safe) do not inlcude entries with ALL 0 values
     IF OLD.acctstoptime IS NULL AND NEW.acctstoptime IS NOT NULL THEN
-        
+              
         INSERT INTO radacct_history 
-        SELECT * FROM radacct WHERE radacctid = NEW.radacctid;
+        SELECT * FROM radacct 
+        WHERE radacctid = NEW.radacctid
+        AND (acctinputoctets != 0 OR acctoutputoctets != 0 OR acctsessiontime != 0);
 
     END IF;
     

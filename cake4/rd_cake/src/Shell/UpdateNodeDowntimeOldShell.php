@@ -1,7 +1,7 @@
 <?php
 
 //Call this the following way
-// */5  *    *    *    * cd /var/www/html/cake4/rd_cake && bin/cake update_node_downtime 
+// */5  *    *    *    * cd /var/www/html/cake4/rd_cake && bin/cake update_node_downtime_old 
 
 namespace App\Shell;
 
@@ -11,7 +11,7 @@ use Cake\Core\Configure;
 use Cake\Core\Configure\Engine\PhpConfig;
 use Cake\I18n\FrozenTime;
 
-class UpdateNodeDowntimeShell extends Shell{
+class UpdateNodeDowntimeOldShell extends Shell{
 
     public function initialize():void{
         parent::initialize();
