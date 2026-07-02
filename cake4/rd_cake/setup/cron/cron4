@@ -1,9 +1,13 @@
-#Every five minutes, run the stored procedure to check for 'down' nodes
+#Every five minutes check for 'down' nodes
 */5 * * * * www-data cd /var/www/html/cake4/rd_cake && bin/cake update_node_downtime >> /dev/null 2>&1
 
 * * * * * www-data cd /var/www/html/cake4/rd_cake && bin/cake rd mon >> /dev/null 2>&1
 * * * * * www-data cd /var/www/html/cake4/rd_cake && bin/cake rd debug_check >> /dev/null 2>&1
-* * * * * www-data cd /var/www/html/cake4/rd_cake && bin/cake rd auto_close >> /dev/null 2>&1
+
+#We moved this to be a Command (CakePHP v4 way of doing things)
+#* * * * * www-data cd /var/www/html/cake4/rd_cake && bin/cake rd auto_close >> /dev/null 2>&1
+* * * * * www-data cd /var/www/html/cake4/rd_cake && bin/cake auto_close_sessions >> /dev/null 2>&1
+
 * * * * * www-data cd /var/www/html/cake4/rd_cake && bin/cake accounting >> /dev/null 2>&1
 */15 * * * * www-data cd /var/www/html/cake4/rd_cake && bin/cake voucher >> /dev/null 2>&1
 */10 * * * * www-data cd /var/www/html/cake4/rd_cake && bin/cake update_user_stats >> /dev/null 2>&1
