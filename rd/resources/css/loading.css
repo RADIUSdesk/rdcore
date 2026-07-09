@@ -749,7 +749,6 @@
     padding: 12px 16px;
 }
 
-
 .radacct-grid .radacct-stats {
     display: flex;
     gap: 24px;
@@ -776,5 +775,31 @@
 .radacct-grid .label {
     color: #64748b;
     font-size: 13px;
+}
+
+
+/* Force the wrapper, header, and body to respect the border-radius */
+.custom-rounded-panel,
+.custom-rounded-panel .x-panel-header,
+.custom-rounded-panel .x-panel-body {
+    border-radius: 12px !important;
+    overflow: hidden !important; /* Clips background colors and child components */
+    box-shadow: 0 12px 35px rgba(0,0,0,.25);
+}
+
+/* Optional: Removes default harsh borders that clash with rounding */
+.custom-rounded-panel {
+    border: none !important; 
+    box-shadow: 0 12px 35px rgba(0,0,0,.25);
+}
+
+
+.login-heading {
+  font-weight: 700;
+  font-size: 24px;
+  color:white; 
+  margin-left:12px;
+  gap: 8px;
+  text-align: center; 
 }
 

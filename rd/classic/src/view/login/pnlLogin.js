@@ -83,19 +83,20 @@ Ext.define('Rd.view.login.pnlLogin', {
         me.callParent(arguments);
     },
     loginWindow: function(){
-    
+        var me = this;
         var win = Ext.create('Ext.panel.Panel', {
             layout  : "fit",
-            width   : 300,
-            title   : 'Dashboard Login',
-            glyph   : Rd.config.icnLock,
-            height  : 270,
+            width   : 350,
+            bodyStyle   : 'background: rgba(90, 138, 184, 0.80);', 
+            cls     : 'custom-rounded-panel',
+            height  : 350,
             itemId  : 'winLogin',
             floating: true,
             border  : false,
             shadow  : false,
             items   : [ {
                     xtype       : 'form',
+                    bodyStyle   : 'background: transparent;', 
                     border      : false,
                     layout      : 'anchor',
                     height      : '100%',
@@ -106,44 +107,54 @@ Ext.define('Rd.view.login.pnlLogin', {
                         anchor          : '100%',
                         labelSeparator  : '',
                         labelClsExtra   : 'lblRd',
-                        padding         : 6
+                        padding         : 10
                     },
                     defaultType : 'textfield',
                     items: [
                         {
+                            xtype       : 'component',
+                            html        : 'System Login',
+                            cls         : 'login-heading',
+                            margin      : '10 0 10 0'
+                        },
+                        {
+                            xtype       : 'component',
+                            html        : 'Enter your credentials',
+                            cls         : 'login-heading',
+                            style: {
+                                'font-size': '16px',
+                                'color' : '#ebeff2',
+                                'font-weight' : 100
+                            },
+                            margin      : '5 0 20 0'
+                        },
+                        {
                             itemId      : 'inpUsername',
                             name        : "username",
-                            emptyText   : 'Username',
+                            emptyText   : '👤 Username',
                             allowBlank  : false,
                             blankText   : 'Enter your username'
                         },
                         {
                             itemId      : 'inpPassword',                            
                             name        : 'password',
-                            emptyText   : 'Password',
+                            emptyText   : '🔒 Password',
                             inputType   : 'password',
                             allowBlank  : false,
                             blankText   : i18n('sEnter_password')
                         },
-                    ],
-                    dockedItems: [{
-                        xtype   : 'toolbar',
-                        dock    : 'bottom',
-                        ui      : 'footer',
-                        padding : 0,
-                        items: [ '->',
-                            {
-                                text    : i18n('sOK'),
-                                margin  : Rd.config.buttonMargin,
-                                action  : 'ok',
-                                ui      : 'button-teal',
-                                type    : 'submit',
-                                formBind: true,
-                                scale   : 'large',
-                                glyph   : Rd.config.icnYes
-                            }  
-                        ]
-                    }]
+                        {
+                            text        : 'Sign In' ,
+                            xtype       : 'button',
+                            action      : 'ok',
+                            ui          : 'button-teal',
+                            type        : 'submit',
+                            formBind    : true,
+                            scale       : 'medium',
+                            width       : 290,
+                            margin      : '10 0 10 10'
+                        }
+                    ]
                 }]
         }).show();
     }
