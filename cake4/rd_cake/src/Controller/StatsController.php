@@ -11,7 +11,72 @@ class StatsController extends AppController{
 
     public function initialize(): void{
         parent::initialize();
-        $this->Authentication->allowUnauthenticated(['usersByCloud','usersByCloudSummary']); 
+        $this->Authentication->allowUnauthenticated(['usersByCloud','usersByCloudSummary','renewalsByCloud']); 
+    }
+    
+     /**
+     * Get user renewals per cloud
+     * 
+     * @return void
+     */
+     
+    public function renewalsByCloud(){
+    
+        $permanentUsersTable    = TableRegistry::getTableLocator()->get('PermanentUsers');
+        $cloudsTable            = TableRegistry::getTableLocator()->get('Clouds'); 
+        
+        $span   = 1; //Default is the last day
+        $q_span = $this->request->getQuery('span');      
+        if($q_span){
+            $span = $q_span;
+        }  
+             
+        // Get all clouds with their names
+        $clouds = $cloudsTable->find()
+            ->select(['id', 'name'])
+            ->toArray();
+             
+        $cloud_data = [];
+        foreach($clouds as $cloud){
+            $cloud_data[$cloud->id] = [
+                'name' => $cloud->name,
+                'span' => intval($span),
+                'cloud_id'  => $cloud->id,
+                'renewals'  => 0,
+                'total_expired_gap_days' => 0,
+                'total_effective_days'   => 0,
+                'avg_expired_gap_days'   => 0,
+                'avg_effective_days'     => 0,
+                'on_time_count'          => 0,
+                'late_15_days_count'     => 0,
+                'late_60_days_count'     => 0
+            ];
+        }
+        
+        $topUpTransactions = TableRegistry::getTableLocator()->get('TopUpTransactions');
+        $stats7d = $topUpTransactions->getRenewalStatsByCloud($span);
+
+        // Loop through results
+        foreach ($stats7d as $stat) {
+            $cloud_data[$stat->cloud_id]['renewals'] = $stat->renewals_count;
+            $cloud_data[$stat->cloud_id]['total_expired_gap_days'] = $stat->total_expired_gap_days;
+            $cloud_data[$stat->cloud_id]['total_effective_days'] = $stat->total_effective_days;
+            $cloud_data[$stat->cloud_id]['avg_expired_gap_days'] = $stat->avg_expired_gap_days;
+            $cloud_data[$stat->cloud_id]['avg_effective_days'] = $stat->avg_effective_days;
+            $cloud_data[$stat->cloud_id]['on_time_count'] = $stat->on_time_count;
+            $cloud_data[$stat->cloud_id]['late_15_days_count'] = $stat->late_15_days_count;
+            $cloud_data[$stat->cloud_id]['late_60_days_count'] = $stat->late_60_days_count;            
+        }
+       
+        $response = [
+            'success'   => true,
+            'data'      => $cloud_data
+        ];
+    
+        $this->set('response', $response);
+        $this->set('_serialize', ['response']);
+        $this->viewBuilder()->setOption('serialize', true); 
+    
     }
 
     /**

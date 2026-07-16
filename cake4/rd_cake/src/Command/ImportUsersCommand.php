@@ -238,16 +238,16 @@ class ImportUsersCommand extends Command
         }
 
         // Optional extra fields
-        if (isset($extra_name)) {
+        if (!empty($extra_name)) {
             $row_data['extra_name'] = $extra_name;
         }
 
-        if (isset($extra_value)) {
+        if (!empty($extra_value)) {
             $row_data['extra_value'] = $extra_value;
         }
         
         //--FEB 2026 -- mac_address, from_date and to_date
-        if (isset($mac_address)) {       
+        if (!empty($mac_address)) {      
             $normalizedMac = $this->normalizeMacAddress($mac_address);
             if ($normalizedMac === false) {
                 return [ 'success' => false, 'errors' => ['mac_address' => ["'$mac_address' not usable format"]]];
@@ -255,7 +255,7 @@ class ImportUsersCommand extends Command
             $row_data['mac_address'] = $normalizedMac;           
         }
 
-        if (isset($from_date)) {
+        if (!empty($from_date)) {
             if($from_date === 'now'){ //Special keyword for API
                 $row_data['from_date'] = FrozenTime::now()->startOfDay();
             }else{
@@ -270,7 +270,7 @@ class ImportUsersCommand extends Command
             }           
         }
         
-        if (isset($to_date)) {
+        if (!empty($to_date)) {
             if (filter_var($to_date, FILTER_VALIDATE_INT) !== false && $to_date < 100) {
                 $to = FrozenTime::now()->endOfDay();
                 $to = $to->addDay(($to_date*30));               

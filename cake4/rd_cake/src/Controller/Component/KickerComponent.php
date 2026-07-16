@@ -134,7 +134,7 @@ class KickerComponent extends Component {
          		->contain(['NaSettings'])
          		->first();
          		
-		if($nas){
+		    if($nas){
            
                 if(
                     ($nas->type == $this->typeJuniper)||
@@ -144,12 +144,40 @@ class KickerComponent extends Component {
          	        $this->sendCoaDisconnect($nas,$ent);
          	    }
          	    
-		if(($nas->type == $this->typeMtApi)||($nas->type == $this->typeMtRestApi)){ 
+		        if(($nas->type == $this->typeMtApi)||($nas->type == $this->typeMtRestApi)){ 
          		    $this->kickMikrotikSession($nas,$ent); 		
                 }
          		     	        
             }
         }
+        
+        //--This is a small tweak to the normal setup where we loop ALL the Nas entries and send them a disconnect--
+        //--(Comment the top one out if you are going to use this one)--
+        /*     
+        if($nasWhere){
+         	$Nasses = $this->Nas->find()
+         		->contain(['NaSettings'])
+         		->all();
+         	
+         	if($Nasses){	
+		        foreach($Nasses as $nas){               
+                    if(
+                        ($nas->type == $this->typeJuniper)||
+                        ($nas->type == $this->typeMtCoa)||
+                        ($nas->type == $this->typeCiscoCoa)           
+                    ){ //SEND IT A POD
+             	        $this->sendCoaDisconnect($nas,$ent);
+             	    }
+             	    
+		            if(($nas->type == $this->typeMtApi)||($nas->type == $this->typeMtRestApi)){ 
+                 		    $this->kickMikrotikSession($nas,$ent); 		
+                    }         		     	        
+                }
+            }
+        }
+        */      
+        //-- END of small tweak to the normal setup ----
+               
         //--- END NAS TABLE ---
              
         return $data = [];       
