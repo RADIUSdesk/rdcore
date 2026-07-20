@@ -280,10 +280,19 @@ sub user_acct {
 			} else {
 				my $line = <CMD_OUT> || '';
 				chomp $line;
-				if ($line =~ /^Received response ID (\d+), code (\d+), length = (\d+)$/) {
-					my ($id, $code, $length) = ($1, $2, $3);
+				# Updated regexp to match new radclient output format
+				if ($line =~ /^Received (\S+) Id (\d+) from .+ length (\d+)$/) {
+					my ($packet_name, $id, $length) = ($1, $2, $3);
+					# Map packet name to code if possible
+					my $code = 0;
+					foreach my $c (keys %packetname) {
+						if ($packetname{$c} eq $packet_name) {
+							$code = $c;
+							last;
+						}
+					}
 					$return_code = $code;
-					print "Received " . $packetname{$code} . " packet for request $id (length: $length)\n";
+					print "Received $packet_name packet for request $id (length: $length)\n";
 				} else {
 					if ($line) { print "$line\n"; }
 				}
@@ -318,10 +327,19 @@ sub user_auth {
 			} else {
 				my $line = <CMD_OUT> || '';
 				chomp $line;
-				if ($line =~ /^Received response ID (\d+), code (\d+), length = (\d+)$/) {
-					my ($id, $code, $length) = ($1, $2, $3);
+				# Updated regexp to match new radclient output format
+				if ($line =~ /^Received (\S+) Id (\d+) from .+ length (\d+)$/) {
+					my ($packet_name, $id, $length) = ($1, $2, $3);
+					# Map packet name to code if possible
+					my $code = 0;
+					foreach my $c (keys %packetname) {
+						if ($packetname{$c} eq $packet_name) {
+							$code = $c;
+							last;
+						}
+					}
 					$return_code = $code;
-					print "Received " . $packetname{$code} . " packet (id=$id, length=$length)\n";
+					print "Received $packet_name packet (id=$id, length=$length)\n";
 					$last_auth_id = $id;
 					$last_auth_code = $code;
 				} else {
@@ -335,4 +353,3 @@ sub user_auth {
 	close CMD_ERR;
 	return $return_code;
 }
-
