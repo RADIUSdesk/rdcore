@@ -1,9 +1,9 @@
 /*M!999999\- enable the sandbox mode */ 
--- MariaDB dump 10.19  Distrib 10.11.13-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.11.14-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: rd
 -- ------------------------------------------------------
--- Server version	10.11.13-MariaDB-0ubuntu0.24.04.1
+-- Server version	10.11.14-MariaDB-0ubuntu0.24.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -12750,7 +12750,7 @@ CREATE TABLE `radacct_history` (
   `nasidentifier` varchar(64) NOT NULL DEFAULT '',
   `nasportid` varchar(15) DEFAULT NULL,
   `nasporttype` varchar(32) DEFAULT NULL,
-  `acctstarttime` datetime DEFAULT NULL,
+  `acctstarttime` datetime NOT NULL,
   `acctupdatetime` datetime DEFAULT NULL,
   `acctstoptime` datetime DEFAULT NULL,
   `acctinterval` int(12) DEFAULT NULL,
@@ -12774,7 +12774,7 @@ CREATE TABLE `radacct_history` (
   `framedipv6prefix` varchar(44) NOT NULL DEFAULT '',
   `framedinterfaceid` varchar(44) NOT NULL DEFAULT '',
   `delegatedipv6prefix` varchar(44) NOT NULL DEFAULT '',
-  PRIMARY KEY (`radacctid`),
+  PRIMARY KEY (`radacctid`,`acctstarttime`),
   KEY `username` (`username`),
   KEY `framedipaddress` (`framedipaddress`),
   KEY `acctsessionid` (`acctsessionid`),
@@ -12788,7 +12788,20 @@ CREATE TABLE `radacct_history` (
   KEY `framedipv6prefix` (`framedipv6prefix`),
   KEY `framedinterfaceid` (`framedinterfaceid`),
   KEY `delegatedipv6prefix` (`delegatedipv6prefix`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci
+ PARTITION BY RANGE  COLUMNS(`acctstarttime`)
+(PARTITION `p_before_2026` VALUES LESS THAN ('2026-01-01') ENGINE = InnoDB,
+ PARTITION `p2026_01` VALUES LESS THAN ('2026-02-01') ENGINE = InnoDB,
+ PARTITION `p2026_02` VALUES LESS THAN ('2026-03-01') ENGINE = InnoDB,
+ PARTITION `p2026_03` VALUES LESS THAN ('2026-04-01') ENGINE = InnoDB,
+ PARTITION `p2026_04` VALUES LESS THAN ('2026-05-01') ENGINE = InnoDB,
+ PARTITION `p2026_05` VALUES LESS THAN ('2026-06-01') ENGINE = InnoDB,
+ PARTITION `p2026_06` VALUES LESS THAN ('2026-07-01') ENGINE = InnoDB,
+ PARTITION `p2026_07` VALUES LESS THAN ('2026-08-01') ENGINE = InnoDB,
+ PARTITION `p2026_08` VALUES LESS THAN ('2026-09-01') ENGINE = InnoDB,
+ PARTITION `p2026_09` VALUES LESS THAN ('2026-10-01') ENGINE = InnoDB,
+ PARTITION `p2026_10` VALUES LESS THAN ('2026-11-01') ENGINE = InnoDB,
+ PARTITION `p_future` VALUES LESS THAN (MAXVALUE) ENGINE = InnoDB);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -14716,15 +14729,26 @@ CREATE TABLE `user_stats` (
   `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   `acctinputoctets` bigint(20) NOT NULL,
   `acctoutputoctets` bigint(20) NOT NULL,
-  `created` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY KEY (`id`),
-  KEY `us_realm_timestamp` (`realm`,`timestamp`),
-  KEY `us_username_timestamp` (`username`,`timestamp`),
-  KEY `us_nasidentifier_timestamp` (`nasidentifier`,`timestamp`),
-  KEY `us_callingstationid_timestamp` (`callingstationid`,`timestamp`),
-  KEY `idx_radacct_id` (`radacct_id`),
-  KEY `idx_radacct_timestamp` (`radacct_id`,`timestamp`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
+  `created` datetime NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`,`created`),
+  KEY `us_username_created` (`username`,`created`),
+  KEY `us_realm_created` (`realm`,`created`),
+  KEY `us_nasidentifier_created` (`nasidentifier`,`created`),
+  KEY `us_nasipaddress_created` (`nasipaddress`,`created`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci
+ PARTITION BY RANGE  COLUMNS(`created`)
+(PARTITION `p_before_2026` VALUES LESS THAN ('2026-01-01') ENGINE = InnoDB,
+ PARTITION `p2026_01` VALUES LESS THAN ('2026-02-01') ENGINE = InnoDB,
+ PARTITION `p2026_02` VALUES LESS THAN ('2026-03-01') ENGINE = InnoDB,
+ PARTITION `p2026_03` VALUES LESS THAN ('2026-04-01') ENGINE = InnoDB,
+ PARTITION `p2026_04` VALUES LESS THAN ('2026-05-01') ENGINE = InnoDB,
+ PARTITION `p2026_05` VALUES LESS THAN ('2026-06-01') ENGINE = InnoDB,
+ PARTITION `p2026_06` VALUES LESS THAN ('2026-07-01') ENGINE = InnoDB,
+ PARTITION `p2026_07` VALUES LESS THAN ('2026-08-01') ENGINE = InnoDB,
+ PARTITION `p2026_08` VALUES LESS THAN ('2026-09-01') ENGINE = InnoDB,
+ PARTITION `p2026_09` VALUES LESS THAN ('2026-10-01') ENGINE = InnoDB,
+ PARTITION `p2026_10` VALUES LESS THAN ('2026-11-01') ENGINE = InnoDB,
+ PARTITION `p_future` VALUES LESS THAN (MAXVALUE) ENGINE = InnoDB);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -14750,14 +14774,14 @@ CREATE TABLE `user_stats_dailies` (
   `realm` varchar(64) DEFAULT '',
   `nasidentifier` varchar(64) NOT NULL DEFAULT '',
   `callingstationid` varchar(50) NOT NULL DEFAULT '',
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  `created` datetime NOT NULL DEFAULT current_timestamp(),
   `acctinputoctets` bigint(20) NOT NULL,
   `acctoutputoctets` bigint(20) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `usd_realm_timestamp` (`realm`,`timestamp`),
-  KEY `usd_username_timestamp` (`username`,`timestamp`),
-  KEY `usd_nasidentifier_timestamp` (`nasidentifier`,`timestamp`),
-  KEY `usd_callingstationid_timestamp` (`callingstationid`,`timestamp`)
+  PRIMARY KEY (`id`,`created`),
+  KEY `usd_realm_created` (`realm`,`created`),
+  KEY `usd_username_created` (`username`,`created`),
+  KEY `usd_nasidentifier_created` (`nasidentifier`,`created`),
+  KEY `usd_callingstationid_created` (`callingstationid`,`created`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -15419,6 +15443,48 @@ END */ ;;
 /*!50003 SET character_set_client  = @saved_cs_client */ ;;
 /*!50003 SET character_set_results = @saved_cs_results */ ;;
 /*!50003 SET collation_connection  = @saved_col_connection */ ;;
+/*!50106 DROP EVENT IF EXISTS `ev_radacct_history_partition_maintenance` */;;
+DELIMITER ;;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;;
+/*!50003 SET character_set_client  = utf8mb3 */ ;;
+/*!50003 SET character_set_results = utf8mb3 */ ;;
+/*!50003 SET collation_connection  = utf8mb3_general_ci */ ;;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;;
+/*!50003 SET @saved_time_zone      = @@time_zone */ ;;
+/*!50003 SET time_zone             = 'SYSTEM' */ ;;
+/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`localhost`*/ /*!50106 EVENT `ev_radacct_history_partition_maintenance` ON SCHEDULE EVERY 1 DAY STARTS '2026-07-29 00:15:00' ON COMPLETION NOT PRESERVE ENABLE DO CALL maintain_radacct_history_partitions(
+    12,     
+    3       
+) */ ;;
+/*!50003 SET time_zone             = @saved_time_zone */ ;;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;;
+/*!50003 SET character_set_results = @saved_cs_results */ ;;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;;
+/*!50106 DROP EVENT IF EXISTS `ev_user_stats_partition_maintenance` */;;
+DELIMITER ;;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;;
+/*!50003 SET character_set_client  = utf8mb3 */ ;;
+/*!50003 SET character_set_results = utf8mb3 */ ;;
+/*!50003 SET collation_connection  = utf8mb3_general_ci */ ;;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;;
+/*!50003 SET sql_mode              = 'IGNORE_SPACE,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;;
+/*!50003 SET @saved_time_zone      = @@time_zone */ ;;
+/*!50003 SET time_zone             = 'SYSTEM' */ ;;
+/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`localhost`*/ /*!50106 EVENT `ev_user_stats_partition_maintenance` ON SCHEDULE EVERY 1 DAY STARTS '2026-07-29 00:15:00' ON COMPLETION NOT PRESERVE ENABLE DO CALL maintain_user_stats_partitions(
+    12,     
+    3       
+) */ ;;
+/*!50003 SET time_zone             = @saved_time_zone */ ;;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;;
+/*!50003 SET character_set_results = @saved_cs_results */ ;;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;;
 /*!50106 DROP EVENT IF EXISTS `trim_wan_stats` */;;
 DELIMITER ;;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;;
@@ -15461,4 +15527,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-06-15 14:42:11
+-- Dump completed on 2026-07-29  5:49:20
