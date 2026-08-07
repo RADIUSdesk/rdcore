@@ -1,64 +1,51 @@
 server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    index index.php index.html;
-    server_name php-docker.local;
-    error_log  /var/log/nginx/error.log;
-    access_log /var/log/nginx/access.log;
-    root /var/www/html;
+	listen 80 default_server;
+	listen [::]:80 default_server;
 
-    location / {
-        # First attempt to serve request as file, then
-        # as directory, then fall back to displaying a 404.
-        try_files $uri $uri/ =404;
-    }
+	root /var/www/html;
 
-    server_name _;
+	# Add index.php to the list if you are using PHP
+	index index.php index.html index.htm index.nginx-debian.html;
 
-    location /cake3/rd_cake/node-reports/submit_report.json {
-        try_files $uri $uri/ /reporting/reporting.php;
-    }
-    location /cake4/rd_cake/node-reports/submit_report.json {
-        try_files $uri $uri/ /reporting/reporting.php;
-    }
-    
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        #
-        #       # With php-fpm (or other unix sockets):
-        #fastcgi_pass unix:/run/php/php7.4-fpm.sock;
-        #       # With php-cgi (or other tcp sockets):
-        fastcgi_pass 127.0.0.1:9000;
-    }
+	server_name _;
+	location /cake4/rd_cake/node-reports/submit_report.json {
+		try_files $uri $uri/ /reporting/reporting.php;
+	}
 
-    location ~ ^/cake3/.+\.(jpg|jpeg|gif|png|ico|js|css)$ {
-        rewrite ^/cake3/rd_cake/webroot/(.*)$ /cake3/rd_cake/webroot/$1 break;
-        rewrite ^/cake3/rd_cake/(.*)$ /cake3/rd_cake/webroot/$1 break;
-        access_log off;
-        expires max;
-        add_header Cache-Control public;
-    }
-    location ~ ^/cake4/.+\.(jpg|jpeg|gif|png|ico|js|css)$ {
-        rewrite ^/cake4/rd_cake/webroot/(.*)$ /cake4/rd_cake/webroot/$1 break;
+	location /cake4/rd_cake {
         rewrite ^/cake4/rd_cake/(.*)$ /cake4/rd_cake/webroot/$1 break;
-        access_log off;
-        expires max;
-        add_header Cache-Control public;
-    }
-    
-    location /cake3/rd_cake {
-        rewrite ^/cake3/rd_cake(.+)$ /cake3/rd_cake/webroot$1 break;
-        try_files $uri $uri/ /cake3/rd_cake/index.php$is_args$args;
-    }
-    
-    location /cake4/rd_cake {
-       rewrite ^/cake4/rd_cake(.+)$ /cake4/rd_cake/webroot$1 break;
-       try_files $uri $uri/ /cake4/rd_cake/index.php$is_args$args;
+        try_files $uri $uri/ /cake4/rd_cake/webroot/index.php?$query_string;
     }
 
-    location ~ /\.ht {
-        deny all;
-    }
+	location / {
+		# First attempt to serve request as file, then
+		# as directory, then fall back to displaying a 404.
+		try_files $uri $uri/ =404;
+	}
+
+	# pass PHP scripts to FastCGI server
+	#
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+	
+	#	# With php-fpm (or other unix sockets):
+		fastcgi_pass unix:/run/php/php8.3-fpm.sock;
+	#	# With php-cgi (or other tcp sockets):
+	#	fastcgi_pass 127.0.0.1:9000;
+	}
+
+	location ~ ^/cake4/.+\.(jpg|jpeg|gif|png|ico|js|css)$ {
+                rewrite ^/cake4/rd_cake/webroot/(.*)$ /cake4/rd_cake/webroot/$1 break;
+                rewrite ^/cake4/rd_cake/(.*)$ /cake4/rd_cake/webroot/$1 break;
+                access_log off;
+                expires max;
+                add_header Cache-Control public;
+	}
+
+	# deny access to .htaccess files, if Apache's document root
+	# concurs with nginx's one
+	#
+	location ~ /\.ht {
+		deny all;
+	}
 }
-
-
