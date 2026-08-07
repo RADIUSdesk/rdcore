@@ -12,16 +12,16 @@ if [[ ! -f $FLAG ]]; then
 
    # configure database
    echo -- CONFIGURE TIME ZONES
-   mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql -u root  mysql
+   mariadb-tzinfo-to-sql /usr/share/zoneinfo | mariadb -u root  mysql
 
    sleep 10
    echo -- CONFIGURE PRIVELEGES
-   mysql -u root < /tmp/db_priveleges.sql
+   mariadb -u root < /tmp/db_priveleges.sql
 
    sleep 2
    echo -- IMPORT RADIUSDESK TABLES
    # Populate database
-   mysql -u root rd < /tmp/rd.sql
+   mariadb -u root rd < /tmp/rd.sql
    #the next line creates an empty file so it won't run the next boot
    touch "$FLAG"
 
