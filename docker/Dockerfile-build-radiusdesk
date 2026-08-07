@@ -77,7 +77,7 @@ FROM ubuntu:24.04
 
     RUN mv /etc/freeradius /etc/freeradius.orig
     RUN mkdir -p /etc/freeradius
-	RUN cp -R /var/www/html/cake4/rd_cake/setup/radius/freeradius /etc/freeradius
+	RUN cp -R /var/www/html/cake4/rd_cake/setup/radius/freeradius /etc/
     
 	# Set freeradius permissions
 	RUN chown -R freerad: /etc/freeradius/3.0/
@@ -101,7 +101,7 @@ FROM ubuntu:24.04
     COPY ./php.ini /etc/php/php.ini
 
     # Fix all cake4 configs to point to external database
-    RUN sed  -i  "s/'host' => 'localhost'/'host' => 'rdmariadb'/g" /var/www/html/cake4/rd_cake/config/app_local.php
+    RUN sed -i "s/'host' => 'localhost'/'host' => 'rdmariadb'/g" /var/www/html/cake4/rd_cake/config/app_local.php
     RUN sed -i "s/\$servername = \"localhost\";/\$servername = \"rdmariadb\";/g" /var/www/rdcore/cake4/rd_cake/setup/scripts/reporting/*.php
 
     # Fix all Freeradius configs to point to our new database
