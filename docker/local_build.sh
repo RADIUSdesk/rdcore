@@ -2,7 +2,9 @@
 
 set -xu
 
-docker network create --attachable -d bridge radiusdesk-bridge || exit 1
+if ! docker network inspect radiusdesk-bridge > /dev/null 2>&1; then
+    docker network create --attachable -d bridge radiusdesk-bridge || exit 1
+fi
 
 source ./.env
 
@@ -44,8 +46,12 @@ echo Building docker database container ...
 docker compose up -d rdmariadb || exit 1
 
 echo
-echo Waiting for MariaDB to come up ...
-sleep 60
+echo "Waiting for MariaDB to come up..."
+until docker compose exec rdmariadb mariadb-admin ping -uroot &>/dev/null; do
+  echo -n "."
+  sleep 10
+done
+echo " MariaDB is ready!"
 
 echo Creating database for Radiusdesk ...
 # Build daatabase

@@ -7,11 +7,6 @@ services:
         radiusdesk_volume: ${RADIUSDESK_VOLUME}
     container_name: radiusdesk
 
-    environment:
-      - "PHP_INI_SCAN_DIR=:/p/gd"
-      - "PHP.cgi.fix_pathinfo=1"
-      - "PHP_SELF=/index.php"
-      - "PHP_INI_SCAN_DIR=:/p/sqlite3"
     restart: always
     depends_on:
       - "rdmariadb"
@@ -23,24 +18,38 @@ services:
 
   rdmariadb:
     container_name: radiusdesk-mariadb
-    image: docker.io/bitnami/mariadb:latest
+    image: mariadb:11.8
 
     restart: always
     environment:
-      - "ALLOW_EMPTY_PASSWORD=yes"
+      - "MYSQL_ALLOW_EMPTY_PASSWORD=yes"
       - "MARIADB_USER=rd"
+      - "MARIADB_PASSWORD=rd"
       - "MARIADB_DATABASE=rd"
-      - "MARDIADB_PASSWORD=rd"
 
     volumes:
-      - ${RADIUSDESK_VOLUME}/db_conf/my_custom.cnf:/opt/bitnami/mariadb/conf/my_custom.cnf:ro
-      - rd_data:/bitnami/mariadb
+      - ${RADIUSDESK_VOLUME}/db_conf/my_custom.cnf:/etc/mysql/conf.d/my_custom.cnf:ro
+      - rd_data:/var/lib/mysql
       - ${RADIUSDESK_VOLUME}/db_startup:/tmp
+
+  # Optional phpmyadmin for debugging and db backups
+  #phpmyadmin:
+  #  image: phpmyadmin:latest
+  #  container_name: radiusdesk-phpmyadmin
+  #  restart: always
+  #  ports:
+  #    - "81:80"
+  #  environment:
+  #    - "PMA_HOST=rdmariadb"
+  #    - "PMA_USER=rd"
+  #    - "PMA_PASSWORD=rd"
+  #  depends_on:
+  #    - "rdmariadb"
 
 volumes:
   rd_data:
 
 networks:
   default:
-    external:
-      name: "${RADIUSDESK_NETWORK}"
+    name: "${RADIUSDESK_NETWORK}"
+    external: true

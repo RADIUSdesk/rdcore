@@ -1,28 +1,36 @@
-FROM jtreminio/php:8.1
-    # We start with a nice php docker container that has all plugins we need including fpm and cli
+FROM ubuntu:24.04
+	# We start from the ubuntu base
 
     # Arguments we can take
     ARG radiusdesk_volume
 
     ## Install all software required
 
-    # Sets up Nginx and required language pack
+    # Set up required language pack
     RUN apt-get update
     RUN apt-get -y install language-pack-en-base
-    RUN apt-get -y install nginx
+	
+	# Install, enable & configure Nginx & FPM
+	RUN apt-get -y install nginx
+	COPY ./default /etc/nginx/sites-enabled/
+	
+	RUN apt-get -y install php-fpm
+	RUN apt-get -y install php-cli php-mysql php-gd php-curl php-xml php-mbstring php-intl php-sqlite3 git wget
 
     # Install Freeradius
     RUN apt-get -y install libdatetime-perl
-    RUN apt-get -y install  freeradius freeradius-mysql
+	RUN apt-get -y install libdbd-mysql-perl
+	RUN apt-get -y install libdigest-hmac-perl
+	RUN apt-get -y install libdatetime-format-rfc3339-perl
+	RUN apt-get -y install eapoltest
+    RUN apt-get -y install freeradius freeradius-mysql
+	RUN apt-get -y install libjson-perl libwww-perl
 
-     # Install supervisord to start up all services - as docker only allows one process to start up
+    # Install supervisord to start up all services - as docker only allows one process to start up
     RUN apt-get install -y supervisor
 
-    # Install subversion to get java library
-    RUN apt-get install -y subversion 
-
     # Prepare all directories
-    COPY ./default /etc/nginx/sites-enabled/
+    
     COPY ./disable_strict_mode.cnf /etc/mysql/conf.d/
     COPY ./rdcore /var/www/rdcore
 
@@ -50,39 +58,36 @@ FROM jtreminio/php:8.1
     RUN chown -R www-data. /var/www/html/cake4/rd_cake/webroot/img/access_providers
     RUN chown -R www-data. /var/www/html/cake4/rd_cake/webroot/img/hardwares
     RUN chown -R www-data. /var/www/html/cake4/rd_cake/webroot/files/imagecache
-    
-    ## Setup environment variables 
-
-    # PHP environment - these are unique to the Docker hub image jtreminio/php
-    ENV PHP_INI_SCAN_DIR=:/p/gd
-    ENV PHP.cgi.fix_pathinfo=1
-    ENV PHP_SELF=/index.php
-
 
     ## General startup script with database init and freeradius start
     #COPY ./startup.sh /
 
     # Setup Cron jobs
+	RUN apt-get install -y cron
     RUN cp /var/www/html/cake4/rd_cake/setup/cron/cron4 /etc/cron.d/
     RUN chmod 0644 /etc/cron.d/cron4
     RUN crontab /etc/cron.d/cron4
 
     # configure php-fpm
     RUN mkdir -p /var/log/php-fpm
-
-    ## configure freeradius
   
     # Sets up Nginx with php-fpm and required php plugins
 
+	## configure freeradius
+
     RUN mv /etc/freeradius /etc/freeradius.orig
     RUN mkdir -p /etc/freeradius
-    RUN tar xzf /var/www/html/cake4/rd_cake/setup/radius/freeradius-3-radiusdesk.tar.gz --one-top-level=/etc/freeradius/
-    RUN mv /etc/freeradius/freeradius /etc/freeradius/3.0
-    RUN chown -R freerad. /etc/freeradius/3.0/
+	RUN cp -R /var/www/html/cake4/rd_cake/setup/radius/freeradius /etc/
+    
+	# Set freeradius permissions
+	RUN chown -R freerad: /etc/freeradius/3.0/
+	RUN chown freerad:www-data /etc/freeradius
+	RUN chown freerad:www-data /etc/freeradius/3.0
+	RUN chown freerad:www-data /etc/freeradius/3.0/dictionary
 
     #RUN mkdir -p  /var/log/freeradius
     RUN mkdir -p /var/run/freeradius
-    RUN chown freerad. /var/run/freeradius
+    RUN chown freerad: /var/run/freeradius
 
     COPY ./freeradius.service /lib/systemd/system/
 
@@ -95,17 +100,13 @@ FROM jtreminio/php:8.1
     # Copy php settings
     COPY ./php.ini /etc/php/php.ini
 
-    # Fix the configs to point to external database
-    RUN sed  -i  "s/'host' => 'localhost'/'host' => 'rdmariadb'/g" /var/www/html/cake4/rd_cake/config/app_local.php
-    RUN sed  -i  "s/\$servername = \"localhost\";/\$servername = \"rdmariadb\";/g"  /var/www/rdcore/cake4/rd_cake/setup/scripts/reporting/reporting.php
-    RUN sed  -i  "s/\$servername = \"localhost\";/\$servername = \"rdmariadb\";/g"  /var/www/rdcore/cake4/rd_cake/setup/scripts/reporting/flows_wip.php
-    RUN sed  -i  "s/\$servername = \"localhost\";/\$servername = \"rdmariadb\";/g"  /var/www/rdcore/cake4/rd_cake/setup/scripts/reporting/process_flows.php
-    RUN sed  -i  "s/\$servername = \"localhost\";/\$servername = \"rdmariadb\";/g"  /var/www/rdcore/cake4/rd_cake/setup/scripts/reporting/process_report.php
-    RUN sed  -i  "s/\$servername = \"localhost\";/\$servername = \"rdmariadb\";/g"  /var/www/rdcore/cake4/rd_cake/setup/scripts/reporting/reporting_wip.php 
-    RUN sed  -i  "s/\$servername = \"localhost\";/\$servername = \"rdmariadb\";/g"  /var/www/rdcore/cake4/rd_cake/setup/scripts/reporting/send_remote_syslog.php
+    # Fix all cake4 configs to point to external database
+    RUN sed -i "s/'host' => 'localhost'/'host' => 'rdmariadb'/g" /var/www/html/cake4/rd_cake/config/app_local.php
+    RUN sed -i "s/\$servername = \"localhost\";/\$servername = \"rdmariadb\";/g" /var/www/rdcore/cake4/rd_cake/setup/scripts/reporting/*.php
 
-    # Fix the Freeradius config to point to our new database
-    RUN sed  -i 's/server = \"localhost\"/server = \"rdmariadb\"/g'  /etc/freeradius/3.0/mods-available/sql
+    # Fix all Freeradius configs to point to our new database
+    RUN sed -i 's/server = "localhost"/server = "rdmariadb"/g' /etc/freeradius/3.0/mods-available/sql
+	RUN sed -i "s/\$conf{'db_host'}\s*=\s*\"127.0.0.1\";/\$conf{'db_host'} = \"rdmariadb\";/g" /etc/freeradius/3.0/mods-config/perl/*.pl
 
     # Copy files from production to root www
     RUN cp -R /var/www/html/rd/build/production/Rd/* /var/www/html/
@@ -113,7 +114,7 @@ FROM jtreminio/php:8.1
     # entrypoint run script when container starts - ignores what is in command
     ENTRYPOINT /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
 
-    # Only expose radiusdesk web front end to Teaefik and Freeradius UDP ports that bypass traefik
+    # Expose radiusDESK front end ports
     EXPOSE 80/tcp
     EXPOSE 1812/udp
     EXPOSE 1813/udp

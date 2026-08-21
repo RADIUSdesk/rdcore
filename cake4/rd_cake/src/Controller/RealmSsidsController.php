@@ -126,7 +126,7 @@ class RealmSsidsController extends AppController{
         $query->limit($limit);
         $query->offset($offset);
         
-        $sort   = 'name';
+        $sort   = 'realm_ssid_name';
         $dir    = 'ASC';
         $dir    = isset($req_q['dir']) ? $req_q['dir'] : $dir;
         $sort   = isset($req_q['sort']) ? $req_q['sort'] : $sort;
