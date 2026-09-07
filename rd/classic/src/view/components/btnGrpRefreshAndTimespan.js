@@ -2,7 +2,7 @@ Ext.define('Rd.view.components.btnGrpRefreshAndTimespan', {
     extend      : 'Ext.container.ButtonGroup',
     xtype       : 'btnGrpRefreshAndTimespan',
     inclTblGraph: false,
-    scale       : 'large',
+    scale       : 'small',
     initComponent: function(){
         var me      = this;
         var scale   = me.scale;
@@ -12,7 +12,7 @@ Ext.define('Rd.view.components.btnGrpRefreshAndTimespan', {
                 scale   : scale, 
                 itemId  : 'reload',   
                 tooltip : i18n('sReload'),
-                ui      : 'button-orange', 
+                ui      : Rd.config.btnUiReload, 
                 menu    : {
                     items: [
                         '<b class="menu-title">Reload every:</b>',
@@ -31,7 +31,7 @@ Ext.define('Rd.view.components.btnGrpRefreshAndTimespan', {
                 scale       : scale, 
                 itemId      : 'hour', 
                 pressed     : true,
-                ui          : Rd.config.btnUiRefresh
+                ui          : Rd.config.btnUiReload
             },
             { 
                 xtype       : 'button', 
@@ -40,7 +40,7 @@ Ext.define('Rd.view.components.btnGrpRefreshAndTimespan', {
                 enableToggle : true, 
                 scale       : scale, 
                 itemId      : 'day',
-                ui          : Rd.config.btnUiRefresh 
+                ui          : Rd.config.btnUiReload
             },
             { 
                 xtype       : 'button', 
@@ -49,7 +49,7 @@ Ext.define('Rd.view.components.btnGrpRefreshAndTimespan', {
                 enableToggle : true, 
                 scale       : scale, 
                 itemId      : 'week',
-                ui          : Rd.config.btnUiRefresh
+                ui          : Rd.config.btnUiReload
             }         
         ];
         

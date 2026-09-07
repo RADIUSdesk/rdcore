@@ -1,70 +1,61 @@
 Ext.define('Rd.view.meshes.pnlMeshView', {
-    extend      : 'Ext.tab.Panel',
+    extend      : 'Ext.panel.Panel',
     alias       : 'widget.pnlMeshView',
+    layout      : {
+        type    : 'vbox',
+        align   : 'stretch'
+    },
     meshId      : undefined,
     meshName    : undefined,
-    plain       : true,
-    tabPosition : 'top',
-    cls         : 'subTab',
-    showEdit    : true,
-    listeners   : {
-        afterrender: function(panel) {
-            var me = this;
-            if(me.showEdit){
-                var bar = panel.tabBar;
-                bar.insert(5, [{
-                    xtype: 'component',
-                    flex: 1
-                }, {
-                    xtype   : 'button',
-                    itemId  : 'editMesh',
-                    margin  : 2,
-                    padding : 2,
-                    text    : 'Edit MESH',
-                    scale   : 'medium',
-                    glyph   : Rd.config.icnEdit,
-                    ui      : Rd.config.btnUiDataNext
-                }]);
-            }
-        }
-    },
+    requires    : [
+        'Rd.view.components.cntNavigation'
+    ],
     initComponent: function() {
-        var me      = this;     
-        me.items    = [
-             {
-                title   : i18n("sOverview"),
-                itemId  : 'tabMeshViewOverwiew',
-			    xtype	: 'pnlMeshViewNodes',
-                meshId  : me.mesh_id
+        var me      = this; 
+        me.items = [ 
+            {
+                xtype   : 'cntNavigation',
+                margin  : 0,
+                padding : 5,
+                url     : '/cake4/rd_cake/meshes/nav-mesh-view.json'
             },
             {
-                title   : 'SSID &#8660; Device',
-                itemId  : 'tabMeshViewEntries',
-                xtype   : 'pnlMeshViewEntries',
-                meshId  : me.mesh_id
-            },
-            {
-                title   : 'Node &#8660; Device',
-                itemId  : 'tabMeshViewNodes',
-                xtype   : 'pnlMeshViewNode',
-                meshId  : me.mesh_id
-            },
-		    {
-                title   : 'Node &#8660; Nodes',
-                itemId  : 'tabMeshViewNodeNodes',
-			    xtype   : 'gridMeshViewNodeNodes',
-                meshId  : me.mesh_id,
-                padding : Rd.config.gridSlim
-            },
-		    {
-                title   : i18n("sNodes"),
-                itemId  : 'tabMeshViewNodeDetails',
-			    xtype   : 'gridMeshViewNodeDetails',
-                meshId  : me.mesh_id,
-                padding : Rd.config.gridSlim
+                xtype   : 'container',
+                layout  : 'card',
+                itemId  : 'crdMeshView',
+                flex    : 1,
+                items   : [
+                    {                    
+                        itemId  : 'tabMeshViewOverwiew',
+			            xtype	: 'pnlMeshViewNodes',
+                        meshId  : me.mesh_id
+                    },
+                    {
+                        itemId  : 'tabMeshViewEntries',
+                        xtype   : 'pnlMeshViewEntries',
+                        meshId  : me.mesh_id
+                    },
+                    {
+                        itemId  : 'tabMeshViewNodes',
+                        xtype   : 'pnlMeshViewNode',
+                        meshId  : me.mesh_id
+                    },
+		            {
+                        itemId  : 'tabMeshViewNodeNodes',
+			            xtype   : 'gridMeshViewNodeNodes',
+                        meshId  : me.mesh_id,
+                        padding : Rd.config.gridSlim
+                    },
+		            {
+                        itemId  : 'tabMeshViewNodeDetails',
+			            xtype   : 'gridMeshViewNodeDetails',
+                        meshId  : me.mesh_id,
+                        padding : Rd.config.gridSlim
+                    }              
+                ]            
             }
-           
-        ];
+        ];   
+        
         me.callParent(arguments);
     }
 });

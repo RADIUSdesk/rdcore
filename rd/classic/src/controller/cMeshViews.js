@@ -152,7 +152,6 @@ Ext.define('Rd.controller.cMeshViews', {
                 glyph   : Rd.config.icnView, 
                 title   : name,
                 closable: true,
-                layout  : 'fit',
                 xtype   : 'pnlMeshView',
                 itemId  : id,
                 mesh_id : mesh_id,

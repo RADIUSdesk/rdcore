@@ -19,7 +19,9 @@ Ext.define('Rd.view.aps.gridApViewActions' ,{
     urlMenu:        '/cake4/rd_cake/ap-actions/menu-for-grid.json',
     urlIndex:       '/cake4/rd_cake/ap-actions/index.json',
     
-    plugins: [{
+    plugins: [
+        'gridfilters',
+        {        
 		ptype: 'rowwidget',
 		widget: {
 			xtype: 'component',
@@ -108,7 +110,10 @@ Ext.define('Rd.view.aps.gridApViewActions' ,{
 
         //Create a store specific to this Owner
         me.store = Ext.create('Ext.data.Store',{
-            model: 'Rd.model.mMeshViewNodeAction',
+            model       : 'Rd.model.mMeshViewNodeAction',
+            pageSize    : 100,
+            remoteSort  : true,
+            remoteFilter: true,
             proxy: {
                 type: 'ajax',
                 format  : 'json',
@@ -117,7 +122,8 @@ Ext.define('Rd.view.aps.gridApViewActions' ,{
                 reader: {
                     type: 'json',
                     rootProperty: 'items',
-                    messageProperty: 'message'
+                    messageProperty: 'message',
+                    totalProperty   : 'totalCount' //Required for dynamic paging
                 },
                 api: {
                     destroy  : '/cake4/rd_cake/ap-actions/delete.json'

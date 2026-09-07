@@ -803,3 +803,232 @@
   text-align: center; 
 }
 
+
+/* ============================================================
+   MESHdesk navigation
+   ============================================================ */
+
+.cnt-navigation {
+    border-bottom: 1px solid #dedede;
+    background: #fff;
+}
+
+
+/* ------------------------------------------------------------
+   Navigation container
+   ------------------------------------------------------------ */
+
+.nav-container {
+    display: flex;
+    align-items: stretch;
+
+    width: 100%;
+    height: 64px;
+
+    padding: 0 12px;
+
+    justify-content: flex-start;
+    gap: 2px;
+}
+
+
+/* ------------------------------------------------------------
+   Normal navigation item
+   ------------------------------------------------------------ */
+
+.nav-item-wrap {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 145px;
+    height: 64px;
+
+    padding: 5px 12px 6px;
+
+    cursor: pointer;
+
+    background-color: transparent;
+
+    border-radius: 0;
+
+    box-sizing: border-box;
+
+    transition:
+        background-color 120ms ease,
+        color 120ms ease;
+}
+
+
+/* ------------------------------------------------------------
+   Icon
+   ------------------------------------------------------------ */
+
+.nav-item-icon {
+    display: block;
+
+    font-size: 21px;
+    line-height: 24px;
+
+    color: #454545;
+
+    margin-bottom: 3px;
+
+    font-style: normal;
+}
+
+
+/* ------------------------------------------------------------
+   Text
+   ------------------------------------------------------------ */
+
+.nav-item-text {
+    font-size: 12px;
+    line-height: 16px;
+
+    color: #555;
+
+    text-align: center;
+    white-space: nowrap;
+}
+
+
+/* ------------------------------------------------------------
+   Hover
+   ------------------------------------------------------------ */
+
+.nav-item-wrap:hover {
+    background-color: #f5f7f9;
+}
+
+.nav-item-wrap:hover .nav-item-icon,
+.nav-item-wrap:hover .nav-item-text {
+    color: #1677b8;
+}
+
+
+/* ------------------------------------------------------------
+   Selected / active item
+   ------------------------------------------------------------ */
+
+.nav-item-selected {
+    background-color: #f1f7fb !important;
+
+    border: none !important;
+    border-radius: 0 !important;
+
+    color: #1677b8 !important;
+}
+
+
+/* Active icon + text */
+
+.nav-item-selected .nav-item-icon,
+.nav-item-selected .nav-item-text {
+    color: #1677b8 !important;
+}
+
+
+/* Active indicator */
+
+.nav-item-selected::after {
+    content: '';
+
+    position: absolute;
+
+    left: 14px;
+    right: 14px;
+    bottom: 0;
+
+    height: 3px;
+
+    background-color: #1677b8;
+
+    border-radius: 3px 3px 0 0;
+}
+
+
+/* ============================================================
+   Edit Mesh action
+   ============================================================ */
+
+.nav-item-link-type {
+    margin-left: auto;
+
+    flex: 0 0 60px;
+
+    width: 60px !important;
+    height: 60px !important;
+
+    align-self: center;
+
+    padding: 0 !important;
+
+    border-radius: 50% !important;
+    border: none !important;
+
+    background-color: #6a1b9a;
+
+    box-sizing: border-box;
+
+    transition:
+        background-color 120ms ease,
+        transform 120ms ease,
+        box-shadow 120ms ease;
+}
+
+
+/* Edit Mesh icon */
+
+.nav-item-link-type .nav-item-icon {
+    font-size: 21px !important;
+    line-height: 24px;
+
+    color: #fff !important;
+
+    margin-bottom: 2px;
+
+    -webkit-text-stroke: 0 !important;
+}
+
+
+/* Edit Mesh text */
+
+.nav-item-link-type .nav-item-text {
+    color: #fff !important;
+
+    font-size: 9px !important;
+    line-height: 11px;
+
+    max-width: 55px;
+
+    white-space: normal;
+}
+
+
+/* Edit Mesh hover */
+
+.nav-item-link-type:hover,
+.nav-item-link-type.nav-item-hover {
+    background-color: #7b1fa2 !important;
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+
+/* Edit Mesh selected */
+
+.nav-item-link-type.nav-item-selected {
+    background-color: #4a148c !important;
+
+    border: none !important;
+}
+
+.nav-item-link-type.nav-item-selected::after {
+    display: none;
+}

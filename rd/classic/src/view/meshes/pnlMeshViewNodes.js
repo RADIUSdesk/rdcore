@@ -11,16 +11,14 @@ Ext.define('Rd.view.meshes.pnlMeshViewNodes', {
         loadMask:true
     },
     tbar: [
-        { xtype: 'buttongroup', title: null, items : [
-            {   
-                xtype   : 'button',      
-                glyph   : Rd.config.icnReload ,
-                scale   : 'large', 
-                itemId  : 'reload',   
-                tooltip : i18n('sReload'),
-                ui      : Rd.config.btnUiReload
-            }
-        ]}    
+        {   
+            xtype   : 'button',      
+            glyph   : Rd.config.icnReload ,
+            scale   : 'small', 
+            itemId  : 'reload',   
+            tooltip : i18n('sReload'),
+            ui      : Rd.config.btnUiReload
+        }  
     ],
     initComponent: function(){
         var me 	= this;

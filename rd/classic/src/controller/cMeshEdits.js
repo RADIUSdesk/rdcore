@@ -242,7 +242,6 @@ Ext.define('Rd.controller.cMeshEdits', {
                 glyph   : Rd.config.icnEdit, 
                 title   : config.name,
                 closable: true,
-                layout  : 'fit',
                 xtype   : 'pnlMeshEdit',
                 itemId  : id,
                 border  : false,
