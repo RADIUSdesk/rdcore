@@ -1,10 +1,6 @@
 services:
   radiusdesk:
-    build:
-      context: ./
-      dockerfile: Dockerfile-build-radiusdesk
-      args:
-        radiusdesk_volume: ${RADIUSDESK_VOLUME}
+    image: dirkvanderwalt/radiusdesk:latest
     container_name: radiusdesk
 
     restart: always

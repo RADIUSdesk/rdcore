@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 	# We start from the ubuntu base
 
     # Arguments we can take
@@ -15,7 +15,10 @@ FROM ubuntu:24.04
 	COPY ./default /etc/nginx/sites-enabled/
 	
 	RUN apt-get -y install php-fpm
-	RUN apt-get -y install php-cli php-mysql php-gd php-curl php-xml php-mbstring php-intl php-sqlite3 git wget
+	RUN apt-get -y install php-cli php-mysql php-gd php-curl php-xml php-mbstring php-intl php-sqlite3 git wget 
+	
+	#Also install ping vim and mariadb-client
+	RUN apt-get -y install vim mariadb-client iputils-ping
 
     # Install Freeradius
     RUN apt-get -y install libdatetime-perl
@@ -33,16 +36,15 @@ FROM ubuntu:24.04
     
     COPY ./disable_strict_mode.cnf /etc/mysql/conf.d/
     COPY ./rdcore /var/www/rdcore
+    COPY /rd_cake5 /var/www/rd_cake5
 
     RUN mkdir -p /var/www/html
     RUN ln -s /var/www/rdcore/rd /var/www/html/rd
-    RUN ln -s /var/www/rdcore/cake4 /var/www/html/cake4
-    #If backward compatibility is required for older firmware of MESHdesk
-    RUN ln -s /var/www/rdcore/cake4 /var/www/html/cake3
+    RUN ln -s /var/www/rd_cake5 /var/www/html/cake4
     RUN ln -s /var/www/rdcore/login /var/www/html/login
     RUN ln -s /var/www/rdcore/AmpConf/build/production/AmpConf /var/www/html/conf_dev
     RUN ln -s /var/www/rdcore/login/rd_client/build/production/AmpConf /var/www/html/usage
-    RUN ln -s /var/www/rdcore/cake4/rd_cake/setup/scripts/reporting /var/www/html/reporting
+    RUN ln -s /var/www/rd_cake5/rd_cake/setup/scripts/reporting /var/www/html/reporting
     
     # Create requried directories
     RUN mkdir -p /var/www/html/cake4/rd_cake/logs
@@ -64,9 +66,9 @@ FROM ubuntu:24.04
 
     # Setup Cron jobs
 	RUN apt-get install -y cron
-    RUN cp /var/www/html/cake4/rd_cake/setup/cron/cron4 /etc/cron.d/
-    RUN chmod 0644 /etc/cron.d/cron4
-    RUN crontab /etc/cron.d/cron4
+    RUN cp /var/www/html/cake4/rd_cake/setup/cron/rd_cake5 /etc/cron.d/
+    RUN chmod 0644 /etc/cron.d/rd_cake5
+    RUN crontab /etc/cron.d/rd_cake5
 
     # configure php-fpm
     RUN mkdir -p /var/log/php-fpm
@@ -102,7 +104,7 @@ FROM ubuntu:24.04
 
     # Fix all cake4 configs to point to external database
     RUN sed -i "s/'host' => 'localhost'/'host' => 'rdmariadb'/g" /var/www/html/cake4/rd_cake/config/app_local.php
-    RUN sed -i "s/\$servername = \"localhost\";/\$servername = \"rdmariadb\";/g" /var/www/rdcore/cake4/rd_cake/setup/scripts/reporting/*.php
+    RUN sed -i "s/\$servername = \"localhost\";/\$servername = \"rdmariadb\";/g" /var/www/html/cake4/rd_cake/setup/scripts/reporting/*.php
 
     # Fix all Freeradius configs to point to our new database
     RUN sed -i 's/server = "localhost"/server = "rdmariadb"/g' /etc/freeradius/3.0/mods-available/sql
@@ -114,10 +116,7 @@ FROM ubuntu:24.04
     # entrypoint run script when container starts - ignores what is in command
     ENTRYPOINT /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
 
-    # Expose radiusDESK front end ports
+    # Expose RADIUSdesk front end ports
     EXPOSE 80/tcp
     EXPOSE 1812/udp
     EXPOSE 1813/udp
-
-
-
