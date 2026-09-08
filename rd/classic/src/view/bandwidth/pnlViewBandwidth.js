@@ -19,7 +19,7 @@ Ext.define('Rd.view.bandwidth.pnlViewBandwidth', {
     initComponent   : function(){
     
         var me 	    = this;
-        var scale   = 'large';
+        var scale   = 'small';
         var dd      = Ext.getApplication().getDashboardData();
         var m       = 5;
         var p       = 5;
@@ -149,6 +149,9 @@ Ext.define('Rd.view.bandwidth.pnlViewBandwidth', {
        
         me.tbar  = [{   
             xtype   : 'buttongroup',
+            border  :  false,
+            bodyBorder: false,
+            frame   : false,
             items   : [
                 { 
                     xtype   : 'splitbutton',
@@ -173,7 +176,7 @@ Ext.define('Rd.view.bandwidth.pnlViewBandwidth', {
                     xtype       : 'cmbBandwidthInterfaces',
                     allOption   : true,
                     width       : 220,
-                    margin      : '5 0 0 0',
+                    margin      : '0 0 0 0',
                     itemId      : 'cmbBandwidthInterfaces',
                     value       : -1,
                     dev_mode    : me.dev_mode,

@@ -183,7 +183,6 @@ Ext.define('Rd.controller.cAccessPointEdits', {
                 glyph   : Rd.config.icnEdit, 
                 title   : name,
                 closable: true,
-                layout  : 'fit',
                 xtype   : 'pnlAccessPointEdit',
                 itemId  : id,
                 ap_profile_id : ap_profile_id

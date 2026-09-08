@@ -7,8 +7,10 @@ Ext.define('Rd.view.meshes.pnlMeshView', {
     },
     meshId      : undefined,
     meshName    : undefined,
+    controller  : 'vcMeshView',
     requires    : [
-        'Rd.view.components.cntNavigation'
+        'Rd.view.components.cntNavigation',
+        'Rd.view.meshes.vcMeshView'
     ],
     initComponent: function() {
         var me      = this; 

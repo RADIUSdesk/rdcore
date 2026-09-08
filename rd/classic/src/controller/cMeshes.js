@@ -198,20 +198,7 @@ Ext.define('Rd.controller.cMeshes', {
             },
             'gridNodeLists actioncolumn' : {
                  itemClick  : me.onNodeListsActionColumnItemClick
-            },            
-			'pnlMeshView #editMesh' : {
-			    click: me.btnEditMeshClicked
-			},
-			'pnlMeshEdit #viewMesh' : {
-			    click: me.btnViewMeshClicked
-			},
-			//Sept 2026 - Improved UI
-			'pnlMeshView #dvNavigation' : {
-			    itemclick: me.navItemMeshView
-			},
-			'pnlMeshEdit #dvNavigation' : {
-			    itemclick: me.navItemMeshEdit
-			},
+            }
         });
     },  
     appClose:   function(){
@@ -741,16 +728,6 @@ Ext.define('Rd.controller.cMeshes', {
             me.view();
         }      
     },
-    btnEditMeshClicked: function(b){
-        var me = this;
-        pnlMeshView = b.up('pnlMeshView');        
-        Ext.getApplication().runAction('cMeshEdits','Index',pnlMeshView,{name:pnlMeshView.getTitle(),id:pnlMeshView.mesh_id});   
-    },
-    btnViewMeshClicked: function(b){
-        var me = this;
-        pnlMeshEdit = b.up('pnlMeshEdit');
-        Ext.getApplication().runAction('cMeshViews','Index',pnlMeshEdit.meshId,pnlMeshEdit.meshName);
-    },
     onNodeListsActionColumnItemClick: function(view, rowIndex, colIndex, item, e, record, row, action){
         //console.log("Action Item "+action+" Clicked");
         var me = this;
@@ -769,76 +746,5 @@ Ext.define('Rd.controller.cMeshes', {
         if(action == 'config'){
             me.getConfig(record);
         }       
-    },
-    navItemMeshView: function(view, record, item, index, e, eOpts){
-        var me = this;
-        if(record.get('type') == 'screen'){
-            //view.up('pnlMeshView').down('#crdMeshView').getLayout().setActiveItem(record.get('id'));
-            
-            var cardPanel = view.up('pnlMeshView').down('#crdMeshView');
-            var layout = cardPanel.getLayout();
-            var targetItemId = record.get('id');
-
-            // 1. Kry die komponent wat gewys gaan word
-            var nextCard = cardPanel.down('#' + targetItemId) || cardPanel.getComponent(targetItemId);
-
-            if (nextCard) {
-                // 2. Skakel die nuwe card aan (dit gebeur onmiddellik)
-                layout.setActiveItem(nextCard);
-                
-                // 3. Pas 'n gladde Fade-In animasie op die nuwe card se HTML element toe
-                var el = nextCard.getEl();
-                if (el) {
-                    el.setStyle('opacity', 0); // Maak dit eers heeltemal deursigtig
-                    el.animate({
-                        duration: 1000,        // Tyd in millisekondes (0.3 sekondes)
-                        to: {
-                            opacity: 1        // Fade in na volle sigbaarheid
-                        }
-                    });
-                }
-            }                          
-        }
-        if(record.get('type') == 'link'){
-            console.log("Start a Controller Index "+record.get('id'));
-            pnlMeshView = view.up('pnlMeshView');        
-            Ext.getApplication().runAction('cMeshEdits','Index',pnlMeshView,{name:pnlMeshView.getTitle(),id:pnlMeshView.mesh_id});                               
-        }    
-    },
-    navItemMeshEdit: function(view, record, item, index, e, eOpts){
-        var me = this;
-        if(record.get('type') == 'screen'){
-            //view.up('pnlMeshView').down('#crdMeshView').getLayout().setActiveItem(record.get('id'));
-            
-            var cardPanel = view.up('pnlMeshEdit').down('#crdMeshEdit');
-            var layout = cardPanel.getLayout();
-            var targetItemId = record.get('id');
-
-            // 1. Kry die komponent wat gewys gaan word
-            var nextCard = cardPanel.down('#' + targetItemId) || cardPanel.getComponent(targetItemId);
-
-            if (nextCard) {
-                // 2. Skakel die nuwe card aan (dit gebeur onmiddellik)
-                layout.setActiveItem(nextCard);
-                
-                // 3. Pas 'n gladde Fade-In animasie op die nuwe card se HTML element toe
-                var el = nextCard.getEl();
-                if (el) {
-                    el.setStyle('opacity', 0); // Maak dit eers heeltemal deursigtig
-                    el.animate({
-                        duration: 1000,        // Tyd in millisekondes (0.3 sekondes)
-                        to: {
-                            opacity: 1        // Fade in na volle sigbaarheid
-                        }
-                    });
-                }
-            }                          
-        }
-        if(record.get('type') == 'link'){
-            console.log("Start a Controller Index "+record.get('id'));
-            pnlMeshEdit = view.up('pnlMeshEdit');        
-           // Ext.getApplication().runAction('cMeshViews','Index',pnlMeshEdit,{name:pnlMeshEdit.getTitle(),id:pnlMeshEdit.mesh_id});
-            Ext.getApplication().runAction('cMeshViews','Index',pnlMeshEdit.meshId,pnlMeshEdit.meshName);                               
-        }    
-    }
+    }   
 });

@@ -1,48 +1,63 @@
 Ext.define('Rd.view.aps.pnlAccessPointEdit', {
-    extend          : 'Ext.tab.Panel',
-    alias           : 'widget.pnlAccessPointEdit',
-    border          : false,
-    plain           : true,
-    cls             : 'subTab',
-    tabPosition     : 'top',
+    extend      : 'Ext.panel.Panel',
+    alias       : 'widget.pnlAccessPointEdit',
+    layout      : {
+        type    : 'vbox',
+        align   : 'stretch'
+    },
     ap_profile_id   : undefined,
+    controller  : 'vcAccessPointEdit',
+    requires    : [
+        'Rd.view.aps.vcAccessPointEdit'        
+    ],
     initComponent: function() {
-        var me      = this;     
-        me.items    = [
+        var me      = this;  
+        
+        me.items = [ 
             {
-                title       : i18n("sGeneral"),
-                itemId      : 'tabApGeneral',
-                xtype       : 'pnlApGeneral',
-                apProfileId : me.ap_profile_id
+                xtype   : 'cntNavigation',
+                margin  : 0,
+                padding : 5,
+                url     : '/cake4/rd_cake/aps/nav-access-point-edit.json'
             },
             {
-                title       :  'SSIDs',
-                itemId      : 'tabEntryPoints',
-                xtype       : 'gridAccessPointEntries',
-                apProfileId : me.ap_profile_id,
-                padding     : Rd.config.gridSlim
-            },
-            {
-                title       :  i18n("sExit_points"),
-                itemId      : 'tabExitPoints',
-                xtype       : 'gridAccessPointExits',
-                apProfileId : me.ap_profile_id,
-                padding     : Rd.config.gridSlim
-            },
-            {
-                title       : 'Common Settings',
-                itemId      : 'tabAccessPointCommonSettings',
-                xtype       : 'pnlAccessPointCommonSettings',
-                apProfileId : me.ap_profile_id 
-            },
-             {
-                title       : 'Devices',
-                itemId      : 'tabAccessPointAps',
-                xtype       : 'gridAccessPointAps',
-                apProfileId : me.ap_profile_id,
-                padding     : Rd.config.gridSlim    
+                xtype   : 'container',
+                layout  : 'card',
+                itemId  : 'crdAccessPointEdit',
+                flex    : 1,
+                items   : [
+                    {
+                        itemId      : 'tabApGeneral',
+                        xtype       : 'pnlApGeneral',
+                        apProfileId : me.ap_profile_id
+                    },
+                    {
+                        itemId      : 'tabEntryPoints',
+                        xtype       : 'gridAccessPointEntries',
+                        apProfileId : me.ap_profile_id,
+                        padding     : Rd.config.gridSlim
+                    },
+                    {
+                        itemId      : 'tabExitPoints',
+                        xtype       : 'gridAccessPointExits',
+                        apProfileId : me.ap_profile_id,
+                        padding     : Rd.config.gridSlim
+                    },
+                    {
+                        itemId      : 'tabAccessPointCommonSettings',
+                        xtype       : 'pnlAccessPointCommonSettings',
+                        apProfileId : me.ap_profile_id 
+                    },
+                    {
+                        itemId      : 'tabAccessPointAps',
+                        xtype       : 'gridAccessPointAps',
+                        apProfileId : me.ap_profile_id,
+                        padding     : Rd.config.gridSlim    
+                    }
+                ]
             }
         ];
+        
         me.callParent(arguments);
     }
 });

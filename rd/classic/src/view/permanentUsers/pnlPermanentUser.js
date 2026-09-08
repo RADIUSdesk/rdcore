@@ -1,66 +1,73 @@
 Ext.define('Rd.view.permanentUsers.pnlPermanentUser', {
-    extend  : 'Ext.tab.Panel',
-    alias   : 'widget.pnlPermanentUser',
-    border  : false,
-    pu_id   : null,
-    pu_name : null,
-    record  : null, //We will supply each instance with a reference to the selected record.
-    plain   : true,
-    cls     : 'subTab',
+    extend      : 'Ext.panel.Panel',
+    alias       : 'widget.pnlPermanentUser',
+    layout      : {
+        type    : 'vbox',
+        align   : 'stretch'
+    },
+    pu_id       : null,
+    pu_name     : null,
+    record      : null, //We will supply each instance with a reference to the selected record.
+    controller  : 'vcPermanentUser',
     requires    : [
         'Rd.view.permanentUsers.pnlPermanentUserBasic',
-        'Rd.view.permanentUsers.pnlPermanentUserPersonal'
+        'Rd.view.permanentUsers.pnlPermanentUserPersonal',
+        'Rd.view.components.cntNavigation',
+        'Rd.view.permanentUsers.vcPermanentUser'
     ],
     initComponent: function(){
-        var me      = this;
-        //Set default values for from and to:
-        var dtFrom  = new Date();
-        var dtTo    = new Date();
-        dtTo.setYear(dtTo.getFullYear() + 1);
-
-		var ap_id	= me.record.get('owner_id');
-
-        me.items = [
-        {   
-            title   : 'RADIUS info',
-            itemId  : 'tabBasicInfo',
-            xtype   : 'pnlPermanentUserBasic',
-            record  : me.record  
-        },
-        {   
-            title       : i18n('sPersonal_info'),
-            itemId      : 'tabPersonalInfo',
-            xtype       : 'pnlPermanentUserPersonal',
-            selLanguage : me.selLanguage 
-        }, 
-        { 
-            title   : i18n('sDevices'),
-            layout  : 'fit',
-            xtype   : 'gridUserDevices',  
-            user_id : me.pu_id,
-            username: me.pu_name
-        },
-        { 
-            title   : i18n('sPrivate_attributes'),
-            layout  : 'fit',
-            xtype   : 'gridUserPrivate',  
-            username: me.pu_name
-        },
-        { 
-            title   : i18n('sAuthentication_data'),
-            layout  : 'fit',
-            xtype   : 'gridUserRadpostauths',  
-            username: me.pu_name
-        },
-        { 
-            title   : i18n('sAccounting_data'), 
-            layout  : 'fit',
-            xtype   : 'gridUserRadaccts',
-            username: me.pu_name
-        }
-    ]; 
-
-
+        var me      = this;        
+         me.items = [ 
+            {
+                xtype   : 'cntNavigation',
+                margin  : 0,
+                padding : 5,
+                url     : '/cake4/rd_cake/permanent-users/nav-user-edit.json'
+            },
+            {
+                xtype   : 'container',
+                layout  : 'card',
+                itemId  : 'crdPermanentUser',
+                flex    : 1,
+                items   : [ 
+                    {   
+                        itemId  : 'tabBasicInfo',
+                        xtype   : 'pnlPermanentUserBasic',
+                        record  : me.record  
+                    },
+                    {   
+                        itemId      : 'tabPersonalInfo',
+                        xtype       : 'pnlPermanentUserPersonal',
+                        selLanguage : me.selLanguage 
+                    }, 
+                    { 
+                        layout  : 'fit',
+                        xtype   : 'gridUserDevices',
+                        itemId  : 'tabDevices',  
+                        user_id : me.pu_id,
+                        username: me.pu_name
+                    },
+                    { 
+                        itemId  : 'tabPrivateAttributes',
+                        layout  : 'fit',
+                        xtype   : 'gridUserPrivate',  
+                        username: me.pu_name
+                    },
+                    { 
+                        itemId  : 'tabAuthData',
+                        layout  : 'fit',
+                        xtype   : 'gridUserRadpostauths',  
+                        username: me.pu_name
+                    },
+                    { 
+                        itemId  : 'tabAcctData', 
+                        layout  : 'fit',
+                        xtype   : 'gridUserRadaccts',
+                        username: me.pu_name
+                    }
+                ]
+            }
+        ];
         me.callParent(arguments);
     }
 });

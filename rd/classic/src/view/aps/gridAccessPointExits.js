@@ -53,7 +53,7 @@ Ext.define('Rd.view.aps.gridAccessPointExits' ,{
                     text        : i18n('sType'),
                     dataIndex   : 'type',
                     stateId     : 'StateGridAccessPointExitsId2',
-                    width       : 200,
+                    width       : 300,
                     renderer: function (v, m, rec) {
                         // keep your mapping but show as label w/ status dot
                         

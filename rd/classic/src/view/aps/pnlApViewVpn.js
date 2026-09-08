@@ -15,9 +15,12 @@ Ext.define('Rd.view.aps.pnlApViewVpn', {
     initComponent: function(){
         var me = this;
         
-        var scale   = 'large';
+        var scale   = 'small';
         me.tbar  = [{   
             xtype   : 'buttongroup',
+            border  :  false,
+            bodyBorder: false,
+            frame   : false,
             items   : [
                 { 
                     xtype   : 'splitbutton',

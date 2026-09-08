@@ -54,7 +54,6 @@ Ext.define('Rd.controller.cAccessPointViews', {
                 glyph   : Rd.config.icnAdd, 
                 title   : 'More info on: '+name,
                 closable: true,
-                layout  : 'fit',
                 xtype   : 'pnlAccessPointView',
                 itemId  : id,
                 ap_id   : ap_id

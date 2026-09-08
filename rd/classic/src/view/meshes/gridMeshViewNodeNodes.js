@@ -5,8 +5,7 @@ Ext.define('Rd.view.meshes.gridMeshViewNodeNodes' ,{
         'Rd.store.sMeshViewNodeNodes',
         'Rd.model.mMeshViewNodeNode',
         'Ext.toolbar.Paging',
-        'Ext.ux.ProgressBarPager',
-        'Rd.view.components.btnGrpRefreshAndTimespan'
+        'Ext.ux.ProgressBarPager'
     ],
     multiSelect : true,
     stateful    : true,
