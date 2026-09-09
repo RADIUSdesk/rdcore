@@ -17,7 +17,7 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUser', {
     ],
     initComponent: function(){
         var me      = this;        
-         me.items = [ 
+        me.items = [ 
             {
                 xtype   : 'cntNavigation',
                 margin  : 0,
