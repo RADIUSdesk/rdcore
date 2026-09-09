@@ -88,16 +88,37 @@ Ext.define('Rd.view.components.pnlUsageGraph', {
                         //tpl     : i18n('tpl_In_{in}_Out_{out}_Total_{total}'), 
                         //tpl     : '<h2>In {in} Out {out} Total {total}</h2>',
                         tpl     : [
-                            "<div>",
+                            '<div class="radacct-stats">',
+                                '<div class="stat-item">',
+                                    '<i class="fa fa-arrow-down"></i>',
+                                    '<span class="value">{in}</span>',
+                                    '<span class="label">In</span>',
+                                '</div>',
+
+                                '<div class="stat-item">',
+                                    '<i class="fa fa-arrow-up"></i>',
+                                    '<span class="value">{out}</span>',
+                                    '<span class="label">Out</span>',
+                                '</div>',
+
+                                '<div class="stat-item">',
+                                    "<span class='fa' style='font-family:FontAwesome;'>&#xf0ec</span>",
+                                    '<span class="value">{total}</span>',
+                                    '<span class="label">Total</span>',
+                                '</div>',
+                            '</div>'
+                        
+                        /*    "<div>",
                             "<label class='lblTipItem'><span style='color:#5c5f63;font-weight:100;'>{in}</span><span style='font-weight:100;'>  in</span></label>",
                             "<div style='clear:both;'></div>",
                             "<label class='lblTipItem'><span style='color:#5c5f63;font-weight:100;'>{out}</span><span style='font-weight:100;'> out</span></label>",
                             "<div style='clear:both;'></div>",
                             "<label class='lblTipItem'><span style='color:#5c5f63;font-weight:700;'>{total}</span>  total</label>",
-                            "</div>"
+                            "</div>"*/
                         ],
                         style   : 'margin-right:5px', 
-                        cls     : 'lblRd' 
+                        //cls     : 'lblRd' 
+                        cls     : 'radacct-grid',
                     }                                
                 ]
             },
@@ -152,7 +173,10 @@ Ext.define('Rd.view.components.pnlUsageGraph', {
                     type        : 'numeric',
                     position    : 'left',
                     adjustByMajorUnit: true,
-                    grid        : true,
+                    grid        : {
+                        stroke          : '#e0e0e0',  // Light gray instead of default dark
+                        'stroke-width'  : 0.5  // Thinner lines
+                    },
                     fields      : ['data_in', 'data_out'],
                     renderer    : function(axis, label, layoutContext) {
                         return Ext.ux.bytesToHuman(label);
@@ -180,7 +204,7 @@ Ext.define('Rd.view.components.pnlUsageGraph', {
                         opacity: 0.80
                     },
                     highlight: {
-                        fillStyle: 'yellow'
+                        fillStyle: '#396175'
                     },
                     tooltip: {
                         renderer: function (tooltip, record, item) {
