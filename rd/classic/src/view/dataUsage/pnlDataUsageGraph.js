@@ -25,7 +25,10 @@ Ext.define('Rd.view.dataUsage.pnlDataUsageGraph', {
                     type        : 'numeric',
                     position    : 'left',
                     adjustByMajorUnit: true,
-                    grid        : true,
+                    grid        : {
+                        stroke          : '#e0e0e0',  // Light gray instead of default dark
+                        'stroke-width'  : 0.5  // Thinner lines
+                    },
                     fields      : ['data_in', 'data_out'],
                     renderer    : function(axis, label, layoutContext) {
                         return Ext.ux.bytesToHuman(label);

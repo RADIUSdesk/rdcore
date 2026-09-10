@@ -70,7 +70,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                         xtype   : 'panel',
                         margin  : m,
                         padding : p,
-                      //  flex    : 1,
+                        flex    : 1,
                         cls     : 'mesh-card',
                         layout  : 'fit',
                         border  : true,
@@ -134,7 +134,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                         data    : {
                         }
                     },
-                  /*  {
+                    {
                         flex            : 1,
                         margin          : m,
                         padding         : p,
@@ -153,7 +153,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                                field    : 'name',
                                display  : 'rotate'
                            },
-                           donut        : 25,    
+                           donut        : 30,    
                            tooltip : {
                                 trackMouse: true,
                                 renderer: function (tooltip, record, item) {
@@ -163,8 +163,8 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                                 }
                             }    
                         }
-                    },*/
-                    {
+                    },
+                   /* {
                         flex        : 1,
                         margin      : m,
                         padding     : p,
@@ -187,7 +187,10 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                                 renderer    : function(axis, label, layoutContext) {
                                     return Ext.ux.bytesToHuman(label);
                                 },
-                                grid: true,
+                                grid        : {
+                                    stroke          : '#e0e0e0',  // Light gray instead of default dark
+                                    'stroke-width'  : 0.5  // Thinner lines
+                                },
                                 label  : Rd.config.rdGraphLabel
                             },
                             {
@@ -231,7 +234,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                                 }
                             }
                         ]
-                    },
+                    },*/
                     {
                         xtype           : 'pnlMeshViewDeviceDetail',
                         margin          : m,

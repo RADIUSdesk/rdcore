@@ -1032,3 +1032,242 @@
 .nav-item-link-type.nav-item-selected::after {
     display: none;
 }
+
+
+/* --- 10Sept 2026 ---*/
+.mesh-usage-card {
+    height: 100%;
+    box-sizing: border-box;
+    padding: 18px 24px;
+    text-align: center;
+    background: #fff;
+}
+
+/* -------------------------
+   Header / object
+   ------------------------- */
+
+.mesh-usage-title {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    color: #6f6f6f;
+    font-size: 14px;
+    font-weight: 600;
+
+    margin-bottom: 18px;
+}
+
+.mesh-usage-title i {
+    color: #29465b;
+    font-size: 16px;
+}
+
+/* -------------------------
+   Main number
+   ------------------------- */
+
+.mesh-usage-total {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    color: #29465b;
+    font-size: 34px;
+    font-weight: 600;
+
+    line-height: 1.1;
+}
+
+.mesh-usage-total i {
+    font-size: 26px;
+    opacity: .85;
+}
+
+.mesh-usage-caption {
+    margin-top: 5px;
+
+    color: #999;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+/* -------------------------
+   Download / Upload
+   ------------------------- */
+
+.mesh-usage-breakdown {
+    display: flex;
+    justify-content: center;
+    gap: 45px;
+
+    margin-top: 25px;
+}
+
+.mesh-usage-stat {
+    min-width: 90px;
+}
+
+.mesh-usage-stat-value {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+
+    color: #666;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.mesh-usage-stat-value i {
+    font-size: 15px;
+    color: #888;
+}
+
+.mesh-usage-stat-label {
+    margin-top: 4px;
+
+    color: #aaa;
+    font-size: 11px;
+}
+
+
+/* --- 10Sept 2026 Part 2 ---*/
+
+.mesh-signal-current,
+.mesh-signal-average {
+    border: 0;
+    background: #eeeeee;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.mesh-signal-current .x-progress-bar,
+.mesh-signal-average .x-progress-bar {
+    border: 0;
+    border-radius: 2px;
+}
+
+.mesh-signal-current .x-progress-text,
+.mesh-signal-average .x-progress-text {
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    padding-left: 10px;
+}
+
+.mesh-signal-current .x-progress-bar {
+    background: #5b9bd5;
+}
+
+.mesh-signal-average .x-progress-bar {
+    background: #7aa6a8;
+}
+
+
+/* --- 10Sept 2026 Pert 3 ---*/
+.mesh-device-info {
+    padding: 0 10px 10px;
+}
+
+/* -------------------------
+   Information rows
+   ------------------------- */
+
+.mesh-info-row {
+    display: flex;
+    align-items: center;
+
+    min-height: 42px;
+
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.mesh-info-icon {
+    width: 30px;
+    text-align: center;
+
+    font-size: 15px;
+}
+
+.mesh-icon-device {
+    color: #3c6cb7;
+}
+
+.mesh-icon-wifi {
+    color: #238080;
+}
+
+.mesh-icon-node {
+    color: #666;
+}
+
+.mesh-icon-time {
+    color: #888;
+}
+
+.mesh-info-content {
+    flex: 1;
+    padding-left: 6px;
+}
+
+.mesh-info-main {
+    color: #444;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.mesh-info-secondary {
+    margin-top: 2px;
+
+    color: #999;
+    font-size: 11px;
+}
+
+/* -------------------------
+   Recent connections
+   ------------------------- */
+
+.mesh-history-title {
+    margin-top: 12px;
+    padding: 7px 8px;
+
+    background: #f5f5f5;
+
+    color: #666;
+    font-size: 11px;
+    font-weight: 600;
+
+    border-left: 3px solid #238080;
+}
+
+.mesh-history {
+    padding: 4px 8px;
+}
+
+.mesh-history-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 5px 0;
+
+    border-bottom: 1px solid #f2f2f2;
+
+    color: #555;
+    font-size: 11px;
+}
+
+.mesh-history-row small {
+    color: #aaa;
+}
+
+
+.mesh-card .x-panel-body {
+    border: 1px solid #e5e5e5 !important;
+    border-radius: 2px;
+}
