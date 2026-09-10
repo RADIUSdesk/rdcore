@@ -7,12 +7,11 @@ Ext.define('Rd.view.meshes.pnlMeshViewDeviceDetail', {
         align   : 'stretch'
     },
     border      : true,
-    ui          : 'light',
     initComponent: function() {
         var me   = this;   
         me.items = [
         
-            {
+          /*  {
                 xtype   : 'progressbar',
                 itemId  : 'pbSnow',
                 text    : '<i class="fa fa-wifi"></i> Current Signal',
@@ -30,12 +29,113 @@ Ext.define('Rd.view.meshes.pnlMeshViewDeviceDetail', {
                 width   : '100%',
                 cls     : 'wifigreen',
                 value   : 0.8
+            },*/
+            {
+                xtype   : 'progressbar',
+                itemId  : 'pbSnow',
+                text    : '<i class="fa fa-wifi"></i> Current Signal',
+                height  : 26,
+                margin  : '6 6 4 6',
+                cls     : 'mesh-signal-current',
+                value   : 0.25
+            },
+            {
+                xtype   : 'progressbar',
+                itemId  : 'pbSavg',
+                text    : '<i class="fa fa-clock-o"></i> Average Signal',
+                height  : 26,
+                margin  : '4 6 12 6',
+                cls     : 'mesh-signal-average',
+                value   : 0.80
             },
             {
                 xtype    : 'container',
                 itemId  : 'pnlInfo',
                 layout  : 'fit',
-                tpl     : new Ext.XTemplate(
+                tpl: new Ext.XTemplate(
+                    '<div class="mesh-device-info">',
+
+                        '<div class="mesh-info-row">',
+                            '<i class="fa fa-tablet mesh-info-icon mesh-icon-device"></i>',
+                            '<div class="mesh-info-content">',
+                                '<div class="mesh-info-main">',
+                                    '{mac}',
+                                '</div>',
+                                '<tpl if="!Ext.isEmpty(vendor)">',
+                                    '<div class="mesh-info-secondary">',
+                                        '{vendor}',
+                                    '</div>',
+                                '</tpl>',
+                            '</div>',
+                        '</div>',
+
+                        '<div class="mesh-info-row">',
+                            '<i class="fa fa-wifi mesh-info-icon mesh-icon-wifi"></i>',
+                            '<div class="mesh-info-content">',
+                                '<div class="mesh-info-main">',
+                                    '{mesh_entry.name}',
+                                '</div>',
+                                '<div class="mesh-info-secondary">',
+                                    '<tpl if="frequency_band == \'two\'">',
+                                        '2.4 GHz',
+                                    '</tpl>',
+                                    '<tpl if="frequency_band == \'five_lower\'">',
+                                        '5 GHz Lower',
+                                    '</tpl>',
+                                    '<tpl if="frequency_band == \'five_upper\'">',
+                                        '5 GHz Upper',
+                                    '</tpl>',
+                                '</div>',
+                            '</div>',
+                        '</div>',
+
+                        '<div class="mesh-info-row">',
+                            '<i class="fa fa-cube mesh-info-icon mesh-icon-node"></i>',
+                            '<div class="mesh-info-content">',
+                                '<div class="mesh-info-main">',
+                                    '{node.name}',
+                                '</div>',
+                                '<div class="mesh-info-secondary">',
+                                    'Mesh Node',
+                                '</div>',
+                            '</div>',
+                        '</div>',
+
+                        '<div class="mesh-info-row">',
+                            '<i class="fa fa-clock-o mesh-info-icon mesh-icon-time"></i>',
+                            '<div class="mesh-info-content">',
+                                '<div class="mesh-info-main">',
+                                    'Last Seen',
+                                '</div>',
+                                '<div class="mesh-info-secondary">',
+                                    '{last_seen}',
+                                '</div>',
+                            '</div>',
+                        '</div>',
+
+                        '<tpl if="type == \'device\'">',
+
+                            '<div class="mesh-history-title">',
+                                '<i class="fa fa-history"></i>',
+                                ' Recent Connections',
+                            '</div>',
+
+                            '<div class="mesh-history">',
+                                '<tpl for="device_history">',
+                                    '<div class="mesh-history-row">',
+                                        '<span>{nasname}</span>',
+                                        '<small>{last_seen_human}</small>',
+                                    '</div>',
+                                '</tpl>',
+                            '</div>',
+
+                        '</tpl>',
+
+                    '</div>'
+                )
+                
+                
+              /*  tpl     : new Ext.XTemplate(
                     "<div>",   
                         '<ul class="fa-ul">',    
                             "<li style='color:#3c6cb7;'><i class='fa-li fa  fa-tablet'></i>{mac}",
@@ -68,7 +168,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewDeviceDetail', {
                             '</ul>',
                         "</tpl>",
                     '</div>'
-                )
+                )*/
             } 
         ];        
         me.callParent(arguments);

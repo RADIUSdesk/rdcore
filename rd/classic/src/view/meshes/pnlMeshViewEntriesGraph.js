@@ -70,65 +70,76 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                         xtype   : 'panel',
                         margin  : m,
                         padding : p,
-                        flex    : 1,
-                      //  bodyCls : 'pnlInfo',
+                      //  flex    : 1,
+                        cls     : 'mesh-card',
                         layout  : 'fit',
                         border  : true,
-                        ui      : 'light',
+                        width   : 300,
                         itemId  : 'total',
-                        tpl     : new Ext.XTemplate(                       
-                            '<div class="sub-div-2" style="text-align: center;">',
-                                '<p style="font-size:130%;color:#808080;font-weight:bolder;">',
+                        tpl     : [
+                            '<div class="mesh-usage-card">',
+
+                                '<div class="mesh-usage-title">',
                                     '<tpl if="graph_item==\'ssid\'">',
-                                        '<span><i class="fa fa-wifi"></i>  {ssid}</span>',
+                                        '<i class="fa fa-wifi"></i>',
+                                        '<span>{ssid}</span>',
                                     '</tpl>',
+
                                     '<tpl if="graph_item==\'device\'">',
-                                        '<span><i class="fa fa-laptop"></i>  {mac}</span>',
+                                        '<i class="fa fa-laptop"></i>',
+                                        '<span>{mac}</span>',
                                     '</tpl>',
+
                                     '<tpl if="graph_item==\'node\'">',
-                                        '<span><i class="fa fa-cube"></i>  {node}</span>',
-                                    '</tpl>',   
-                                '</p>', 
-                                '<p style="font-size:250%;font-weight:bolder;color:#29465b;"><i class="fa fa-database"></i> {data_total}</p>',
-                                    '<p style="font-size:130%;color:#808080;font-weight:bolder;">',
-                                    '<i class="fa fa-arrow-circle-down"></i> {data_in}',
-                                    '&nbsp;&nbsp;&nbsp;&nbsp;',
-                                    '<i class="fa fa-arrow-circle-up"></i> {data_out}',
-                                '</p>',
-                            '</div>'
-                        ),  
-                        
-                        
-                     /*   tpl     : new Ext.XTemplate(
-                            '<div class="divInfo">', 
-                                '<div>',
-                                    '<tpl if="graph_item==\'ssid\'">',
-                                        '<span><i class="fa fa-wifi"></i>  {ssid}</span>',
+                                        '<i class="fa fa-cube"></i>',
+                                        '<span>{node}</span>',
                                     '</tpl>',
-                                    '<tpl if="graph_item==\'device\'">',
-                                        '<span><i class="fa fa-laptop"></i>  {mac}</span>',
-                                    '</tpl>',
-                                    '<tpl if="graph_item==\'node\'">',
-                                        '<span><i class="fa fa-cube"></i>  {node}</span>',
-                                    '</tpl>',   
-                                '</div>',  
-                                '<h1 style="font-size:270%;font-weight:lighter;">{data_total}</h1>',       
-                                '<p style="color: #000000; font-size:140%;">',
-                                    '<span class="grpUp"><i class="fa fa-arrow-circle-down"></i></span> In: {data_in}',
-                                    '&nbsp;&nbsp;&nbsp;&nbsp;',
-                                    '<span class="grpDown"><i class="fa fa-arrow-circle-up"></i></span> Out: {data_out}',
-                                '</p>',
+                                '</div>',
+
+                                '<div class="mesh-usage-total">',
+                                    '<i class="fa fa-database"></i>',
+                                    '<span>{data_total}</span>',
+                                '</div>',
+
+                                '<div class="mesh-usage-caption">',
+                                    'Total Data',
+                                '</div>',
+
+                                '<div class="mesh-usage-breakdown">',
+
+                                    '<div class="mesh-usage-stat">',
+                                        '<div class="mesh-usage-stat-value">',
+                                            '<i class="fa fa-arrow-circle-down"></i>',
+                                            '<span>{data_in}</span>',
+                                        '</div>',
+                                        '<div class="mesh-usage-stat-label">',
+                                            'Download',
+                                        '</div>',
+                                    '</div>',
+
+                                    '<div class="mesh-usage-stat">',
+                                        '<div class="mesh-usage-stat-value">',
+                                            '<i class="fa fa-arrow-circle-up"></i>',
+                                            '<span>{data_out}</span>',
+                                        '</div>',
+                                        '<div class="mesh-usage-stat-label">',
+                                            'Upload',
+                                        '</div>',
+                                    '</div>',
+
+                                '</div>',
+
                             '</div>'
-                        ),*/
+                        ],                  
                         data    : {
                         }
                     },
-                    {
+                  /*  {
                         flex            : 1,
                         margin          : m,
                         padding         : p,
                         border          : true,
-                        ui              : 'light',
+                        cls             : 'mesh-card',
                         itemId          : 'plrTopTen',
                         xtype           : 'polar',
                         innerPadding    : 10,
@@ -142,7 +153,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                                field    : 'name',
                                display  : 'rotate'
                            },
-                           donut        : 10,    
+                           donut        : 25,    
                            tooltip : {
                                 trackMouse: true,
                                 renderer: function (tooltip, record, item) {
@@ -152,12 +163,81 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                                 }
                             }    
                         }
+                    },*/
+                    {
+                        flex        : 1,
+                        margin      : m,
+                        padding     : p,
+                        border      : true,
+                        cls         : 'mesh-card',
+                        itemId      : 'plrTopTen',
+                        xtype       : 'cartesian',
+
+                        flipXY      : true,
+
+                        store       : s,
+
+                        interactions: ['itemhighlight'],
+
+                        axes: [
+                            {
+                                type    : 'numeric',
+                                position: 'bottom',
+                                fields  : 'data_total',
+                                renderer    : function(axis, label, layoutContext) {
+                                    return Ext.ux.bytesToHuman(label);
+                                },
+                                grid: true,
+                                label  : Rd.config.rdGraphLabel
+                            },
+                            {
+                                type    : 'category',
+                                position: 'left',
+                                fields  : 'name',
+                                renderer: function(axis, name) {
+                                    return Ext.String.ellipsis(String(name), 15);
+                                },
+                                label       : Rd.config.rdGraphLabel
+                            }
+                        ],
+
+                        series: [
+                            {
+                                type     : 'bar',
+                                xField   : 'name',
+                                yField   : 'data_total',
+                              //  colors   : Rd.config.rdGraphBarColors, // Custom color set
+                                highlight: true,
+
+                                style: {
+                                    opacity: 0.85,
+                                    minGap : 2
+                                },
+                                renderer: function (sprite, config, rendererData, index) {
+                                    return {
+                                        fillStyle: Rd.config.rdGraphBarColors[index % Rd.config.rdGraphBarColors.length]
+                                    };
+                                },
+
+                                tooltip: {
+                                    trackMouse: true,
+
+                                    renderer: function(tooltip, record) {
+                                        tooltip.setHtml(
+                                            '<b>' + record.get('name') + '</b><br>' +
+                                            Ext.ux.bytesToHuman(record.get('data_total'))
+                                        );
+                                    }
+                                }
+                            }
+                        ]
                     },
                     {
                         xtype           : 'pnlMeshViewDeviceDetail',
                         margin          : m,
                         padding         : p,
                         hidden          : true,
+                        cls             : 'mesh-card',
                         flex            : 1,
                         itemId          : 'pnlMeshViewUser'  
                     },
@@ -167,6 +247,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                         margin  : m,
                         padding : p,
                         ui      : 'light',
+                        cls     : 'mesh-card', //No effect check CSS
                         title   : 'Top 10 Devices',
                         glyph   : Rd.config.icnUser,
                         itemId  : 'gridTopTen',

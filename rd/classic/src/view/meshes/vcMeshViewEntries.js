@@ -223,7 +223,7 @@ Ext.define('Rd.view.meshes.vcMeshViewEntries', {
         
         total.setData(data.totals); 
                   
-        me.getView().down('pnlMeshViewEntriesGraph').down('cartesian').getStore().setData(data.graph.items);
+        me.getView().down('pnlMeshViewEntriesGraph').down('pnlDataUsageGraph cartesian').getStore().setData(data.graph.items);
         
         me.getView().down('#gridTopTen').getStore().setData(data.top_ten);
         
