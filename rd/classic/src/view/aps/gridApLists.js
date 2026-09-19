@@ -56,7 +56,160 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                     success : function(response) {
                         var jsonData = Ext.JSON.decode(response.responseText);
                         if (jsonData.success) {
-                            var tpl = new Ext.XTemplate(
+                        
+ 
+                    var tpl = new Ext.XTemplate(
+    // 1. Add a style block to handle the modern styling
+    "<style>",
+        ".modern-router-card {",
+            "font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;",
+            "border: 1px solid #e0e0e0;",
+            "border-radius: 8px;",
+            "background: #fff;",
+            "box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);",
+            "overflow: hidden;", // Ensures child borders respect radius
+            "max-width: 800px;", // Optional constraint
+            "margin: 10px;",
+        "}",
+        ".modern-header {",
+            "display: flex;",
+            "align-items: center;",
+            "background: #f8faff;", // Very subtle blue tint
+            "padding: 20px;",
+            "border-bottom: 1px solid #eee;",
+        "}",
+        ".modern-header img {",
+            "width: 64px;", // Force consistent size
+            "height: 64px;",
+            "object-fit: contain;",
+            "margin-right: 20px;",
+        "}",
+        ".modern-title {",
+            "font-size: 24px;",
+            "font-weight: 600;",
+            "color: #1a202c;",
+            "margin: 0;",
+            "line-height: 1.2;",
+        "}",
+        ".modern-subtitle {",
+            "font-size: 14px;",
+            "color: #718096;",
+            "margin-top: 4px;",
+        "}",
+        ".modern-section-header {",
+            "background: #edf2f7;",
+            "color: #4a5568;",
+            "padding: 8px 20px;",
+            "font-size: 12px;",
+            "font-weight: 700;",
+            "text-transform: uppercase;",
+            "letter-spacing: 0.05em;",
+            "border-bottom: 1px solid #e2e8f0;",
+        "}",
+        ".modern-body {",
+            "padding: 20px;",
+            "color: #2d3748;",
+            "font-size: 14px;",
+        "}",
+        ".status-badge {",
+            "display: inline-flex;",
+            "align-items: center;",
+            "padding: 4px 12px;",
+            "border-radius: 9999px;",
+            "font-weight: 600;",
+            "font-size: 13px;",
+            "margin-bottom: 15px;",
+        "}",
+        ".status-up { background-color: #def7ec; color: #03543f; }",
+        ".status-down { background-color: #fde8e8; color: #9b1c1c; }",
+        ".status-never { background-color: #e1effe; color: #1e429f; }",
+        
+        ".info-grid {",
+            "display: grid;",
+            "grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));", // Responsive columns
+            "gap: 12px;",
+            "margin-top: 15px;",
+        "}",
+        ".info-item {",
+            "display: flex;",
+            "align-items: flex-start;",
+            "color: #4a5568;",
+        "}",
+        ".info-item i {",
+            "width: 20px;",
+            "color: #a0aec0;",
+            "margin-top: 3px;", // Align icon with text
+            "margin-right: 8px;",
+            "text-align: center;",
+        "}",
+        ".info-item b { color: #2d3748; }",
+        ".ssid-list { margin-top: 10px; border-top: 1px solid #edf2f7; padding-top: 10px; }",
+        ".ssid-item { margin-bottom: 5px; }",
+    "</style>",
+
+    // 2. The Main Card Wrapper
+    "<div class='modern-router-card'>",
+        
+        // 3. Modern Header (Flexbox)
+        "<div class='modern-header'>",
+            '<img src="/cake4/rd_cake/img/hardwares/{hw_photo}" alt="{hw_human}">',
+            "<div>",
+                "<div class='modern-title'>{name}</div>",
+                "<div class='modern-subtitle'>{hw_human}</div>",
+            "</div>",
+        "</div>",
+
+        // 4. Clean Section Header
+        "<div class='modern-section-header'>Device Information (Past Hour)</div>",
+
+        // 5. Body Content
+        "<div class='modern-body'>",
+            
+            // Status Badge Logic
+            "<tpl if='state == \"never\"'>",
+                "<div class='status-badge status-never'><i class='fa fa-question-circle' style='margin-right:5px;'></i> Never connected</div>",
+            "</tpl>",
+            "<tpl if='state == \"down\"'>",
+                "<div class='status-badge status-down'><i class='fa fa-exclamation-circle' style='margin-right:5px;'></i> Offline (Last seen {last_contact_human})</div>",
+            "</tpl>",
+            "<tpl if='state == \"up\"'>",
+                "<div class='status-badge status-up'><i class='fa fa-check-circle' style='margin-right:5px;'></i> Online (Checked in {last_contact_human} ago)</div>",
+            "</tpl>",
+
+            // Info Grid (Two columns on wide screens)
+            "<div class='info-grid'>",
+                // Public IP
+                "<div class='info-item'><i class='fa fa-globe'></i><div>Public IP: <b>{last_contact_from_ip}</b></div></div>",
+                
+                // Total Data
+                "<div class='info-item'><i class='fa fa-database'></i><div>Total Data: <b>{data_past_hour}</b></div></div>",
+
+                // LAN Info
+                "<div class='info-item'><i class='fa fa-network-wired'></i><div>LAN IP: <b>{lan_ip}</b><br><span style='font-size:12px;color:#999;'>GW: {lan_gw} ({lan_proto})</span></div></div>",
+                
+                // Last Connection
+                 "<div class='info-item'><i class='fa fa-link'></i><div>Last Client: <b>{newest_station}</b><br><span style='font-size:12px;color:#999;'>{newest_time} ({newest_vendor})</span></div></div>",
+            "</div>",
+
+            // SSID List (Separated for clarity)
+            '<tpl if="ssids">',
+                "<div class='ssid-list'>",
+                    "<div style='font-size:12px; font-weight:bold; color:#a0aec0; margin-bottom:5px;'>ACTIVE SSIDS</div>",
+                    '<tpl for="ssids">',
+                        "<div class='info-item ssid-item'>",
+                            "<i class='fa fa-wifi'></i>",
+                            "<div><b>{name}</b> &nbsp; <span style='color:#718096;'>{users} users</span> &nbsp; <span style='color:#a0aec0; font-size:12px;'>({data})</span></div>",
+                        "</div>",
+                    "</tpl>", 
+                "</div>",
+            "</tpl>",
+
+        "</div>", // End Body
+    "</div>" // End Card
+);
+                        
+                        
+                          /*  var tpl = new Ext.XTemplate(
                             "<div style='border: 1px solid #a0a0a0;'>",
                             '<div style="color: #29495b;background: linear-gradient(135deg, #e6f0ff, #cce0ff, #99ccff);box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);padding:5px;">',
                                 '<img src="/cake4/rd_cake/img/hardwares/{hw_photo}" alt="{hw_human}" style="float: left; padding-right: 20px;">',
@@ -86,7 +239,7 @@ Ext.define('Rd.view.aps.gridApLists' ,{
                                      "<div style='color:blue;margin:10px;'><i class='fa fa-info-circle'></i>  LAN IP: {lan_ip} LAN Gateway: {lan_gw}  ({lan_proto}) </div>",
                                 "</div>",
                                 "</div>"
-                            );
+                            );*/
                             tpl.overwrite(Ext.get(expanderDivId), jsonData.data);  // pass the root node of the data object   
                         }
                     },

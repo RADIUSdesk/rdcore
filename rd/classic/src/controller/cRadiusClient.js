@@ -56,13 +56,13 @@ Ext.define('Rd.controller.cRadiusClient', {
             var win = Ext.widget('window',{
                 id          : 'radiusClientWin',
                 title       : i18n('sRADIUS_client'),
-                width       : 700,
-                height      : 450,
+                width       : 800,
+                height      : 500,
                 glyph       : Rd.config.icnRadius,
                 animCollapse:false,
                 border      :false,
                 constrainHeader:true,
-                layout      : 'border',
+                layout      : 'fit',
                 stateful    : true,
                 stateId     : 'radiusClientWin',
                 items       : [
@@ -77,19 +77,19 @@ Ext.define('Rd.controller.cRadiusClient', {
                         
                         items   : [ 
                             {
-                                title       : i18n('sRequest'),
+                                xtype       : 'panel',
                                 flex        : 1,
-                                xtype       : 'frmRadiusRequest',
-                                ui          : 'light',
-                                glyph       : Rd.config.icnQuestion,
+                                border      : true,
+                                ui          : 'panel-blue',
+                                layout      : 'fit',
+                                items       : {
+                                    xtype   : 'frmRadiusRequest',
+                                },
                                 margin      : 5
                             },
                             {
-                                title       : i18n('sReply'),
-                                flex        : 1,
                                 xtype       : 'pnlRadiusReply',
-                                ui          : 'light',
-                                glyph       : Rd.config.icnBullhorn,
+                                flex        : 1,
                                 margin      : 5
                             }
                         ]

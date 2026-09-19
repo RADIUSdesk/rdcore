@@ -70,7 +70,7 @@ Ext.define('Rd.view.meshes.pnlMeshViewEntriesGraph', {
                         xtype   : 'panel',
                         margin  : m,
                         padding : p,
-                        flex    : 1,
+                      //  flex    : 1,
                         cls     : 'mesh-card',
                         layout  : 'fit',
                         border  : true,
