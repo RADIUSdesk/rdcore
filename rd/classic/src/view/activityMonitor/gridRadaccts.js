@@ -11,10 +11,8 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
     ui          : 'light',
     columnLines : false,
     rowLines    : false,
-    stripeRows  : true,
-    
-    cls         : 'radacct-grid',
-    
+    stripeRows  : true,   
+    cls         : 'radacct-grid',    
     requires: [
         'Rd.view.components.ajaxToolbar'
     ],
@@ -116,7 +114,18 @@ Ext.define('Rd.view.activityMonitor.gridRadaccts' ,{
                 stateId: 'StateGridRadaccts18'
             }, //Format!
             { text: i18n('sCalled_station_id'), dataIndex: 'calledstationid',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'},    hidden: true,stateId: 'StateGridRadaccts19'},
-            { text: i18n('sCalling_station_id_MAC'), dataIndex: 'callingstationid',    tdCls: 'gridTree x-selectable', flex: 1,filter: {type: 'string'},stateId: 'StateGridRadaccts20'}, 
+            { 
+                text        : i18n('sCalling_station_id_MAC'),
+                dataIndex   : 'callingstationid',
+                tdCls       : 'gridTree x-selectable', 
+                flex        : 1,
+                filter      : {type: 'string'},
+                stateId     : 'StateGridRadaccts20',
+                xtype       : 'templatecolumn',
+                tpl         : new Ext.XTemplate(
+                    '<div style="text-align:left;"><a href="javascript:void(0)" class="grid-link">{callingstationid}<tpl if="alias"><br><small style="color: #666;">{alias}</small></tpl></a></div>'
+                )              
+            },
             { text: i18n('sTerminate_cause'), dataIndex: 'acctterminatecause',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'},   hidden: true,stateId: 'StateGridRadaccts21'},
             { text: i18n('sService_type'), dataIndex: 'servicetype',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts22'},
             { text: i18n('sFramed_protocol'), dataIndex: 'framedprotocol',    tdCls: 'gridTree', flex: 1,filter: {type: 'string'}, hidden: true,stateId: 'StateGridRadaccts23'},

@@ -12,6 +12,7 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserGraphs', {
         'Rd.view.permanentUsers.vcPermanentUserGraphs'
     ],
     pu_name: undefined,
+    type        : 'permanent',
     timezone_id:  316, //London by default
     initComponent: function(){
         var me = this; 
@@ -36,7 +37,7 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserGraphs', {
                         layout  : 'fit',
                         username: me.pu_name,
                         timezone_id : me.timezone_id,
-                        type    : 'permanent'
+                        type    : me.type
                     },
                     {
                         itemId  : "weekly",
@@ -45,7 +46,7 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserGraphs', {
                         layout  : 'fit',
                         username: me.pu_name,
                         timezone_id : me.timezone_id,
-                        type    : 'permanent'
+                        type    : me.type
                     },
                     {
                         itemId  : "monthly",
@@ -54,7 +55,7 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUserGraphs', {
                         span    : 'monthly',
                         username: me.pu_name,
                         timezone_id : me.timezone_id,
-                        type    : 'permanent'
+                        type    : me.type
                     }
                 ]
             }

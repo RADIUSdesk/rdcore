@@ -62,7 +62,7 @@ Ext.define('Rd.view.permanentUsers.pnlPermanentUser', {
                     { 
                         itemId  : 'tabAcctData', 
                         layout  : 'fit',
-                        xtype   : 'gridUserRadaccts',
+                        xtype   : 'gridRadacctsGeneric',
                         username: me.pu_name
                     }
                 ]

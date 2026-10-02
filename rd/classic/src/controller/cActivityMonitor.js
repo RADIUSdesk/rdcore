@@ -88,12 +88,22 @@ Ext.define('Rd.controller.cActivityMonitor', {
             },
             'gridRadaccts' : {
                 activate    : me.reload,
-                cellclick   : function (grid, td, cellIndex, record, tr, rowIndex, e) {
+                cellclick: function (grid, td, cellIndex, record, tr, rowIndex, e) {
+                    // 1. Get the column based on the cellIndex
+                    var column = grid.headerCt.getHeaderAtIndex(cellIndex);
+                    
+                    if (column && e.getTarget('.grid-link')) {
+                        e.stopEvent();
+                        me.viewUserLink(record.get('id'),column.dataIndex); //Send the dataIndex along
+                    }
+                }
+
+                /*cellclick   : function (grid, td, cellIndex, record, tr, rowIndex, e) {
                     if (e.getTarget('.grid-link')) {
                         e.stopEvent();
                         me.viewUserLink(record.get('id'));
                     }
-                }
+                }*/
             },
             'gridRadaccts #cmbTimezone': {
                 afterrender : me.reload,
@@ -662,14 +672,24 @@ Ext.define('Rd.controller.cActivityMonitor', {
         });    
     },
     
-    viewUserLink: function(id) {
+    viewUserLink: function(id,dataIndex) {
         const me    = this;
-        me.usageGraph();
+        me.usageGraph(dataIndex);
     },      
-    usageGraph : function(){
-
+    usageGraph : function(dataIndex){   
         var me      = this;
         var grid    = me.getGrid();
+        
+        var column      = 'username';
+        var graph_type  = 'activity_viewer'
+        
+        if (dataIndex) {
+            column = dataIndex
+            if(dataIndex == 'callingstationid'){
+                graph_type = 'device';
+            }
+        }
+              
         //Find out if there was something selected
         if(grid.getSelectionModel().getCount() == 0){ 
              Ext.ux.Toaster.msg(
@@ -686,10 +706,10 @@ Ext.define('Rd.controller.cActivityMonitor', {
                 //Check if the node is not already open; else open the node:
                 var tp          = grid.up('tabpanel');
 
-                var graph_tab_name  = sr.get('username');
+                var graph_tab_name  = sr.get(column);
                 graph_tab_name      = graph_tab_name.replace("@","_");//Replece @
                 graph_tab_name      = graph_tab_name.toLowerCase();//Make lower case
-                var username        = sr.get('username');
+                var username        = sr.get(column);
                
 
                 var graph_id    = 'graphTab_'+graph_tab_name;
@@ -725,7 +745,7 @@ Ext.define('Rd.controller.cActivityMonitor', {
                             layout  : 'fit',
                             username: username,
                             timezone_id : timezone_id,
-                            type    : 'activity_viewer'
+                            type    : graph_type
                         },
                         {
                             title   : "Weekly",
@@ -735,7 +755,7 @@ Ext.define('Rd.controller.cActivityMonitor', {
                             layout  : 'fit',
                             username: username,
                             timezone_id : timezone_id,
-                            type    : 'activity_viewer'
+                            type    : graph_type
                         },
                         {
                             title   : "Monthly",
@@ -745,7 +765,7 @@ Ext.define('Rd.controller.cActivityMonitor', {
                             span    : 'monthly',
                             username: username,
                             timezone_id : timezone_id,
-                            type    : 'activity_viewer'
+                            type    : graph_type
                         }
                     ]
                 });

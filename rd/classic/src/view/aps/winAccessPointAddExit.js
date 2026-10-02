@@ -384,8 +384,7 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
                                     xtype       : 'component',
                                     html        : 'Firewall',
                                     cls         : 'heading',
-                                    margin      : hMargin,
-                                    
+                                    margin      : hMargin,                                    
                                 },  
                                 {
                                     itemId      : 'chkApplyFirewallProfile',
@@ -549,25 +548,33 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
                                                     name        : 'radius_secret',
                                                     allowBlank  : false,
                                                     labelClsExtra: 'lblRdReq'
-                                                },
-                                                
+                                                }, 
+                                                {
+                                                    xtype       : 'component',
+                                                    html        : 'Normal Redirect',
+                                                    cls         : 'heading',
+                                                    margin      : hMargin
+                                                },                                               
                                                 {
                                                     xtype       : 'textfield',
+                                                    itemId      : 'txtUamUrl',
                                                     fieldLabel  : i18n("sUAM_URL"),
                                                     name        : 'uam_url',
                                                     allowBlank  : false,
                                                     labelClsExtra: 'lblRdReq',
                                                     emptyText   : 'http://your_ip_here/cake4/rd_cake/dynamic-details/chilli_browser_detect/',
                                                     blankText   : 'Try http://your_ip_here/cake4/rd_cake/dynamic-details/chilli-browser-detect/'
-                                                },
+                                                },                                               
                                                 {
                                                     xtype       : 'textfield',
+                                                    itemId      : 'txtUamSecret',
                                                     fieldLabel  : i18n("sUAM_Secret"),
                                                     name        : 'uam_secret',
                                                     labelClsExtra: 'lblRd'
                                                 },
                                                 {
                                                     xtype       : 'textareafield',
+                                                    itemId      : 'txtWalledGarden',
                                                     grow        : true,
                                                     fieldLabel  : i18n("sWalled_garden"),
                                                     name        : 'walled_garden',
@@ -576,7 +583,39 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
                                                     labelClsExtra: 'lblRd'
                                                  },
                                                  {
+                                                    xtype       : 'component',
+                                                    html        : 'Special Redirect',
+                                                    cls         : 'heading',
+                                                    margin      : hMargin
+                                                },
+                                                {
                                                     xtype       : 'checkbox',      
+                                                    boxLabel  	: 'Connect and Redirect (using RADIUS)',
+                                                    name        : 'connect_and_redirect',
+                                                    itemId      : 'chkConnectAndRedirect',
+                                                    checked     : false,
+                                                    boxLabelCls	: 'boxLabelRd',
+                                                    listeners   : {
+											            change  : 'onChkConnectAndRedirectChange'
+											        }
+                                                },
+                                                {
+                                                    xtype       : 'textfield',
+                                                    itemId      : 'txtConnectAndRedirect',
+                                                    disabled    : true,
+                                                    fieldLabel  : 'Redirect to URL',
+                                                    name        : 'connect_and_redirect_url',
+                                                    allowBlank  : true,
+                                                    labelClsExtra: 'lblRdReq'
+                                                },
+                                                {
+                                                    xtype       : 'component',
+                                                    html        : 'Misc',
+                                                    cls         : 'heading',
+                                                    margin      : hMargin
+                                                },
+                                                 {
+                                                    xtype       : 'checkbox',    
                                                     boxLabel 	: i18n("sSwap_octets"),
                                                     name        : 'swap_octet',
                                                     inputValue  : 'swap_octet',
@@ -584,13 +623,15 @@ Ext.define('Rd.view.aps.winAccessPointAddExit', {
                                                     boxLabelCls	: 'boxLabelRd'
                                                 },
                                                 {
-                                                    xtype       : 'checkbox',      
+                                                    xtype       : 'checkbox',
+                                                    itemId      : 'chkMacAuthentication',      
                                                     boxLabel  	: i18n("sMAC_authentication"),
                                                     name        : 'mac_auth',
                                                     inputValue  : 'mac_auth',
                                                     checked     : true,
                                                     boxLabelCls	: 'boxLabelRd'
                                                 }
+                                               
                                             ]
                                         },
                                         {

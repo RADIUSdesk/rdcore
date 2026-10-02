@@ -106,6 +106,12 @@ Ext.define('Rd.view.components.pnlUsageGraph', {
                                     '<span class="value">{total}</span>',
                                     '<span class="label">Total</span>',
                                 '</div>',
+                                '<tpl if="alias">',
+                                    '<div class="stat-item">',
+                                        '<i class="fa fa-tag"></i>',
+                                        '<span class="label">{alias}</span>',
+                                    '</div>',
+                                '</tpl>',
                             '</div>'
                         
                         /*    "<div>",
@@ -133,7 +139,6 @@ Ext.define('Rd.view.components.pnlUsageGraph', {
                 extraParams : { 'username' : me.username, 'type' : me.type, 'span' : me.span, 'timezone_id' : me.timezone_id },
                 url         : '/cake4/rd_cake/user-stats/index.json',
                 reader      : {
-                    keepRawData     : true,
                     type            : 'json',
                     rootProperty    : 'items',
                     messageProperty : 'message'
@@ -143,15 +148,26 @@ Ext.define('Rd.view.components.pnlUsageGraph', {
                 beforeload  : function(s){
                     chart.setLoading(true);
                 },
+                metachange  : function(store, meta){
+                    var totalIn     = Ext.ux.bytesToHuman(meta.totalIn);
+                    var totalOut    = Ext.ux.bytesToHuman(meta.totalOut);
+                    var totalInOut  = Ext.ux.bytesToHuman(meta.totalInOut);
+                    
+                    var data    = {
+                        'in'   : totalIn,
+                        'out'  : totalOut,
+                        'total': totalInOut
+                    };
+                    if(meta.alias){
+                        data.alias = meta.alias;
+                    }
+                    
+                    me.down('#totals').update(data);
+                },
                 load        : function(s){
                     chart.setLoading(false);
-                    var rawData     = chart.getStore().getProxy().getReader().rawData;
-                    var totalIn     = Ext.ux.bytesToHuman(rawData.totalIn);
-                    var totalOut    = Ext.ux.bytesToHuman(rawData.totalOut);
-                    var totalInOut  = Ext.ux.bytesToHuman(rawData.totalInOut);
-                    me.down('#totals').update({'in': totalIn, 'out': totalOut, 'total': totalInOut });
                 }
-            },
+            },            
             autoLoad: false   
         });
 

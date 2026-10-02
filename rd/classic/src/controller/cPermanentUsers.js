@@ -42,7 +42,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
        	'permanentUsers.gridPermanentUsers',   'permanentUsers.winPermanentUserAdd',
        	'components.cmbRealm',   'components.cmbProfile',  'components.cmbCap',
         'components.winCsvColumnSelect',
-       	'permanentUsers.pnlPermanentUser', 'permanentUsers.gridUserRadaccts', 'permanentUsers.gridUserRadpostauths',
+       	'permanentUsers.pnlPermanentUser', 'permanentUsers.gridUserRadpostauths',
         'components.winEnableDisable', 'permanentUsers.gridUserPrivate',
        	'components.cmbVendor',   'components.cmbAttribute', 'permanentUsers.gridUserDevices', 'components.pnlUsageGraph',
         'permanentUsers.pnlPermanentUserGraphs',
@@ -77,7 +77,6 @@ Ext.define('Rd.controller.cPermanentUsers', {
         urlDelete           : '/cake4/rd_cake/permanent-users/delete.json', 
         urlDevicesListedOnly: '/cake4/rd_cake/permanent-users/restrict-list-of-devices.json',
         urlAutoAddMac       : '/cake4/rd_cake/permanent-users/auto-mac-on-off.json',        
-        urlDeleteRadaccts   : '/cake4/rd_cake/radaccts/delete.json',
         urlDeletePostAuths  : '/cake4/rd_cake/radpostauths/delete.json',
 
     },
@@ -189,15 +188,6 @@ Ext.define('Rd.controller.cPermanentUsers', {
                 click:      me.deletePostAuths
             },
             'pnlPermanentUser gridUserRadpostauths' : {
-                activate:      me.gridActivate
-            },
-            'pnlPermanentUser gridUserRadaccts #reload' :{
-                click:      me.gridUserRadacctsReload
-            },
-            'pnlPermanentUser gridUserRadaccts #delete' :{
-                click:      me.deleteRadaccts
-            },
-            'pnlPermanentUser gridUserRadaccts' : {
                 activate:      me.gridActivate
             },
             'pnlPermanentUser gridUserDevices' : {
@@ -890,11 +880,6 @@ Ext.define('Rd.controller.cPermanentUsers', {
         var g = button.up('gridUserDevices');
         g.getStore().load();
     },
-    gridUserRadacctsReload: function(button){
-        var me  = this;
-        var g   = button.up('gridUserRadaccts');
-        g.getStore().load();
-    },
     gridUserDevicesListedOnly : function(chk){
         var me          = this;
         var username    = chk.up('gridUserDevices').username;
@@ -983,55 +968,6 @@ Ext.define('Rd.controller.cPermanentUsers', {
                     });
                     Ext.Ajax.request({
                         url: me.getUrlDeletePostAuths(),
-                        method: 'POST',          
-                        jsonData: list,
-                        success: function(batch,options){console.log('success');
-                            Ext.ux.Toaster.msg(
-                                i18n('sItem_deleted'),
-                                i18n('sItem_deleted_fine'),
-                                Ext.ux.Constants.clsInfo,
-                                Ext.ux.Constants.msgInfo
-                            );
-                            grid.getSelectionModel().deselectAll(true);
-                            grid.getStore().load();
-                        },                                    
-                        failure: function(batch,options){
-                            Ext.ux.Toaster.msg(
-                                i18n('sProblems_deleting_item'),
-                                batch.proxy.getReader().rawData.message.message,
-                                Ext.ux.Constants.clsWarn,
-                                Ext.ux.Constants.msgWarn
-                            );
-                            grid.getSelectionModel().deselectAll(true);
-                            grid.getStore().load();
-                        }
-                    });
-                }
-            });
-        }
-    },
-    deleteRadaccts:   function(button){
-        var me      = this;
-        var grid    = button.up('grid');   
-        //Find out if there was something selected
-        if(grid.getSelectionModel().getCount() == 0){
-             Ext.ux.Toaster.msg(
-                        i18n('sSelect_an_item'),
-                        i18n('sFirst_select_an_item_to_delete'),
-                        Ext.ux.Constants.clsWarn,
-                        Ext.ux.Constants.msgWarn
-            );
-        }else{
-            Ext.MessageBox.confirm(i18n('sConfirm'), i18n('sAre_you_sure_you_want_to_do_that_qm'), function(val){
-                if(val== 'yes'){
-                    var selected    = grid.getSelectionModel().getSelection();
-                    var list        = [];
-                    Ext.Array.forEach(selected,function(item){
-                        var id = item.getId();
-                        Ext.Array.push(list,{'id' : id});
-                    });
-                    Ext.Ajax.request({
-                        url: me.getUrlDeleteRadaccts(),
                         method: 'POST',          
                         jsonData: list,
                         success: function(batch,options){console.log('success');
@@ -1371,6 +1307,7 @@ Ext.define('Rd.controller.cPermanentUsers', {
                 glyph       : Rd.config.icnGraph, 
                 xtype       : 'pnlPermanentUserGraphs',
                 timezone_id : timezone_id,
+                type        : 'permanent',
                 pu_name     : tab_name,
                 tabConfig : {
                     ui : Rd.config.tabPermUsers

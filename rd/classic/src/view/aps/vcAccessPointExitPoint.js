@@ -41,6 +41,26 @@ Ext.define('Rd.view.aps.vcAccessPointExitPoint', {
 		    d2.disable();
 		}
 	},
+	onChkConnectAndRedirectChange: function(chk){
+		var me 		        = this;
+		var form            = chk.up('form');
+		var txtUamUrl       = form.down('#txtUamUrl');
+		var txtUamSecret    = form.down('#txtUamSecret');
+		var txtWalledGarden = form.down('#txtWalledGarden');
+		var redirUrl        = form.down('#txtConnectAndRedirect');
+			
+		if(chk.getValue()){
+		    txtUamUrl.setDisabled(true);
+		    txtUamSecret.setDisabled(true);
+		    txtWalledGarden.setDisabled(true);
+		    redirUrl.setDisabled(false);	   
+		}else{
+		    txtUamUrl.setDisabled(false);
+		    txtUamSecret.setDisabled(false);
+		    txtWalledGarden.setDisabled(false);
+		    redirUrl.setDisabled(true);    
+		}
+	},
 	onRgrpProtocolChange : function(grp){
 	    var me          = this; 
 	    var win         = grp.up('window');
