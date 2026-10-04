@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Continue</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 30px 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f6f7;
+            color: #333;
+            text-align: center;
+        }
+
+        .card {
+            max-width: 420px;
+            margin: 50px auto;
+            padding: 30px 25px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.10);
+        }
+
+        h2 {
+            margin: 0 0 15px;
+            font-size: 22px;
+        }
+
+        p {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .btn {
+            display: block;
+            margin-top: 25px;
+            padding: 15px 20px;
+            background: #29495b;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 7px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <h2>Continue in your browser</h2>
+
+    <p>
+        To continue, please open this page in your normal web browser.
+    </p>
+
+    <a class="btn" id="openBtn">Open in Browser</a>
+
+<script>
+document.getElementById('openBtn').addEventListener('click', function(e){
+    e.preventDefault();
+
+    // This is your current page WITH Coova's query string
+    // e.g. https://cloud.radiusdesk.com/login/skel/target.html?res=notyet&uamip=10.1.0.1&uamport=3990&challenge=abc...
+    var currentUrl = window.location.href;
+
+    // Convert https://xxx to intent://xxx#Intent;scheme=https...
+    var intentUrl = "intent://" + currentUrl.replace(/^https?:\/\//, '') +
+        "#Intent;scheme=https;" +
+        "action=android.intent.action.VIEW;" +
+        "category=android.intent.category.BROWSABLE;" +
+        "end";
+
+    window.location.href = intentUrl;
+});
+</script>
+
+</div>
+
+</body>
+</html>

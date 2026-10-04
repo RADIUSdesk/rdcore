@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-        <script type="text/javascript" charset="utf-8" src="js/sConnectSimple.js"></script>
+        <script type="text/javascript" charset="utf-8" src="js/sConnect.js"></script>
         <script type="text/javascript" charset="utf-8" src="js/jquery-min.js"></script>
     </head>
 <body>
@@ -10,16 +10,16 @@
         $(document).ready(function(){
             console.log("Document is ready!");
             
-            var connect = sConnectSimple({});
+            var connect = sConnect({});
             connect.init();
                       
         });
     </script>
     
     
-<div hidden id="cpDivMain">
+<div id="cpDivMain">
 
-    <div hidden>
+    <div>
         <label><b>Username</b></label>
         <input type="text" placeholder="Enter Username" name="username" id='txtUsername' required>
 

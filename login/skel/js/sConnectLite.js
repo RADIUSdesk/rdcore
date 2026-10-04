@@ -1,4 +1,4 @@
-var sConnect = (function () {
+var sConnectLite = (function () {
 
     //Immediately returns an anonymous function which builds our modules
     return function (co) {    //co is short for config object
@@ -12,8 +12,8 @@ var sConnect = (function () {
         var currentRetry    = 0;
         var divFeedBack     = '#cpDivFeedback';
         
-        var userName        = undefined;
-        var password        = undefined;
+        var userName        = 'suspended';
+        var password        = 'testing123';
         var ajaxTimeout		= 4000;
         
         var sessionData     = undefined; 
@@ -24,9 +24,10 @@ var sConnect = (function () {
         var refreshInterval = 20; //ditto
         
         var useCHAP         = false;
+        var redirectTo      = 'https://payment-notice.honest.net/?type=portal'
         
         
-        var cDebug  = true;
+        var cDebug  = false;
         var fDebug  = function(message){  
             if(cDebug){
                 console.log(message);
@@ -42,8 +43,9 @@ var sConnect = (function () {
             if(uamIp == undefined){
                 fDebug("First time hotspot test");
                 if(testForHotspotCoova()){
-                    fDebug("It is a hotspot, now check if connected or not...");
-                    coovaRefresh(true);
+                    fDebug("It is a hotspot try to auto connect...");
+                    //coovaRefresh(true);
+                    getLatestChallenge();
                 }else{
                     fDebug("It is NOT a hotspot");
                 }  
@@ -64,7 +66,7 @@ var sConnect = (function () {
 
 		    fDebug('Disconnect the user');
 		    
-		    var urlLogoff = 'http://'+uamIp+':'+uamPort+'/json/logoff';
+		    var urlLogoff = location.protocol+'//'+uamIp+':'+uamPort+'/json/logoff';
 		    var cb        = "?callback?"; //Coova uses 'callback'
 		  
             $.ajax({url: urlLogoff +cb, dataType: "jsonp",timeout: ajaxTimeout ,date: {}})
@@ -84,7 +86,7 @@ var sConnect = (function () {
         
         var getLatestChallenge = function(){
 		    fDebug('Get latest challenge');
-            var urlStatus = 'http://'+uamIp+':'+uamPort+'/json/status';
+            var urlStatus = location.protocol+'//'+uamIp+':'+uamPort+'/json/status';
             $.ajax({url: urlStatus + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout})
             .done(function(j){
                 currentRetry = 0;
@@ -150,13 +152,14 @@ var sConnect = (function () {
             }
         
             fDebug('Log '+ userName + ' into Captive Portal');  
-            var urlLogin = 'http://' + uamIp + ':' + uamPort + '/json/logon';
+            var urlLogin = location.protocol+'//' + uamIp + ':' + uamPort + '/json/logon';
             var ajax = { url: urlLogin + "?callback=?", dataType: "jsonp", timeout: ajaxTimeout, data: data };
                     
             $.ajax(ajax)
                 .done(function (j) { 
 
                     fDebug(JSON.stringify(j));
+                    coovaRefresh();
                 })
                 .fail(function (error) {
                     //We will retry for me.retryCount
@@ -171,7 +174,9 @@ var sConnect = (function () {
         }
        
         var coovaRefresh    = function(){
-            var urlStatus = 'http://'+uamIp+':'+uamPort+'/json/status';  
+            var urlStatus = location.protocol+'//'+uamIp+':'+uamPort+'/json/status';
+            var nasid     = getParameterByName('nasid');
+             
             $.ajax({url: urlStatus + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout})
                 .done(function(j){
 				    statusFb = j;		//Store the status feedback
@@ -184,6 +189,7 @@ var sConnect = (function () {
 
                     if(j.clientState == 1){
                         fDebug("Connected");
+                        window.location = redirectTo+'&nasid='+nasid;
                     }
                 })
                 .fail(function(){
@@ -202,6 +208,7 @@ var sConnect = (function () {
 
             var ip      = getParameterByName('uamip');
             var port    = getParameterByName('uamport');
+            
             
             //ssl test
             var ssl     = getParameterByName('ssl');

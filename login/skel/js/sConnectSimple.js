@@ -1,4 +1,4 @@
-var sConnect = (function () {
+var sConnectSimple = (function () {
 
     //Immediately returns an anonymous function which builds our modules
     return function (co) {    //co is short for config object
@@ -12,8 +12,8 @@ var sConnect = (function () {
         var currentRetry    = 0;
         var divFeedBack     = '#cpDivFeedback';
         
-        var userName        = undefined;
-        var password        = undefined;
+        var userName        = 'suspended';
+        var password        = 'testing123';
         var ajaxTimeout		= 4000;
         
         var sessionData     = undefined; 
@@ -24,6 +24,7 @@ var sConnect = (function () {
         var refreshInterval = 20; //ditto
         
         var useCHAP         = false;
+        var redirectTo      = 'https://payment-notice.honest.net/?type=portal'
         
         
         var cDebug  = true;
@@ -42,8 +43,11 @@ var sConnect = (function () {
             if(uamIp == undefined){
                 fDebug("First time hotspot test");
                 if(testForHotspotCoova()){
-                    fDebug("It is a hotspot, now check if connected or not...");
-                    coovaRefresh(true);
+                    fDebug("It is a hotspot try to auto connect...");
+                    //coovaRefresh(true);
+                    //getLatestChallenge();
+                    var challenge = getParameterByName('challenge'); 
+                    encPwd(challenge);
                 }else{
                     fDebug("It is NOT a hotspot");
                 }  
@@ -53,73 +57,29 @@ var sConnect = (function () {
         }
         
         var onBtnConnectClick = function(){  //Get the latest challenge and continue from there onwards....             
-            fDebug("Button Connect Clicked");
-            
+            fDebug("Button Connect Clicked");         
             userName = $("#txtUsername").val(); 
             password = $("#txtPassword").val();
-            getLatestChallenge();
+            var challenge = getParameterByName('challenge'); 
+            encPwd(challenge);
         }
-        
+              
         var onBtnDisconnectClick = function(){
-
-		    fDebug('Disconnect the user');
-		    
-		    var urlLogoff = 'http://'+uamIp+':'+uamPort+'/json/logoff';
-		    var cb        = "?callback?"; //Coova uses 'callback'
-		  
-            $.ajax({url: urlLogoff +cb, dataType: "jsonp",timeout: ajaxTimeout ,date: {}})
-            .done(function(j){    
-               coovaRefresh();
-            })
-            .fail(function(){
-                //We will retry for me.retryCount    
-                currentRetry = currentRetry+1;
-                if(currentRetry <= retryCount){
-                    onBtnDisconnectClick();
-                }else{
-                    fDebug('Coova Not responding to logoff requests');
-                }
-            });   
-        }
+		    fDebug('Disconnect the user');		    
+		    window.location = 'http://'+uamIp+':'+uamPort+'/logoff'		    
+	    }
         
-        var getLatestChallenge = function(){
-		    fDebug('Get latest challenge');
-            var urlStatus = 'http://'+uamIp+':'+uamPort+'/json/status';
-            $.ajax({url: urlStatus + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout})
-            .done(function(j){
-                currentRetry = 0;
-                if(j.clientState == 0){
-                    encPwd(j.challenge);
-                }
-                if(j.clientState == 1){
-                    //Show status screen since we don't need the challenge
-                    coovaRefresh(true);
-                }
-            })
-            .fail(function(){
-                //We will retry for me.retryCount
-                currentRetry = currentRetry+1;
-                if(currentRetry <= retryCount){
-                    fDebug("Trying to get latest challenge retry #"+currentRetry);
-                    getLatestChallenge();
-                }else{
-                    fDebug('Latest Challenge could not be fetched from_hotspot');
-                }
-            });
-        }
-        
-        var encPwd = function(challenge){ 
-        
+        var encPwd = function(challenge){
+              
             if(useCHAP == true){
                 var myMD5 = new ChilliMD5();
                 var ident ='00';
 		        response = myMD5.chap ( ident , password , challenge );
 		        fDebug('Calculating CHAP-Password = ' + response );
-		        login(response);
-            }else{
-        
+		        login(response); 
+            }else{        
 		        fDebug('Get encrypted values');
-                $.ajax({url: urlUam + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout, data: {'challenge': challenge, password: password}})
+                $.ajax({url: urlUam + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout, data: {'challenge': challenge, 'password': password}})
                 .done(function(j){
 			        currentRetry = 0;
                     login(j.response);
@@ -132,77 +92,28 @@ var sConnect = (function () {
                         encPwd(challenge);
                     }else{
                         fDebug("UAM  service is down");
+                        loadingReset();
                     }
                 });
                      
             }
         }
-      
-        var login = function (encPwd) {
-        
-            var data = {
-                 username: userName, password: encPwd
-            };
+           
+        var login = function (encPwd) {       
+            var data = 'username='+userName+'&password='+encPwd;
             if(useCHAP == true){
-                data = {
-                    username: userName, response: encPwd
-                }
+                data = 'username='+userName+'&response='+encPwd;
             }
-        
-            fDebug('Log '+ userName + ' into Captive Portal');  
-            var urlLogin = 'http://' + uamIp + ':' + uamPort + '/json/logon';
-            var ajax = { url: urlLogin + "?callback=?", dataType: "jsonp", timeout: ajaxTimeout, data: data };
+            fDebug("Login User<br>Please Wait.....");
+            window.location = 'http://'+uamIp+':'+uamPort+'/logon?'+data;                               
+        }
                     
-            $.ajax(ajax)
-                .done(function (j) { 
-
-                    fDebug(JSON.stringify(j));
-                })
-                .fail(function (error) {
-                    //We will retry for me.retryCount
-                    currentRetry = currentRetry + 1;
-                    if (currentRetry <= retryCount) {
-                        login(encPwd);
-                    } else {
-                        
-                      fDebug('Coova Not responding to login requests');
-                    }
-                });
-        }
-       
-        var coovaRefresh    = function(){
-            var urlStatus = 'http://'+uamIp+':'+uamPort+'/json/status';  
-            $.ajax({url: urlStatus + "?callback=?", dataType: "jsonp",timeout: ajaxTimeout})
-                .done(function(j){
-				    statusFb = j;		//Store the status feedback
-				    fDebug("coovaRefresh...");
-				    fDebug(JSON.stringify(j));
-                    currentRetry = 0 //Reset the current retry if it was perhaps already some value
-                    if(j.clientState == 0){
-                        fDebug("Not Connected");                   
-                    }
-
-                    if(j.clientState == 1){
-                        fDebug("Connected");
-                    }
-                })
-                .fail(function(){
-                    //We will retry for retryCount
-                    currentRetry = currentRetry+1;
-                    if(currentRetry <= retryCount){
-                        fDebug("Trying to get status retry #"+currentRetry);
-                        coovaRefresh();
-                    }else{
-                        fDebug("Timed out");
-                    }
-                });
-        }
-                 
         var testForHotspotCoova = function(){
 
             var ip      = getParameterByName('uamip');
             var port    = getParameterByName('uamport');
-            
+           
+                     
             //ssl test
             var ssl     = getParameterByName('ssl');
 
@@ -215,8 +126,9 @@ var sConnect = (function () {
             if(port != ''){    //Override defaults
                 uamPort = port;
             }
-            
-            if(ssl != ''){
+          
+          //No need for this on simeple login  
+          /*  if(ssl != ''){
                 //console.log("The Captive Portal Supports SSL");
                 //console.log(ssl);
                 //Only if the page itself is served on http (since we got a fair amount of cert issues it seems)
@@ -225,7 +137,7 @@ var sConnect = (function () {
                     uamIp       = uamIp.replace("https://","");
                     uamPort     = 4990;
                 }
-            }          
+            }  */        
             return true;        //Is a hotspot
         }
                     
