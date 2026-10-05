@@ -11,6 +11,7 @@ var sConnectSimple = (function () {
         var retryCount      = 5;
         var currentRetry    = 0;
         var divFeedBack     = '#cpDivFeedback';
+        var urlInfo         = '/cake4/rd_cake/dynamic-details/connect-and-redirect-info.json';
         
         var userName        = 'suspended';
         var password        = 'testing123';
@@ -39,21 +40,56 @@ var sConnectSimple = (function () {
         
             $("#btnConnect").on("click", onBtnConnectClick );
             $("#btnDisconnect").on("click", onBtnDisconnectClick );
+            
+            getInfo();
         
             if(uamIp == undefined){
                 fDebug("First time hotspot test");
                 if(testForHotspotCoova()){
                     fDebug("It is a hotspot try to auto connect...");
-                    //coovaRefresh(true);
-                    //getLatestChallenge();
-                    var challenge = getParameterByName('challenge'); 
-                    encPwd(challenge);
+                    var res = getParameterByName('res');
+                    if(res == 'notyet'){
+                        getInfo();
+                    }
+                    //var challenge = getParameterByName('challenge'); 
+                    //encPwd(challenge);
                 }else{
                     fDebug("It is NOT a hotspot");
                 }  
             }else{
                 coovaRefresh(true);  //Already established we are a hotspot, simply refresh
             }
+        }
+        
+        var getInfo = function(){       
+            $.ajax({url: urlInfo , dataType: "json",timeout: ajaxTimeout, data: window.location.search.substring(1)})
+            .done(function(j){
+		        console.log(j)
+		        if(j.success){		        
+		            //For the Android we need to NOT connect it if webWiew
+		            if(j.data.is_android && j.data.is_webview){
+		                fDebug("Detected Android and Detected Webview - Ask to open full browser");
+		                $('#cpDivAndroid').removeAttr('hidden').show();
+		            }else{      		        
+		                if(j.data.username && j.data.password){
+		                    userName = j.data.username;
+		                    password = j.data.password;
+		                    var challenge = getParameterByName('challenge');
+		                    fDebug("Trying to Connect With "+userName+" and "+password+" challenge "+challenge); 
+                            encPwd(challenge);
+		                }
+		            }
+		        }
+            })
+            .fail(function(){ 
+		        //We will retry for me.retryCount
+                currentRetry = currentRetry+1;
+                if(currentRetry <= retryCount){
+                    getInfo();
+                }else{
+                    fDebug("Info Service is down");
+                }                
+            });       
         }
         
         var onBtnConnectClick = function(){  //Get the latest challenge and continue from there onwards....             
@@ -126,18 +162,7 @@ var sConnectSimple = (function () {
             if(port != ''){    //Override defaults
                 uamPort = port;
             }
-          
-          //No need for this on simeple login  
-          /*  if(ssl != ''){
-                //console.log("The Captive Portal Supports SSL");
-                //console.log(ssl);
-                //Only if the page itself is served on http (since we got a fair amount of cert issues it seems)
-                if(location.protocol == 'https:'){ 
-                    uamIp       = ssl.replace(":4990/","");
-                    uamIp       = uamIp.replace("https://","");
-                    uamPort     = 4990;
-                }
-            }  */        
+       
             return true;        //Is a hotspot
         }
                     

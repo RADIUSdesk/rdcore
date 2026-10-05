@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="content-type" content="text/html;charset=utf-8" />
+    <script type="text/javascript" charset="utf-8" src="js/sConnectSimple.js"></script>
+    <script type="text/javascript" charset="utf-8" src="js/jquery-min.js"></script>
 
     <title>Continue</title>
 
@@ -50,7 +53,7 @@
 
 <body>
 
-<div class="card">
+<div hidden class="card" id="cpDivAndroid">
 
     <h2>Continue in your browser</h2>
 
@@ -77,9 +80,37 @@ document.getElementById('openBtn').addEventListener('click', function(e){
 
     window.location.href = intentUrl;
 });
+
+
+$(document).ready(function(){
+    console.log("Document is ready!");   
+    var connect = sConnectSimple({});
+    connect.init();            
+});
+
+
 </script>
 
 </div>
 
+<div hidden id="cpDivMain">
+
+    <div hidden>
+        <label><b>Username</b></label>
+        <input type="text" placeholder="Enter Username" name="username" id='txtUsername' required>
+
+        <label><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" id='txtPassword' required>
+
+        <button type="button" id='btnConnect'>Connect</button>
+        <button type="button" id='btnDisconnect'>Disconnect</button>
+    </div>
+    
+    <div id="cpDivFeedback">
+        Feedback div
+    <div>
+
+<div>
+     
 </body>
 </html>
