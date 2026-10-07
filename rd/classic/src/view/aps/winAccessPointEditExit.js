@@ -252,12 +252,26 @@ Ext.define('Rd.view.aps.winAccessPointEditExit', {
                                 	labelClsExtra: 'lblRd'                             	
                                 },
                                 {
+                                    xtype       : 'component',
+                                    itemId      : 'cmpNetworkStats',
+                                    html        : 'Network Stats',
+                                    cls         : 'heading',
+                                    margin      : hMargin,
+                                }, 
+                                {
                                     itemId      : 'chkNetworkStats',
                                     xtype       : 'checkbox',      
                                     boxLabel  	: 'Collect Network Stats',
                                     boxLabelCls	: 'boxLabelRd',
                                     name        : 'collect_network_stats'
                                 },
+                                {
+                                    xtype       : 'component',
+                                    itemId      : 'cmpRadius',
+                                    html        : 'RADIUS related',
+                                    cls         : 'heading',
+                                    margin      : hMargin,
+                                }, 
                                 {
                                     itemId      : 'chkNasClient',
                                     xtype       : 'checkbox',      

@@ -361,6 +361,7 @@ Ext.define('Rd.view.aps.gridApLists' ,{
 		me.tbar     = Ext.create('Rd.view.components.ajaxToolbar',{'url': me.urlMenu});
 		
         me.columns  = [
+            { text: 'ID', dataIndex: 'id',    flex: 1, stateId: 'gapl0', hidden : true}, 
 			{ text: i18n("sProfile"),  dataIndex: 'ap_profile',  tdCls: 'gridTree', flex: 1,filter: {type: 'string'},stateId: 'gapl1'},
 			{ 
                 text        : i18n('sName'),   

@@ -49,6 +49,7 @@ Ext.define('Rd.view.aps.gridAccessPointExits' ,{
             },
 
             columns: [
+                { text: 'ID', dataIndex: 'id',    flex: 1, stateId: 'apExit0', hidden : true},
                 {
                     text        : i18n('sType'),
                     dataIndex   : 'type',

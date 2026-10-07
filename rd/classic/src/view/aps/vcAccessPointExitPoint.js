@@ -95,6 +95,11 @@ Ext.define('Rd.view.aps.vcAccessPointExitPoint', {
                 var l3Detail    = form.down('#pnlLayer3Detail');
                 var tagConWith  = form.down('tagAccessPointEntryPoints');
                 var chkStats    = form.down('#chkNetworkStats');
+                var cmpNetworkStats = form.down('#cmpNetworkStats');
+                var cmpRadius   = form.down('#cmpRadius');
+                
+                //--Hide it initially
+                cmpRadius.setVisible(false);
                 
                 if(t_val == 'openvpn_bridge'){
                     vpn.setVisible(true);
@@ -130,18 +135,21 @@ Ext.define('Rd.view.aps.vcAccessPointExitPoint', {
                 
                 if(t_val == 'nat'){
                     chkStats.show();
+                    cmpNetworkStats.show();
                     chkStats.enable();           
                 }else{
                     chkStats.hide();
+                    cmpNetworkStats.hide();
                     chkStats.disable();
                 }
-                           
+                                          
                 var ent  = form.down("tagAccessPointEntryPoints");
                 ent.setValue(b.result.data.entry_points);
                 if(b.result.data.type == 'captive_portal'){
                 
                     vlan.setVisible(true);
                     vlan.setDisabled(false);
+                    cmpRadius.setVisible(true);
                 
                     //Login Page (Dynamic Detail)
                     if((b.result.data.auto_login_page == true)&&
