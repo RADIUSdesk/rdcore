@@ -73,6 +73,18 @@ Ext.define('Rd.controller.cAccessPointAp', {
         var me      = this;
         var form    = button.up("form");
         var pnl     = button.up('pnlAccessPointAddEditAp');
+        // Never submit while the static entry points / overrides are still loading: the
+        // server rewrites the AP's entry points from the submitted form, so an early
+        // submit would remove them (see vcApGeneric.syncStaticEntries).
+        if(form.staticEntriesSynced === false || (form.overridesPending || 0) > 0){
+            Ext.ux.Toaster.msg(
+                i18n("sStatic_entry_points"),
+                'Please wait for the entry points to finish loading',
+                Ext.ux.Constants.clsWarn,
+                Ext.ux.Constants.msgWarn
+            );
+            return;
+        }
         form.submit({
             clientValidation: true,
             url: me.getUrlEditAp(),
@@ -95,7 +107,19 @@ Ext.define('Rd.controller.cAccessPointAp', {
         var me      = this;
         var form    = button.up("form");
         var pnl     = button.up('pnlAccessPointAddEditAp');
-        var multi   = pnl.down('#chkMultiple')
+        var multi   = pnl.down('#chkMultiple');
+        // Never submit while the static entry points / overrides are still loading: the
+        // server rewrites the AP's entry points from the submitted form, so an early
+        // submit would remove them (see vcApGeneric.syncStaticEntries).
+        if(form.staticEntriesSynced === false || (form.overridesPending || 0) > 0){
+            Ext.ux.Toaster.msg(
+                i18n("sStatic_entry_points"),
+                'Please wait for the entry points to finish loading',
+                Ext.ux.Constants.clsWarn,
+                Ext.ux.Constants.msgWarn
+            );
+            return;
+        }
         form.submit({
             clientValidation: true,
             url: me.getUrlAddAp(),

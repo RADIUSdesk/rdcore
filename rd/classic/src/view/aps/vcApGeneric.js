@@ -221,6 +221,13 @@ Ext.define('Rd.view.aps.vcApGeneric', {
             success: function(basicForm, action) {
                 var data = action.result.data;
                 
+                // Remember what the server says this AP has, so the static entry
+                // list can be re-applied once its option store has loaded (see
+                // syncStaticEntries): the store load and this form load race.
+                formPanel.loadedApProfileId   = data.ap_profile_id;
+                formPanel.loadedStaticEntries = data['static_entries[]'] || [];
+                me.syncStaticEntries(formPanel);
+                
                 // Example: work with specific returned data
                 var cmbSchedule = formPanel.down("cmbSchedule");
 
@@ -429,15 +436,24 @@ Ext.define('Rd.view.aps.vcApGeneric', {
         form.down('#wifi_pppoe_wan_bridge').setStore(s); 
         form.down('#wifi_ent_wan_bridge').setStore(s);        
         form.down('#qmi_wan_bridge').setStore(s);
+
+        // The static entry options load asynchronously and a tag field can only hold
+        // values its store knows. Clearing the field here and relying on the value the
+        // form load set earlier lost the AP's entry points whenever this load finished
+        // after the form load: the override panels never appeared and a Save then wiped
+        // the AP's entry points and overrides. Re-apply the loaded selection once the
+        // options are in (syncStaticEntries) and keep Save disabled until then.
         
         //-- We get the static entries for this AP --
         //-- Once we got that; it will trigger 'onTagApProfileStaticEntriesChange' if there were any 
         var cmbSe   = form.down('tagApProfileStaticEntries');
-        cmbSe.setValue(''); // Clear the values if there were perhaps some selected
+        form.staticEntriesSynced = false;
+        me.setSaveEnabled(form, false);
         cmbSe.getStore().getProxy().setExtraParam('ap_profile_id',apProfileId);
         cmbSe.getStore().load({
             callback: function(records, op, success) {             
                 if(form.apId > 0){
+                    me.syncStaticEntries(form);
                     me.loadBasicSettings(form); //Now that everything is loaded for the specific profile we can reload the screen's data                 
                 }else{
                     form.setLoading(false);
@@ -445,7 +461,37 @@ Ext.define('Rd.view.aps.vcApGeneric', {
             }
         });    
     },
-       
+    
+    syncStaticEntries: function(form){
+        // Apply the AP's entry points to the tag field once BOTH the form data and the
+        // option store are available; clear them when the profile was changed by hand.
+        var me      = this;
+        var cmbSe   = form.down('tagApProfileStaticEntries');
+        var cmb     = form.down('#ap_profile_id');
+        var store   = cmbSe.getStore();
+        if(form.loadedApProfileId === undefined || store.isLoading() || store.getCount() == 0){
+            return; // the other half has not arrived yet
+        }
+        var wanted = [];
+        if(cmb.getValue() == form.loadedApProfileId){
+            wanted = form.loadedStaticEntries;
+        }
+        var current = cmbSe.getValue() || [];
+        if(Ext.Array.equals(Ext.Array.sort(Ext.Array.clone(current)), Ext.Array.sort(Ext.Array.clone(wanted)))){
+            form.staticEntriesSynced = true;
+            me.setSaveEnabled(form, (form.overridesPending || 0) == 0);
+            return;
+        }
+        form.staticEntriesSynced = true;
+        cmbSe.setValue(wanted); // fires onTagApProfileStaticEntriesChange, which loads the overrides
+    },
+    setSaveEnabled: function(form, enabled){
+        var btn = form.down('#editsave') || form.down('#addsave');
+        if(btn){
+            btn.setDisabled(!enabled);
+        }
+    },
+          
     chkEnableSchedulesChange : function(chk){
 		var me 		= this;
 		var form	= chk.up('form');
@@ -467,8 +513,21 @@ Ext.define('Rd.view.aps.vcApGeneric', {
 	    cntEntryOverrides.removeAll();      
         cntEntryOverrides.hide();
         cntEntryOverrides.disable();
+        
+        // Save stays disabled until every selected entry's override panel is in place,
+	    // so an early click cannot submit a form that does not yet carry the overrides.
+	    var selected = tag.getValue() || [];
+	    form.overridesPending = selected.length;
+	    me.setSaveEnabled(form, form.overridesPending == 0 && form.staticEntriesSynced !== false);
+	    var settle = function(){
+	        form.overridesPending = Math.max(0, (form.overridesPending || 0) - 1);
+	        if(form.overridesPending == 0 && form.staticEntriesSynced !== false){
+	            me.setSaveEnabled(form, true);
+	        }
+	        console.log("Settle Down Pappie");
+	    };
 	    
-	    Ext.Array.forEach(tag.getValue(),function(r){      
+	    Ext.Array.forEach(selected,function(r){    	      
             Ext.Ajax.request({
                 url: me.getUrlApStaticOverrides(),
                 params: {
@@ -486,9 +545,12 @@ Ext.define('Rd.view.aps.vcApGeneric', {
                     }else{
                         //console.log("NOT COOL");                      
                     }
-                }
+                    settle();
+                },
+                failure: function(){
+                    settle();
+                 }
             });
-           
         });	    	    
 	},
 	addStaticEntryEdit: function(data){
